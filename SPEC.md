@@ -1,4 +1,4 @@
-# TACOMBI COMBI — LOCKED BUILD SPECIFICATION  (rev 4)
+# TACOMBI COMBI — LOCKED BUILD SPECIFICATION  (rev 5)
 **Status: AUTHORITATIVE.** Nothing in the build may contradict this file.
 Change this file *first*, log it, then change code. `verify.py` asserts the
 machine-checkable rows on every build.
@@ -97,10 +97,14 @@ corner glass was deleted from Aug 1963 anyway).
 ### 1.1 Serving-bay layout (show side, x in metres) — **THREE bays only**
 | Bay | Front edge | Rear edge | Treatment |
 |---|---|---|---|
-| 1 | +0.860 | +0.260 | open serving hatch |
-| 2 | +0.150 | −0.450 | open serving hatch |
-| 3 | −0.560 | −1.160 | open serving hatch |
-| — | −1.270 | −2.090 | **SOLID sheet metal.** "100% Calidad" decal applied here |
+| 1 | **+0.820** | **+0.313** | open serving hatch |
+| 2 | **+0.195** | **−0.321** | open serving hatch |
+| 3 | **−0.435** | **−0.960** | open serving hatch |
+| — | **−0.960** | **−2.007** | **SOLID sheet metal**, 1.046 m wide. "100% Calidad" sunburst + pink star applied here |
+
+Measured from `ref_side.jpg` (§8.6). Widths 0.507 / 0.516 / 0.526 — they are
+**not** identical; they grow slightly toward the tail. rev-3's "three evenly
+sized, evenly spaced" was an approximation.
 
 Band: sill **z = 1.402**, head **z = 1.798**, corner radius 0.055, pillars 0.11.
 **Bay 4 is deleted.** Any object named `glass_bay3_*` or a fourth aperture
@@ -124,7 +128,8 @@ All values **S** (1963 factory brochure) unless noted.
 | Rim | 4½ K × 15, R 0.1905, PCD 5×205, ET ≈ 45 | R 0.1905 |
 | Hubcap | dia **0.280**, depth ≈ 0.080 | — |
 | Body max half-width | **0.875** | 0.860 |
-| **Ride height** | **STOCK. `RIDE_DROP = 0`.** No evidence the bus is lowered. Ground clearance ≈ 0.240 | lowered 65/110 mm |
+| **Ride height** | **LOWERED — reinstated in rev 5.** Rear arch-to-tyre gap measures **71 ± 10 mm** against a stock 90–120 mm; front bumper top sits at **0.348 m** against a stock ≈0.47 m. Donald's original rev-3.1 reading was right; rev 4 wrongly set this to 0 on absence-of-evidence from a thumbnail. See §8.6 | rev4 said stock — WRONG |
+| **Stance rake** | body sits **nose-down ~1.7°** relative to the axle line (72 mm over the wheelbase). Every height falls ≈28 mm per metre forward. Not modelled yet | — |
 | Roof edge / crown | 1.8935 / +0.032 | same |
 | Belt line (two-tone break) | **z = 1.386** — hold, but see §2.1 | same |
 | Front / rear sheet metal | x = +2.108 / −2.108 | same |
@@ -135,13 +140,41 @@ Tolerance **±25 mm** on L/W/H. **The front end has been flagged as wrong
 before — front dimensions and front hardware get checked explicitly every
 iteration.**
 
-### 2.1 Open dimensional conflict — do not silently resolve
-Scaling the 1963 factory side elevation puts the **belt crease at ≈ 1.240**
-and the **window sill at ≈ 1.330** (**E**, ±3 %). This build uses belt
-**1.386** and sill **1.402** — a 16 mm sill-to-belt gap where the factory
-drawing implies ≈ 90 mm. The band is therefore sitting too low relative to the
-belt, or the belt too high. **Flagged, not yet resolved.** Resolve against a
-measured factory drawing, not by eye.
+### 2.1 Belt/sill conflict — RESOLVED against the side elevation
+rev 4 flagged a 16 mm sill-to-belt gap where the factory drawing implies ≈90 mm.
+Measured on `ref_side.jpg`: **window sill 1.307, body two-tone break 1.207** —
+the break sits **100 mm below the sill**. The build's 16 mm is out by ~6×.
+**Action: lower Z_BELT to sill − 0.100.**
+
+Note the trap that caused the original misreading: on the serving flank the
+visible cream/red edge is **the counter fascia bottom at 1.082**, not the paint
+break. The true break is only visible **forward of the counter, on the cab
+door**. Do not measure it aft of x ≈ +0.9.
+
+### 2.2 Contested measurements — DO NOT bake in without a second pass
+A measurement pass on the high-res photos returned three extraordinary claims.
+Each is plausible but would overturn a factory dimension, so each needs
+independent re-derivation before it enters the build:
+- **Tyres are NOT 6.40-15.** Wheelbase-derived scale (211.2 px/m) and
+  tyre-derived scale (187.4 px/m) disagree by 12.7 %, which resolves if the
+  tyre OD is ≈0.606 rather than 0.683. Corroborated by a tyre/rim ratio of
+  1.39–1.47 measured on the bare rims in `ref_workshop.jpg` against 1.69 stock.
+- **No rear bumper.** Not visible in either in-service photo. Conflicts with a
+  cream rear bumper reported in `ref_workshop.jpg`. It may have been removed
+  when the counter wrap was fitted.
+- **Overall length 4.05 m, not 4.29.** This would mean a shortened body, which
+  is a very large claim. More likely the front hub centre — the lower-confidence
+  of the two, being occluded by the leaning man — is misplaced. **Re-derive the
+  scale from an unoccluded feature before accepting.**
+
+### 2.3 Confirmed additions
+- A **rear serving opening** exists in the tail, and the **counter wraps the
+  tail** with a 0.313 m overhang and ≈0.30 m outboard projection.
+- Overall height measures **1.960** with the lids closed — *above* stock 1.93
+  despite the lowering, implying the roof-lid frame stands proud by 0.10–0.15.
+- Front indicator aperture in `ref_workshop.jpg` is a plain **round ≈75 mm
+  hole**. Lens type remains **U** — neither bullet base nor fish-eye oval
+  confirmed.
 
 ---
 
@@ -277,3 +310,5 @@ coolairvw.co.uk splitscreen production changes · type2.com tyre FAQ.
 | 2026-08-08 | rev 3.1 — bus is **lowered**: body dropped 65 mm relative to the wheels. |
 | 2026-08-08 | rev 3 — grounded against prior project context. |
 | 2026-08-08 | **rev 4 — evidence audit.** Added evidence grades (§0) and measurement provenance (§8). **Corrected against measurement:** whitewall → blackwall + cream rim; chrome → cream bumpers; cream → **red** VW roundel; four bays → **three** + solid rear panel; canvas ragtop → **cut steel lids**; timber → **painted** counter; bullet → **fish-eye** indicators; lowered → **stock** ride height. **Corrected against factory sources:** L 4.280 → 4.290, W 1.720 → 1.750, tyre 5.60-15 → **6.40-15** (dia 0.665 → 0.683), track → 1.369/1.359. Finish changed to **weathered** by user decision. Added §4 detail inventory, §7 wrong-bus warning, §2.1 unresolved belt/sill conflict. Guards extended to 10. |
+
+| 2026-08-08 | **rev 5 — high-resolution photographs supplied by Donald.** Three large photos (workshop/green, side elevation, rear 3/4) supersede the 246x197 thumbnail as primary reference. **Ride height LOWERED reinstated — rev 4 was wrong to zero it; Donald's original reading was correct.** Belt/sill conflict resolved: break sits 100 mm below the sill, not 16. Aperture positions re-measured and are not evenly sized. Rear serving opening and counter tail-wrap added. Three contested measurements quarantined in §2.2 pending independent re-derivation. Full working in REF_MEASUREMENTS.md. |
