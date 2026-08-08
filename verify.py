@@ -1,15 +1,28 @@
-"""Regression guard — asserts the machine-checkable rows of SPEC.md sec.6."""
+"""Regression guard — asserts the machine-checkable rows of SPEC.md sec.9 (rev 4).
+
+Design note: rev 3's version counted *panes* to decide whether the serving bays
+existed. That is not a test of the shell — a boolean that silently rolled back
+would leave the panes untouched and the guard green. Row 4 below now tests the
+sheet metal itself.
+"""
 import bpy, bmesh
 from mathutils import Vector
 
 TOL = 0.025
 import t1_core as _T
-SPEC = dict(L=4.280, W=1.720, H=1.940 - _T.RIDE_DROP, WB=2.400,
-            TRACK_F=1.375, TRACK_R=1.360, TYRE_D=0.665)
+
+# SPEC rev 4 sec.2 — factory-sourced 1963 T1 hard points
+SPEC = dict(L=4.290, W=1.750, H=1.941 - _T.RIDE_DROP, WB=2.400,
+            TRACK_F=1.369, TRACK_R=1.359, TYRE_D=0.683)
 
 BANNED = ("bed", "gate", "canopy", "fascia", "post")   # pickup-era geometry
-NEED_MATS = ("T1_paint", "cream", "chrome", "glass", "wheelred",
-             "script", "calidad")
+NEED_MATS = ("T1_paint", "cream", "chrome", "glass", "wheelcream",
+             "bumpercream", "roundelred", "countercream", "script", "calidad")
+
+# SPEC rev 4 sec.1.1 — three apertures, then SOLID sheet metal
+N_BAYS_OPEN = 3
+BAY_PROBE_Z = 1.600                    # mid-band height
+SOLID_PROBE_X = (-1.30, -1.55, -1.80)  # rear corner panel must be metal
 
 
 def _bounds():
@@ -24,12 +37,48 @@ def _bounds():
     return lo, hi
 
 
+def _has_metal(body, x, z, side=1):
+    """True if the shell has sheet metal at (x, z) on the given flank.
+
+    Cast a ray inboard along -Y from well outside the body. A serving aperture
+    is a hole: the first hit is then the far flank or nothing at all, so the
+    hit lands beyond the near flank's y. Tolerant of the 2.8 mm skin.
+    """
+    y_start = side * 3.0
+    direction = Vector((0.0, -side, 0.0))
+    ok, loc, _, _ = body.ray_cast(Vector((x, y_start, z)), direction)
+    if not ok:
+        return False
+    return abs(loc.y) > 0.5          # near flank sits at |y| ~ 0.86
+
+
+def _measure_wheels():
+    """Track and tyre diameter measured from geometry, not read from constants."""
+    out = {}
+    for tag, xa in (("F", _T.X_AXLE_F), ("R", _T.X_AXLE_R)):
+        ys, zs = [], []
+        for ob in bpy.data.objects:
+            if not ob.name.startswith("tyre"):
+                continue
+            vs = [ob.matrix_world @ v.co for v in ob.data.vertices]
+            if abs(sum(v.x for v in vs) / len(vs) - xa) > 0.30:
+                continue
+            ys.append(sum(v.y for v in vs) / len(vs))
+            zs += [v.z for v in vs]
+        if len(ys) == 2:
+            out["TRACK_" + tag] = abs(ys[0] - ys[1])
+        if zs:
+            out["TYRE_D"] = max(zs) - min(zs)
+    return out
+
+
 def run(body, log=print):
     fails, warns = [], []
 
-    lo, hi = _bounds()                      # everything: L over bumpers, H
+    # 1. overall dimensions
+    lo, hi = _bounds()
     bb = [body.matrix_world @ Vector(c) for c in body.bound_box]
-    bw = max(v.y for v in bb) - min(v.y for v in bb)   # body width only
+    bw = max(v.y for v in bb) - min(v.y for v in bb)
     L, W, H = hi.x - lo.x, bw, hi.z
     log(f"  x range [{lo.x:.3f}, {hi.x:.3f}]   full-Y [{lo.y:.3f}, {hi.y:.3f}]")
     for nm, got, want in (("length", L, SPEC["L"]), ("width", W, SPEC["W"]),
@@ -39,6 +88,18 @@ def run(body, log=print):
          else []).append(f"{nm} {got:.3f} vs spec {want:.3f} ({d*1000:+.0f} mm)")
     log(f"  dims  L={L:.3f} W={W:.3f} H={H:.3f}")
 
+    # 2. wheelbase / track / tyre diameter, MEASURED
+    m = _measure_wheels()
+    for k in ("TRACK_F", "TRACK_R", "TYRE_D"):
+        if k not in m:
+            fails.append(f"could not measure {k} from geometry")
+            continue
+        d = m[k] - SPEC[k]
+        if abs(d) > TOL:
+            fails.append(f"{k} {m[k]:.4f} vs spec {SPEC[k]:.4f} ({d*1000:+.0f} mm)")
+    if m:
+        log("  measured " + "  ".join(f"{k}={v:.4f}" for k, v in sorted(m.items())))
+
     # 3. pickup-era geometry must be gone
     for ob in bpy.data.objects:
         n = ob.name.lower()
@@ -46,22 +107,51 @@ def run(body, log=print):
             if b in n:
                 fails.append(f"banned object '{ob.name}' (matches '{b}')")
 
-    # 4. serving bays: 3 open on the show side, bay 4 glazed
-    glass_bays = [o.name for o in bpy.data.objects
-                  if o.name.startswith("glass_bay")]
-    show = [n for n in glass_bays if n.endswith("_L")]
-    if len(show) != 1:
-        fails.append(f"show side should have exactly 1 glazed bay, has "
-                     f"{len(show)} ({show})")
-    if not bpy.data.objects.get("glass_calidad"):
-        fails.append("missing 100% CALIDAD frosted pane")
+    # 4. exactly three OPEN apertures on the show side — tested on the shell
+    import t1_shell as _S
+    opened = 0
+    for i, (xr, xf) in enumerate(_S.BAYS):
+        xm = (xr + xf) / 2.0
+        if not _has_metal(body, xm, BAY_PROBE_Z, _S.SHOW_SIDE):
+            opened += 1
+        else:
+            fails.append(f"serving bay {i} at x={xm:.3f} is NOT open "
+                         "(boolean rolled back, or bay never cut)")
+    if opened != N_BAYS_OPEN:
+        fails.append(f"show side has {opened} open apertures, spec says "
+                     f"{N_BAYS_OPEN}")
+    log(f"  open serving apertures on +Y: {opened}")
 
-    # 5. materials
-    for m in NEED_MATS:
-        if m not in bpy.data.materials:
-            fails.append(f"missing material '{m}'")
+    # 5. no fourth bay — the rear corner panel must be solid sheet metal
+    if len(_S.BAYS) != N_BAYS_OPEN:
+        fails.append(f"t1_shell.BAYS has {len(_S.BAYS)} entries, spec says "
+                     f"{N_BAYS_OPEN} (a fourth bay is a rev-3 regression)")
+    for xp in SOLID_PROBE_X:
+        if not _has_metal(body, xp, BAY_PROBE_Z, _S.SHOW_SIDE):
+            fails.append(f"rear corner panel is open at x={xp:.2f} — it must be "
+                         "solid metal carrying the 100% Calidad decal")
+    if bpy.data.objects.get("glass_calidad"):
+        fails.append("'glass_calidad' exists — the decal goes on sheet metal, "
+                     "not a frosted pane (SPEC 0.2)")
+    if bpy.data.objects.get("glass_bay3_L"):
+        fails.append("'glass_bay3_L' exists — there is no fourth bay")
+    if not bpy.data.objects.get("calidad_L"):
+        fails.append("missing 'calidad_L' decal panel")
 
-    # 6. roof must run to the tail
+    # 6. materials
+    for mt in NEED_MATS:
+        if mt not in bpy.data.materials:
+            fails.append(f"missing material '{mt}'")
+    for banned_mat in ("whitewall", "wheelred", "timber"):
+        if banned_mat in bpy.data.materials:
+            uses = [o.name for o in bpy.data.objects if o.type == 'MESH'
+                    and any(s.material and s.material.name == banned_mat
+                            for s in o.material_slots)]
+            if uses:
+                fails.append(f"retired material '{banned_mat}' is assigned to "
+                             f"{len(uses)} objects e.g. {uses[0]} (SPEC 0.2)")
+
+    # 7. roof must run to the tail
     zmax_tail = max((body.matrix_world @ v.co).z for v in body.data.vertices
                     if (body.matrix_world @ v.co).x < -1.60)
     if zmax_tail < 1.90 - _T.RIDE_DROP:
@@ -69,13 +159,26 @@ def run(body, log=print):
                      "(bed-rail regression)")
     log(f"  roof at tail = {zmax_tail:.3f}")
 
-    # 7. manifold body shell
+    # 8. manifold body shell — SPEC has always said FAIL, rev 3 only warned
     bm = bmesh.new(); bm.from_mesh(body.data)
     nm_e = sum(1 for e in bm.edges if not e.is_manifold)
     nm_v = sum(1 for v in bm.verts if not v.is_manifold)
     bm.free()
     if nm_e:
-        warns.append(f"{nm_e} non-manifold edges / {nm_v} verts on the shell")
+        fails.append(f"{nm_e} non-manifold edges / {nm_v} verts on the shell")
+
+    # 9. no boolean may have rolled back
+    try:
+        import __main__
+        fc = getattr(__main__, "FAILED_CUTS", [])
+    except Exception:
+        fc = []
+    if fc:
+        fails.append(f"{len(fc)} boolean(s) rolled back: {', '.join(fc)}")
+
+    # 10. ride height is stock (SPEC rev 4 — lowering was never evidenced)
+    if abs(_T.RIDE_DROP) > 1e-6:
+        fails.append(f"RIDE_DROP={_T.RIDE_DROP:.4f}; SPEC rev 4 says stock (0.0)")
 
     log("  VERIFY: %d fail, %d warn" % (len(fails), len(warns)))
     for f in fails:

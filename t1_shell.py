@@ -93,9 +93,10 @@ DOOR_VENT_S = _smooth(_resample(DOOR_VENT, 56), 3)
 
 # ====================================================== SIDE SERVING BAYS
 # SPEC rev3 sec.1.1 -- three open serving hatches then a frosted rear bay
-BAYS = [(0.2600, 0.8600), (-0.4500, 0.1500),
-        (-1.1600, -0.5600), (-1.8700, -1.2700)]
-OPEN_BAYS = (0, 1, 2)          # +Y show side: glass removed
+BAYS = [(0.2600, 0.8600), (-0.4500, 0.1500), (-1.1600, -0.5600)]
+OPEN_BAYS = (0, 1, 2)          # +Y show side: all three glass removed
+# SPEC r4: there is NO fourth bay. Aft of bay 3 is solid sheet metal carrying
+# the "100% Calidad" decal (measured: SPEC 8.4). Re-adding a bay is a regression.
 SHOW_SIDE = 1                  # +Y
 
 
@@ -149,12 +150,8 @@ def side_glass():
     return obs
 
 
-def calidad_pane():
-    """bay 4, show side: frosted glass carrying the 100% CALIDAD decal"""
-    cx, cz = bay_centre(3)
-    out = [(u + cx, v + cz) for (u, v) in bay_outline(3)]
-    return T.conform_solid(T.poly_offset(out, -0.004), SHOW_SIDE,
-                           off=-0.010, thick=0.006, name="glass_calidad")
+# SPEC r4: calidad_pane() DELETED. The decal is applied to sheet metal by
+# a conform_panel in build.py, not to a glass pane. See SPEC 0.2 and 8.4.
 
 
 def bay_seals():
@@ -191,7 +188,7 @@ def rear_glass():
 
 
 # --------------------------------------------------------------- wheel arch
-ARCH_R = 0.3680
+ARCH_R = 0.3770                      # SPEC r4: tyre R 0.3415 + 35.5 mm
 ARCH_Z = T.TIRE_R + T.RIDE_DROP      # concentric with the tyre after the drop
 
 

@@ -54,9 +54,10 @@ def tyre(name="tyre"):
     prof += tread[::-1]                               # tread, +Y -> -Y
     prof += [(-y, r) for (y, r) in up[::-1]]          # -Y sidewall
     prof += [(-0.0500, 0.1880), (0.0500, 0.1880)]     # inner bead
-    # slot 1 = whitewall band on the OUTBOARD sidewall only
-    return T.revolve(prof, seg=112, axis='Y', name=name,
-                     mat_bands={3: 1, 4: 1, 5: 1})
+    # SPEC r4: BLACKWALL. The white ring in the reference is the painted
+    # steel rim, not a whitewall band (measured: SPEC 8.1). Single slot -
+    # this also removes the materials.clear() index-loss bug (old D2).
+    return T.revolve(prof, seg=112, axis='Y', name=name)
 
 
 def rim(name="rim"):
@@ -177,7 +178,7 @@ BUMP_PROFILE = [           # (outward, up)  channel section, 108 mm tall
 ]
 
 
-def bumper(front=True, z=0.5300, name="bumper"):
+def bumper(front=True, z=0.4800, name="bumper"):
     """
     Swept channel following the body plan curve.  Traversal order is chosen so
     that sweep()'s side vector (tangent x up) always points OUTBOARD:
@@ -319,11 +320,12 @@ def moulding(z=1.372):
 
 # ======================================================= CANTILEVERED COUNTER
 def plank_counter(side=1):
-    """timber serving plank cantilevered under the three serving bays"""
+    """cream-PAINTED slab counter cantilevered under the three serving bays
+    (SPEC r4 8.5: measured saturation 0.07 - painted, not bare timber)"""
     obs = []
     X0, X1 = 0.9200, -1.2200
     ZT = 1.3560
-    y_in, y_out = 0.8300, 1.1650
+    y_in, y_out = 0.8450, 1.1800   # SPEC r4: body widened 15 mm
     nx = 40
     verts, faces = [], []
     for iy, y in enumerate((y_in, y_out)):

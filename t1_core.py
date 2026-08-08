@@ -24,20 +24,20 @@ WB          = 2.400
 X_AXLE_F    =  1.300
 X_AXLE_R    = -1.100
 X_NOSE      =  2.108           # front-most sheet metal
-X_TAIL      = -2.090           # rear-most sheet metal
+X_TAIL      = -2.108           # rear-most sheet metal
 X_BUMP_F    =  2.140
 X_BUMP_R    = -2.140
-HALF_W      =  0.860           # max body half width
+HALF_W      =  0.875           # max body half width (SPEC r4: W=1.750)
 Z_ROOF      =  1.893           # roof edge (crown adds ~0.032 -> 1.925 overall)
 Z_BED_RAIL  =  1.302           # top of pickup side gate
 Z_BED_FLOOR =  0.902
 X_CAB_BACK  =  0.420           # cab rear wall
-TIRE_R      =  0.3325
-TIRE_W      =  0.1450
+TIRE_R      =  0.3415          # 6.40-15, dia 0.683
+TIRE_W      =  0.1650          # 6.40-15 section
 RIM_R       =  0.1905
-TRACK_F     =  1.3750
-TRACK_R     =  1.3600
-RIDE_DROP   =  0.1100          # SPEC rev3.1 - this combi sits low
+TRACK_F     =  1.3690
+TRACK_R     =  1.3590
+RIDE_DROP   =  0.0000          # SPEC rev4: STOCK ride height (lowering unsupported)
 Z_CANOPY_T  =  1.9220          # canopy roof top
 Z_CANOPY_B  =  1.8380
 Z_FASCIA_B  =  1.6280
@@ -203,11 +203,11 @@ def build_kombi():
     return loft(rings, cap_first=True, cap_last=True, name="T1_body")
 
 # maximum half width
-WX = lut([
-    (-2.108, 0.700), (-2.075, 0.760), (-2.030, 0.812), (-1.965, 0.845),
-    (-1.880, 0.858), (-1.700, 0.860), ( 1.760, 0.860), ( 1.845, 0.858),
-    ( 1.930, 0.848), ( 2.010, 0.826), ( 2.065, 0.790), ( 2.092, 0.752),
-    ( 2.108, 0.712),
+WX = lut([                     # SPEC r4: scaled x1.01744 for W 1.720 -> 1.750
+    (-2.108, 0.7122), (-2.075, 0.7733), (-2.030, 0.8262), (-1.965, 0.8597),
+    (-1.880, 0.8730), (-1.700, 0.8750), ( 1.760, 0.8750), ( 1.845, 0.8730),
+    ( 1.930, 0.8628), ( 2.010, 0.8404), ( 2.065, 0.8038), ( 2.092, 0.7651),
+    ( 2.108, 0.7244),
 ])
 
 # cab roof / windscreen / cowl top edge

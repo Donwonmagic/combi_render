@@ -4,8 +4,11 @@ import bpy, math, os
 
 TEXDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tex")
 
-RED = (0.4180, 0.0225, 0.0175)
-CREAM = (0.8450, 0.8130, 0.7180)
+# SPEC r4 sec.3: measured (196,106,36) sRGB in sun -> faded orange-red /
+# vermillion, hue ~26deg. NOT a deep crimson.
+RED = (0.4800, 0.0750, 0.0300)
+# measured (206,208,200) sRGB -> sun-bleached near-neutral off-white
+CREAM = (0.7900, 0.7700, 0.7150)
 GOLD = (0.8600, 0.5400, 0.0600)
 
 # two-tone break line:  belt line on the flanks, V-swage across the nose
@@ -370,6 +373,15 @@ def build_all():
     M = {}
     M["paint"] = body_paint()
     M["cream"] = simple("cream", CREAM, rough=0.13, coat=0.6, spec=0.55)
+    # ---- SPEC rev4 painted-not-plated / painted-not-timber additions ----
+    M["wheelcream"] = simple("wheelcream", (0.7100, 0.6900, 0.6350),
+                             rough=0.34, coat=0.10, spec=0.40)
+    M["bumpercream"] = simple("bumpercream", (0.7550, 0.7350, 0.6800),
+                              rough=0.22, coat=0.30, spec=0.50)
+    M["roundelred"] = simple("roundelred", (0.4550, 0.0720, 0.0300),
+                             rough=0.26, coat=0.25, spec=0.45)
+    M["countercream"] = simple("countercream", (0.7350, 0.7150, 0.6600),
+                               rough=0.38, coat=0.06, spec=0.35)
     M["red"] = simple("red", RED, rough=0.12, coat=0.65, spec=0.58)
     M["chrome"] = simple("chrome", (0.860, 0.868, 0.880), rough=0.045,
                          metal=1.0)

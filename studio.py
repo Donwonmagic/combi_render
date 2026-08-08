@@ -69,6 +69,13 @@ def lighting(key=1.0):
     _softbox("rim",   (-9.2, 3.4, 4.2), c, (5.0, 4.0), 1050 * key)
     _softbox("nose",  (10.6, 1.6, 1.5), (1.6, 0.0, 1.05), (3.2, 2.6),
              260 * key)
+    # SPEC r4 sec.6 (old D4): the galley is a closed 2.8 mm box lit only by six
+    # EXTERIOR sources, so the three serving hatches rendered as flat black
+    # holes. This sits just outboard of the show flank and rakes into the bays
+    # so the openings read as depth. Small and dim: it must not spill onto the
+    # paint or wash the contact shadow.
+    _softbox("fill_galley", (-0.35, 2.35, 1.58), (-0.35, 0.0, 1.47),
+             (1.7, 0.55), 62 * key, (1.0, 0.965, 0.915))
     w = bpy.data.worlds.new("w")
     bpy.context.scene.world = w
     w.use_nodes = True
@@ -94,8 +101,27 @@ def aim(cam, loc, target, lens=None, ortho=None):
         cam.data.type = 'PERSP'; cam.data.lens = lens or 85
 
 
-def composite_on_white(scene, rgb=(1.0, 1.0, 1.0)):
+def bg_white_level(scene):
+    """
+    Linear value that the ACTIVE view transform maps to display white.
+
+    The compositor works in LINEAR, upstream of the view transform. Laying the
+    render over linear 1.0 and then pushing it through AgX gives a 0.69 GREY
+    backdrop -- that was defect D3, and the shadow catcher / film_transparent /
+    compositor were all innocent. Drive the backdrop to the transform's white
+    point instead.
+    """
+    vt = scene.view_settings.view_transform
+    lvl = {'Standard': 1.0, 'Khronos PBR Neutral': 1.0,
+           'AgX': 16.5, 'Filmic': 16.0, 'Filmic Log': 16.0}.get(vt, 16.5)
+    return float(os.environ.get("T1_BGW", lvl))
+
+
+def composite_on_white(scene, rgb=None):
     """render with alpha, then lay it over pure white in the compositor"""
+    if rgb is None:
+        w = bg_white_level(scene)
+        rgb = (w, w, w)
     scene.use_nodes = True
     nt = scene.node_tree
     nt.nodes.clear()

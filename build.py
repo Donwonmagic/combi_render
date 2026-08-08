@@ -101,7 +101,8 @@ log("BBOX L=%.3f W=%.3f Hmax=%.3f" %
 A(S.windscreen_glass(), "glass")
 A(S.windscreen_seals(), "rubber")
 A(S.side_glass(), "glass")
-A(S.calidad_pane(), "calidad")
+# SPEC r4: "100% Calidad" is a decal on SOLID sheet metal aft of bay 3,
+# not a frosted pane. Placed with the decals in step 8.
 A(S.rear_glass(), "glass")
 A(S.bay_seals(), "rubber")
 log("glazing + seals")
@@ -112,7 +113,7 @@ A(canvas, "canvas")
 A(frame, "chrome_d")
 
 # --------------------------------------------- 6 counter, galley, interior
-A(D.plank_counter(S.SHOW_SIDE), "timber")
+A(D.plank_counter(S.SHOW_SIDE), "countercream")
 A(D.galley(), "steel")
 A(D.interior(), "dark")
 log("conversion fit-out")
@@ -120,8 +121,8 @@ log("conversion fit-out")
 # ------------------------------------------------------------- 7 brightwork
 for (x, tr) in ((T.X_AXLE_F, T.TRACK_F), (T.X_AXLE_R, T.TRACK_R)):
     for s in (1, -1):
-        t = D.tyre(f"tyre{x:.1f}{s}");     A(t, ("tyre", "whitewall"))
-        br, dc = D.rim(f"rim{x:.1f}{s}");  A([br, dc], "wheelred")
+        t = D.tyre(f"tyre{x:.1f}{s}");     A(t, "tyre")          # blackwall
+        br, dc = D.rim(f"rim{x:.1f}{s}");  A([br, dc], "wheelcream")
         hc = D.hubcap(f"cap{x:.1f}{s}");   A(hc, "capred")
         emb = D.cap_emblem(0.0, 1);        A(emb, "capwhite")
         for o in [t, br, dc, hc] + emb:
@@ -131,9 +132,10 @@ for (x, tr) in ((T.X_AXLE_F, T.TRACK_F), (T.X_AXLE_R, T.TRACK_R)):
                 T.fix_normals(o)
             D.place(o, loc=(x, s * tr / 2, T.TIRE_R + T.RIDE_DROP))
 
-A(D.bumper(True, name="bumper_f"), "chrome")
-A(D.bumper(False, name="bumper_r"), "chrome")
-A(D.bumper_irons(True) + D.bumper_irons(False), "chrome")
+# SPEC r4 8.2: bumpers are PAINTED CREAM, not chrome
+A(D.bumper(True, name="bumper_f"), "bumpercream")
+A(D.bumper(False, name="bumper_r"), "bumpercream")
+A(D.bumper_irons(True) + D.bumper_irons(False), "bumpercream")
 A(D.gutter(), "paint")
 A(D.mirrors(), "chrome")
 A(D.wipers(), "chrome_d")
@@ -152,11 +154,12 @@ for s in (1, -1):
     T.fix_normals(tl)
     D.place(tl, loc=(-2.1040, s * 0.6200, 0.8250)); A(tl, "ruby")
 
+# SPEC r4 8.3: roundel ring + strokes are painted RED on the cream nose
 vr, vd = D.roundel()
-for o, k in ((vr, "cream"), (vd, "cream")):
+for o, k in ((vr, "roundelred"), (vd, "cream")):
     D.place(o, loc=(2.1155, 0.0, 1.1620)); A(o, k)
 for b in D.vw_logo(x=2.1210):                 # V over W, never inverted
-    D.place(b, loc=(0.0, 0.0, 1.1620)); A(b, "cream")
+    D.place(b, loc=(0.0, 0.0, 1.1620)); A(b, "roundelred")
 log("brightwork + lamps")
 
 # --------------------------------------------------------------- 8 decals
@@ -165,6 +168,10 @@ A(T.conform_panel(SCR["x0"], SCR["x1"], SCR["z0"], SCR["z1"], S.SHOW_SIDE,
                   name="script_L"), "script")
 A(T.conform_panel(SCR["x0"], SCR["x1"], SCR["z0"], SCR["z1"], -S.SHOW_SIDE,
                   name="script_R"), "script")
+# "100% Calidad" on the solid rear-corner panel, show side (SPEC r4 sec.3)
+CAL = dict(x0=-1.350, x1=-1.847, z0=1.4400, z1=1.7800)   # 1.463:1 = tex AR
+A(T.conform_panel(CAL["x0"], CAL["x1"], CAL["z0"], CAL["z1"], S.SHOW_SIDE,
+                  name="calidad_L"), "calidad")
 log("signwriting")
 
 # ------------------------------------------------------------ 9 materials
