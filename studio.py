@@ -80,7 +80,9 @@ def lighting(key=1.0):
     bpy.context.scene.world = w
     w.use_nodes = True
     w.node_tree.nodes["Background"].inputs[0].default_value = (1, 1, 1, 1)
-    w.node_tree.nodes["Background"].inputs[1].default_value = 0.30
+    # cut from 0.30: a bright white world dumps achromatic fill into every
+    # shadow and desaturates the paint (SPEC rev4 sec.3)
+    w.node_tree.nodes["Background"].inputs[1].default_value = 0.17
 
 
 def camera():
@@ -113,7 +115,7 @@ def bg_white_level(scene):
     """
     vt = scene.view_settings.view_transform
     lvl = {'Standard': 1.0, 'Khronos PBR Neutral': 1.0,
-           'AgX': 16.5, 'Filmic': 16.0, 'Filmic Log': 16.0}.get(vt, 16.5)
+           'AgX': 21.0, 'Filmic': 16.0, 'Filmic Log': 16.0}.get(vt, 21.0)
     return float(os.environ.get("T1_BGW", lvl))
 
 

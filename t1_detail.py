@@ -323,16 +323,16 @@ def plank_counter(side=1):
     """cream-PAINTED slab counter cantilevered under the three serving bays
     (SPEC r4 8.5: measured saturation 0.07 - painted, not bare timber)"""
     obs = []
-    X0, X1 = 0.9200, -1.2200
-    ZT = 1.3560
-    y_in, y_out = 0.8450, 1.1800   # SPEC r4: body widened 15 mm
+    X0, X1 = 0.9200, -1.3400        # SPEC r4: runs past bay 3 to the tail
+    ZT = 1.3620
+    y_in, y_out = 0.8450, 1.2450    # deeper slab: reference reads ~0.40 m
     nx = 40
     verts, faces = [], []
     for iy, y in enumerate((y_in, y_out)):
         for ix in range(nx + 1):
             x = X0 + (X1 - X0) * ix / nx
             verts.append((x, side * y, ZT))
-            verts.append((x, side * y, ZT - 0.0420))
+            verts.append((x, side * y, ZT - 0.0850))   # thicker: 42 mm did not read
     for ix in range(nx):
         a = ix * 2
         b = a + 2

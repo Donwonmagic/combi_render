@@ -6,15 +6,21 @@ TEXDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tex")
 
 # SPEC r4 sec.3: measured (196,106,36) sRGB in sun -> faded orange-red /
 # vermillion, hue ~26deg. NOT a deep crimson.
-RED = (0.4800, 0.0750, 0.0300)
+RED = (0.5250, 0.0395, 0.0072)
 # measured (206,208,200) sRGB -> sun-bleached near-neutral off-white
 CREAM = (0.7900, 0.7700, 0.7150)
 GOLD = (0.8600, 0.5400, 0.0600)
 
 # two-tone break line:  belt line on the flanks, V-swage across the nose
-Z_BELT = 1.2320
-V_APEX = 0.8180
-V_RISE = 0.4140
+#
+# rev-3 wrote these in the DROPPED frame (build.py lowers every vertex AFTER
+# materials are assigned), so with RIDE_DROP now 0 they sat 154 mm low and the
+# painted V no longer followed the pressed V-swage in the sheet metal.
+# These are now in the same frame as the geometry: V_APEX + V_RISE == Z_BELT
+# exactly, and both match t1_shell's pressed swage zV(y) = 0.872 + 0.514*(..).
+Z_BELT = 1.3860
+V_APEX = 0.8720
+V_RISE = 0.5140
 V_POW = 1.16
 
 
@@ -182,8 +188,10 @@ def body_paint(name="T1_paint"):
     mix_g.inputs[6].default_value = (*RED, 1)
     if swirl.image:
         hs = nt.nodes.new("ShaderNodeHueSaturation"); hs.location = (-980, -560)
-        hs.inputs["Saturation"].default_value = 1.22
-        hs.inputs["Value"].default_value = 1.06
+        # SPEC rev4 sec.3: gold + yellow, not pale cream wallpaper. The
+        # source tile is light; 1.22 left it reading as beige on the red.
+        hs.inputs["Saturation"].default_value = 2.45
+        hs.inputs["Value"].default_value = 0.94
         nt.links.new(swirl.outputs["Color"], hs.inputs["Color"])
         nt.links.new(amask.outputs[0], mix_g.inputs[0])
         nt.links.new(hs.outputs[0], mix_g.inputs[7])
@@ -198,18 +206,23 @@ def body_paint(name="T1_paint"):
     mix_c.inputs[7].default_value = (*CREAM, 1)
     nt.links.new(mix_c.outputs[2], bsdf.inputs["Base Color"])
 
-    bsdf.inputs["Roughness"].default_value = 0.105
+    # SPEC rev4 sec.3: WEATHERED, not show gloss. The rev-3 values
+    # (rough .105, coat .75 @ .025) put a mirror clearcoat on the body, which
+    # in a white studio laid an achromatic white veil over the paint -- that,
+    # not the base colour, is why the red measured sat 0.37 against the
+    # reference's 0.82 and read salmon. Chalky finish restores the chroma.
+    bsdf.inputs["Roughness"].default_value = 0.420
     bsdf.inputs["Metallic"].default_value = 0.0
-    bsdf.inputs["Specular IOR Level"].default_value = 0.58
-    bsdf.inputs["Coat Weight"].default_value = 0.75
-    bsdf.inputs["Coat Roughness"].default_value = 0.025
+    bsdf.inputs["Specular IOR Level"].default_value = 0.21
+    bsdf.inputs["Coat Weight"].default_value = 0.02
+    bsdf.inputs["Coat Roughness"].default_value = 0.300
 
     # very fine orange-peel so the highlights are not mirror perfect
     noise = nt.nodes.new("ShaderNodeTexNoise"); noise.location = (0, -640)
-    noise.inputs["Scale"].default_value = 240.0
-    noise.inputs["Detail"].default_value = 2.0
+    noise.inputs["Scale"].default_value = 190.0
+    noise.inputs["Detail"].default_value = 3.5
     bump = nt.nodes.new("ShaderNodeBump"); bump.location = (300, -640)
-    bump.inputs["Strength"].default_value = 0.045
+    bump.inputs["Strength"].default_value = 0.075
     bump.inputs["Distance"].default_value = 0.004
     nt.links.new(noise.outputs["Fac"], bump.inputs["Height"])
     nt.links.new(bump.outputs[0], bsdf.inputs["Normal"])
@@ -405,7 +418,9 @@ def build_all():
                          spec=0.22)
     M["script"] = silver_script()
     M["calidad"] = frosted_calidad()
-    M["dark"] = simple("interior_dark", (0.0300, 0.0290, 0.0280), rough=0.72)
+    # old D4: at 0.03 albedo the galley was a black void behind the hatches.
+    # Lifted so the openings read as depth once fill_galley is on.
+    M["dark"] = simple("interior_dark", (0.1150, 0.1080, 0.1000), rough=0.78)
     M["seat"] = simple("seat", (0.1250, 0.1000, 0.0760), rough=0.55)
     M["timber"] = simple("timber", (0.3200, 0.2050, 0.1050), rough=0.48)
     M["amber"] = simple("amber", (0.9200, 0.3400, 0.0250), rough=0.09,
@@ -416,7 +431,9 @@ def build_all():
                        transmit=0.96, ior=1.52, spec=0.42)
     M["reflector"] = simple("reflector", (0.960, 0.962, 0.968), rough=0.055,
                             metal=1.0)
-    M["steel"] = simple("steel", (0.520, 0.525, 0.535), rough=0.28, metal=1.0)
+    # brushed galley stainless, not a mirror: at rough 0.28 in an unlit box
+    # the hatches filled with specular blobs instead of reading as an interior
+    M["steel"] = simple("steel", (0.560, 0.562, 0.568), rough=0.46, metal=1.0)
     M["white"] = simple("white_gloss", (0.8700, 0.8720, 0.8600), rough=0.11,
                         coat=0.6)
     return M
