@@ -188,7 +188,7 @@ def rear_glass():
 
 
 # --------------------------------------------------------------- wheel arch
-ARCH_R = 0.3770                      # SPEC r4: tyre R 0.3415 + 35.5 mm
+ARCH_R = 0.3735                      # rev6: TIRE_R 0.3325 + measured 41 mm
 ARCH_Z = T.TIRE_R + T.RIDE_DROP      # concentric with the tyre after the drop
 
 

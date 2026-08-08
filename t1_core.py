@@ -32,12 +32,13 @@ Z_ROOF      =  1.893           # roof edge (crown adds ~0.032 -> 1.925 overall)
 Z_BED_RAIL  =  1.302           # top of pickup side gate
 Z_BED_FLOOR =  0.902
 X_CAB_BACK  =  0.420           # cab rear wall
-TIRE_R      =  0.3415          # 6.40-15, dia 0.683
-TIRE_W      =  0.1650          # 6.40-15 section
-RIM_R       =  0.1905
+TIRE_R      =  0.3325          # rev6 MEASURED dia 0.665 (NOT 6.40-15)
+TIRE_W      =  0.1550          # rev6: ~215 section on a 16in rim
+RIM_R       =  0.2198          # rev6 MEASURED 16in flange OD 0.4396, not 15in
 TRACK_F     =  1.3690
 TRACK_R     =  1.3590
-RIDE_DROP   =  0.0000          # SPEC rev4: STOCK ride height (lowering unsupported)
+RIDE_DROP   =  0.0650          # rev6: LOWERED. Rear arch-to-tyre gap measures
+                               # 41mm vs a stock 90-120. rev4 zeroed this in error.
 Z_CANOPY_T  =  1.9220          # canopy roof top
 Z_CANOPY_B  =  1.8380
 Z_FASCIA_B  =  1.6280

@@ -596,3 +596,304 @@ headlamp aperture at 0.180 m the emblem should be **0.153 m**, not the ~0.30 m s
 | roof crown (lid closed) | −1.39 (measured at) | 1.960 | measured |
 
 Scale used throughout: **211.2 px/m in `ref_side.jpg`** (4.735 mm/px), from the 2.400 m wheelbase.
+
+---
+
+## Verification pass — contested claims
+
+Independent re-derivation of claims A, B and C. Nothing below reuses a number from
+§0–§10; every figure was re-measured from the pixels. Where a prior number is quoted it is
+labelled *(prior)*. Methods deliberately differ from the ones that produced the claims.
+
+### V0. Method summary
+
+| what | method | image |
+|---|---|---|
+| rear hub | HSV mask of the red hubcap → hole-fill → algebraic circle fit to the boundary | `ref_side` |
+| rim flange OD | 360 rays from the hub, sub-pixel 50 %-luminance crossing, then general-conic (ellipse) fit | `ref_side` |
+| tyre OD | 72 rays, steepest-gradient edge, restricted to sectors where the tyre silhouettes against **deep arch shadow** (not against the ground) | `ref_side` |
+| front hub | (i) x-extremes of the two visible cream rim arcs, (ii) contrast-normalised visual extremes, (iii) **wheel-arch geometry** — a body feature, wholly independent of the wheel | `ref_side` |
+| rim/tyre cross-check | ellipse fit to the bare white rim + vertical luminance profile through the wheel centre | `ref_workshop`, `ref_rear34` |
+| rear bumper | gamma-lifted shadow crops of the tail in all three images | all |
+
+### V1. The front hub does **not** need the occluded circle fit
+
+Three independent routes, one of which uses no wheel pixels at all:
+
+```
+(i)   cream rim arcs, x-extremes         leftmost 197.9   rightmost 282.5   -> centre 240.2
+(ii)  same arcs on a locally contrast-normalised crop      198.0 / 289.0    -> centre 243.5
+(iii) WHEEL-ARCH GEOMETRY (body feature, no wheel pixels):
+        rear arch lip meets rocker at x = 654 and x = 852  -> opening 198 px, centre 753.0
+        (rear hub 749.6, so the arch centre sits +3.4 px aft of the hub)
+        front arch lip leaves the rocker at x = 140...150
+        -> front arch centre 239...249  -> front hub 236...246
+```
+
+All three agree. **FRONT HUB = 242 ± 3 px**, i.e. the prior 242.7 was correct — it just was not
+independently supported.
+
+```
+WHEELBASE          = 749.56 - 242 = 507.6 ± 3 px
+SCALE  S           = 507.6 / 2.400 = 211.5 ± 1.3 px/m      (4.728 mm/px)
+```
+
+*(prior: 211.2 px/m — no material change.)*
+
+### V2. Why the rim-flange route gives a different answer: **the rims are not 15 inch**
+
+The rim flange edge is the crispest thing on the vehicle and it was re-measured properly:
+
+```
+rear rim flange, 360-ray sub-pixel 50 % crossing
+    r = 46.48 ± 0.38 px   (n = 360, per-quadrant means 46.65 / 46.55 / 46.76 / 45.98)
+    ellipse fit: semi-axes 46.86 / 46.11, axis ratio 0.984  -> circular to 1.6 %
+    => RIM FLANGE OUTER D = 92.97 ± 0.8 px
+```
+
+The axis ratio 0.984 also **kills the "it's perspective" escape**: the rear wheel is presented
+essentially face-on. A projective solve using the front/rear rim size ratio changes
+wheelbase/flange by less than 1 %.
+
+```
+WHEELBASE / FLANGE OD = 507.6 / 92.97 = 5.46 ± 0.08
+factory 15" J rim (381 + 2x17.3 = 416 mm):  2400/416 = 5.77   <- 4 sigma away
+factory 16" J rim (406 + 2x17.3 = 441 mm):  2400/441 = 5.44   <- matches
+```
+
+**So the flange OD is 0.440 ± 0.008 m — a 16-inch rim, not a 15-inch one.** Route (a) of the
+brief ("a 15-inch rim gives px-per-metre directly") is built on a false premise for this vehicle;
+it yields 92.97/0.406 = 229 px/m, and that scale is refuted by everything else in the frame:
+
+| test | at S = 211.5 px/m | at S = 229 px/m | factory / plausible |
+|---|---|---|---|
+| front overhang (hub → bumper face) | **0.849 m** | 0.784 m | 0.85–0.88 m |
+| rear wheel-arch opening | **0.936 m** | 0.865 m | ~0.95 m |
+| leaning man, raw height | **1.77 m** (≈1.68 m depth-corrected) | 1.64 m (≈1.55 m) | adult male |
+| front bumper blade face height | **0.123 m** | 0.113 m | 0.12 m |
+
+**S = 211.5 px/m. The prior scale was right; the prior's tyre-based cross-check was wrong
+because it assumed a 15-inch rim.**
+
+### V3. CLAIM A — REFUTED. The body is **not** shortened.
+
+Re-measured endpoints:
+
+```
+front bumper leading face   x = 62.5 ± 2.5
+   the white lamp post leans: its left edge follows x = 60.5 + 0.0514 (y - 430),
+   so at bumper height it is at x = 68-69. Cream is detectable out to x = 61.9-63.0
+   at y = 584-604, i.e. 5-7 px AHEAD of the post. That cream is the bumper.
+rearmost red body           x = 920.7 ± 1.5
+   (constant 917-921 over y = 478...574; verified on a gamma-lifted crop —
+    the pale background wall behind the tail makes this a high-contrast edge)
+L (bumper face -> rearmost sheet metal) = 858 ± 4 px = 4.06 ± 0.04 m
+```
+
+So the prior's **4.05 m number is confirmed as a measurement** — and it does *not* overturn the
+factory dimension. Here is the closure:
+
+```
+measured front overhang  (front hub -> bumper face)   179.5 px = 0.849 m
+measured rear overhang   (rear hub -> rear sheet metal)171.1 px = 0.809 m
+                                                       sum      = 1.658 m
+factory total overhang   = 4.280 - 2.400              = 1.880 m
+                                            DEFICIT   = 0.222 m
+```
+
+The front bumper **is** fitted, so the whole deficit has to sit at the rear. Independent
+measurement of exactly that quantity, in `ref_workshop` where the rear bumper *is* fitted:
+
+```
+body rear corner   x = 936    (green -> background step, rows 490/510/530/550)
+bumper aftmost pt  x = 948.7
+difference 12.7 px image;  the rim ellipse at that wheel gives cos(beta) = 0.347
+-> 36.6 px in the wheel plane;  rim vertical D there = 71.32 px = 0.440 m
+-> REAR BUMPER STANDS 0.21 - 0.23 m AFT OF THE REARMOST BODY PANEL
+```
+
+0.222 m needed, 0.21–0.23 m measured. **The vehicle is a full-length T1.**
+
+```
+OVERALL LENGTH, as photographed (no rear bumper)   4.06 ± 0.04 m
+OVERALL LENGTH, factory configuration              4.28 ± 0.06 m
+```
+
+Model frame (X = (495.8 - x_img)/211.5, +x forward, 0 = mid-wheelbase):
+
+```
+front bumper face      X = +2.049 m
+rearmost sheet metal   X = -2.009 m
+rear bumper face IF MODELLED  X = -2.219 m   (x_img ~ 965)
+```
+
+Consequence for §6: the counter's rear end (x_img 986) overhangs the **factory bumper line** by
+only 0.10 m, not the 0.31 m quoted against the bare body.
+
+**Verdict: the body is NOT shortened; the prior scale was NOT wrong. The prior error was a
+configuration mismatch — a no-rear-bumper measurement compared against an over-bumpers factory
+figure, with only 0.09 m allowed for the missing bumper instead of the true 0.22 m.**
+
+### V4. CLAIM B — half confirmed, half refuted
+
+Radial profile through the rear wheel, `ref_side`, mean of 170 rays each normalised by its own
+cream plateau (so illumination differences cancel). Transition radii from the hub centre:
+
+```
+r = 29.4    red hubcap  ->  cream            (gradient peak at r = 30.0, rise 28.5->31.5)
+r = 36.5 / 39.5 / 41.0 / 42.8 / 44.0 / 45.0  concentric ridges and grooves of the wheel disc
+                                             (amplitude +-8 %, no step large enough to be a
+                                              rim-flange / whitewall boundary)
+r = 46.4    cream  ->  black                 (50 % crossing; falls 45.25 -> 47.5)   RIM FLANGE
+r = 70.3 ± 0.8  tyre -> deep arch shadow     TYRE OUTER
+```
+
+The tyre outer edge is measurable only in the sectors where the tyre silhouettes against the
+**shadow inside the wheel arch** (theta 155-240 deg and 295-330 deg, 20 rays, r = 68.5-71.4,
+inside L ≈ 0.10-0.15, outside L ≈ 0.04-0.05). Below the wheel every "edge" follows
+r = h/sin(theta) — that is the **ground/shadow line, not the tyre**, which is where the prior
+pass's 128 px came from.
+
+```
+                          ref_side          ref_workshop            ref_rear34
+rim flange (px)           92.97 ± 0.8       71.32 (ellipse major)   141.44 (ellipse major)
+tyre outer (px)          140.6  ± 1.6      102.1 (loaded, 2x51.06)  --- (bottom off-frame)
+TYRE OD / RIM FLANGE OD   1.512 ± 0.02     1.432 loaded             cos(beta) 0.337 / 0.347
+                                            ~1.48-1.50 unloaded
+```
+
+`ref_workshop` is the control: bare **white** rims, unambiguously **black-wall** tyres, so its
+white/black boundary is definitely the flange. It gives the same ratio as `ref_side`, which
+rules out the alternative explanation that the cream annulus in the red livery is a whitewall
+band inflating the apparent rim.
+
+```
+TYRE OD / RIM FLANGE OD = 1.50 ± 0.03      (a 6.40-15 on a 15" rim would be 683/416 = 1.64-1.68)
+```
+
+* **CONFIRMED:** the tyres are **not** 6.40-15. The ratio is 1.50, not 1.64–1.68.
+* **REFUTED:** the OD is **not** 0.606 m.
+
+```
+RIM FLANGE OUTER D = 92.97 / 211.5 = 0.440 ± 0.008 m   -> 16-inch rim
+TYRE OUTSIDE D     = 140.6 / 211.5 = 0.665 ± 0.015 m   (6.40-15 is 0.683 — only 2.6 % more)
+sidewall height    = (665 - 440)/2 = 112 mm
+loaded radius      = 0.307 m  (hub y 603.9, contact y ~670 ± 2)
+hubcap disc D      = 58.74 / 211.5 = 0.278 m   (an oversize aftermarket dome cap, not the
+                                                ~0.25 m factory VW cap — do not use it as a ruler)
+```
+
+A 0.665 m tyre with a 112 mm sidewall on a 0.44 m rim is a **modern low-profile 16-inch fitment**
+— 215/60R16 (0.664 m) or 205/65R16 (0.673 m) are exact matches. The anomaly in §8 was the
+**rim**, which is one size up from stock, not the tyre, which is close to stock diameter.
+
+**Net effect on the model:** tyre OD 0.665 m (not 0.606), rim 0.440 m (not 0.437 — unchanged in
+practice), so §2's ride-height verdict weakens: the hub sits at 0.307 m vs a stock 0.3415 m, i.e.
+only ~35 mm of the drop comes from the wheels, and the arch-to-tyre gap is 79 - 70.3 = 8.7 px
+= **41 mm**, not 71 mm. The bus is still lowered, but the tyre-diameter contribution is smaller
+than §2 assumed and the front-to-rear rake finding is untouched.
+
+### V5. CLAIM C — CONFIRMED (in service). But the workshop bumper is real.
+
+```
+ref_side, tail, gamma-lifted (gamma 0.45):
+    red body lower edge at the tail   y = 583-590 (x 857-921)
+    below it, x 900-960 / y 590-670   -> clean paving, no blade, no bracket, no shadow mass
+ref_rear34, rear valance, gamma-lifted:
+    the rear apron rolls under to a lip at y ~ 780-790 and meets ground shadow directly.
+    The only metal below the number plate is a single small chrome fitting at (1127, 737)
+    — a bumper-bracket stub or lid catch, ~14 x 24 px. No blade.
+ref_workshop, near rear corner, x 905-975 / y 530-615 at 16x:
+    a cream BUMPER BLADE END (rounded cap, x 926-949, y 570-596) PLUS a cream TUBULAR
+    OVER-RIDER GUARD above it (x 936-947, y 551-574) wrapping the corner — the same
+    blade+tube assembly that is clearly visible on the front bumper in the same photograph.
+    Height above the local floor 0.31-0.61 m: correct T1 rear-bumper height.
+```
+
+So: **a cream rear bumper + guard was fitted at the conversion stage and had been removed by the
+time the bus was in service.** It is not hidden behind the counter — the counter fascia bottom is
+at 1.08 m and the bumper would sit at 0.35–0.48 m, in clear view in both in-service photographs.
+The earlier report was right about `ref_workshop`; §1/§10.1 are right about the in-service state.
+
+```
+REAR OVERHANG (rear axle -> rearmost sheet metal) = 171.1 ± 3 px = 0.809 ± 0.02 m
+factory equivalent                                                 ~0.81 m
+factory rear axle -> rear bumper face                              ~1.02 m
+```
+
+The rear overhang is **factory**. There is no evidence of a shortened tail.
+
+### V6. Front indicator — it is the **fish-eye**, not a bullet
+
+`ref_workshop` (empty apertures), luminance profiles across each hole:
+
+```
+HEADLAMP aperture   horizontal (y=628)  x 381.5 -> 454.5 = 73.0 px
+                    vertical   (x=419)  y 595.2 -> 665.5 = 70.3 px      centre (418, 630)
+                    (the lower half of the hole is NOT dark — it is the lit inner face of the
+                     nose panel; a naive dark-blob threshold under-measures it by half)
+INDICATOR aperture  horizontal (y=564)  x 442.5 -> 476.0 = 33.5 px
+                    vertical   (x=457)  y 549.7 -> 578.3 = 28.6 px      centre (459.5, 564)
+                    round; a small bracket/stud protrudes at (472-477, 564-566)
+INDICATOR / HEADLAMP APERTURE = 0.42 ± 0.03
+  -> with a 7 in / 0.178 m headlamp aperture:  INDICATOR APERTURE = 74 ± 6 mm
+offset from the headlamp centre: 66 px up = 0.163 m ; 41 px outboard = >=0.10 m (foreshortened)
+```
+
+`ref_side` (in service, front lamp seen in near-profile at 16x, x 72-112 / y 458-499):
+
+```
+a raised pointed pod, red/amber, standing clear of the nose:
+    tip                (79.5, 478)
+    base               (96.9, 470) to (94.4, 485)
+    protrusion  16.5 px = 0.078 m       base diameter  15 px = 0.071 m
+    length : base ratio = 1.05
+```
+
+The fitted lamp's base (0.071 m) equals the panel aperture (0.074 m) to within the error.
+A 1955–Jul 1961 **bullet** has a ~45 mm base on a ~40 mm hole and a length:base ratio near 2;
+this is 71 mm on a 74 mm hole at ratio 1.05 — the stubby, wide-based profile of the
+**Aug 1961-on "fish-eye" / teardrop indicator, which is correct for a 1963 T1.**
+
+**Caveat:** in pure side elevation a fish-eye reads as a raised conical pod, which is why it is
+easy to call it a bullet. Model it as a wide-based teardrop: 74 mm round base, ~78 mm forward
+protrusion, centred 0.163 m above and ≥0.10 m outboard of the headlamp centre.
+
+### V7. VW nose roundel in the red livery — **RED**, resolved
+
+`ref_source.jpeg` (246 x 197) is the only view of the nose in the red livery. Colour statistics,
+R/G ratio (chrome and cream both read ~1.0; the body red reads 2.13):
+
+```
+ref_workshop  roundel bars (chrome)   rgb (111.4, 114.4, 110.6)   R/G = 0.974   <- neutral
+ref_workshop  nose white              rgb (208.1, 208.0, 187.8)   R/G = 1.001
+ref_source    roundel dark strokes    rgb (135.3,  85.0,  78.5)   R/G = 1.590   <- red
+ref_source    roundel light areas     rgb (207.4, 175.2, 170.6)   R/G = 1.184
+ref_source    nose cream (reference)  rgb (204.9, 195.7, 193.8)   R/G = 1.047
+ref_source    body red  (reference)   rgb (129.3,  60.8,  51.6)   R/G = 2.125
+```
+
+The emblem sits on the cream upper nose, ~10-20 px clear of any red paint, yet its dark strokes
+run 0.55 warmer in R/G than the cream immediately around them, and there is **no neutral or
+blue-ish specular highlight anywhere in the emblem** — which a polished chrome roundel in that
+sunlight would certainly show (compare the workshop's 0.974).
+
+**RESOLVED: in the red livery the nose roundel is RED (ring and monogram both), not chrome.**
+The chrome emblem of the workshop stage was over-painted or replaced. Confidence moderate-high;
+the only reservation is the 246 px source and its JPEG chroma subsampling.
+
+### V8. Corrections to earlier sections
+
+1. **§0.2 / §8** — the disagreement between the two scales was **not** evidence of small tyres.
+   It was the 15-inch assumption. Rim flange 0.440 m (16 in), tyre OD 0.665 m. Scale stands at
+   211.5 px/m.
+2. **§1 / §10.1** — 4.05 m is a correct measurement of a bus with no rear bumper; it is **not**
+   a shortened body. Factory-configuration length 4.28 m. Add a rear bumper face at
+   model X = -2.219 m if you model one.
+3. **§0.3** — the ground line is **y = 670 ± 2**, not 668.0 (the tyre's loaded radius is 65-67 px
+   and the earlier 668 was taken at the leading edge of the contact shadow). Every height in
+   §1-§7 rises by ~10 mm.
+4. **§2** — arch-to-tyre gap, rear, is **41 mm** not 71 mm (the tyre is bigger than §8 assumed).
+   The "lowered" verdict survives, but only ~35 mm of the drop is attributable to the wheels.
+5. **§6** — the counter overhangs the *factory bumper line* by 0.10 m, not 0.31 m.
+6. **§9** — the indicator is resolvable after all: fish-eye, 74 mm round aperture.

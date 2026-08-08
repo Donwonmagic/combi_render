@@ -12,8 +12,13 @@ TOL = 0.025
 import t1_core as _T
 
 # SPEC rev 4 sec.2 — factory-sourced 1963 T1 hard points
-SPEC = dict(L=4.290, W=1.750, H=1.941 - _T.RIDE_DROP, WB=2.400,
-            TRACK_F=1.369, TRACK_R=1.359, TYRE_D=0.683)
+# SPEC rev 6 sec.2. NOTE: run() is called from build.py BEFORE the global
+# ride-height drop is applied, so H here is the UN-DROPPED body height. Do not
+# subtract RIDE_DROP from it -- doing so is what produced a phantom +60 mm fail.
+# audit.py measures post-drop and will report H = 1.941 - RIDE_DROP.
+SPEC = dict(L=4.290, W=1.750, H=1.941, WB=2.400,
+            TRACK_F=1.369, TRACK_R=1.359, TYRE_D=0.665)
+RIDE_DROP_SPEC = 0.065        # rev 6: the bus IS lowered. See SPEC sec.2.
 
 BANNED = ("bed", "gate", "canopy", "fascia", "post")   # pickup-era geometry
 NEED_MATS = ("T1_paint", "cream", "chrome", "glass", "wheelcream",
@@ -176,9 +181,15 @@ def run(body, log=print):
     if fc:
         fails.append(f"{len(fc)} boolean(s) rolled back: {', '.join(fc)}")
 
-    # 10. ride height is stock (SPEC rev 4 — lowering was never evidenced)
-    if abs(_T.RIDE_DROP) > 1e-6:
-        fails.append(f"RIDE_DROP={_T.RIDE_DROP:.4f}; SPEC rev 4 says stock (0.0)")
+    # 10. ride height. rev 4 asserted stock and was WRONG; the measured rear
+    # arch-to-tyre gap is 41 mm against a stock 90-120. Guard the real value in
+    # BOTH directions so neither a reset-to-stock nor a drift reappears.
+    if abs(_T.RIDE_DROP - RIDE_DROP_SPEC) > 0.005:
+        fails.append(f"RIDE_DROP={_T.RIDE_DROP:.4f}; SPEC rev 6 says "
+                     f"{RIDE_DROP_SPEC:.3f} (the bus is lowered)")
+    gap = _S.ARCH_R - _T.TIRE_R
+    if abs(gap - 0.041) > 0.008:
+        fails.append(f"arch-to-tyre gap {gap*1000:.0f} mm; measured 41 mm")
 
     log("  VERIFY: %d fail, %d warn" % (len(fails), len(warns)))
     for f in fails:

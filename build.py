@@ -134,8 +134,10 @@ for (x, tr) in ((T.X_AXLE_F, T.TRACK_F), (T.X_AXLE_R, T.TRACK_R)):
 
 # SPEC r4 8.2: bumpers are PAINTED CREAM, not chrome
 A(D.bumper(True, name="bumper_f"), "bumpercream")
-A(D.bumper(False, name="bumper_r"), "bumpercream")
-A(D.bumper_irons(True) + D.bumper_irons(False), "bumpercream")
+# SPEC rev6 sec.2.4: the rear bumper was REMOVED after the conversion. It is
+# absent from both in-service photographs. Do not re-add it.
+# A(D.bumper(False, name="bumper_r"), "bumpercream")
+A(D.bumper_irons(True), "bumpercream")
 A(D.gutter(), "paint")
 A(D.mirrors(), "chrome")
 A(D.wipers(), "chrome_d")

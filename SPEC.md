@@ -1,4 +1,4 @@
-# TACOMBI COMBI — LOCKED BUILD SPECIFICATION  (rev 5)
+# TACOMBI COMBI — LOCKED BUILD SPECIFICATION  (rev 6)
 **Status: AUTHORITATIVE.** Nothing in the build may contradict this file.
 Change this file *first*, log it, then change code. `verify.py` asserts the
 machine-checkable rows on every build.
@@ -119,16 +119,17 @@ All values **S** (1963 factory brochure) unless noted.
 
 | Dimension | Value | Was (rev 3) |
 |---|---|---|
-| Overall length over bumpers | **4.290** | 4.280 |
+| Overall length, factory configuration | **4.280 ± 0.06** — front overhang 0.849 + wheelbase 2.400 + rear overhang 0.809 + bumper standoffs | 4.280 |
+| Overall length **as it stands today** | **4.06 ± 0.04** — the rear bumper has been removed, see §2.4 | — |
 | Overall width | **1.750** | 1.720 |
 | Overall height, unladen | **1.941** | 1.940 |
 | Wheelbase | **2.400** (front +1.300, rear −1.100) | same |
 | Track front / rear | **1.369 / 1.359** | 1.375 / 1.360 |
-| Tyre **6.40-15** | dia **0.683** (R 0.3415), section **0.165** | 5.60x15, 0.665 / 0.145 |
-| Rim | 4½ K × 15, R 0.1905, PCD 5×205, ET ≈ 45 | R 0.1905 |
+| Tyre — **NOT 6.40-15** | dia **0.665 ± 0.015** (R 0.3325), section ≈0.129. Tyre/flange ratio measures **1.512 ± 0.02** in `ref_side` and 1.43–1.49 in `ref_workshop`, against 1.64–1.68 for a 6.40-15. Implied fitment ≈ **215/60R16**. rev 4 "corrected" this to the factory 0.683 and was wrong — rev 3's 0.665 was right | 6.40-15 / 0.683 |
+| Rim — **16 inch, not 15** | flange OD **0.4396** (R 0.2198), PCD 5×205. Wheelbase/flange measures **5.46 ± 0.08**; a 15" rim requires 5.77 (4σ away), a 16" gives 5.44. Ellipse axis ratio 0.984 rules out perspective. A 1963 left the factory on 15" — **these are not the original wheels** | R 0.1905 (15") |
 | Hubcap | dia **0.280**, depth ≈ 0.080 | — |
 | Body max half-width | **0.875** | 0.860 |
-| **Ride height** | **LOWERED — reinstated in rev 5.** Rear arch-to-tyre gap measures **71 ± 10 mm** against a stock 90–120 mm; front bumper top sits at **0.348 m** against a stock ≈0.47 m. Donald's original rev-3.1 reading was right; rev 4 wrongly set this to 0 on absence-of-evidence from a thumbnail. See §8.6 | rev4 said stock — WRONG |
+| **Ride height** | **LOWERED.** Rear arch-to-tyre gap **41 mm** (rev 5 said 71; corrected in the verification pass) against a stock 90–120. Front bumper top 0.348 against a stock ≈0.47. Donald's original rev-3.1 reading was right; rev 4 wrongly zeroed it on absence-of-evidence from a thumbnail. **Set `RIDE_DROP = 0.065` and `ARCH_R = TIRE_R + 0.041`** | rev4 said stock — WRONG |
 | **Stance rake** | body sits **nose-down ~1.7°** relative to the axle line (72 mm over the wheelbase). Every height falls ≈28 mm per metre forward. Not modelled yet | — |
 | Roof edge / crown | 1.8935 / +0.032 | same |
 | Belt line (two-tone break) | **z = 1.386** — hold, but see §2.1 | same |
@@ -151,18 +152,36 @@ visible cream/red edge is **the counter fascia bottom at 1.082**, not the paint
 break. The true break is only visible **forward of the counter, on the cab
 door**. Do not measure it aft of x ≈ +0.9.
 
-### 2.2 Contested measurements — DO NOT bake in without a second pass
+### 2.4 Rear bumper — REMOVED on the real vehicle
+`ref_workshop.jpg` shows a cream rear bumper with tubular over-riders fitted at
+the conversion stage. Neither in-service photo has one: the tail apron rolls
+under to a lip, with only a 14×24 px chrome bracket stub left. It is **not**
+hidden behind the counter — the counter fascia bottom is at 1.08 m and a bumper
+would sit at 0.35–0.48 m. **Model it absent.** Rear overhang is factory at
+0.809 ± 0.02.
+
+### 2.5 Settled by the verification pass
+- **Front indicator: fish-eye / teardrop, correct for a 1963.** Fitted lamp
+  measures 71 mm base × 78 mm protrusion, ratio 1.05; a bullet pod is ≈45 mm
+  base at ratio ≈2. It only *reads* as a bullet in side elevation. Workshop
+  aperture is a round 74 ± 6 mm hole.
+- **VW nose roundel is RED in the red livery.** Emblem strokes measure
+  R/G = 1.590 against a cream nose at 1.047, with no neutral specular anywhere;
+  the workshop chrome reads R/G = 0.974.
+- **Counter overhang past the factory bumper line: 0.10 m** (rev 5 said 0.31).
+
+### 2.2 Contested measurements — ALL THREE NOW RESOLVED (kept for the record)
 A measurement pass on the high-res photos returned three extraordinary claims.
 Each is plausible but would overturn a factory dimension, so each needs
 independent re-derivation before it enters the build:
-- **Tyres are NOT 6.40-15.** Wheelbase-derived scale (211.2 px/m) and
+- **RESOLVED — CONFIRMED, but the number was wrong.** Tyres are NOT 6.40-15, but the OD is 0.665 not 0.606; the prior 128 px came from the ground/shadow line, not the tyre edge. The rims are 16". Original: Wheelbase-derived scale (211.2 px/m) and
   tyre-derived scale (187.4 px/m) disagree by 12.7 %, which resolves if the
   tyre OD is ≈0.606 rather than 0.683. Corroborated by a tyre/rim ratio of
   1.39–1.47 measured on the bare rims in `ref_workshop.jpg` against 1.69 stock.
-- **No rear bumper.** Not visible in either in-service photo. Conflicts with a
+- **RESOLVED — CONFIRMED.** See §2.4. Original: Not visible in either in-service photo. Conflicts with a
   cream rear bumper reported in `ref_workshop.jpg`. It may have been removed
   when the counter wrap was fitted.
-- **Overall length 4.05 m, not 4.29.** This would mean a shortened body, which
+- **RESOLVED — REFUTED.** The body is NOT shortened; the scale was right (211.5 ± 1.3 px/m) and 4.06 m is the *current* length with the rear bumper removed. Factory configuration is 4.28. Original: This would mean a shortened body, which
   is a very large claim. More likely the front hub centre — the lower-confidence
   of the two, being occluded by the leaning man — is misplaced. **Re-derive the
   scale from an unoccluded feature before accepting.**
@@ -312,3 +331,5 @@ coolairvw.co.uk splitscreen production changes · type2.com tyre FAQ.
 | 2026-08-08 | **rev 4 — evidence audit.** Added evidence grades (§0) and measurement provenance (§8). **Corrected against measurement:** whitewall → blackwall + cream rim; chrome → cream bumpers; cream → **red** VW roundel; four bays → **three** + solid rear panel; canvas ragtop → **cut steel lids**; timber → **painted** counter; bullet → **fish-eye** indicators; lowered → **stock** ride height. **Corrected against factory sources:** L 4.280 → 4.290, W 1.720 → 1.750, tyre 5.60-15 → **6.40-15** (dia 0.665 → 0.683), track → 1.369/1.359. Finish changed to **weathered** by user decision. Added §4 detail inventory, §7 wrong-bus warning, §2.1 unresolved belt/sill conflict. Guards extended to 10. |
 
 | 2026-08-08 | **rev 5 — high-resolution photographs supplied by Donald.** Three large photos (workshop/green, side elevation, rear 3/4) supersede the 246x197 thumbnail as primary reference. **Ride height LOWERED reinstated — rev 4 was wrong to zero it; Donald's original reading was correct.** Belt/sill conflict resolved: break sits 100 mm below the sill, not 16. Aperture positions re-measured and are not evenly sized. Rear serving opening and counter tail-wrap added. Three contested measurements quarantined in §2.2 pending independent re-derivation. Full working in REF_MEASUREMENTS.md. |
+
+| 2026-08-08 | **rev 6 — verification pass on the three quarantined claims.** All three resolved by independent methods. Body NOT shortened (factory 4.28 stands; 4.06 is today's length minus the removed rear bumper). Rear bumper genuinely absent in service — model it off. **Tyres are not 6.40-15: OD 0.665 and the rims are 16 inch, not 15** — rev 4's "correction" to the factory 0.683 was wrong and rev 3's 0.665 was right. Rear arch gap corrected 71 → **41 mm**. Indicator settled as fish-eye (period-correct). Roundel settled as RED. Counter overhang corrected 0.31 → 0.10 m. |
