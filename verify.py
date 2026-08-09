@@ -57,6 +57,37 @@ def _has_metal(body, x, z, side=1):
     return abs(loc.y) > 0.5          # near flank sits at |y| ~ 0.86
 
 
+def _check_opaque(obname):
+    """The decal panels sit on SOLID sheet metal. Assert the material bound to
+    the object is opaque: Transmission Weight must be UNLINKED and 0.0 on
+    every Principled BSDF in it."""
+    out = []
+    ob = bpy.data.objects.get(obname)
+    if not ob:
+        return out
+    mats = [s.material for s in ob.material_slots if s.material]
+    if not mats:
+        out.append(f"'{obname}' has no material bound")
+        return out
+    for m in mats:
+        if not m.use_nodes or not m.node_tree:
+            continue
+        pr = [n for n in m.node_tree.nodes if n.type == 'BSDF_PRINCIPLED']
+        if not pr:
+            out.append(f"'{obname}' material '{m.name}' has no Principled BSDF")
+        for n in pr:
+            s = n.inputs["Transmission Weight"]
+            if s.is_linked:
+                out.append(f"'{obname}' material '{m.name}' has Transmission "
+                           "Weight LINKED -- it is painted sheet metal, not "
+                           "a frosted pane (SPEC 0.2)")
+            elif abs(s.default_value) > 1e-6:
+                out.append(f"'{obname}' material '{m.name}' has Transmission "
+                           f"Weight {s.default_value:.3f}, must be 0.0 -- it "
+                           "is painted sheet metal (SPEC 0.2)")
+    return out
+
+
 def _measure_wheels():
     """Track and tyre diameter measured from geometry, not read from constants."""
     out = {}
@@ -142,6 +173,28 @@ def run(body, log=print):
         fails.append("'glass_bay3_L' exists — there is no fourth bay")
     if not bpy.data.objects.get("calidad_L"):
         fails.append("missing 'calidad_L' decal panel")
+    # 5b. and the material actually ON it must be PAINT, not glass. rev 3's
+    # frosted_calidad() set Transmission Weight 0.88 and rendered the panel
+    # 51.9 sRGB code values darker than the surrounding cream (55.0 % of its
+    # linear reflectance) inside a hard rectangular border. Testing only that
+    # the object and a material of that name exist passes with that defect
+    # present, which is how it came back.
+    fails += _check_opaque("calidad_L")
+
+    # 6b. SPEC: nothing on this vehicle is translucent. No subsurface, ever.
+    for mt in bpy.data.materials:
+        if not mt.use_nodes or not mt.node_tree:
+            continue
+        for n in mt.node_tree.nodes:
+            if n.type != 'BSDF_PRINCIPLED':
+                continue
+            s = n.inputs.get("Subsurface Weight")
+            if s is None:
+                continue
+            if s.is_linked or s.default_value > 1e-6:
+                fails.append(f"material '{mt.name}' has Subsurface Weight "
+                             f"{'linked' if s.is_linked else s.default_value}"
+                             " -- SPEC allows none anywhere")
 
     # 6. materials
     for mt in NEED_MATS:

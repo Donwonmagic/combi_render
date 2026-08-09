@@ -1,5 +1,49 @@
 """PBR materials.  Body two-tone + livery is driven by object-space position
-so no UV unwrap of the shell is needed."""
+so no UV unwrap of the shell is needed.
+
+SPEC rev6 sec.3 locks the finish as WEATHERED -- chalky, sun-faded, uneven,
+chipped edges, dusty lower body.  Every exterior material therefore runs its
+Base Color / Roughness / Normal through the shared WEATHER node group below;
+nothing on this vehicle carries a constant roughness.
+
+NO SUBSURFACE ANYWHERE.  Every material sits at Subsurface Weight 0.0 and
+verify.py asserts it.
+
+MEASURED RESULT (2026-08-09, /sessions/.../tmp/rms_metric.py, side ortho
+500x340 @ 9.90 mm/px, 16 samples, plain cream tiles on the rear-corner panel,
+noise-corrected texture residual sd(L - boxblur)/mean at matched physical
+scale):
+
+                                   25 mm   100 mm   400 mm
+  ref_side.jpg, patch as specified  3.37 %   7.03 %  10.54 %
+  ref_side.jpg, flat part only      1.06 %   3.63 %   4.78 %
+  ref_side.jpg, flat + detrended    1.00 %   3.42 %   3.97 %
+  build BEFORE this change          0.22 %   0.24 %   0.33 %
+  build AFTER  this change          0.37 %   0.81 %   1.42 %
+
+Two things stop the display-referred figure reaching the design target, both
+measured, neither fixable in a shader:
+
+ 1. 55 % of the 400 mm target is the tail curving out of the light.  The
+    reference patch is 45 px wide and its last 7 columns run 235 -> 182 code
+    values down the rear corner.  Dropping them takes the target from 10.54 %
+    to 4.78 %.
+
+ 2. AgX + "AgX - Punchy" is nearly flat where the cream sits.  Measured by
+    exposure derivative on this scene (T1_EXP -0.25 / 0 / +0.25):
+    d(code)/dEV = 16.60 at cream mean 224.9, i.e. a local gain of 0.106
+    display-fraction per unit scene-linear fraction.  On the red lower body,
+    two stops darker, the same measurement gives 0.309.  A gamma-2.4 camera
+    response would be ~0.42 before its own highlight shoulder.  So the cream
+    panel throws away ~90 % of any albedo modulation before it reaches a code
+    value, and the same shader reads three times stronger on the red.
+
+Working back through the measured gain, the 1.42 % display residual here is
+13.4 % albedo sd in linear reflectance.  The reference's flat + detrended
+3.97 % corresponds to 11-16 % albedo sd for a camera highlight gain of
+0.25-0.35.  In linear reflectance the paint now carries the same texture
+amplitude as the real vehicle; it is the view transform that hides it.
+"""
 import bpy, math, os
 
 TEXDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tex")
@@ -13,15 +57,122 @@ GOLD = (0.8600, 0.5400, 0.0600)
 
 # two-tone break line:  belt line on the flanks, V-swage across the nose
 #
-# rev-3 wrote these in the DROPPED frame (build.py lowers every vertex AFTER
-# materials are assigned), so with RIDE_DROP now 0 they sat 154 mm low and the
-# painted V no longer followed the pressed V-swage in the sheet metal.
-# These are now in the same frame as the geometry: V_APEX + V_RISE == Z_BELT
-# exactly, and both match t1_shell's pressed swage zV(y) = 0.872 + 0.514*(..).
+# FRAME NOTE (measured 2026-08-09, not assumed).  build.py step 8b subtracts
+# T.RIDE_DROP from every vertex AFTER the materials are assigned, but a shader
+# reads Geometry->Position at RENDER time, i.e. from the already-dropped mesh.
+# The shader therefore sees the DROPPED frame, and Position.Z is the true
+# height above the ground plane (the cyclorama sits at z = 0 and the tyres
+# bottom out at z = 0.010 +- one 9.9 mm pixel).
+# Verified empirically: in the side ortho probe the painted cream/red break on
+# the rear quarter (clear of the counter, tblend = 0 so the mix is pure Z_BELT)
+# lands between pixel rows 128 and 130 with row 129 the mixed pixel; row 129 is
+# z = 1.3859 against Z_BELT = 1.3860.  A shader reading the UN-dropped frame
+# would have put it on row 135.6.  So height ramps below are written in
+# TRUE ABOVE-GROUND METRES with NO ride-drop offset added.
 Z_BELT = 1.3860
 V_APEX = 0.8720
 V_RISE = 0.5140
 V_POW = 1.16
+
+# ---------------------------------------------------------------- WEATHER
+# Tunables for the shared weathering field.  W_ALBEDO is the one that is
+# actually measured against the reference: see the residual table in the
+# handover.  Roughness modulation alone is nearly invisible at Specular IOR
+# Level 0.21 / Roughness 0.42 because the body is diffuse-dominated.
+W_N1_SCALE, W_N1_DETAIL, W_N1_ROUGH = 3.5, 6.0, 0.55
+W_N2_SCALE, W_N2_DETAIL = 22.0, 4.0
+W_N1_W, W_N2_W = 0.65, 0.35
+W_ROUGH_SWING = 0.09           # +- about the material's base roughness
+W_ALBEDO = 0.700               # +- albedo half-range over the 0.30-0.70 map
+                               # window.  The design entered 0.06; measured,
+                               # that realises only 1.2 % albedo sd and 0.13 %
+                               # display residual (see the report).  0.70
+                               # realises 14.2 % albedo sd.
+W_MAP_LO, W_MAP_HI = 0.30, 0.70
+
+# curvature edge wear.  Pointiness RE-MEASURED off the built mesh 2026-08-09
+# by rendering Geometry->Pointiness to a 32-bit EXR through the side ortho,
+# at BOTH subdivision levels (mean / p95 / max over the sampled window):
+#                          T1_SUB=1                T1_SUB=2
+#   flat flank        0.5002 / .5004 / .5005   0.5001 / .5003 / .5005
+#   front arch lip    0.5326 / .5926 / .6084   0.5324 / .5926 / .6084
+#   rear arch lip     0.5031 / .5096 / .5099        (never reaches 0.52)
+#   bumper front      0.5101 / .5463 / .5950   0.5085 / .5463 / .5950
+#   counter lip       0.5794 / .6150 / .6690   0.5764 / .6150 / .6690
+#   above 0.520          27.9 % of frame          24.2 % of frame
+#   above 0.600           3.99 %                   3.94 %
+# The design's figures (flank 0.503, arch lip 0.552, bumper crown 0.571, drip
+# rail 0.591, counter lip 0.617) are close for the bumper and the counter, but
+# the flank is 0.500 not 0.503 and the REAR arch lip never crosses 0.520 at
+# all, so it gets no chips.  SUB=1 and SUB=2 agree to <0.003 everywhere --
+# pointiness here is NOT mesh-density sensitive, because the subsurf runs
+# before solidify and the arches / bumper / counter are unsubdivided detail
+# geometry.  The 0.520 / 0.600 window is kept: it clears the flank by 20 sigma.
+W_PT_LO, W_PT_HI = 0.520, 0.600
+W_CHIP_SCALE, W_CHIP_DETAIL = 60.0, 3.0
+W_CHIP_LO, W_CHIP_HI = 0.42, 0.58
+W_CHIP_CUT = 0.35
+# Pointiness is a PER-VERTEX quantity. On the subdivided shell it does what
+# the design assumes, but on unsubdivided detail geometry every vertex is a
+# corner, so the ramp saturates over the whole face: measured, the counter
+# slab reads pw = 1.0 across its entire top (55 % of the top-down frame at
+# pw > 0.5), which turned Wear 0.7 into 29 % chip coverage on a flat slab
+# instead of a chipped lip. A second, low-frequency cluster gate breaks the
+# chipping into runs -- which is also what the design asks for ("not a uniform
+# pen line") -- and brings the slab back to a believable coverage without
+# touching the per-material Wear weights.
+W_CLUST_SCALE, W_CLUST_DETAIL = 7.0, 2.0
+W_CLUST_LO, W_CLUST_HI = 0.44, 0.60
+W_PRIMER = (0.1290, 0.1070, 0.0920)     # linear oxide grey
+W_STEEL = (0.5600, 0.5620, 0.5680)      # bare steel
+W_STEEL_LO, W_STEEL_HI = 0.80, 1.00     # deepest ~20 % of the wear ramp
+W_STEEL_ROUGH = 0.55
+# The pointiness histogram on this mesh is BIMODAL -- 49 % of the visible
+# surface sits at 0.500-0.505 (flat panel) and the edges jump straight to
+# 0.58-0.61.  "the deepest 20 % of the ramp" therefore selects ~100 % of the
+# chips, not 20 % of them: measured 4.20 % steel against 4.42 % primer on the
+# lower flank.  A second, finer mask cuts the bare-metal core back to a fifth
+# of the chip, which is also what a real chip looks like: primer ring, small
+# bright core.
+W_CORE_SCALE, W_CORE_DETAIL, W_CORE_CUT = 110.0, 2.0, 0.573
+
+# dust: measured tide line.  In CIELAB C*/(L*+16) on the real vehicle is flat
+# to +-7 % from h = 0.40 m to h = 0.92 m and only collapses at 0.36 (-21 %).
+# The 35 % luminance fall toward the rocker is ILLUMINATION, not pigment.
+# So there is no dust on the flank above 0.48 m at all.
+W_DUST_Z_HI, W_DUST_Z_LO = 0.480, 0.220      # true above-ground metres
+W_DUST_RAG_SCALE, W_DUST_RAG_DETAIL, W_DUST_RAG_AMP = 6.0, 2.0, 0.045
+W_DUST_NZ_LO, W_DUST_NZ_HI = 0.25, 0.85      # upward-normal ramp
+W_DUST_UP_W = 0.85
+W_DUST_MOT_SCALE, W_DUST_MOT_DETAIL = 14.0, 4.0
+W_DUST_MOT_LO, W_DUST_MOT_HI = 0.35, 0.70
+W_DUST_MOT_MIN, W_DUST_MOT_MAX = 0.35, 1.00
+W_DUST_COL = (0.4400, 0.3900, 0.3100)        # pale limestone ochre
+W_DUST_FAC_UP, W_DUST_FAC_LOW = 0.35, 0.50   # colour factor up-face / rocker
+W_DUST_ROUGH = 0.28                          # ADDITIVE, clamped at 0.85
+W_ROUGH_CEIL = 0.85
+
+# sun fade -- a DESIGN VALUE, not a measurement.  Neither in-service photo is
+# in direct sun (ref_side.jpg open shade, ref_rear34.jpg under a palapa), so
+# fade cannot be separated from exposure.  Kept well under the dust term.
+W_FADE_SAT, W_FADE_VAL = 0.88, 1.04
+
+# orange peel.  rev-3 had Scale 190 with the noise Vector UNLINKED, so it fell
+# back to Generated (bounding-box) coordinates: 22.3 / 9.2 / 8.1 mm on T1_body
+# at 2.75:1, and the SAME material on gutter+-1 where it is 140:1.  Object
+# coordinates fix the anisotropy.  Resolvable peel goes in the Bump; the
+# 0.3-1.5 mm microstructure does NOT -- an A/B put a 0.5 mm bump at Strength
+# 0.35 on the Monte-Carlo noise floor, where it only aliases.  Fold it into
+# Roughness instead.
+W_PEEL_SCALE, W_PEEL_DETAIL = 220.0, 2.0
+W_PEEL_STRENGTH, W_PEEL_DIST = 0.12, 0.0006
+W_MICRO_SCALE, W_MICRO_DETAIL = 1400.0, 1.0
+W_MICRO_LO, W_MICRO_HI, W_MICRO_AMP = 0.35, 0.65, 0.035
+
+# per-material wear weights (SPEC rev6 sec.3)
+WEAR = dict(bumpercream=1.0, wheelcream=0.8, countercream=0.7, capred=0.6,
+            capwhite=0.6, T1_paint=0.55, calidad=0.55, cream=0.3,
+            roundelred=0.25)
 
 
 def _nt(mat):
@@ -32,6 +183,7 @@ def _nt(mat):
     out.location = (900, 0)
     bsdf = nt.nodes.new("ShaderNodeBsdfPrincipled")
     bsdf.location = (560, 0)
+    bsdf.inputs["Subsurface Weight"].default_value = 0.0
     nt.links.new(bsdf.outputs[0], out.inputs[0])
     return nt, bsdf
 
@@ -100,10 +252,393 @@ def _math(nt, op, a=None, b=None, x=0, y=0, clamp=False):
     return n
 
 
+def _mr(nt, val, fmin, fmax, tmin, tmax, x=0, y=0, smooth=False, clamp=True):
+    """MapRange (float).  smooth -> SMOOTHSTEP interpolation."""
+    n = nt.nodes.new("ShaderNodeMapRange")
+    n.location = (x, y)
+    n.clamp = clamp
+    if smooth:
+        n.interpolation_type = 'SMOOTHSTEP'
+    for src, sock in ((val, 0), (fmin, 1), (fmax, 2), (tmin, 3), (tmax, 4)):
+        _feed(nt, src, n.inputs[sock])
+    return n
+
+
+def _noise(nt, vec, scale, detail, x, y, rough=None):
+    """noise texture.  vec MUST be supplied -- an unlinked Vector silently
+    falls back to Generated (bounding-box) coordinates, which is anisotropic
+    and object-size dependent."""
+    n = nt.nodes.new("ShaderNodeTexNoise")
+    n.location = (x, y)
+    n.inputs["Scale"].default_value = scale
+    n.inputs["Detail"].default_value = detail
+    if rough is not None:
+        n.inputs["Roughness"].default_value = rough
+    nt.links.new(vec, n.inputs["Vector"])
+    return n
+
+
+def _mixf(nt, fac, a, b, x=0, y=0):
+    n = nt.nodes.new("ShaderNodeMix")
+    n.data_type = 'FLOAT'
+    n.location = (x, y)
+    _feed(nt, fac, n.inputs[0])
+    _feed(nt, a, n.inputs[2])
+    _feed(nt, b, n.inputs[3])
+    return n
+
+
+def _mixc(nt, fac, a, b, x=0, y=0, blend='MIX'):
+    n = nt.nodes.new("ShaderNodeMix")
+    n.data_type = 'RGBA'
+    n.blend_type = blend
+    n.location = (x, y)
+    n.inputs[0].default_value = 1.0
+    _feed(nt, fac, n.inputs[0])
+    if isinstance(a, tuple):
+        n.inputs[6].default_value = (*a, 1)
+    else:
+        _feed(nt, a, n.inputs[6])
+    if isinstance(b, tuple):
+        n.inputs[7].default_value = (*b, 1)
+    else:
+        _feed(nt, b, n.inputs[7])
+    return n
+
+
+# =========================================================== WEATHER group
+def weather_group(name="WEATHER"):
+    """Shared weathering field.
+
+    in : Base Color, Roughness, Dust, Wear, Fade, Peel
+    out: Base Color, Roughness, Normal, Metallic
+
+    Metallic is not in the original interface list but 2b requires the bare
+    steel stage to read as metal rather than grey paint, and a node group
+    cannot write a socket it does not expose.  It is 0 everywhere the steel
+    mask is 0, so linking it is a no-op on every non-chipped material.
+    """
+    ng = bpy.data.node_groups.get(name)
+    if ng:
+        return ng
+    ng = bpy.data.node_groups.new(name, "ShaderNodeTree")
+    I = ng.interface
+    s = I.new_socket("Base Color", in_out='INPUT', socket_type='NodeSocketColor')
+    s.default_value = (*CREAM, 1)
+    for nm, dv in (("Roughness", 0.42), ("Dust", 0.0), ("Wear", 0.0),
+                   ("Fade", 0.0), ("Peel", 0.0)):
+        s = I.new_socket(nm, in_out='INPUT', socket_type='NodeSocketFloat')
+        s.default_value = dv
+        s.min_value, s.max_value = 0.0, 2.0
+    I.new_socket("Base Color", in_out='OUTPUT', socket_type='NodeSocketColor')
+    I.new_socket("Roughness", in_out='OUTPUT', socket_type='NodeSocketFloat')
+    I.new_socket("Normal", in_out='OUTPUT', socket_type='NodeSocketVector')
+    I.new_socket("Metallic", in_out='OUTPUT', socket_type='NodeSocketFloat')
+
+    nt = ng
+    gi = ng.nodes.new("NodeGroupInput"); gi.location = (-2600, 0)
+    go = ng.nodes.new("NodeGroupOutput"); go.location = (1800, 0)
+    IN = dict(col=gi.outputs["Base Color"], rgh=gi.outputs["Roughness"],
+              dust=gi.outputs["Dust"], wear=gi.outputs["Wear"],
+              fade=gi.outputs["Fade"], peel=gi.outputs["Peel"])
+
+    # ---- front end.  Object coordinates, never Generated.
+    texco = ng.nodes.new("ShaderNodeTexCoord"); texco.location = (-2600, -600)
+    OBJ = texco.outputs["Object"]
+    geo = ng.nodes.new("ShaderNodeNewGeometry"); geo.location = (-2600, -900)
+    psep = ng.nodes.new("ShaderNodeSeparateXYZ"); psep.location = (-2420, -860)
+    ng.links.new(geo.outputs["Position"], psep.inputs[0])
+    nsep = ng.nodes.new("ShaderNodeSeparateXYZ"); nsep.location = (-2420, -1040)
+    ng.links.new(geo.outputs["Normal"], nsep.inputs[0])
+    PT = geo.outputs["Pointiness"]
+
+    # ---- 2a multi-octave roughness + albedo breakup ---------------------
+    n1 = _noise(nt, OBJ, W_N1_SCALE, W_N1_DETAIL, -2200, 400, W_N1_ROUGH)
+    n2 = _noise(nt, OBJ, W_N2_SCALE, W_N2_DETAIL, -2200, 120)
+    a1 = _math(nt, 'MULTIPLY', n1.outputs["Fac"], W_N1_W, -1980, 400)
+    a2 = _math(nt, 'MULTIPLY', n2.outputs["Fac"], W_N2_W, -1980, 240)
+    mix = _math(nt, 'ADD', a1, a2, -1820, 320)
+
+    rlo = _math(nt, 'SUBTRACT', IN['rgh'], W_ROUGH_SWING, -1820, 640)
+    rhi = _math(nt, 'ADD', IN['rgh'], W_ROUGH_SWING, -1820, 780)
+    rough = _mr(nt, mix, W_MAP_LO, W_MAP_HI, rlo, rhi, -1600, 700)
+
+    alb = _mr(nt, mix, W_MAP_LO, W_MAP_HI, 1.0 - W_ALBEDO, 1.0 + W_ALBEDO,
+              -1600, 320)
+    col = _mixc(nt, 1.0, IN['col'], alb.outputs[0], -1380, 320, blend='MULTIPLY')
+
+    # ---- 2d sun fade (UNDER the dust film) ------------------------------
+    fz = _mr(nt, nsep.outputs["Z"], 0.0, 1.0, 0.0, 1.0, -1380, -180)
+    ffac = _math(nt, 'MULTIPLY', fz, IN['fade'], -1200, -180, clamp=True)
+    hs = ng.nodes.new("ShaderNodeHueSaturation"); hs.location = (-1020, 200)
+    hs.inputs["Saturation"].default_value = W_FADE_SAT
+    hs.inputs["Value"].default_value = W_FADE_VAL
+    ng.links.new(ffac.outputs[0], hs.inputs["Fac"])
+    ng.links.new(col.outputs[2], hs.inputs["Color"])
+
+    # ---- 2b curvature edge wear -----------------------------------------
+    pw = _mr(nt, PT, W_PT_LO, W_PT_HI, 0.0, 1.0, -2200, -420, smooth=True)
+    cn = _noise(nt, OBJ, W_CHIP_SCALE, W_CHIP_DETAIL, -2200, -700)
+    cm = _mr(nt, cn.outputs["Fac"], W_CHIP_LO, W_CHIP_HI, 0.0, 1.0,
+             -2000, -700)
+    cl = _noise(nt, OBJ, W_CLUST_SCALE, W_CLUST_DETAIL, -2200, -900)
+    clm = _mr(nt, cl.outputs["Fac"], W_CLUST_LO, W_CLUST_HI, 0.0, 1.0,
+              -2000, -900)
+    cprod = _math(nt, 'MULTIPLY', cm, clm, -1820, -700)
+    craw = _math(nt, 'MULTIPLY', pw, cprod, -1820, -560)
+    # real chips have hard edges, not a fade
+    hard = _math(nt, 'GREATER_THAN', craw, W_CHIP_CUT, -1640, -560)
+    wear = _math(nt, 'MULTIPLY', hard, IN['wear'], -1460, -560, clamp=True)
+    deep = _mr(nt, pw, W_STEEL_LO, W_STEEL_HI, 0.0, 1.0, -1640, -760,
+               smooth=True)
+    sn = _noise(nt, OBJ, W_CORE_SCALE, W_CORE_DETAIL, -1820, -920)
+    core = _math(nt, 'GREATER_THAN', sn.outputs["Fac"], W_CORE_CUT,
+                 -1640, -920)
+    dcore = _math(nt, 'MULTIPLY', deep, core, -1460, -860)
+    steel = _math(nt, 'MULTIPLY', wear, dcore, -1280, -760, clamp=True)
+
+    cprim = _mixc(nt, wear, hs.outputs[0], W_PRIMER, -820, 200)
+    csteel = _mixc(nt, steel, cprim.outputs[2], W_STEEL, -620, 200)
+
+    # ---- 2e orange peel --------------------------------------------------
+    pn = _noise(nt, OBJ, W_PEEL_SCALE, W_PEEL_DETAIL, -1200, -1100)
+    pstr = _math(nt, 'MULTIPLY', IN['peel'], W_PEEL_STRENGTH, -1200, -1300)
+    bump = ng.nodes.new("ShaderNodeBump"); bump.location = (-900, -1150)
+    bump.inputs["Distance"].default_value = W_PEEL_DIST
+    ng.links.new(pstr.outputs[0], bump.inputs["Strength"])
+    ng.links.new(pn.outputs["Fac"], bump.inputs["Height"])
+
+    mn = _noise(nt, OBJ, W_MICRO_SCALE, W_MICRO_DETAIL, -1200, -1500)
+    mmr = _mr(nt, mn.outputs["Fac"], W_MICRO_LO, W_MICRO_HI,
+              -W_MICRO_AMP, W_MICRO_AMP, -1000, -1500)
+    mamt = _math(nt, 'MULTIPLY', mmr, IN['peel'], -820, -1500)
+    r2 = _math(nt, 'ADD', rough.outputs[0], mamt, -640, 700)
+    # bare steel is not chalky paint
+    r3 = _mixf(nt, steel, r2, W_STEEL_ROUGH, -460, 700)
+
+    # ---- 2c dust with a tide line ---------------------------------------
+    rag = _noise(nt, OBJ, W_DUST_RAG_SCALE, W_DUST_RAG_DETAIL, -2200, -1300)
+    ragc = _math(nt, 'SUBTRACT', rag.outputs["Fac"], 0.5, -2000, -1300)
+    ragz = _math(nt, 'MULTIPLY_ADD', ragc, W_DUST_RAG_AMP, -1820, -1300)
+    ng.links.new(psep.outputs["Z"], ragz.inputs[2])
+    hgt = _mr(nt, ragz, W_DUST_Z_HI, W_DUST_Z_LO, 0.0, 1.0, -1640, -1300,
+              smooth=True)
+    upn = _mr(nt, nsep.outputs["Z"], W_DUST_NZ_LO, W_DUST_NZ_HI, 0.0, 1.0,
+              -1640, -1480)
+    upw = _math(nt, 'MULTIPLY', upn, W_DUST_UP_W, -1460, -1480)
+    # independent loading paths -> MAXIMUM, not multiply
+    dmax = _math(nt, 'MAXIMUM', hgt, upw, -1280, -1380, clamp=True)
+    mot = _noise(nt, OBJ, W_DUST_MOT_SCALE, W_DUST_MOT_DETAIL, -1640, -1660)
+    motm = _mr(nt, mot.outputs["Fac"], W_DUST_MOT_LO, W_DUST_MOT_HI,
+               W_DUST_MOT_MIN, W_DUST_MOT_MAX, -1460, -1660)
+    d1 = _math(nt, 'MULTIPLY', dmax, motm, -1100, -1380)
+    dust = _math(nt, 'MULTIPLY', d1, IN['dust'], -920, -1380, clamp=True)
+    # heavier film at the rocker than on the upward faces
+    dfac0 = _mr(nt, hgt, 0.0, 1.0, W_DUST_FAC_UP, W_DUST_FAC_LOW, -740, -1560)
+    dfac = _math(nt, 'MULTIPLY', dust, dfac0, -560, -1480, clamp=True)
+    cdust = _mixc(nt, dfac, csteel.outputs[2], W_DUST_COL, -380, 200)
+
+    # dust roughness is ADDITIVE so it stacks on the breakup
+    dr = _math(nt, 'MULTIPLY', dust, W_DUST_ROUGH, -380, 700)
+    r4 = _math(nt, 'ADD', r3, dr, -220, 700)
+    r5 = _math(nt, 'MINIMUM', r4, W_ROUGH_CEIL, -60, 700)
+    r6 = _math(nt, 'MAXIMUM', r5, 0.030, 100, 700)
+
+    # index, not name: an output socket may share its name with an input and
+    # Blender is free to disambiguate one of them
+    ng.links.new(cdust.outputs[2], go.inputs[0])       # Base Color
+    ng.links.new(r6.outputs[0], go.inputs[1])          # Roughness
+    ng.links.new(bump.outputs[0], go.inputs[2])        # Normal
+    ng.links.new(steel.outputs[0], go.inputs[3])       # Metallic
+    return ng
+
+
+def _bsdf(m):
+    return next(n for n in m.node_tree.nodes if n.type == 'BSDF_PRINCIPLED')
+
+
+def apply_weather(m, dust=0.0, wear=0.0, fade=0.0, peel=0.0, normal=True):
+    """Splice the WEATHER group between the material's colour/roughness
+    sources and its Principled BSDF."""
+    nt = m.node_tree
+    b = _bsdf(m)
+    g = nt.nodes.new("ShaderNodeGroup")
+    g.node_tree = weather_group()
+    g.location = (200, 260)
+
+    cs = b.inputs["Base Color"]
+    if cs.links:
+        src = cs.links[0].from_socket
+        nt.links.remove(cs.links[0])
+        nt.links.new(src, g.inputs["Base Color"])
+    else:
+        g.inputs["Base Color"].default_value = cs.default_value[:]
+    g.inputs["Roughness"].default_value = b.inputs["Roughness"].default_value
+    g.inputs["Dust"].default_value = dust
+    g.inputs["Wear"].default_value = wear
+    g.inputs["Fade"].default_value = fade
+    g.inputs["Peel"].default_value = peel
+
+    nt.links.new(g.outputs[0], b.inputs["Base Color"])
+    nt.links.new(g.outputs[1], b.inputs["Roughness"])
+    if normal:
+        nt.links.new(g.outputs[2], b.inputs["Normal"])
+    if wear > 0.0:
+        nt.links.new(g.outputs[3], b.inputs["Metallic"])
+    return m
+
+
+# ===================================================== non-group variants
+def _frontend(nt, x=-1900):
+    texco = nt.nodes.new("ShaderNodeTexCoord"); texco.location = (x, -400)
+    geo = nt.nodes.new("ShaderNodeNewGeometry"); geo.location = (x, -700)
+    psep = nt.nodes.new("ShaderNodeSeparateXYZ"); psep.location = (x + 180, -660)
+    nt.links.new(geo.outputs["Position"], psep.inputs[0])
+    nsep = nt.nodes.new("ShaderNodeSeparateXYZ"); nsep.location = (x + 180, -840)
+    nt.links.new(geo.outputs["Normal"], nsep.inputs[0])
+    return texco.outputs["Object"], psep, nsep, geo
+
+
+def _breakup(nt, obj, base_rough, swing=W_ROUGH_SWING, x=-1600):
+    """the 2a field, reused by the non-group variants"""
+    n1 = _noise(nt, obj, W_N1_SCALE, W_N1_DETAIL, x, 300, W_N1_ROUGH)
+    n2 = _noise(nt, obj, W_N2_SCALE, W_N2_DETAIL, x, 60)
+    a1 = _math(nt, 'MULTIPLY', n1.outputs["Fac"], W_N1_W, x + 200, 300)
+    a2 = _math(nt, 'MULTIPLY', n2.outputs["Fac"], W_N2_W, x + 200, 140)
+    mix = _math(nt, 'ADD', a1, a2, x + 380, 220)
+    rough = _mr(nt, mix, W_MAP_LO, W_MAP_HI, base_rough - swing,
+                base_rough + swing, x + 560, 220)
+    return mix, rough
+
+
+def tarnished(name, base, rough_lo, rough_hi, spec=0.5):
+    """chrome / nickel tarnish.  Chrome wears to NICKEL: it dulls and pits,
+    it does not chip to primer grey, so the WEATHER group is wrong here."""
+    m = bpy.data.materials.get(name)
+    if m:
+        return m
+    m = simple(name, base, rough=rough_lo, metal=1.0, spec=spec)
+    nt = m.node_tree
+    b = _bsdf(m)
+    obj, psep, nsep, geo = _frontend(nt)
+    n1 = _noise(nt, obj, W_N1_SCALE, W_N1_DETAIL, -1600, 300, W_N1_ROUGH)
+    n2 = _noise(nt, obj, W_N2_SCALE, W_N2_DETAIL, -1600, 60)
+    a1 = _math(nt, 'MULTIPLY', n1.outputs["Fac"], W_N1_W, -1400, 300)
+    a2 = _math(nt, 'MULTIPLY', n2.outputs["Fac"], W_N2_W, -1400, 140)
+    mix = _math(nt, 'ADD', a1, a2, -1220, 220)
+    rgh = _mr(nt, mix, W_MAP_LO, W_MAP_HI, rough_lo, rough_hi, -1040, 220)
+    # dark pit speckle
+    pit = _noise(nt, obj, 130.0, 2.0, -1600, -160)
+    pm = _math(nt, 'GREATER_THAN', pit.outputs["Fac"], 0.615, -1400, -160)
+    pmf = _math(nt, 'MULTIPLY', pm, 0.55, -1220, -160)
+    col = _mixc(nt, pmf, base, (0.0900, 0.0870, 0.0820), -860, 220)
+    rgh2 = _mixf(nt, pmf, rgh, 0.42, -860, 0)
+    nt.links.new(col.outputs[2], b.inputs["Base Color"])
+    nt.links.new(rgh2.outputs[0], b.inputs["Roughness"])
+    b.inputs["Metallic"].default_value = 1.0
+    return m
+
+
+def dust_film(name, base, rough, spec=0.25, fac_up=0.22, fac_low=0.34,
+              drough=0.10):
+    """tyre / rubber: a sidewall dust film only.  Z ramp + upward term, no
+    wear, no peel, no fade.  Blackwall per SPEC 0.2."""
+    m = bpy.data.materials.get(name)
+    if m:
+        return m
+    m = simple(name, base, rough=rough, spec=spec)
+    nt = m.node_tree
+    b = _bsdf(m)
+    obj, psep, nsep, geo = _frontend(nt)
+    mix, rgh = _breakup(nt, obj, rough, swing=0.06)
+    rag = _noise(nt, obj, W_DUST_RAG_SCALE, W_DUST_RAG_DETAIL, -1600, -1100)
+    ragc = _math(nt, 'SUBTRACT', rag.outputs["Fac"], 0.5, -1420, -1100)
+    ragz = _math(nt, 'MULTIPLY_ADD', ragc, W_DUST_RAG_AMP, -1240, -1100)
+    nt.links.new(psep.outputs["Z"], ragz.inputs[2])
+    hgt = _mr(nt, ragz, W_DUST_Z_HI, W_DUST_Z_LO, 0.0, 1.0, -1060, -1100,
+              smooth=True)
+    upn = _mr(nt, nsep.outputs["Z"], W_DUST_NZ_LO, W_DUST_NZ_HI, 0.0, 1.0,
+              -1060, -1280)
+    upw = _math(nt, 'MULTIPLY', upn, W_DUST_UP_W, -880, -1280)
+    dmax = _math(nt, 'MAXIMUM', hgt, upw, -700, -1180, clamp=True)
+    mot = _noise(nt, obj, W_DUST_MOT_SCALE, W_DUST_MOT_DETAIL, -1060, -1460)
+    motm = _mr(nt, mot.outputs["Fac"], W_DUST_MOT_LO, W_DUST_MOT_HI,
+               W_DUST_MOT_MIN, W_DUST_MOT_MAX, -880, -1460)
+    dust = _math(nt, 'MULTIPLY', dmax, motm, -520, -1180, clamp=True)
+    dfac0 = _mr(nt, hgt, 0.0, 1.0, fac_up, fac_low, -520, -1360)
+    dfac = _math(nt, 'MULTIPLY', dust, dfac0, -340, -1280, clamp=True)
+    col = _mixc(nt, dfac, base, W_DUST_COL, -180, 200)
+    dr = _math(nt, 'MULTIPLY', dust, drough, -180, 0)
+    r2 = _math(nt, 'ADD', rgh, dr, 0, 0)
+    r3 = _math(nt, 'MINIMUM', r2, W_ROUGH_CEIL, 160, 0)
+    nt.links.new(col.outputs[2], b.inputs["Base Color"])
+    nt.links.new(r3.outputs[0], b.inputs["Roughness"])
+    return m
+
+
+def canvas_mat(name="canvas", base=(0.6600, 0.6420, 0.5900)):
+    """ragtop duck: woven fibre + water staining, no chips, no peel"""
+    m = bpy.data.materials.get(name)
+    if m:
+        return m
+    m = simple(name, base, rough=0.86, spec=0.22)
+    nt = m.node_tree
+    b = _bsdf(m)
+    obj, psep, nsep, geo = _frontend(nt)
+    # anisotropic weave: stretch the coordinates so warp and weft differ
+    mp = nt.nodes.new("ShaderNodeMapping"); mp.location = (-1720, -400)
+    mp.inputs["Scale"].default_value = (1.0, 1.0, 0.28)
+    nt.links.new(obj, mp.inputs["Vector"])
+    weave = _noise(nt, mp.outputs[0], 150.0, 2.0, -1520, -400)
+    wm = _mr(nt, weave.outputs["Fac"], 0.30, 0.70, 0.90, 1.08, -1320, -400)
+    # water staining: low-frequency blotches that run downward
+    stain = _noise(nt, obj, 4.5, 5.0, -1520, -700, 0.62)
+    sm = _mr(nt, stain.outputs["Fac"], 0.44, 0.66, 0.0, 1.0, -1320, -700,
+             smooth=True)
+    scol = _mixc(nt, sm, base, (0.4150, 0.3860, 0.3300), -1000, 200)
+    tex = _mixc(nt, 1.0, scol.outputs[2], wm.outputs[0], -800, 200,
+                blend='MULTIPLY')
+    mix, rgh = _breakup(nt, obj, 0.86, swing=0.05)
+    sr = _math(nt, 'MULTIPLY_ADD', sm, 0.06, -600, 0)
+    nt.links.new(rgh.outputs[0], sr.inputs[2])
+    r2 = _math(nt, 'MINIMUM', sr, 0.94, -420, 0)
+    nt.links.new(tex.outputs[2], b.inputs["Base Color"])
+    nt.links.new(r2.outputs[0], b.inputs["Roughness"])
+    return m
+
+
+def interior_wear(name, base, rough, metal=0.0, spec=0.5):
+    """galley stainless / dark interior: USE wear, not weather.  Scuff and
+    handling polish, no dust tide line, no sun fade, no chips to primer."""
+    m = bpy.data.materials.get(name)
+    if m:
+        return m
+    m = simple(name, base, rough=rough, metal=metal, spec=spec)
+    nt = m.node_tree
+    b = _bsdf(m)
+    obj, psep, nsep, geo = _frontend(nt)
+    mix, rgh = _breakup(nt, obj, rough, swing=0.07)
+    # directional scuff: squash the coordinates along X so it streaks
+    mp = nt.nodes.new("ShaderNodeMapping"); mp.location = (-1720, -1100)
+    mp.inputs["Scale"].default_value = (1.0, 34.0, 34.0)
+    nt.links.new(obj, mp.inputs["Vector"])
+    scuff = _noise(nt, mp.outputs[0], 9.0, 3.0, -1520, -1100)
+    sm = _mr(nt, scuff.outputs["Fac"], 0.38, 0.62, -0.055, 0.055, -1320, -1100)
+    r2 = _math(nt, 'ADD', rgh, sm, -1000, 0)
+    r3 = _math(nt, 'MAXIMUM', r2, 0.05, -840, 0)
+    alb = _mr(nt, mix, W_MAP_LO, W_MAP_HI, 0.93, 1.07, -1000, 200)
+    col = _mixc(nt, 1.0, base, alb.outputs[0], -820, 200, blend='MULTIPLY')
+    nt.links.new(col.outputs[2], b.inputs["Base Color"])
+    nt.links.new(r3.outputs[0], b.inputs["Roughness"])
+    return m
+
+
+# ============================================================ body paint
 def body_paint(name="T1_paint"):
     """
     Cream above the break line, Tacombi red below, gold folk-art swirls
-    box-projected over the red, gloss clearcoat over everything.
+    box-projected over the red.  Weathering (breakup, chips, dust, fade,
+    orange peel) comes from the shared WEATHER group.
     """
     m = bpy.data.materials.get(name)
     if m:
@@ -216,109 +751,8 @@ def body_paint(name="T1_paint"):
     bsdf.inputs["Specular IOR Level"].default_value = 0.21
     bsdf.inputs["Coat Weight"].default_value = 0.02
     bsdf.inputs["Coat Roughness"].default_value = 0.300
-
-    # very fine orange-peel so the highlights are not mirror perfect
-    noise = nt.nodes.new("ShaderNodeTexNoise"); noise.location = (0, -640)
-    noise.inputs["Scale"].default_value = 190.0
-    noise.inputs["Detail"].default_value = 3.5
-    bump = nt.nodes.new("ShaderNodeBump"); bump.location = (300, -640)
-    bump.inputs["Strength"].default_value = 0.075
-    bump.inputs["Distance"].default_value = 0.004
-    nt.links.new(noise.outputs["Fac"], bump.inputs["Height"])
-    nt.links.new(bump.outputs[0], bsdf.inputs["Normal"])
-    return m
-
-
-def signage(name, filename, base=CREAM):
-    """flat board carrying a decal image (canopy fascia, side emblem)"""
-    m = bpy.data.materials.get(name)
-    if m:
-        return m
-    m = bpy.data.materials.new(name)
-    nt, b = _nt(m)
-    tex = _img(nt, filename, -400, 0)
-    if tex.image:
-        mix = nt.nodes.new("ShaderNodeMix"); mix.location = (100, 0)
-        mix.data_type = 'RGBA'
-        mix.inputs[6].default_value = (*base, 1)
-        nt.links.new(tex.outputs["Alpha"], mix.inputs[0])
-        nt.links.new(tex.outputs["Color"], mix.inputs[7])
-        nt.links.new(mix.outputs[2], b.inputs["Base Color"])
-    else:
-        b.inputs["Base Color"].default_value = (*base, 1)
-    b.inputs["Roughness"].default_value = 0.16
-    b.inputs["Coat Weight"].default_value = 0.5
-    b.inputs["Specular IOR Level"].default_value = 0.5
-    return m
-
-
-def fascia_sign(name="fascia_sign"):
-    """canopy valance: object-space X -> u, Z -> v, cream board + script"""
-    m = bpy.data.materials.get(name)
-    if m:
-        return m
-    m = bpy.data.materials.new(name)
-    nt, b = _nt(m)
-    X0, X1 = 0.4180, -2.1550
-    Z0, Z1 = 1.6280, 1.8380
-    geo = nt.nodes.new("ShaderNodeNewGeometry"); geo.location = (-1200, 0)
-    sep = nt.nodes.new("ShaderNodeSeparateXYZ"); sep.location = (-1020, 0)
-    nt.links.new(geo.outputs["Position"], sep.inputs[0])
-    u = _math(nt, 'SUBTRACT', sep.outputs["X"], X1, -840, 200)
-    u = _math(nt, 'DIVIDE', u, (X0 - X1), -680, 200)
-    ui = _math(nt, 'SUBTRACT', 1.0, u, -680, 330)
-    nrm = nt.nodes.new("ShaderNodeNewGeometry"); nrm.location = (-1200, 420)
-    nsep = nt.nodes.new("ShaderNodeSeparateXYZ"); nsep.location = (-1020, 420)
-    nt.links.new(nrm.outputs["Normal"], nsep.inputs[0])
-    side = _math(nt, 'GREATER_THAN', nsep.outputs["Y"], 0.0, -840, 420)
-    usel = nt.nodes.new("ShaderNodeMix"); usel.location = (-560, 260)
-    usel.data_type = 'FLOAT'
-    nt.links.new(side.outputs[0], usel.inputs[0])
-    nt.links.new(u.outputs[0], usel.inputs[2])
-    nt.links.new(ui.outputs[0], usel.inputs[3])
-    u = usel
-    v = _math(nt, 'SUBTRACT', sep.outputs["Z"], Z0, -840, -120)
-    v = _math(nt, 'DIVIDE', v, (Z1 - Z0), -680, -120)
-    comb = nt.nodes.new("ShaderNodeCombineXYZ"); comb.location = (-500, 0)
-    nt.links.new(u.outputs[0], comb.inputs[0])
-    nt.links.new(v.outputs[0], comb.inputs[1])
-    tex = _img(nt, "fascia.png", -320, 0)
-    nt.links.new(comb.outputs[0], tex.inputs["Vector"])
-    mix = nt.nodes.new("ShaderNodeMix"); mix.location = (120, 0)
-    mix.data_type = 'RGBA'
-    mix.inputs[6].default_value = (*CREAM, 1)
-    if tex.image:
-        nt.links.new(tex.outputs["Alpha"], mix.inputs[0])
-        nt.links.new(tex.outputs["Color"], mix.inputs[7])
-    else:
-        mix.inputs[0].default_value = 0.0
-    nt.links.new(mix.outputs[2], b.inputs["Base Color"])
-    b.inputs["Roughness"].default_value = 0.170
-    b.inputs["Coat Weight"].default_value = 0.45
-    return m
-
-
-def decal_uv(name, filename, base=RED):
-    """UV-mapped decal plate (side emblem)"""
-    m = bpy.data.materials.get(name)
-    if m:
-        return m
-    m = bpy.data.materials.new(name)
-    nt, b = _nt(m)
-    tex = _img(nt, filename, -320, 0)
-    mix = nt.nodes.new("ShaderNodeMix"); mix.location = (120, 0)
-    mix.data_type = 'RGBA'
-    mix.inputs[6].default_value = (*base, 1)
-    if tex.image:
-        nt.links.new(tex.outputs["Alpha"], mix.inputs[0])
-        nt.links.new(tex.outputs["Color"], mix.inputs[7])
-    else:
-        mix.inputs[0].default_value = 0.0
-    nt.links.new(mix.outputs[2], b.inputs["Base Color"])
-    b.inputs["Roughness"].default_value = 0.105
-    b.inputs["Coat Weight"].default_value = 0.75
-    b.inputs["Coat Roughness"].default_value = 0.025
-    b.inputs["Specular IOR Level"].default_value = 0.58
+    # orange peel now lives in the WEATHER group (Object coordinates, split
+    # into a resolvable Bump term and a sub-pixel Roughness term)
     return m
 
 
@@ -354,31 +788,30 @@ def silver_script(name="script"):
     return m
 
 
-def frosted_calidad(name="calidad"):
-    """bay 4: frosted glass carrying the 100% CALIDAD decal"""
+def paint_calidad(name="calidad"):
+    """'100% Calidad' on SOLID cream sheet metal aft of bay 3 (SPEC 0.2 and
+    sec.3).  rev-3 made this frosted glass with Transmission 0.88; that is a
+    retired reading and it rendered the panel 51.9 sRGB code values darker
+    than the surrounding cream (55.0 % of its linear reflectance) inside a
+    hard rectangular border.  It is paint, matched to T1_paint so it ages
+    with the sheet metal it is painted on."""
     m = bpy.data.materials.get(name)
     if m:
         return m
     m = bpy.data.materials.new(name)
     nt, b = _nt(m)
     tex = _img(nt, "calidad.png", -420, -140)
-    b.inputs["Base Color"].default_value = (0.760, 0.790, 0.782, 1)
-    b.inputs["Roughness"].default_value = 0.300
-    b.inputs["Transmission Weight"].default_value = 0.88
-    b.inputs["IOR"].default_value = 1.50
+    mix = _mixc(nt, 0.0, CREAM, CREAM, 60, 60)
     if tex.image:
-        mix = nt.nodes.new("ShaderNodeMix"); mix.location = (60, 60)
-        mix.data_type = 'RGBA'
-        mix.inputs[6].default_value = (0.760, 0.790, 0.782, 1)
         nt.links.new(tex.outputs["Alpha"], mix.inputs[0])
         nt.links.new(tex.outputs["Color"], mix.inputs[7])
-        nt.links.new(mix.outputs[2], b.inputs["Base Color"])
-        tr = nt.nodes.new("ShaderNodeMath"); tr.location = (60, -220)
-        tr.operation = 'SUBTRACT'
-        tr.inputs[0].default_value = 0.88
-        tr.use_clamp = True
-        nt.links.new(tex.outputs["Alpha"], tr.inputs[1])
-        nt.links.new(tr.outputs[0], b.inputs["Transmission Weight"])
+    nt.links.new(mix.outputs[2], b.inputs["Base Color"])
+    b.inputs["Roughness"].default_value = 0.420
+    b.inputs["Metallic"].default_value = 0.0
+    b.inputs["Transmission Weight"].default_value = 0.0
+    b.inputs["Specular IOR Level"].default_value = 0.21
+    b.inputs["Coat Weight"].default_value = 0.02
+    b.inputs["Coat Roughness"].default_value = 0.300
     return m
 
 
@@ -395,47 +828,47 @@ def build_all():
                              rough=0.26, coat=0.25, spec=0.45)
     M["countercream"] = simple("countercream", (0.7350, 0.7150, 0.6600),
                                rough=0.38, coat=0.06, spec=0.35)
-    M["red"] = simple("red", RED, rough=0.12, coat=0.65, spec=0.58)
-    M["chrome"] = simple("chrome", (0.860, 0.868, 0.880), rough=0.045,
-                         metal=1.0)
-    M["chrome_d"] = simple("chrome_dull", (0.760, 0.768, 0.780), rough=0.16,
-                           metal=1.0)
+    # chrome wears to NICKEL, so a primer-grey chip is wrong: tarnish instead
+    M["chrome"] = tarnished("chrome", (0.860, 0.868, 0.880), 0.14, 0.30)
+    M["chrome_d"] = tarnished("chrome_dull", (0.760, 0.768, 0.780), 0.20, 0.38)
     M["glass"] = simple("glass", (0.780, 0.845, 0.815), rough=0.004,
                         transmit=1.0, ior=1.47, spec=0.35)
-    M["rubber"] = simple("rubber", (0.0175, 0.0175, 0.0185), rough=0.78,
-                         spec=0.22)
-    M["tyre"] = simple("tyre", (0.0225, 0.0225, 0.0240), rough=0.70,
-                       spec=0.25)
-    M["wheelred"] = simple("wheelred", (0.3600, 0.0230, 0.0180), rough=0.24,
-                           coat=0.35, spec=0.50)
+    M["rubber"] = dust_film("rubber", (0.0175, 0.0175, 0.0185), 0.78,
+                            spec=0.22)
+    M["tyre"] = dust_film("tyre", (0.0225, 0.0225, 0.0240), 0.70, spec=0.25)
     M["capred"] = simple("capred", (0.4750, 0.0290, 0.0225), rough=0.085,
                          coat=0.85, spec=0.60)
     M["capwhite"] = simple("capwhite", (0.8900, 0.8880, 0.8720), rough=0.115,
                            coat=0.7, spec=0.55)
-    M["whitewall"] = simple("whitewall", (0.7450, 0.7380, 0.7120), rough=0.46,
-                            spec=0.28)
-    M["canvas"] = simple("canvas", (0.6600, 0.6420, 0.5900), rough=0.86,
-                         spec=0.22)
+    M["canvas"] = canvas_mat()
     M["script"] = silver_script()
-    M["calidad"] = frosted_calidad()
+    M["calidad"] = paint_calidad()
     # old D4: at 0.03 albedo the galley was a black void behind the hatches.
     # Lifted so the openings read as depth once fill_galley is on.
-    M["dark"] = simple("interior_dark", (0.1150, 0.1080, 0.1000), rough=0.78)
-    M["seat"] = simple("seat", (0.1250, 0.1000, 0.0760), rough=0.55)
-    M["timber"] = simple("timber", (0.3200, 0.2050, 0.1050), rough=0.48)
+    M["dark"] = interior_wear("interior_dark", (0.1150, 0.1080, 0.1000), 0.78)
     M["amber"] = simple("amber", (0.9200, 0.3400, 0.0250), rough=0.09,
                         transmit=0.75, ior=1.49)
     M["ruby"] = simple("ruby", (0.7000, 0.0350, 0.0250), rough=0.09,
                        transmit=0.72, ior=1.49)
     M["lens"] = simple("lens", (0.900, 0.918, 0.930), rough=0.018,
                        transmit=0.96, ior=1.52, spec=0.42)
+    # sealed inside the lamp bowl -- nothing weathers it
     M["reflector"] = simple("reflector", (0.960, 0.962, 0.968), rough=0.055,
                             metal=1.0)
     # brushed galley stainless, not a mirror: at rough 0.28 in an unlit box
     # the hatches filled with specular blobs instead of reading as an interior
-    M["steel"] = simple("steel", (0.560, 0.562, 0.568), rough=0.46, metal=1.0)
-    M["white"] = simple("white_gloss", (0.8700, 0.8720, 0.8600), rough=0.11,
-                        coat=0.6)
+    M["steel"] = interior_wear("steel", (0.560, 0.562, 0.568), 0.46, metal=1.0)
+
+    # ------------------------------------------------------- weathering
+    # full group: colour breakup + edge wear + dust + fade + orange peel
+    for k in ("paint", "bumpercream", "cream", "roundelred", "calidad"):
+        apply_weather(M[k], dust=1.0, wear=WEAR[M[k].name], fade=1.0, peel=1.0)
+    # group minus peel (not sprayed sheet metal), dust weighted up
+    for k in ("countercream", "wheelcream", "capred", "capwhite"):
+        apply_weather(M[k], dust=1.4, wear=WEAR[M[k].name], fade=1.0, peel=0.0)
+    # hand-painted silver: inherit the panel's dust and roughness field so it
+    # does not float, but chip the paint UNDER it, not the silver
+    apply_weather(M["script"], dust=1.0, wear=0.0, fade=0.5, peel=0.0)
     return M
 
 
