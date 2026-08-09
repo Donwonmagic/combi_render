@@ -119,10 +119,13 @@ Outstanding, in rough priority order:
 6. **Missing detail inventory** — see `SPEC §4`. Rear-quarter louvres, fuel
    filler, aperture trim and bulbs, menu cards on the pillars, drip-rail bulb
    string, counter brass edge strip, the "1963" plate surround.
-7. A six-lens adversarial audit was launched and may have written
-   `AUDIT_REV4.md`. If that file exists, read it — it predates the
-   high-resolution photographs, so where it disagrees with `REF_MEASUREMENTS.md`,
-   **the measurements win.**
+7. **`AUDIT_RECOVERED.md` — 89 findings, 13 critical, 44 major.** The six-lens
+   audit completed all six find passes, then the container restarted and killed
+   the verify and synthesise phases. So these findings are **UNVERIFIED** —
+   no skeptic has attacked them. They also predate the high-resolution
+   photographs, so where they disagree with `REF_MEASUREMENTS.md`, **the
+   measurements win.** Re-run a skeptic pass over the criticals before acting
+   on any of them; past experience is that roughly a third do not survive.
 
 ---
 
