@@ -28,7 +28,7 @@ from PIL import Image, ImageDraw, ImageFont
 # configuration
 # --------------------------------------------------------------------------- #
 
-OUT_DIR = "/home/claude/tacombi/tex"
+OUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tex")
 SEED = 20620801
 
 SWIRL_SIZE = 2048

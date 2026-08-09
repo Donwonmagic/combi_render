@@ -3,10 +3,19 @@ audit.py -- measured build/render provenance + silhouette metrics.
 Answers the audit checklist with numbers, not claims. Run headless after build.
 """
 import bpy, bmesh, os, sys, math, time
-sys.path.append("/home/claude/tacombi")
+
+# Repo root is wherever this file lives. The container is ephemeral and has
+# already been rebuilt under a different path once; hardcoding /home/claude
+# silently breaks the guards, which is the one thing that must never happen.
+try:
+    ROOT = os.path.dirname(os.path.abspath(__file__))
+except NameError:                                   # exec'd without __file__
+    ROOT = next((os.path.dirname(os.path.abspath(a)) for a in sys.argv
+                 if a.endswith("audit.py") and os.path.exists(a)), os.getcwd())
+sys.path.insert(0, ROOT)
 from mathutils import Vector
 
-src = open("/home/claude/tacombi/build.py").read().split('if os.environ.get("T1_SAVE")')[0]
+src = open(os.path.join(ROOT, "build.py")).read().split('if os.environ.get("T1_SAVE")')[0]
 exec(compile(src, "build.py", "exec"))
 
 import studio as ST
@@ -23,7 +32,7 @@ P("blender            : %s" % bpy.app.version_string)
 P("geometry source    : procedural, built this run (no mesh file loaded)")
 for f in ("t1_core.py", "t1_shell.py", "t1_detail.py", "t1_mats.py",
           "tex/swirl.png", "tex/senor.png", "tex/calidad.png", "tex/emblem.png"):
-    fp = "/home/claude/tacombi/" + f
+    fp = os.path.join(ROOT, f)
     if os.path.exists(fp):
         P("  %-18s mtime %s  %8d B" %
           (f, time.strftime("%H:%M:%S", time.localtime(os.path.getmtime(fp))),

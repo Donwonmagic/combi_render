@@ -213,7 +213,7 @@ if os.environ.get("T1_PREVIEW"):
     ST.lighting(float(os.environ.get("T1_KEY", "1.0")))
     ST.camera()
     ST.render_set(os.environ["T1_PREVIEW"].split(","),
-                  os.environ.get("T1_OUT", "/home/claude/tacombi/out"),
+                  os.environ.get("T1_OUT", os.path.join(os.path.dirname(os.path.abspath(__file__)), "out")),
                   prefix=os.environ.get("T1_PFX", "c"),
                   res=(int(os.environ.get("T1_RX", "900")),
                        int(os.environ.get("T1_RY", "600"))),

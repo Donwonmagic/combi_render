@@ -1,4 +1,7 @@
+__pycache__/
+*.pyc
 out/
+*.blend
 *.blend1
 tex/prev_*.png
 *.log
