@@ -301,6 +301,18 @@ for o, k in ((vr, "roundelred"), (vd, "cream")):
     D.place(o, loc=(2.1155, 0.0, ROUNDEL_Z)); A(o, k)
 for b in D.vw_logo(x=2.1210):                 # V over W, never inverted
     D.place(b, loc=(0.0, 0.0, ROUNDEL_Z)); A(b, "roundelred")
+
+# SPEC sec.4 detail inventory: rear-quarter louvres (10 per side), fuel filler
+# flap, aperture bobble fringe, drip-rail bulb string, pillar menu cards,
+# "1963" plate surround, roof peak vent, engine-lid T-handle.  All swept or
+# stamped ON TOP of the finished shell -- step 7 is after solidify and after
+# every cut, so no boolean and no ordering constraint is involved.
+for _obs, _key in D.spec4_details(body):
+    if _key:
+        A(_obs, _key)
+# A() force-smooths everything it touches, which rounds off every pressed
+# edge. Undo it on the hard-surface details, once, after the last A().
+D.shade_fix()
 log("brightwork + lamps")
 
 # --------------------------------------------------------------- 8 decals
@@ -309,15 +321,24 @@ log("brightwork + lamps")
 # a measured +0.145) and landed it on the louvre block.  x0 is the FORWARD
 # edge -- conform_panel runs u from x0 to x1 and the show side is +Y, where
 # aft is screen-right, so swapping them mirrors the script.
-# senor.png is 4096 x 890 = 4.602:1, so the z extent follows the new width:
-# 1.278 / 4.602 = 0.2777 m, held on the shipped vertical centre 0.99875
-# un-dropped (0.934 above ground) so the lockup stays in the red band below
-# the counter and the belt.
-SCR = dict(x0=0.784, x1=-0.494, z0=0.8599, z1=1.1376)    # 4.60:1, matches tex
-A(T.conform_panel(SCR["x0"], SCR["x1"], SCR["z0"], SCR["z1"], S.SHOW_SIDE,
-                  name="script_L"), "script")
-A(T.conform_panel(SCR["x0"], SCR["x1"], SCR["z0"], SCR["z1"], -S.SHOW_SIDE,
-                  name="script_R"), "script")
+# The shipped senor.png was 4096 x 890 (4.602:1) with an alpha bbox of only
+# 1838 x 716: the ink filled 44.9 % of the panel width and 80.4 % of its
+# height, so a panel sized to the measured lockup rendered a script 0.574 m
+# wide at 0.816-1.039 AG against a photographed 1.278 m at 0.380-0.853 AG --
+# less than half size and 0.4 m too high.  Fixed at the TEXTURE (sign_gen.py
+# now crops tight to its own ink and emits at exactly 2.702:1), so the panel
+# extent and the ink extent are now the same rectangle:
+#     X  +0.784 ... -0.494   width  1.278
+#     Z   0.445 ...  0.918   height 0.473   un-dropped (0.380-0.853 AG)
+#     AR  1.278 / 0.473 = 2.7019, matching senor.png's 2702 x 1000
+# conform_panel_true rides the MEASURED body surface, not T.flank_y(): at
+# z = 0.445 the analytic half width is 4.5 mm inboard of the real skin, which
+# would bury the foot of the lockup.
+SCR = dict(x0=0.784, x1=-0.494, z0=0.4450, z1=0.9180)    # 2.702:1 = tex AR
+A(D.conform_panel_true(body, SCR["x0"], SCR["x1"], SCR["z0"], SCR["z1"],
+                       S.SHOW_SIDE, name="script_L"), "script")
+A(D.conform_panel_true(body, SCR["x0"], SCR["x1"], SCR["z0"], SCR["z1"],
+                       -S.SHOW_SIDE, name="script_R"), "script")
 # "100% Calidad" on the solid rear-corner panel, show side (SPEC r4 sec.3)
 CAL = dict(x0=-1.350, x1=-1.847, z0=1.4400, z1=1.7800)   # 1.463:1 = tex AR
 A(T.conform_panel(CAL["x0"], CAL["x1"], CAL["z0"], CAL["z1"], S.SHOW_SIDE,

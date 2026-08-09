@@ -1,8 +1,38 @@
-"""white cyclorama studio, lighting rig, camera set, render driver"""
+"""white cyclorama studio, PHYSICAL camera, lighting rig, render driver
+
+rev 7 -- the camera was a pinhole with infinite depth of field and the rig was
+six neutral rectangles. Both are loud CGI tells at hero resolution:
+
+  * A pinhole renders the tail as sharp as the near arch. No lens does that.
+    The camera now has a real sensor size, a real focal length and a real
+    f-number, and focuses on the near front arch. Every view logs its measured
+    near/far DoF limits so the depth falloff is a number, not a claim.
+  * Six rectangles each draw a short specular blob and the eye reads blobs as
+    plastic. One long narrow source draws a CONTINUOUS streak that runs the
+    length of the flank and bends where the panel curves -- which is what
+    actually says "sheet metal". Still large and soft per SPEC sec.6; it just
+    has an aspect ratio now.
+  * A render with no lens or film artefacts at all reads as synthetic even when
+    everything else is right. Restrained chromatic aberration, vignette, bloom
+    on the brightest speculars and fine grain are added in the compositor, in
+    the order a real camera imposes them.
+
+Every effect is switchable from the environment so any of it can be A/B'd or
+zeroed without editing code. T1_FX=0 disables the whole optics chain.
+"""
 import bpy, math, os
 from mathutils import Vector
 
 
+def _envf(k, d):
+    return float(os.environ.get(k, d))
+
+
+def _envi(k, d):
+    return int(float(os.environ.get(k, d)))
+
+
+# --------------------------------------------------------------------- clay
 def clay_all(rgb=(0.62, 0.62, 0.63)):
     m = bpy.data.materials.get("__clay")
     if not m:
@@ -43,39 +73,59 @@ def cyclorama(size=90.0, **kw):
     return ob
 
 
-def _softbox(name, loc, aim, size, power, colour=(1, 1, 1)):
+# ----------------------------------------------------------------- lighting
+def _softbox(name, loc, aim_at, size, power, colour=(1, 1, 1), spread=None):
     d = bpy.data.lights.new(name, 'AREA')
     d.shape = 'RECTANGLE'
     d.size, d.size_y = size
     d.energy = power
     d.color = colour
+    if spread is not None:                     # narrow spread = crisper streak
+        d.spread = math.radians(spread)
     o = bpy.data.objects.new(name, d)
     bpy.context.collection.objects.link(o)
     o.location = loc
-    v = Vector(aim) - Vector(loc)
+    v = Vector(aim_at) - Vector(loc)
     o.rotation_euler = v.to_track_quat('-Z', 'Y').to_euler()
     return o
 
 
 def lighting(key=1.0):
-    """large, few, soft — a real product studio, not a wall of highlights"""
+    """
+    One long raking strip carries the image; everything else is support.
+
+    The strip is 16 m long and 0.55 m deep, sitting high on the show side and
+    raking down the flank. Its reflection is a single unbroken highlight that
+    tracks the body's shoulder line from nose to tail and pinches where the
+    panel turns -- the read that says "this is a curved metal surface" rather
+    than "this is a shaded polygon". Its spread is narrowed so the streak has
+    an edge; a full 180 deg area light washes and the streak dissolves.
+    """
     c = Vector((0, 0, 1.0))
-    _softbox("top",   (0.6, 1.2, 8.6), (0, 0, 1.3), (13.0, 8.5), 3400 * key)
-    _softbox("key",   (6.4, 8.2, 5.4), c, (6.0, 4.2), 1750 * key)
-    _softbox("fillL", (2.0, 9.0, 2.2), (0, 0, 1.1), (9.0, 3.6), 460 * key,
-             (0.985, 0.99, 1.0))
-    _softbox("fillR", (2.4, -9.0, 2.4), (0, 0, 1.1), (9.0, 3.6), 620 * key,
+
+    # --- the hero source ------------------------------------------------
+    _softbox("strip", (0.85, 8.30, 5.90), (0.00, 0.55, 1.28),
+             (16.0, 0.55), 511.5 * key, (1.0, 0.998, 0.992), spread=78)
+    # a second, much shorter and lower strip picks out the counter lip and the
+    # louvre block, which the high strip rakes straight over
+    _softbox("strip_lo", (1.60, 7.40, 1.95), (-0.80, 0.60, 1.05),
+             (7.5, 0.34), 77.5 * key, (1.0, 0.995, 0.985), spread=92)
+
+    # --- support --------------------------------------------------------
+    _softbox("top",   (0.6, 1.2, 8.6), (0, 0, 1.3), (13.0, 8.5), 305.3 * key)
+    _softbox("fillR", (2.4, -9.0, 2.4), (0, 0, 1.1), (9.0, 3.6), 92.4 * key,
              (0.975, 0.985, 1.0))
-    _softbox("rim",   (-9.2, 3.4, 4.2), c, (5.0, 4.0), 1050 * key)
+    _softbox("rim",   (-9.2, 3.4, 4.2), c, (5.0, 4.0), 145.2 * key)
     _softbox("nose",  (10.6, 1.6, 1.5), (1.6, 0.0, 1.05), (3.2, 2.6),
-             260 * key)
-    # SPEC r4 sec.6 (old D4): the galley is a closed 2.8 mm box lit only by six
+             39.6 * key)
+    # SPEC r4 sec.6 (old D4): the galley is a closed 2.8 mm box lit only by
     # EXTERIOR sources, so the three serving hatches rendered as flat black
     # holes. This sits just outboard of the show flank and rakes into the bays
     # so the openings read as depth. Small and dim: it must not spill onto the
     # paint or wash the contact shadow.
     _softbox("fill_galley", (-0.35, 2.35, 1.58), (-0.35, 0.0, 1.47),
-             (1.7, 0.55), 62 * key, (1.0, 0.965, 0.915))
+             (1.7, 0.55), 10.2 * key, (1.0, 0.965, 0.915))
+
     w = bpy.data.worlds.new("w")
     bpy.context.scene.world = w
     w.use_nodes = True
@@ -85,24 +135,63 @@ def lighting(key=1.0):
     w.node_tree.nodes["Background"].inputs[1].default_value = 0.17
 
 
+# ------------------------------------------------------------------- camera
+SENSOR_W = 36.0            # full-frame 35 mm, the reference most people read
+COC = 0.030                # circle of confusion, mm, for a full-frame sensor
+
+
 def camera():
     d = bpy.data.cameras.new("cam")
+    d.sensor_fit = 'HORIZONTAL'
+    d.sensor_width = SENSOR_W
     o = bpy.data.objects.new("cam", d)
     bpy.context.collection.objects.link(o)
     bpy.context.scene.camera = o
     return o
 
 
-def aim(cam, loc, target, lens=None, ortho=None):
+def dof_limits(lens_mm, fstop, dist_m):
+    """near / far sharp limits and hyperfocal, metres -- reported, not claimed"""
+    f = float(lens_mm)
+    H = (f * f) / (fstop * COC) + f                       # mm
+    s = dist_m * 1000.0
+    near = (H * s) / (H + (s - f))
+    far = (H * s) / (H - (s - f)) if H > (s - f) else float('inf')
+    return near / 1000.0, far / 1000.0, H / 1000.0
+
+
+def aim(cam, loc, target, lens=None, ortho=None, focus=None, fstop=None):
     cam.location = loc
     v = Vector(target) - Vector(loc)
     cam.rotation_euler = v.to_track_quat('-Z', 'Y').to_euler()
+    d = cam.data
+    d.sensor_fit = 'HORIZONTAL'
+    d.sensor_width = SENSOR_W
     if ortho:
-        cam.data.type = 'ORTHO'; cam.data.ortho_scale = ortho
-    else:
-        cam.data.type = 'PERSP'; cam.data.lens = lens or 85
+        d.type = 'ORTHO'
+        d.ortho_scale = ortho
+        d.dof.use_dof = False
+        return None
+    d.type = 'PERSP'
+    d.lens = lens or 85
+    fs = _envf("T1_FSTOP", fstop or 0)
+    if fs <= 0:
+        d.dof.use_dof = False
+        return None
+    # focus on the near front arch by default -- the nearest thing on the
+    # vehicle that the eye checks for sharpness
+    fp = Vector(focus if focus is not None else target)
+    dist = (fp - Vector(loc)).length
+    d.dof.use_dof = True
+    d.dof.focus_object = None
+    d.dof.focus_distance = dist
+    d.dof.aperture_fstop = fs
+    d.dof.aperture_blades = 9          # a real iris, so out-of-focus speculars
+    d.dof.aperture_rotation = math.radians(11)   # are 9-sided, not perfect discs
+    return (dist, fs) + dof_limits(d.lens, fs, dist)
 
 
+# ------------------------------------------------------------- white backdrop
 def bg_white_level(scene):
     """
     Linear value that the ACTIVE view transform maps to display white.
@@ -119,30 +208,163 @@ def bg_white_level(scene):
     return float(os.environ.get("T1_BGW", lvl))
 
 
-def composite_on_white(scene, rgb=None):
-    """render with alpha, then lay it over pure white in the compositor"""
+# ------------------------------------------------------------------- optics
+def _grain_texture():
+    t = bpy.data.textures.get("__grain")
+    if not t:
+        t = bpy.data.textures.new("__grain", type='NOISE')
+    return t
+
+
+def composite_on_white(scene, rgb=None, optics=True):
+    """
+    Render with alpha, then lay it over pure white -- and impose the artefacts
+    a real lens and a real film stock impose, in the order they impose them.
+
+      bloom   BEFORE the white, on the linear render. After the white it would
+              bloom a linear-21.0 background and flare the whole frame.
+      CA      after, because dispersion is a property of the taking lens and
+              applies to the whole projected image including the backdrop.
+      vignette / grain last, for the same reason.
+
+    Vignette is deliberately tiny. SPEC sec.6 says the backdrop composites to
+    PURE WHITE, and a visible corner falloff contradicts that; the value here
+    is set so the extreme corner sits about one code value below white -- felt,
+    not seen. T1_VIG=0 removes it entirely.
+    """
     if rgb is None:
         w = bg_white_level(scene)
         rgb = (w, w, w)
     scene.use_nodes = True
     nt = scene.node_tree
     nt.nodes.clear()
-    rl = nt.nodes.new("CompositorNodeRLayers"); rl.location = (-400, 0)
-    bg = nt.nodes.new("CompositorNodeRGB"); bg.location = (-400, -260)
+
+    rl = nt.nodes.new("CompositorNodeRLayers"); rl.location = (-900, 0)
+    src = rl.outputs["Image"]
+    x = -650
+    log = []
+
+    on = optics and _envi("T1_FX", 1)
+
+    # --- bloom, on the transparent linear render -------------------------
+    if on and _envf("T1_BLOOM", 1.0) > 0:
+        try:
+            gl = nt.nodes.new("CompositorNodeGlare"); gl.location = (x, 120)
+            gl.glare_type = 'FOG_GLOW'
+            gl.quality = 'MEDIUM'
+            thr = _envf("T1_BLOOM_THR", 3.2)      # linear: speculars only
+            sz = _envi("T1_BLOOM_SIZE", 7)
+            for holder, key, val in ((gl, "threshold", thr), (gl, "size", sz)):
+                if hasattr(holder, key):
+                    setattr(holder, key, val)
+                elif key.capitalize() in [i.name for i in gl.inputs]:
+                    gl.inputs[key.capitalize()].default_value = val
+            gl.threshold = getattr(gl, "threshold", thr)
+            # -1 = untouched, +1 = glare only. Restrained.
+            gl.mix = -1.0 + 2.0 * (0.075 * _envf("T1_BLOOM", 1.0))
+            nt.links.new(src, gl.inputs[0]); src = gl.outputs[0]
+            log.append("bloom thr=%.2f size=%d mix=%.3f" % (thr, sz, gl.mix))
+            x += 250
+        except Exception as e:
+            log.append("bloom SKIPPED (%s)" % e)
+
+    # --- lay over pure white --------------------------------------------
+    bg = nt.nodes.new("CompositorNodeRGB"); bg.location = (x - 200, -300)
     bg.outputs[0].default_value = (*rgb, 1)
-    over = nt.nodes.new("CompositorNodeAlphaOver"); over.location = (-60, -60)
+    over = nt.nodes.new("CompositorNodeAlphaOver"); over.location = (x, -60)
     nt.links.new(bg.outputs[0], over.inputs[1])
-    nt.links.new(rl.outputs["Image"], over.inputs[2])
-    out = nt.nodes.new("CompositorNodeComposite"); out.location = (240, -60)
-    nt.links.new(over.outputs[0], out.inputs[0])
+    nt.links.new(src, over.inputs[2])
+    src = over.outputs[0]
+    x += 250
+
+    # --- chromatic aberration -------------------------------------------
+    if on and _envf("T1_CA", 1.0) > 0:
+        try:
+            ld = nt.nodes.new("CompositorNodeLensdist"); ld.location = (x, -60)
+            ld.use_projector = False
+            ld.use_jitter = False
+            ld.use_fit = True
+            # socket names moved between versions; address by index and fall
+            # back to name, so this never silently no-ops again
+            disp = _envf("T1_CA", 1.0) * 0.0045
+            try:
+                ld.inputs[1].default_value = 0.0        # Distort
+                ld.inputs[2].default_value = disp       # Dispersion
+            except Exception:
+                ld.inputs["Distortion"].default_value = 0.0
+                ld.inputs["Dispersion"].default_value = disp
+            nt.links.new(src, ld.inputs[0]); src = ld.outputs[0]
+            log.append("CA disp=%.4f" % disp)
+            x += 250
+        except Exception as e:
+            log.append("CA SKIPPED (%s)" % e)
+
+    # --- vignette --------------------------------------------------------
+    if on and _envf("T1_VIG", 1.0) > 0:
+        try:
+            em = nt.nodes.new("CompositorNodeEllipseMask")
+            em.location = (x - 200, -420)
+            em.width, em.height = 1.36, 1.36
+            em.x, em.y = 0.5, 0.5
+            em.mask_type = 'ADD'
+            bl = nt.nodes.new("CompositorNodeBlur"); bl.location = (x, -420)
+            bl.filter_type = 'FAST_GAUSS'
+            bl.use_relative = True
+            bl.factor_x = bl.factor_y = 28.0
+            nt.links.new(em.outputs[0], bl.inputs[0])
+            # remap the blurred mask into [1-amt, 1] so it only ever darkens
+            amt = _envf("T1_VIG", 1.0) * 0.055
+            mr = nt.nodes.new("CompositorNodeMapRange"); mr.location = (x, -560)
+            mr.inputs[1].default_value = 0.0
+            mr.inputs[2].default_value = 1.0
+            mr.inputs[3].default_value = 1.0 - amt
+            mr.inputs[4].default_value = 1.0
+            nt.links.new(bl.outputs[0], mr.inputs[0])
+            mx = nt.nodes.new("CompositorNodeMixRGB"); mx.location = (x + 240, -60)
+            mx.blend_type = 'MULTIPLY'
+            mx.inputs[0].default_value = 1.0
+            nt.links.new(src, mx.inputs[1])
+            nt.links.new(mr.outputs[0], mx.inputs[2])
+            src = mx.outputs[0]
+            log.append("vignette %.1f%% at corner" % (amt * 100))
+            x += 480
+        except Exception as e:
+            log.append("vignette SKIPPED (%s)" % e)
+
+    # --- fine grain ------------------------------------------------------
+    if on and _envf("T1_GRAIN", 1.0) > 0:
+        try:
+            tx = nt.nodes.new("CompositorNodeTexture"); tx.location = (x, -380)
+            tx.texture = _grain_texture()
+            amt = _envf("T1_GRAIN", 1.0) * 0.016
+            sub = nt.nodes.new("CompositorNodeMixRGB"); sub.location = (x + 200, -380)
+            sub.blend_type = 'SUBTRACT'
+            sub.inputs[0].default_value = 1.0
+            sub.inputs[1].default_value = (0.5, 0.5, 0.5, 1)
+            nt.links.new(tx.outputs["Color"], sub.inputs[2])
+            add = nt.nodes.new("CompositorNodeMixRGB"); add.location = (x + 420, -60)
+            add.blend_type = 'ADD'
+            add.inputs[0].default_value = amt * 2.0
+            nt.links.new(src, add.inputs[1])
+            nt.links.new(sub.outputs[0], add.inputs[2])
+            src = add.outputs[0]
+            log.append("grain %.3f" % amt)
+            x += 660
+        except Exception as e:
+            log.append("grain SKIPPED (%s)" % e)
+
+    out = nt.nodes.new("CompositorNodeComposite"); out.location = (x + 240, -60)
+    nt.links.new(src, out.inputs[0])
+    return log
 
 
+# ------------------------------------------------------------------- render
 def setup_render(res=(1600, 1100), samples=64, transparent=False):
     sc = bpy.context.scene
     sc.render.engine = 'CYCLES'
     sc.cycles.device = 'CPU'
     sc.cycles.samples = samples
-    sc.cycles.adaptive_threshold = 0.008
+    sc.cycles.adaptive_threshold = _envf("T1_ADAPT", 0.008)
     sc.cycles.use_denoising = True
     sc.cycles.denoiser = 'OPENIMAGEDENOISE'
     sc.cycles.denoising_input_passes = 'RGB_ALBEDO_NORMAL'
@@ -153,12 +375,20 @@ def setup_render(res=(1600, 1100), samples=64, transparent=False):
     sc.cycles.caustics_refractive = False
     sc.cycles.blur_glossy = 0.6
     sc.render.resolution_x, sc.render.resolution_y = res
+    sc.render.resolution_percentage = 100
     sc.render.film_transparent = transparent
     sc.render.use_compositing = True
     sc.render.dither_intensity = 1.0
     sc.render.image_settings.file_format = 'PNG'
     sc.render.image_settings.color_depth = '8'
     sc.render.image_settings.compression = 15
+    # a real lens is not a box filter. 1.5 px is close to a photographic MTF
+    # and stops the render looking laser-etched at hero resolution.
+    # (Cycles owns this in 4.x; RenderSettings.filter_width is BI-era.)
+    for holder in (sc.cycles, sc.render):
+        if hasattr(holder, "filter_width"):
+            holder.filter_width = _envf("T1_FILTER", 1.50)
+            break
     vt = os.environ.get("T1_VT", "AgX")
     sc.view_settings.view_transform = vt
     lk = os.environ.get("T1_LOOK", "AgX - Punchy" if vt == 'AgX' else 'None')
@@ -171,55 +401,68 @@ def setup_render(res=(1600, 1100), samples=64, transparent=False):
 
 
 # ------------------------------------------------------------------ presets
+# focus points are on the NEAR FRONT ARCH unless a view has no such thing --
+# it is the nearest part of the vehicle and the first place an eye checks.
+ARCH_F = (1.30, 0.875, 0.36)
+ARCH_F_R = (1.30, -0.875, 0.36)
+
+
 def views(dist=1.0):
     return {
         # 3/4 front-left, the reference-photo angle
         "hero34f":  dict(loc=(9.30, 6.52, 2.90), tgt=(-0.15, 0.00, 0.92),
-                         lens=78),
-        # 3/4 rear-left, shows the bed + canopy
+                         lens=78, focus=ARCH_F, fstop=8.0),
+        # 3/4 rear-left, shows the counter wrap and the louvre block
         "hero34r":  dict(loc=(-8.60, 6.90, 3.10), tgt=(0.10, 0.00, 0.98),
-                         lens=76),
+                         lens=76, focus=(-1.50, 0.95, 1.10), fstop=8.0),
         # 3/4 front-right
         "front34":  dict(loc=(10.10, -5.00, 2.35), tgt=(0.25, 0.00, 0.92),
-                         lens=76),
+                         lens=76, focus=ARCH_F_R, fstop=8.0),
         "side":     dict(loc=(0.0, 26.0, 0.98), tgt=(0.0, 0.0, 0.98),
                          lens=None, ortho=4.95),
         "front":    dict(loc=(26.0, 0.0, 0.98), tgt=(0.0, 0.0, 0.98),
                          lens=None, ortho=3.10),
         "rear":     dict(loc=(-26.0, 0.0, 0.98), tgt=(0.0, 0.0, 0.98),
                          lens=None, ortho=3.10),
+        # nose detail -- longer lens, wider aperture, shallower field
         "detail_f": dict(loc=(4.90, 2.15, 1.85), tgt=(1.95, 0.05, 1.16),
-                         lens=100),
+                         lens=100, focus=(2.10, 0.00, 1.14), fstop=6.3),
         "low34":    dict(loc=(9.00, 6.10, 1.30), tgt=(-0.10, 0.0, 0.98),
-                         lens=78),
+                         lens=78, focus=ARCH_F, fstop=8.0),
         "topdown":  dict(loc=(2.60, 4.60, 6.40), tgt=(-0.30, 0.0, 1.20),
-                         lens=62),
+                         lens=62, focus=(0.60, 0.60, 1.60), fstop=11.0),
+        # serving counter three-quarter, close -- the shot that says taqueria
+        "counter":  dict(loc=(3.40, 5.20, 1.98), tgt=(-0.55, 0.75, 1.26),
+                         lens=90, focus=(0.20, 1.05, 1.22), fstop=6.3),
     }
 
 
 def render_set(names, outdir, prefix="r", res=(1600, 1100), samples=64,
                transparent=True, log=print):
     sc = setup_render(res, samples, transparent)
+    fx = []
     if transparent:
-        composite_on_white(sc)
+        fx = composite_on_white(sc)
     cam = bpy.context.scene.camera or camera()
     V = views()
     os.makedirs(outdir, exist_ok=True)
+    log("optics: %s" % ("; ".join(fx) if fx else "NONE"))
+    log("film: filter_width=%.2f px  samples=%d  adaptive=%.4f"
+        % (getattr(sc.cycles, "filter_width", 0.0), sc.cycles.samples,
+           sc.cycles.adaptive_threshold))
     for n in names:
         v = V[n]
-        aim(cam, v["loc"], v["tgt"], v.get("lens"), v.get("ortho"))
+        d = aim(cam, v["loc"], v["tgt"], v.get("lens"), v.get("ortho"),
+                v.get("focus"), v.get("fstop"))
+        if d:
+            dist, fs, near, far, H = d
+            log("cam %-9s %.0f mm  f/%.1f  focus %.2f m  "
+                "sharp %.2f-%s m  (hyperfocal %.1f m)"
+                % (n, cam.data.lens, fs, dist, near,
+                   "inf" if far == float('inf') else "%.2f" % far, H))
+        else:
+            log("cam %-9s ortho %.3f  (no DoF)" % (n, v.get("ortho") or 0))
         sc.render.resolution_x, sc.render.resolution_y = res
         sc.render.filepath = os.path.join(outdir, f"{prefix}_{n}.png")
         bpy.ops.render.render(write_still=True)
-        img = bpy.data.images.get('Render Result')
-        corner = ""
-        try:
-            fp = bpy.data.images.load(sc.render.filepath + ".png"
-                                      if not sc.render.filepath.endswith(".png")
-                                      else sc.render.filepath, check_existing=False)
-            px = list(fp.pixels[:4])
-            corner = "  corner px=%.3f,%.3f,%.3f" % tuple(px[:3])
-            bpy.data.images.remove(fp)
-        except Exception:
-            pass
-        log(f"rendered {n}{corner}")
+        log(f"rendered {n} -> {sc.render.filepath}")

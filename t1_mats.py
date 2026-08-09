@@ -50,9 +50,15 @@ TEXDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tex")
 
 # SPEC r4 sec.3: measured (196,106,36) sRGB in sun -> faded orange-red /
 # vermillion, hue ~26deg. NOT a deep crimson.
-RED = (0.5250, 0.0395, 0.0072)
+RED = (0.5520, 0.1441, 0.0176)   # = sRGB(196,106,36) converted properly.
+                                 # rev-3 shipped (0.5250,0.0395,0.0072) =
+                                 # sRGB(192,56,20), hue 12.5 sat 0.894 -- a
+                                 # DEEP CRIMSON, which SPEC 0.2 retires by
+                                 # name. Its green channel was 3.6x low.
 # measured (206,208,200) sRGB -> sun-bleached near-neutral off-white
-CREAM = (0.7900, 0.7700, 0.7150)
+CREAM = (0.6172, 0.6308, 0.5776) # = sRGB(206,208,200). rev-3 had R > G;
+                                 # the measurement has G > R, and rev-3 was
+                                 # 24 code values bright.
 GOLD = (0.8600, 0.5400, 0.0600)
 
 # two-tone break line:  belt line on the flanks, V-swage across the nose
@@ -96,12 +102,14 @@ W_N1_SCALE, W_N1_DETAIL, W_N1_ROUGH = 3.5, 6.0, 0.55
 W_N2_SCALE, W_N2_DETAIL = 22.0, 4.0
 W_N1_W, W_N2_W = 0.65, 0.35
 W_ROUGH_SWING = 0.09           # +- about the material's base roughness
-W_ALBEDO = 0.700               # +- albedo half-range over the 0.30-0.70 map
+W_ALBEDO = float(os.environ.get("T1_W_ALB", 0.130))
+                               # +- albedo half-range over the 0.30-0.70 map
                                # window.  The design entered 0.06; measured,
                                # that realises only 1.2 % albedo sd and 0.13 %
                                # display residual (see the report).  0.70
                                # realises 14.2 % albedo sd.
 W_MAP_LO, W_MAP_HI = 0.30, 0.70
+W_ART = float(os.environ.get("T1_W_ART", 0.30))   # folk-art opacity ceiling
 
 # curvature edge wear.  Pointiness RE-MEASURED off the built mesh 2026-08-09
 # by rendering Geometry->Pointiness to a 32-bit EXR through the side ortho,
@@ -161,14 +169,16 @@ W_DUST_MOT_SCALE, W_DUST_MOT_DETAIL = 14.0, 4.0
 W_DUST_MOT_LO, W_DUST_MOT_HI = 0.35, 0.70
 W_DUST_MOT_MIN, W_DUST_MOT_MAX = 0.35, 1.00
 W_DUST_COL = (0.4400, 0.3900, 0.3100)        # pale limestone ochre
-W_DUST_FAC_UP, W_DUST_FAC_LOW = 0.35, 0.50   # colour factor up-face / rocker
+W_DUST_FAC_UP = float(os.environ.get("T1_W_DUP", 0.35))
+W_DUST_FAC_LOW = float(os.environ.get("T1_W_DLO", 0.50))
 W_DUST_ROUGH = 0.28                          # ADDITIVE, clamped at 0.85
 W_ROUGH_CEIL = 0.85
 
 # sun fade -- a DESIGN VALUE, not a measurement.  Neither in-service photo is
 # in direct sun (ref_side.jpg open shade, ref_rear34.jpg under a palapa), so
 # fade cannot be separated from exposure.  Kept well under the dust term.
-W_FADE_SAT, W_FADE_VAL = 0.88, 1.04
+W_FADE_SAT = float(os.environ.get("T1_W_FADESAT", 0.88))
+W_FADE_VAL = float(os.environ.get("T1_W_FADEVAL", 1.04))
 
 # orange peel.  rev-3 had Scale 190 with the noise Vector UNLINKED, so it fell
 # back to Generated (bounding-box) coordinates: 22.3 / 9.2 / 8.1 mm on T1_body
@@ -729,6 +739,10 @@ def body_paint(name="T1_paint"):
     thr = _math(nt, 'SUBTRACT', 0.92, dens, -180, -1240)
     keep = _math(nt, 'GREATER_THAN', clut.outputs["Fac"], thr, -40, -1240)
     amask = _math(nt, 'MULTIPLY', swirl.outputs["Alpha"], keep, 100, -1240)
+    # SPEC sec.3 asks for a graded BOUQUET, not wallpaper. Without a ceiling
+    # the dense regions run at the tile's own alpha, which covers the red
+    # almost completely and drags the flank from sat 0.82 to 0.27.
+    amask = _math(nt, 'MULTIPLY', amask.outputs[0], W_ART, 240, -1240)
 
     # red + gold
     mix_g = nt.nodes.new("ShaderNodeMix"); mix_g.location = (-820, -420)

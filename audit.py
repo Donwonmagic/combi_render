@@ -85,8 +85,14 @@ H = hi.z
 P("overall  L=%.4f  W(body)=%.4f  H=%.4f" % (hi.x - lo.x, bhi.y - blo.y, H))
 P("rocker (body min z)      = %.4f   -> %.1f%% of height" %
   (blo.z, 100 * blo.z / H))
-P("belt line (paint break)  = %.4f   -> %.1f%% of height"
-  % (1.2320 - T.RIDE_DROP, 100 * (1.2320 - T.RIDE_DROP) / H))
+# rev 7: this printed a HARDCODED 1.2320 - RIDE_DROP for six revisions,
+# unconnected to t1_mats.Z_BELT. The fabricated value sat near the correct
+# one, so the status report certified the exact dimension that was broken.
+# Shaders read the DROPPED frame, so Z_BELT is already above-ground.
+P("belt line (paint break)  = %.4f   -> %.1f%% of height   [live MT.Z_BELT]"
+  % (MT.Z_BELT, 100 * MT.Z_BELT / H))
+P("V-swage apex / rise / pow= %.4f / %.4f / %.2f  (apex+rise=%.4f, Z_BELT=%.4f)"
+  % (MT.V_APEX, MT.V_RISE, MT.V_POW, MT.V_APEX + MT.V_RISE, MT.Z_BELT))
 P("window band sill/head    = %.4f / %.4f  -> %.1f%% / %.1f%%"
   % (S.Z_SILL - T.RIDE_DROP, S.Z_HEAD - T.RIDE_DROP,
      100 * (S.Z_SILL - T.RIDE_DROP) / H, 100 * (S.Z_HEAD - T.RIDE_DROP) / H))
@@ -100,22 +106,24 @@ if roof:
       (peak[0], peak[1],
        max((z for x, z in roof if -1.9 < x < -1.7), default=float('nan'))))
 
-# nose rake: how far forward at rocker height vs at the screen
-def fwd_at(zlo, zhi):
-    return max((v.co.x for v in body.data.vertices
-                if zlo < v.co.z < zhi and abs(v.co.y) < 0.12), default=None)
+# nose / tail reach. rev 7: this had two stacked bugs. RIDE_DROP was
+# subtracted a SECOND time from the query window (build.py already dropped
+# every vertex), and the |y| < 0.12 filter slices the vehicle's CENTRE plane,
+# where between z 0.65 and 1.05 there are exactly four vertices -- the two
+# loft end-cap poles. So max() over the tail poles was printed as "nose
+# reach", and `or -9` hid the empty selection behind a plausible number.
+def reach(zlo, zhi):
+    xs = [v.co.x for v in body.data.vertices if zlo < v.co.z < zhi]
+    return (max(xs), min(xs), len(xs)) if xs else (None, None, 0)
 
 
 for lab, z0, z1 in (("rocker  z~0.36", 0.31, 0.41), ("mid  z~0.95", 0.90, 1.00),
+                    ("belt  z~1.20", 1.16, 1.24),
                     ("screen base", 1.28, 1.36), ("header", 1.66, 1.74)):
-    P("nose reach @ %-14s = %.4f" % (lab, fwd_at(z0 - T.RIDE_DROP,
-                                                 z1 - T.RIDE_DROP) or -9))
-for lab, z0, z1 in (("rocker", 0.31, 0.41), ("mid", 0.90, 1.00),
-                    ("belt", 1.16, 1.24)):
-    P("tail reach  @ %-14s = %.4f" % (lab, min(
-        (v.co.x for v in body.data.vertices
-         if z0 - T.RIDE_DROP < v.co.z < z1 - T.RIDE_DROP and abs(v.co.y) < 0.12),
-        default=9)))
+    f, r, n = reach(z0, z1)
+    P("reach @ %-14s nose %+.4f  tail %+.4f  (n=%d)"
+      % (lab, f if f is not None else float('nan'),
+         r if r is not None else float('nan'), n))
 
 # wheels in arches
 sec("STANCE")
@@ -127,8 +135,8 @@ P("arch radius / tyre radius = %.4f / %.4f  -> gap %.1f mm" %
   (S.ARCH_R, T.TIRE_R, (S.ARCH_R - T.TIRE_R) * 1000))
 P("rocker-to-ground   = %.4f m" % blo.z)
 P("track F/R %.3f / %.3f ; body half-width %.3f -> wheels sit %+.1f mm "
-  "inboard of the flank" % (T.TRACK_F, T.TRACK_R, 0.860,
-                            (0.860 - (T.TRACK_F / 2 + T.TIRE_W / 2)) * 1000))
+  "inboard of the flank" % (T.TRACK_F, T.TRACK_R, bhi.y,
+                            (bhi.y - (T.TRACK_F / 2 + T.TIRE_W / 2)) * 1000))
 
 # ------------------------------------------------------------ WINDSCREEN
 sec("WINDSCREEN")
@@ -140,7 +148,8 @@ P("rake from vertical = %.1f deg" %
 P("pane  W x H        = %.3f x %.3f  (2 panes, divider %.3f)"
   % (S.WS_PANE_W, S.WS_PANE_H, S.WS_DIV * 2))
 P("total glass width  = %.3f  -> %.1f%% of body width"
-  % (2 * S.WS_PANE_W + 2 * S.WS_DIV, 100 * (2 * S.WS_PANE_W + 2 * S.WS_DIV) / 1.72))
+  % (2 * S.WS_PANE_W + 2 * S.WS_DIV,
+     100 * (2 * S.WS_PANE_W + 2 * S.WS_DIV) / (bhi.y - blo.y)))
 vert = S.WS_PANE_H * abs(S.P_BOT.z - S.P_TOP.z) / gl
 P("pane vertical rise = %.3f  -> %.1f%% of vehicle height" % (vert, 100 * vert / H))
 
@@ -165,3 +174,209 @@ P("body faces: %d quad, %d tri, %d ngon ; non-manifold edges %d"
   % (quads, tris, ngons, nme))
 bm.free()
 P("objects in scene: %d meshes" % len(meshes))
+
+
+# ===================================================================== STATE
+# HANDOFF.md once claimed "0 fail, 0 warn" over a state that had one of each,
+# and claimed six git commits that did not exist. audit.py itself printed a
+# hardcoded belt line for six revisions. Prose drifts and hand-written status
+# lies. Everything below is measured off the mesh that was just built, in this
+# process, and written to STATE.md. Nothing in it is typed by hand.
+import subprocess, collections
+
+
+def _git(*a):
+    try:
+        return subprocess.check_output(("git",) + a, cwd=ROOT,
+                                       stderr=subprocess.DEVNULL).decode().strip()
+    except Exception:
+        return "?"
+
+
+def _fmt(v, n=4):
+    return ("%." + str(n) + "f") % v if isinstance(v, float) else str(v)
+
+
+def _row(name, measured, expected=None, tol=None, unit="m"):
+    if expected is None:
+        return "| %s | %s | — | — |" % (name, _fmt(measured))
+    d = measured - expected
+    mark = "" if tol is None else ("ok" if abs(d) <= tol else "**OUT**")
+    return "| %s | %s | %s | %+.1f mm %s |" % (
+        name, _fmt(measured), _fmt(expected), d * 1000, mark)
+
+
+# --- re-run the guard in-process so the reported result cannot drift from
+#     the geometry it describes -----------------------------------------
+_gfail, _gwarn, _glines = "?", "?", []
+try:
+    import verify as _V
+    importlib.reload(_V)
+    _cap = []
+    _V.run(body, lambda m: _cap.append(str(m)))
+    _glines = _cap
+    for _l in _cap:
+        if "VERIFY:" in _l:
+            _p = _l.split("VERIFY:")[1]
+            _gfail = _p.split("fail")[0].strip()
+            _gwarn = _p.split(",")[1].split("warn")[0].strip()
+except Exception as _e:
+    _glines = ["verify could not run in-process: %s" % _e]
+
+inv = collections.Counter()
+for o in meshes:
+    inv[o.name.rstrip("0123456789.-+_").split(".")[0] or o.name] += 1
+nverts = sum(len(o.data.vertices) for o in meshes)
+nfaces = sum(len(o.data.polygons) for o in meshes)
+
+# aperture edges, measured off the shell rather than read from the constants
+_ap = []
+try:
+    _zc = (S.Z_SILL + S.Z_HEAD) / 2 - T.RIDE_DROP
+    _xs = sorted(v.co.x for v in body.data.vertices
+                 if v.co.y > 0.80 and abs(v.co.z - _zc) < 0.02)
+    _runs, _cur = [], [_xs[0]] if _xs else []
+    for _a, _b in zip(_xs, _xs[1:]):
+        if _b - _a > 0.030:
+            _runs.append((_cur[0], _cur[-1])); _cur = [_b]
+        else:
+            _cur.append(_b)
+    if _cur:
+        _runs.append((_cur[0], _cur[-1]))
+    _ap = _runs
+except Exception:
+    pass
+
+rough = []
+for _m in bpy.data.materials:
+    if not _m.use_nodes:
+        continue
+    for _n in _m.node_tree.nodes:
+        if _n.type == 'BSDF_PRINCIPLED' and not _n.inputs["Roughness"].links:
+            rough.append(_m.name)
+            break
+
+L = []
+A = L.append
+A("# STATE — machine-written by `audit.py`. Do not hand-edit.")
+A("")
+A("Every number here was measured off the mesh built in the same process that")
+A("wrote this file. If this file and any prose in the repo disagree, this file")
+A("is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.")
+A("")
+A("## Provenance")
+A("")
+A("| | |")
+A("|---|---|")
+A("| generated | %s UTC |" % time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime()))
+A("| git commit | `%s` |" % _git("rev-parse", "--short", "HEAD"))
+A("| git subject | %s |" % _git("log", "-1", "--pretty=%s"))
+A("| working tree | %s |" % ("**DIRTY** — this state is not committed"
+                             if _git("status", "--porcelain") else "clean"))
+A("| blender | %s |" % bpy.app.version_string)
+A("| subdivision | T1_SUB=%d (applied, destructive, before booleans) |" % SUB)
+A("| geometry source | procedural, built this run |")
+A("")
+A("## Guard result")
+A("")
+A("**VERIFY: %s fail, %s warn** at T1_SUB=%d." % (_gfail, _gwarn, SUB))
+A("")
+A("> A pass here is only a pass *at this subdivision level*. The cab-door gap")
+A("> booleans passed at SUB=1 and collapsed the shell at SUB=2 for six")
+A("> revisions. Run both.")
+A("")
+A("```")
+for _l in _glines:
+    A(_l.strip())
+A("```")
+A("")
+A("| | |")
+A("|---|---|")
+A("| cutters rolled back | %s |" % (", ".join(FAILED_CUTS) if FAILED_CUTS
+                                    else "none"))
+A("| non-manifold edges (body) | %d |" % nme)
+A("| body faces | %d quad, %d tri, %d ngon |" % (quads, tris, ngons))
+A("")
+A("## Measured dimensions")
+A("")
+A("Frame: geometry is authored un-dropped and `build.py` step 8b subtracts")
+A("`RIDE_DROP` from every vertex last, so everything below is **above ground**.")
+A("Shaders read the dropped frame, so `Z_BELT`/`V_APEX` are already AG.")
+A("")
+A("| dimension | measured | SPEC | delta |")
+A("|---|---|---|---|")
+_bodyish = [o for o in meshes if o.name not in ("counter", "counter_nosing")]
+_blo2, _bhi2 = vbounds(_bodyish)
+A(_row("overall length (ex counter)", _bhi2.x - _blo2.x, 4.290, 0.025))
+A("| counter tail overhang past body | %.4f | — | — |" % (_blo2.x - lo.x))
+A(_row("overall width (body)", bhi.y - blo.y, 1.750, 0.025))
+A(_row("overall height", H, 1.960, 0.025))
+A("| _(SPEC §2 factory unladen 1.941; REF_MEASUREMENTS §2.3 measures **1.960**"
+  " on the real vehicle with the lids closed — above stock despite the 65 mm"
+  " lowering, implying the roof-lid frame stands proud by 0.10–0.15 m, which"
+  " is not modelled)_ | | | |")
+A(_row("wheelbase", T.X_AXLE_F - T.X_AXLE_R, 2.400, 0.005))
+A(_row("track front", T.TRACK_F, 1.369, 0.005))
+A(_row("track rear", T.TRACK_R, 1.359, 0.005))
+A(_row("tyre diameter", th.z - tl.z, 0.665, 0.015))
+A(_row("rocker to ground", blo.z))
+A(_row("belt line (live Z_BELT)", MT.Z_BELT, 1.207, 0.010))
+A(_row("window sill", S.Z_SILL - T.RIDE_DROP, 1.307, 0.015))
+A(_row("window head", S.Z_HEAD - T.RIDE_DROP, 1.710, 0.020))
+A(_row("V-swage apex", MT.V_APEX, 0.340, 0.060))
+A("")
+A("| stance | |")
+A("|---|---|")
+A("| ride drop applied | %.1f mm |" % (T.RIDE_DROP * 1000))
+A("| arch radius − tyre radius | %.1f mm (measured 41) |"
+  % ((S.ARCH_R - T.TIRE_R) * 1000))
+A("| V_APEX + V_RISE == Z_BELT | %.4f == %.4f — %s |"
+  % (MT.V_APEX + MT.V_RISE, MT.Z_BELT,
+     "held" if abs(MT.V_APEX + MT.V_RISE - MT.Z_BELT) < 1e-6 else "**BROKEN**"))
+A("")
+A("### Serving apertures")
+A("")
+_bayline = next((l for l in _glines if "bay widths" in l), "")
+_apline = next((l for l in _glines if "open serving apertures" in l), "")
+A("Measured by `verify.py` by ray-testing the shell, not by counting panes:")
+A("")
+A("```")
+A(_apline.strip())
+A(_bayline.strip())
+A("```")
+A("")
+A("SPEC §1.1 measured widths: 0.507 / 0.516 / 0.526 — they are **not** equal;")
+A("they grow slightly toward the tail. rev-3's three equal 0.600s are retired.")
+A("")
+A("## Materials")
+A("")
+A("| | |")
+A("|---|---|")
+A("| datablocks built | %d |" % len(bpy.data.materials))
+A("| bound to >=1 mesh | %d |" % len(used))
+A("| **still a CONSTANT roughness** | %d — %s |"
+  % (len(rough), ", ".join(sorted(rough)) if rough else "none"))
+A("")
+A("> SPEC §3 locks the finish as WEATHERED. A constant roughness is the")
+A("> physical definition of the plastic look. The only materials that may")
+A("> legitimately appear above are the transmissive ones and the sealed")
+A("> reflector.")
+A("")
+A("## Object inventory")
+A("")
+A("| | |")
+A("|---|---|")
+A("| mesh objects | %d |" % len(meshes))
+A("| vertices (all meshes) | %d |" % nverts)
+A("| faces (all meshes) | %d |" % nfaces)
+A("")
+A("| prefix | n |")
+A("|---|---|")
+for _k, _v in sorted(inv.items(), key=lambda kv: (-kv[1], kv[0])):
+    A("| `%s` | %d |" % (_k, _v))
+A("")
+
+open(os.path.join(ROOT, "STATE.md"), "w").write("\n".join(L) + "\n")
+P("\n=== STATE ===")
+P("wrote STATE.md  (%s fail, %s warn, %d meshes, %d materials constant-rough)"
+  % (_gfail, _gwarn, len(meshes), len(rough)))

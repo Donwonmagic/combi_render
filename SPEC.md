@@ -1,4 +1,4 @@
-# TACOMBI COMBI — LOCKED BUILD SPECIFICATION  (rev 6)
+# TACOMBI COMBI — LOCKED BUILD SPECIFICATION  (rev 7)
 **Status: AUTHORITATIVE.** Nothing in the build may contradict this file.
 Change this file *first*, log it, then change code. `verify.py` asserts the
 machine-checkable rows on every build.
@@ -132,8 +132,8 @@ All values **S** (1963 factory brochure) unless noted.
 | **Ride height** | **LOWERED.** Rear arch-to-tyre gap **41 mm** (rev 5 said 71; corrected in the verification pass) against a stock 90–120. Front bumper top 0.348 against a stock ≈0.47. Donald's original rev-3.1 reading was right; rev 4 wrongly zeroed it on absence-of-evidence from a thumbnail. **Set `RIDE_DROP = 0.065` and `ARCH_R = TIRE_R + 0.041`** | rev4 said stock — WRONG |
 | **Stance rake** | body sits **nose-down ~1.7°** relative to the axle line (72 mm over the wheelbase). Every height falls ≈28 mm per metre forward. Not modelled yet | — |
 | Roof edge / crown | 1.8935 / +0.032 | same |
-| Belt line (two-tone break) | **z = 1.386** — hold, but see §2.1 | same |
-| Front / rear sheet metal | x = +2.108 / −2.108 | same |
+| Belt line (two-tone break) | ~~z = 1.386~~ **superseded by §10** | same |
+| Front / rear sheet metal | x = +2.108 / −2.108. **Note §10.7: the tail measures −2.007 on the vehicle and the factory overhang gives −2.009, so the model is ~99 mm long at the tail. Unresolved.** | same |
 | Bumper faces | x = ±2.145 | ±2.140 |
 | Bumper centreline | **stock height, z ≈ 0.480** — *not* straddling the wheel centre | "low" |
 
@@ -333,3 +333,164 @@ coolairvw.co.uk splitscreen production changes · type2.com tyre FAQ.
 | 2026-08-08 | **rev 5 — high-resolution photographs supplied by Donald.** Three large photos (workshop/green, side elevation, rear 3/4) supersede the 246x197 thumbnail as primary reference. **Ride height LOWERED reinstated — rev 4 was wrong to zero it; Donald's original reading was correct.** Belt/sill conflict resolved: break sits 100 mm below the sill, not 16. Aperture positions re-measured and are not evenly sized. Rear serving opening and counter tail-wrap added. Three contested measurements quarantined in §2.2 pending independent re-derivation. Full working in REF_MEASUREMENTS.md. |
 
 | 2026-08-08 | **rev 6 — verification pass on the three quarantined claims.** All three resolved by independent methods. Body NOT shortened (factory 4.28 stands; 4.06 is today's length minus the removed rear bumper). Rear bumper genuinely absent in service — model it off. **Tyres are not 6.40-15: OD 0.665 and the rims are 16 inch, not 15** — rev 4's "correction" to the factory 0.683 was wrong and rev 3's 0.665 was right. Rear arch gap corrected 71 → **41 mm**. Indicator settled as fish-eye (period-correct). Roundel settled as RED. Counter overhang corrected 0.31 → 0.10 m. |
+
+---
+
+## 10. rev 7 — the canonical constants (supersedes any value above)
+
+Everything in this section was re-derived from the high-resolution photographs
+by an adversarial skeptic pass over the 13 critical findings in
+`AUDIT_RECOVERED.md`, and then implemented and verified against the built mesh.
+`STATE.md` is regenerated from the live geometry by `audit.py` on every run; if
+this table and `STATE.md` disagree, **`STATE.md` is right and the build has
+drifted**.
+
+### 10.1 The three frames — get this wrong and everything moves 65 mm
+
+| what | frame | why |
+|---|---|---|
+| `t1_shell` / `t1_core` / `t1_detail` constants, all outlines | **UN-DROPPED** | `build.py` step 8b subtracts `RIDE_DROP = 0.065` from every vertex last |
+| `t1_mats` shader constants (`Z_BELT`, `V_APEX`, `V_RISE`) | **DROPPED = above ground** | a shader reads `Geometry→Position` off the already-dropped mesh at render time |
+| `verify.py` | runs **AFTER** the drop | its own header denied this until rev 7; probing a 5.5 mm shut line in the wrong frame read 26 % open instead of 100 % |
+
+Proved by measurement, not assumed: the painted break lands at z = 1.3859
+against `Z_BELT` = 1.3860, and the window band reads 1.3070/1.7100 above ground
+against `Z_SILL`/`Z_HEAD` = 1.372/1.775 un-dropped.
+
+### 10.2 Two-tone break and nose V-swage — LOCKED
+
+| constant | value | frame | was | error |
+|---|---|---|---|---|
+| `Z_SILL` | **1.372** | un-dropped (1.307 AG) | 1.4020 | +27 mm |
+| `Z_HEAD` | **1.775** | un-dropped (1.710 AG) | 1.7980 | +25 mm |
+| `Z_BELT` | **1.207** | above ground | 1.3860 | **+111 mm** |
+| `V_APEX` | **0.340** | above ground | 0.8720 | **+476 mm** |
+| `V_RISE` | **0.867** | = `Z_BELT − V_APEX` | 0.5140 | — |
+| `V_POW` | **0.60** | — | 1.16 | profile is concave, not convex |
+
+`V_APEX ≤ 0.396 un-dropped` is a **hard bound, not an estimate**: the cream
+wedge is still 14 px wide where the bumper occludes it in `ref_workshop.jpg`,
+and the bumper top measures 0.331 ± 0.020 AG. Independent of any px/m scale.
+
+The audit's proposed replacements — belt 1.240 and apex 0.620 — are **both
+wrong** (32 mm low and 224 mm high respectively) and both rest on a **Samba**
+blueprint or the retired 246×197 thumbnail. See `SKEPTIC_PASS.md`.
+
+**Do not derive the belt from `sill − 100 mm` using the model's own sill.**
+That is a restatement of two measurements, not a physical law; feeding the
+model's sill into it launders the sill's own error into the belt. Set each from
+its own measurement and let the 100 mm fall out as a *check*.
+
+Mirror `V_APEX`/`V_RISE`/`V_POW` into `t1_shell.nose_shape.zV` whenever they
+change, or the pressed swage and the painted break de-register. Verified: they
+register to **0.0 mm**.
+
+### 10.3 Livery colour — rev-3 shipped a retired reading
+
+| | linear albedo | = sRGB | hue | sat |
+|---|---|---|---|---|
+| `RED` **locked** | **(0.5520, 0.1441, 0.0176)** | (196, 106, 36) | 26.3° | 0.816 |
+| `RED` rev-3 shipped | (0.5250, 0.0395, 0.0072) | (192, 56, 20) | 12.5° | 0.894 |
+| `CREAM` **locked** | **(0.6172, 0.6308, 0.5776)** | (206, 208, 200) | 75.0° | 0.038 |
+| `CREAM` rev-3 shipped | (0.7900, 0.7700, 0.7150) | (230, 227, 220) | 44.2° | 0.043 |
+
+rev-3's `RED` had its **green channel 3.6× too low**, making it a **deep
+crimson** — which §0.2 retires *by name* ("**Not** a deep crimson"). The
+retired reading survived in code for four revisions because nobody converted
+§3's own measured sRGB back to linear. rev-3's `CREAM` also had R > G where the
+measurement has G > R.
+
+**Folk art is a graded bouquet, not wallpaper.** The density mask ran at the
+tile's own alpha in its dense regions, covering the red almost completely and
+dragging the measured flank from sat 0.816 to **0.27**. Locked: opacity ceiling
+`W_ART = 0.30`.
+
+### 10.4 Weathering — measured targets, not adjectives
+
+| target | value | source |
+|---|---|---|
+| cream local luminance variation @ 25 / 100 / 400 mm | 4.22 / 7.26 / 10.54 % RMS | `ref_side.jpg` |
+| dust tide line | knee **h = 0.40 ± 0.04 m**, full ≤ 0.30, zero by 0.48 | CIELAB `C*/(L*+16)` |
+| flank above 0.40 m | **clean** — chroma ratio flat to ±7 % up to 0.92 m | same |
+| upward-facing dirt | ΔL\* −8.8, ΔC\* +5.0, Δhue −6.6° toward ochre | `ref_rear34.jpg` |
+| edge-wear Pointiness window | **0.520 → 0.600** (flat flank reads 0.500–0.503) | emission bake |
+
+The intuitive `smoothstep(0.75 → 0.25)` dust ramp is **~3× too tall** and would
+dust a band the reference shows clean. Sun fade is a **design value, not a
+measurement** — neither in-service photograph is in direct sun, so fade cannot
+be separated from exposure. **No subsurface scattering anywhere**; nothing on
+this vehicle is translucent.
+
+### 10.5 Geometry added or corrected in rev 7
+
+| item | locked value (un-dropped unless noted) |
+|---|---|
+| serving aperture edges | (+0.820, +0.313) (+0.195, −0.321) (−0.435, −0.960); widths 0.507 / 0.516 / 0.525 — **not** three equal 0.600s |
+| louvres | 10 per side, x −1.285 → −1.670, pitch 21.1 mm, top slot 1.085, bottom 0.895, built horizontal |
+| counter | X0 +0.918, X1 **−2.423**, Z 1.147–1.254, thickness 0.107, Y_out 1.166, tail wrap quarter-arc R 0.150, front chamfer 45° × 0.05 |
+| cab-door gap bottom run | **z ≥ 0.780** — must clear the front arch top at 0.771 |
+| script decal | X +0.784 → −0.494, Z 0.445 → 0.918; `senor.png` recropped to its ink bbox (AR 2.702) |
+| VW roundel | ring ⌀0.370, centre 1.130 AG |
+| wipers | translated ≥ +0.025 m along `WS_N`; blade built in the windscreen plane; pivot axis on the cowl normal |
+
+### 10.6 Guards — strengthened, never removed
+
+The rollback guard's `after < before * 0.6` could not detect anything short of
+total destruction: worst legitimate ratio is **0.9902** (SUB=1) / **0.9862**
+(SUB=2), so a cutter could delete 39 % of the shell and pass. A **no-op**
+boolean passed silently. The obvious digest **does not work** — EXACT
+re-tessellates n-gons even on a true no-op (Δf = +9, spurious ΔVolume
+−3.38e−06 m³); **vertex-count equality is the only clean count test.**
+
+Locked: cutter volume ≥ 1e−4 m³ and bbox-overlap pre-checks; vertex and face
+ratios ≥ 0.95; Δv ≠ 0; non-manifold / loose-vert / zero-area must not increase
+(zero-area threshold 1e−12 m², because a cutter plane coincident with a subsurf
+edge loop legitimately emits 5–20 µm slivers); per-kind sign tests. Validated
+against all 44 measured (cutter, level) rows: **2 true positives, 0 false
+positives.** Four negative controls fire that the old guard passed.
+
+Positive assertions added: each expected aperture and shut line must actually
+exist; `calidad_L`'s material must have Transmission Weight 0; Subsurface
+Weight must be 0 scene-wide; **no detail object may be invisible from every
+hero camera** (both wipers shipped buried in the nose skin for six revisions).
+
+**The `≥ 20 mm clear of roll-over` rule is REFUTED and replaced.** Causal test:
+skip the wheel-arch cutters and the identical door-gap cutter at the identical
+z succeeds at SUB=2. The real rule: *a panel-gap outline must not cross the lip
+of another aperture, and where it runs near a roll the outer-skin slope
+relative to the cutter's extrusion axis must stay below `t_skin / gap_width`*
+(0.51 at 2.8 / 5.5 mm).
+
+### 10.7 Known open defects — logged, not fixed
+
+| defect | measured | note |
+|---|---|---|
+| **overall height 89 mm short** | model **1.871**, `REF_MEASUREMENTS` §2.3 measures **1.960** with the lids closed | the roof-lid frame stands proud by 0.10–0.15 m and is not modelled. This is why the vehicle reads flat and stretched. |
+| **tail 99 mm long** | model −2.108, measured −2.007, factory arithmetic −2.009 | fixing it is a loft change; the counter's X1 was set to preserve the *measured* 0.316 m overhang relative to the model's own tail |
+| nose-down rake ~1.7° | not modelled | `Z_BELT` becomes a line, not a constant, when it is |
+| script ink placement | implemented from the measured ink bbox | the panel-vs-ink distinction cost a 2.2× size error once |
+
+### 10.8 Camera and lighting — LOCKED
+
+Full-frame **36 mm sensor**, real focal lengths, **f/8** on the heroes and
+f/6.3 on the detail views, focused on the **near front arch**. Measured on
+`hero34f`: 78 mm, f/8, focus 10.12 m, **sharp 7.25 – 16.71 m**, hyperfocal
+25.4 m. Ortho views carry no DoF.
+
+Lighting is **one long raking strip** (16.0 × 0.55 m, spread narrowed to 78°)
+plus support, not six neutral rectangles — a long narrow source draws a single
+unbroken highlight along the shoulder that pinches where the panel turns, which
+is the read that says sheet metal. The whole rig was **2.6 EV hot**: cream
+measured 233–240 against 206 and AgX desaturates as it approaches white, which
+is what dragged the flank to sat 0.27. Rig energies scaled **×0.165**; the
+numbers in `studio.py` are now the numbers that render.
+
+Compositor, in the order a real camera imposes them: bloom on the *linear*
+render before the white composite (after it, a linear-21.0 backdrop flares the
+frame), then chromatic aberration, vignette and grain on the projected image.
+Pixel filter widened to 1.50 px. Every stage is switchable from the
+environment; `T1_FX=0` disables the chain.
+
+---
+
+| 2026-08-09 | **rev 7 — adversarial skeptic pass, then implementation.** 0 of the 13 criticals killed, 11 corrected; acting on the audit's numbers as written would have introduced fresh errors in six places. **SUB=2 passed for the first time** — both cab-door gap booleans had been collapsing the shell 205562 → 12 v and rolling back, so every hero render this project ever made was of a bus with no cab-door shut line. Belt, V-swage, window band, aperture edges, louvres, counter, script and roundel all set from measurement. `RED` corrected from a **retired deep crimson**; folk art capped from wallpaper to a graded bouquet. Weathering node group built to measured targets. Boolean guard strengthened and validated (2 true positives, 0 false positives); the `≥ 20 mm roll-over` rule refuted and replaced. Physical camera with real DoF; one raking strip replaces the six-rectangle rig; rig found 2.6 EV hot. `audit.py` now emits **`STATE.md`** from live geometry — it had printed a hardcoded, fabricated belt line for six revisions. Open defects logged in §10.7 rather than quietly carried. |

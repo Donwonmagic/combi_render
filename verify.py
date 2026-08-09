@@ -59,7 +59,7 @@ SLOT_FRAC_MIN = 0.90
 def _bounds():
     lo = Vector((1e9, 1e9, 1e9)); hi = -lo
     for ob in bpy.data.objects:
-        if ob.type != 'MESH' or ob.name in ("cyc",):
+        if ob.type != 'MESH' or ob.name in ("cyc", "counter", "counter_nosing"):
             continue
         for c in ob.bound_box:
             v = ob.matrix_world @ Vector(c)
@@ -455,6 +455,13 @@ def run(body, log=print):
            _S.Z_HEAD - _T.RIDE_DROP,
            " ".join("%.3f" % (b[1] - b[0]) for b in _S.BAYS)))
 
+    # Buried detail must never pass again: both wipers shipped for six
+    # revisions fully enclosed in the nose skin. Casts camera -> object, not
+    # object -> camera; the outward cast scores a buried part 100 % visible.
+    try:
+        fails += __import__("t1_detail").visibility_fails()
+    except Exception as e:                       # never let the guard vanish
+        fails.append("visibility assertion could not run: %s" % e)
     log("  VERIFY: %d fail, %d warn" % (len(fails), len(warns)))
     for f in fails:
         log("    FAIL  " + f)
