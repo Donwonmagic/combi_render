@@ -12,10 +12,22 @@ TOL = 0.025
 import t1_core as _T
 
 # SPEC rev 4 sec.2 — factory-sourced 1963 T1 hard points
-# SPEC rev 6 sec.2. NOTE: run() is called from build.py BEFORE the global
-# ride-height drop is applied, so H here is the UN-DROPPED body height. Do not
-# subtract RIDE_DROP from it -- doing so is what produced a phantom +60 mm fail.
-# audit.py measures post-drop and will report H = 1.941 - RIDE_DROP.
+#
+# FRAME. MEASURED 2026-08-09, and the note that used to sit here was wrong.
+# build.py calls run() at line 354, AFTER step 8b has already subtracted
+# RIDE_DROP from every vertex, so the mesh run() sees is DROPPED. Two
+# consequences, and they pull in opposite directions:
+#
+#  1. SPEC["H"] = 1.941 is a DROPPED figure and must stay as it is. It is
+#     compared against a height measured off the same dropped mesh (1.936).
+#     "Correcting" it to 1.941 - RIDE_DROP is what produced a phantom +60 mm
+#     failure once. Do not.
+#  2. Every probe coordinate taken from AUTHORED geometry -- Z_SILL, Z_HEAD,
+#     DOOR_GAP, REAR_Z, WS_MID -- is in the UN-DROPPED frame and MUST have
+#     RIDE_DROP subtracted before it is used to aim a ray. Skipping that on a
+#     5.5 mm shut line reads 26 % open instead of 100 %.
+#
+# _frame_dz() below carries (2) so the two never get confused again.
 SPEC = dict(L=4.290, W=1.750, H=1.941, WB=2.400,
             TRACK_F=1.369, TRACK_R=1.359, TYRE_D=0.665)
 RIDE_DROP_SPEC = 0.065        # rev 6: the bus IS lowered. See SPEC sec.2.
@@ -26,8 +38,22 @@ NEED_MATS = ("T1_paint", "cream", "chrome", "glass", "wheelcream",
 
 # SPEC rev 4 sec.1.1 — three apertures, then SOLID sheet metal
 N_BAYS_OPEN = 3
-BAY_PROBE_Z = 1.600                    # mid-band height
-SOLID_PROBE_X = (-1.30, -1.55, -1.80)  # rear corner panel must be metal
+# rev 6 corrected: the window band is Z_SILL 1.372 / Z_HEAD 1.775 UN-DROPPED
+# (1.307 / 1.710 above ground).  Derive the probe height instead of hard-
+# coding it — the old literal 1.600 was keyed to the retired 1.402/1.798 band
+# and would have silently drifted toward the head rail.
+def _bay_probe_z(S):
+    return (S.Z_SILL + S.Z_HEAD) / 2.0
+
+
+# rear corner panel must be metal.  Bay 2's rear edge is at x = -0.960.
+SOLID_PROBE_X = (-1.05, -1.30, -1.55, -1.80)
+
+# MEASURED serving-bay edges, (rear, front) to match t1_shell.BAYS
+BAYS_SPEC = ((0.3130, 0.8200), (-0.3210, 0.1950), (-0.9600, -0.4350))
+BAND_SPEC = (1.3720, 1.7750)           # Z_SILL, Z_HEAD, UN-DROPPED
+# a shut line is a 5.5 mm slot; allow a few samples to be occluded by a seal
+SLOT_FRAC_MIN = 0.90
 
 
 def _bounds():
@@ -42,19 +68,68 @@ def _bounds():
     return lo, hi
 
 
+def _frame_dz():
+    """z offset from the AUTHORED frame to the frame the mesh is actually in.
+
+    build.py sets RIDE_DROP_APPLIED just after step 8b. Default to "applied"
+    if the flag is missing, because that is what build.py has always done and
+    an un-offset probe silently under-reports rather than failing loudly.
+    """
+    try:
+        import __main__
+        applied = getattr(__main__, "RIDE_DROP_APPLIED", True)
+    except Exception:
+        applied = True
+    return -_T.RIDE_DROP if applied else 0.0
+
+
 def _has_metal(body, x, z, side=1):
     """True if the shell has sheet metal at (x, z) on the given flank.
 
     Cast a ray inboard along -Y from well outside the body. A serving aperture
-    is a hole: the first hit is then the far flank or nothing at all, so the
-    hit lands beyond the near flank's y. Tolerant of the 2.8 mm skin.
+    is a hole: the first hit is then the FAR flank (loc.y on the opposite
+    side) or nothing at all. Testing abs(loc.y) alone cannot tell those apart
+    — it reports 0.87 either way — so the sign against `side` is what makes
+    this a test rather than a coin flip.
     """
     y_start = side * 3.0
     direction = Vector((0.0, -side, 0.0))
     ok, loc, _, _ = body.ray_cast(Vector((x, y_start, z)), direction)
     if not ok:
         return False
-    return abs(loc.y) > 0.5          # near flank sits at |y| ~ 0.86
+    return loc.y * side > 0.5        # near flank sits at |y| ~ 0.86
+
+
+def _flank_open(body, x, z, side):
+    """True if a ray inboard at (x, z) gets past the near skin: hole or slot"""
+    return not _has_metal(body, x, z, side)
+
+
+def _ray_clear(body, origin, direction, dist):
+    """True if the body has no surface within `dist` of `origin` along `direction`"""
+    return not body.ray_cast(Vector(origin), Vector(direction).normalized(),
+                             distance=dist)[0]
+
+
+def _slot_frac(body, outline, side, dz):
+    """fraction of samples along a flank (x, z) outline that are open slots"""
+    n = sum(1 for (x, z) in outline if _flank_open(body, x, z + dz, side))
+    return n / max(len(outline), 1)
+
+
+def _englid_frac(body, outline, dz):
+    """fraction of samples along the tail (y, z) outline that are open slots.
+
+    Cast forward along +X from well behind the tail. The tail skin sits at
+    x ~ -2.09; anything the ray reaches forward of -1.95 means it got through.
+    """
+    ok_n = 0
+    for (y, z) in outline:
+        hit, loc, _, _ = body.ray_cast(Vector((-3.0, y, z + dz)),
+                                       Vector((1, 0, 0)))
+        if (not hit) or loc.x > -1.95:
+            ok_n += 1
+    return ok_n / max(len(outline), 1)
 
 
 def _check_opaque(obname):
@@ -145,6 +220,8 @@ def run(body, log=print):
 
     # 4. exactly three OPEN apertures on the show side — tested on the shell
     import t1_shell as _S
+    dz = _frame_dz()
+    BAY_PROBE_Z = _bay_probe_z(_S) + dz          # authored -> mesh frame
     opened = 0
     for i, (xr, xf) in enumerate(_S.BAYS):
         xm = (xr + xf) / 2.0
@@ -243,6 +320,140 @@ def run(body, log=print):
     gap = _S.ARCH_R - _T.TIRE_R
     if abs(gap - 0.041) > 0.008:
         fails.append(f"arch-to-tyre gap {gap*1000:.0f} mm; measured 41 mm")
+
+    # ---------------------------------------------------------------------
+    # 11. POSITIVE feature assertions.
+    #
+    # Row 9 only reports FAILED_CUTS. That is a report of the build's own
+    # bookkeeping, not a test of the mesh: a boolean that was rolled back
+    # leaves a perfectly VALID, manifold, correctly-sized shell with the
+    # feature silently missing, and a cut that was never issued at all leaves
+    # nothing for row 9 to report. That is exactly how the shipped model went
+    # out with no cab-door shut line. Assert instead that every expected
+    # aperture and every expected shut line is actually THERE, measured off
+    # the geometry.
+    #
+    # Frame: run() executes BEFORE build.py step 8b, so every z here is
+    # UN-DROPPED.
+    ss = _S.SHOW_SIDE
+    # 11a. cab door glazing — main + vent, both flanks
+    for outline, tag in ((_S.DOOR_MAIN_S, "cab door glass"),
+                         (_S.DOOR_VENT_S, "cab door vent")):
+        cx = sum(p[0] for p in outline) / len(outline)
+        cz = sum(p[1] for p in outline) / len(outline) + dz
+        for s in (1, -1):
+            if not _flank_open(body, cx, cz, s):
+                fails.append(f"{tag} aperture on {'+' if s > 0 else '-'}Y is "
+                             f"NOT cut at ({cx:.3f}, {cz:.3f})")
+
+    # 11b. serving bays — the off side is glazed but still an aperture in the
+    # sheet metal, and row 4 only ever tested the show side
+    for i, (xr, xf) in enumerate(_S.BAYS):
+        xm = (xr + xf) / 2.0
+        if not _flank_open(body, xm, BAY_PROBE_Z, -ss):
+            fails.append(f"serving bay {i} at x={xm:.3f} is NOT cut on the "
+                         "off side")
+
+    # 11c. windscreen — probe along the screen normal, 60 mm each way
+    for s in (1, -1):
+        yc = s * (_S.WS_DIV + _S.WS_PANE_W / 2)
+        o = _S.WS_MID + Vector((0.0, yc, dz)) + _S.WS_N * 0.060
+        if not _ray_clear(body, o, -_S.WS_N, 0.120):
+            fails.append(f"windscreen pane {'L' if s > 0 else 'R'} is NOT cut")
+
+    # 11d. rear window
+    if not _ray_clear(body, (-2.40, 0.0, _S.REAR_Z + dz), (1, 0, 0), 0.35):
+        fails.append("rear window is NOT cut")
+
+    # 11e. shut lines. A gap cutter makes a 5.5 mm through-slot; sample the
+    # outline and require most samples to pass the near skin.
+    for s in (1, -1):
+        fr = _slot_frac(body, _S.DOOR_GAP_S, s, dz)
+        if fr < SLOT_FRAC_MIN:
+            fails.append(f"cab door shut line on {'+' if s > 0 else '-'}Y is "
+                         f"missing: only {fr*100:.0f} % of {len(_S.DOOR_GAP_S)}"
+                         f" outline samples are open slots")
+        log(f"  shut line door{s:+d}: {fr*100:.0f} % open")
+    fr = _slot_frac(body, _S.CARGO_GAP, -ss, dz)
+    if fr < SLOT_FRAC_MIN:
+        fails.append(f"cargo door shut line is missing: only {fr*100:.0f} % of "
+                     f"{len(_S.CARGO_GAP)} outline samples are open slots")
+    log(f"  shut line cargo: {fr*100:.0f} % open")
+    fr = _englid_frac(body, _S.ENGLID_GAP, dz)
+    if fr < SLOT_FRAC_MIN:
+        fails.append(f"engine lid shut line is missing: only {fr*100:.0f} % of "
+                     f"{len(_S.ENGLID_GAP)} outline samples are open slots")
+    log(f"  shut line englid: {fr*100:.0f} % open")
+
+    # 11f. the shut lines and the bays must not be see-through. SPEC sec.6:
+    # the hatches read as depth, not as holes. Both door gaps are collinear
+    # slots and the bays are cut on both flanks, so without an inner skin a
+    # ray straight through crosses nothing at all.
+    dg = bpy.context.evaluated_depsgraph_get()
+    sc = bpy.context.scene
+    for name, samples, side in (("cab door +Y", _S.DOOR_GAP_S, 1),
+                                ("cab door -Y", _S.DOOR_GAP_S, -1)):
+        thru = 0
+        for (x, z) in samples:
+            r = sc.ray_cast(dg, Vector((x, side * 3.0, z + dz)),
+                            Vector((0.0, -side, 0.0)))
+            if (not r[0]) or r[1].y * side < 0.0:
+                thru += 1
+        if thru:
+            fails.append(f"{name} shut line is SEE-THROUGH: {thru} of "
+                         f"{len(samples)} rays cross no surface (SPEC 6 wants "
+                         "an inner skin behind the slot)")
+    for i, (xr, xf) in enumerate(_S.BAYS):
+        xm = (xr + xf) / 2.0
+        r = sc.ray_cast(dg, Vector((xm, ss * 3.0, BAY_PROBE_Z)),
+                        Vector((0.0, -ss, 0.0)))
+        if (not r[0]) or abs(r[1].y) > 0.80:
+            fails.append(f"serving bay {i} has nothing behind it — a "
+                         "600 x 400 mm hole, not a hatch (SPEC 6)")
+
+    # 12. the corrected measured constants, both frames.
+    #
+    # Z_SILL / Z_HEAD / BAYS / DOOR_GAP live in t1_shell and are UN-DROPPED:
+    # they build cutter geometry before step 8b. Z_BELT / V_APEX / V_RISE /
+    # V_POW live in t1_mats and are ABOVE-GROUND, because a shader reads
+    # Geometry->Position at RENDER time off the already-dropped mesh. Getting
+    # that backwards puts the paint 65 mm out. The pressed swage in
+    # t1_shell.zV() therefore carries the same numbers PLUS RIDE_DROP; if the
+    # two drift the crease and the two-tone line separate.
+    import t1_mats as _MT
+    if abs((_MT.V_APEX + _MT.V_RISE) - _MT.Z_BELT) > 1e-9:
+        fails.append(f"V_APEX {_MT.V_APEX} + V_RISE {_MT.V_RISE} != Z_BELT "
+                     f"{_MT.Z_BELT}: the V arms miss the flank belt line")
+    if _MT.V_APEX > 0.3960 + 1e-9:
+        fails.append(f"V_APEX {_MT.V_APEX:.4f} above ground exceeds the hard "
+                     "bound 0.396 set by the bumper occlusion in "
+                     "ref_workshop.jpg")
+    if _MT.V_POW >= 1.0:
+        fails.append(f"V_POW {_MT.V_POW} >= 1: the measured V profile is "
+                     "CONCAVE, not convex")
+    for nm, geo, sha in (("V_APEX", _S.V_APEX_Z - _T.RIDE_DROP, _MT.V_APEX),
+                         ("V_RISE", _S.V_RISE_Z, _MT.V_RISE),
+                         ("V_POW", _S.V_POW_Z, _MT.V_POW)):
+        if abs(geo - sha) > 1e-6:
+            fails.append(f"{nm} de-registered: pressed swage says {geo:.4f} "
+                         f"above ground, painted break says {sha:.4f}")
+    if abs(_S.zV(_S.V_HALF_W) - (_MT.Z_BELT + _T.RIDE_DROP)) > 1e-6:
+        fails.append("the V-swage arms do not land on the belt line at "
+                     f"|y| = {_S.V_HALF_W}")
+    for nm, got, want in (("Z_SILL", _S.Z_SILL, BAND_SPEC[0]),
+                          ("Z_HEAD", _S.Z_HEAD, BAND_SPEC[1])):
+        if abs(got - want) > 1e-6:
+            fails.append(f"{nm} {got:.4f} un-dropped; measured {want:.4f} "
+                         f"({want - _T.RIDE_DROP:.4f} above ground)")
+    if len(_S.BAYS) == len(BAYS_SPEC):
+        for i, (got, want) in enumerate(zip(_S.BAYS, BAYS_SPEC)):
+            if abs(got[0] - want[0]) > 1e-6 or abs(got[1] - want[1]) > 1e-6:
+                fails.append(f"serving bay {i} edges {got} vs measured {want} "
+                             "(rev-3's evenly-spaced bays are retired)")
+    log("  band %.3f-%.3f un-dropped (%.3f-%.3f AG)  bay widths %s"
+        % (_S.Z_SILL, _S.Z_HEAD, _S.Z_SILL - _T.RIDE_DROP,
+           _S.Z_HEAD - _T.RIDE_DROP,
+           " ".join("%.3f" % (b[1] - b[0]) for b in _S.BAYS)))
 
     log("  VERIFY: %d fail, %d warn" % (len(fails), len(warns)))
     for f in fails:

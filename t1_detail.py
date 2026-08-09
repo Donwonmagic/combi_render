@@ -406,6 +406,73 @@ def interior():
     obs.append(w)
     obs.append(T.cylinder((1.735, 0.372, 1.045), (0.30, 0, 0.95), 0.019, 0.42,
                           seg=20, name="col"))
+    obs += interior_fill()
+    return obs
+
+
+# ------------------------------------------------------- SPEC sec.6 backing
+def _clip_below(pts, zmax):
+    """the part of a closed (x, z) outline at or below zmax, closed off flat"""
+    out = []
+    n = len(pts)
+    for i in range(n):
+        x0, z0 = pts[i]
+        x1, z1 = pts[(i + 1) % n]
+        if z0 <= zmax:
+            out.append((x0, z0))
+        if (z0 - zmax) * (z1 - zmax) < 0.0:
+            t = (zmax - z0) / (z1 - z0)
+            out.append((x0 + t * (x1 - x0), zmax))
+    return out
+
+
+def interior_fill():
+    """Back the through-slots and the serving bays so they read as DEPTH.
+
+    MEASURED before this existed: at the `side` ortho camera 41 of the 76
+    rays sampled along the cab-door outline crossed NO surface at all -- the
+    two door gaps are collinear slots through both flanks, so the bus was
+    see-through along the shut line.  Separately a ray through any of the
+    three open serving bays hit nothing but the off-side glass pane at
+    3.83 m: three 600 x 396 mm holes with nothing behind them.
+
+    The physically honest fix, and the one that solves both: an inner skin.
+    A dark door card 20 mm inboard of the outer skin spanning the door
+    outline, and a galley backdrop behind the bays.
+
+    Runs from D.interior(), i.e. AFTER every boolean, so it cannot perturb
+    the shell.  All coordinates are UN-DROPPED (build.py step 8b has not run
+    yet).  The 20 mm standoff matters: T.flank_y() is wrong by -5.6...+3.9 mm
+    off the flat of the flank, so anything nearer than ~10 mm can punch back
+    out through the 2.8 mm skin.
+    """
+    import t1_shell as S
+    obs = []
+
+    # ---- cab door: card below the glass, plus a ribbon behind the shut line
+    # The outline is the CENTRELINE of a 5.5 mm slot, so a card bounded by it
+    # leaves the outer half of the slot open.  The ribbon (+-10 mm, 3.6x the
+    # slot) covers the whole groove including the top and side runs, where the
+    # card cannot reach without blocking the door glazing.
+    ZCARD = 1.4400                      # just above DOOR_MAIN's 1.402-1.438
+    lower = _clip_below(S.DOOR_GAP_S, ZCARD)
+    for s in (1, -1):
+        obs.append(T.conform_solid(lower, s, off=-0.020, thick=0.004,
+                                   name=f"doorcard{s}"))
+        obs.append(T.conform_ring(S.DOOR_GAP_S, s, 0.020, off=-0.020,
+                                  thick=0.004, name=f"doorback{s}"))
+
+    # ---- galley backdrop behind the three serving bays
+    # y = -0.480 puts it 1.34 m behind the show-side aperture and clear of
+    # every existing fit-out prop (plancha reaches y = -0.46, shelves stop at
+    # x = -1.38, seat back is all +Y).
+    bx0 = min(min(b) for b in S.BAYS) - 0.090
+    bx1 = max(max(b) for b in S.BAYS) + 0.080
+    bz0, bz1 = S.Z_SILL - 0.045, S.Z_HEAD + 0.045
+    pts = T.rrect(bx1 - bx0, bz1 - bz0, 0.030, seg=3)
+    pts = [(u + (bx0 + bx1) / 2, v + (bz0 + bz1) / 2) for (u, v) in pts]
+    obs.append(T.solid_prism((0.0, -0.480, 0.0), (1, 0, 0), (0, 0, 1),
+                             (0, 1, 0), pts, 0.024, name="galley_backdrop"))
     return obs
 
 

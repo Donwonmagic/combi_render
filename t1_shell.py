@@ -56,7 +56,12 @@ def windscreen_seals():
 
 
 # ============================================ CAB DOOR GLAZING (main + vent)
-Z_SILL, Z_HEAD, BAY_R = 1.4020, 1.7980, 0.0550
+# FRAME: UN-DROPPED.  These build cutter/pane geometry in build.py steps 1-4,
+# i.e. before step 8b subtracts T.RIDE_DROP from every vertex.  A feature
+# authored at z here ends up at z - 0.065 above ground.
+#   Z_SILL 1.372 -> 1.307 above ground
+#   Z_HEAD 1.775 -> 1.710 above ground
+Z_SILL, Z_HEAD, BAY_R = 1.3720, 1.7750, 0.0550
 
 DOOR_MAIN = [
     (1.0000, 1.4380), (1.0180, 1.4120), (1.4200, 1.4020), (1.5480, 1.4060),
@@ -93,7 +98,14 @@ DOOR_VENT_S = _smooth(_resample(DOOR_VENT, 56), 3)
 
 # ====================================================== SIDE SERVING BAYS
 # SPEC rev3 sec.1.1 -- three open serving hatches then a frosted rear bay
-BAYS = [(0.2600, 0.8600), (-0.4500, 0.1500), (-1.1600, -0.5600)]
+# SPEC sec.1.1 retires rev-3's "three evenly sized, evenly spaced" bays.
+# MEASURED edges off the reference photographs, tuples are (rear, front) to
+# match bay_outline()'s x1 - x0:
+#   bay 0  front +0.820  rear +0.313   width 0.507
+#   bay 1  front +0.195  rear -0.321   width 0.516
+#   bay 2  front -0.435  rear -0.960   width 0.525
+# The bays grow slightly toward the tail; they are NOT equal.
+BAYS = [(0.3130, 0.8200), (-0.3210, 0.1950), (-0.9600, -0.4350)]
 OPEN_BAYS = (0, 1, 2)          # +Y show side: all three glass removed
 # SPEC r4: there is NO fourth bay. Aft of bay 3 is solid sheet metal carrying
 # the "100% Calidad" decal (measured: SPEC 8.4). Re-adding a bay is a regression.
@@ -204,12 +216,30 @@ def arch_cutters():
 # ---------------------------------------------------------------- panel gaps
 GAPW = 0.0055
 
+# CAB DOOR SHUT LINE -- frame: UN-DROPPED (cut in build.py step 3, before the
+# ride-height drop).  Subtract T.RIDE_DROP for the above-ground height.
+#
+# The bottom run used to sit at z 0.4240-0.4360 un-dropped = 0.359 above
+# ground.  That is wheel-centre height, and it ran straight across the OPEN
+# front wheel arch for 745 mm of its 930 mm length (arch aperture x
+# 0.9265...1.6735).  There is no sheet metal there at all, so there was no
+# shut line to cut -- and at T1_SUB=2 the boolean collapsed the shell from
+# 205562 v to 12 v and was rolled back, shipping a production model with no
+# cab-door shut line.  Measured correlate of the failure: the outer-skin slope
+# relative to the cutter's extrusion axis exceeds t_skin / gap_width =
+# 2.8/5.5 = 0.51 across the arch lip.  Tested at SUB=2: z 0.4248 collapses,
+# 0.4548 shreds (8490 v), 0.56 / 0.78 / 0.80 / 0.83 all clean.
+#
+# The bottom run now sits at z 0.7800-0.7920 un-dropped (0.715-0.727 above
+# ground), clearing the front arch aperture top ARCH_Z + ARCH_R = 0.7710 by
+# 9-21 mm.  That is also where a real T1 cab door bottom sits: just proud of
+# the front arch crown, with the fixed step panel below it.
 DOOR_GAP = [
-    (1.8260, 0.4360), (1.8180, 0.7600), (1.8080, 1.1200), (1.7960, 1.4000),
+    (1.8171, 0.7920), (1.8080, 1.1200), (1.7960, 1.4000),
     (1.7600, 1.6280), (1.7220, 1.7620), (1.7020, 1.8020),
     (1.5200, 1.8130), (1.2800, 1.8150), (1.0800, 1.8130), (0.9680, 1.8060),
-    (0.9380, 1.7000), (0.9240, 1.4000), (0.9120, 1.0000), (0.9020, 0.4400),
-    (1.1000, 0.4280), (1.4000, 0.4240), (1.6500, 0.4280),
+    (0.9380, 1.7000), (0.9240, 1.4000), (0.9120, 1.0000), (0.9084, 0.7960),
+    (1.1000, 0.7840), (1.4000, 0.7800), (1.6500, 0.7840),
 ]
 DOOR_GAP_S = _smooth(_resample(DOOR_GAP, 76), 2)
 
@@ -220,11 +250,18 @@ def door_gaps():
             for s in (1, -1)]
 
 
+# off-side cargo doors, (x, z); tail engine lid, (y, z).  Module level so
+# verify.py can assert positively that the shut lines exist in the geometry.
+CARGO_GAP = [(u + 0.2000, v + 1.1380)
+             for (u, v) in T.rrect(1.3600, 1.4100, 0.045, seg=6)]
+ENGLID_GAP = [(u, v + 0.8700)
+              for (u, v) in T.rrect(0.9400, 0.5000, 0.055, seg=6)]
+
+
 def cargo_door_gaps():
     """double side-loading doors, off side only"""
     obs = []
-    pts = T.rrect(1.3600, 1.4100, 0.045, seg=6)
-    pts = [(u + 0.2000, v + 1.1380) for (u, v) in pts]
+    pts = CARGO_GAP
     obs.append(T.gap_prism((0, -0.64, 0), (1, 0, 0), (0, 0, 1), (0, -1, 0),
                            pts, GAPW, 0.48, name="gap_cargo"))
     obs.append(T.solid_prism((0, -0.64, 0), (1, 0, 0), (0, 0, 1), (0, -1, 0),
@@ -238,10 +275,8 @@ def cargo_door_gaps():
 
 
 def engine_lid_gap():
-    pts = T.rrect(0.9400, 0.5000, 0.055, seg=6)
-    pts = [(u, v + 0.8700) for (u, v) in pts]
     return [T.gap_prism((-1.95, 0, 0), (0, 1, 0), (0, 0, 1), (-1, 0, 0),
-                        pts, GAPW, 0.55, name="gap_englid")]
+                        ENGLID_GAP, GAPW, 0.55, name="gap_englid")]
 
 
 # ------------------------------------------------------------- closed ragtop
@@ -306,13 +341,26 @@ def ragtop():
 
 
 # ------------------------------------------------------- nose bulge + V swage
+# The PRESSED swage, UN-DROPPED.  These MUST mirror t1_mats.V_APEX / V_RISE /
+# V_POW, which drive the PAINTED break and are in the DROPPED (above-ground)
+# frame, offset by T.RIDE_DROP.  verify.py asserts the registration; if the
+# two drift apart the pressed crease and the two-tone line separate by the
+# difference, which is exactly the 65 mm mistake this frame invites.
+V_APEX_Z = 0.4050        # t1_mats.V_APEX 0.340 above ground + RIDE_DROP 0.065
+V_RISE_Z = 0.8670        # == t1_mats.V_RISE
+V_POW_Z = 0.60           # == t1_mats.V_POW.  < 1: the profile is CONCAVE.
+V_HALF_W = 0.86
+
+
+def zV(y):
+    """height of the two-tone V at half-width y, UN-DROPPED"""
+    return V_APEX_Z + V_RISE_Z * (min(abs(y), V_HALF_W) / V_HALF_W) ** V_POW_Z
+
+
 def nose_shape(ob):
     me = ob.data
     bm = bmesh.new(); bm.from_mesh(me)
     bm.normal_update()
-
-    def zV(y):
-        return 0.872 + 0.514 * (min(abs(y), 0.86) / 0.86) ** 1.16
 
     for v in bm.verts:
         x, y, z = v.co

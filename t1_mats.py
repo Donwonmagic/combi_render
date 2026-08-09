@@ -69,10 +69,23 @@ GOLD = (0.8600, 0.5400, 0.0600)
 # z = 1.3859 against Z_BELT = 1.3860.  A shader reading the UN-dropped frame
 # would have put it on row 135.6.  So height ramps below are written in
 # TRUE ABOVE-GROUND METRES with NO ride-drop offset added.
-Z_BELT = 1.3860
-V_APEX = 0.8720
-V_RISE = 0.5140
-V_POW = 1.16
+# CORRECTED 2026-08-09, re-derived off the high-resolution photographs.
+# All four are ABOVE-GROUND metres (see the frame note above).  The pressed
+# swage in t1_shell.nose_shape.zV() carries the same three numbers + 0.065,
+# because THAT is geometry and is cut before the drop.  If you change one,
+# change the other in the same commit or the swage and the paint de-register.
+# V_APEX <= 0.396 above ground is a HARD BOUND, not an estimate: the cream
+# wedge is still 14 px wide where the bumper occludes it in ref_workshop.jpg
+# and the bumper top measures 0.331 +- 0.020 above ground.  That bound is
+# independent of any px/m conversion.  V_POW < 1 -- the profile is CONCAVE.
+Z_BELT = 1.2070
+V_APEX = 0.3400
+V_RISE = 0.8670
+V_POW = 0.60
+assert abs((V_APEX + V_RISE) - Z_BELT) < 1e-9, (
+    "V_APEX + V_RISE must equal Z_BELT: the V-swage arms have to land on the "
+    "flank belt line at |y| = 0.86")
+assert V_APEX <= 0.3960, "V_APEX above the measured bumper-occlusion bound"
 
 # ---------------------------------------------------------------- WEATHER
 # Tunables for the shared weathering field.  W_ALBEDO is the one that is
