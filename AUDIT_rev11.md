@@ -5,9 +5,9 @@ the rev-11 renders against `ref_side.jpg`, `ref_rear34.jpg` and `ref_workshop.jp
 Full working: `measure/audit_proportion.md`, `measure/audit_weathering.md`,
 `measure/audit_script.md`.
 
-**Six dimensions remain to run**: fascia, counter/galley internal contrast, wheels
-and contact shadow, tail, roof, optics/glass. The briefs are in
-`workflows/tacombi-rev11-audit.js`.
+**Four dimensions run**: proportion, weathering, script, fascia. **Five remain**:
+counter/galley internal contrast, wheels and contact shadow, tail, roof,
+optics/glass. Briefs in `workflows/tacombi-rev11-audit.js`.
 
 Nothing below is a self-assigned score. Every line is a measurement with a method.
 
@@ -188,12 +188,81 @@ independently from the bay frame lines. Reference mask rebuilt from §10.20's ru
 
 ---
 
+
+
+---
+
+## FASCIA — dimension 4, and it overturns two of SPEC §10.24's three verdicts
+
+### The three §10.24 items, re-derived by a third method
+
+| item | verdict | evidence |
+|---|---|---|
+| **bumper standoff** | **BOTH SIDES INADMISSIBLE — stays OPEN** | In `ref_side.jpg` the **lamppost occupies columns 62–79** continuously over rows 455–620, and the bumper's cream never appears left of column 77. The bumper's front face is **entirely occluded**. So `fascia.md`'s "bumper face x <= 67" *and* §10.24's "silhouette puts the bumper face at 82–91" are both reading the post and its shadow. Column 82 is the bezel's gold arc, 80 is the indicator lens, 78 is the post. **My own third method in rev 10 was measuring a lamppost.** |
+| **indicator lens depth** | **REFUTED — datum error** | "41.5 mm built" is lens-proud-of-**plinth**. Against the body skin the built pod already stands **53.6 mm** proud. Scale-free third method, same frame, same station: lens blob 16 ± 2 px against the bezel arc's 50 ± 3 px = 0.320 ± 0.045 bezel diameters = **66 ± 10 mm**. Residual 12 ± 10 mm, **1.2 sigma**. Do not deepen it. |
+| **headlamp vertical position** | **CONFIRMED TWICE — apply** | Method A (workshop, pure ratio, no px/m, no belt, no ground line): roundel-to-lamp separation = 0.628 ± 0.066 roundel diameters = **0.176 ± 0.019 m** against the build's 0.0928 — **83 ± 19 mm, 4.4 sigma**. Method B needs no scale at all: in the photograph the indicator aperture lies entirely **below** the two-tone break, on the coloured panel; in the build it lies entirely **above** it, on the cream. Dropping the pair 83 mm puts it 44 mm below the break, as photographed. |
+
+The roundel's own height (belt − 0.149) is supported by both chains and **must not move** — rev 10 applied the derived half of `livery-9` and rejected its primary.
+
+### Two severity-5 defects in rev 11's own work
+
+* **`tex/nose.png`'s Color output was never linked.** `t1_mats.py` cleared the
+  selector handoff in the *alpha* branch, which is assembled **before** the colour
+  branch reads it. The nose therefore got nose.png's SHAPE and the flank tile's
+  COLOUR — (0,0,0) wherever the flank tile is transparent — so it rendered as black
+  marks. **Fixed in this pass; guards re-run 0 fail / 1 warn at both levels.**
+* **`nose.png`'s ink is in the wrong band.** Alpha bbox v 599–689 of 1024 puts it at
+  z **0.933–1.070 m AG** — the headlamp/roundel band, mostly on the cream. The red
+  wedges get nothing. Measured off an orthographic render at 253.521 px/m: lower-nose
+  gold **2.33 %** against the 11.44 % target, dark 3.26 % against 2.42 %, and the
+  composition is **two isolated dark commas**. The rev-11 nose decal did not land.
+  Fix lives in `folk_gen.py`'s nose window, not in the shader.
+
+### And SPEC §10.25's premise is wrong
+
+The `ROUNDEL_D` coupling is arithmetically correct and does hold. But **there has
+never been a 12.7 mm air gap in this code**: the V and W spines are only 0.015 R
+apart against a 0.183 R mitred apex, so the two prisms **interpenetrate 23.1 × 37.2 mm
+at D = 0.280** and 30.5 × 49.2 mm at D = 0.370. Minimum vertex gap on the mesh is
+0.37 mm. The render shows a fused X at both diameters. The rev-10 fix made the glyph
+smaller, which made the fusion less obvious without removing it. Severity 4.
+
+Also: **the glyph is 29 % undersized** — height/ring ⌀ 0.796 ± 0.020 photographed
+against 0.565 built, with the ring itself correct. And the **V-swage arm rises about
+2× too fast**: lamp station to body edge is 0.111 ± 0.015 m photographed against
+0.208 built, implying `V_POW` ≈ 0.30–0.48 against the locked 0.60. Severity 3.
+
+**Confirmed, no action:** brass bezels (rendered R−B +67/+68 against a measured +68),
+blade section 0.113 against 0.110 ± 0.010, headlamp lateral 0.561 ± 0.058 against
+0.545, roundel ⌀ 0.268 against 0.280 built, vent wing and wipers present.
+**NOT MEASURABLE:** front plate, bumper standoff, indicator frontal outline, headlamp
+lens appearance.
+
+The origin correction (mid-wheelbase is x = +0.100) shifts **no** fascia number —
+all of them are differences, ratios, or direct photograph measurements.
+
+---
+
+## Dimensions still to run
+
+**Five of ten remain**: counter and galley internal contrast, wheels and contact
+shadow, tail, roof, optics/glass. Briefs in `workflows/tacombi-rev11-audit.js`.
+
+
 ## Ordered work list
 
 Sequenced so nothing later invalidates something earlier. Geometry in ONE rebuild,
 both guards after.
 
+0. **`nose.png`'s ink band** — the decal is drawn at z 0.933–1.070 where the target
+   is the lower nose's red wedges. Cheap, and it is the difference between the nose
+   having scrollwork and having two commas.
 1. **Cut the roof hole** (SPEC §10.27) — unchanged as the top item.
+1b. **Drop the headlamps 83 mm** — the only §10.24 item that survives an independent
+   re-derivation, and it is confirmed twice, once by a test that needs no scale at
+   all. Do NOT move the roundel with them.
+1c. **Separate the V and W prisms.** They interpenetrate at every diameter; the
+   rev-10 coupling fix made the fusion less visible without removing it.
 2. **The stance batch, together, because they interact through P9's identity**: rake
    P1, rear arch P2, tail length P3, roof dome P4, body height P5, crown curve P6.
    Re-derive each once more before applying — P1 and P3 both contradict values the

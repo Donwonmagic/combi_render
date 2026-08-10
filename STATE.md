@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-10 16:00:25 UTC |
-| git commit | `e92fad4` |
-| git subject | Rename origin -> rev9-bundle-archive: it is a read-only bundle, not a remote |
+| generated | 2026-08-10 17:28:54 UTC |
+| git commit | `869be6f` |
+| git subject | rev 11 audit: three dimensions, and the script's acceptance test is hollow |
 | working tree | **DIRTY** — this state is not committed |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=1 (applied, destructive, before booleans) |

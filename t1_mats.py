@@ -942,7 +942,13 @@ def body_paint(name="T1_paint"):
         nt.links.new(mixA.outputs[0], mixNA.inputs[2])
         nt.links.new(_nose.outputs["Alpha"], mixNA.inputs[3])
         amask = _math(nt, 'MULTIPLY', mixNA.outputs[0], 1.0, 100, -1240)
-        _NOSE_SEL[0] = None
+        # rev 11 AUDIT, severity 5: this line used to read `_NOSE_SEL[0] = None`.
+        # The alpha branch is assembled BEFORE the colour branch (line ~990), so
+        # clearing the handoff here meant the colour mix never wired -- the nose
+        # got nose.png's SHAPE from the alpha path and the flank tile's COLOUR,
+        # which is (0,0,0) wherever the flank tile is transparent. The nose
+        # rendered as black marks. The selector is freshly assigned at line 871
+        # on every call, so there is nothing to clear.
     else:
         amask = _math(nt, 'MULTIPLY', mixA.outputs[0], 1.0, 100, -1240)
     # SPEC sec.3 asks for a graded BOUQUET, not wallpaper. Without a ceiling
