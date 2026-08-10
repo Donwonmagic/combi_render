@@ -43,7 +43,7 @@ retired four revisions earlier that was still shipping — inside ten minutes.
 git clone tacombi_history_rev8.bundle tacombi
 ```
 
-`HEAD` should be `a2f7eee`, 23 commits, clean tree. The repo also lives checked
+`HEAD` should be `3cab17f` or later, 24 commits, clean tree. The repo also lives checked
 out and current in my `tacombi_bus_render` folder.
 
 ## Step 3 — install Blender 4.5.3 and run BOTH guards. Report their actual output before proposing anything.
