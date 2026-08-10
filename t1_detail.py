@@ -366,8 +366,35 @@ def moulding(z=1.372):
 
 # ======================================================= CANTILEVERED COUNTER
 # MEASURED off ref_side.jpg and ref_rear34.jpg.  FRAME: UN-DROPPED -- these
-# build in build.py step 6, before step 8b subtracts T.RIDE_DROP = 0.065 from
-# every vertex.  Subtract 0.065 for above-ground.
+# build in build.py step 6, before step 8b subtracts the rake shear from every
+# vertex.
+#
+# !! THE "Subtract 0.065 for above-ground" LINE THAT USED TO BE HERE IS WRONG,
+# !! AND IT IS THE WHOLE OF THE ~40 mm CNT_ZB RESIDUAL IN HANDOFF_rev11 ITEM 4.
+# Since rev 8 the drop is a LINE, not a scalar: t1_core.rake_drop(x) =
+# 0.0365 + 0.0330 x, and RIDE_DROP survives only as its value at
+# X_DROP_REF = +0.8636.  It is NOT a frame conversion (t1_core says so in as
+# many words).  The counter runs +0.918 to -2.423, i.e. almost entirely AFT of
+# that station, where rake_drop is far smaller -- 0.0117 at its mean station
+# and -0.0435 at its tail.  So converting the AG measurement with the retired
+# scalar put CNT_ZT 1.189 + 0.065 = 1.254, and the built slab then reads 1.240
+# AG at its mean station against REF sec.6's 1.189 / 1.205.  The 40 mm is the
+# frame conversion, not the geometry.
+#
+# The residual is RESOLVED, and it resolves to LEAVE THE NUMBER ALONE.
+# Re-placed by the only method SPEC 10.11 permits -- a ratio inside a panel
+# whose two ends are both locked, never the ground line -- with the window-band
+# sill (y_ref 392.0 <-> z 1.3720) and the cab-door two-tone break (y_ref 413.1
+# <-> Z_BELT 1.2720) as the ruler, 21.1 px = 0.100 m:
+#     brass band, half-max saturation, 113 columns   y_ref 414.61 +- 0.59
+#     -> z = 1.2720 - (414.61 - 413.1) * 0.004739    = 1.2649 un-dropped
+# and REF sec.6's own 416.8 is the band's CENTRE, not its top edge (my band is
+# 414.61-419.12, centre 416.87), which is why 1.254 came out of it.  Against
+# the shipped 1.2540 that is +11 mm, inside the +-16 mm the outboard-parallax
+# term alone carries.  The two answers differ by 68 mm = 0.0330 * (0.8636 -
+# (-1.2000)), the rake between X_DROP_REF and the rear-axle station the AG
+# frame quotes at -- which is SPEC 10.11's ~70 mm common-mode ground-line error
+# re-entering through an AG comparison.  Do not "fix" it in the AG frame.
 #
 #                     measured AG   un-dropped   shipped   error
 #   X0 front            +0.918        +0.918      +0.920   ok
@@ -377,6 +404,27 @@ def moulding(z=1.372):
 #   thickness            0.107         0.107       0.085   22 mm thin
 #   Y outboard            --           1.166       1.245   79 mm proud
 #   Y inboard             --           0.845       0.845   ok
+#
+# RE-MEASURED by the locked-ends ratio above, for the record and NOT applied:
+#   counter top    (brass band top    y_ref 414.61)  1.2649 flank-plane
+#   counter bottom (cream/red break   y_ref 439.45)  1.1472 flank-plane
+#   edge depth                        24.84 px       0.1176 +- 0.0031
+# both flank-plane readings, i.e. before the outboard-parallax term.  The
+# counter's outer face is ~0.295 m nearer the camera than the ruler, and REF
+# sec.6 puts that at +16 mm at the nosing and +21 mm at the break; my own
+# independent handle on it -- the counter top's foreshortened depth, 3.5 +- 0.7
+# px, which IS the parallax expressed in pixels -- gives +15 to +31 mm
+# depending on how (camera height, distance) split, so the term is real but
+# only known to about +-10 mm.  1.254 / 1.147 / 0.107 are all inside that band
+# and all three are SPEC 10.5 locks, so they STAY.  Three findings were applied
+# from a measurement, broke something independently locked and were reverted in
+# rev 10 (SPEC 10.24); this is the same shape of finding and the rule earned
+# there is to measure it a third way before moving a lock.  What the third way
+# would be: the counter top's inner edge, which sits ON the flank plane and
+# needs no parallax at all -- unusable in ref_side.jpg because the body cream
+# just above the counter ramps smoothly from saturation 0.10 to 0.35 with no
+# step to find, but it IS a clean step in ref_rear34.jpg (y 423 at x 700) and
+# that image only needs a local vertical scale to close.
 #
 # Y inboard 0.845 penetrates the flank by ~26 mm at counter height (measured
 # body surface 0.8709 at x = -1.34, z = 1.200).  That is correct for a
@@ -401,6 +449,16 @@ CNT_Y_IN, CNT_Y_OUT = 0.8450, 1.1660        # 321 mm plan depth
 # itself and the front chamfer are not measurable from the photographs.
 CNT_R = 0.1500                              # tail corner radius, in plan
 CNT_CH = 0.0500                             # 45 deg front outer corner chamfer
+# MEASURED, ref_side.jpg.  The brass nosing caps this FRACTION of the slab's
+# outer edge.  113 columns over x_img 340-920, saturation half-max on both
+# edges of the gold band: band 4.52 +- 0.23 px (stat) +- 0.5 px (4:2:0 chroma
+# subsampling is the floor here), whole counter edge -- brass top to the
+# cream/red break -- 24.84 px, ratio 0.182.  ref_rear34.jpg over x 520-700,
+# the only run clear of the napkin dispensers, gives 0.191.
+# It is stored as a FRACTION and not as a depth on purpose: it was measured
+# AGAINST the slab edge, so a depth would silently stop meaning what it was
+# measured to mean the moment CNT_ZT/CNT_ZB move (SPEC 10.25).
+CNT_NOSE_F = 0.1860
 CNT_XA = CNT_X1 + CNT_R                     # -2.173  tail arc tangent point
 CNT_YA = CNT_Y_OUT - CNT_R                  #  1.016  tail arc tangent point
 CNT_X_IN = CNT_X1 + (CNT_Y_OUT - CNT_Y_IN)  # -2.002  tail leg inner face
@@ -472,10 +530,23 @@ def galley():
     pts = T.rrect(1.400, 2.700, 0.02, seg=3)
     obs.append(T.solid_prism((-0.500, 0.000, 0.5400), (0, 1, 0), (1, 0, 0),
                              (0, 0, 1), pts, 0.040, name="van_floor"))
-    for i, x in enumerate((-1.500, -1.780)):
-        obs.append(T.solid_prism((x, -0.300, 1.4200), (0, 1, 0), (1, 0, 0),
-                                 (0, 0, 1), T.rrect(0.900, 0.240, 0.02, seg=2),
-                                 0.030, name=f"shelf{i}"))
+    # rev 11 carried two 0.900 x 0.240 steel slabs at x -1.500 and -1.780,
+    # z 1.405-1.435.  REMOVED.  They sit AFT of gal_end_a, the galley's own aft
+    # wall at x = -1.300, so no serving aperture can see them: bay 3, the
+    # rear-most, ends at x = -0.960 and verify's SOLID_PROBE_X asserts sheet
+    # metal at x -1.05 / -1.30 / -1.55 / -1.80, which is the flank they sat
+    # behind.
+    #
+    # CORRECTION to the premise, recorded so nobody re-derives it: they were
+    # NOT visible from nowhere.  t1_shell puts the rear glazing at REAR_Z 1.450
+    # +- REAR_H/2, i.e. z 1.280-1.620, and the ray from the hero34r camera
+    # position in _cam_locs() to (-1.500, -0.300, 1.435) crosses the tail plane
+    # at y = 0.32, z = 1.58 -- inside that opening, with nothing between.  So
+    # the reason to delete them is not that no ray reaches them; it is that
+    # they are 0.9 m unsupported slabs floating in a dead cavity, no
+    # photograph shows a shelf at that station, and what the same ray now lands
+    # on is gal_end_a's white wall, which is a better read than two floating
+    # steel plates.
     return obs
 
 
@@ -1269,6 +1340,10 @@ def englid_handle():
 #   dark appliance base               2   0.44-0.80    0.86-0.95    Z 1.428-1.392
 #   pale stack on a high shelf        1   0.78-0.98    0.03-0.22    Z 1.763-1.686
 #   shelf edge under it               1   0.80-0.98    0.22-0.32    Z 1.686-1.646
+#   dark band, mid                    1   0.30-0.90    0.29-0.43    Z 1.658-1.602
+#   pale item, bright column          1   0.82-0.98    0.50-0.80    Z 1.573-1.454
+#   dark band A, under the rail       2   0.15-0.86    0.20-0.31    Z 1.694-1.650
+#   dark band B, under the shelf      2   0.16-0.90    0.57-0.71    Z 1.545-1.489
 #
 # COLOUR, same crops, mean sRGB / HSV saturation:
 #   back wall aft of the seam    (175.2, 175.3, 174.8)  S 0.003  NEUTRAL
@@ -1543,9 +1618,37 @@ def galley_dressing():
     m_green = _gm("gal_green", GAL_GREEN, rough=0.44, spec=0.42)
     m_amber = _gm("gal_amber", GAL_AMBER, rough=0.26, spec=0.55)
     m_pale = _gm("gal_pale", (0.7650, 0.7550, 0.7700), rough=0.48, spec=0.36)
-    # the roof aperture t1_shell does not cut, standing in at its own plane
+    # ---- the roof aperture t1_shell does not cut, standing in at its plane.
+    # rev 11 stood it in at the GALLEY BOX's footprint, 2.340 x 1.060 from
+    # x -1.300..1.040.  That is not the opening.  SPEC 10.27 measures the
+    # opening at 1.11 x 2.03 and t1_shell locks the same rectangle three ways
+    # -- LID_X0/LID_X1 = 0.964/-1.070 (2.034 long) and LID_Y_HINGE + LID_W
+    # (1.110 wide) -- so the stand-in over-ran the real hole by 230 mm aft and
+    # 76 mm forward and was 50 mm narrow.
+    #
+    # That over-run is the mechanism behind the open `materials-5`: an emitter
+    # longer than all three bays and near-symmetric about their own centre
+    # subtends nearly the same solid angle at each bay, so all three see the
+    # same source and render the same reflection (NCC 0.94-0.97 between them).
+    # At the real footprint bay 1 (x 0.313-0.820) has the source cut off
+    # 144 mm forward of its front edge, bay 3 (x -0.960..-0.435) has it cut off
+    # 110 mm aft of its rear edge, and bay 2 sees it whole -- three different
+    # sources, which is what the vehicle actually has.
+    #
+    # GAL_SKY was tuned against the OLD footprint's area, so it is scaled by
+    # the area ratio and the TOTAL emitted flux is held: a raw GAL_SKY at the
+    # smaller rectangle would darken every bay by 9 %.  Expressed as a ratio
+    # rather than a re-tuned number, so correcting one does not break the
+    # other (SPEC 10.25).  NOTE: flux is conserved but its DISTRIBUTION is
+    # not -- this moves light off the two ends and onto the middle, so the
+    # three bay means must be re-measured after the rebuild.
+    SKY_X0, SKY_X1 = S.LID_X1, S.LID_X0                     # -1.070 .. +0.964
+    SKY_Y0, SKY_Y1 = S.LID_Y_HINGE, S.LID_Y_HINGE + S.LID_W  # -0.545 .. +0.565
+    SKY_A0 = 2.3400 * 1.0600            # rev-11 footprint, what GAL_SKY is on
+    SKY_A1 = abs(SKY_X1 - SKY_X0) * abs(SKY_Y1 - SKY_Y0)
     m_sky = _gm("gal_sky", (0.7600, 0.7600, 0.7600), rough=0.85, spec=0.05,
-                emit=(1.000, 0.988, 0.962), estr=GAL_SKY, rvar=0.0)
+                emit=(1.000, 0.988, 0.962), estr=GAL_SKY * SKY_A0 / SKY_A1,
+                rvar=0.0)
     # the practical.  Warm-white fluorescent, which is what a taqueria runs.
     m_tube = _gm("gal_tube", (0.8200, 0.8150, 0.7950), rough=0.30, spec=0.40,
                  emit=(1.000, 0.918, 0.790), estr=GAL_LUM, rvar=0.0)
@@ -1569,8 +1672,10 @@ def galley_dressing():
       m_cream)
     A(_gbox("gal_end_a", X0 - 0.030, X0, -0.5000, 0.4000, 1.2000, 1.8600),
       m_white)
-    # ceiling: pale, and carrying the roof-aperture stand-in
-    A(_gbox("gal_ceiling", X0, X1, -0.5200, 0.5400, 1.8600, 1.8780), m_sky)
+    # ceiling: pale, and carrying the roof-aperture stand-in at the REAL
+    # opening footprint, not the galley box's (see m_sky above)
+    A(_gbox("gal_ceiling", SKY_X0, SKY_X1, SKY_Y0, SKY_Y1, 1.8600, 1.8780),
+      m_sky)
 
     # ------------------------------------------- 2. the practical strip light
     # Tucked 20 mm under the head rail so the ortho flank and both studio 3/4
@@ -1673,14 +1778,85 @@ def galley_dressing():
         A(_gbox(f"gal_stack{i}", hx - 0.0270, hx + 0.0270, -0.3900, -0.2100,
                 1.6860, 1.7630 - i * 0.0180, r=0.008), m_pale)
 
+    # ============================== 6b. INTERNAL CONTRAST, bays 1 and 2
+    # The bays have the right LEVEL and the wrong SPREAD: measured inside the
+    # cut edge, bay 1 renders sd 15.3 against the photograph's 28.4 and bay 2
+    # sd 10.2 against 24.7, while bay 3's distribution already matches.
+    #
+    # METHOD.  ref_side.jpg, each aperture divided into a 10 (u) x 7 (v) cell
+    # map of Rec.709 display luma, cells 5 % inset from the cut edge, u = 0 at
+    # the FORWARD edge and v = 0 at the head rail; a cell is then converted
+    # with that aperture's own locked model extents, which is the only way that
+    # survives the flank's non-constant px/m (194.8 at the rear panel against
+    # 211.5 mid-body).  x = X_front - width * u,  z = 1.7750 - 0.4030 * v.
+    # Everything below is a reflectance RATIO against the back wall in the same
+    # frame and the same light -- both are matte painted wall-class surfaces,
+    # so the ratio is an albedo ratio and nothing else (SPEC 10.12/10.21).
+    # Bays 1 and 2 are FORWARD of the seam, so their wall is the warm cream one
+    # at (199.0, 185.8, 172.2), L 187.6, and the ratios are taken against that.
+    #
+    #   bay 1  dark band     u 0.30-0.90  v 0.29-0.43  L 111.7  ratio 0.595
+    #   bay 1  pale item     u 0.82-0.98  v 0.50-0.80  L 200.4  ratio 1.068
+    #   bay 2  dark band A   u 0.15-0.86  v 0.20-0.31  L 145.4  ratio 0.775
+    #   bay 2  dark band B   u 0.16-0.90  v 0.57-0.71  L 150.1  ratio 0.800
+    #
+    # WHAT any of these things ARE is NOT MEASURABLE at 1024 x 768 -- the dark
+    # bands are 10-12 px deep.  So what is built is the `gal_upright`
+    # precedent: a panel at the measured u/v span carrying the measured
+    # reflectance ratio, and nothing is claimed about its identity.
+    #
+    # HONEST LIMIT, twice over.  (a) Bay 1's 28.4 is not all reachable by
+    # dressing.  Split the photograph's bay 1 at u 0.35, the line the man works
+    # aft of: the man-free forward third reads sd 28.6 and the aft two thirds,
+    # which contain him, read 38.0, giving the whole bay 35.9 in this crop.  A
+    # bay dressed to look like its own man-free third would therefore reach
+    # 28.6/35.9 = 0.80 of the total, i.e. about sd 23 of the quoted 28.4; the
+    # other 37 % of the VARIANCE is the man and the surfaces he occludes and no
+    # dressing can produce it.  (b) The photograph's 5th percentiles (101.9 /
+    # 110.6) sit well below any 10x7 cell mean (min 107 / 130), so a real part
+    # of the spread is at a finer scale than this map can resolve -- edges,
+    # gaps and shadow lines, which is exactly what bay 3 has in its six hooks
+    # and two hanging tools and why bay 3 already matches.  These four elements
+    # are what the map SUPPORTS; they are not expected to close the gap alone.
+    #
+    # Y is chosen, not measured (see the docstring), but it is chosen to two
+    # extra rules here: nothing intersects the fit-out already in the bay, and
+    # each bay's new panel sits at a DIFFERENT depth (bay 1 at -0.466, bay 2 at
+    # -0.450) so the two bays do not repeat one parallax -- the same
+    # `materials-5` duplicate the ceiling footprint above is aimed at.
+    m_band1 = _gm("gal_band1_m", tuple(0.595 * c for c in GAL_CREAM),
+                  rough=0.58, spec=0.30, nscale=110.0)
+    m_band2 = _gm("gal_band2_m", tuple(0.775 * c for c in GAL_CREAM),
+                  rough=0.58, spec=0.30, nscale=110.0)
+    m_band3 = _gm("gal_band3_m", tuple(0.800 * c for c in GAL_CREAM),
+                  rough=0.58, spec=0.30, nscale=110.0)
+    # bay 1: the dark band, stopped at x 0.620 where gal_upright already
+    # occludes the same rows -- running it on would double-count the darkness
+    A(_gbox("gal_band1", 0.6200, 0.3637, -0.4660, -0.4460, 1.6017, 1.6582,
+            r=0.004), m_band1)
+    # bay 1: the pale item at the measured bright column, standing on the
+    # plancha (top 1.455) and embedded 1 mm into it so no face is coincident
+    A(_gbox("gal_pale1", 0.3130, 0.3860, -0.4400, -0.3300, 1.4540, 1.5730,
+            r=0.010), m_pale)
+    # bay 2: band A, kept forward of x 0.030 so it clears gal_can_u, and band
+    # B, whose top at 1.5453 clears gal_rack_lo's underside at 1.5460 by 0.7 mm
+    A(_gbox("gal_band2", 0.0300, -0.2500, -0.4500, -0.4320, 1.6501, 1.6944,
+            r=0.004), m_band2)
+    A(_gbox("gal_band3", 0.1150, -0.2700, -0.4500, -0.4320, 1.4889, 1.5453,
+            r=0.004), m_band3)
+
     # ------------------------------- 7. counter top, show side (EXTERIOR props)
     # MEASURED in ref_side.jpg.  A stainless warmer stands on the counter and
     # occludes the lower right of bay 3: image x 641-698 -> X -0.686..-0.955
     # by aperture 3's own fraction, top at v -0.31 of the band, i.e. Z 1.495.
     # Its BASE is on the model counter at CNT_ZT; the photograph puts the base
-    # 54 mm higher, which is the counter-height residual REF sec.6 already
-    # carries (nosing 1.189-1.205 AG measured against 1.240 built) and is not
-    # this section's to resolve.  The TOP is matched, because the top is what
+    # 54 mm higher.  That was recorded as the counter-height residual (nosing
+    # 1.189-1.205 AG measured against 1.240 built).  RESOLVED, and not the way
+    # it reads: 40 mm of it is the retired RIDE_DROP scalar used as a frame
+    # conversion on a vehicle whose drop has been a line since rev 8, and the
+    # remainder is inside the outboard-parallax band -- see the CANTILEVERED
+    # COUNTER header.  CNT_ZT is not moving, so the 54 mm stays absorbed here,
+    # but it is now absorbed knowingly.  The TOP is matched, because the top is
     # the aperture read depends on and it is fixed against the locked band.
     cy0, cy1 = 0.9200, 1.1200
     A(_gbox("gal_warmer", -0.6860, -0.9550, cy0, cy1, CNT_ZT, 1.4950,
@@ -1726,6 +1902,8 @@ def spec4_details(body):
     out = []
     out.append((louvres(), "paint"))                 # pressed body sheet metal
     out.append((counter_nosing(S.SHOW_SIDE), None))  # brass, own material
+    out.append((counter_top(S.SHOW_SIDE), None))     # tan laminate, own mat
+    #   ^ empty until t1_mats ships `countertan`; see _counter_tan()
     out.append((filler_flap(), "paint"))
     out.append((bobble_fringe(), "capwhite"))
     # rev 8: the bulbs are LIT in both in-service photographs and read warm.
@@ -1749,16 +1927,105 @@ def spec4_details(body):
 def counter_nosing(side=1):
     """SPEC sec.4: brass edge strip on the counter lip.  CONFIRMED in
     ref_rear34.jpg and ref_side.jpg -- a gold nosing runs the whole outer edge
-    of the cream slab, round the rear corner and across the tail.  Section
-    (7 mm proud, 34 mm deep) is INFERRED; the strip itself is not."""
+    of the cream slab, round the rear corner and across the tail.
+
+    DEPTH IS NOW MEASURED, not inferred.  CNT_NOSE_F above: the brass caps
+    0.186 +- 0.021 of the slab edge, i.e. 19.9 mm of gold in elevation against
+    the 31.2 mm this strip used to show (+1.2 mm down to -30.0 mm).  So the
+    strip was 1.6x too DEEP, not too thin, and the standing complaint that it
+    "reads thin" is a CONTRAST defect, not a size one: build.py paints the
+    whole slab `countercream`, so the gold has cream above it AND cream below
+    it, where the photograph has TAN laminate above and cream below and the
+    gold reads as a hard bright line between two different tones.  The fix for
+    the complaint is counter_top(), not a bigger strip.  Enlarging it to
+    "look heavy" would have been a fourth of the section wrong by measurement.
+
+    PROJECTION (7.0 mm) is unchanged and still INFERRED -- ref_side.jpg is an
+    elevation and cannot measure a Y offset.  The SECTION is now a roll rather
+    than a flat band: stacked over the tail run of ref_rear34.jpg the band's
+    saturation climbs monotonically 0.41 -> 0.71 from its top edge to its
+    bottom while its value peaks 6 px down and then falls, which is a curved
+    section lit from above; a flat face renders one tone under any light.
+    That read comes from few clean columns, so the roll is INFERRED with the
+    same status the whole section used to carry.
+    """
+    h = CNT_NOSE_F * (CNT_ZT - CNT_ZB)          # 19.9 mm of gold in elevation
+    z0 = 0.0015                                 # crown, just proud of the top
     path = [(x, y, CNT_ZT) for (x, y) in _counter_outer(side)]
-    prof = [(0.0000 * side, 0.0012), (0.0060 * side, -0.0020),
-            (0.0070 * side, -0.0300), (0.0000 * side, -0.0340)]
+    prof = [(0.0000 * side, z0),                # inboard, at the slab face
+            (0.0040 * side, z0 - 0.0004),       # roll starts
+            (0.0068 * side, z0 - 0.20 * h),     # crown of the roll
+            (0.0070 * side, z0 - 0.62 * h),     # face, max projection
+            (0.0050 * side, z0 - h),            # bottom of the gold
+            (0.0000 * side, z0 - h - 0.0040)]   # drip, back to the slab face
     strip = T.sweep(path, prof, up=(0, 0, 1), name="counter_nosing")
     strip.data.materials.append(_brass())
     FLAT.append(strip)
     VISIBILITY_WATCH.append(strip.name)
     return [strip]
+
+
+def _counter_tan():
+    """resolve the counter top's TAN laminate -- or None if it has not shipped.
+
+    OWNER, shown marked crops and asked directly: "tan top, brass nosing on the
+    outer edge, body cream below."  The model paints the whole slab
+    `countercream`, so the largest single horizontal plane on the vehicle is
+    the wrong colour in every 3/4 hero.  MEASURED in ref_side.jpg between the
+    counter-top clutter and the gold band, x_img 690-900: hue 29-37, saturation
+    0.33-0.39, value 0.63-0.83, against the sunlit flank cream immediately
+    above it at saturation 0.09-0.13, value 0.87-0.95 -- a different SURFACE,
+    not the same paint in shade (a shade difference moves value, not hue and
+    saturation together by 3-4x).
+
+    The material is deliberately NOT built here.  This is an exterior painted /
+    laminated surface and it has to come off t1_mats.build_all() so it inherits
+    apply_weather()'s dust, wear and fade field the way `countercream` does; a
+    private _gm() copy would put a tenth constant-roughness material on the
+    most-looked-at plane in the model, which is the defect STATE.md counts.
+    Until t1_mats ships it this returns None and counter_top() emits nothing,
+    so the build is byte-for-byte what it is today.  See the cross-file ask.
+    """
+    m = bpy.data.materials.get("countertan")
+    if m:
+        return m
+    try:
+        import t1_mats as _MT
+        f = getattr(_MT, "counter_tan", None)
+        return f() if callable(f) else None
+    except Exception:
+        return None
+
+
+def counter_top(side=1):
+    """the counter's TAN top surface, as a face over the cream slab.
+
+    build.py:256 hands the whole counter to A(..., "countercream") and
+    MT.assign() clears the object's material slots before appending, so a
+    second slot on the slab itself cannot survive.  The top is therefore its
+    own object carrying its own material and routed from spec4_details() with
+    a None key -- exactly the contract counter_nosing() and galley_dressing()
+    already use.
+
+    3 mm slab centred 0.3 mm under CNT_ZT, so its top face lands at
+    CNT_ZT + 0.0012, which is 1.2 mm clear of the slab's own top face (no
+    coincident geometry) and 0.3 mm under the nosing's crown at +0.0015 (the
+    brass still caps the edge, and the tan butts into it).  Its outer edge is
+    inboard of the nosing's 7 mm projection at every station, so no tan is
+    visible in elevation -- which is what ref_side.jpg shows: tan, gold, cream,
+    with no tan below the gold.
+    """
+    m = _counter_tan()
+    if m is None:
+        return []
+    plan = _counter_outer(side) + list(reversed(_counter_inner(side)))
+    ob = T.solid_prism((0.0, 0.0, CNT_ZT - 0.0003),
+                       (1, 0, 0), (0, 1, 0), (0, 0, 1),
+                       plan, 0.0030, name="counter_top")
+    ob.data.materials.append(m)
+    FLAT.append(ob)
+    VISIBILITY_WATCH.append(ob.name)
+    return [ob]
 
 
 # ###########################################################################
@@ -1783,6 +2050,16 @@ def counter_nosing(side=1):
 #
 # Without it verify reports 'length 4.490 vs spec 4.290 (+200 mm)'.  With it,
 # both guards are 0 fail 0 warn.  See the note on CNT_X1.
+#
+# THAT SKIP LIST MUST GROW BY ONE MORE NAME when t1_mats ships `countertan`:
+#
+#     ("cyc", "counter", "counter_nosing", "counter_top")
+#
+# counter_top() lays the tan laminate over the same plan as the slab, so it
+# reaches the same x = -2.423 and the same guard would read it as vehicle
+# length.  It is the identical fitting-versus-vehicle question, not a new one.
+# Until `countertan` exists counter_top() returns [], nothing is built, and
+# verify is unaffected -- so the two changes can land in either order.
 # ###########################################################################
 HERO_CAMS = ["hero34f", "hero34r", "front34", "low34", "detail_f"]
 

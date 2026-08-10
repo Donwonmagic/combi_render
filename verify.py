@@ -117,7 +117,8 @@ SLOT_FRAC_MIN = 0.90
 def _bounds():
     lo = Vector((1e9, 1e9, 1e9)); hi = -lo
     for ob in bpy.data.objects:
-        if ob.type != 'MESH' or ob.name in ("cyc", "counter", "counter_nosing"):
+        if ob.type != 'MESH' or ob.name in ("cyc", "counter", "counter_nosing",
+                                            "counter_top"):
             continue
         for c in ob.bound_box:
             v = ob.matrix_world @ Vector(c)
@@ -474,6 +475,43 @@ def run(body, log=print):
     if not _ray_clear(body, (-2.40, 0.0, _S.REAR_Z + _frame_dz(_T.X_TAIL)),
                       (1, 0, 0), 0.35):
         fails.append("rear window is NOT cut")
+
+    # 11d2. THE ROOF HOLE, rev 12. build.py issued no roof cutter at all for
+    # eleven revisions and nothing caught it, because the only thing asserting
+    # a roof opening existed was PROSE -- in SPEC, in t1_shell's docstrings and
+    # in three handoffs. A claim in prose is not a guard; this is the node that
+    # does it. Two-sided on purpose: the opening must be OPEN, and the roof
+    # must still be SOLID everywhere the owner says it is solid (SPEC 10.28 --
+    # one opening only, strips surviving on both sides, solid fore and aft).
+    # Stations in METRES off the opening's own edges, not fractions: the first
+    # cut of this guard used fractions of the opening span and put two probes
+    # at |y| = 0.81, which is off the roof entirely, and one at x = +1.21.
+    # Every z here is UN-DROPPED and must be carried into the mesh's own frame
+    # with _frame_dz(x) -- run() executes AFTER step 8b (SPEC 10.1). The first
+    # cut omitted it and the 0.30 m ray stopped 26 mm ABOVE a roof that was
+    # perfectly solid. That is the same frame error SPEC 10.1 exists for, and
+    # it is why the ray is now long enough that no plausible frame slip can
+    # reproduce it silently.
+    _xf, _xa = max(_S.LID_X0, _S.LID_X1), min(_S.LID_X0, _S.LID_X1)
+    _yo, _ys = _S.LID_Y_HINGE, _S.LID_Y_HINGE + _S.LID_W
+    _M = 0.080                       # clear of the 30 mm cut-out corner radius
+    for (px, py, want_open, tag) in (
+            ((_xf + _xa) / 2, (_yo + _ys) / 2, True, "roof aperture centre"),
+            (_xf - 0.20, _yo + 0.20, True,  "roof aperture fore end"),
+            (_xa + 0.20, _ys - 0.20, True,  "roof aperture aft end"),
+            (_xf + _M, (_yo + _ys) / 2, False, "roof FORWARD of the opening"),
+            (_xa - _M, (_yo + _ys) / 2, False, "roof AFT of the opening"),
+            ((_xf + _xa) / 2, _yo - _M, False, "off-side roof strip (hinge side)"),
+            ((_xf + _xa) / 2, _ys + _M, False, "show-side roof strip (drip rail)")):
+        o = (px, py, _S.roof_z(px, py) + _frame_dz(px) + 0.300)
+        got_open = _ray_clear(body, o, (0, 0, -1), 0.750)
+        if want_open and not got_open:
+            fails.append(f"{tag} at ({px:.3f}, {py:.3f}) is NOT cut -- the "
+                         "galley is a sealed steel box again")
+        if (not want_open) and got_open:
+            fails.append(f"{tag} at ({px:.3f}, {py:.3f}) is cut through; SPEC "
+                         "10.28 says exactly ONE opening, that size")
+    log("  roof aperture: open, and solid fore / aft / both sides")
 
     # 11e. shut lines. A gap cutter makes a 5.5 mm through-slot; sample the
     # outline and require most samples to pass the near skin.

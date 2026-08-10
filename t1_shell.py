@@ -407,8 +407,70 @@ LID_T = 0.0180                         # skin + rail thickness
 LID_PROUD = 0.0228                     # 26 +/- 7 mm measured proud height
 RAIL_PROUD = 0.0213
 
-LID2_X0, LID2_X1 = -1.1400, -1.7800    # second, smaller lid
-LID2_OPEN_DEG = 82.0
+SIGN_X0, SIGN_X1 = -1.1400, -1.7800    # the separate signboard -- NOT a lid
+SIGN_OPEN_DEG = 82.0
+LID2_X0, LID2_X1 = SIGN_X0, SIGN_X1    # back-compat aliases, do not use
+LID2_OPEN_DEG = SIGN_OPEN_DEG
+
+
+# ------------------------------------------------------------ roof aperture
+# SPEC sec.10.28, settled WITH THE OWNER 2026-08-10 from marked crops of both
+# in-service frames, before anything was measured from them:
+#   * ONE opening only, under the flower-mural lid.  Solid roof forward of it
+#     over the cab, and solid roof aft of it all the way to the tail.
+#   * a strip of roof survives on BOTH sides -- roughly 0.3 m on the off side
+#     where the lid hinges, roughly 0.3 m on the show side carrying the bulb
+#     string along the drip rail.  The 1.11 m transverse width stands.
+#
+# Why this had to be ASKED rather than measured: ref_side.jpg puts the camera
+# at roof height, so the roof plane is edge-on and the surviving strip between
+# the lid's base and the near drip rail is ~13 px tall -- no transverse number
+# taken off that frame is worth anything.  ref_rear34.jpg is the only frame
+# with any elevation on the roof; it shows maroon interior through the opening,
+# which is the first direct sight of the inside of the hole in any frame, but
+# it shows neither end of it.
+#
+# The opening IS the main lid's own footprint -- the lid is the piece of skin
+# that was cut out of it -- so it is expressed in terms of LID_X0 / LID_X1 /
+# LID_Y_HINGE / LID_W and NOT as four fresh constants.  SPEC sec.10.25: a
+# constant tuned against another constant must be expressed IN TERMS of it, or
+# correcting one silently breaks the other.  Moving the lid moves the hole.
+ROOF_CUT_R = 0.030                     # corner radius of the cut-out
+
+
+def roof_cutters():
+    """The single roof aperture the main lid was cut from.
+
+    A rectangle in PLAN, extruded straight down through the roof skin -- which
+    is what a cut-out in a curved roof is.  Issued from build.py step 3, i.e.
+    AFTER solidify and in the UN-DROPPED frame, like every other aperture.
+    Only the wheel arches are cut while the shell is still a closed solid, and
+    that pipeline order is load-bearing (SPEC sec.10.1).
+
+    Until rev 11, build.py issued NO roof cutter at all: the lids floated over
+    an unbroken roof skin, so the galley was a sealed 2.8 mm steel box that no
+    exterior source could physically reach.  That is why the black serving bays
+    survived six revisions of light tuning -- the light had nowhere to enter.
+    """
+    x0, x1 = min(LID_X0, LID_X1), max(LID_X0, LID_X1)
+    y0, y1 = LID_Y_HINGE, LID_Y_HINGE + LID_W
+    cx, cy = (x0 + x1) / 2.0, (y0 + y1) / 2.0
+    pts = T.rrect(x1 - x0, y1 - y0, ROOF_CUT_R, seg=6)
+
+    # span the crown over the WHOLE opening, then clear it top and bottom. The
+    # roof is doubly curved, so one station's z is not enough.
+    zs = [roof_z(x0 + (x1 - x0) * i / 24.0, y0 + (y1 - y0) * j / 12.0)
+          for i in range(25) for j in range(13)]
+    zlo, zhi = min(zs) - 0.030, max(zs) + 0.060
+
+    # the prism must not reach down into the window band; if it ever did, the
+    # roof cutter would take the header rail with it.
+    assert zlo > Z_HEAD + 0.020, (
+        "roof cutter bottom z=%.4f is within 20 mm of the window head %.4f -- "
+        "it would cut the header rail, not the roof" % (zlo, Z_HEAD))
+
+    return [T.solid_prism((cx, cy, zlo), (1, 0, 0), (0, 1, 0), (0, 0, 1),
+                          pts, zhi - zlo, name="cut_roof")]
 
 
 def _lid_panel(x0, x1, w, name, seams=3):
@@ -495,7 +557,11 @@ def _lid_face(x0, x1, w, name, inset=0.030, off=0.0):
 
 
 def roof_lids():
-    """The two cut roof lids, OPEN. Returns (skins, rails, struts, boards)."""
+    """The ONE cut roof lid, OPEN. Returns (skins, rails, struts, boards).
+
+    rev 12: was two lids. The second panel is a separate signboard, not a lid
+    (SPEC sec.10.28, owner's reading) -- see signboard(). One lid, one opening.
+    """
     skins, rails, struts, boards = [], [], [], []
 
     # ---- main lid
@@ -529,21 +595,8 @@ def roof_lids():
                       name="lid_rail")
         rails.append(r)
 
-    # ---- second, smaller lid, aft
-    zh2 = roof_z((LID2_X0 + LID2_X1) / 2, LID_Y_HINGE) + LID_PROUD
-    lid2 = _lid_panel(LID2_X0, LID2_X1, LID_W * 0.86, "lid_rear")
-    _hinge(lid2, 0.0, LID_Y_HINGE, zh2, LID2_OPEN_DEG)
-    skins.append(lid2)
-
-    # ref_rear34.jpg: the rear lid is up and lettered "LA SANTA..."
-    b2 = _lid_face(LID2_X0, LID2_X1, LID_W * 0.86, "lid_board2",
-                   off=-(LID_T + 0.0016))
-    _hinge(b2, 0.0, LID_Y_HINGE, zh2, LID2_OPEN_DEG)
-    boards.append(b2)
-
-    # ---- prop struts, one per lid, hinge side to free edge
-    for (ob, xs, deg, w) in ((main, LID_X1 + 0.16, LID_OPEN_DEG, LID_W),
-                             (lid2, LID2_X1 + 0.12, LID2_OPEN_DEG, LID_W * 0.86)):
+    # ---- prop strut, hinge side to free edge
+    for (ob, xs, deg, w) in ((main, LID_X1 + 0.16, LID_OPEN_DEG, LID_W),):
         a = math.radians(deg)
         tipy = LID_Y_HINGE + w * math.cos(a) * 0.86
         tipz = (roof_z(xs, LID_Y_HINGE) + LID_PROUD) + w * math.sin(a) * 0.86
@@ -554,6 +607,57 @@ def roof_lids():
                                  0.0075, d.length, seg=14,
                                  name=f"lid_strut{len(struts)}"))
     return skins, rails, struts, boards
+
+
+def signboard():
+    """The separate cream signboard, lettered in red brush script with a red star.
+
+    OWNER READING, 2026-08-10, SPEC sec.10.28.  Shown a 3x crop of this panel in
+    ref_rear34.jpg and asked what it is, Donald answered: **a separate
+    signboard, not a cut roof lid.**
+
+    That is a topology change, not a dressing change.  Up to rev 11 this panel
+    was `lid_rear` -- a second hinged LID, which implies a second opening under
+    it.  It is not a lid, so there is no opening under it, and roof_cutters()
+    issues exactly one cutter.  Donald's answer to the same question set says
+    the roof is solid forward of the main opening and solid aft of it to the
+    tail, which is consistent: a signboard stands on solid roof.
+
+    NOT SETTLED, and deliberately NOT guessed -- the station.  This board is
+    left at the aft station it has carried since rev 8 (x -1.140 -> -1.780).
+    The photographic evidence points the other way: in ref_rear34.jpg the
+    camera is behind and to the show side, so nose-ward reads LEFT, and this
+    panel sits clearly LEFT of the flower lid, which would put it FORWARD of
+    LID_X0 over the cab.  That would also explain why it is invisible in
+    ref_side.jpg -- folded flat, which is exactly Donald's own observation that
+    "the separate roof panel that we see in the playa photo is still closed on
+    the side ref photo".  But SPEC sec.10.26 lists the station as unsettled and
+    warns against guessing it, one photograph's left-right is a single-chain
+    inference, and moving it is visible from every hero camera.  Put to Donald;
+    do not move it on this reasoning alone.
+    """
+    skins, boards, struts = [], [], []
+    w = LID_W * 0.86
+    zh = roof_z((SIGN_X0 + SIGN_X1) / 2, LID_Y_HINGE) + LID_PROUD
+
+    panel = _lid_panel(SIGN_X0, SIGN_X1, w, "sign_panel")
+    _hinge(panel, 0.0, LID_Y_HINGE, zh, SIGN_OPEN_DEG)
+    skins.append(panel)
+
+    face = _lid_face(SIGN_X0, SIGN_X1, w, "sign_face", off=-(LID_T + 0.0016))
+    _hinge(face, 0.0, LID_Y_HINGE, zh, SIGN_OPEN_DEG)
+    boards.append(face)
+
+    xs = SIGN_X1 + 0.12
+    a = math.radians(SIGN_OPEN_DEG)
+    tipy = LID_Y_HINGE + w * math.cos(a) * 0.86
+    tipz = (roof_z(xs, LID_Y_HINGE) + LID_PROUD) + w * math.sin(a) * 0.86
+    foot = Vector((xs, 0.44, roof_z(xs, 0.44)))
+    tip = Vector((xs, tipy, tipz))
+    d = tip - foot
+    struts.append(T.cylinder(tuple((foot + tip) / 2), tuple(d.normalized()),
+                             0.0075, d.length, seg=14, name="sign_strut"))
+    return skins, boards, struts
 
 
 # ------------------------------------------------------- nose bulge + V swage

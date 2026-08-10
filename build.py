@@ -221,6 +221,16 @@ cut(body, [S.rear_cutter()], "rear window")
 cut(body, S.door_gaps() + S.cargo_door_gaps() + S.engine_lid_gap(), "gaps",
     kind="gap")
 
+# rev 12: THE ROOF HOLE.  Up to rev 11 no roof cutter was ever issued, so the
+# lids floated over an unbroken roof skin and the galley was a sealed 2.8 mm
+# steel box -- which is why the black serving bays survived six revisions of
+# light tuning: the light had nowhere to enter.  ONE opening (SPEC sec.10.28,
+# settled with the owner), cut here in step 3 like every other aperture, i.e.
+# AFTER solidify.  It changes the roof's manifold state, so verify.py's
+# non-manifold count and the shut-line probes must both be re-read at BOTH
+# subdivision levels.
+cut(body, S.roof_cutters(), "roof hole")
+
 body.name = "T1_body"
 body.data.shade_smooth()
 A(body, "paint")
@@ -250,7 +260,16 @@ A(lid_skins, "paint")
 A(lid_rails, "paint")
 A(lid_struts, "chrome_d")
 A(lid_boards[0], "lidmural")           # flower mural + yellow menu strips
-A(lid_boards[1], "lidsign")            # "LA SANTA..." on the rear lid
+
+# rev 12: the cream panel lettered in red brush script with the red star is a
+# SEPARATE SIGNBOARD, not a second cut roof lid -- the owner's reading, SPEC
+# sec.10.28.  It therefore gets no opening under it, and roof_cutters() issues
+# exactly one cutter.  Its fore-aft STATION is unsettled and deliberately left
+# where rev 8 put it; see t1_shell.signboard().
+sign_skins, sign_boards, sign_struts = S.signboard()
+A(sign_skins, "paint")
+A(sign_struts, "chrome_d")
+A(sign_boards[0], "lidsign")           # "LA SANTA..." red brush script + star
 
 # --------------------------------------------- 6 counter, galley, interior
 A(D.plank_counter(S.SHOW_SIDE), "countercream")

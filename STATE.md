@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-10 14:48:01 UTC |
-| git commit | `df2cb7f` |
-| git subject | rev 11 handoff: SPEC 10.26 roof topology, 10.27 the roof hole is never cut |
+| generated | 2026-08-10 16:21:40 UTC |
+| git commit | `e92fad4` |
+| git subject | Rename origin -> rev9-bundle-archive: it is a read-only bundle, not a remote |
 | working tree | **DIRTY** — this state is not committed |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=1 (applied, destructive, before booleans) |
@@ -30,6 +30,7 @@ dims  L=4.298 W=1.750 roof@rear-axle=1.923 (bbox top 3.009)
 measured TRACK_F=1.3713  TRACK_R=1.3613  TYRE_D=0.6650
 open serving apertures on +Y: 3
 roof at tail = 1.942
+roof aperture: open, and solid fore / aft / both sides
 shut line door+1: 100 % open
 shut line door-1: 100 % open
 shut line cargo: 100 % open
@@ -43,7 +44,7 @@ warn  roof @ rear axle 1.923 vs spec 1.960 (-37 mm)
 |---|---|
 | cutters rolled back | none |
 | non-manifold edges (body) | 0 |
-| body faces | 50486 quad, 189 tri, 2808 ngon |
+| body faces | 49331 quad, 230 tri, 2830 ngon |
 
 ## Measured dimensions
 
@@ -53,8 +54,8 @@ Shaders read the dropped frame, so `Z_BELT`/`V_APEX` are already AG.
 
 | dimension | measured | SPEC | delta |
 |---|---|---|---|
-| overall length (ex counter) | 4.2984 | 4.2900 | +8.4 mm ok |
-| counter tail overhang past body | 0.2916 | — | — |
+| overall length (ex counter) | 4.5830 | 4.2900 | +293.0 mm **OUT** |
+| counter tail overhang past body | 0.0070 | — | — |
 | overall width (body) | 1.7498 | 1.7500 | -0.2 mm ok |
 | overall height (max, any station) | 3.0076 | 1.9600 | +1047.6 mm **OUT** |
 | _(rev 8: a single scalar height is the WRONG test now that the rake is modelled — 1.960 is the maximum of a sloping line, taken at its highest station. See the three-station roof line below. §2.3's inference that the roof-lid frame stands 0.10–0.15 m proud is **refuted** at ~13σ; measured proud height is 26 ± 7 mm.)_ | | | |
@@ -78,7 +79,7 @@ signature. `Z_BELT` is a line too; see `t1_mats.z_belt(x)`.
 | station | x | roof z | belt z |
 |---|---|---|---|
 | front axle | +1.300 | 1.8463 | 1.1926 |
-| mid wheelbase | +0.100 | 1.8839 | 1.2322 |
+| mid wheelbase | +0.100 | 0.3593 | 1.2322 |
 | rear axle | -1.100 | 1.9225 | 1.2718 |
 
 | roof line slope (measured off the mesh) | -31.8 mm/m |
@@ -107,9 +108,9 @@ they grow slightly toward the tail. rev-3's three equal 0.600s are retired.
 
 | | |
 |---|---|
-| datablocks built | 41 |
-| bound to >=1 mesh | 41 |
-| **still a CONSTANT roughness** | 9 — amber, bulb, gal_menucard, gal_sky, gal_tube, glass, lens, reflector, ruby |
+| datablocks built | 45 |
+| bound to >=1 mesh | 45 |
+| **still a CONSTANT roughness** | 6 — amber, gal_sky, glass, lens, reflector, ruby |
 
 > SPEC §3 locks the finish as WEATHERED. A constant roughness is the
 > physical definition of the plastic look. The only materials that may
@@ -120,9 +121,9 @@ they grow slightly toward the tail. rev-3's three equal 0.600s are retired.
 
 | | |
 |---|---|
-| mesh objects | 182 |
-| vertices (all meshes) | 129212 |
-| faces (all meshes) | 123515 |
+| mesh objects | 185 |
+| vertices (all meshes) | 128350 |
+| faces (all meshes) | 122515 |
 
 | prefix | n |
 |---|---|
@@ -137,6 +138,7 @@ they grow slightly toward the tail. rev-3's three equal 0.600s are retired.
 | `rim1` | 4 |
 | `tyre` | 4 |
 | `fringe` | 3 |
+| `gal_band` | 3 |
 | `gal_can_u` | 3 |
 | `menucard` | 3 |
 | `doorback` | 2 |
@@ -156,16 +158,13 @@ they grow slightly toward the tail. rev-3's three equal 0.600s are retired.
 | `hl_bowl` | 2 |
 | `hl_lens` | 2 |
 | `hl_ring` | 2 |
-| `lid_board` | 2 |
 | `lid_rail` | 2 |
-| `lid_strut` | 2 |
 | `louvres` | 2 |
 | `mir_arm` | 2 |
 | `mir_head` | 2 |
 | `seal_dm` | 2 |
 | `seal_dv` | 2 |
 | `seal_ws` | 2 |
-| `shelf` | 2 |
 | `tail` | 2 |
 | `vwbar` | 2 |
 | `wblade` | 2 |
@@ -180,6 +179,7 @@ they grow slightly toward the tail. rev-3's three equal 0.600s are retired.
 | `col` | 1 |
 | `counter` | 1 |
 | `counter_nosing` | 1 |
+| `counter_top` | 1 |
 | `dash` | 1 |
 | `englid_handle` | 1 |
 | `fuel_flap` | 1 |
@@ -188,6 +188,7 @@ they grow slightly toward the tail. rev-3's three equal 0.600s are retired.
 | `gal_ceiling` | 1 |
 | `gal_end_a` | 1 |
 | `gal_end_f` | 1 |
+| `gal_pale` | 1 |
 | `gal_rack_hi` | 1 |
 | `gal_rack_lo` | 1 |
 | `gal_rack_shelf` | 1 |
@@ -216,8 +217,9 @@ they grow slightly toward the tail. rev-3's three equal 0.600s are retired.
 | `ind1_lens` | 1 |
 | `iron-1F` | 1 |
 | `iron1F` | 1 |
+| `lid_board` | 1 |
 | `lid_main` | 1 |
-| `lid_rear` | 1 |
+| `lid_strut` | 1 |
 | `plancha` | 1 |
 | `plate` | 1 |
 | `plate_digits` | 1 |
@@ -226,6 +228,9 @@ they grow slightly toward the tail. rev-3's three equal 0.600s are retired.
 | `script_R` | 1 |
 | `seat_back` | 1 |
 | `seat_base` | 1 |
+| `sign_face` | 1 |
+| `sign_panel` | 1 |
+| `sign_strut` | 1 |
 | `van_floor` | 1 |
 | `vw_disc` | 1 |
 | `vw_ring` | 1 |

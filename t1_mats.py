@@ -3,8 +3,15 @@ so no UV unwrap of the shell is needed.
 
 SPEC rev6 sec.3 locks the finish as WEATHERED -- chalky, sun-faded, uneven,
 chipped edges, dusty lower body.  Every exterior material therefore runs its
-Base Color / Roughness / Normal through the shared WEATHER node group below;
-nothing on this vehicle carries a constant roughness.
+Base Color / Roughness / Normal through the shared WEATHER node group below.
+
+"nothing on this vehicle carries a constant roughness" stood here for four
+revisions and was PROSE, not a guard: `audit.py` counts the offenders off the
+live mesh and STATE.md put the count at 9 the day this line was written.  The
+count is a measurement and this file does not get to assert it -- see
+`rough_field()` and the adjudication at the foot of `build_all()`, which
+leaves exactly the transmissive four, the sealed reflector, and the roof
+aperture stand-in, each argued by name.
 
 NO SUBSURFACE ANYWHERE.  Every material sits at Subsurface Weight 0.0 and
 verify.py asserts it.
@@ -234,18 +241,174 @@ W_CORE_SCALE, W_CORE_DETAIL, W_CORE_CUT = 110.0, 2.0, 0.573
 # to +-7 % from h = 0.40 m to h = 0.92 m and only collapses at 0.36 (-21 %).
 # The 35 % luminance fall toward the rocker is ILLUMINATION, not pigment.
 # So there is no dust on the flank above 0.48 m at all.
-W_DUST_Z_HI, W_DUST_Z_LO = 0.480, 0.220      # true above-ground metres
+#
+# rev 12: W_DUST_Z_LO was 0.220 and that is a RAMP HEIGHT of 0.260 m, which
+# SPEC 10.4 does not describe.  Re-measured on ref_side.jpg, in that
+# photograph's own frame, by the method SPEC 10.11 requires (a difference
+# inside a panel whose ends are locked -- NEVER the ground line):
+#
+#   datum   the cream/red paint break, traced by the first row where sRGB
+#           saturation crosses 0.45 scanning down, 64 columns x = 320..640
+#           (clear of the cab door, which B2 shows is swung open, and clear
+#           of the tail where the counter occludes the belt).  Least squares
+#           y_break = -0.03538 x + 441.873, residual rms 0.53 px.  At the
+#           script station that is y 424.4 against SPEC 10.11's independently
+#           derived 426.4 -- 2 px, so this is the same line 10.11 used.
+#   scale   the rear wheel's cream rim flange, VERTICAL chord through the
+#           centre: top 557.5, bottom 650.5, D = 93.0 px on a 16 in flange
+#           of 0.440 +- 0.008 m -> 211.4 px/m.  (Reproduces REF_MEASUREMENTS'
+#           92.97 px.  The 194.8 px/m quoted at the tail is a HORIZONTAL
+#           foreshortening; the vertical scale does not carry it.)
+#   height  z(x, y) = z_belt(x) - (y - y_break(x)) / 211.4
+#
+#   C*/(L*+16) on the red flank, 45 266 px with Lab hue in [30,45) and C* > 20,
+#   binned in 10 mm of height:
+#       z 0.42 .. 0.84   1.395 .. 1.430      flat to +-1.5 %
+#       z 0.86 / 0.90    1.383 / 1.349       -3 % / -5 %   (counter shadow)
+#       z 0.429          1.394               -2 %
+#       z 0.420          1.275              -10 %
+#       z 0.410          1.201              -16 %
+#       z 0.401          0.779              -45 %
+#   -> leaves the +-7 % band at h = 0.424 +- 0.020, 50 % collapse at
+#      h = 0.398 +- 0.020, gone by 0.39.  Below 0.40 the flank is not
+#      observable in this photograph at all (the body turns under into its own
+#      shadow, L* 19 falling to 3), so the LOWER end of the ramp cannot be
+#      measured here and SPEC 10.4's "full <= 0.30" stands as the authority.
+#   Uncertainty: +-2 % on the 0.440 m flange over an 0.83 m offset (+-17 mm)
+#   plus +-2 px of edge (+-9 mm) -> +-20 mm.
+#
+# 0.480 -> 0.300 satisfies all three of SPEC 10.4's numbers at once: zero at
+# 0.48, full at 0.30, smoothstep knee (50 %) at 0.390 against the measured
+# 0.398 +- 0.020 and against 0.40 +- 0.04.  It also makes the ramp 0.180 m
+# tall, which is what SPEC 10.4's "the intuitive smoothstep(0.75 -> 0.25) is
+# ~3x too tall" MEANS: 0.500 / 0.180 = 2.78.  The old 0.260 m ramp was only
+# 1.92x smaller than the intuitive one and put its knee at 0.350, outside the
+# 0.40 +- 0.04 window, while never reaching full above 0.220.
+# Check on the clean side: with this ramp the deposit reaches 2.9 % at
+# z = 0.440, which is where the red's C*/(L*+16) falls 7 % -- against the
+# measured 0.424 +- 0.020.  Inside 1 sigma at both ends of the knee.
+W_DUST_Z_HI, W_DUST_Z_LO = 0.480, 0.300      # true above-ground metres
 W_DUST_RAG_SCALE, W_DUST_RAG_DETAIL, W_DUST_RAG_AMP = 6.0, 2.0, 0.045
 W_DUST_NZ_LO, W_DUST_NZ_HI = 0.25, 0.85      # upward-normal ramp
 W_DUST_UP_W = 0.85
 W_DUST_MOT_SCALE, W_DUST_MOT_DETAIL = 14.0, 4.0
 W_DUST_MOT_LO, W_DUST_MOT_HI = 0.35, 0.70
 W_DUST_MOT_MIN, W_DUST_MOT_MAX = 0.35, 1.00
-W_DUST_COL = (0.4400, 0.3900, 0.3100)        # pale limestone ochre
-W_DUST_FAC_UP = float(os.environ.get("T1_W_DUP", 0.35))
-W_DUST_FAC_LOW = float(os.environ.get("T1_W_DLO", 0.50))
+# Expectation of the mottle multiplier above.  Blender's noise Fac is ~N(0.5,s)
+# and E[motm] = 0.630 +- 0.005 for every s in 0.08..0.15, so the coverage model
+# below does not depend on which noise Blender ships.
+W_DUST_MOT_MEAN = 0.630
+W_DUST_COL = (0.4400, 0.3900, 0.3100)        # pale limestone ROAD FILM
 W_DUST_ROUGH = 0.28                          # ADDITIVE, clamped at 0.85
 W_ROUGH_CEIL = 0.85
+
+# ---- the two deposits are NOT the same dirt -------------------------------
+# rev 12.  There is one colour and one strength ramp in the graph and two
+# physically different deposits sharing them: road film thrown up from the
+# ground (the tide line) and dust that SETTLES on upward faces.  Splitting
+# them is what makes SPEC 10.4's upward-facing row reachable -- with one
+# colour it is not, at any coverage.
+#
+# MEASURED, ref_rear34.jpg, and this is a SAME-CLASS comparison with a KNOWN
+# albedo difference removed, not a rendered ratio across classes:
+#   patches   counter top (upward, cream paint)   sRGB(202,172,127), n=2160
+#             cream flank rear quarter (side)     sRGB(203,186,146), n=2153
+#             both middle-80 % of L*, medians
+#   The two are different paints, so the raw delta is inadmissible.  Both
+#   albedos are LOCKED constants in this file, so the difference between them
+#   is known and can be removed: fit a von-Kries gain from the side patch and
+#   this file's CREAM (0.9676, 0.7784, 0.4976), push COUNTERCREAM through the
+#   same gain, and the clean counter top would render L* 80.35 C* 23.87
+#   h 85.73.  Against the observed dirty L* 71.96 C* 27.58 h 80.53 that is
+#       dL* -8.39   dC* +3.71   dhue -5.20 deg   C*/(L*+16) x1.266
+#   against SPEC 10.4's dL* -8.8, dC* +5.0, dhue -6.6.  Independent
+#   confirmation of 10.4 to 0.4 / 1.3 / 1.4 units.  (ref_workshop.jpg is a
+#   DIFFERENT, unpainted vehicle in a shed and carries no weathering signal.)
+#
+# Solving that de-illuminated triple for the deposit leaves one degeneracy --
+# a paler deposit at more coverage looks the same -- and the deposit HUE is
+# invariant under it: 79.4 deg at coverage 0.41 through 80.8 deg at 0.75.  The
+# degeneracy is closed by the rule that a constant tuned against another
+# constant is expressed in terms of it: the settled dust is the SAME MINERAL
+# as the road film, so it keeps W_DUST_COL's L*, and the coverage falls out.
+#   -> W_DUST_COL_UP  L* 69.10 (== W_DUST_COL), C* 20.29, hue 79.61
+#   -> W_DUST_FAC_UP  0.7313, i.e. mean coverage 0.548 on the counter top
+# The 0.35 that used to sit here is NOT deleted: it was doing two jobs, and
+# its tide-line job (thinning the road film where the tide line runs out)
+# survives verbatim as W_DUST_FAC_TOP, so this change moves the flank not at
+# all.  Verified below by assert, not by inspection.
+W_DUST_COL_UP = (0.5077, 0.3775, 0.2340)     # settled ochre, sRGB(189,165,133)
+W_DUST_FAC_TOP = 0.35        # road film where the tide line fades out
+W_DUST_FAC_LOW = float(os.environ.get("T1_W_DLO", 0.50))   # road film, rocker
+W_DUST_FAC_UP = float(os.environ.get("T1_W_DUP", 0.7313))  # settled, up-faces
+
+# the two locked albedos the solve above consumed, and its answer
+COUNTERCREAM = (0.7350, 0.7150, 0.6600)
+_UP_MEASURED = (0.6104, 0.5300, 0.4265)   # dirty counter top, de-illuminated
+
+# ---------------------------------------------------------- counter top, tan
+# rev 12.  The OWNER was shown marked crops of the counter and ruled: "tan top,
+# brass nosing on the OUTER EDGE, body cream below".  The model painted the
+# whole fitting `countercream`; a tan top is a material the spec never had.
+#
+# Derived as a RATIO against a surface of the SAME CLASS, never from an absolute
+# pixel value -- SPEC sec.10.21, the rule that cost rev 10 one wrong silver.
+# Both references are matte painted/laminate, measured in ref_side.jpg (the
+# lower-exposure frame; every cream in ref_rear34.jpg clips at 249-254 and a
+# clipped reference cannot carry a ratio):
+#
+#   tan top      x 700-780, y 411-415   sRGB (200,167,128)  lin (.5776,.3866,.2159)
+#   counter fascia, VERTICAL, same fitting, 10 px away, same light
+#                x 700-780, y 421-427   sRGB (212,189,166)  lin (.6585,.5089,.3813)
+#   cab roof cream, UP-FACING, same orientation, 4 m away
+#                x 180-270, y 270-280   sRGB (188,175,167)  lin (.5030,.4287,.3864)
+#
+# The two references bracket rather than agree, and the disagreement is real and
+# structural, so it is carried rather than averaged away silently:
+#   * against the FASCIA (same light, wrong orientation, and it takes red bounce
+#     off the body that the up-facing top does not): albedo G 0.416, r/g 1.129
+#   * against the CAB ROOF (right orientation, different local surround -- it is
+#     out from under the lid and the roof overhang): albedo G 0.569, r/g 1.246
+# Level is the midpoint, G 0.493, with the bracket [0.416, 0.569] = -16 %/+15 %.
+# Chromaticity is the robust part: an illuminant gain divides out of a ratio,
+# and the two references agree on b/g to 0.62 +/- 0.06.
+#
+# So: the HUE of this constant is measured, the LEVEL is bracketed and its
+# bracket is +/-16 %. Override with T1_CTAN=r,g,b to test the ends.
+COUNTERTAN = (0.5870, 0.4930, 0.3060)     # = sRGB (201,186,150), h 42, s 0.25
+if os.environ.get("T1_CTAN"):
+    COUNTERTAN = tuple(float(v) for v in os.environ["T1_CTAN"].split(","))
+
+
+def counter_tan():
+    """The tan laminate datablock, for t1_detail's counter_top().
+
+    t1_detail's spec4_details() runs at build.py step 7, BEFORE build_all() at
+    step 9, so a bare bpy.data.materials.get() cannot see it. simple() resolves
+    by name, so calling this early and calling it again from build_all() hands
+    back the same datablock rather than a second copy.
+    """
+    return simple("countertan", COUNTERTAN, rough=0.42, coat=0.05, spec=0.32)
+
+
+def _lstar(c):
+    """CIE L* of a linear-sRGB reflectance triple (D65, Yn = 1)."""
+    y = 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]
+    return 116.0 * (y ** (1.0 / 3.0)) - 16.0 if y > (6 / 29.) ** 3 else \
+        116.0 * (y / (3 * (6 / 29.) ** 2) + 4 / 29.) - 16.0
+
+
+assert abs(_lstar(W_DUST_COL_UP) - _lstar(W_DUST_COL)) < 0.05, (
+    "the settled dust is the same mineral as the road film and must carry its "
+    "L*; re-solve W_DUST_COL_UP if W_DUST_COL moves")
+if not (os.environ.get("T1_W_DUP") or os.environ.get("T1_W_DLO")):
+    _f_up = W_DUST_UP_W * W_DUST_MOT_MEAN * W_DUST_FAC_UP * 1.4   # counter dust
+    _pred = tuple(c + _f_up * (d - c)
+                  for c, d in zip(COUNTERCREAM, W_DUST_COL_UP))
+    assert max(abs(p - m) for p, m in zip(_pred, _UP_MEASURED)) < 2e-3, (
+        "the upward-facing deposit no longer reproduces the measured counter "
+        "top of ref_rear34.jpg: predicted %s vs measured %s"
+        % (tuple(round(v, 4) for v in _pred), _UP_MEASURED))
 
 # sun fade -- a DESIGN VALUE, not a measurement.  Neither in-service photo is
 # in direct sun (ref_side.jpg open shade, ref_rear34.jpg under a palapa), so
@@ -266,7 +429,8 @@ W_MICRO_SCALE, W_MICRO_DETAIL = 1400.0, 1.0
 W_MICRO_LO, W_MICRO_HI, W_MICRO_AMP = 0.35, 0.65, 0.035
 
 # per-material wear weights (SPEC rev6 sec.3)
-WEAR = dict(bumpercream=1.0, wheelcream=0.8, countercream=0.7, capred=0.6,
+WEAR = dict(bumpercream=1.0, wheelcream=0.8, countercream=0.7, countertan=0.7,
+            capred=0.6,
             capwhite=0.6, T1_paint=0.55, calidad=0.55, cream=0.3,
             roundelred=0.25)
 
@@ -567,10 +731,29 @@ def weather_group(name="WEATHER"):
                W_DUST_MOT_MIN, W_DUST_MOT_MAX, -1460, -1660)
     d1 = _math(nt, 'MULTIPLY', dmax, motm, -1100, -1380)
     dust = _math(nt, 'MULTIPLY', d1, IN['dust'], -920, -1380, clamp=True)
-    # heavier film at the rocker than on the upward faces
-    dfac0 = _mr(nt, hgt, 0.0, 1.0, W_DUST_FAC_UP, W_DUST_FAC_LOW, -740, -1560)
-    dfac = _math(nt, 'MULTIPLY', dust, dfac0, -560, -1480, clamp=True)
-    cdust = _mixc(nt, dfac, csteel.outputs[2], W_DUST_COL, -380, 200)
+    # rev 12: TWO DEPOSITS, each with its own strength AND its own colour.
+    # Road film thrown up off the ground fades out with the tide line and is
+    # near-neutral limestone; dust that settles on upward faces does not care
+    # about height at all and is the measured ochre.  The old graph ran one
+    # colour through a single strength ramp driven by hgt, which meant a
+    # VERTICAL panel high on the flank was still weighted as though it were an
+    # upward face.  The road branch below reproduces the old arithmetic
+    # exactly (W_DUST_FAC_TOP is the old constant), so the tide line and the
+    # tyres do not move; only the upward branch changes.
+    ftop = _mixf(nt, hgt, W_DUST_FAC_TOP, W_DUST_FAC_LOW, -1100, -1900)
+    lo1 = _math(nt, 'MULTIPLY', hgt, motm, -920, -1900)
+    flow = _math(nt, 'MULTIPLY', lo1, ftop, -740, -1900)
+    up1 = _math(nt, 'MULTIPLY', upw, motm, -920, -2060)
+    fup = _math(nt, 'MULTIPLY', up1, W_DUST_FAC_UP, -740, -2060)
+    dstr = _math(nt, 'MAXIMUM', flow, fup, -560, -1980)
+    dfac = _math(nt, 'MULTIPLY', dstr, IN['dust'], -380, -1980, clamp=True)
+    # and the colour follows whichever deposit dominates, smoothly -- a hard
+    # switch would draw a hue seam along the curve where they are equal
+    dsum = _math(nt, 'ADD', flow, fup, -560, -2220)
+    dsum2 = _math(nt, 'ADD', dsum, 1e-4, -420, -2220)
+    dsel = _math(nt, 'DIVIDE', fup, dsum2, -280, -2220, clamp=True)
+    dcol = _mixc(nt, dsel, W_DUST_COL, W_DUST_COL_UP, -140, -2220)
+    cdust = _mixc(nt, dfac, csteel.outputs[2], dcol.outputs[2], -380, 200)
 
     # dust roughness is ADDITIVE so it stacks on the breakup
     dr = _math(nt, 'MULTIPLY', dust, W_DUST_ROUGH, -380, 700)
@@ -607,7 +790,30 @@ def apply_weather(m, dust=0.0, wear=0.0, fade=0.0, peel=0.0, normal=True):
         nt.links.new(src, g.inputs["Base Color"])
     else:
         g.inputs["Base Color"].default_value = cs.default_value[:]
-    g.inputs["Roughness"].default_value = b.inputs["Roughness"].default_value
+    # rev 12: Roughness is re-routed the SAME way Base Color already was.
+    # `nt.links.new` on an input socket replaces the link that is there, so the
+    # old `default_value` read silently threw away any roughness a material had
+    # built for itself and put its unlinked default under the group instead.
+    # That hit exactly one material and it is the one that could least afford
+    # it: `silver_script` maps the leaf texture's own value to Roughness
+    # 0.520 (deep tarnish, matt) -> 0.205 (clean leaf) because a metal's
+    # appearance is dominated by its specular, and that whole chain was
+    # discarded, leaving the leaf at a flat 0.260. Measured on ref_side.jpg
+    # (7335 px inside the lockup box x 330..610, y 470..595, saturation < 0.30
+    # and 70 < L < 235, minus a 9x9 box blur so panel shading does not count):
+    # the leaf carries a de-trended residual of 10.1 DN, and it is ANISOTROPIC
+    # -- lag-2 autocorrelation 0.589 along the stroke against 0.454 across --
+    # which is the hand-laid signature rev 10 measured at 7.4 DN and 1.6-2.0
+    # stroke widths. A flat 0.260 cannot render any of it. Every other
+    # weathered material has an unlinked Roughness, so this branch is a no-op
+    # for all of them and the group swing now rides ON TOP of the tarnish map.
+    rs = b.inputs["Roughness"]
+    if rs.links:
+        rsrc = rs.links[0].from_socket
+        nt.links.remove(rs.links[0])
+        nt.links.new(rsrc, g.inputs["Roughness"])
+    else:
+        g.inputs["Roughness"].default_value = rs.default_value
     g.inputs["Dust"].default_value = dust
     g.inputs["Wear"].default_value = wear
     g.inputs["Fade"].default_value = fade
@@ -619,6 +825,61 @@ def apply_weather(m, dust=0.0, wear=0.0, fade=0.0, peel=0.0, normal=True):
         nt.links.new(g.outputs[2], b.inputs["Normal"])
     if wear > 0.0:
         nt.links.new(g.outputs[3], b.inputs["Metallic"])
+    return m
+
+
+def rough_field(name, swing=None, scale=180.0, detail=3.0, albedo_w=0.0,
+                floor=0.03):
+    """Give an ALREADY-BUILT material a roughness FIELD instead of a constant.
+
+    `audit.py` calls a material constant-rough when its Principled Roughness
+    socket carries no link, and `STATE.md` counts that as a defect class --
+    "the physical definition of the plastic look".  Some of the offenders are
+    built in `t1_detail.py`, which runs at build.py step 7, five steps before
+    `build_all()`; this patches the DATABLOCK rather than the other file, so
+    the two specialists cannot collide.  It is a no-op if the material does
+    not exist, is not a node material, has no Principled, or already has a
+    field -- so if `t1_detail` grows one of these later, this quietly stands
+    down instead of double-driving the socket.
+
+    The amplitude is `W_ROUGH_SWING`, not a new number: none of these surfaces
+    is resolved well enough in either in-service photograph to measure a
+    roughness variation (the pillar menu card is 20 x 66 px in ref_side.jpg),
+    so the swing is a DESIGN value and is expressed in terms of the one swing
+    the file already has rather than invented per material.
+
+    albedo_w > 0 additionally drives roughness off the material's own Base
+    Color luminance -- dark ink lies smoother than the pale stock under it,
+    which is the same model `img_paint()` uses on the lid boards.
+    """
+    m = bpy.data.materials.get(name)
+    if m is None or not m.use_nodes or m.node_tree is None:
+        return None
+    nt = m.node_tree
+    b = next((n for n in nt.nodes if n.type == 'BSDF_PRINCIPLED'), None)
+    if b is None or b.inputs["Roughness"].links:
+        return m
+    if swing is None:
+        swing = W_ROUGH_SWING
+    base = float(b.inputs["Roughness"].default_value)
+    x0 = min([n.location[0] for n in nt.nodes] or [0.0]) - 1400.0
+    # Object coordinates, never Generated: every mesh carries an identity
+    # transform at this point (build.py step 8b asserts it), so object space is
+    # metres and the feature size below is a real feature size.
+    tc = nt.nodes.new("ShaderNodeTexCoord"); tc.location = (x0, -760)
+    n1 = _noise(nt, tc.outputs["Object"], scale, detail, x0 + 220, -760, 0.55)
+    out = _mr(nt, n1.outputs["Fac"], 0.32, 0.68,
+              base - swing, base + swing, x0 + 440, -760).outputs[0]
+    cs = b.inputs["Base Color"]
+    if albedo_w > 0.0 and cs.links:
+        bw = nt.nodes.new("ShaderNodeRGBToBW"); bw.location = (x0 + 220, -1000)
+        nt.links.new(cs.links[0].from_socket, bw.inputs[0])
+        ar = _mr(nt, bw.outputs[0], 0.0, 1.0, -albedo_w, albedo_w,
+                 x0 + 440, -1000)
+        out = _math(nt, 'ADD', out, ar.outputs[0], x0 + 640, -880).outputs[0]
+    lo = _math(nt, 'MAXIMUM', out, floor, x0 + 840, -880)
+    hi = _math(nt, 'MINIMUM', lo, W_ROUGH_CEIL, x0 + 1020, -880)
+    nt.links.new(hi.outputs[0], b.inputs["Roughness"])
     return m
 
 
@@ -1119,8 +1380,12 @@ def build_all():
                               rough=0.22, coat=0.30, spec=0.50)
     M["roundelred"] = simple("roundelred", (0.4550, 0.0720, 0.0300),
                              rough=0.26, coat=0.25, spec=0.45)
-    M["countercream"] = simple("countercream", (0.7350, 0.7150, 0.6600),
+    # the literal moved to the module constant COUNTERCREAM: the upward-facing
+    # dust solve is anchored on this exact albedo and the two must not drift
+    M["countercream"] = simple("countercream", COUNTERCREAM,
                                rough=0.38, coat=0.06, spec=0.35)
+    M["countertan"] = simple("countertan", COUNTERTAN,
+                             rough=0.42, coat=0.05, spec=0.32)
     # chrome wears to NICKEL, so a primer-grey chip is wrong: tarnish instead
     M["chrome"] = tarnished("chrome", (0.860, 0.868, 0.880), 0.14, 0.30)
     M["chrome_d"] = tarnished("chrome_dull", (0.760, 0.768, 0.780), 0.20, 0.38)
@@ -1183,11 +1448,50 @@ def build_all():
     for k in ("paint", "bumpercream", "cream", "roundelred", "calidad"):
         apply_weather(M[k], dust=1.0, wear=WEAR[M[k].name], fade=1.0, peel=1.0)
     # group minus peel (not sprayed sheet metal), dust weighted up
-    for k in ("countercream", "wheelcream", "capred", "capwhite"):
+    for k in ("countercream", "countertan", "wheelcream", "capred", "capwhite"):
         apply_weather(M[k], dust=1.4, wear=WEAR[M[k].name], fade=1.0, peel=0.0)
     # hand-painted silver: inherit the panel's dust and roughness field so it
     # does not float, but chip the paint UNDER it, not the silver
     apply_weather(M["script"], dust=1.0, wear=0.0, fade=0.5, peel=0.0)
+
+    # ------------------------------------ the constant-roughness offenders
+    # STATE.md counted 9 and allows exactly two classes through: transmissive,
+    # and the sealed reflector.  Adjudicated one at a time, not as a batch:
+    #
+    #   glass  transmit 1.00 | EXEMPT.  Roughness on a transmissive BSDF is
+    #   amber  transmit 0.75 | refraction blur, not a surface finish, and all
+    #   ruby   transmit 0.72 | four are moulded/float glass whose finish comes
+    #   lens   transmit 0.96 | off a tool, not off sixty years of weather.
+    #                          Neither photograph resolves a lens: the ruby
+    #                          tail lamp is 45.5 x 27.0 mm, i.e. 9.6 x 5.7 px
+    #                          at the 211.4 px/m measured off the rear rim
+    #                          flange in ref_side.jpg, so there is nothing to
+    #                          measure a field against and inventing one would
+    #                          only add refraction noise.
+    #   reflector             | EXEMPT, and STATE names it: sealed inside the
+    #                           lamp bowl behind `lens`, so nothing reaches it.
+    #   gal_sky               | EXEMPT, and it is the one exemption STATE does
+    #                           NOT anticipate, so it is argued rather than
+    #                           claimed.  It is not a surface of this vehicle:
+    #                           t1_detail builds it as an emissive stand-in for
+    #                           the roof aperture `t1_shell` does not cut.  It
+    #                           radiates at 0.90 with Specular IOR Level 0.05,
+    #                           i.e. F0 = 0.004, so its Roughness input steers
+    #                           0.4 % of a lobe on a panel that is dominated by
+    #                           its own emission -- below the render's noise
+    #                           floor.  A roughness field there is microstructure
+    #                           invented for a HOLE.  When the roof aperture is
+    #                           actually cut, this material should be deleted,
+    #                           not given a field.
+    #
+    # The other three are real surfaces and get a field.
+    # feature sizes are 1/scale in metres and are set from each fitting's own
+    # size, not copied: a salt film on a 22 mm envelope cannot carry the same
+    # grain as a 2.08 m tube.
+    rough_field("bulb", scale=520.0)          # r 11 mm envelope -> 1.9 mm
+    rough_field("gal_tube", scale=130.0)      # 2.08 m diffuser  -> 7.7 mm
+    rough_field("gal_menucard", scale=260.0,  # 96 x 311 mm card -> 3.8 mm
+                albedo_w=W_ROUGH_SWING * 0.5)
     return M
 
 
