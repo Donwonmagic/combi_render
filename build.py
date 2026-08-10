@@ -422,10 +422,17 @@ if os.environ.get("T1_VERIFY"):
 
 if os.environ.get("T1_PREVIEW"):
     import studio as ST; importlib.reload(ST)
-    ST.cyclorama()
+    _scene = os.environ.get("T1_SCENE", "studio")
+    if _scene == "playa":
+        ST.ground_playa()
+    else:
+        ST.cyclorama()
     if os.environ.get("T1_CLAY"):
         ST.clay_all()
-    ST.lighting(float(os.environ.get("T1_KEY", "1.0")))
+    if _scene == "playa":
+        ST.playa(float(os.environ.get("T1_KEY", "1.0")))
+    else:
+        ST.lighting(float(os.environ.get("T1_KEY", "1.0")))
     ST.camera()
     ST.render_set(os.environ["T1_PREVIEW"].split(","),
                   os.environ.get("T1_OUT", os.path.join(os.path.dirname(os.path.abspath(__file__)), "out")),

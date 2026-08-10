@@ -457,25 +457,63 @@ def revolve(profile, seg=72, axis='Y', name="rev", cap=False, mat_bands=None):
     return ob
 
 
+def _mitre_outline(spine, w):
+    """Closed outline of a constant-width stroke through `spine`, mitred.
+
+    Offsets the polyline w/2 either side and intersects consecutive edge lines
+    at each interior joint, so the corners meet in a point instead of two
+    rectangles overlapping. That overlap is what made the old glyph read as an
+    X: at the V apex two independent bars crossed and their union bulged.
+    """
+    P = [Vector(p) for p in spine]
+    def side(sgn):
+        out = []
+        for i in range(len(P) - 1):
+            d = (P[i + 1] - P[i]).normalized()
+            n = Vector((-d.y, d.x)) * (sgn * w / 2.0)
+            out.append((P[i] + n, P[i + 1] + n))
+        pts = [out[0][0]]
+        for i in range(len(out) - 1):
+            (a0, a1), (b0, b1) = out[i], out[i + 1]
+            d1, d2 = (a1 - a0), (b1 - b0)
+            den = d1.x * d2.y - d1.y * d2.x
+            if abs(den) < 1e-9:
+                pts.append(a1)
+                continue
+            t = ((b0.x - a0.x) * d2.y - (b0.y - a0.y) * d2.x) / den
+            j = a0 + d1 * t
+            # a mitre at a very sharp joint runs away to infinity: clamp it
+            if (j - P[i + 1]).length > 2.2 * w:
+                pts.extend([a1, b0])
+            else:
+                pts.append(j)
+        pts.append(out[-1][1])
+        return pts
+    left = side(+1)
+    right = side(-1)
+    right.reverse()
+    return [(p.x, p.y) for p in left + right]
+
+
 def vw_bars(R, w, origin, u_ax, v_ax, n_ax, depth, tag="vw"):
-    """V-over-W emblem as flat bars in the (u, v) plane. Never inverted."""
-    segs = [((-0.400, 0.560), (0.000, -0.060)),
-            (( 0.400, 0.560), (0.000, -0.060)),
-            ((-0.760, -0.060), (-0.380, -0.700)),
-            ((-0.380, -0.700), (0.000, -0.075)),
-            (( 0.000, -0.075), (0.380, -0.700)),
-            (( 0.380, -0.700), (0.760, -0.060))]
+    """V-over-W emblem as TWO closed mitred prisms, one V and one W.
+
+    rev 8, per SKEPTIC_PASS.md sec.D. This was six independent overlapping bars
+    (one object per stroke, 6 objects per hubcap = 24 for four hubcaps) whose
+    unions self-intersected at every joint; at hero resolution the V and the W
+    merged into an X. Two closed outlines remove the self-intersection outright
+    rather than hiding it.
+
+    Geometry from the skeptic pass: V arm -40.75 deg, W inner -53.04 deg, so
+    12.29 deg apart, with a clear 12.7 mm air gap between the V apex and the W
+    peak at the locked ring diameter of 0.370 m. V above W, always (SPEC 0.2).
+    """
+    V_SPINE = [(-0.400, 0.560), (0.000, -0.060), (0.400, 0.560)]
+    W_SPINE = [(-0.760, -0.060), (-0.380, -0.700), (0.000, -0.075),
+               (0.380, -0.700), (0.760, -0.060)]
     obs = []
-    for i, (p0, p1) in enumerate(segs):
-        a = Vector((p0[0] * R, p0[1] * R))
-        b = Vector((p1[0] * R, p1[1] * R))
-        d = b - a
-        ang = math.atan2(d.y, d.x)
-        pts = rrect(d.length + w * 0.6, w, w * 0.30, seg=3)
-        pts = [(uu * math.cos(ang) - vv * math.sin(ang),
-                uu * math.sin(ang) + vv * math.cos(ang)) for (uu, vv) in pts]
-        c = (a + b) / 2
-        pts = [(uu + c.x, vv + c.y) for (uu, vv) in pts]
+    for i, spine in enumerate((V_SPINE, W_SPINE)):
+        pts = _mitre_outline([(x * R, y * R) for (x, y) in spine], w)
         obs.append(solid_prism(origin, u_ax, v_ax, n_ax, pts, depth,
                                name=f"{tag}{i}"))
     return obs

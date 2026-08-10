@@ -86,7 +86,7 @@ corner glass was deleted from Aug 1963 anyway).
 | Item | Value | Grade |
 |---|---|---|
 | Body | T1 **Kombi**, full height nose to tail | **M** |
-| Roof | **cut into rigid hinged steel lids**, modelled **CLOSED**; fore-aft seam and a second smaller lid visible | **S**+**R** |
+| Roof | **cut into rigid hinged steel lids**, modelled **OPEN** (rev 8, locked 2026-08-10); main lid hinges fore-aft at the off-side edge and swings up and over the counter, underside carrying the flower mural + yellow menu strips; a second smaller lid aft, lettered "LA SANTA…" | **S**+**R**+**M** |
 | Side, show side (+Y) | cab door glazing, then the **THREE stock side windows with the glass removed** — open serving hatches. Aft of the third: **solid cream sheet metal** carrying the "100% Calidad" decal | **M** |
 | Counter | **cantilevered cream-painted slab counter** under the three hatches, chamfered front end, running past the tail | **M** |
 | Side, off side (−Y) | twin outward-hinged cargo doors + three glazed windows in the same bay positions | **E** (never photographed) |
@@ -494,3 +494,164 @@ environment; `T1_FX=0` disables the chain.
 ---
 
 | 2026-08-09 | **rev 7 — adversarial skeptic pass, then implementation.** 0 of the 13 criticals killed, 11 corrected; acting on the audit's numbers as written would have introduced fresh errors in six places. **SUB=2 passed for the first time** — both cab-door gap booleans had been collapsing the shell 205562 → 12 v and rolling back, so every hero render this project ever made was of a bus with no cab-door shut line. Belt, V-swage, window band, aperture edges, louvres, counter, script and roundel all set from measurement. `RED` corrected from a **retired deep crimson**; folk art capped from wallpaper to a graded bouquet. Weathering node group built to measured targets. Boolean guard strengthened and validated (2 true positives, 0 false positives); the `≥ 20 mm roll-over` rule refuted and replaced. Physical camera with real DoF; one raking strip replaces the six-rectangle rig; rig found 2.6 EV hot. `audit.py` now emits **`STATE.md`** from live geometry — it had printed a hardcoded, fabricated belt line for six revisions. Open defects logged in §10.7 rather than quietly carried. |
+
+---
+
+## 10.9 rev 8 — the rake, the lids, and what the saturation target actually is
+
+### The stance is a LINE, not a scalar
+
+`build.py` step 8b subtracted `RIDE_DROP` from every vertex. The vehicle read
+**89 mm short** and, in Donald's words, flat and stretched. `REF_MEASUREMENTS`
+§2.3 inferred a roof-lid frame standing 0.10–0.15 m proud; that is **refuted at
+~13σ** by a camera-free measurement (roof silhouette minus drip rail at the same
+column: 36.6 ± 0.6 px on the factory cab roof, 35.4 ± 0.9 px on the fixed rear
+roof — the same structure; a 0.10 m curb reads 20–22 px). Measured proud height
+is **26 ± 7 mm**.
+
+The cause is the unmodelled nose-down rake. Locked:
+
+| constant | value |
+|---|---|
+| `RAKE_Z0` | **0.0365** m — ride drop at x = 0 |
+| `RAKE_DZDX` | **0.0330** m/m ± 0.0040 — nose-down, 1.89° |
+| `X_DROP_REF` | +0.8636 — the station where `rake_drop(x)` equals the old scalar 0.0650 |
+
+`drop(x) = RAKE_Z0 + RAKE_DZDX·x`. **Shear, never rotation** — every reference
+number is a height-versus-X and a 1.9° rotation also shifts x by 63 mm at roof
+level. `RIDE_DROP` survives ONLY as the value at `X_DROP_REF`; it is not a frame
+conversion. Use `t1_core.rake_drop(x)`.
+
+Consequences, all implemented:
+
+- **`Z_BELT` is a line.** `t1_mats.z_belt(x) = Z_BELT0 − RAKE_DZDX·x`, with
+  `Z_BELT0 = 1.2355` and `V_APEX0 = 0.3685` (above ground at x = 0). The rake is
+  subtracted **once, after** the flank/nose mix, so `V_APEX0 + V_RISE == Z_BELT0`
+  holds at every station and the swage arms stay on the belt.
+- **`verify.py`'s frame offset is a function of x.** A 5.5 mm shut line probed
+  one station off reads closed.
+- **`audit.py`'s height row is a three-station roof-line check.** A scalar cannot
+  express a sloping roof; that row certified the broken dimension for seven
+  revisions.
+- **Wheels do not rake.** They are circles on flat ground: centre at exactly
+  `TIRE_R`, contact patch on z = 0. They are EXCLUDED from the shear rather than
+  sheared-and-compensated, which would swing each hubcap VW glyph 1.9° off
+  vertical.
+- **The cab-door shut line had to move.** The rake lifts the front arch 14.4 mm
+  (`rake_drop(1.300)` = 0.0794 against `RIDE_DROP` 0.0650), so the arch top goes
+  0.7710 → 0.7854 and rev 7's 0.7800 bottom run would sit **5.4 mm below it** —
+  the exact condition that collapsed the shell 205562 v → 12 v at SUB=2. Bottom
+  run lifted to **0.8000–0.8160**, and the clearance is now **asserted at import**
+  in `t1_shell`, not described in a comment.
+
+Result: roof at the rear-axle station **1.871 → 1.923** against §2.3's measured
+1.960. **Residual −37 mm, logged not hidden** — 1.2σ on §2.3's own ±30 mm band.
+The guard carries that band explicitly and warns rather than failing.
+
+### OPEN, unresolved: rake versus the arch gap
+
+`RAKE_DZDX × wheelbase = 0.0330 × 2.400 = 79 mm`. So the front arch gap must be
+79 mm **less** than the rear. But the rear gap measures **≈30 mm** off
+`ref_side.jpg` (arch lip y 524 ± 2 against a tyre top computed at 532.3 from a
+rim circle fit at 211.5 px/m) and §2 locks it at 41 mm. Either way
+`front = rear − 79 mm` is **negative** — the tyre inside the bodywork. Two
+measurements off the real vehicle contradict each other.
+
+Held: the arches follow their own wheel (`t1_shell.arch_z(x)`), which keeps both
+measured numbers and produces no impossible geometry. Resolving it needs a
+photograph with an **unoccluded front wheel** — in `ref_side.jpg` a man stands
+directly in front of it, and every attempt to measure the front arch locked onto
+his red shirt.
+
+### The flank saturation target was never a comparable quantity
+
+rev 7 logged flank saturation **0.601 against SPEC's 0.816** and listed three
+suspects. Measured, same build, side ortho, one variable each:
+
+| probe | flank sRGB | hue | sat |
+|---|---|---|---|
+| baseline | (190,124,83) | 23.3 | 0.565 |
+| folk art off (`W_ART` → 0) | (189,122,82) | 22.4 | **0.566** |
+| weathering albedo off | (189,124,83) | 23.3 | 0.564 |
+| sun fade off | (184,118,76) | 23.5 | 0.588 |
+| dust off | (184,118,76) | 23.5 | 0.586 |
+| AgX Punchy off | (210,152,118) | 22.3 | **0.438** |
+| Standard transform | (245,165,96) | 27.7 | 0.607 |
+
+- **Residual folk-art coverage — REFUTED.** ±0.001.
+- **AgX Punchy — REFUTED, and the sign is backwards.** Punchy *adds* +0.127.
+- Fade / dust / weathering albedo — ≤ 0.002 each.
+
+Decomposing the pixel against the locked albedo, `R_lin = a_R·E + A` and
+`B_lin = a_B·E + A`, gives **E = 0.760** and a **neutral additive term
+A = 0.0592**, 12 % of the red channel. Falsifiable prediction, then tested:
+at Specular IOR Level **0.00** the flank renders **(183,106,39) sat 0.788**
+against the target (196,106,36) sat 0.816 — green exact, blue within 3 codes.
+
+**LOCKED: SPEC's 0.816 is the paint's ALBEDO saturation**, measured off a sunlit
+photograph where the specular lobe pointed away from the camera. No beauty-pass
+pixel of a dielectric under a large white softbox can reach it, because a white
+source's specular reflection is achromatic and additive. The correct test is on
+the albedo; the beauty value is an **outcome of the rig**, not a target.
+
+| quantity | target | rev 8 |
+|---|---|---|
+| albedo saturation (the real test) | 0.816 | **0.816** — `RED` is exact |
+| beauty-pass flank, white studio | *no target* | 0.586, hue 23.5 |
+
+Also corrected while in there, both physical and both measured:
+`Specular IOR Level` **0.21 → 0.50** (0.21 implies F0 0.0168 / IOR 1.29, which no
+paint has); studio sweep albedo **0.94 → 0.76** (0.94 is near-PTFE); white world
+**0.17 → 0.05**.
+
+### Folk-art density ran backwards — MEASURED
+
+Gold coverage as a fraction of the red+gold flank, `ref_side.jpg`, 40 px columns:
+
+| X | +1.47 … −0.40 | −0.59 | −0.96 | −1.71 | −1.90 |
+|---|---|---|---|---|---|
+| gold | **0.0–0.2 %** | 4.7 % | 13.8 % | 25.9 % | **36.9 %** |
+
+rev 7 ran a single MapRange, 0.34 at the tail rising to 1.00 at the nose —
+densest exactly where the reference is bare red under the script, sparsest on the
+rear-quarter bouquet. Replaced with **two measured lobes** (tail bouquet, cab-door
+scroll) combined with MAXIMUM. Tile scale 0.63 → **0.42** (period 1.587 m → 2.38 m;
+2.7 visible repeats was wallpaper).
+
+### The canvas ragtop was still shipping
+
+`t1_shell.ragtop()` built a folding **canvas** roof — five Gaussian bow sticks, a
+sailcloth sag term, a `canvas` material and a Metallic-1.0 `chrome_dull` frame
+down the middle of a white roof. §0.2 retired that reading **in rev 4**. It
+survived three revisions because `verify.py` banned only the three retired
+materials somebody remembered to type.
+
+Replaced with rigid hinged steel lids, **modelled OPEN**. Guard is now an explicit
+reviewed map **plus a drift check on §0.2 itself** — if §0.2 gains a bullet, the
+guard warns until someone reviews the map. The first attempt scanned §0.2 for
+material names directly and flagged **six correct materials**, because every
+bullet is "retired reading — correction" and the names appear on both sides.
+
+Lid geometry, measured at 211.5 px/m: main lid **X +0.964 → −1.070**, 1.11 m
+hinge-to-free-edge, opened **104°**; `RAG_X0 = +1.4800` is **contradicted** — the
+cab roof dome is unbroken to X = +0.964. Second lid **X −1.140 → −1.780** at 82°.
+Proud height **0.0228** skin / **0.0213** rail. Mural artwork in `lid_gen.py`:
+**nine flower heads** (five upper, four lower — counted off `ref_side.jpg`),
+palette ratios measured on the board interior (n = 70400: red 43 %, orange 34 %,
+yellow 17 %; generated 52 / 34 / 14).
+
+### Other rev 8 corrections
+
+`brass` folded into `t1_mats.build_all()` with a roughness field — it was the last
+illegitimate constant-roughness material. Bulb string given an **emissive**
+material; it rendered unlit pearl white and reads lit and warm in both in-service
+photographs. VW glyph rebuilt as **two closed mitred prisms** per `SKEPTIC_PASS`
+§D, and `t1_detail.vw_logo` now delegates to `t1_core.vw_bars` — two independent
+copies of the same glyph is why they drifted. Glass roughness 0.004 → 0.022;
+`capred` 0.085/coat 0.85 → 0.165/0.50; render clamps released (indirect sat at the
+factory 10.0 against a paper white of 21–25, ceilinging every highlight a stop
+below the backdrop); backdrop white point keyed on the (transform, **look**) pair
+— under AgX + Punchy linear 21.0 maps to display 253, so the "white" sweep was two
+codes grey; 16-bit output.
+
+| 2026-08-10 | **rev 8 — the rake, the lids, and the saturation target.** Step 8b shears instead of dropping; roof at the rear axle 1.871 → 1.923 against a measured 1.960, residual −37 mm logged. `Z_BELT` is a line; `verify.py`'s frame offset is a function of x; `audit.py`'s height row is a three-station roof-line check. Wheels held level. Cab-door shut line lifted 20 mm because the rake ate its arch clearance — the SUB=2 collapse condition, now asserted at import. **The retired canvas ragtop was still shipping** and no guard caught it; replaced with rigid hinged steel lids modelled OPEN, mural and lettered rear lid, and the guard rebuilt as a reviewed map plus a §0.2 drift check. Flank saturation diagnosed by measurement: folk art and AgX Punchy both **refuted** (Punchy *adds* 0.127), the deficit is a 0.0592 achromatic specular term, and SPEC's 0.816 is an **albedo** number that no beauty pixel can meet — target restated. Folk-art density measured and found to run backwards; two lobes. Fresnel 0.21 → 0.50, sweep albedo 0.94 → 0.76, world 0.17 → 0.05, clamps released, VW glyph two mitred prisms, brass folded in, bulbs emissive. |

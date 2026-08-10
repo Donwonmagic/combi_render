@@ -784,7 +784,14 @@ def body_paint(name="T1_paint"):
     texco = nt.nodes.new("ShaderNodeTexCoord"); texco.location = (-1600, -420)
     mp = nt.nodes.new("ShaderNodeMapping"); mp.location = (-1420, -420)
     mp.inputs["Location"].default_value = (0.185, 0.410, 0.263)
-    mp.inputs["Scale"].default_value = (0.6300, 0.6300, 0.6300)
+    # rev 8 (audit livery-7): 0.63 => a 1.587 m period, ~2.7 visible repeats
+    # across the flank -- wallpaper, not signwriting. 0.42 => 2.38 m, 1.8
+    # repeats, and the non-monotonic density mask below breaks the rest.
+    # rev 8b: swirl.png is now PLACED signwriting (one dominant paisley per
+    # quarter + rosettes + dark commas), not a seamless field. 0.42 repeated it
+    # 1.8x across the flank and distinct motifs repeat visibly. 0.26 => a
+    # 3.85 m period, i.e. essentially one pass over the 4.22 m flank.
+    mp.inputs["Scale"].default_value = (0.2600, 0.2600, 0.2600)
     nt.links.new(texco.outputs["Object"], mp.inputs["Vector"])
     swirl = _img(nt, "swirl.png", -1180, -420, projection='BOX',
                  blend=0.32, ext='REPEAT')
@@ -793,13 +800,37 @@ def body_paint(name="T1_paint"):
     # --- density mask (SPEC sec.3): heaviest on the nose, trailing along the
     #     belt, sparse at the tail. Applied as a spatially varying cutoff on a
     #     low-frequency noise so whole motifs drop out rather than fading.
+    # rev 8: MEASURED off ref_side.jpg, gold coverage as a fraction of the
+    # red+gold flank, sampled in 40 px columns:
+    #
+    #   X +1.47 .. -0.40   0.0-0.2 %      <- bare red, the script sits here
+    #   X -0.59            4.7 %
+    #   X -0.96           13.8 %
+    #   X -1.71           25.9 %
+    #   X -1.90           36.9 %          <- the rear-quarter bouquet
+    #
+    # plus a separate scroll on the cab door, forward of X +0.9 (missed by the
+    # scan above -- the door is swung open in that photograph and sits outside
+    # the band). rev 7 ran a SINGLE MapRange, 0.34 at the tail rising to 1.00 at
+    # the nose: monotonic and exactly backwards, densest where the reference is
+    # bare and sparsest where the bouquet is. Two lobes, combined with MAXIMUM.
     fx = nt.nodes.new("ShaderNodeMapRange"); fx.location = (-1180, -900)
     fx.interpolation_type = 'SMOOTHSTEP'; fx.clamp = True
-    fx.inputs[1].default_value = -2.05
-    fx.inputs[2].default_value = 1.65
-    fx.inputs[3].default_value = 0.34
+    fx.inputs[1].default_value = -0.30
+    fx.inputs[2].default_value = -2.05
+    fx.inputs[3].default_value = 0.05
     fx.inputs[4].default_value = 1.00
     nt.links.new(sep.outputs["X"], fx.inputs[0])
+
+    # second lobe: the cab-door scroll, forward of X +0.55
+    fx2 = nt.nodes.new("ShaderNodeMapRange"); fx2.location = (-1180, -1060)
+    fx2.interpolation_type = 'SMOOTHSTEP'; fx2.clamp = True
+    fx2.inputs[1].default_value = 0.55
+    fx2.inputs[2].default_value = 1.75
+    fx2.inputs[3].default_value = 0.05
+    fx2.inputs[4].default_value = 0.60
+    nt.links.new(sep.outputs["X"], fx2.inputs[0])
+    fx = _math(nt, 'MAXIMUM', fx.outputs[0], fx2.outputs[0], -1020, -960)
 
     bz = _math(nt, 'SUBTRACT', sep.outputs["Z"], 1.045, -1180, -1060)
     bz = _math(nt, 'DIVIDE', bz, 0.300, -1020, -1060)
@@ -853,7 +884,11 @@ def body_paint(name="T1_paint"):
     # reference's 0.82 and read salmon. Chalky finish restores the chroma.
     bsdf.inputs["Roughness"].default_value = 0.420
     bsdf.inputs["Metallic"].default_value = 0.0
-    bsdf.inputs["Specular IOR Level"].default_value = 0.21
+    # rev 8 (audit materials-7): was 0.21, i.e. F0 = 0.0168 / IOR 1.29. Every
+    # dielectric paint is F0 ~ 0.04. Fixing an environment problem inside the
+    # BSDF cost the panels all their specular structure.
+    bsdf.inputs["Specular IOR Level"].default_value = float(
+        os.environ.get("T1_SPEC", 0.50))
     bsdf.inputs["Coat Weight"].default_value = 0.02
     bsdf.inputs["Coat Roughness"].default_value = 0.300
     # orange peel now lives in the WEATHER group (Object coordinates, split
@@ -914,7 +949,7 @@ def paint_calidad(name="calidad"):
     b.inputs["Roughness"].default_value = 0.420
     b.inputs["Metallic"].default_value = 0.0
     b.inputs["Transmission Weight"].default_value = 0.0
-    b.inputs["Specular IOR Level"].default_value = 0.21
+    b.inputs["Specular IOR Level"].default_value = 0.50   # rev 8, see above
     b.inputs["Coat Weight"].default_value = 0.02
     b.inputs["Coat Roughness"].default_value = 0.300
     return m
@@ -936,13 +971,19 @@ def build_all():
     # chrome wears to NICKEL, so a primer-grey chip is wrong: tarnish instead
     M["chrome"] = tarnished("chrome", (0.860, 0.868, 0.880), 0.14, 0.30)
     M["chrome_d"] = tarnished("chrome_dull", (0.760, 0.768, 0.780), 0.20, 0.38)
-    M["glass"] = simple("glass", (0.780, 0.845, 0.815), rough=0.004,
+    # rev 8 (audit materials-10): 0.004 is the Blender default and renders a
+    # black mirror -- the windscreen was bimodal void+blob.
+    M["glass"] = simple("glass", (0.780, 0.845, 0.815), rough=0.022,
                         transmit=1.0, ior=1.47, spec=0.35)
     M["rubber"] = dust_film("rubber", (0.0175, 0.0175, 0.0185), 0.78,
                             spec=0.22)
     M["tyre"] = dust_film("tyre", (0.0225, 0.0225, 0.0240), 0.70, spec=0.25)
-    M["capred"] = simple("capred", (0.4750, 0.0290, 0.0225), rough=0.085,
-                         coat=0.85, spec=0.60)
+    # rev 8 (audit materials-11): 0.085 / coat 0.85 was the lowest-roughness
+    # non-metal in the file, on a vehicle SPEC sec.3 locks as WEATHERED. The
+    # hubcaps ARE the glossiest thing on it, so this stays above the body's
+    # 0.420 -- but show-gloss is retired.
+    M["capred"] = simple("capred", (0.4750, 0.0290, 0.0225), rough=0.165,
+                         coat=0.50, spec=0.55)
     M["capwhite"] = simple("capwhite", (0.8900, 0.8880, 0.8720), rough=0.115,
                            coat=0.7, spec=0.55)
     # rev 8: `canvas` RETIRED. It skinned a folding ragtop that SPEC sec.0.2

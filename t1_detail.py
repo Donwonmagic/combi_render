@@ -703,29 +703,15 @@ def handles():
 
 # =============================================================== VW ROUNDEL
 def vw_logo(R=0.1385, w=0.0275, x=2.1215, depth=0.0110):
-    """V over W built from flat bars in the Y-Z plane. Never inverted."""
-    segs = [
-        ((-0.400,  0.560), ( 0.000, -0.060)),      # V left
-        (( 0.400,  0.560), ( 0.000, -0.060)),      # V right
-        ((-0.760, -0.060), (-0.380, -0.700)),      # W outer left
-        ((-0.380, -0.700), ( 0.000, -0.075)),      # W inner left
-        (( 0.000, -0.075), ( 0.380, -0.700)),      # W inner right
-        (( 0.380, -0.700), ( 0.760, -0.060)),      # W outer right
-    ]
-    obs = []
-    for i, (p0, p1) in enumerate(segs):
-        a = Vector((p0[0] * R, p0[1] * R))
-        b = Vector((p1[0] * R, p1[1] * R))
-        d = b - a
-        ang = math.atan2(d.y, d.x)
-        pts = T.rrect(d.length + w * 0.6, w, w * 0.30, seg=3)
-        pts = [(u * math.cos(ang) - v * math.sin(ang),
-                u * math.sin(ang) + v * math.cos(ang)) for (u, v) in pts]
-        c = (a + b) / 2
-        pts = [(u + c.x, v + c.y) for (u, v) in pts]
-        obs.append(T.solid_prism((x, 0, 0), (0, 1, 0), (0, 0, 1), (1, 0, 0),
-                                 pts, depth, name=f"vwbar{i}"))
-    return obs
+    """V over W in the Y-Z plane, as TWO closed mitred prisms. Never inverted.
+
+    rev 8: was six independent overlapping bars, the same defect as
+    t1_core.vw_bars -- SKEPTIC_PASS sec.D specifies two closed mitred prisms so
+    the self-intersection is removed rather than hidden. Both call sites now
+    share ONE implementation, which is why they drifted apart in the first place.
+    """
+    return T.vw_bars(R, w, (x, 0, 0), (0, 1, 0), (0, 0, 1), (1, 0, 0),
+                     depth, tag="vwbar")
 
 
 # ###########################################################################

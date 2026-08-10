@@ -65,7 +65,11 @@ def cyclorama(size=90.0, **kw):
     mat = bpy.data.materials.new("cyc_white")
     mat.use_nodes = True
     b = mat.node_tree.nodes["Principled BSDF"]
-    b.inputs["Base Color"].default_value = (0.94, 0.94, 0.945, 1)
+    # rev 8: was 0.94 -- near-PTFE. A real studio sweep is 0.70-0.80, and at
+    # 0.94 the floor bounced enough NEUTRAL light back up the flank to be the
+    # single largest desaturator in the scene. See the saturation experiment in
+    # SPEC 10.9.
+    b.inputs["Base Color"].default_value = (float(os.environ.get("T1_CYCALB", 0.76)),) * 3 + (1,)
     b.inputs["Roughness"].default_value = 0.68
     b.inputs["Specular IOR Level"].default_value = 0.20
     ob.data.materials.append(mat)
@@ -132,7 +136,105 @@ def lighting(key=1.0):
     w.node_tree.nodes["Background"].inputs[0].default_value = (1, 1, 1, 1)
     # cut from 0.30: a bright white world dumps achromatic fill into every
     # shadow and desaturates the paint (SPEC rev4 sec.3)
-    w.node_tree.nodes["Background"].inputs[1].default_value = 0.17
+    # rev 8: 0.17 -> 0.05. Pure achromatic fill landing on saturated paint.
+    w.node_tree.nodes["Background"].inputs[1].default_value = float(
+        os.environ.get("T1_WORLD", 0.05))
+
+
+def playa(key=1.0):
+    """Late-afternoon Playa del Carmen, in place of the white studio.
+
+    rev 8b. Donald: he wants a viewer to feel they were there, and the owner to
+    remember standing in this vehicle. A white cyclorama cannot do that -- by
+    construction it removes the place. This rig reproduces what the reference
+    photograph actually has:
+
+      * a low, warm, partly-diffused sun from the show side and slightly aft,
+        the colour of late tropical afternoon through palm
+      * broken palm shadow rather than an even key -- the reference is dappled
+      * warm bounce off pale limestone paving under the vehicle
+      * a cool sky fill from above, which is what keeps the cream from going
+        orange and stops the shadows going dead
+      * the festoon bulbs doing real work: they are emissive in the model and at
+        this light level they read as lit rather than as white plastic
+
+    Deliberately NOT a sunset postcard. The reference is shaded, mid-warm and
+    fairly soft; an orange-graded hero would be a different lie from a white one.
+    """
+    c = Vector((0, 0, 1.0))
+
+    # --- low warm sun, show side and slightly aft, raking down the flank
+    sun = bpy.data.lights.new("sun", 'SUN')
+    sun.energy = 3.05 * key
+    sun.color = (1.0, 0.836, 0.652)
+    sun.angle = math.radians(2.6)          # softened by haze and palm
+    so = bpy.data.objects.new("sun", sun)
+    bpy.context.collection.objects.link(so)
+    so.location = (-6.0, 9.0, 6.4)
+    v = Vector((0.2, 0.0, 1.15)) - Vector(so.location)
+    so.rotation_euler = v.to_track_quat('-Z', 'Y').to_euler()
+
+    # --- warm bounce off pale limestone paving
+    _softbox("bounce", (1.10, 4.60, 0.30), (0.0, 0.30, 1.05), (7.0, 2.2),
+             26.0 * key, (1.0, 0.884, 0.742), spread=120)
+    # --- soft warm wrap on the counter side, standing in for the palapa
+    _softbox("wrap", (2.60, 7.20, 2.55), (-0.40, 0.60, 1.30), (5.5, 3.0),
+             41.0 * key, (1.0, 0.918, 0.816), spread=118)
+    # --- cool sky from above: keeps the cream from going orange
+    _softbox("sky", (0.4, 0.8, 8.2), (0, 0, 1.3), (12.0, 8.0), 62.0 * key,
+             (0.858, 0.918, 1.0))
+    # --- the galley still needs its own small source or the bays go black
+    _softbox("fill_galley", (-0.35, 2.35, 1.58), (-0.35, 0.0, 1.47),
+             (1.7, 0.55), 12.5 * key, (1.0, 0.940, 0.860))
+    # --- a little rim off the tail so the rear quarter separates
+    _softbox("rim", (-8.4, 2.6, 3.4), c, (4.0, 3.2), 33.0 * key,
+             (1.0, 0.930, 0.860))
+
+    w = bpy.data.worlds.new("w_playa")
+    bpy.context.scene.world = w
+    w.use_nodes = True
+    nt = w.node_tree
+    bg = nt.nodes["Background"]
+    # warm-below / cool-above gradient rather than a flat white world. A flat
+    # world is the other half of what desaturated the paint (SPEC 10.9).
+    tc = nt.nodes.new("ShaderNodeTexCoord")
+    sep = nt.nodes.new("ShaderNodeSeparateXYZ")
+    nt.links.new(tc.outputs["Generated"], sep.inputs[0])
+    ramp = nt.nodes.new("ShaderNodeValToRGB")
+    ramp.color_ramp.elements[0].position = 0.36
+    ramp.color_ramp.elements[0].color = (0.412, 0.318, 0.226, 1)
+    ramp.color_ramp.elements[1].position = 0.72
+    ramp.color_ramp.elements[1].color = (0.408, 0.506, 0.664, 1)
+    nt.links.new(sep.outputs["Z"], ramp.inputs[0])
+    nt.links.new(ramp.outputs["Color"], bg.inputs[0])
+    bg.inputs[1].default_value = float(os.environ.get("T1_WORLD_PLAYA", 0.42))
+
+
+def ground_playa(size=90.0):
+    """Pale limestone paving instead of the white sweep, and it RECEIVES."""
+    me = bpy.data.meshes.new("cyc")
+    h = size / 2
+    me.from_pydata([(-h, -h, 0), (h, -h, 0), (h, h, 0), (-h, h, 0)], [],
+                   [(0, 1, 2, 3)])
+    me.validate()
+    ob = bpy.data.objects.new("cyc", me)
+    bpy.context.collection.objects.link(ob)
+    mat = bpy.data.materials.new("paving")
+    mat.use_nodes = True
+    nt = mat.node_tree
+    b = nt.nodes["Principled BSDF"]
+    b.inputs["Base Color"].default_value = (0.402, 0.362, 0.310, 1)
+    b.inputs["Roughness"].default_value = 0.86
+    b.inputs["Specular IOR Level"].default_value = 0.28
+    n = nt.nodes.new("ShaderNodeTexNoise")
+    n.inputs["Scale"].default_value = 5.5
+    n.inputs["Detail"].default_value = 8.0
+    bump = nt.nodes.new("ShaderNodeBump")
+    bump.inputs["Strength"].default_value = 0.22
+    nt.links.new(n.outputs["Fac"], bump.inputs["Height"])
+    nt.links.new(bump.outputs["Normal"], b.inputs["Normal"])
+    ob.data.materials.append(mat)
+    return ob                               # NOT a shadow catcher: it renders
 
 
 # ------------------------------------------------------------------- camera
@@ -202,9 +304,17 @@ def bg_white_level(scene):
     compositor were all innocent. Drive the backdrop to the transform's white
     point instead.
     """
+    # rev 8 (audit optics-7): this keyed on view_transform ALONE, but
+    # setup_render then selects the look "AgX - Punchy", under which linear 21.0
+    # maps to display 253, not 255 -- the "white" studio backdrop was two code
+    # values grey and the vehicle sat on a faintly dirty card. Keyed on the
+    # (transform, look) pair.
     vt = scene.view_settings.view_transform
+    look = getattr(scene.view_settings, "look", "") or ""
     lvl = {'Standard': 1.0, 'Khronos PBR Neutral': 1.0,
            'AgX': 21.0, 'Filmic': 16.0, 'Filmic Log': 16.0}.get(vt, 21.0)
+    if vt == 'AgX' and 'Punchy' in look:
+        lvl = 24.87
     return float(os.environ.get("T1_BGW", lvl))
 
 
@@ -371,16 +481,22 @@ def setup_render(res=(1600, 1100), samples=64, transparent=False):
     sc.cycles.max_bounces = 12
     sc.cycles.transmission_bounces = 12
     sc.cycles.transparent_max_bounces = 12
-    sc.cycles.caustics_reflective = False
-    sc.cycles.caustics_refractive = False
-    sc.cycles.blur_glossy = 0.6
+    # rev 8 (audit optics-10): the clamps were never touched, so
+    # sample_clamp_indirect sat at the factory 10.0 against a paper white of
+    # 21-25 -- every reflected highlight was ceilinged about a stop BELOW the
+    # backdrop and then blurred. Nothing in frame could read as polished metal.
+    sc.cycles.sample_clamp_direct = 0.0
+    sc.cycles.sample_clamp_indirect = 0.0
+    sc.cycles.caustics_reflective = True
+    sc.cycles.caustics_refractive = False        # no lensing through the glass
+    sc.cycles.blur_glossy = 0.2
+    sc.render.image_settings.color_depth = '16'  # audit optics-16
     sc.render.resolution_x, sc.render.resolution_y = res
     sc.render.resolution_percentage = 100
     sc.render.film_transparent = transparent
     sc.render.use_compositing = True
     sc.render.dither_intensity = 1.0
     sc.render.image_settings.file_format = 'PNG'
-    sc.render.image_settings.color_depth = '8'
     sc.render.image_settings.compression = 15
     # a real lens is not a box filter. 1.5 px is close to a photographic MTF
     # and stops the render looking laser-etched at hero resolution.
@@ -410,27 +526,40 @@ ARCH_F_R = (1.30, -0.875, 0.36)
 def views(dist=1.0):
     return {
         # 3/4 front-left, the reference-photo angle
-        "hero34f":  dict(loc=(9.30, 6.52, 2.90), tgt=(-0.15, 0.00, 0.92),
+        # rev 8: the lids are OPEN, so the subject is ~3.0 m tall, not 1.94.
+        # SPEC 10.8 locks the 78 mm lens and f/8, so the frame is opened by
+        # moving the camera BACK and raising the target rather than by going
+        # wider -- the lens is what carries the perspective character.
+        "hero34f":  dict(loc=(12.20, 8.55, 3.55), tgt=(-0.15, 0.00, 1.34),
                          lens=78, focus=ARCH_F, fstop=8.0),
         # 3/4 rear-left, shows the counter wrap and the louvre block
-        "hero34r":  dict(loc=(-8.60, 6.90, 3.10), tgt=(0.10, 0.00, 0.98),
+        "hero34r":  dict(loc=(-11.30, 9.05, 3.80), tgt=(0.10, 0.00, 1.38),
                          lens=76, focus=(-1.50, 0.95, 1.10), fstop=8.0),
         # 3/4 front-right
-        "front34":  dict(loc=(10.10, -5.00, 2.35), tgt=(0.25, 0.00, 0.92),
+        "front34":  dict(loc=(13.30, -6.60, 3.10), tgt=(0.25, 0.00, 1.32),
                          lens=76, focus=ARCH_F_R, fstop=8.0),
-        "side":     dict(loc=(0.0, 26.0, 0.98), tgt=(0.0, 0.0, 0.98),
-                         lens=None, ortho=4.95),
-        "front":    dict(loc=(26.0, 0.0, 0.98), tgt=(0.0, 0.0, 0.98),
-                         lens=None, ortho=3.10),
-        "rear":     dict(loc=(-26.0, 0.0, 0.98), tgt=(0.0, 0.0, 0.98),
-                         lens=None, ortho=3.10),
+        "side":     dict(loc=(0.0, 26.0, 1.52), tgt=(0.0, 0.0, 1.52),
+                         lens=None, ortho=5.90),
+        "front":    dict(loc=(26.0, 0.0, 1.52), tgt=(0.0, 0.0, 1.52),
+                         lens=None, ortho=3.55),
+        "rear":     dict(loc=(-26.0, 0.0, 1.52), tgt=(0.0, 0.0, 1.52),
+                         lens=None, ortho=3.55),
         # nose detail -- longer lens, wider aperture, shallower field
         "detail_f": dict(loc=(4.90, 2.15, 1.85), tgt=(1.95, 0.05, 1.16),
                          lens=100, focus=(2.10, 0.00, 1.14), fstop=6.3),
-        "low34":    dict(loc=(9.00, 6.10, 1.30), tgt=(-0.10, 0.0, 0.98),
+        "low34":    dict(loc=(11.60, 7.90, 1.55), tgt=(-0.10, 0.0, 1.30),
                          lens=78, focus=ARCH_F, fstop=8.0),
         "topdown":  dict(loc=(2.60, 4.60, 6.40), tgt=(-0.30, 0.0, 1.20),
                          lens=62, focus=(0.60, 0.60, 1.60), fstop=11.0),
+        # rev 8b: standing AT the counter, eye height. This is the shot that
+        # carries the place rather than the specification -- a person's view,
+        # looking slightly up at the mural board with the counter lip in the
+        # near field. Wider aperture than the studio heroes: at f/3.5 the tail
+        # and the background go soft the way an eye does.
+        "playa":    dict(loc=(2.05, 4.35, 1.62), tgt=(-0.35, 0.55, 1.44),
+                         lens=42, focus=(0.10, 1.05, 1.30), fstop=3.5),
+        "playa_w":  dict(loc=(6.40, 6.90, 1.70), tgt=(-0.30, 0.20, 1.42),
+                         lens=50, focus=(0.90, 0.95, 1.25), fstop=4.5),
         # serving counter three-quarter, close -- the shot that says taqueria
         "counter":  dict(loc=(3.40, 5.20, 1.98), tgt=(-0.55, 0.75, 1.26),
                          lens=90, focus=(0.20, 1.05, 1.22), fstop=6.3),

@@ -507,7 +507,12 @@ def roof_lids():
     # the flower mural + yellow menu strips, on the lid's UNDERSIDE -- which,
     # with the lid swung over, is the face presented to the counter. This is the
     # single most recognisable thing about the vehicle.
-    b = _lid_face(LID_X0, LID_X1, LID_W, "lid_board", off=0.0016)
+    # off is NEGATIVE: the mural is on the lid's UNDERSIDE. With the lid swung
+    # to 104 deg the underside normal maps to +Y, i.e. it faces the show side and
+    # the counter, which is the whole point of the board. At +0.0016 it sat on
+    # the outer skin and faced the off side -- the first probe rendered two blank
+    # grey slabs.
+    b = _lid_face(LID_X0, LID_X1, LID_W, "lid_board", off=-0.0016)
     _hinge(b, 0.0, LID_Y_HINGE, zh, LID_OPEN_DEG)
     boards.append(b)
 
@@ -526,7 +531,7 @@ def roof_lids():
     skins.append(lid2)
 
     # ref_rear34.jpg: the rear lid is up and lettered "LA SANTA..."
-    b2 = _lid_face(LID2_X0, LID2_X1, LID_W * 0.86, "lid_board2", off=0.0016)
+    b2 = _lid_face(LID2_X0, LID2_X1, LID_W * 0.86, "lid_board2", off=-0.0016)
     _hinge(b2, 0.0, LID_Y_HINGE, zh2, LID2_OPEN_DEG)
     boards.append(b2)
 
