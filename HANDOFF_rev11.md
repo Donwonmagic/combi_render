@@ -188,3 +188,18 @@ column 78, bumper face at 82–91, indicator face at 80.
   is a read-only archive. Deliver by bundling to his disk — anything not on his disk
   does not exist.
 * Playa strips at 2400×1600/56 run ~6 min each; studio strips ~4 min.
+
+## There is no git remote, and `origin` was lying about that
+
+The repo is restored by cloning `tacombi_history_rev9.bundle`, and `git clone` sets
+`origin` to whatever it cloned from — so `origin` pointed at a **bundle file**. A
+bundle is a read-only archive. It cannot be pushed to, it lives on a read-only mount,
+and any tooling that counts "unpushed commits" will report a growing number forever.
+
+Renamed to **`rev9-bundle-archive`** so it reads as what it is. Fetching from it still
+works; pushing was never possible.
+
+**Delivery is by bundle to Donald's disk, and that is the only thing that counts.**
+Anything not on his disk does not exist. If a real remote is ever wanted, a GitHub
+repo over HTTPS with a token works from this container — it needs him to create the
+repo and supply the token.
