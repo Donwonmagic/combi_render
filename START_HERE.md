@@ -1,5 +1,12 @@
 # START HERE — read this before touching anything
 
+> **rev 7 (2026-08-09): read `HANDOFF_rev7.md` and `STATE.md` first.** Much of
+> the detail below is superseded. In particular: "guards green" was only ever
+> true at **SUB=1** — the production build was silently losing both cab-door
+> shut lines; the belt/V-swage/aperture numbers listed as outstanding are now
+> **applied**; and `STATE.md` is machine-written from live geometry, so believe
+> it over any prose in this repo, including this file.
+
 This file exists because progress kept being lost between sessions. Follow the
 order below. It takes about five minutes and it is not optional.
 
@@ -81,16 +88,21 @@ cab door. This produced a 6× error.
   solidify.
 - Do not remove the boolean rollback guard in `cut()`. One tangent cutter once
   destroyed the shell from 202 k to 9 k verts and still passed a naive check.
-- Keep panel-gap outlines ≥ 20 mm clear of roll-over regions or the EXACT solver
-  fails at subsurf 2 while looking fine at subsurf 1.
+- ~~Keep panel-gap outlines ≥ 20 mm clear of roll-over regions~~ **REFUTED in
+  rev 7 by causal test** — skip the wheel-arch cutters and the identical cutter
+  at the identical z succeeds at subsurf 2. The real rule: **a panel-gap outline
+  must not cross the lip of another aperture.** See SPEC §10.6.
 - The body must stay a single continuous nose-to-tail loft. Separate cab and rear
   lofts leave a visible seam.
 - 2 CPU cores. Background every long render (`nohup … &`); the shell times out at
   two minutes. A 2400×1600 hero is 20–50 min. **Batch all changes into one
   rebuild** rather than rendering between fixes.
-- `verify.py` runs BEFORE the ride-height drop, `audit.py` after. Do not subtract
-  `RIDE_DROP` from the height expectation in `verify.py` — that produced a
-  phantom 60 mm failure.
+- **`verify.py` runs AFTER the ride-height drop** — this file said "before" and
+  was wrong; probing a 5.5 mm shut line in the wrong frame read 26 % open
+  instead of 100 %. Still do not subtract `RIDE_DROP` from the height
+  expectation: it is compared against a height measured off the same dropped
+  mesh, which is why "correcting" it produces the phantom 60 mm failure.
+  There are **three** frames — see SPEC §10.1.
 
 ---
 
