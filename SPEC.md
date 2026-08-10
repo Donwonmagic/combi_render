@@ -654,4 +654,46 @@ below the backdrop); backdrop white point keyed on the (transform, **look**) pai
 — under AgX + Punchy linear 21.0 maps to display 253, so the "white" sweep was two
 codes grey; 16-bit output.
 
+
+## 10.10 ABSOLUTE REPLICATION OF ARTWORK — standing requirement
+
+Recorded at Donald's explicit request, 2026-08-10. A **hard bar, not a
+preference**, and it outranks convenience everywhere it applies.
+
+> Every painted element on this vehicle must be REPRODUCED from photographs of
+> the actual combi. Not approximated. Not invented. Not derived from palette
+> statistics.
+
+In scope, none of it optional:
+
+| element | source crop | state at end of rev 8 |
+|---|---|---|
+| lid mural board | `ref_side.jpg` (300,40)-(770,310) | **reproduced** — `lid_gen.py` |
+| flank paisley | `ref_rear34.jpg` (620,560)-(1200,820) | **reproduced** — `folk_gen.py` |
+| "Senor Tacombi" script | `ref_side.jpg` (300,470)-(620,570) | **REJECTED BY DONALD** |
+| "100% Calidad" decal | `ref_side.jpg` (735,295)-(860,390) | **not started** |
+| menu strips on the lid | `ref_side.jpg`, board edges | reproduced with the mural |
+| menu cards on the pillars | `ref_side.jpg` (600,600)-(900,700) | untextured white |
+| rear-lid lettering | `ref_rear34.jpg` (700,20)-(1050,300) | placeholder |
+| "1963" plate surround | `ref_rear34.jpg` (1330,780)-(1500,860) | modelled, never read |
+
+The failure mode this rule exists to stop is exactly what rev 8 did first: the
+mural was built from *measured palette ratios* — red 43 % / orange 34 % /
+yellow 17 % — which produces something plausible and generically 1960s. The bar
+is that the owner recognises **his own vehicle**. A statistically correct flower
+pattern does not do that; the actual board does. The same test applies to every
+row above.
+
+The resolution constraint dictates the method. The mural occupies ~450 x 270 px
+in `ref_side.jpg`, the script ~290 x 80 px. That is enough to read the DESIGN --
+motif structure, ring order, letterform skeleton, wording, layout, palette --
+and nowhere near enough to resample as a texture. **Replication therefore means
+reading the design at 4-5x magnification, redrawing it faithfully at 2-4K, and
+then measuring the result back against the crop.** It does not mean tracing
+pixels, and it does not mean a system font with flourishes bolted on -- that is
+what shipped in rev 8 and Donald rejected it by name.
+
+
+---
+
 | 2026-08-10 | **rev 8 — the rake, the lids, and the saturation target.** Step 8b shears instead of dropping; roof at the rear axle 1.871 → 1.923 against a measured 1.960, residual −37 mm logged. `Z_BELT` is a line; `verify.py`'s frame offset is a function of x; `audit.py`'s height row is a three-station roof-line check. Wheels held level. Cab-door shut line lifted 20 mm because the rake ate its arch clearance — the SUB=2 collapse condition, now asserted at import. **The retired canvas ragtop was still shipping** and no guard caught it; replaced with rigid hinged steel lids modelled OPEN, mural and lettered rear lid, and the guard rebuilt as a reviewed map plus a §0.2 drift check. Flank saturation diagnosed by measurement: folk art and AgX Punchy both **refuted** (Punchy *adds* 0.127), the deficit is a 0.0592 achromatic specular term, and SPEC's 0.816 is an **albedo** number that no beauty pixel can meet — target restated. Folk-art density measured and found to run backwards; two lobes. Fresnel 0.21 → 0.50, sweep albedo 0.94 → 0.76, world 0.17 → 0.05, clamps released, VW glyph two mitred prisms, brass folded in, bulbs emissive. |

@@ -106,6 +106,21 @@ now delegates to `t1_core.vw_bars` (two independent copies is why they drifted);
 material; a **Playa del Carmen lighting rig** added (`studio.playa()`,
 `studio.ground_playa()`, `T1_SCENE=playa`) with two eye-height cameras.
 
+## 2b. STANDING REQUIREMENT — absolute replication of all artwork
+
+Donald asked for this to be recorded durably, 2026-08-10. It is now `SPEC.md`
+§10.10 and it is in memory. **Hard bar, not a preference:**
+
+> Every painted element on this vehicle must be REPRODUCED from photographs of
+> the actual combi. Not approximated. Not invented. Not derived from palette
+> statistics.
+
+The failure mode it exists to stop is exactly what rev 8 did first: a mural
+built from measured palette ratios, which produces something plausible and
+generically 1960s. The bar is that the owner recognises **his own vehicle**.
+§10.10 carries the full table of elements, their source crops, and the state of
+each.
+
 ## 3. What is still wrong — measured, not guessed
 
 **1. THE SCRIPT IS WRONG AND DONALD SAID SO.** Looking at `out/p9_hero34f.png`
