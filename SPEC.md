@@ -688,10 +688,73 @@ clear air between them at ANY diameter.
 expressed in terms of it, or correcting one silently breaks the other.*
 
 
+### 10.26 The roof topology — settled by the owner, and 10.19 is corrected
+
+10.19 recorded "the roof lids open FORWARD". That is **refuted**. Donald was shown
+marked crops of both in-service frames and identified each panel, and then made
+the observation that resolves everything:
+
+> "the separate roof panel that we see in the playa photo is still closed on the
+> side ref photo"
+
+| panel | `ref_side.jpg` | `ref_rear34.jpg` | artwork |
+|---|---|---|---|
+| **front lid** | **CLOSED**, flat in the roof | **OPEN** | cream underside, red brush script + red star |
+| **main / mid lid** | OPEN | OPEN, seen from behind, aft of the cream one | flower mural + three yellow menu strips |
+| **trunk lid** | **OPEN**, at the tail | closed | none |
+
+His words on the motion: there are two roof lids, front and back, "inward facing";
+the roof lid opens toward the **passengers' side**; the front one lifts toward the
+**driver's side**; the back may lift toward the rear.
+
+**Corroborated by a measurement made without knowledge of any of this.** The open
+lid in `ref_side.jpg` has a long axis of **426 px = 2.0 m** at 211 px/m. On a
+1.75 m body that is only possible **fore-aft**. Its long edges converge on the
+vehicle's own fore-aft vanishing point (-10509, 733), which predicts a bulb-string
+slope of **-0.03806** against a measured **-0.03877 +/- 0.002**.
+
+**The code was already right and the prose was wrong.** `t1_shell.roof_lids()`
+hinges both lids about a fore-aft axis at `LID_Y_HINGE` and swings them sideways.
+Nothing in the build ever opened them forward. This is the fourth time in this
+project that a claim in prose has disagreed with what the code does; the rule from
+10.7 applies -- **if a document says the rig does something, grep for the node that
+does it.**
+
+**What is NOT settled**, and must not be guessed:
+* Whether the front lid is forward of `LID_X0` (+0.964). 10.9 measured the cab roof
+  dome as unbroken to X +0.964, which leaves no room forward of the main lid. So
+  either 10.9's dome measurement or the front lid's station is wrong.
+* Whether the mural is on the main lid's own skin or on a board carried by it.
+* What the rear lid carries. `ref_rear34` shows a second flowered panel with its
+  own yellow strips and food vignettes aft of the cream one; that may be the main
+  lid seen from behind, or a third artwork.
+
+### 10.27 The roof hole is never cut, and that is why the galley was black
+
+`build.py` step 3 issues windscreen, side-glazing, serving-bay, rear-window and
+panel-gap cutters. **It issues no ROOF cutter.** `t1_shell.roof_lids()` builds the
+lids as free panels floating over an unbroken roof skin.
+
+So in the model the galley is a **sealed 2.8 mm steel box**. No exterior source can
+physically reach the interior, which is why every attempt to fix the black serving
+bays by changing `fill_galley` failed for several revisions -- the light had nowhere
+to enter. Measured: the three apertures read 22 / 33 / 24 display luma against the
+photograph's 137 / 157 / 175.
+
+rev 11 stands the opening in with an emissive panel at the plane where the hole
+physically is, and the bays now read 130 / 160 / 167. **That is a stand-in, not the
+fix.** The fix is a roof cutter, and it is real geometry: the opening is
+1.11 x 2.03 m, it must be cut AFTER solidify like every other aperture except the
+wheel arches (the pipeline order in 10.1 is load-bearing), and it will change the
+roof's manifold state, so `verify.py`'s non-manifold count and the shut-line probes
+must both be re-run at BOTH subdivision levels.
+
+
 ## Change log
 
 | Date | Change |
 |---|---|
+| 2026-08-10 | **rev 11.** Roof topology settled by the owner and 10.19 corrected -- the lids do NOT open forward; the main lid hinges fore-aft and opens to the serving side, corroborated by a vanishing-point fit agreeing with the bulb string to 2 % (10.26). The roof hole is never cut, which is why the galley was black (10.27). Galley dressed and lit: bays 22/33/24 -> 130/160/167 against a measured 137/157/175. Mural un-lifted -- `EXPOSURE = 1.58` was a scalar rev 9 baked into every measured colour; removed, and every palette class now lands within half a point. Flower heads measured at EIGHT petals not twelve; THREE menu strips not four. Folk art recomposed: 84.4 % of the photograph gold sits in three connected masses, rev 10 had 67.9 % in its largest three, rev 11 has 81.0 %. Nose given its own decal -- the flank tile is box-projected and the nose face was sampling the cab door u-band. |
 | 2026-08-10 | **rev 10.** Photograph identity settled with the owner (10.19). Script reference mask corrected -- it was dropping 14 % of the ink and two recorded generator defects were artefacts of it (10.20); whole-lockup IoU 0.511 -> 0.942, `Senor` 0.089 -> 0.825. Silver measured and modelled as LEAF, with one albedo-versus-rendered-ratio error made and corrected in flight (10.21). Folk art: `W_ART` 0.30 opacity ceiling retired -- it made the measured x2.048 gold-to-red contrast arithmetically unreachable; cab-door coverage 0.0-0.2 % -> 29.1 %; both flanks de-mirrored (materials-14). Fascia: roundel 0.370 -> 0.280 and 113 mm down, bezels to brass, indicators outboard (10.22). Playa rig: sun, dapple, sky and haze all removed as unsupported; vegetation built and placed by inverting the reference camera (10.23). Three findings reverted and logged OPEN (10.24). VW glyph coupling fixed (10.25). |
 | 2026-08-08 | Initial lock. Body corrected from single-cab pickup to Kombi van. |
 | 2026-08-08 | Script text corrected to "Señor Tacombi"; capital T must be an ornate swash. |
