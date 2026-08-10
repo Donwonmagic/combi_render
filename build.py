@@ -241,10 +241,16 @@ A(S.rear_glass(), "glass")
 A(S.bay_seals(), "rubber")
 log("glazing + seals")
 
-# ----------------------------------------------------------------- 5 ragtop
-canvas, frame = S.ragtop()
-A(canvas, "canvas")
-A(frame, "chrome_d")
+# -------------------------------------------------------------- 5 roof lids
+# rev 8: was S.ragtop() -- a folding CANVAS ragtop with bow sticks and a
+# sailcloth sag term, a reading SPEC sec.0.2 retired in rev 4. See t1_shell.
+# The roof is cut into rigid hinged steel lids, modelled OPEN.
+lid_skins, lid_rails, lid_struts, lid_boards = S.roof_lids()
+A(lid_skins, "paint")
+A(lid_rails, "paint")
+A(lid_struts, "chrome_d")
+A(lid_boards[0], "lidmural")           # flower mural + yellow menu strips
+A(lid_boards[1], "lidsign")            # "LA SANTA..." on the rear lid
 
 # --------------------------------------------- 6 counter, galley, interior
 A(D.plank_counter(S.SHOW_SIDE), "countercream")
@@ -264,7 +270,10 @@ for (x, tr) in ((T.X_AXLE_F, T.TRACK_F), (T.X_AXLE_R, T.TRACK_R)):
                 for v in o.data.vertices:
                     v.co.y = -v.co.y
                 T.fix_normals(o)
-            D.place(o, loc=(x, s * tr / 2, T.TIRE_R + T.RIDE_DROP))
+            # rev 8: step 8b SKIPS wheel parts, so this is the FINAL height.
+            # The wheel is a circle resting on flat ground: centre at exactly
+            # TIRE_R, contact patch on z = 0, no tilt. It does not rake.
+            D.place(o, loc=(x, s * tr / 2, T.TIRE_R))
 
 # SPEC r4 8.2: bumpers are PAINTED CREAM, not chrome
 A(D.bumper(True, name="bumper_f"), "bumpercream")
@@ -354,14 +363,50 @@ for ob, key in ASSIGN:
             ob.data.materials.append(M[k])
     else:
         MT.assign(ob, M[key])
-# ------------------------------------------------ 8b lower the whole bus
+# ------------------------------------------- 8b lower the whole bus, WITH RAKE
+# rev 8: this was a scalar `v.co.z -= T.RIDE_DROP`, which left the vehicle 89 mm
+# short overall and reading flat and stretched. The real stance is nose-down
+# ~1.9 deg, so the drop is a shear in x. See t1_core.rake_drop().
+#
+# Safe to read v.co.x as WORLD x: verified that all 147 meshes carry an identity
+# transform at this point (D.place() bakes into mesh data), so local == world.
+# If that ever stops being true this loop silently shears by the wrong station,
+# so it is asserted rather than assumed.
+_bad = [ob.name for ob in bpy.data.objects
+        if ob.type == 'MESH' and (
+            max(abs(c) for c in ob.location) > 1e-9
+            or max(abs(c) for c in ob.rotation_euler) > 1e-9
+            or max(abs(ob.scale[i] - 1.0) for i in range(3)) > 1e-9)]
+assert not _bad, ("step 8b shears on v.co.x, which is only world x while every "
+                  "mesh has an identity transform. These do not: " + ", ".join(_bad[:8]))
+
+# The WHEELS do not rake. They are circles resting on flat ground: contact patch
+# at z = 0, centre at exactly TIRE_R, no tilt. Shearing them would swing the
+# hubcap VW glyph 1.9 deg off vertical. They are placed in step 7 at
+# TIRE_R + rake_drop(x_axle) so that skipping the shear lands them at TIRE_R.
+_WHEEL_PREFIX = ("tyre", "rim", "cap", "capvw")
+
+
+def _is_wheel(name):
+    n = name.split('.')[0]
+    return any(n.startswith(p) for p in _WHEEL_PREFIX)
+
+
+_n_shear = _n_wheel = 0
 for ob in bpy.data.objects:
-    if ob.type == 'MESH':
-        for v in ob.data.vertices:
-            v.co.z -= T.RIDE_DROP
-        ob.data.update()
+    if ob.type != 'MESH':
+        continue
+    if _is_wheel(ob.name):
+        _n_wheel += 1
+        continue
+    for v in ob.data.vertices:
+        v.co.z -= (T.RAKE_Z0 + T.RAKE_DZDX * v.co.x)
+    ob.data.update()
+    _n_shear += 1
 RIDE_DROP_APPLIED = True          # verify.py reads this to pick its frame
-log(f"lowered {T.RIDE_DROP*1000:.0f} mm")
+log(f"lowered {T.RAKE_Z0*1000:.1f} mm at x=0, rake {T.RAKE_DZDX*1000:.1f} mm/m "
+    f"nose-down ({math.degrees(math.atan(T.RAKE_DZDX)):.2f} deg); "
+    f"{_n_shear} sheared, {_n_wheel} wheel parts held level")
 
 log(f"materials: {len(ASSIGN)} objects")
 if FAILED_CUTS:

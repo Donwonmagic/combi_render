@@ -201,14 +201,41 @@ def rear_glass():
 
 # --------------------------------------------------------------- wheel arch
 ARCH_R = 0.3735                      # rev6: TIRE_R 0.3325 + measured 41 mm
-ARCH_Z = T.TIRE_R + T.RIDE_DROP      # concentric with the tyre after the drop
+
+
+def arch_z(x):
+    """Authored z of the arch centre at axle station x.
+
+    rev 8: was the scalar `T.TIRE_R + T.RIDE_DROP`. Step 8b now shears rather
+    than dropping, so this has to track rake_drop(x) for the arch to stay
+    concentric with its own wheel.
+
+    OPEN INCONSISTENCY -- see SPEC sec.10.7. If the rake is suspension-derived
+    then the arches should NOT stay concentric: the front arch would sit
+    rake*wheelbase = 0.0330 * 2.400 = 79 mm lower relative to its wheel than
+    the rear does. But the rear arch gap MEASURES ~30 mm off ref_side.jpg
+    (arch lip y 524 +/- 2 against a tyre top computed at 532.3 from the rim
+    fit, 211.5 px/m), and SPEC sec.2 locks it at 41 mm. Either way,
+    front = rear - 79 mm is NEGATIVE, i.e. the tyre inside the bodywork.
+    Two measurements off the real vehicle contradict each other.
+
+    Held concentric because that is the only option which keeps both measured
+    numbers and produces no impossible geometry. Resolving it needs a
+    photograph with an UNOCCLUDED front wheel -- in ref_side.jpg a man stands
+    directly in front of it, and every attempt to measure the front arch here
+    locked onto his red shirt instead.
+    """
+    return T.TIRE_R + T.rake_drop(x)
+
+
+ARCH_Z = arch_z(T.X_AXLE_R)          # back-compat scalar; prefer arch_z(x)
 
 
 def arch_cutters():
     obs = []
     for x in (T.X_AXLE_F, T.X_AXLE_R):
         for s in (1, -1):
-            obs.append(T.cylinder((x, s * 0.735, ARCH_Z), (0, 1, 0), ARCH_R,
+            obs.append(T.cylinder((x, s * 0.735, arch_z(x)), (0, 1, 0), ARCH_R,
                                   0.62, seg=80, name=f"arch{x:.0f}{s}"))
     return obs
 
@@ -230,18 +257,37 @@ GAPW = 0.0055
 # 2.8/5.5 = 0.51 across the arch lip.  Tested at SUB=2: z 0.4248 collapses,
 # 0.4548 shreds (8490 v), 0.56 / 0.78 / 0.80 / 0.83 all clean.
 #
-# The bottom run now sits at z 0.7800-0.7920 un-dropped (0.715-0.727 above
-# ground), clearing the front arch aperture top ARCH_Z + ARCH_R = 0.7710 by
-# 9-21 mm.  That is also where a real T1 cab door bottom sits: just proud of
-# the front arch crown, with the fixed step panel below it.
+# rev 7 put the bottom run at z 0.7800-0.7920 un-dropped, clearing a front arch
+# aperture top of ARCH_Z + ARCH_R = 0.7710 by 9-21 mm.
+#
+# rev 8 BREAKS THAT CLEARANCE: step 8b now shears instead of dropping, so the
+# front arch is authored at rake_drop(1.300) = 0.0794 rather than RIDE_DROP =
+# 0.0650 -- 14.4 mm higher. The front arch top moves 0.7710 -> 0.7854 and the
+# old 0.7800 bottom run would sit 5.4 mm BELOW it, crossing the arch lip: the
+# exact condition that collapsed the shell 205562 v -> 12 v at SUB=2 for six
+# revisions. The bottom run is therefore lifted 20 mm to 0.8000-0.8160
+# (clearance 14.6-30.6 mm). 0.80 is one of the values tested clean at SUB=2.
+# The assert below makes this structural rather than a comment.
 DOOR_GAP = [
-    (1.8171, 0.7920), (1.8080, 1.1200), (1.7960, 1.4000),
+    (1.8171, 0.8120), (1.8080, 1.1200), (1.7960, 1.4000),
     (1.7600, 1.6280), (1.7220, 1.7620), (1.7020, 1.8020),
     (1.5200, 1.8130), (1.2800, 1.8150), (1.0800, 1.8130), (0.9680, 1.8060),
-    (0.9380, 1.7000), (0.9240, 1.4000), (0.9120, 1.0000), (0.9084, 0.7960),
-    (1.1000, 0.7840), (1.4000, 0.7800), (1.6500, 0.7840),
+    (0.9380, 1.7000), (0.9240, 1.4000), (0.9120, 1.0000), (0.9084, 0.8160),
+    (1.1000, 0.8040), (1.4000, 0.8000), (1.6500, 0.8040),
 ]
 DOOR_GAP_S = _smooth(_resample(DOOR_GAP, 76), 2)
+
+# STRUCTURAL GUARD (SPEC sec.10.6): a panel-gap outline must not cross the lip
+# of another aperture. Checked here, at import, so a change to the rake or to
+# the arch can never silently re-open the SUB=2 collapse.
+_ARCH_TOP_F = arch_z(T.X_AXLE_F) + ARCH_R
+_ARCH_X0, _ARCH_X1 = T.X_AXLE_F - ARCH_R, T.X_AXLE_F + ARCH_R
+_over_arch = [z for (x, z) in DOOR_GAP_S if _ARCH_X0 <= x <= _ARCH_X1]
+assert not _over_arch or min(_over_arch) > _ARCH_TOP_F + 0.010, (
+    "cab-door shut line crosses the front wheel arch lip: outline reaches "
+    "z=%.4f over the arch (x %.3f..%.3f) whose top is %.4f. This collapses the "
+    "boolean at T1_SUB=2. Raise the bottom run or lower the arch."
+    % (min(_over_arch), _ARCH_X0, _ARCH_X1, _ARCH_TOP_F))
 
 
 def door_gaps():
@@ -321,23 +367,182 @@ def _rag_grid(hw, x0, x1, off, bows=True, nx=64, ny=18, name="rag"):
 
 
 def ragtop():
-    """intact folding roof, shown CLOSED: canvas panel + steel frame"""
-    canvas = _rag_grid(RAG_HW - 0.028, RAG_X0 - 0.028, RAG_X1 + 0.028, 0.0075)
-    frame = []
-    m = 0.026
-    for (yy0, yy1, xx0, xx1) in (
-            (RAG_HW - m, RAG_HW + m, RAG_X0 + m, RAG_X1 - m),
-            (-RAG_HW - m, -RAG_HW + m, RAG_X0 + m, RAG_X1 - m)):
-        frame.append(_rag_grid((yy1 - yy0) / 2, xx0, xx1, 0.0060, bows=False,
-                               nx=48, ny=3, name="ragframe"))
-        for v in frame[-1].data.vertices:
-            v.co.y += (yy0 + yy1) / 2
-        frame[-1].data.update()
-    for xc in (RAG_X0, RAG_X1):
-        g = _rag_grid(RAG_HW + m, xc, xc, 0.0060, bows=False, nx=1, ny=24,
-                      name="ragframe")
-        bpy.data.objects.remove(g, do_unlink=True)
-    return canvas, frame
+    """RETIRED rev 8. Kept only so an old call site fails loudly, not silently."""
+    raise RuntimeError(
+        "t1_shell.ragtop() built a folding CANVAS ragtop with five Gaussian bow "
+        "sticks and a sailcloth sag term, skinned 'canvas' and framed "
+        "'chrome_dull'. SPEC sec.0.2 retired that reading in rev 4 -- the roof is "
+        "CUT INTO RIGID HINGED STEEL LIDS -- and it shipped anyway for three "
+        "revisions because verify.py only banned the retired materials someone "
+        "remembered to list. Use roof_lids().")
+
+
+# --------------------------------------------------------------- roof lids
+# SPEC sec.1 + sec.0.2: the steel roof is CUT into rigid hinged lids. Donald's
+# reference notes, settled off the high-resolution photographs: "the steel roof
+# is CUT into rigid hinged lids that swing up as an awning/signboard, with a row
+# of round bulbs along the free edge and flowers plus yellow menu strips painted
+# on the underside. A second smaller lid sits behind the main one."
+#
+# Modelled OPEN (locked 2026-08-10). Both in-service photographs show the lids
+# up; no photograph shows the vehicle closed. rev 7's "modelled CLOSED" was
+# written while the roof was still believed to be canvas.
+#
+# Geometry, measured off ref_side.jpg at 211.5 px/m:
+#   main lid   ~1.97 m fore-aft x ~1.11 m across, bottom edge on the roof line
+#   rear lid   smaller, aft, lettered "LA SANTA..." (ref_rear34.jpg)
+# The main lid hinges on a FORE-AFT axis at the off-side edge of the roof
+# opening and swings up and over toward the show side, so its underside -- the
+# flower mural with the yellow menu strips -- faces the counter. That is the one
+# arrangement which reproduces all three photographs: broadside mural in
+# ref_side.jpg, foreshortened mural top-right in ref_rear34.jpg, and the
+# cut-out skin on a shallow perimeter rail in ref_workshop.jpg.
+#
+# RAG_X0 = +1.4800 is CONTRADICTED -- the cab roof dome is unbroken to X=+0.964.
+LID_X0, LID_X1 = 0.9640, -1.0700       # main lid opening, fore-aft
+LID_Y_HINGE = -0.5450                  # off-side edge of the opening
+LID_W = 1.1100                         # across, hinge -> free edge
+LID_OPEN_DEG = 104.0                   # past vertical, leaning over the counter
+LID_T = 0.0180                         # skin + rail thickness
+LID_PROUD = 0.0228                     # 26 +/- 7 mm measured proud height
+RAIL_PROUD = 0.0213
+
+LID2_X0, LID2_X1 = -1.1400, -1.7800    # second, smaller lid
+LID2_OPEN_DEG = 82.0
+
+
+def _lid_panel(x0, x1, w, name, seams=3):
+    """A rigid, flat, rectangular lid panel in the hinge frame.
+
+    Built flat in the XY plane with +Y running hinge -> free edge, then rotated
+    about the hinge by the caller. Rigid: NO bow sticks and NO sag term -- those
+    were the canvas artefacts. Pressed seams run fore-aft, matching the roof
+    skin ribs visible in ref_workshop.jpg.
+    """
+    nx, ny = 40, 22
+    verts, faces, uvs = [], [], []
+    for iy in range(ny + 1):
+        yv = w * iy / ny
+        for ix in range(nx + 1):
+            xv = x0 + (x1 - x0) * ix / nx
+            z = 0.0
+            for k in range(1, seams + 1):
+                yc = w * k / (seams + 1)
+                z -= 0.0028 * math.exp(-((yv - yc) / 0.022) ** 2)
+            verts.append((xv, yv, z))
+            uvs.append((ix / nx, iy / ny))
+    for iy in range(ny):
+        for ix in range(nx):
+            a = iy * (nx + 1) + ix
+            b = a + nx + 1
+            faces.append((a, a + 1, b + 1, b))
+    me = bpy.data.meshes.new(name)
+    me.from_pydata(verts, [], faces)
+    me.validate()
+    ob = bpy.data.objects.new(name, me)
+    bpy.context.collection.objects.link(ob)
+    uvl = me.uv_layers.new(name="UVMap")
+    for poly in me.polygons:
+        for li in poly.loop_indices:
+            uvl.data[li].uv = uvs[me.loops[li].vertex_index]
+    m = ob.modifiers.new("sol", 'SOLIDIFY')
+    m.thickness = LID_T
+    m.offset = -1.0
+    m.use_even_offset = True
+    T.apply_mods(ob)
+    T.fix_normals(ob)
+    return ob
+
+
+def _hinge(ob, x_unused, y_hinge, z_hinge, deg):
+    """Rotate a lid about its fore-aft hinge axis, in place, into world space."""
+    a = math.radians(deg)
+    ca, sa = math.cos(a), math.sin(a)
+    for v in ob.data.vertices:
+        y, z = v.co.y, v.co.z
+        v.co.y = y_hinge + (y * ca - z * sa)
+        v.co.z = z_hinge + (y * sa + z * ca)
+    ob.data.update()
+    T.fix_normals(ob)
+
+
+def _lid_face(x0, x1, w, name, inset=0.030, off=0.0):
+    """A flat single-quad-grid panel in the hinge frame, for the mural decal."""
+    nx, ny = 2, 2
+    verts, faces, uvs = [], [], []
+    for iy in range(ny + 1):
+        yv = inset + (w - 2 * inset) * iy / ny
+        for ix in range(nx + 1):
+            xv = (x0 - inset) + ((x1 + inset) - (x0 - inset)) * ix / nx
+            verts.append((xv, yv, off))
+            uvs.append((ix / nx, iy / ny))
+    for iy in range(ny):
+        for ix in range(nx):
+            a = iy * (nx + 1) + ix
+            b = a + nx + 1
+            faces.append((a, a + 1, b + 1, b))
+    me = bpy.data.meshes.new(name)
+    me.from_pydata(verts, [], faces)
+    me.validate()
+    ob = bpy.data.objects.new(name, me)
+    bpy.context.collection.objects.link(ob)
+    uvl = me.uv_layers.new(name="UVMap")
+    for poly in me.polygons:
+        for li in poly.loop_indices:
+            uvl.data[li].uv = uvs[me.loops[li].vertex_index]
+    T.fix_normals(ob)
+    return ob
+
+
+def roof_lids():
+    """The two cut roof lids, OPEN. Returns (skins, rails, struts, boards)."""
+    skins, rails, struts, boards = [], [], [], []
+
+    # ---- main lid
+    zh = roof_z((LID_X0 + LID_X1) / 2, LID_Y_HINGE) + LID_PROUD
+    main = _lid_panel(LID_X0, LID_X1, LID_W, "lid_main")
+    _hinge(main, 0.0, LID_Y_HINGE, zh, LID_OPEN_DEG)
+    skins.append(main)
+
+    # the flower mural + yellow menu strips, on the lid's UNDERSIDE -- which,
+    # with the lid swung over, is the face presented to the counter. This is the
+    # single most recognisable thing about the vehicle.
+    b = _lid_face(LID_X0, LID_X1, LID_W, "lid_board", off=0.0016)
+    _hinge(b, 0.0, LID_Y_HINGE, zh, LID_OPEN_DEG)
+    boards.append(b)
+
+    # perimeter rail: the shallow frame the skin sits on, standing PROUD of the
+    # roof by the measured 26 +/- 7 mm. ref_workshop.jpg shows the open lid is
+    # the cut-out roof skin on a rail, not a box.
+    for (xa, xb) in ((LID_X0, LID_X0), (LID_X1, LID_X1)):
+        r = _rag_grid(RAG_HW, xa, xb, RAIL_PROUD, bows=False, nx=1, ny=18,
+                      name="lid_rail")
+        rails.append(r)
+
+    # ---- second, smaller lid, aft
+    zh2 = roof_z((LID2_X0 + LID2_X1) / 2, LID_Y_HINGE) + LID_PROUD
+    lid2 = _lid_panel(LID2_X0, LID2_X1, LID_W * 0.86, "lid_rear")
+    _hinge(lid2, 0.0, LID_Y_HINGE, zh2, LID2_OPEN_DEG)
+    skins.append(lid2)
+
+    # ref_rear34.jpg: the rear lid is up and lettered "LA SANTA..."
+    b2 = _lid_face(LID2_X0, LID2_X1, LID_W * 0.86, "lid_board2", off=0.0016)
+    _hinge(b2, 0.0, LID_Y_HINGE, zh2, LID2_OPEN_DEG)
+    boards.append(b2)
+
+    # ---- prop struts, one per lid, hinge side to free edge
+    for (ob, xs, deg, w) in ((main, LID_X1 + 0.16, LID_OPEN_DEG, LID_W),
+                             (lid2, LID2_X1 + 0.12, LID2_OPEN_DEG, LID_W * 0.86)):
+        a = math.radians(deg)
+        tipy = LID_Y_HINGE + w * math.cos(a) * 0.86
+        tipz = (roof_z(xs, LID_Y_HINGE) + LID_PROUD) + w * math.sin(a) * 0.86
+        foot = Vector((xs, 0.44, roof_z(xs, 0.44)))
+        tip = Vector((xs, tipy, tipz))
+        d = tip - foot
+        struts.append(T.cylinder(tuple((foot + tip) / 2), tuple(d.normalized()),
+                                 0.0075, d.length, seg=14,
+                                 name=f"lid_strut{len(struts)}"))
+    return skins, rails, struts, boards
 
 
 # ------------------------------------------------------- nose bulge + V swage

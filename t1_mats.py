@@ -45,6 +45,7 @@ Working back through the measured gain, the 1.42 % display residual here is
 amplitude as the real vehicle; it is the view transform that hides it.
 """
 import bpy, math, os
+import t1_core as T          # rev 8: the rake coefficient has one home
 
 TEXDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tex")
 
@@ -84,14 +85,47 @@ GOLD = (0.8600, 0.5400, 0.0600)
 # wedge is still 14 px wide where the bumper occludes it in ref_workshop.jpg
 # and the bumper top measures 0.331 +- 0.020 above ground.  That bound is
 # independent of any px/m conversion.  V_POW < 1 -- the profile is CONCAVE.
-Z_BELT = 1.2070
-V_APEX = 0.3400
+# rev 8: THE BELT IS A LINE, NOT A CONSTANT.
+# Step 8b no longer subtracts a scalar -- it shears, because the vehicle sits
+# nose-down ~1.9 deg (t1_core.rake_drop). A shader reading Position.Z off the
+# sheared mesh therefore sees a break whose height FALLS as x rises:
+#
+#     break_z(x) = Z_BELT0 - RAKE_DZDX * x            (above ground)
+#
+# Z_BELT0 / V_APEX0 are the above-ground values AT x = 0, i.e.
+# authored - RAKE_Z0, where the old constants were authored - RIDE_DROP. The
+# rake term is subtracted once, AFTER the flank/nose mix, so it applies equally
+# to both branches and V_APEX0 + V_RISE == Z_BELT0 keeps holding at every
+# station -- which is what makes the swage arms land on the belt line.
+RAKE_DZDX = T.RAKE_DZDX                 # single source of truth
+Z_BELT0 = 1.2355                        # = 1.2720 authored - RAKE_Z0 0.0365
+V_APEX0 = 0.3685                        # = 0.4050 authored - RAKE_Z0
 V_RISE = 0.8670
 V_POW = 0.60
-assert abs((V_APEX + V_RISE) - Z_BELT) < 1e-9, (
-    "V_APEX + V_RISE must equal Z_BELT: the V-swage arms have to land on the "
-    "flank belt line at |y| = 0.86")
-assert V_APEX <= 0.3960, "V_APEX above the measured bumper-occlusion bound"
+
+# Above-ground value at any station, for probes and reports.
+def z_belt(x):
+    return Z_BELT0 - RAKE_DZDX * x
+
+
+def v_apex(x):
+    return V_APEX0 - RAKE_DZDX * x
+
+
+# Back-compat scalars, evaluated at the station where the old uniform drop and
+# the rake agree (t1_core.X_DROP_REF). Anything that wants a height at a
+# specific x must call z_belt(x)/v_apex(x) -- a bare Z_BELT is now only correct
+# at one station.
+Z_BELT = z_belt(T.X_DROP_REF)           # == 1.2070, the rev-7 value
+V_APEX = v_apex(T.X_DROP_REF)           # == 0.3400
+
+assert abs((V_APEX0 + V_RISE) - Z_BELT0) < 1e-9, (
+    "V_APEX0 + V_RISE must equal Z_BELT0: the V-swage arms have to land on the "
+    "flank belt line at |y| = 0.86, at every station")
+assert abs((V_APEX + V_RISE) - Z_BELT) < 1e-9
+# The bumper-occlusion bound is a statement about the NOSE, so it is tested at
+# the nose station, not at x = 0.
+assert v_apex(2.108) <= 0.3960, "V_APEX at the nose above the bumper-occlusion bound"
 
 # ---------------------------------------------------------------- WEATHER
 # Tunables for the shared weathering field.  W_ALBEDO is the one that is
@@ -234,6 +268,44 @@ def simple(name, base, rough=0.35, metal=0.0, spec=0.5, coat=0.0,
     if emit:
         b.inputs["Emission Color"].default_value = (*emit[0], 1)
         b.inputs["Emission Strength"].default_value = emit[1]
+    return m
+
+
+def img_paint(name, filename, rough=0.50, spec=0.42):
+    """Painted board carrying an image albedo, UV-mapped. rev 8: the lid boards.
+
+    Roughness is driven off the image luminance rather than left constant --
+    the dark ground on a hand-painted board is thicker, matter paint than the
+    pale motifs, and a constant roughness is the physical definition of the
+    plastic look SPEC sec.3 locks out.
+    """
+    m = bpy.data.materials.get(name)
+    if m:
+        return m
+    m = bpy.data.materials.new(name)
+    nt, b = _nt(m)
+    tex = _img(nt, filename, -620, 60, ext='EXTEND')
+    nt.links.new(tex.outputs["Color"], b.inputs["Base Color"])
+    lum = nt.nodes.new("ShaderNodeRGBToBW"); lum.location = (-420, -180)
+    nt.links.new(tex.outputs["Color"], lum.inputs[0])
+    rr = _mr(nt, lum.outputs[0], 0.0, 1.0, rough + 0.10, rough - 0.10, -240, -180)
+    nt.links.new(rr.outputs[0], b.inputs["Roughness"])
+    b.inputs["Specular IOR Level"].default_value = spec
+    return m
+
+
+def emissive(name, colour, strength=8.0, base=(0.85, 0.84, 0.82)):
+    """A lit festoon bulb: warm emission over a pearl-white envelope."""
+    m = bpy.data.materials.get(name)
+    if m:
+        return m
+    m = bpy.data.materials.new(name)
+    nt, b = _nt(m)
+    b.inputs["Base Color"].default_value = (*base, 1)
+    b.inputs["Roughness"].default_value = 0.22
+    b.inputs["Specular IOR Level"].default_value = 0.45
+    b.inputs["Emission Color"].default_value = (*colour, 1)
+    b.inputs["Emission Strength"].default_value = strength
     return m
 
 
@@ -678,7 +750,7 @@ def body_paint(name="T1_paint"):
     u = _math(nt, 'DIVIDE', absy, 0.860, -1080, 240, clamp=True)
     up = _math(nt, 'POWER', u, V_POW, -920, 240)
     zv = _math(nt, 'MULTIPLY_ADD', up, V_RISE, -760, 240)
-    zv.inputs[2].default_value = V_APEX
+    zv.inputs[2].default_value = V_APEX0          # value at x = 0; rake applied below
 
     # blend factor: 0 on the flanks, 1 across the nose panel
     tblend = nt.nodes.new("ShaderNodeMapRange")
@@ -693,12 +765,18 @@ def body_paint(name="T1_paint"):
 
     mixz = nt.nodes.new("ShaderNodeMix"); mixz.location = (-180, 200)
     mixz.data_type = 'FLOAT'
-    mixz.inputs[2].default_value = Z_BELT
+    mixz.inputs[2].default_value = Z_BELT0        # value at x = 0
     nt.links.new(tblend.outputs[0], mixz.inputs[0])
     nt.links.new(zv.outputs[0], mixz.inputs[3])
 
+    # rev 8: apply the rake ONCE, after the mix, so it lands on both the flank
+    # belt and the nose V-swage and V_APEX0 + V_RISE == Z_BELT0 keeps holding
+    # at every station. break_z(x) = mix - RAKE_DZDX * x.
+    rake = _math(nt, 'MULTIPLY_ADD', sep.outputs["X"], -RAKE_DZDX, -60, 90)
+    nt.links.new(mixz.outputs[0], rake.inputs[2])
+
     # hard-ish edge:  cream = 1 when z > break
-    dz = _math(nt, 'SUBTRACT', sep.outputs["Z"], mixz.outputs[0], -20, 340)
+    dz = _math(nt, 'SUBTRACT', sep.outputs["Z"], rake.outputs[0], -20, 340)
     edge = _math(nt, 'DIVIDE', dz, 0.0045, 140, 340)
     edge = _math(nt, 'ADD', edge, 0.5, 300, 340, clamp=True)
 
@@ -867,7 +945,27 @@ def build_all():
                          coat=0.85, spec=0.60)
     M["capwhite"] = simple("capwhite", (0.8900, 0.8880, 0.8720), rough=0.115,
                            coat=0.7, spec=0.55)
-    M["canvas"] = canvas_mat()
+    # rev 8: `canvas` RETIRED. It skinned a folding ragtop that SPEC sec.0.2
+    # retired in rev 4; the roof is cut into rigid hinged steel lids. Removing
+    # the material as well as the geometry is what stops it coming back.
+
+    # rev 8: the lid boards. Painted board, matte, NOT emissive -- the warm
+    # read in the reference is the scene light, not the paint.
+    M["lidmural"] = img_paint("lidmural", "lidmural.png", rough=0.52)
+    M["lidsign"] = img_paint("lidsign", "lidsign.png", rough=0.48)
+
+    # rev 8: brass was defined locally in t1_detail._brass() because this
+    # function had no brass key, which made it the last illegitimate
+    # constant-roughness material in the scene. Folded in, and given a
+    # roughness field like every other real surface.
+    M["brass"] = tarnished("brass", (0.6600, 0.4750, 0.1750), 0.255, 0.34)
+
+    # rev 8: the drip-rail bulb string renders unlit pearl white. In both
+    # in-service photographs the bulbs are LIT and read warm -- they are the
+    # brightest thing on the vehicle after the cream. Emissive, low power: they
+    # are festoon bulbs in daylight, not a key light.
+    M["bulb"] = emissive("bulb", (1.000, 0.760, 0.442), strength=9.0,
+                         base=(0.900, 0.880, 0.840))
     M["script"] = silver_script()
     M["calidad"] = paint_calidad()
     # old D4: at 0.03 albedo the galley was a black void behind the hatches.

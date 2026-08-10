@@ -310,24 +310,67 @@ _blo2, _bhi2 = vbounds(_bodyish)
 A(_row("overall length (ex counter)", _bhi2.x - _blo2.x, 4.290, 0.025))
 A("| counter tail overhang past body | %.4f | — | — |" % (_blo2.x - lo.x))
 A(_row("overall width (body)", bhi.y - blo.y, 1.750, 0.025))
-A(_row("overall height", H, 1.960, 0.025))
-A("| _(SPEC §2 factory unladen 1.941; REF_MEASUREMENTS §2.3 measures **1.960**"
-  " on the real vehicle with the lids closed — above stock despite the 65 mm"
-  " lowering, implying the roof-lid frame stands proud by 0.10–0.15 m, which"
-  " is not modelled)_ | | | |")
+A(_row("overall height (max, any station)", H, 1.960, 0.025))
+A("| _(rev 8: a single scalar height is the WRONG test now that the rake is"
+  " modelled — 1.960 is the maximum of a sloping line, taken at its highest"
+  " station. See the three-station roof line below. §2.3's inference that the"
+  " roof-lid frame stands 0.10–0.15 m proud is **refuted** at ~13σ; measured"
+  " proud height is 26 ± 7 mm.)_ | | | |")
 A(_row("wheelbase", T.X_AXLE_F - T.X_AXLE_R, 2.400, 0.005))
 A(_row("track front", T.TRACK_F, 1.369, 0.005))
 A(_row("track rear", T.TRACK_R, 1.359, 0.005))
 A(_row("tyre diameter", th.z - tl.z, 0.665, 0.015))
 A(_row("rocker to ground", blo.z))
-A(_row("belt line (live Z_BELT)", MT.Z_BELT, 1.207, 0.010))
-A(_row("window sill", S.Z_SILL - T.RIDE_DROP, 1.307, 0.015))
-A(_row("window head", S.Z_HEAD - T.RIDE_DROP, 1.710, 0.020))
-A(_row("V-swage apex", MT.V_APEX, 0.340, 0.060))
+A(_row("belt line @ x=%.3f (live)" % T.X_DROP_REF, MT.Z_BELT, 1.207, 0.010))
+A(_row("window sill @ x=%.3f" % T.X_DROP_REF,
+       S.Z_SILL - T.rake_drop(T.X_DROP_REF), 1.307, 0.015))
+A(_row("window head @ x=%.3f" % T.X_DROP_REF,
+       S.Z_HEAD - T.rake_drop(T.X_DROP_REF), 1.710, 0.020))
+A(_row("V-swage apex @ x=%.3f" % T.X_DROP_REF, MT.V_APEX, 0.340, 0.060))
+A("")
+
+# ---------------------------------------------------------------- roof line
+# rev 8: the height row above used to be a single scalar against 1.960 and it
+# read 89 mm short for seven revisions. The cause was never a missing curb --
+# it was the unmodelled ~1.9 deg nose-down rake, which makes the roof a LINE.
+# A scalar cannot express that, so it is measured at three stations.
+A("### Roof line — three stations, not one scalar")
+A("")
+A("The model read 1.871 against §2.3's 1.960 for seven revisions. That is not a")
+A("missing roof-lid curb: the residual against the photograph was **+12 mm at")
+A("the front axle, −29 mm mid-wheelbase, −67 mm at the rear axle** — a tilt")
+A("signature. `Z_BELT` is a line too; see `t1_mats.z_belt(x)`.")
+A("")
+A("| station | x | roof z | belt z |")
+A("|---|---|---|---|")
+
+
+def _roof_at(xq, tol=0.045):
+    zs = [(mw @ v.co).z
+          for o in meshes if o.name == "T1_body"
+          for v in o.data.vertices
+          for mw in (o.matrix_world,)
+          if abs((mw @ v.co).x - xq) < tol and abs((mw @ v.co).y) < 0.30]
+    return max(zs) if zs else float('nan')
+
+
+for _lbl, _xq in (("front axle", T.X_AXLE_F),
+                  ("mid wheelbase", 0.5 * (T.X_AXLE_F + T.X_AXLE_R)),
+                  ("rear axle", T.X_AXLE_R)):
+    A("| %s | %+.3f | %.4f | %.4f |"
+      % (_lbl, _xq, _roof_at(_xq), MT.z_belt(_xq)))
+A("")
+A("| roof line slope (measured off the mesh) | %.1f mm/m |"
+  % (1000 * (_roof_at(T.X_AXLE_R) - _roof_at(T.X_AXLE_F))
+     / (T.X_AXLE_R - T.X_AXLE_F)))
+A("| rake coefficient applied | %.1f mm/m (%.2f°) |"
+  % (T.RAKE_DZDX * 1000, math.degrees(math.atan(T.RAKE_DZDX))))
 A("")
 A("| stance | |")
 A("|---|---|")
-A("| ride drop applied | %.1f mm |" % (T.RIDE_DROP * 1000))
+A("| ride drop @ x=0 | %.1f mm |" % (T.RAKE_Z0 * 1000))
+A("| ride drop @ front axle / rear axle | %.1f / %.1f mm |"
+  % (T.rake_drop(T.X_AXLE_F) * 1000, T.rake_drop(T.X_AXLE_R) * 1000))
 A("| arch radius − tyre radius | %.1f mm (measured 41) |"
   % ((S.ARCH_R - T.TIRE_R) * 1000))
 A("| V_APEX + V_RISE == Z_BELT | %.4f == %.4f — %s |"

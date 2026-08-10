@@ -37,8 +37,40 @@ TIRE_W      =  0.1550          # rev6: ~215 section on a 16in rim
 RIM_R       =  0.2198          # rev6 MEASURED 16in flange OD 0.4396, not 15in
 TRACK_F     =  1.3690
 TRACK_R     =  1.3590
-RIDE_DROP   =  0.0650          # rev6: LOWERED. Rear arch-to-tyre gap measures
+# ---------------------------------------------------------------- ride & rake
+# rev 8: the drop is NOT a scalar. The vehicle sits nose-down ~1.9 deg relative
+# to the axle line, so the "ride drop" is a LINE in x:
+#
+#     drop(x) = RAKE_Z0 + RAKE_DZDX * x
+#
+# Grounding (HANDOFF_rev7 sec.4): model crown vs photograph read +12 mm at the
+# front axle, -29 mm mid-wheelbase, -67 mm at the rear axle -- a tilt signature,
+# not a missing curb. The drip rail is straight over x_img 265->846 (rms 0.4 px)
+# at 33 +/- 4 mm/m. This REFUTES REF_MEASUREMENTS sec.2.3's inference that the
+# roof-lid frame stands 0.10-0.15 m proud (measured proud height is 26 +/- 7 mm,
+# a ~13 sigma miss) and it is why the model read 89 mm short overall.
+#
+# SHEAR, NOT ROTATION. Every reference number is a height-versus-X; a 1.9 deg
+# rotation would also shift x by 63 mm at roof level and de-register every
+# longitudinal measurement.
+RAKE_Z0     =  0.0365          # ride drop at x = 0
+RAKE_DZDX   =  0.0330          # nose-down rake, m per m forward (+/- 0.0040)
+                               # 0.0302 from the belt, 0.0367 from the drip rail
+X_DROP_REF  =  0.8636          # station where drop(x) == the pre-rev-8 scalar
+
+
+def rake_drop(x):
+    """Ride drop at station x. Authored (un-dropped) z minus this == above ground."""
+    return RAKE_Z0 + RAKE_DZDX * x
+
+
+RIDE_DROP   =  RAKE_Z0 + RAKE_DZDX * X_DROP_REF     # == 0.0650
+                               # rev6: LOWERED. Rear arch-to-tyre gap measures
                                # 41mm vs a stock 90-120. rev4 zeroed this in error.
+                               # rev8: retained as the drop AT X_DROP_REF only, so
+                               # the "is it still lowered" guard and legacy scalar
+                               # call sites keep working. Do NOT use it as a
+                               # frame conversion -- use rake_drop(x).
 Z_CANOPY_T  =  1.9220          # canopy roof top
 Z_CANOPY_B  =  1.8380
 Z_FASCIA_B  =  1.6280

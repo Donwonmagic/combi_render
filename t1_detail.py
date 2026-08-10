@@ -779,21 +779,20 @@ def shade_fix():
 
 
 def _brass(name="brass"):
-    """Warm yellow brass for the counter nosing and the plate surround.
-    Built here rather than in t1_mats.build_all(): that function has no brass
-    key and is owned by another process.  Objects carrying it are deliberately
-    NOT routed through build.py's A(), so its material loop cannot overwrite
-    them.  Subsurface Weight stays 0.0 -- verify.py row 6b bans it globally."""
+    """rev 8: brass now lives in t1_mats.build_all() like every other material.
+
+    It was defined here because build_all() had no brass key, which made it the
+    last illegitimate CONSTANT-roughness material in the scene (STATE.md counted
+    6; five are legitimately exempt -- the transmissive ones and the sealed
+    reflector -- and this was the sixth). It now carries a roughness field.
+    This shim resolves the shared datablock so the counter nosing and the plate
+    surround pick up the real material rather than a private copy.
+    """
     m = bpy.data.materials.get(name)
     if m:
         return m
-    m = bpy.data.materials.new(name)
-    m.use_nodes = True
-    b = m.node_tree.nodes.get("Principled BSDF")
-    b.inputs["Base Color"].default_value = (0.6600, 0.4750, 0.1750, 1.0)
-    b.inputs["Metallic"].default_value = 1.0
-    b.inputs["Roughness"].default_value = 0.255
-    return m
+    import t1_mats as _MT
+    return _MT.tarnished(name, (0.6600, 0.4750, 0.1750), 0.255, 0.34)
 
 
 # ============================================== TRUE-SURFACE CONFORMED DECAL
@@ -1213,7 +1212,9 @@ def spec4_details(body):
     out.append((counter_nosing(S.SHOW_SIDE), None))  # brass, own material
     out.append((filler_flap(), "paint"))
     out.append((bobble_fringe(), "capwhite"))
-    out.append((bulb_string(), "capwhite"))
+    # rev 8: the bulbs are LIT in both in-service photographs and read warm.
+    # They rendered unlit pearl white for seven revisions.
+    out.append((bulb_string(), "bulb"))
     out.append((menu_cards(), "capwhite"))
     out.append((plate_1963(), "chrome"))             # SPEC sec.4: CHROME
     out.append((roof_vent(body), "paint"))

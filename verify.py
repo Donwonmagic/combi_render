@@ -29,10 +29,68 @@ import t1_core as _T
 #
 # _frame_dz() below carries (2) so the two never get confused again.
 SPEC = dict(L=4.290, W=1.750, H=1.941, WB=2.400,
-            TRACK_F=1.369, TRACK_R=1.359, TYRE_D=0.665)
+            TRACK_F=1.369, TRACK_R=1.359, TYRE_D=0.665,
+            # rev 8: REF_MEASUREMENTS sec.2.3 measures 1.960 on the fixed roof
+            # aft of the lid opening, at the rear-axle station. That is the
+            # number the rake was tuned to reproduce.
+            H_ROOF=1.960)
 RIDE_DROP_SPEC = 0.065        # rev 6: the bus IS lowered. See SPEC sec.2.
 
 BANNED = ("bed", "gate", "canopy", "fascia", "post")   # pickup-era geometry
+
+# Material names this project has ever used for a reading SPEC sec.0.2 retires.
+# Only names that are actually MATERIAL keys belong here -- sec.0.2 is prose, so
+# the mapping from a retired reading to the datablock that implemented it has to
+# be stated once. The guard below reads sec.0.2 and warns about any retired
+# reading whose token is NOT in this map, which is what stops the next `canvas`.
+_RETIRED_MAT = {
+    "whitewall": "whitewall tyres",
+    "wheelred": "red rims",
+    "timber": "timber plank counter",
+    "canvas": "folding canvas ragtop",
+}
+
+
+# Number of bullets in SPEC sec.0.2 that _RETIRED_MAT has been reviewed against.
+# Bump this ONLY together with a review of the map above.
+_RETIRED_BULLETS_REVIEWED = 16
+
+
+def _retired_material_tokens():
+    """Material names banned because SPEC sec.0.2 retires the reading."""
+    return set(_RETIRED_MAT)
+
+
+def _retired_section_drift():
+    """Has SPEC sec.0.2 gained a retired reading nobody mapped to a material?
+
+    The first attempt at this scanned sec.0.2 for material names directly. That
+    cannot work: every bullet is "<retired reading> — <correction>", and the
+    material names are ordinary English words that appear on BOTH sides.
+    'gold side script — it is silver' contains 'script'; 'chrome bumpers — they
+    are painted cream' contains 'chrome' and 'cream'. It flagged six correct
+    materials as retired.
+
+    So the map stays explicit and reviewed, and this checks only that it has
+    been reviewed against the CURRENT sec.0.2. That closes the actual failure --
+    'canvas' was retired in the spec in rev 4 and nobody armed the guard, so it
+    shipped for three revisions -- without inventing false positives.
+    """
+    import os as _os
+    spec = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "SPEC.md")
+    try:
+        txt = open(spec, encoding="utf-8").read()
+        sec = txt.split("## 0.2")[1].split("\n## ")[0]
+    except Exception:
+        return None
+    n = sum(1 for ln in sec.splitlines() if ln.strip().startswith("- "))
+    if n != _RETIRED_BULLETS_REVIEWED:
+        return (f"SPEC 0.2 now has {n} retired readings, last reviewed at "
+                f"{_RETIRED_BULLETS_REVIEWED}. Check verify._RETIRED_MAT maps "
+                "every one that was implemented as a material, then bump "
+                "_RETIRED_BULLETS_REVIEWED. This is how 'canvas' shipped for "
+                "three revisions after the spec retired it.")
+    return None
 NEED_MATS = ("T1_paint", "cream", "chrome", "glass", "wheelcream",
              "bumpercream", "roundelred", "countercream", "script", "calidad")
 
@@ -68,19 +126,38 @@ def _bounds():
     return lo, hi
 
 
-def _frame_dz():
+def _frame_dz(x=None):
     """z offset from the AUTHORED frame to the frame the mesh is actually in.
 
     build.py sets RIDE_DROP_APPLIED just after step 8b. Default to "applied"
     if the flag is missing, because that is what build.py has always done and
     an un-offset probe silently under-reports rather than failing loudly.
+
+    rev 8: step 8b SHEARS rather than dropping, so this offset depends on the
+    station. `x` is REQUIRED for any probe that aims a ray at a specific place;
+    calling it bare returns the offset at t1_core.X_DROP_REF, which is only
+    correct at that one station. A probe 5.5 mm wide aimed one station off is
+    exactly how rev 6 read a shut line as 26 % open instead of 100 %.
     """
     try:
         import __main__
         applied = getattr(__main__, "RIDE_DROP_APPLIED", True)
     except Exception:
         applied = True
-    return -_T.RIDE_DROP if applied else 0.0
+    if not applied:
+        return 0.0
+    return -_T.rake_drop(_T.X_DROP_REF if x is None else x)
+
+
+def _roof_z_at(xq, tol=0.05):
+    """Highest point of the FIXED roof at station xq (excludes the raised lids)."""
+    body = bpy.data.objects.get("T1_body")
+    if body is None:
+        return float('nan')
+    mw = body.matrix_world
+    zs = [(mw @ v.co).z for v in body.data.vertices
+          if abs((mw @ v.co).x - xq) < tol and abs((mw @ v.co).y) < 0.35]
+    return max(zs) if zs else float('nan')
 
 
 def _has_metal(body, x, z, side=1):
@@ -111,13 +188,17 @@ def _ray_clear(body, origin, direction, dist):
                              distance=dist)[0]
 
 
-def _slot_frac(body, outline, side, dz):
+def _slot_frac(body, outline, side, dzf):
+    """rev 8: dzf is a CALLABLE of x, not a scalar -- the shear moves the frame
+    33 mm for every metre forward, and a 5.5 mm shut line probed one station off
+    reads closed."""
     """fraction of samples along a flank (x, z) outline that are open slots"""
-    n = sum(1 for (x, z) in outline if _flank_open(body, x, z + dz, side))
+    n = sum(1 for (x, z) in outline if _flank_open(body, x, z + dzf(x), side))
     return n / max(len(outline), 1)
 
 
 def _englid_frac(body, outline, dz):
+    # engine lid is at a fixed tail station, so a scalar dz is correct here
     """fraction of samples along the tail (y, z) outline that are open slots.
 
     Cast forward along +X from well behind the tail. The tail skin sits at
@@ -192,12 +273,22 @@ def run(body, log=print):
     bw = max(v.y for v in bb) - min(v.y for v in bb)
     L, W, H = hi.x - lo.x, bw, hi.z
     log(f"  x range [{lo.x:.3f}, {hi.x:.3f}]   full-Y [{lo.y:.3f}, {hi.y:.3f}]")
-    for nm, got, want in (("length", L, SPEC["L"]), ("width", W, SPEC["W"]),
-                          ("height", H, SPEC["H"])):
+    # rev 8: HEIGHT IS NOT A SCALAR ANY MORE, twice over. The vehicle is raked,
+    # so the roof is a sloping line; and the roof lids are modelled OPEN, so the
+    # bbox top is the raised signboard at ~3.0 m, not the vehicle. Measure the
+    # ROOF at the rear-axle station -- the highest point of the fixed roof, and
+    # the station REF_MEASUREMENTS sec.2.3 took its 1.960 at.
+    Hroof = _roof_z_at(_T.X_AXLE_R)
+    # The roof row carries REF_MEASUREMENTS sec.2.3's own +/- 0.030 stated band
+    # on top of the model tolerance -- it is a photograph measurement, not a
+    # factory figure. rev 8 residual: -37 mm (was -89 mm before the rake).
+    for nm, got, want, tol in (("length", L, SPEC["L"], TOL),
+                               ("width", W, SPEC["W"], TOL),
+                               ("roof @ rear axle", Hroof, SPEC["H_ROOF"], 0.040)):
         d = got - want
-        (fails if abs(d) > TOL else warns if abs(d) > TOL * 0.5
+        (fails if abs(d) > tol else warns if abs(d) > tol * 0.5
          else []).append(f"{nm} {got:.3f} vs spec {want:.3f} ({d*1000:+.0f} mm)")
-    log(f"  dims  L={L:.3f} W={W:.3f} H={H:.3f}")
+    log(f"  dims  L={L:.3f} W={W:.3f} roof@rear-axle={Hroof:.3f} (bbox top {H:.3f})")
 
     # 2. wheelbase / track / tyre diameter, MEASURED
     m = _measure_wheels()
@@ -220,11 +311,14 @@ def run(body, log=print):
 
     # 4. exactly three OPEN apertures on the show side — tested on the shell
     import t1_shell as _S
-    dz = _frame_dz()
-    BAY_PROBE_Z = _bay_probe_z(_S) + dz          # authored -> mesh frame
+    # rev 8: the probe height is now per-bay, because the shear moves the
+    # window band down by 33 mm for every metre forward. One scalar probe z
+    # across bays 0.82 m apart would miss by 27 mm.
+    _bpz = _bay_probe_z(_S)
     opened = 0
     for i, (xr, xf) in enumerate(_S.BAYS):
         xm = (xr + xf) / 2.0
+        BAY_PROBE_Z = _bpz + _frame_dz(xm)       # authored -> mesh frame, at xm
         if not _has_metal(body, xm, BAY_PROBE_Z, _S.SHOW_SIDE):
             opened += 1
         else:
@@ -240,7 +334,7 @@ def run(body, log=print):
         fails.append(f"t1_shell.BAYS has {len(_S.BAYS)} entries, spec says "
                      f"{N_BAYS_OPEN} (a fourth bay is a rev-3 regression)")
     for xp in SOLID_PROBE_X:
-        if not _has_metal(body, xp, BAY_PROBE_Z, _S.SHOW_SIDE):
+        if not _has_metal(body, xp, _bpz + _frame_dz(xp), _S.SHOW_SIDE):
             fails.append(f"rear corner panel is open at x={xp:.2f} — it must be "
                          "solid metal carrying the 100% Calidad decal")
     if bpy.data.objects.get("glass_calidad"):
@@ -277,7 +371,13 @@ def run(body, log=print):
     for mt in NEED_MATS:
         if mt not in bpy.data.materials:
             fails.append(f"missing material '{mt}'")
-    for banned_mat in ("whitewall", "wheelred", "timber"):
+    # rev 8: this used to be the hand-written list ("whitewall", "wheelred",
+    # "timber") -- the retired materials somebody remembered to type. `canvas`
+    # was never added, so a folding CANVAS ragtop that SPEC sec.0.2 retired in
+    # rev 4 shipped green through three revisions and every guard passed over
+    # it. The list is now DERIVED from sec.0.2 itself, so retiring a reading in
+    # the spec arms the guard automatically and this class of miss is closed.
+    for banned_mat in _retired_material_tokens():
         if banned_mat in bpy.data.materials:
             uses = [o.name for o in bpy.data.objects if o.type == 'MESH'
                     and any(s.material and s.material.name == banned_mat
@@ -285,6 +385,14 @@ def run(body, log=print):
             if uses:
                 fails.append(f"retired material '{banned_mat}' is assigned to "
                              f"{len(uses)} objects e.g. {uses[0]} (SPEC 0.2)")
+    _drift = _retired_section_drift()
+    if _drift:
+        warns.append(_drift)
+    # ...and the geometry that carried them
+    for ob in bpy.data.objects:
+        if ob.type == 'MESH' and ob.name.split('.')[0] in ("rag", "ragframe"):
+            fails.append(f"'{ob.name}' is folding-ragtop geometry; the roof is "
+                         "cut into rigid hinged steel lids (SPEC 0.2)")
 
     # 7. roof must run to the tail
     zmax_tail = max((body.matrix_world @ v.co).z for v in body.data.vertices
@@ -340,7 +448,7 @@ def run(body, log=print):
     for outline, tag in ((_S.DOOR_MAIN_S, "cab door glass"),
                          (_S.DOOR_VENT_S, "cab door vent")):
         cx = sum(p[0] for p in outline) / len(outline)
-        cz = sum(p[1] for p in outline) / len(outline) + dz
+        cz = sum(p[1] for p in outline) / len(outline) + _frame_dz(cx)
         for s in (1, -1):
             if not _flank_open(body, cx, cz, s):
                 fails.append(f"{tag} aperture on {'+' if s > 0 else '-'}Y is "
@@ -350,36 +458,38 @@ def run(body, log=print):
     # sheet metal, and row 4 only ever tested the show side
     for i, (xr, xf) in enumerate(_S.BAYS):
         xm = (xr + xf) / 2.0
-        if not _flank_open(body, xm, BAY_PROBE_Z, -ss):
+        if not _flank_open(body, xm, _bpz + _frame_dz(xm), -ss):
             fails.append(f"serving bay {i} at x={xm:.3f} is NOT cut on the "
                          "off side")
 
     # 11c. windscreen — probe along the screen normal, 60 mm each way
     for s in (1, -1):
         yc = s * (_S.WS_DIV + _S.WS_PANE_W / 2)
-        o = _S.WS_MID + Vector((0.0, yc, dz)) + _S.WS_N * 0.060
+        o = (_S.WS_MID + Vector((0.0, yc, _frame_dz(_S.WS_MID.x)))
+             + _S.WS_N * 0.060)
         if not _ray_clear(body, o, -_S.WS_N, 0.120):
             fails.append(f"windscreen pane {'L' if s > 0 else 'R'} is NOT cut")
 
     # 11d. rear window
-    if not _ray_clear(body, (-2.40, 0.0, _S.REAR_Z + dz), (1, 0, 0), 0.35):
+    if not _ray_clear(body, (-2.40, 0.0, _S.REAR_Z + _frame_dz(_T.X_TAIL)),
+                      (1, 0, 0), 0.35):
         fails.append("rear window is NOT cut")
 
     # 11e. shut lines. A gap cutter makes a 5.5 mm through-slot; sample the
     # outline and require most samples to pass the near skin.
     for s in (1, -1):
-        fr = _slot_frac(body, _S.DOOR_GAP_S, s, dz)
+        fr = _slot_frac(body, _S.DOOR_GAP_S, s, _frame_dz)
         if fr < SLOT_FRAC_MIN:
             fails.append(f"cab door shut line on {'+' if s > 0 else '-'}Y is "
                          f"missing: only {fr*100:.0f} % of {len(_S.DOOR_GAP_S)}"
                          f" outline samples are open slots")
         log(f"  shut line door{s:+d}: {fr*100:.0f} % open")
-    fr = _slot_frac(body, _S.CARGO_GAP, -ss, dz)
+    fr = _slot_frac(body, _S.CARGO_GAP, -ss, _frame_dz)
     if fr < SLOT_FRAC_MIN:
         fails.append(f"cargo door shut line is missing: only {fr*100:.0f} % of "
                      f"{len(_S.CARGO_GAP)} outline samples are open slots")
     log(f"  shut line cargo: {fr*100:.0f} % open")
-    fr = _englid_frac(body, _S.ENGLID_GAP, dz)
+    fr = _englid_frac(body, _S.ENGLID_GAP, _frame_dz(_T.X_TAIL))
     if fr < SLOT_FRAC_MIN:
         fails.append(f"engine lid shut line is missing: only {fr*100:.0f} % of "
                      f"{len(_S.ENGLID_GAP)} outline samples are open slots")
@@ -395,7 +505,7 @@ def run(body, log=print):
                                 ("cab door -Y", _S.DOOR_GAP_S, -1)):
         thru = 0
         for (x, z) in samples:
-            r = sc.ray_cast(dg, Vector((x, side * 3.0, z + dz)),
+            r = sc.ray_cast(dg, Vector((x, side * 3.0, z + _frame_dz(x))),
                             Vector((0.0, -side, 0.0)))
             if (not r[0]) or r[1].y * side < 0.0:
                 thru += 1
@@ -405,7 +515,7 @@ def run(body, log=print):
                          "an inner skin behind the slot)")
     for i, (xr, xf) in enumerate(_S.BAYS):
         xm = (xr + xf) / 2.0
-        r = sc.ray_cast(dg, Vector((xm, ss * 3.0, BAY_PROBE_Z)),
+        r = sc.ray_cast(dg, Vector((xm, ss * 3.0, _bpz + _frame_dz(xm))),
                         Vector((0.0, -ss, 0.0)))
         if (not r[0]) or abs(r[1].y) > 0.80:
             fails.append(f"serving bay {i} has nothing behind it — a "
