@@ -450,6 +450,24 @@ def render_set(names, outdir, prefix="r", res=(1600, 1100), samples=64,
     log("film: filter_width=%.2f px  samples=%d  adaptive=%.4f"
         % (getattr(sc.cycles, "filter_width", 0.0), sc.cycles.samples,
            sc.cycles.adaptive_threshold))
+    # Strip rendering. The sandbox reaps background processes, so a 20-minute
+    # hero cannot run to completion in one go; T1_BORDER="lo,hi" renders a
+    # horizontal band of the SAME full-size frame (crop_to_border stays off so
+    # the framing is identical in every strip) and the bands are stitched
+    # afterwards. Optics are applied to the stitched image in post.py, never
+    # per strip, or bloom and vignette would band at the seams.
+    bd = os.environ.get("T1_BORDER")
+    if bd:
+        y0, y1 = (float(t) for t in bd.split(","))
+        sc.render.use_border = True
+        sc.render.use_crop_to_border = False
+        sc.render.border_min_x, sc.render.border_max_x = 0.0, 1.0
+        sc.render.border_min_y, sc.render.border_max_y = y0, y1
+        log("border render: y %.3f-%.3f of the full %dx%d frame"
+            % (y0, y1, res[0], res[1]))
+    else:
+        sc.render.use_border = False
+
     for n in names:
         v = V[n]
         d = aim(cam, v["loc"], v["tgt"], v.get("lens"), v.get("ortho"),
