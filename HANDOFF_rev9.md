@@ -1,5 +1,40 @@
 # HANDOFF — rev 9 → rev 10
 
+## THE STANDARD — read this before anything else
+
+Donald, 2026-08-10, in his own words:
+
+> **"I want a big reminder that the final product should be nearly
+> indistinguishable from the original. Any single measurement off is
+> unacceptable."**
+
+> **"we are recreating a photo realistic version of that exact bus"**
+
+This is not a quality aspiration to be traded against schedule. It is the
+acceptance criterion, and it is **per-measurement**, not on average. A model
+that is right in ninety places and wrong in one is not ninety-nine percent
+done — it is wrong, because the owner will look straight at the one.
+
+What that means in practice, and every one of these has been broken before:
+
+* **No element ships on a plausible-looking approximation.** If it was not
+  measured off a photograph of *his* vehicle, it is not finished. SPEC §10.10
+  is the standing requirement; §10.15 is what happens when a photograph itself
+  is assumed rather than confirmed.
+* **A number is only as good as its datum.** §10.11 (the ground line carries
+  ~70 mm of common-mode error) and §10.12 (the locked flank hue came off a
+  thumbnail contaminated by the gold folk art) are both cases where a
+  confidently-quoted figure was wrong at the source. Re-derive by a second,
+  independent method before trusting one.
+* **A claim in prose is not a guard.** The canvas ragtop shipped for three
+  revisions after §0.2 retired it; `audit.py` printed a fabricated belt line
+  for six; `studio.playa()`'s docstring promised dappled shade that no code
+  produced. If it matters, assert it in `verify.py` and run both SUB levels.
+* **Never report a self-assigned score.** Report the measurement against the
+  reference, and report the ceiling alongside it so the number means something.
+* **"Good enough" is not a stopping condition.** The stopping condition is that
+  a measurement against the photograph no longer improves.
+
 `HEAD` at handoff: see `STATE.md` (machine-written, it wins over this file).
 
 ## 0. Authority order — unchanged, and it caught things again this revision
@@ -157,6 +192,56 @@ He called time on the context with three things, and all three are correct:
    reinforce that we are recreating a photo realistic version of that exact
    bus."** This is the governing instruction for rev 10. Read it as a standing
    check on every change: does this come from a photograph of *his* vehicle?
+
+## 3a. The front fascia is drifting — his observation, 2026-08-10
+
+> "One thing I am currently seeing is that the front fascia is starting to
+> drift"
+
+He is right, and the two front references make it concrete. **Note which
+photographs these are**: `ref_workshop.jpg` (green, mid-conversion, front
+three-quarter) and the front/cab region of `ref_side.jpg` at (60,330)-(330,700)
+— plus `ref_rear34.jpg`, which per §10.15 is a FRONT view and has never been
+used as one.
+
+Confirmed against those photographs, none of it yet applied:
+
+1. **The folk art on the cab door and lower nose is far too faint and too
+   sparse.** `ref_side.jpg` shows **bold graphic scrollwork covering most of
+   the door**: large yellow acanthus scrolls, heavy dark-brown outlined
+   curlwork, and rows of white/cream rosettes with dark centres, at high
+   contrast against the red. The model's flank art is pale, thin and widely
+   spaced. This is the single most visible fascia drift and it is a *density
+   and contrast* failure, not a placement one. Note it also contradicts
+   `SPEC.md` §10.9's measured "0.0–0.2 % gold coverage from X +1.47 to −0.40" —
+   that band covers the cab door, and the photograph shows it densely painted.
+   **Re-measure; the door is OPEN in that frame (SKEPTIC §B2) and a coverage
+   scan run along body x will have sampled the wrong surface.**
+2. **The headlamp bezels read gold/brass in the photograph**, visible at the
+   left edge of the same crop. The model assigns `"chrome"` at `build.py:291`.
+   This is audit `materials-6`, still open: measured bezel R−B is +0.38/+1.15
+   where brass would be ≈ +89.
+3. **The VW roundel is undersized and sits high** — audit `livery-9`, ⌀0.336
+   against SPEC's 0.370 (9 % under) and centre 32 mm high. `ref_workshop.jpg`
+   shows a large raised emblem sitting well up inside the cream V. rev 8
+   rebuilt the glyph as two mitred prisms; **confirm whether it carried the
+   size and height fix or only the glyph.**
+4. **The nose silhouette is too wide at the top** — audit `geometry-4`, the
+   transverse roof dome is absent: G(z) holds 0.987/0.975/0.949/0.931 where the
+   factory section gives 0.923/0.880/0.830/0.699, i.e. **+83 mm/side too wide
+   at z 1.53 and +203 mm/side at z 1.85**. This is a silhouette error and it
+   shows on every front and three-quarter frame.
+5. **The indicators are the wrong type and mounted 20 mm inboard** — audit
+   `inventory-9`. REF §V6 resolves them as fish-eye, 74 ± 6 mm, ~78 mm proud,
+   centred 0.163 m above and ≥ 0.10 m outboard of the headlamp centre;
+   `t1_detail.bullet_indicator()` still builds a period-wrong bullet pod and
+   `build.py:294` places it at y = s·0.5250, inboard of the headlamp's ±0.545.
+6. **The front bumper reads thin.** Both front references show a deep, chunky
+   cream blade with a pronounced roll. Not yet measured — do it.
+
+Items 2–5 are all *already-logged findings that were never applied*. The fascia
+did not drift because something was changed; it drifted because the rest of the
+vehicle advanced and the front did not.
 
 ## 4. Open, ranked by what it would change
 

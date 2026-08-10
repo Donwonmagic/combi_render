@@ -489,6 +489,44 @@ scale that flatness is probably a larger fidelity loss than any single glyph
 outline error.
 
 
+### 10.17 The acceptance criterion is per-measurement, not on average
+
+Donald, 2026-08-10: **"I want a big reminder that the final product should be
+nearly indistinguishable from the original. Any single measurement off is
+unacceptable."** And: **"we are recreating a photo realistic version of that
+exact bus."**
+
+Recorded here because it governs how every other section of this document is
+read. A model right in ninety places and wrong in one is not 99 % done. There
+is no averaging and no trading one dimension against another.
+
+### 10.18 Front fascia — open drift, all of it previously logged and unapplied
+
+Raised by Donald 2026-08-10: "the front fascia is starting to drift". Front
+references are `ref_workshop.jpg`, the (60,330)-(330,700) region of
+`ref_side.jpg`, and `ref_rear34.jpg` (a FRONT view, see 10.15, never used as
+one).
+
+| # | item | source | status |
+|---|---|---|---|
+| 1 | cab-door and lower-nose folk art far too faint and sparse -- the photograph shows bold yellow acanthus, heavy dark outlined curlwork and rows of white rosettes at high contrast | `ref_side.jpg` front crop | NEW |
+| 2 | headlamp bezels read gold/brass, model assigns `chrome` | same crop | audit `materials-6`, open |
+| 3 | VW roundel 9 % undersized, centre 32 mm high | `ref_workshop.jpg` | audit `livery-9`, open |
+| 4 | transverse roof dome absent: +83 mm/side too wide at z 1.53, +203 mm/side at z 1.85 | factory section | audit `geometry-4`, open |
+| 5 | indicators wrong type and 20 mm inboard | REF sec.V6 | audit `inventory-9`, open |
+| 6 | front bumper reads thin against a deep chunky cream blade | both front refs | NEW, unmeasured |
+
+Item 1 also **contradicts 10.9's** measured "0.0-0.2 % gold coverage from
+X +1.47 to -0.40". That band covers the cab door and the photograph shows it
+densely painted. The cab door is OPEN in `ref_side.jpg` (SKEPTIC B2), so a
+coverage scan indexed by body x sampled the wrong surface. **Re-measure before
+trusting 10.9's density lobes near the nose.**
+
+The fascia did not drift because anything was changed. It drifted because the
+rest of the vehicle advanced through rev 8 and rev 9 and the front did not:
+items 2-5 have been logged and unapplied for several revisions.
+
+
 ## Change log
 
 | Date | Change |
@@ -870,3 +908,4 @@ what shipped in rev 8 and Donald rejected it by name.
 | 2026-08-10 | **rev 8 — the rake, the lids, and the saturation target.** Step 8b shears instead of dropping; roof at the rear axle 1.871 → 1.923 against a measured 1.960, residual −37 mm logged. `Z_BELT` is a line; `verify.py`'s frame offset is a function of x; `audit.py`'s height row is a three-station roof-line check. Wheels held level. Cab-door shut line lifted 20 mm because the rake ate its arch clearance — the SUB=2 collapse condition, now asserted at import. **The retired canvas ragtop was still shipping** and no guard caught it; replaced with rigid hinged steel lids modelled OPEN, mural and lettered rear lid, and the guard rebuilt as a reviewed map plus a §0.2 drift check. Flank saturation diagnosed by measurement: folk art and AgX Punchy both **refuted** (Punchy *adds* 0.127), the deficit is a 0.0592 achromatic specular term, and SPEC's 0.816 is an **albedo** number that no beauty pixel can meet — target restated. Folk-art density measured and found to run backwards; two lobes. Fresnel 0.21 → 0.50, sweep albedo 0.94 → 0.76, world 0.17 → 0.05, clamps released, VW glyph two mitred prisms, brass folded in, bulbs emissive. |
 | 2026-08-10 | **rev 9 — the art reproduction pass, and the first heroes to land.** The "Señor Tacombi" script is rebuilt as explicit letterforms (`script_gen.py`); the font-plus-flourishes approach Donald rejected by name is gone. Control points read off `ref_side.jpg` at 6–14× in that photograph's own pixel frame. Corrected by measurement: spiral counters are ~1.1–1.3 turns with a wide groove (the o's counter is 224 px in a 21×25 box, 43 % fill), not tight spirals; the swash is an **arch**, cresting at y 36.2 near x 57 and falling back to 41.5 by x 90, not a monotonic rise; its left terminal is a 0.80-turn spiral about (17,59). Whole-lockup IoU **0.511** against a measured ceiling of 0.77–0.81 — a 1 px shift of the reference against itself costs 0.14 — with a global alignment search buying only +0.012, so the residual is distributed shape error of ~1.5–2 px, not misregistration. **Calidad** built for the first time (`cal_gen.py`): uneven-tipped burst, measured gradient, white bold italic at the measured −19.7°, bunting with pennants, pink star, counters punched on a mask. Moved **198 mm forward** on a panel-fraction datum immune to the perspective foreshortening that makes one linear scale wrong at the tail (194.8 px/m there against 211.5 at mid-body). §10.11 the ground-line datum is refuted as a placement source at ~70 mm common-mode; §10.12 `RED` hue 26.2 → **5.0**, saturation untouched; §10.13 the Playa rig was compositing its own world away; §10.14 abutting strips seam and overlapping strips do not. **White-studio and Playa heroes delivered at 2400×1600, 64 samples, six strips, worst seam z = 1.88 and 1.45 against a threshold of 4 — the first heroes in nine revisions.** |
 | 2026-08-10 | **rev 9 addendum — §10.15.** Donald identifies `ref_rear34.jpg` as showing the FRONT of the vehicle with the roof opening forward, not a rear three-quarter. Every crop attributed to that file is now suspect, including the flank paisley that §10.10 marked done. He also restates the governing standard for rev 10: *"we are recreating a photo realistic version of that exact bus."* |
+| 2026-08-10 | **rev 9 addendum — §10.17, §10.18.** Donald restates the acceptance criterion as **per-measurement**: "nearly indistinguishable from the original. Any single measurement off is unacceptable." And flags the front fascia as drifting — six items, four of them audit findings logged and unapplied for several revisions, one new (cab-door folk art far too faint), one unmeasured (bumper depth). The folk-art item contradicts §10.9's near-nose coverage lobes, which were scanned by body x across an OPEN cab door. |
