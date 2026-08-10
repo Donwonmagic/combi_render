@@ -269,7 +269,8 @@ A(lid_boards[0], "lidmural")           # flower mural + yellow menu strips
 sign_skins, sign_boards, sign_struts = S.signboard()
 A(sign_skins, "paint")
 A(sign_struts, "chrome_d")
-A(sign_boards[0], "lidsign")           # "LA SANTA..." red brush script + star
+if sign_boards:
+    A(sign_boards[0], "lidsign")       # "LA SANTA..." red brush script + star
 
 # --------------------------------------------- 6 counter, galley, interior
 A(D.plank_counter(S.SHOW_SIDE), "countercream")

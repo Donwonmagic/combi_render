@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-10 16:21:40 UTC |
-| git commit | `e92fad4` |
-| git subject | Rename origin -> rev9-bundle-archive: it is a read-only bundle, not a remote |
+| generated | 2026-08-10 16:39:30 UTC |
+| git commit | `00d3819` |
+| git subject | rev 12: cut the roof hole; signboard is not a lid; tan counter top; weathering + roughness |
 | working tree | **DIRTY** — this state is not committed |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=1 (applied, destructive, before booleans) |
@@ -109,7 +109,7 @@ they grow slightly toward the tail. rev-3's three equal 0.600s are retired.
 | | |
 |---|---|
 | datablocks built | 45 |
-| bound to >=1 mesh | 45 |
+| bound to >=1 mesh | 44 |
 | **still a CONSTANT roughness** | 6 — amber, gal_sky, glass, lens, reflector, ruby |
 
 > SPEC §3 locks the finish as WEATHERED. A constant roughness is the
@@ -121,9 +121,9 @@ they grow slightly toward the tail. rev-3's three equal 0.600s are retired.
 
 | | |
 |---|---|
-| mesh objects | 185 |
-| vertices (all meshes) | 128350 |
-| faces (all meshes) | 122515 |
+| mesh objects | 182 |
+| vertices (all meshes) | 126427 |
+| faces (all meshes) | 120611 |
 
 | prefix | n |
 |---|---|
@@ -228,9 +228,6 @@ they grow slightly toward the tail. rev-3's three equal 0.600s are retired.
 | `script_R` | 1 |
 | `seat_back` | 1 |
 | `seat_base` | 1 |
-| `sign_face` | 1 |
-| `sign_panel` | 1 |
-| `sign_strut` | 1 |
 | `van_floor` | 1 |
 | `vw_disc` | 1 |
 | `vw_ring` | 1 |

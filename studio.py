@@ -73,7 +73,31 @@ def cyclorama(size=90.0, **kw):
     b.inputs["Roughness"].default_value = 0.68
     b.inputs["Specular IOR Level"].default_value = 0.20
     ob.data.materials.append(mat)
-    ob.is_shadow_catcher = True
+    # rev 12, audit `optics-6` -- logged for four revisions, never applied.
+    # MEASURED, not asserted: on a 1400x933 side probe the ground read 255.00
+    # at EVERY row from 3 px below the contact patch outward, and with the
+    # backdrop forced to linear 1.0 (T1_BGW=1.0) the ground under the tyre read
+    # 177.00 against open ground at 177.00 -- identical to two decimal places.
+    # The catcher was contributing exactly nothing, so the vehicle floated.
+    #
+    # A shadow catcher writes its shadow into ALPHA and composite_on_white()
+    # then lays the frame over linear 24.87. A real photograph on a real white
+    # sweep still has a contact shadow: the sweep is a LIT SURFACE, not a matte.
+    # TESTED, and the obvious fix is REFUTED: rendering the sweep as a real lit
+    # surface (T1_CATCH=0) does put a shadow under the body -- 175.2 mean /
+    # 161.2 min on the row below the contact against 255 -- but it also brings
+    # back defect D3 in full. The sweep falls off to a 166 grey with a hard
+    # horizon line across the frame, and SPEC 6 locks the backdrop to PURE
+    # WHITE. Trading the studio's whole look for a contact shadow is not a fix.
+    #
+    # So the catcher stays ON and `optics-6` stays OPEN, but it is now open with
+    # a number instead of an impression: the previous note said the shadow
+    # "dies within 11 mm of the tyre", which implies a shadow that decays. It
+    # does not decay -- it is not there at all, alpha is identically zero. The
+    # next attempt should look at why the catcher writes no alpha under a
+    # vehicle that plainly occludes the rig, NOT at softening or lengthening a
+    # shadow that does not exist. T1_CATCH=0 reproduces the A/B in one render.
+    ob.is_shadow_catcher = bool(int(os.environ.get("T1_CATCH", "1")))
     return ob
 
 

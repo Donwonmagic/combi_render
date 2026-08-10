@@ -2,7 +2,7 @@
 Kombi shell features: windscreen, cab door glazing, serving bays, rear glass,
 panel gaps, wheel arches, closed ragtop.  Geometry follows SPEC.md rev 3.
 """
-import bpy, bmesh, math
+import bpy, bmesh, math, os
 import numpy as np
 from mathutils import Vector
 import t1_core as T
@@ -623,19 +623,35 @@ def signboard():
     the roof is solid forward of the main opening and solid aft of it to the
     tail, which is consistent: a signboard stands on solid roof.
 
-    NOT SETTLED, and deliberately NOT guessed -- the station.  This board is
-    left at the aft station it has carried since rev 8 (x -1.140 -> -1.780).
-    The photographic evidence points the other way: in ref_rear34.jpg the
-    camera is behind and to the show side, so nose-ward reads LEFT, and this
-    panel sits clearly LEFT of the flower lid, which would put it FORWARD of
-    LID_X0 over the cab.  That would also explain why it is invisible in
-    ref_side.jpg -- folded flat, which is exactly Donald's own observation that
-    "the separate roof panel that we see in the playa photo is still closed on
-    the side ref photo".  But SPEC sec.10.26 lists the station as unsettled and
-    warns against guessing it, one photograph's left-right is a single-chain
-    inference, and moving it is visible from every hero camera.  Put to Donald;
-    do not move it on this reasoning alone.
+    RETIRED 2026-08-10 BY THE OWNER, and this is the second correction to the
+    same panel in one session -- both from him, both after being shown a crop.
+
+    Asked where it stands, he answered: "I think it is something separate from
+    our render focus", and then, unprompted, corrected his own earlier reading:
+    **"I was wrong, I think it is a detached sign."**
+
+    So it is not a roof lid, and it is not on the vehicle at all.  It is a
+    detached sign that happens to fall behind the combi in ref_rear34.jpg.  The
+    build emits NOTHING here by default.
+
+    What this retires, in order:
+      rev 8-9   `lid_rear`, a second hinged LID, which implied a second roof
+                opening that build.py never cut.
+      rev 12a   a roof-mounted SIGNBOARD, which implied solid roof carrying it.
+      rev 12b   nothing.  It is not part of this vehicle.
+
+    That is also why it was never visible in ref_side.jpg -- not "folded flat",
+    which is what I had reasoned; simply not there.  A large blank white slab
+    standing over the tail in every broadside render was the visible symptom,
+    and it has no counterpart anywhere in ref_side.jpg.
+
+    The geometry is kept, gated, rather than deleted: the panel and its measured
+    proportions cost real work and the owner has now changed his reading of this
+    one panel three times.  T1_SIGNBOARD=1 restores it.  It is deliberately NOT
+    the default, and no hero should be rendered with it on.
     """
+    if not int(os.environ.get("T1_SIGNBOARD", "0")):
+        return [], [], []
     skins, boards, struts = [], [], []
     w = LID_W * 0.86
     zh = roof_z((SIGN_X0 + SIGN_X1) / 2, LID_Y_HINGE) + LID_PROUD

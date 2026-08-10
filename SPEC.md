@@ -750,10 +750,90 @@ roof's manifold state, so `verify.py`'s non-manifold count and the shut-line pro
 must both be re-run at BOTH subdivision levels.
 
 
+### 10.28 rev 12 -- the roof hole, and a panel that turned out not to exist
+
+Four readings settled WITH THE OWNER from marked crops, before anything was
+measured from them, plus one he volunteered that retired a panel entirely.
+
+| # | question | his answer |
+|---|---|---|
+| 1 | how much roof is cut, fore-aft | **ONE opening only**, under the flower-mural lid; solid roof forward over the cab and solid aft to the tail |
+| 2 | how much roof survives across | **a strip on both sides** -- the 1.11 m transverse width stands |
+| 3 | what the cream lettered panel is | first "a separate signboard, not a cut roof lid", then, unprompted: **"I was wrong, I think it is a detached sign"** |
+| 4 | what the counter is | **tan top, brass nosing on the OUTER EDGE, body cream below** |
+
+**Why these had to be asked.** `ref_side.jpg` puts the camera at roof height, so
+the roof plane is edge-on and the surviving strip between the lid's base and the
+near drip rail is ~13 px tall. No transverse number off that frame is worth
+anything. `ref_rear34.jpg` is the only frame with elevation on the roof: it shows
+maroon interior through the opening -- the first direct sight of the inside of
+the hole in any frame -- but neither end of it.
+
+**THE ROOF HOLE IS CUT.** `t1_shell.roof_cutters()`, issued from `build.py` step
+3, after solidify, like every aperture except the wheel arches. The opening is
+expressed in terms of `LID_X0` / `LID_X1` / `LID_Y_HINGE` / `LID_W`, never as
+four fresh constants (10.25), so moving the lid moves the hole. Measured result:
+
+```
+cut roof hole: 56446v   worst v-ratio 0.9826 f-ratio 0.9796 vol 2.434e-01   SUB=1
+cut roof hole: 207959v  worst v-ratio 0.9790 f-ratio 0.9772 vol 2.434e-01   SUB=2
+non-manifold edges 0 ; 0 fail 1 warn at BOTH levels
+```
+
+**The guard, `verify.py` 11d2, is two-sided** -- the opening must be OPEN and the
+roof must be SOLID everywhere the owner says it is. Nothing asserted a roof
+opening for eleven revisions except prose, in this file, in `t1_shell`'s
+docstrings and in three handoffs. A claim in prose is not a guard.
+
+**The guard failed first, and both causes were the guard.** Probes placed as
+fractions of the opening span landed at |y| = 0.81, off the roof entirely; and
+the rays were aimed in the UN-DROPPED frame while `run()` executes AFTER step 8b.
+The 0.30 m ray stopped 26 mm above a perfectly solid roof. Re-derived by
+ray-casting the built mesh on a 13x9 grid: the residual against `roof_z` came out
+as exactly `-rake_drop(x)` at every station, which is the proof it was a FRAME
+error and not a geometry error. 10.1 exists for this and it still caught me.
+
+**The detached sign.** Modelled since rev 8 as `lid_rear`, a second hinged lid
+over a second opening `build.py` never cut; briefly re-modelled this revision as
+a roof-mounted signboard; now emitting nothing. It is not part of this vehicle.
+That is also why it never appears in `ref_side.jpg` -- not folded flat, which is
+what I had reasoned, simply not there. Geometry kept behind `T1_SIGNBOARD=1`,
+which is NOT the default and which no hero may be rendered with. The owner has
+revised this one panel three times; if it is revisited, it needs a photograph
+that shows its footing, not another inference.
+
+**The counter top is TAN, and `COUNTERTAN` is half-measured -- say so.** Derived
+as a ratio against a surface of the SAME CLASS (10.21), in `ref_side.jpg` because
+every cream in `ref_rear34.jpg` clips at 249-254 and a clipped reference cannot
+carry a ratio. Two references bracket rather than agree, and the disagreement is
+structural: the counter fascia (same light, wrong orientation, takes red bounce)
+gives albedo G 0.416; the cab roof (right orientation, different local surround)
+gives 0.569. Locked at the midpoint 0.493, bracket -16 %/+15 %. **The HUE is
+measured; the LEVEL is bracketed.** `T1_CTAN=r,g,b` tests the ends.
+
+**`optics-6` is still OPEN but it is now open with a number.** The previous note
+said the contact shadow "dies within 11 mm of the tyre", which implies a shadow
+that decays. Measured on a 1400x933 side probe: the ground reads **255.00 at
+every row from 3 px below the contact patch outward**, and with the backdrop
+forced to linear 1.0 the ground under the tyre reads **177.00 against open ground
+at 177.00** -- identical to two decimal places. The shadow does not decay; it is
+not there, the catcher writes identically zero alpha. The obvious fix is REFUTED:
+rendering the sweep as a real lit surface does put a shadow down (175.2 mean /
+161.2 min against 255) but brings back defect D3 in full, a 166 grey sweep with a
+hard horizon, and sec.6 locks the backdrop to pure white. `T1_CATCH=0` reproduces
+the A/B in one render. Next attempt: ask why the catcher writes no alpha, do not
+soften a shadow that does not exist.
+
+**Constant-roughness materials 9 -> 6.** The three the rev-11 galley dressing
+added are gone. The surviving six are transmissive or the sealed reflector, which
+`STATE.md` names as the only legitimate exemptions -- plus `gal_sky`, argued
+rather than claimed, and which should be DELETED now the aperture is real.
+
 ## Change log
 
 | Date | Change |
 |---|---|
+| 2026-08-10 | **rev 12.** The roof hole is CUT -- one opening, settled with the owner, cut after solidify, guarded two-sided by `verify.py` 11d2; non-manifold still 0 and 0 fail / 1 warn at both levels. The galley is no longer a sealed steel box. The cream lettered panel is a DETACHED SIGN and is off the vehicle (10.28). Counter given a measured tan top and its brass nosing re-measured -- it was 1.6x too DEEP, not thin. Weathering: the dust tide line re-fitted to h 0.424 +/- 0.020 and the upward-facing deposit split from the road film, which had been delivering dC* +0.58 against a target of +5.0. Constant-roughness materials 9 -> 6. `optics-6` measured properly and its obvious fix refuted. |
 | 2026-08-10 | **rev 11.** Roof topology settled by the owner and 10.19 corrected -- the lids do NOT open forward; the main lid hinges fore-aft and opens to the serving side, corroborated by a vanishing-point fit agreeing with the bulb string to 2 % (10.26). The roof hole is never cut, which is why the galley was black (10.27). Galley dressed and lit: bays 22/33/24 -> 130/160/167 against a measured 137/157/175. Mural un-lifted -- `EXPOSURE = 1.58` was a scalar rev 9 baked into every measured colour; removed, and every palette class now lands within half a point. Flower heads measured at EIGHT petals not twelve; THREE menu strips not four. Folk art recomposed: 84.4 % of the photograph gold sits in three connected masses, rev 10 had 67.9 % in its largest three, rev 11 has 81.0 %. Nose given its own decal -- the flank tile is box-projected and the nose face was sampling the cab door u-band. |
 | 2026-08-10 | **rev 10.** Photograph identity settled with the owner (10.19). Script reference mask corrected -- it was dropping 14 % of the ink and two recorded generator defects were artefacts of it (10.20); whole-lockup IoU 0.511 -> 0.942, `Senor` 0.089 -> 0.825. Silver measured and modelled as LEAF, with one albedo-versus-rendered-ratio error made and corrected in flight (10.21). Folk art: `W_ART` 0.30 opacity ceiling retired -- it made the measured x2.048 gold-to-red contrast arithmetically unreachable; cab-door coverage 0.0-0.2 % -> 29.1 %; both flanks de-mirrored (materials-14). Fascia: roundel 0.370 -> 0.280 and 113 mm down, bezels to brass, indicators outboard (10.22). Playa rig: sun, dapple, sky and haze all removed as unsupported; vegetation built and placed by inverting the reference camera (10.23). Three findings reverted and logged OPEN (10.24). VW glyph coupling fixed (10.25). |
 | 2026-08-08 | Initial lock. Body corrected from single-cab pickup to Kombi van. |
