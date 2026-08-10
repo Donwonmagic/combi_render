@@ -112,6 +112,37 @@ runs +0.918 → −2.423, essentially all aft of that station. The 68 mm gap is
 inside a parallax term pinned only to ±10 mm, and §10.24 exists for findings
 applied from one chain that broke something locked.
 
+
+## BRANCH DIVERGENCE — resolve this before rev 13 builds anything
+
+The specialist audit ran in a parallel context while rev 12 was being built. Both
+lines branched from `e92fad4` and **neither contains the other**:
+
+| line | tip | carries |
+|---|---|---|
+| audit | `869be6f`, 42 commits | `AUDIT_rev11.md`, and a fix to the script panel's stale aspect |
+| rev 12 | this bundle | the roof hole, the detached sign, the counter, the weathering |
+
+Findings on the audit line that rev 12 does **not** have, and that matter:
+
+* **`flank_compare.py` computes no metric at all.** The test SPEC calls the
+  acceptance test for the flank script prints two crop sizes and writes a stacked
+  image. All three of its framing decisions are wrong and two of them cancel, so
+  the pair look MORE alike than they are.
+* **`build.py`'s `SCR` panel aspect was stale by 15.8 %** — commented "= tex AR",
+  true of the rev-9 texture; rev 10 rebuilt the texture and nobody updated the
+  constant. The lockup has been squashed vertically since rev 10.
+* **The nose-down rake measures 14.4 ± 3.1 mm/m against the built 33.0** — 6σ —
+  and it RESOLVES §10.9's rake-versus-arch-gap contradiction rather than deepening
+  it: at 33 mm/m the front arch gap is −27 mm, physically impossible; at 14.4 it
+  is +17 mm, inside REF §2's independent band. That is the third independent
+  method this project's own rules demand.
+* Two calibration corrections that move many numbers: the model's origin is not
+  mid-wheelbase, so every REF "model-frame" number is 100 mm aft of where it says;
+  and the flank's px/m drifts the opposite way from RULES §4 — the tail is NEARER.
+
+Merge deliberately. Do not let either line silently overwrite the other.
+
 ## What is still wrong, ranked by what a viewer sees first
 
 1. **The vehicle floats.** `optics-6`, and it is now open *with a number*. The
@@ -191,7 +222,7 @@ applied from one chain that broke something locked.
 There is **no reachable git remote** — `rev9-bundle-archive` is a read-only
 bundle. Delivery is by bundling to Donald's disk and that is the only thing that
 counts. On his disk for rev 12: `tacombi_rev12_incremental.bundle`,
-`tacombi_rev12_tree.tar.gz`, `tacombi_rev12_repo/`, `SPEC_rev12.md`,
+`tacombi_rev12_tree.tar.gz` (the materialised copy — there is no `tacombi_rev12_repo/` this time), `SPEC_rev12.md`,
 `STATE_rev12.md`, `HANDOFF_rev12.md`, `NEXT_CONTEXT_PROMPT_rev12.md`,
 `rev12_hero_studio.png`.
 

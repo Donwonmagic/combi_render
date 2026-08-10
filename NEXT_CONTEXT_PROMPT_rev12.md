@@ -20,7 +20,13 @@ git clone tacombi_history_rev9.bundle tacombi && cd tacombi
 git pull ../tacombi_rev12_incremental.bundle HEAD
 ```
 
-`HEAD` should be the tip of that bundle and `git rev-list --count HEAD` should read **46**, clean tree. (Restore is verified end to end: a fresh clone of the rev9 bundle plus this one pull lands on 46 commits with an empty `git status`.) The same tree is also on my disk at `tacombi_bus_render/tacombi_rev12_repo/`. Ignore every older `tacombi*` directory. Note `rev9-bundle-archive` is a read-only bundle, not a pushable remote — delivery is by bundling back to my disk.
+Do not verify this by commit hash or commit count — verify it by CONTENT, because those move whenever the handoff itself is committed. After the pull, `git status` must be clean, `SPEC.md` must contain a `### 10.28`, and `grep -c roof_cutters t1_shell.py` must be non-zero. The tree is also on my disk as `tacombi_bus_render/tacombi_rev12_tree.tar.gz` — untar it if the bundle gives you any trouble. There is no `tacombi_rev12_repo/` directory this time; the tarball is the materialised copy. Ignore every older `tacombi*` directory. Note `rev9-bundle-archive` is a read-only bundle, not a pushable remote — delivery is by bundling back to my disk.
+
+**BEFORE YOU DO ANYTHING ELSE — there are two divergent branches and you must merge them deliberately.**
+A parallel context ran the specialist audit while rev 12 was being built. Both branched from `e92fad4` and **neither contains the other**:
+* the audit line, `869be6f`, 42 commits — carries `AUDIT_rev11.md` and a fix to the script panel's stale aspect ratio
+* the rev-12 line, in the bundle above — carries the roof hole, the detached sign, the counter and the weathering
+The audit line holds findings that matter and that rev 12 does not have: `flank_compare.py` computes no metric at all; `build.py`'s `SCR` panel aspect was stale by 15.8 % so the lockup has been squashed vertically since rev 10; and **the nose-down rake measures 14.4 ± 3.1 mm/m against the built 33.0**, which is 6σ and resolves §10.9's long-standing rake-versus-arch-gap contradiction — at 33 mm/m the front arch gap is −27 mm, physically impossible. Merge the two before building on either, and tell me what you had to reconcile. Do not let one silently overwrite the other.
 
 Step 3 — install Blender 4.5.3 and run BOTH guards. Report their actual output before proposing anything.
 
@@ -62,9 +68,9 @@ Step 6 — the work, in this order
 
 6.5 Close `COUNTERTAN`'s level. The hue is measured; the level is bracketed at −16 %/+15 % because the two available references disagree structurally. It needs an up-facing cream reference adjacent to the counter.
 
-6.6 The comprehensive specialist audit still has not run — I have asked for it twice. `workflows/tacombi-rev11-audit.js`. Do NOT run it as a Workflow on this box: 2 CPU cores means ~2 agents at a time. Lift the dimension briefs out and run 3–4 at a time with the Agent tool on DISJOINT files. That has now worked twice.
+6.6 Three of the audit's ten dimensions have now run and are in `AUDIT_rev11.md` on the audit branch. Six remain: fascia, counter/galley contrast, wheels + contact shadow, tail, roof, optics. Run them from `workflows/tacombi-rev11-audit.js`. Do NOT run it as a Workflow on this box: 2 CPU cores means ~2 agents at a time. Lift the dimension briefs out and run 3–4 at a time with the Agent tool on DISJOINT files. That has now worked twice.
 
-6.7 Then the rest of the never-skeptic-passed backlog: `materials-5` (partly addressed, not re-measured), `apertures-7`, the 99 mm tail-length discrepancy, §10.9's rake-versus-arch-gap contradiction, the three items in §10.24 applied-then-reverted, and the rear arch measuring 0.747 m against 0.952 m off the photograph.
+6.7 Then the rest of the never-skeptic-passed backlog: `materials-5` (partly addressed, not re-measured), `apertures-7`, the tail-length discrepancy (the audit line says ~200 mm, not 99 — §10.7 subtracted two numbers in different origins), §10.9's rake-versus-arch-gap contradiction, the three items in §10.24 applied-then-reverted, and the rear arch measuring 0.747 m built against 0.881–0.933 measured.
 
 Batch all changes into one rebuild. Re-run both guards after.
 
