@@ -142,150 +142,119 @@ def lighting(key=1.0):
 
 
 def playa(key=1.0):
-    """Late-afternoon Playa del Carmen, in place of the white studio.
+    """Playa del Carmen, as the reference photograph actually measures.
 
-    rev 8b. Donald: he wants a viewer to feel they were there, and the owner to
-    remember standing in this vehicle. A white cyclorama cannot do that -- by
-    construction it removes the place. This rig reproduces what the reference
-    photograph actually has:
+    rev 10.  This rig was rebuilt against measurement and four of its previous
+    elements were REMOVED because the photograph refutes them.  The rev-8/9
+    docstring described "a low warm sun", "broken palm shadow", "a cool sky
+    fill" and a haze band.  None of those are in ref_rear34.jpg:
 
-      * a low, warm, partly-diffused sun from the show side and slightly aft,
-        the colour of late tropical afternoon through palm
-      * broken palm shadow rather than an even key -- the reference is dappled
-      * warm bounce off pale limestone paving under the vehicle
-      * a cool sky fill from above, which is what keeps the cream from going
-        orange and stops the shadows going dead
-      * the festoon bulbs doing real work: they are emissive in the model and at
-        this light level they read as lit rather than as white plastic
+      * NO SUN.  The brightest ground patches sit only +5 L* over their
+        surround with 7.4 px edges -- softer than the softest painted edge in
+        the frame is sharp.  And the bright/dark ground split measures
+        db* +2.4: the SHADOWS ARE WARMER.  A sun/skylight pair has the
+        opposite sign by construction, so there is no sun/skylight pair.
+      * NO DAPPLE GOBO, for the same reason.  rev 9 added one to honour a
+        docstring; the docstring was wrong.
+      * NO SKY.  The world ramp topped out at (0.286, 0.452, 0.720) -- a blue
+        sky -- at strength 1.30.  There is no sky in frame; the set is under a
+        closed canopy with one lateral opening.
+      * NO HAZE.  Aerial perspective measures ZERO: the canopy shadow floor
+        holds at Y p5 = 0.014-0.019 across the whole depth range and the
+        airlight bound is dY < 0.004.
 
-    Deliberately NOT a sunset postcard. The reference is shaded, mid-warm and
-    fairly soft; an orange-graded hero would be a different lie from a white one.
+    What IS there is one large, low, LATERAL source -- a palapa opening -- and
+    an absorbing ceiling.  The signature that identifies it: the same red paint
+    reads 3.95 : 1 between the flank facing the opening and the tail face 72
+    deg away, the palm trunk runs 12.5 : 1 across its own diameter with the
+    peak 33 deg off the view ray, and an up-facing cream surface is DARKER than
+    a vertical one facing the opening (0.93 : 1) while being brighter than one
+    turned away (1.87 : 1).  Only a near-horizontal key under a dark ceiling
+    does all three.
+
+    Calibrated against those three numbers before any albedo was touched:
+    this rig renders flank:f72 = 4.00 (measured 3.95), roof:f72 = 1.91
+    (measured 1.87), and up-facing cream 0.787 (measured 0.772 -- a surface
+    that was never fitted to).  SPEC 10.23.
     """
-    c = Vector((0, 0, 1.0))
+    import math as _m
+    KEY_AZ, KEY_EL, KEY_D = 89.0, 10.0, 9.5
+    AZ, EL = _m.radians(KEY_AZ), _m.radians(KEY_EL)
 
-    # --- low warm sun, show side and slightly aft, raking down the flank
-    sun = bpy.data.lights.new("sun", 'SUN')
-    sun.energy = 4.70 * key           # rev 9: 3.05 read as overcast once
-    sun.color = (1.0, 0.842, 0.664)   # the world was actually visible
-    sun.angle = math.radians(2.6)          # softened by haze and palm
-    so = bpy.data.objects.new("sun", sun)
-    bpy.context.collection.objects.link(so)
-    so.location = (-6.0, 9.0, 6.4)
-    v = Vector((0.2, 0.0, 1.15)) - Vector(so.location)
-    so.rotation_euler = v.to_track_quat('-Z', 'Y').to_euler()
+    kd = bpy.data.lights.new("key_playa", 'AREA')
+    kd.shape = 'RECTANGLE'
+    kd.size, kd.size_y = 8.5, 5.0
+    kd.energy = 306.4 * key
+    kd.color = (1.0, 0.972, 0.936)
+    ko = bpy.data.objects.new("key_playa", kd)
+    bpy.context.collection.objects.link(ko)
+    ko.location = (KEY_D * _m.cos(EL) * _m.cos(AZ),
+                   KEY_D * _m.cos(EL) * _m.sin(AZ),
+                   KEY_D * _m.sin(EL) + 1.0)
+    ko.rotation_euler = (Vector((0, 0, 1.15)) - Vector(ko.location)) \
+        .to_track_quat('-Z', 'Y').to_euler()
 
-    # --- warm bounce off pale limestone paving
-    _softbox("bounce", (1.10, 4.60, 0.30), (0.0, 0.30, 1.05), (7.0, 2.2),
-             26.0 * key, (1.0, 0.884, 0.742), spread=120)
-    # --- soft warm wrap on the counter side, standing in for the palapa
-    _softbox("wrap", (2.60, 7.20, 2.55), (-0.40, 0.60, 1.30), (5.5, 3.0),
-             41.0 * key, (1.0, 0.918, 0.816), spread=118)
-    # --- cool sky from above: keeps the cream from going orange
-    _softbox("sky", (0.4, 0.8, 8.2), (0, 0, 1.3), (12.0, 8.0), 62.0 * key,
-             (0.858, 0.918, 1.0))
-    # --- the galley still needs its own small source or the bays go black
+    # the galley still needs its own small source or the bays go black; this
+    # one is inside the vehicle and is not part of the environment solution
     _softbox("fill_galley", (-0.35, 2.35, 1.58), (-0.35, 0.0, 1.47),
              (1.7, 0.55), 12.5 * key, (1.0, 0.940, 0.860))
-    # --- a little rim off the tail so the rear quarter separates
-    _softbox("rim", (-8.4, 2.6, 3.4), c, (4.0, 3.2), 33.0 * key,
-             (1.0, 0.930, 0.860))
 
-    # --- broken palm shade -------------------------------------------------
-    # rev 9: this rig's docstring has claimed "broken palm shadow rather than an
-    # even key" since rev 8 and NOTHING implemented it -- the sun was a clean
-    # 2.6 deg source and the vehicle sat in flat light. A gobo does it honestly:
-    # a plane the camera cannot see, opaque in patches, placed where its shadow
-    # actually lands on the vehicle rather than wherever looked convenient.
-    #
-    # Where it goes is arithmetic, not taste. The sun sits at (-6, 9, 6.4)
-    # aiming at (0.2, 0, 1.15), so its direction is (6.2, -9, -5.25). For a
-    # gobo at z = 5.6 to shadow the vehicle at z ~ 1.2 the ray runs
-    # t = 4.4/5.25 = 0.838, i.e. dx +5.20, dy -7.54. So the patch of sky that
-    # lands on the bus is centred near (-5.2, 7.5) -- which is where this goes.
-    gob = bpy.data.meshes.new("dapple")
-    hh = 15.0
-    gob.from_pydata([(-hh, -hh, 0), (hh, -hh, 0), (hh, hh, 0), (-hh, hh, 0)],
-                    [], [(0, 1, 2, 3)])
-    gob.validate()
-    gb = bpy.data.objects.new("dapple", gob)
-    bpy.context.collection.objects.link(gb)
-    gb.location = (-5.2, 7.5, 5.6)
-    gm = bpy.data.materials.new("dapple")
-    gm.use_nodes = True
-    gnt = gm.node_tree
-    for n in list(gnt.nodes):
-        if n.type != 'OUTPUT_MATERIAL':
-            gnt.nodes.remove(n)
-    out = gnt.nodes["Material Output"]
-    tr = gnt.nodes.new("ShaderNodeBsdfTransparent")
-    df = gnt.nodes.new("ShaderNodeBsdfDiffuse")
-    df.inputs["Color"].default_value = (0.02, 0.02, 0.02, 1)
-    mix = gnt.nodes.new("ShaderNodeMixShader")
-    vor = gnt.nodes.new("ShaderNodeTexVoronoi")
-    vor.inputs["Scale"].default_value = 0.62
-    nz = gnt.nodes.new("ShaderNodeTexNoise")
-    nz.inputs["Scale"].default_value = 1.35
-    nz.inputs["Detail"].default_value = 6.0
-    mixf = gnt.nodes.new("ShaderNodeMix")
-    mixf.data_type = 'FLOAT'
-    mixf.inputs[0].default_value = 0.45
-    rmp = gnt.nodes.new("ShaderNodeValToRGB")
-    # ~60 % open: dappled, not a stencil. A hard gobo reads as a pattern.
-    rmp.color_ramp.elements[0].position = 0.36
-    rmp.color_ramp.elements[1].position = 0.68
-    gnt.links.new(vor.outputs["Distance"], mixf.inputs[2])
-    gnt.links.new(nz.outputs["Fac"], mixf.inputs[3])
-    gnt.links.new(mixf.outputs[0], rmp.inputs[0])
-    gnt.links.new(rmp.outputs["Color"], mix.inputs[0])
-    gnt.links.new(tr.outputs[0], mix.inputs[1])
-    gnt.links.new(df.outputs[0], mix.inputs[2])
-    gnt.links.new(mix.outputs[0], out.inputs["Surface"])
-    gb.data.materials.append(gm)
-    gb.visible_camera = False          # it shades; it is never in frame
-    gb.visible_diffuse = False
-    gb.visible_glossy = False
+    # --- the absorbing canopy.  It is what makes an up-facing surface darker
+    #     than a vertical one facing the opening, which is the measured
+    #     signature.  Camera-invisible: it shades, it is never in frame.
+    ceil = bpy.data.materials.new("absorb_playa")
+    ceil.use_nodes = True
+    _cb = ceil.node_tree.nodes["Principled BSDF"]
+    _cb.inputs["Base Color"].default_value = (0.115, 0.102, 0.086, 1)
+    _cb.inputs["Roughness"].default_value = 0.95
+    _cb.inputs["Specular IOR Level"].default_value = 0.02
 
+    def _plate(name, verts, faces):
+        me = bpy.data.meshes.new(name)
+        me.from_pydata(verts, [], faces)
+        me.validate()
+        ob = bpy.data.objects.new(name, me)
+        bpy.context.collection.objects.link(ob)
+        ob.data.materials.append(ceil)
+        ob.visible_camera = False
+        return ob
+
+    _plate("palapa_roof", [(-15.0, -3.0, 3.55), (-1.20, -3.0, 3.55),
+                           (-1.20, 7.20, 3.55), (-15.0, 7.20, 3.55)],
+           [(0, 1, 2, 3)])
+    _R = 11.56          # the one free parameter, solved against roof:f72
+    _plate("canopy",
+           [(_m.cos(t) * _R - 2.0, _m.sin(t) * _R + 2.0, 7.5)
+            for t in [i * 2 * _m.pi / 48 for i in range(48)]],
+           [tuple(range(48))])
+    _plate("backwall", [(-34.0, -20.0, 0), (34.0, -20.0, 0),
+                        (34.0, -20.0, 7.5), (-34.0, -20.0, 7.5)],
+           [(0, 1, 2, 3)])
+
+    # --- a uniform dark ambient, NOT a sky gradient.  Open shade.
     w = bpy.data.worlds.new("w_playa")
     bpy.context.scene.world = w
     w.use_nodes = True
-    nt = w.node_tree
-    bg = nt.nodes["Background"]
-    # warm-below / cool-above gradient rather than a flat white world. A flat
-    # world is the other half of what desaturated the paint (SPEC 10.9).
-    tc = nt.nodes.new("ShaderNodeTexCoord")
-    sep = nt.nodes.new("ShaderNodeSeparateXYZ")
-    nt.links.new(tc.outputs["Generated"], sep.inputs[0])
-    # rev 9: three stops, not two. Until now the film was rendered transparent
-    # and composited on white, so this gradient never reached a pixel and the
-    # sky read as blown paper with a hard horizon. With the alpha-over path off
-    # for T1_SCENE=playa it is the background, and it has to do the work:
-    #   below the horizon  warm limestone bounce
-    #   at the horizon     the haze band -- this is what reads as "outside"
-    #   above              a deeper tropical sky, cool enough to keep the cream
-    #                      cream (SPEC 10.9: a flat world was half of what
-    #                      desaturated the paint)
-    # Still not a sunset postcard. The horizon band is warm-pale, not orange;
-    # SKEPTIC B5 is explicit that neither in-service photograph is in direct
-    # sun, so an orange grade would be a different lie from a white one.
-    ramp = nt.nodes.new("ShaderNodeValToRGB")
-    ramp.color_ramp.elements[0].position = 0.280
-    ramp.color_ramp.elements[0].color = (0.520, 0.436, 0.328, 1)
-    e_h = ramp.color_ramp.elements.new(0.495)
-    e_h.color = (0.930, 0.882, 0.790, 1)
-    ramp.color_ramp.elements[1].position = 0.640
-    ramp.color_ramp.elements[1].color = (0.286, 0.452, 0.720, 1)
-    # rev 9: a world shader's Generated coordinate is the VIEW VECTOR, so Z
-    # runs -1..1, not 0..1. The ramp was keyed in 0..1, so every direction at
-    # or below the horizon clamped to the bottom stop and the whole background
-    # rendered as one flat colour. That, plus the alpha-over path above, is why
-    # the sky never existed. Remap -1..1 -> 0..1 so 0.5 IS the horizon.
-    mr = nt.nodes.new("ShaderNodeMapRange")
-    mr.inputs["From Min"].default_value = -1.0
-    mr.inputs["From Max"].default_value = 1.0
-    nt.links.new(sep.outputs["Z"], mr.inputs["Value"])
-    nt.links.new(mr.outputs["Result"], ramp.inputs[0])
-    nt.links.new(ramp.outputs["Color"], bg.inputs[0])
-    bg.inputs[1].default_value = float(os.environ.get("T1_WORLD_PLAYA", 1.30))
+    bgn = w.node_tree.nodes["Background"]
+    bgn.inputs[0].default_value = (0.92, 0.95, 1.0, 1)
+    bgn.inputs[1].default_value = float(
+        os.environ.get("T1_WORLD_PLAYA", 0.30))
+
+    # --- the place itself ---------------------------------------------------
+    # Procedural vegetation and set dressing, placed by inverting the reference
+    # photograph's recovered camera: every mass sits at the (image column,
+    # depth) the measurement puts it at.  This is the single biggest gap
+    # between the rev-9 hero and the memory -- that render had no vegetation in
+    # it at all and read as an empty pale plain.  No lamps, no fog, no gobo,
+    # and no bunting: the band across the top of the reference is a continuous
+    # flowering mass (55.1 % foliage / 13.4 % crimson heads / 5.5 % cream
+    # florets), not papel picado.
+    import playa_env
+    env = playa_env.build(seed=int(os.environ.get("T1_ENV_SEED", 0)))
+    print("  playa_env: %d objects, %d instanced polys, band %s"
+          % (env["_objects"], env["_instanced_polygons"],
+             env["_band_fractions"]))
+
 
 
 def ground_playa(size=90.0):
@@ -328,7 +297,13 @@ def ground_playa(size=90.0):
     far.inputs["From Min"].default_value = 14.0
     far.inputs["From Max"].default_value = 52.0
     far.inputs["To Min"].default_value = 0.0
-    far.inputs["To Max"].default_value = 0.88
+    # rev 10: was 0.88.  Aerial perspective in the reference measures ZERO --
+    # the canopy shadow floor holds at Y p5 = 0.014-0.019 across the whole
+    # depth range and the airlight bound is dY < 0.004.  There is nothing for
+    # a haze band to reproduce, and beyond ~6 m the frame is now filled with
+    # measured vegetation rather than with empty ground.  Left wired at 0 so
+    # the node graph still shows what was there.
+    far.inputs["To Max"].default_value = 0.00
     nt.links.new(vlen.outputs["Value"], far.inputs["Value"])
     hazemix = nt.nodes.new("ShaderNodeMix")
     hazemix.data_type = 'RGBA'

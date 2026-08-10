@@ -288,11 +288,29 @@ A(D.handles(), "chrome")
 
 for s in (1, -1):
     ring, lens, bowl = D.headlamp()
-    for o, k in ((ring, "chrome"), (lens, "lens"), (bowl, "reflector")):
+    # rev 10 (audit materials-6): the bezel is BRASS, not chrome.  Measured in
+    # ref_side.jpg the bezel reads a* +2.1 / b* +31.6 at L* 65.6, against five
+    # neutral references in the same frame at b* -2.4...+1.6 (cab door handle,
+    # wing mirror, counter stainless, lamppost, pavement).  It is not a warm
+    # bounce: every genuinely warm surface in that frame carries a* with its
+    # b* (red 49/40, wall 11/11) and the bezel's ratio is 0.07.  R-B = +68.
+    for o, k in ((ring, "brass"), (lens, "lens"), (bowl, "reflector")):
         D.place(o, loc=(2.1015, s * 0.5450, 1.0300)); A(o, k)
+    # rev 10 (audit inventory-9, re-derived).  The finding said "20 mm
+    # inboard"; it understated by 7x.  Measured off ref_workshop.jpg the
+    # indicator sits 0.130 +/- 0.035 m OUTBOARD of the headlamp centre and
+    # 0.206 +/- 0.010 m above it.  Y goes 0.5250 -> 0.6750 (= 0.5450 + 0.130)
+    # and Z is set RELATIVE to the lamp, which is robust to the open question
+    # about the lamp's own absolute height (SPEC 10.22).
+    #
+    # The finding also proposed replacing the bullet with a flat oval standing
+    # 15 mm proud.  That is REFUTED: ref_side shows the lens standing ~65 mm
+    # proud and ~69 mm tall, depth/height 0.94.  The bullet is the right type;
+    # it was only too shallow (41.5 mm proud of its plinth).  Deepened in
+    # t1_detail.bullet_indicator, height untouched.
     ibase, ilens = D.bullet_indicator(f"ind{s}")
-    D.place(ibase, loc=(2.0960, s * 0.5250, 1.1980)); A(ibase, "chrome")
-    D.place(ilens, loc=(2.0960, s * 0.5250, 1.1980)); A(ilens, "amber")
+    D.place(ibase, loc=(2.0960, s * 0.6750, 1.2360)); A(ibase, "chrome")
+    D.place(ilens, loc=(2.0960, s * 0.6750, 1.2360)); A(ilens, "amber")
     tl = D.small_lamp(0.0455, 0.0270, f"tail{s}")
     for v in tl.data.vertices:
         v.co.x = -v.co.x
@@ -302,9 +320,28 @@ for s in (1, -1):
 # SPEC r4 8.3: roundel ring + strokes are painted RED on the cream nose
 # MEASURED: ring outer diameter 0.370 (was 0.336), centre 1.130 above ground.
 # Geometry is authored UN-DROPPED, so the centre goes in at 1.130 + RIDE_DROP.
-ROUNDEL_D = 0.3700
-ROUNDEL_Z_AG = 1.1300
-ROUNDEL_Z = ROUNDEL_Z_AG + T.RIDE_DROP        # 1.1950 un-dropped
+# rev 10.  This was 0.3700 and it is a live regression, applied in the wrong
+# direction.  Audit finding livery-9 said "9 % undersized, centre 32 mm high";
+# somebody applied it and the roundel went UP to 0.370.  Re-derived
+# independently (SPEC 10.22) the outer diameter is 0.28 +/- 0.03 m and the
+# centre sits 0.149 +/- 0.030 m BELOW the belt line, not above it.  The 9 %
+# figure was a code-vs-SPEC bookkeeping claim whose only photographic support
+# came from ref_source.jpeg -- the 246x197 thumbnail retired in SPEC 0.2.
+# Method: D_roundel / D_aperture = (m_ro/2)(1/m_near + 1/m_far) = 1.384 off
+# ref_workshop.jpg.  It needs no camera pose, because 1/s is affine in Y and
+# the roundel sits at the headlamps' Y-midpoint.
+ROUNDEL_D = 0.2800
+# rev 10.  Was 1.1300 AG.  Measured belt-relative (the safe framing: a ground
+# line carries ~70 mm of common-mode error, SPEC 10.11): roundel centre sits
+# 0.149 +/- 0.030 m BELOW the belt, and break_z(2.1155) = 1.166 AG, so the
+# centre belongs at 1.017 AG.  The build had it 113 mm high.
+#
+# Second defect on the same line, and a violation of a stated hard constraint:
+# this used the RIDE_DROP SCALAR.  Since rev 8 the drop is a function of x.
+# At x = 2.1155 rake_drop is 0.1063 against the scalar's 0.0650 -- the roundel
+# was being placed with a 41 mm bookkeeping error internal to the build.
+ROUNDEL_Z_AG = 1.0170
+ROUNDEL_Z = ROUNDEL_Z_AG + T.rake_drop(2.1155)
 vr, vd = D.roundel(R=ROUNDEL_D / 2)
 for o, k in ((vr, "roundelred"), (vd, "cream")):
     D.place(o, loc=(2.1155, 0.0, ROUNDEL_Z)); A(o, k)

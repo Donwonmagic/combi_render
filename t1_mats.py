@@ -172,7 +172,16 @@ W_ALBEDO = float(os.environ.get("T1_W_ALB", 0.130))
                                # display residual (see the report).  0.70
                                # realises 14.2 % albedo sd.
 W_MAP_LO, W_MAP_HI = 0.30, 0.70
-W_ART = float(os.environ.get("T1_W_ART", 0.30))   # folk-art opacity ceiling
+# rev 10.  This was 0.30 -- a 30 % opacity ceiling on hand-painted signwriting,
+# put there in rev 8 to stop the folk art dragging the flank saturation down.
+# It is the arithmetic cause of Donald's "far too faint and sparse": measured
+# through the shader the gold read x1.455 against the adjacent red where the
+# photograph reads x2.048, and at 0.30 even a PURE WHITE ink only reaches
+# x2.15, so the measured contrast was unreachable by construction. The tile is
+# now authored at measured coverage (29.1 % on the cab door, not the 0.0-0.2 %
+# a scan of the OPEN door produced) and measured colour, so the ceiling has
+# nothing left to protect against. SPEC 10.21.
+W_ART = float(os.environ.get("T1_W_ART", 1.00))   # folk-art opacity ceiling
 
 # curvature edge wear.  Pointiness RE-MEASURED off the built mesh 2026-08-09
 # by rendering Geometry->Pointiness to a 32-bit EXR through the side ortho,
@@ -822,9 +831,22 @@ def body_paint(name="T1_paint"):
     # 3.85 m period, i.e. essentially one pass over the 4.22 m flank.
     mp.inputs["Scale"].default_value = (0.2600, 0.2600, 0.2600)
     nt.links.new(texco.outputs["Object"], mp.inputs["Vector"])
+    # rev 10 (audit materials-14): both flanks carried the SAME art, mirrored.
+    # On a two-angle hero set that is fatal -- the studio view sees +Y and the
+    # front three-quarter sees -Y, and a viewer comparing them sees the same
+    # drawing twice. folk_gen.py now writes two tiles with different
+    # compositions obeying identical measured statistics; they are selected on
+    # the SIGN OF POSITION Y, which is unambiguous (the surface normal is not,
+    # on a crowned flank). Whitened peak cross-correlation between the two
+    # drawings sampled onto the same body grid falls 0.175 -> 0.064, and the
+    # mirrored pairing no longer wins.
     swirl = _img(nt, "swirl.png", -1180, -420, projection='BOX',
-                 blend=0.32, ext='REPEAT')
+                 blend=0.10, ext='REPEAT')
     nt.links.new(mp.outputs[0], swirl.inputs["Vector"])
+    swirl_b = _img(nt, "swirl_b.png", -1180, -640, projection='BOX',
+                   blend=0.10, ext='REPEAT')
+    nt.links.new(mp.outputs[0], swirl_b.inputs["Vector"])
+    sideY = _math(nt, 'GREATER_THAN', sep.outputs["Y"], 0.0, -1180, -760)
 
     # --- density mask (SPEC sec.3): heaviest on the nose, trailing along the
     #     belt, sparse at the tail. Applied as a spatially varying cutoff on a
@@ -876,7 +898,21 @@ def body_paint(name="T1_paint"):
     nt.links.new(texco.outputs["Object"], clut.inputs["Vector"])
     thr = _math(nt, 'SUBTRACT', 0.92, dens, -180, -1240)
     keep = _math(nt, 'GREATER_THAN', clut.outputs["Fac"], thr, -40, -1240)
-    amask = _math(nt, 'MULTIPLY', swirl.outputs["Alpha"], keep, 100, -1240)
+    # rev 10: `keep` is RETIRED, not deleted -- the nodes above are left in
+    # place and unlinked so the next reader can see what was there. The mask
+    # was a second density profile multiplied on top of the tile's own, and
+    # after rev 10 the tile IS the measurement: 29.1 % gold on the cab door
+    # with the measured 42 %->5 % gradient across it, 11.44 % on the lower
+    # nose, and the rear-quarter bouquet. Multiplying by `keep` applied a
+    # wrong profile to a right one. Worse, `fx2`'s door lobe topped out at
+    # 0.60 over a window starting at X +0.55 -- its maximum sat on the flank
+    # BEHIND the door, not on the door.
+    mixA = nt.nodes.new("ShaderNodeMix"); mixA.location = (40, -1240)
+    mixA.data_type = 'FLOAT'
+    nt.links.new(sideY.outputs[0], mixA.inputs[0])
+    nt.links.new(swirl_b.outputs["Alpha"], mixA.inputs[2])
+    nt.links.new(swirl.outputs["Alpha"], mixA.inputs[3])
+    amask = _math(nt, 'MULTIPLY', mixA.outputs[0], 1.0, 100, -1240)
     # SPEC sec.3 asks for a graded BOUQUET, not wallpaper. Without a ceiling
     # the dense regions run at the tile's own alpha, which covers the red
     # almost completely and drags the flank from sat 0.82 to 0.27.
@@ -890,9 +926,20 @@ def body_paint(name="T1_paint"):
         hs = nt.nodes.new("ShaderNodeHueSaturation"); hs.location = (-980, -560)
         # SPEC rev4 sec.3: gold + yellow, not pale cream wallpaper. The
         # source tile is light; 1.22 left it reading as beige on the red.
-        hs.inputs["Saturation"].default_value = 2.45
-        hs.inputs["Value"].default_value = 0.94
-        nt.links.new(swirl.outputs["Color"], hs.inputs["Color"])
+        # rev 10: was 2.45 / 0.94. Saturation 2.45 clamps S to 1.0 for EVERY
+        # ink class, not just the gold -- the cream rosettes (218,181,116)
+        # came out fully saturated orange and the dark brown lost its blue
+        # channel entirely. The tile is now authored at the measured
+        # chromaticities (gold 213,161,7; cream 218,181,116; dark 94,24,19),
+        # so it must pass through untouched.
+        hs.inputs["Saturation"].default_value = 1.00
+        hs.inputs["Value"].default_value = 1.00
+        mixC = nt.nodes.new("ShaderNodeMix"); mixC.location = (-1120, -560)
+        mixC.data_type = 'RGBA'
+        nt.links.new(sideY.outputs[0], mixC.inputs[0])
+        nt.links.new(swirl_b.outputs["Color"], mixC.inputs[6])
+        nt.links.new(swirl.outputs["Color"], mixC.inputs[7])
+        nt.links.new(mixC.outputs[2], hs.inputs["Color"])
         nt.links.new(amask.outputs[0], mix_g.inputs[0])
         nt.links.new(hs.outputs[0], mix_g.inputs[7])
     else:

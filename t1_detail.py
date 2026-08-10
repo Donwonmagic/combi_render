@@ -180,6 +180,29 @@ def _plan_curve(z, x0, x1, steps=26):
     return pts
 
 
+# rev 10.  Donald read the front bumper as thin.  It is not: the blade section
+# measures 0.110 +/- 0.010 m against BUMP_PROFILE's 0.113, and blade/wheel
+# 0.166 +/- 0.016 in two frames agreeing to 2 %.  The blade is right and stays.
+# The defect is the STANDOFF -- measured >= 0.080 m from the body (0.16 m from
+# the tucked skin) against 0.032 m built.  A correct blade held tight against
+# the body reads thin because nothing separates it from the shell.  SPEC 10.22.
+# rev 10: this was moved to 0.0555 (80 mm of standoff) on a measurement that
+# said ">= 0.08 m from the body against 0.032 m built", and then moved BACK,
+# because a second, independent method refutes that application.
+#
+# The second method: the FRONTAL SILHOUETTE of ref_side.jpg. Scanning for the
+# left-most vehicle column row by row, the nose crown stands at column 78 and
+# the bumper blade's front face at 82-91 -- the bumper is 4-13 px BEHIND the
+# crown, i.e. 17-56 mm behind it at the nose station's 231 px/m. At 0.0555 the
+# blade lands 63 mm PROUD of the crown, which no scan of the photograph
+# supports and which also breaks the locked overall length (4.327 against
+# 4.290 +/- TOL -- verify.py caught it, as it should have).
+#
+# Two independent measurements and one locked dimension now agree against the
+# standoff figure AS APPLIED. Most likely the ">= 0.08 m" is measured from the
+# tucked apron at bumper height, not from the forward-most nose, and the build
+# offsets along the apron normal -- i.e. the two numbers use different datums.
+# Reverted pending a third method. SPEC 10.24, logged OPEN not closed.
 BUMP_OFF = 0.0075          # standoff so the outer face lands on x = +/-2.140
 
 BUMP_PROFILE = [           # (outward, up)  channel section, 108 mm tall
@@ -266,6 +289,17 @@ def bullet_indicator(name="ind"):
     base = T.revolve([(0.000, 0.0000), (0.000, 0.0395), (0.0140, 0.0378),
                       (0.0225, 0.0330), (0.0225, 0.0300), (0.0130, 0.0330),
                       (0.000, 0.0345)], seg=48, axis='X', name=name + "_base")
+    # rev 10: a measurement pass read the lens as standing ~65 mm proud (the
+    # build gives 41.5 mm of its plinth) and the lens was deepened to 87.5 mm
+    # of x extent -- then reverted, for the same reason as BUMP_OFF above. The
+    # frontal silhouette of ref_side.jpg puts the indicator's front face at
+    # column 80 against the nose crown's 78, i.e. the pod is ~9 mm BEHIND the
+    # forward-most point of the vehicle. Deepened to 0.0875 it reaches 58 mm
+    # PROUD of the crown. So either the 65 mm is measured from a panel that is
+    # itself set back from the crown -- in which case the fix is the pod's
+    # MOUNTING STATION, not its depth -- or the 65 mm is wrong. Both are
+    # geometry changes to the nose that deserve a derivation rather than a
+    # guess. Reverted; SPEC 10.24, OPEN.
     lens = T.revolve([(0.0210, 0.0000), (0.0215, 0.0140), (0.0250, 0.0248),
                       (0.0320, 0.0316), (0.0420, 0.0348), (0.0530, 0.0330),
                       (0.0600, 0.0250), (0.0632, 0.0130), (0.0640, 0.0000)],
