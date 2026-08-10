@@ -1674,8 +1674,24 @@ def galley_dressing():
       m_white)
     # ceiling: pale, and carrying the roof-aperture stand-in at the REAL
     # opening footprint, not the galley box's (see m_sky above)
-    A(_gbox("gal_ceiling", SKY_X0, SKY_X1, SKY_Y0, SKY_Y1, 1.8600, 1.8780),
-      m_sky)
+    _ceil = _gbox("gal_ceiling", SKY_X0, SKY_X1, SKY_Y0, SKY_Y1, 1.8600, 1.8780)
+    # rev 12: the roof hole is now REAL GEOMETRY (SPEC 10.28), and the first
+    # 3000x2000 hero rendered with it showed exactly what that costs: this
+    # stand-in sits at the opening's own footprint, so a 3/4 camera looking down
+    # into the hole photographed a solid pale glowing slab where the galley
+    # should be. It read as a closed lid, which is worse than the sealed box it
+    # was standing in for.
+    #
+    # Hidden from CAMERA rays only -- it still emits, still lights the bays, and
+    # still casts. That keeps the measured bay levels (132 / 158 / 172 against
+    # 154 / 169 / 181 on matched windows) while removing the slab.
+    #
+    # This is a STAND-IN and it is still a stand-in. The real fix is to delete
+    # it and let the studio rig light the interior through the hole that now
+    # exists, then re-measure the three bays and retune `fill_galley`. That
+    # needs renders to converge and is the first job of the next pass.
+    _ceil.visible_camera = False
+    A(_ceil, m_sky)
 
     # ------------------------------------------- 2. the practical strip light
     # Tucked 20 mm under the head rail so the ortho flank and both studio 3/4

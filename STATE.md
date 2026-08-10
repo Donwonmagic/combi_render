@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-10 16:39:30 UTC |
-| git commit | `00d3819` |
-| git subject | rev 12: cut the roof hole; signboard is not a lid; tan counter top; weathering + roughness |
+| generated | 2026-08-10 17:19:28 UTC |
+| git commit | `d1bd9e9` |
+| git subject | rev 12: the La Santa panel is a DETACHED SIGN - off the vehicle; SPEC 10.28 |
 | working tree | **DIRTY** — this state is not committed |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=1 (applied, destructive, before booleans) |
