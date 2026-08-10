@@ -207,10 +207,15 @@ def playa(key=1.0):
     ko.rotation_euler = (Vector((0, 0, 1.15)) - Vector(ko.location)) \
         .to_track_quat('-Z', 'Y').to_euler()
 
-    # the galley still needs its own small source or the bays go black; this
-    # one is inside the vehicle and is not part of the environment solution
+    # rev 11: this was `12.5 * key`, and `key` is multiplied by T1_KEY_PLAYA
+    # (35.0) six lines above -- so it ran at 437, forty-three times the studio
+    # rig's 10.2.  It was calibrated when the galley was a black box with no
+    # source of its own.  The galley now carries measured practicals whose
+    # output is ABSOLUTE, so a softbox scaling with the environment key drowns
+    # them.  Held at the studio value, where the galley is solved to within
+    # 2.3 % of the photograph on all three bays.
     _softbox("fill_galley", (-0.35, 2.35, 1.58), (-0.35, 0.0, 1.47),
-             (1.7, 0.55), 12.5 * key, (1.0, 0.940, 0.860))
+             (1.7, 0.55), 10.2, (1.0, 0.940, 0.860))
 
     # --- the absorbing canopy.  It is what makes an up-facing surface darker
     #     than a vertical one facing the opening, which is the measured

@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-10 09:51:28 UTC |
-| git commit | `36c0374` |
-| git subject | rev 10: measured silver, measured letterforms, measured folk art, the place |
+| generated | 2026-08-10 14:11:55 UTC |
+| git commit | `28aa98e` |
+| git subject | rev 10: Playa re-render at corrected paving albedo; HANDOFF_rev10 |
 | working tree | **DIRTY** — this state is not committed |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=1 (applied, destructive, before booleans) |
@@ -107,9 +107,9 @@ they grow slightly toward the tail. rev-3's three equal 0.600s are retired.
 
 | | |
 |---|---|
-| datablocks built | 25 |
-| bound to >=1 mesh | 25 |
-| **still a CONSTANT roughness** | 6 — amber, bulb, glass, lens, reflector, ruby |
+| datablocks built | 41 |
+| bound to >=1 mesh | 41 |
+| **still a CONSTANT roughness** | 9 — amber, bulb, gal_menucard, gal_sky, gal_tube, glass, lens, reflector, ruby |
 
 > SPEC §3 locks the finish as WEATHERED. A constant roughness is the
 > physical definition of the plastic look. The only materials that may
@@ -120,23 +120,33 @@ they grow slightly toward the tail. rev-3's three equal 0.600s are retired.
 
 | | |
 |---|---|
-| mesh objects | 132 |
-| vertices (all meshes) | 127984 |
-| faces (all meshes) | 122801 |
+| mesh objects | 182 |
+| vertices (all meshes) | 129212 |
+| faces (all meshes) | 123515 |
 
 | prefix | n |
 |---|---|
 | `capvw` | 8 |
+| `gal_hook` | 6 |
 | `seal_bay` | 6 |
 | `bracket` | 5 |
 | `cap` | 4 |
+| `gal_bot` | 4 |
+| `gal_botcap` | 4 |
 | `rim-1` | 4 |
 | `rim1` | 4 |
 | `tyre` | 4 |
 | `fringe` | 3 |
+| `gal_can_u` | 3 |
 | `menucard` | 3 |
 | `doorback` | 2 |
 | `doorcard` | 2 |
+| `gal_caddy` | 2 |
+| `gal_caddy_fill` | 2 |
+| `gal_can_l` | 2 |
+| `gal_rack_up` | 2 |
+| `gal_stack` | 2 |
+| `gal_tool` | 2 |
 | `glass_dm` | 2 |
 | `glass_dv` | 2 |
 | `glass_ws` | 2 |
@@ -173,6 +183,27 @@ they grow slightly toward the tail. rev-3's three equal 0.600s are retired.
 | `dash` | 1 |
 | `englid_handle` | 1 |
 | `fuel_flap` | 1 |
+| `gal_appliance` | 1 |
+| `gal_backdrop_f` | 1 |
+| `gal_ceiling` | 1 |
+| `gal_end_a` | 1 |
+| `gal_end_f` | 1 |
+| `gal_rack_hi` | 1 |
+| `gal_rack_lo` | 1 |
+| `gal_rack_shelf` | 1 |
+| `gal_rail` | 1 |
+| `gal_shelf_b` | 1 |
+| `gal_sqbottle` | 1 |
+| `gal_sqcap` | 1 |
+| `gal_tube` | 1 |
+| `gal_tube_ch` | 1 |
+| `gal_upright` | 1 |
+| `gal_warmer` | 1 |
+| `gal_warmer_tap` | 1 |
+| `gal_work_a` | 1 |
+| `gal_worktop` | 1 |
+| `gal_wrap` | 1 |
+| `gal_wrap_g` | 1 |
 | `galley_backdrop` | 1 |
 | `galley_top` | 1 |
 | `glass_bay0_R` | 1 |

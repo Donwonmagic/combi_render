@@ -1,5 +1,5 @@
 """Wheels, bright-work, lamps, counter, galley, interior."""
-import bpy, bmesh, math
+import bpy, bmesh, math, os
 from mathutils import Vector, Matrix
 import t1_core as T
 
@@ -562,17 +562,14 @@ def interior_fill():
         obs.append(T.conform_ring(S.DOOR_GAP_S, s, 0.020, off=-0.020,
                                   thick=0.004, name=f"doorback{s}"))
 
-    # ---- galley backdrop behind the three serving bays
-    # y = -0.480 puts it 1.34 m behind the show-side aperture and clear of
-    # every existing fit-out prop (plancha reaches y = -0.46, shelves stop at
-    # x = -1.38, seat back is all +Y).
-    bx0 = min(min(b) for b in S.BAYS) - 0.090
-    bx1 = max(max(b) for b in S.BAYS) + 0.080
-    bz0, bz1 = S.Z_SILL - 0.045, S.Z_HEAD + 0.045
-    pts = T.rrect(bx1 - bx0, bz1 - bz0, 0.030, seg=3)
-    pts = [(u + (bx0 + bx1) / 2, v + (bz0 + bz1) / 2) for (u, v) in pts]
-    obs.append(T.solid_prism((0.0, -0.480, 0.0), (1, 0, 0), (0, 0, 1),
-                             (0, 1, 0), pts, 0.024, name="galley_backdrop"))
+    # ---- the galley backdrop USED to be built here, in `dark` (albedo 0.115).
+    # MEASURED, ref_side.jpg, inside the cut edge of bay 3: the wall you see
+    # through the aperture is sRGB (175.2, 175.3, 174.8) -- neutral to 0.003
+    # HSV saturation -- against the vehicle's own cream rear-corner panel in
+    # the same frame at (238, 209, 202). An 11.5 %-albedo wall 1.34 m inside an
+    # unlit box cannot produce that. It has moved to galley_dressing() below,
+    # where it keeps its NAME and its POSITION (both were load bearing -- see
+    # verify.py row 11f) and gets a measured albedo and a light to sit under.
     return obs
 
 
@@ -1080,11 +1077,25 @@ def bulb_string(side=1):
 
 # ================================================= PILLAR MENU CARDS (5.4)
 # SPEC sec.4 (grade R): printed menu cards on the pillars between apertures.
-# CONFIRMED in ref_side.jpg -- white portrait cards with red text on each
-# pillar.  Untextured here (there is no menu artwork in tex/); they read as
-# white cards.  FLAGGED unverified: card size and the exact pillar stations
-# are estimated off the aperture edges, which ARE measured.
-CARD_W, CARD_H = 0.0750, 0.3000
+# CONFIRMED in ref_side.jpg -- portrait cards with red text on each pillar.
+#
+# rev 11: SIZE AND HEIGHT MEASURED, and they were not "estimated off the
+# aperture edges" -- they were guessed.  Card B, on the pillar between bay 1
+# and bay 2, found by the column at which HSV saturation steps from the
+# pillar's 0.11-0.13 to the card's 0.21-0.26 and back:
+#     cols 432.0 - 452.0 (+-0.5)      rows 327.5 - 397.5 (+-0.5)
+# Scaled by the local aperture band, whose two ends are both locked (bay 1
+# 324.0-405.6, bay 2 314.8-400.0, linearly interpolated to the pillar station
+# gives 319.4-402.8 = 83.4 px for 0.403 m) and by bay 1's width (107 px for
+# 0.507 m):
+#     CARD_W = 20.0/107  * 0.507 = 0.0948     was 0.0750  (+26 %)
+#     CARD_H = 70.0/83.4 * 0.403 = 0.3383     was 0.3000  (+13 %)
+#     centre  v = 0.5168 of the band          was the band centre exactly
+#            -> z = 1.5667, i.e. 6.8 mm BELOW it
+# Card centres check out against the model's pillar stations without moving
+# them: measured X +0.884 / +0.256 / -0.388 against built +0.864 / +0.254 /
+# -0.378, so only the card itself was wrong.
+CARD_W, CARD_H, CARD_Z = 0.0948, 0.3383, 1.5667
 
 
 def menu_cards():
@@ -1094,7 +1105,7 @@ def menu_cards():
     xs = [(S.BAYS[0][1] + 0.9080) / 2.0,
           (S.BAYS[0][0] + S.BAYS[1][1]) / 2.0,
           (S.BAYS[1][0] + S.BAYS[2][1]) / 2.0]
-    cz = (S.Z_SILL + S.Z_HEAD) / 2.0
+    cz = CARD_Z
     for i, cx in enumerate(xs):
         outline = [(u + cx, v + cz)
                    for (u, v) in T.rrect(CARD_W, CARD_H, 0.005, seg=2)]
@@ -1218,6 +1229,491 @@ def englid_handle():
     return [ob]
 
 
+# ###########################################################################
+#                    GALLEY DRESSING AND GALLEY LIGHT
+#
+# The three serving apertures are GLASSLESS.  Everything the eye is given at
+# hero scale between z = 1.372 and 1.775 over 1.55 m of flank is whatever is
+# behind them, and before this section that was one 11.5 %-albedo panel in an
+# unlit box.  Measured, side ortho, inside the cut edge with a 25 mm inset:
+# the render read display luma 22 / 33 / 24 against the photograph's
+# 147 / 157 / 175.
+#
+# ------------------------------------------------------------ THE MEASUREMENT
+# Method for every number below.  `ref_side.jpg`, apertures located by their
+# own cut edges (REF_MEASUREMENTS sec.4/5: bay 1 x 323-430 y 324.0-405.6,
+# bay 2 x 455-564 y 314.8-400.0, bay 3 x 588-699 y 309.4-398.0), then a
+# feature is placed by its FRACTION (u across, v down) of that aperture and
+# converted with the aperture's own locked model extents -- SPEC 10.11 and
+# RULES 3/4: no ground line, no single px/m scale, and the fraction cancels
+# both.  Uncertainty on a fraction read at 12x is +-0.02, i.e. +-10 mm in X
+# and +-8 mm in Z.
+#
+#   feature                          bay  u            v            model
+#   utensil rail (hook line)          3   0.02-0.98    0.055        Z 1.753
+#   S-hooks on it                     3   .13 .26 .46 .60 .75 .90   X -0.503
+#                                                                     -0.572
+#                                                                     -0.677
+#                                                                     -0.750
+#                                                                     -0.829
+#                                                                     -0.907
+#   two hanging tools                 3   0.13, 0.26   0.05-0.46    Z 1.755-1.59
+#   back-wall material change         3   0.34         -            X -0.614
+#   worktop slab, front edge          3   0.12-0.52    0.685-0.760  Z 1.501-1.469
+#   rack upper rail                   2   0.05-0.95    0.225        Z 1.684
+#   rack shelf                        2   0.14-0.86    0.520-0.585  Z 1.565-1.539
+#   wrapped item, pale                2   0.52-0.78    0.455-0.530  X -0.073..-0.207
+#   wrapped item, green end           2   0.31-0.52    0.500-0.560  X +0.035..-0.073
+#   red-labelled row, upper           2   0.02-0.30    0.05-0.35    X +0.185..+0.040
+#   red-labelled row, lower           2   0.55-0.80    0.28-0.36    X -0.089..-0.218
+#   dark appliance base               2   0.44-0.80    0.86-0.95    Z 1.428-1.392
+#   pale stack on a high shelf        1   0.78-0.98    0.03-0.22    Z 1.763-1.686
+#   shelf edge under it               1   0.80-0.98    0.22-0.32    Z 1.686-1.646
+#
+# COLOUR, same crops, mean sRGB / HSV saturation:
+#   back wall aft of the seam    (175.2, 175.3, 174.8)  S 0.003  NEUTRAL
+#   back wall fwd of the seam    (199.0, 185.8, 172.2)  S 0.135  warm cream
+#   worktop slab                 (216.1, 209.9, 205.5)  S 0.049
+#   rack rail                    (146.3, 137.0, 132.8)  S 0.092
+#   dark appliance base          (116.7, 116.0, 118.2)  S 0.018
+#   pale stack, bay 1            (196.4, 191.2, 197.4)  S 0.031
+#   amber bottle body            (183.2, 174.3, 150.8)  S 0.177
+# and for scale, in the SAME frame:
+#   cream rear-corner panel      (237.8, 208.5, 202.2)  L 214.3
+#   cream flank above bay 3      (218.6, 187.1, 157.2)  L 191.6
+#
+# The single most important number in the whole table is the one that is NOT
+# an object: NOTHING inside any aperture is darker than display luma 73, and
+# the 2nd percentiles are 91 / 106 / 127.  The galley is a bright room.
+#
+# ------------------------------------------------------------------ THE LIGHT
+# The physical reason it is bright is that THE ROOF IS CUT OPEN -- the vehicle
+# is a convertible taco stand and both lids stand up over the counter, so the
+# galley is daylit from above through a 1.11 x 2.03 m hole.
+#
+# THE SHELL DOES NOT CUT THAT HOLE.  build.py step 3 issues windscreen, side,
+# rear and gap cutters and no roof cutter; `t1_shell.roof_lids()` builds the
+# lids as free panels floating over an UNBROKEN roof skin.  So in the model
+# the galley is a sealed 2.8 mm steel box and no exterior source can reach it,
+# which is why no amount of `fill_galley` outside the flank has ever fixed
+# this.  That is reported, not worked around: see the handoff.
+#
+# Until it is cut, the opening is stood in for HERE, at the plane where it
+# physically is -- `gal_ceiling` is an emissive panel at the roof line.  It is
+# not a cheat light bolted to the outside of the vehicle; it is the roof
+# aperture, in the right place, with the right size, radiating downward.  The
+# visible practical (`gal_tube`) is the second source and it is a real fitting
+# the real vehicle has to have, because it serves after dark.
+#
+# Both are single scalars so they can be swept without editing this file:
+#     T1_GAL_SKY   roof-aperture stand-in, emissive radiance
+#     T1_GAL_LUM   the practical strip light
+# ###########################################################################
+# SOLVED, not chosen.  Both were swept together (the ratio between them is
+# held, so the two sources keep their relative parts) against the display luma
+# of the three apertures measured off the side ortho at 900 x 675 with the
+# same boxes used on the photograph.  Three points on the film:
+#     x1.00  ->  bay 3 read 217.1        (T1_GAL_SKY 6.50, T1_GAL_LUM 22.00)
+#     x0.25  ->  bay 3 read 187.6
+#     x0.138 ->  bay 3 read 174.8   against the photograph's 175.0
+# The middle pair fixes the film's LOCAL slope at 49.0 display codes per
+# decade of scene-linear, which is worth writing down: it is not the 70 codes
+# a naive AgX two-point fit through middle grey and paper white predicts, and
+# the first correction overshot because of it.
+GAL_SKY = float(os.environ.get("T1_GAL_SKY", 0.90))
+GAL_LUM = float(os.environ.get("T1_GAL_LUM", 3.04))
+
+# Albedos.  SPEC 10.21's rule bites here: a rendered ratio is an albedo ratio
+# only between two surfaces of the SAME CLASS under the SAME LIGHT, and the
+# galley wall and the exterior cream are the same class under DIFFERENT light,
+# so 175/214 may NOT be turned into an albedo.  What the photograph does fix
+# is the CHROMATICITY (neutral to 0.003 aft of the seam, warm cream forward of
+# it) and a LOWER BOUND: interior illumination cannot exceed exterior, so a
+# wall reading 0.82x the cream panel's display luma cannot have an albedo
+# below the cream's.  Both are therefore set to painted-white values at or
+# above the body cream's 0.735, and the chromaticity is the measured one.
+GAL_WHITE = (0.7300, 0.7300, 0.7355)     # neutral, aft of the seam
+GAL_CREAM = (0.7500, 0.7040, 0.6420)     # warm, forward of the seam
+# Brushed 304 stainless: normal-incidence reflectance 0.55-0.60, satin.  The
+# first draft ran 0.615 at roughness 0.36 and the counter-top warmer rendered
+# at display 211 against the cream counter's 186 -- BRIGHTER than the paint,
+# where the photograph has it at 141 against 210.  That ratio may NOT be
+# transferred (SPEC 10.21: a rendered ratio is an albedo ratio only between
+# surfaces of the same class, and metal against dielectric is not), so this is
+# corrected to the physical figures and no further: a white studio genuinely
+# does make a stainless box bright, exactly as it genuinely does desaturate
+# the paint, and that is the rig's account to settle, not this one's.
+GAL_STEEL = (0.5600, 0.5630, 0.5690)     # brushed stainless, not a mirror
+# These three ARE legitimate albedo ratios and SPEC 10.21's rule is satisfied
+# rather than violated: each is a diffuse surface measured against the galley
+# back wall IN THE SAME PHOTOGRAPH, INSIDE THE SAME ROOM, under the same
+# light.  Ratios are taken in LINEAR light after undoing the sRGB encoding,
+# then multiplied by the wall's 0.730.
+#   dark appliance base  L 116.3 / 175.2 -> lin 0.171/0.428 = 0.400 -> 0.292
+#   red-labelled rows    L 139.7 / 175.2 -> 0.253/0.428 = 0.591 -> 0.431
+#                        L 148.4 / 175.2 -> 0.286/0.428 = 0.668 -> 0.488
+# The first draft of this section had the labelled rows at (0.42, 0.07, 0.05),
+# a saturated pillar-box red with luminance 0.148.  That is what they LOOK
+# like at 12x and it is not what they MEASURE: the cluster means are
+# (152.9, 137.0, 127.8) and (154.7, 146.9, 144.9), HSV saturation 0.164 and
+# 0.063.  They are small red marks on a pale ground, and the area mean -- the
+# only thing that survives to hero scale -- is a warm mid-tone.
+GAL_DARK = (0.2900, 0.2880, 0.2970)      # the appliance base, S 0.018
+GAL_RED = (0.5350, 0.3600, 0.3120)
+GAL_GREEN = (0.1450, 0.3050, 0.1750)
+GAL_AMBER = (0.4600, 0.2650, 0.0450)
+GAL_SEAM_X = -0.6140                     # measured back-wall material change
+
+GAL_Y_BACK = -0.4800                     # backdrop plane -- UNCHANGED, see 11f
+GAL_Z_TOP = 1.4285                       # dark appliance base, measured top
+GAL_Z_WORK = 1.5010                      # worktop slab, measured top
+
+
+def _gm(name, base, rough=0.42, metal=0.0, spec=0.5, emit=None, estr=0.0,
+        rvar=0.09, nscale=160.0):
+    """A galley material.  Roughness is NEVER a constant on a diffuse surface
+    here: STATE.md counts constant-roughness materials as a defect class and
+    calls it the physical definition of the plastic look, so every non-
+    emissive material below carries a noise field on Roughness."""
+    m = bpy.data.materials.get(name)
+    if m:
+        return m
+    m = bpy.data.materials.new(name)
+    m.use_nodes = True
+    nt = m.node_tree
+    b = nt.nodes["Principled BSDF"]
+    b.inputs["Base Color"].default_value = (*base, 1)
+    b.inputs["Roughness"].default_value = rough
+    b.inputs["Metallic"].default_value = metal
+    b.inputs["Specular IOR Level"].default_value = spec
+    b.inputs["Subsurface Weight"].default_value = 0.0    # verify row 6b
+    if emit is not None:
+        b.inputs["Emission Color"].default_value = (*emit, 1)
+        b.inputs["Emission Strength"].default_value = estr
+    if rvar > 0.0:
+        n = nt.nodes.new("ShaderNodeTexNoise")
+        n.location = (-640, -220)
+        n.inputs["Scale"].default_value = nscale
+        n.inputs["Detail"].default_value = 4.0
+        n.inputs["Roughness"].default_value = 0.55
+        mr = nt.nodes.new("ShaderNodeMapRange")
+        mr.location = (-400, -220)
+        mr.inputs["From Min"].default_value = 0.32
+        mr.inputs["From Max"].default_value = 0.68
+        mr.inputs["To Min"].default_value = max(0.02, rough - rvar)
+        mr.inputs["To Max"].default_value = min(0.97, rough + rvar)
+        mr.clamp = True
+        nt.links.new(n.outputs["Fac"], mr.inputs["Value"])
+        nt.links.new(mr.outputs["Result"], b.inputs["Roughness"])
+    return m
+
+
+def _gcard():
+    """The pillar menu card.
+
+    MEASURED on the card between bay 1 and bay 2, ref_side.jpg (x 432-453,
+    y 328-394, 20.4 x 65.7 px = 96 x 311 mm at the local 211.5 px/m):
+
+        whole card      sRGB (225.5, 199.7, 174.5)  L 203.4  S 0.227
+        cream pillar    sRGB (250.4, 238.2, 221.5)  L 239.6  S 0.116
+        beside it
+
+    So the card is 36 display codes BELOW the pillar it is stuck to and at
+    almost exactly TWICE its saturation.  That pair -- darker AND warmer -- is
+    the whole read at hero scale, and `capwhite` (0.890, 0.888, 0.872) can
+    produce neither.  The layout is resolved at 14x and is the same on all
+    three pillars: a thin red rule frames the card; a dark script logo sits in
+    the top ~12 %; a red band under it; a body of small warm rows; a red band
+    across the bottom ~8 %.  The individual WORDS are 1.5 px tall and are NOT
+    MEASURABLE -- what is built is the band structure and the two measured
+    colour statistics, not invented text.
+    """
+    name = "gal_menucard"
+    m = bpy.data.materials.get(name)
+    if m:
+        return m
+    m = bpy.data.materials.new(name)
+    m.use_nodes = True
+    nt = m.node_tree
+    b = nt.nodes["Principled BSDF"]
+    b.inputs["Roughness"].default_value = 0.44
+    b.inputs["Specular IOR Level"].default_value = 0.34
+    b.inputs["Subsurface Weight"].default_value = 0.0
+    tc = nt.nodes.new("ShaderNodeTexCoord"); tc.location = (-1200, 0)
+    sep = nt.nodes.new("ShaderNodeSeparateXYZ"); sep.location = (-1010, 0)
+    nt.links.new(tc.outputs["Generated"], sep.inputs[0])
+    # v runs 0 at the card foot to 1 at its head (Generated Z on a conformed
+    # panel whose long axis is world Z)
+    prev = None
+    #  (v0,   v1,   colour)              -- bands, foot -> head
+    BANDS = [(0.000, 0.075, (0.4400, 0.0900, 0.0620)),   # red footer
+             (0.075, 0.760, (0.7550, 0.6350, 0.5250)),   # warm text body
+             (0.760, 0.830, (0.4400, 0.0900, 0.0620)),   # red header band
+             (0.830, 0.940, (0.1450, 0.1250, 0.1180)),   # dark script logo
+             (0.940, 1.000, (0.8100, 0.7600, 0.6900))]   # cream head margin
+    x = -820
+    for (v0, v1, col) in BANDS:
+        rgb = nt.nodes.new("ShaderNodeRGB"); rgb.location = (x, -260)
+        rgb.outputs[0].default_value = (*col, 1)
+        if prev is None:
+            prev = rgb.outputs[0]
+            x += 200
+            continue
+        gt = nt.nodes.new("ShaderNodeMath"); gt.location = (x, -80)
+        gt.operation = 'GREATER_THAN'
+        gt.inputs[1].default_value = v0
+        nt.links.new(sep.outputs["Z"], gt.inputs[0])
+        mix = nt.nodes.new("ShaderNodeMix"); mix.location = (x, 60)
+        mix.data_type = 'RGBA'
+        nt.links.new(gt.outputs[0], mix.inputs["Factor"])
+        nt.links.new(prev, mix.inputs[6])
+        nt.links.new(rgb.outputs[0], mix.inputs[7])
+        prev = mix.outputs[2]
+        x += 200
+    # the printed rows: a fine stripe field, so the body reads as TYPE and not
+    # as a flat wash at any distance the hero cameras actually stand at
+    wv = nt.nodes.new("ShaderNodeMath"); wv.location = (-820, 240)
+    wv.operation = 'MULTIPLY'
+    wv.inputs[1].default_value = 42.0
+    nt.links.new(sep.outputs["Z"], wv.inputs[0])
+    wave = nt.nodes.new("ShaderNodeMath"); wave.location = (-640, 240)
+    wave.operation = 'FRACT'
+    nt.links.new(wv.outputs[0], wave.inputs[0])
+    ink = nt.nodes.new("ShaderNodeMath"); ink.location = (-460, 240)
+    ink.operation = 'GREATER_THAN'
+    ink.inputs[1].default_value = 0.55
+    nt.links.new(wave.outputs[0], ink.inputs[0])
+    inkc = nt.nodes.new("ShaderNodeRGB"); inkc.location = (-460, 420)
+    inkc.outputs[0].default_value = (0.5150, 0.2050, 0.1550, 1)
+    imix = nt.nodes.new("ShaderNodeMix"); imix.location = (240, 60)
+    imix.data_type = 'RGBA'
+    imix.inputs["Factor"].default_value = 0.34
+    fac = nt.nodes.new("ShaderNodeMath"); fac.location = (60, 240)
+    fac.operation = 'MULTIPLY'
+    fac.inputs[1].default_value = 0.34
+    nt.links.new(ink.outputs[0], fac.inputs[0])
+    nt.links.new(fac.outputs[0], imix.inputs["Factor"])
+    nt.links.new(prev, imix.inputs[6])
+    nt.links.new(inkc.outputs[0], imix.inputs[7])
+    nt.links.new(imix.outputs[2], b.inputs["Base Color"])
+    return m
+
+
+def _gbox(name, x0, x1, y0, y1, z0, z1, r=0.004, seg=2):
+    """axis-aligned box from two corners, outline in XZ, extruded along Y"""
+    ob = T.solid_prism(((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2),
+                       (1, 0, 0), (0, 0, 1), (0, 1, 0),
+                       T.rrect(abs(x1 - x0), abs(z1 - z0), r, seg=seg),
+                       abs(y1 - y0), name=name)
+    FLAT.append(ob)
+    return ob
+
+
+def _gcyl(name, c, axis, rad, length, seg=16, smooth=True):
+    ob = T.cylinder(c, axis, rad, length, seg=seg, name=name)
+    if smooth:
+        ob.data.shade_smooth()
+    return ob
+
+
+def galley_dressing():
+    """Everything the eye is given through the three serving apertures.
+
+    Returns a flat list of objects that already carry their own materials;
+    spec4_details() routes it with a None key so build.py's material loop
+    leaves it alone (the same contract counter_nosing() uses).
+
+    DEPTH (Y) IS NOT MEASURABLE.  `ref_side.jpg` is a flank elevation and
+    `ref_rear34.jpg` sees the bays at a grazing angle through their own
+    frames, so every feature above is located in X and Z and in NEITHER
+    photograph in Y.  Y is therefore chosen, not measured, and is chosen to
+    two rules: nothing crosses |y| = 0.80 (verify row 11f casts a ray at each
+    bay centre and FAILS if the first hit is outboard of that), and nothing
+    intersects the fit-out that is already there (galley_top occupies
+    y 0.325-0.795 up to z 1.395, the plancha y -0.460-0.100 up to z 1.455).
+    """
+    import t1_shell as S
+    obs = []
+    m_white = _gm("gal_white", GAL_WHITE, rough=0.62, spec=0.32, nscale=90.0)
+    m_cream = _gm("gal_cream", GAL_CREAM, rough=0.58, spec=0.34, nscale=90.0)
+    m_steel = _gm("gal_steel", GAL_STEEL, rough=0.44, metal=1.0, rvar=0.11,
+                  nscale=220.0)
+    m_dark = _gm("gal_dark", GAL_DARK, rough=0.52, spec=0.40)
+    m_red = _gm("gal_red", GAL_RED, rough=0.40, spec=0.45)
+    m_green = _gm("gal_green", GAL_GREEN, rough=0.44, spec=0.42)
+    m_amber = _gm("gal_amber", GAL_AMBER, rough=0.26, spec=0.55)
+    m_pale = _gm("gal_pale", (0.7650, 0.7550, 0.7700), rough=0.48, spec=0.36)
+    # the roof aperture t1_shell does not cut, standing in at its own plane
+    m_sky = _gm("gal_sky", (0.7600, 0.7600, 0.7600), rough=0.85, spec=0.05,
+                emit=(1.000, 0.988, 0.962), estr=GAL_SKY, rvar=0.0)
+    # the practical.  Warm-white fluorescent, which is what a taqueria runs.
+    m_tube = _gm("gal_tube", (0.8200, 0.8150, 0.7950), rough=0.30, spec=0.40,
+                 emit=(1.000, 0.918, 0.790), estr=GAL_LUM, rvar=0.0)
+
+    def A(ob, mat):
+        ob.data.materials.append(mat)
+        obs.append(ob)
+        return ob
+
+    X0, X1 = -1.3000, 1.0400          # galley box, fore-aft
+    # ---------------------------------------------------- 1. the liner
+    # The backdrop keeps its NAME and its 24 mm slab at y = -0.480 (see
+    # interior_fill); it is split at the MEASURED material change.
+    A(_gbox("galley_backdrop", GAL_SEAM_X, X0, GAL_Y_BACK - 0.012,
+            GAL_Y_BACK + 0.012, 1.2000, 1.8950, r=0.030, seg=3), m_white)
+    A(_gbox("gal_backdrop_f", GAL_SEAM_X, X1, GAL_Y_BACK - 0.012,
+            GAL_Y_BACK + 0.012, 1.2000, 1.8950, r=0.030, seg=3), m_cream)
+    # end returns: without them a 3/4 camera looks along the flank past the
+    # ends of the backdrop into unlit body cavity
+    A(_gbox("gal_end_f", X1, X1 + 0.030, -0.5000, 0.2600, 1.2000, 1.8600),
+      m_cream)
+    A(_gbox("gal_end_a", X0 - 0.030, X0, -0.5000, 0.4000, 1.2000, 1.8600),
+      m_white)
+    # ceiling: pale, and carrying the roof-aperture stand-in
+    A(_gbox("gal_ceiling", X0, X1, -0.5200, 0.5400, 1.8600, 1.8780), m_sky)
+
+    # ------------------------------------------- 2. the practical strip light
+    # Tucked 20 mm under the head rail so the ortho flank and both studio 3/4
+    # cameras see its LIGHT and not its filament, while the eye-height playa
+    # camera looks up past the rail and sees the fitting -- which is correct,
+    # a serving hatch shows you its strip light.
+    A(_gbox("gal_tube_ch", 0.9000, -1.2000, -0.1900, -0.0500, 1.8020, 1.8280),
+      m_steel)
+    A(_gbox("gal_tube", 0.8900, -1.1900, -0.1820, -0.0580, 1.7880, 1.8020),
+      m_tube)
+
+    # ------------------------------------------------------- 3. the worktop
+    # Top at the MEASURED 1.501, 32 mm slab.  It is a SHELF, not a counter,
+    # and it stops at bay 3: the first draft ran it the length of the galley
+    # 0.64 m deep and that is refuted by the photograph twice over -- the pale
+    # slab is only present at u 0.12-0.52 OF BAY 3, and in bay 2 the field
+    # below the same height reads L 170.3 at v 0.62-0.86, i.e. open lit wall
+    # where a counter would have put an overhang shadow.  Rendered with the
+    # long counter, bay 2 read p5 = 72.5 against the photograph's 110.8.
+    A(_gbox("gal_worktop", -0.4200, -1.1800, -0.4400, -0.1800,
+            GAL_Z_WORK - 0.032, GAL_Z_WORK), m_steel)
+    # and the cupboard under it is set BACK from the shelf's front edge, which
+    # is what lets the ceiling reach it: the photograph reads L 192.0 under
+    # the slab, brighter than the wall behind the rack, so it is not in shade
+    A(_gbox("gal_work_a", -0.4200, -1.1800, -0.4600, -0.2800, 1.2600,
+            GAL_Z_WORK - 0.032), m_white)
+
+    # -------------------------------------- 4. bay 3: utensil rail and tools
+    rail_z, rail_y = 1.7530, -0.3600
+    A(_gcyl("gal_rail", (-0.3800, rail_y, rail_z), (1, 0, 0), 0.0075, 0.660),
+      m_steel)
+    for hx in (-0.5030, -0.5720, -0.6770, -0.7500, -0.8290, -0.9070):
+        A(_gcyl(f"gal_hook{hx:+.3f}", (hx, rail_y, rail_z - 0.0180),
+                (0, 0, 1), 0.0030, 0.0360, seg=8), m_steel)
+    # two long thin tools, measured hanging to v 0.45 / 0.47
+    for (hx, zb, w) in ((-0.5030, 1.5940, 0.0180), (-0.5720, 1.5860, 0.0230)):
+        A(_gbox(f"gal_tool{hx:+.3f}", hx - w / 2, hx + w / 2,
+                rail_y - 0.014, rail_y + 0.014, zb, rail_z - 0.024, r=0.006),
+          m_steel)
+
+    # ------------------------------------------------ 5. bay 2: the tube rack
+    # y is chosen, not measured (see the docstring), but it is not free: at
+    # y -0.42..-0.16 the rack stood 60-320 mm off the back wall and shadowed
+    # it, and bay 2 rendered at median 143.0 against the photograph's 164.1
+    # while bay 3, which has no rack, sat on target.  The photograph shows no
+    # such shadow -- the wall behind the rack reads L 165.4 and L 170.3 in the
+    # two bands either side of it -- so the rack is carried FORWARD, toward
+    # the aperture, where it shades the counter rather than the wall.
+    rk_y0, rk_y1 = -0.3200, -0.0600
+    for (rz, nm) in ((1.6840, "gal_rack_hi"), (1.5530, "gal_rack_lo")):
+        A(_gcyl(nm, (0.2800, (rk_y0 + rk_y1) / 2, rz), (-1, 0, 0), 0.0070,
+                0.680), m_steel)
+    A(_gbox("gal_rack_shelf", 0.2800, -0.4000, rk_y0, rk_y1, 1.5460, 1.5530,
+            r=0.003), m_steel)
+    for ux in (0.2700, -0.3900):
+        A(_gbox(f"gal_rack_up{ux:+.3f}", ux - 0.006, ux + 0.006,
+                rk_y0 + 0.010, rk_y0 + 0.022, 1.5300, 1.6910, r=0.003),
+          m_steel)
+    # the wrapped item on the shelf: pale body, green end (measured X spans)
+    _wy = (rk_y0 + rk_y1) / 2 - 0.020
+    A(_gcyl("gal_wrap", (-0.0730, _wy, 1.5760), (-1, 0, 0), 0.0155,
+            0.1340), m_pale)
+    A(_gcyl("gal_wrap_g", (-0.0730, _wy, 1.5760), (1, 0, 0), 0.0125,
+            0.1080), m_green)
+    # The two red-labelled rows are FLAT ON THE WALL, not standing on a shelf.
+    # The first draft stood them on a shelf of its own invention; the shelf is
+    # not in the photograph, and it shadowed the wall it was meant to dress.
+    # Flat printed matter is also what the pixels say: HSV saturation 0.164 and
+    # 0.063 over the two clusters is small red marks on a pale ground, which is
+    # a poster or a taped-up price list, not five red tins.
+    _sy = GAL_Y_BACK + 0.012
+    for i, hx in enumerate((0.1700, 0.1150, 0.0600)):
+        A(_gbox(f"gal_can_u{i}", hx - 0.0225, hx + 0.0225, _sy, _sy + 0.0060,
+                1.6340, 1.7550, r=0.004), m_red)
+    for i, hx in enumerate((-0.1100, -0.1850)):
+        A(_gbox(f"gal_can_l{i}", hx - 0.0300, hx + 0.0300, _sy, _sy + 0.0060,
+                1.6300, 1.6620, r=0.004), m_red)
+    # the dark appliance base, measured top 1.4285.  Its identity is NOT
+    # MEASURABLE -- it is 4 px tall and reads (117, 116, 118); what is built
+    # is a low dark block at the measured X span and the measured top.
+    A(_gbox("gal_appliance", -0.0320, -0.2180, 0.2600, 0.5000, 1.3950,
+            GAL_Z_TOP, r=0.008), m_dark)
+
+    # ------------------------------------------ 6. bay 1: high shelf and stack
+    # The forward end of bay 1 is MEASURABLY darker than the back wall and it
+    # is clear of the man who works in the aft two thirds: at u 0.05-0.35 the
+    # photograph reads (162.0, 145.9, 139.0) L 148.9 over Z 1.755-1.634 and
+    # (135.2, 130.8, 130.6) L 131.7 over Z 1.553-1.392, against the same
+    # frame's back wall at L 175.2.  That is 0.50-0.62 of the wall's
+    # luminance, warm at the top and neutral at the foot.  WHAT it is is NOT
+    # MEASURABLE -- a cupboard, a fridge flank, a stack of crates all fit -- so
+    # what is built is a full-height mid-tone upright at the measured X span
+    # and the measured reflectance ratio, and nothing is claimed about it.
+    A(_gbox("gal_upright", 0.6200, 0.8300, -0.4400, -0.0600, 1.2600, 1.7800,
+            r=0.010), _gm("gal_upright_m", (0.4450, 0.4020, 0.3800),
+                          rough=0.56, spec=0.30, nscale=110.0))
+    A(_gbox("gal_shelf_b1", 0.4700, 0.2900, -0.4200, -0.1800, 1.6740, 1.6860,
+            r=0.003), m_steel)
+    for i, hx in enumerate((0.4200, 0.3600)):
+        A(_gbox(f"gal_stack{i}", hx - 0.0270, hx + 0.0270, -0.3900, -0.2100,
+                1.6860, 1.7630 - i * 0.0180, r=0.008), m_pale)
+
+    # ------------------------------- 7. counter top, show side (EXTERIOR props)
+    # MEASURED in ref_side.jpg.  A stainless warmer stands on the counter and
+    # occludes the lower right of bay 3: image x 641-698 -> X -0.686..-0.955
+    # by aperture 3's own fraction, top at v -0.31 of the band, i.e. Z 1.495.
+    # Its BASE is on the model counter at CNT_ZT; the photograph puts the base
+    # 54 mm higher, which is the counter-height residual REF sec.6 already
+    # carries (nosing 1.189-1.205 AG measured against 1.240 built) and is not
+    # this section's to resolve.  The TOP is matched, because the top is what
+    # the aperture read depends on and it is fixed against the locked band.
+    cy0, cy1 = 0.9200, 1.1200
+    A(_gbox("gal_warmer", -0.6860, -0.9550, cy0, cy1, CNT_ZT, 1.4950,
+            r=0.014, seg=3), m_steel)
+    A(_gcyl("gal_warmer_tap", (-0.8200, cy1, 1.3100), (0, 1, 0), 0.0170,
+            0.0420, seg=12), m_steel)
+    # the amber squeeze bottle standing on it -- measured Z 1.501-1.561 with a
+    # pale cap over the top 18 mm
+    A(_gcyl("gal_sqbottle", (-0.8400, 1.0200, 1.4980), (0, 0, 1), 0.0165,
+            0.0470, seg=14), m_amber)
+    A(_gcyl("gal_sqcap", (-0.8400, 1.0200, 1.5450), (0, 0, 1), 0.0105,
+            0.0170, seg=12), m_pale)
+    # two stainless caddies aft of it, image x 715-760, tops at v -0.53
+    for i, (bx0, bx1) in enumerate(((-1.0420, -1.1550), (-1.1600, -1.2730))):
+        A(_gbox(f"gal_caddy{i}", bx0, bx1, cy0 + 0.010, cy1 - 0.010,
+                CNT_ZT, 1.4090, r=0.006), m_steel)
+        A(_gbox(f"gal_caddy_fill{i}", bx0 + 0.012, bx1 - 0.012, cy0 + 0.024,
+                cy1 - 0.024, 1.3600, 1.4060, r=0.004), m_pale)
+    # ref_rear34.jpg: a rank of squeeze bottles with red and yellow caps
+    # stands beside the caddies on the tail run of the counter.  Kept forward
+    # of x = -2.10: verify row 1 measures overall length across every mesh
+    # object except the counter itself and the margin is 17 mm.
+    for i, (bx, col) in enumerate(((-1.8600, GAL_RED), (-1.9250, GAL_AMBER),
+                                   (-1.9900, GAL_RED),
+                                   (-2.0550, (0.5400, 0.4200, 0.0700)))):
+        A(_gcyl(f"gal_bot{i}", (bx, 1.0300, CNT_ZT), (0, 0, 1), 0.0195,
+                0.1350, seg=14), m_pale)
+        A(_gcyl(f"gal_botcap{i}", (bx, 1.0300, CNT_ZT + 0.1350), (0, 0, 1),
+                0.0120, 0.0260, seg=12),
+          _gm(f"gal_cap{i}", col, rough=0.36, spec=0.45))
+    return obs
+
+
 # ===================================================== step-7 entry point
 def spec4_details(body):
     """Everything SPEC sec.4 asks for that build.py does not already call.
@@ -1235,7 +1731,15 @@ def spec4_details(body):
     # rev 8: the bulbs are LIT in both in-service photographs and read warm.
     # They rendered unlit pearl white for seven revisions.
     out.append((bulb_string(), "bulb"))
-    out.append((menu_cards(), "capwhite"))
+    # rev 11: the cards were `capwhite` (0.890, 0.888, 0.872) against a
+    # measured (225.5, 199.7, 174.5) at TWICE the pillar's saturation. They
+    # carry their own material now -- see _gcard().
+    _cards = menu_cards()
+    for _c in _cards:
+        _c.data.materials.append(_gcard())
+    out.append((_cards, None))
+    # rev 11: everything visible through the three serving apertures
+    out.append((galley_dressing(), None))
     out.append((plate_1963(), "chrome"))             # SPEC sec.4: CHROME
     out.append((roof_vent(body), "paint"))
     out.append((englid_handle(), "chrome"))

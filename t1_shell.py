@@ -512,7 +512,12 @@ def roof_lids():
     # the counter, which is the whole point of the board. At +0.0016 it sat on
     # the outer skin and faced the off side -- the first probe rendered two blank
     # grey slabs.
-    b = _lid_face(LID_X0, LID_X1, LID_W, "lid_board", off=-0.0016)
+    # rev 11: off was -0.0016 and that is 1.6 mm INSIDE the skin, not on its
+    # underside.  _lid_panel solidifies with offset = -1.0, so the skin occupies
+    # z in [-LID_T, 0]; a board at -0.0016 sits just under the UPPER face, and
+    # _lid_panel's pressed seams dip to -0.0028 and poke through the decal
+    # plane.  The underside is at -LID_T.
+    b = _lid_face(LID_X0, LID_X1, LID_W, "lid_board", off=-(LID_T + 0.0016))
     _hinge(b, 0.0, LID_Y_HINGE, zh, LID_OPEN_DEG)
     boards.append(b)
 
@@ -531,7 +536,8 @@ def roof_lids():
     skins.append(lid2)
 
     # ref_rear34.jpg: the rear lid is up and lettered "LA SANTA..."
-    b2 = _lid_face(LID2_X0, LID2_X1, LID_W * 0.86, "lid_board2", off=-0.0016)
+    b2 = _lid_face(LID2_X0, LID2_X1, LID_W * 0.86, "lid_board2",
+                   off=-(LID_T + 0.0016))
     _hinge(b2, 0.0, LID_Y_HINGE, zh2, LID2_OPEN_DEG)
     boards.append(b2)
 

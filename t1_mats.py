@@ -171,6 +171,7 @@ W_ALBEDO = float(os.environ.get("T1_W_ALB", 0.130))
                                # that realises only 1.2 % albedo sd and 0.13 %
                                # display residual (see the report).  0.70
                                # realises 14.2 % albedo sd.
+_NOSE_SEL = [None]          # rev 11: nose-decal selector handoff
 W_MAP_LO, W_MAP_HI = 0.30, 0.70
 # rev 10.  This was 0.30 -- a 30 % opacity ceiling on hand-painted signwriting,
 # put there in rev 8 to stop the folk art dragging the flank saturation down.
@@ -848,6 +849,27 @@ def body_paint(name="T1_paint"):
     nt.links.new(mp.outputs[0], swirl_b.inputs["Vector"])
     sideY = _math(nt, 'GREATER_THAN', sep.outputs["Y"], 0.0, -1180, -760)
 
+    # nose decal selector, built HERE because both the colour mix and the alpha
+    # mask consume it and the alpha mask is assembled first.
+    _geo = nt.nodes.new("ShaderNodeNewGeometry"); _geo.location = (-1600, -1500)
+    _sepN = nt.nodes.new("ShaderNodeSeparateXYZ"); _sepN.location = (-1440, -1500)
+    nt.links.new(_geo.outputs["Normal"], _sepN.inputs[0])
+    _absx = _math(nt, 'ABSOLUTE', _sepN.outputs["X"], None, -1290, -1500)
+    _facex = _math(nt, 'GREATER_THAN', _absx.outputs[0], 0.70, -1140, -1500)
+    _fwd = _math(nt, 'GREATER_THAN', sep.outputs["X"], 1.60, -1140, -1620)
+    _isNose = _math(nt, 'MULTIPLY', _facex.outputs[0], _fwd.outputs[0],
+                    -990, -1560)
+    _cmb = nt.nodes.new("ShaderNodeCombineXYZ"); _cmb.location = (-1440, -1380)
+    nt.links.new(sep.outputs["Y"], _cmb.inputs[0])
+    nt.links.new(sep.outputs["Z"], _cmb.inputs[1])
+    _nmp = nt.nodes.new("ShaderNodeMapping"); _nmp.location = (-1290, -1380)
+    _nmp.inputs["Scale"].default_value = (0.6410, 0.6410, 1.0)
+    _nmp.inputs["Location"].default_value = (0.5000, -0.0128, 0.0)
+    nt.links.new(_cmb.outputs[0], _nmp.inputs["Vector"])
+    _nose = _img(nt, "nose.png", -1140, -1380, projection='FLAT', ext='CLIP')
+    nt.links.new(_nmp.outputs[0], _nose.inputs["Vector"])
+    _NOSE_SEL[0] = (_isNose, _nose) if _nose.image else None
+
     # --- density mask (SPEC sec.3): heaviest on the nose, trailing along the
     #     belt, sparse at the tail. Applied as a spatially varying cutoff on a
     #     low-frequency noise so whole motifs drop out rather than fading.
@@ -912,7 +934,17 @@ def body_paint(name="T1_paint"):
     nt.links.new(sideY.outputs[0], mixA.inputs[0])
     nt.links.new(swirl_b.outputs["Alpha"], mixA.inputs[2])
     nt.links.new(swirl.outputs["Alpha"], mixA.inputs[3])
-    amask = _math(nt, 'MULTIPLY', mixA.outputs[0], 1.0, 100, -1240)
+    if _NOSE_SEL[0] is not None:
+        _isNose, _nose = _NOSE_SEL[0]
+        mixNA = nt.nodes.new("ShaderNodeMix"); mixNA.location = (60, -1400)
+        mixNA.data_type = 'FLOAT'
+        nt.links.new(_isNose.outputs[0], mixNA.inputs[0])
+        nt.links.new(mixA.outputs[0], mixNA.inputs[2])
+        nt.links.new(_nose.outputs["Alpha"], mixNA.inputs[3])
+        amask = _math(nt, 'MULTIPLY', mixNA.outputs[0], 1.0, 100, -1240)
+        _NOSE_SEL[0] = None
+    else:
+        amask = _math(nt, 'MULTIPLY', mixA.outputs[0], 1.0, 100, -1240)
     # SPEC sec.3 asks for a graded BOUQUET, not wallpaper. Without a ceiling
     # the dense regions run at the tile's own alpha, which covers the red
     # almost completely and drags the flank from sat 0.82 to 0.27.
@@ -939,7 +971,32 @@ def body_paint(name="T1_paint"):
         nt.links.new(sideY.outputs[0], mixC.inputs[0])
         nt.links.new(swirl_b.outputs["Color"], mixC.inputs[6])
         nt.links.new(swirl.outputs["Color"], mixC.inputs[7])
-        nt.links.new(mixC.outputs[2], hs.inputs["Color"])
+
+        # rev 11: THE NOSE FRONT FACE NEEDS ITS OWN IMAGE.
+        # The flank tile is BOX-projected, so on the nose (|Nx| dominant) it is
+        # sampled on (y, z) -- which lands at u 0.192-0.628, v 0.380-0.575,
+        # overlapping the CAB DOOR's own flank footprint at u 0.379-0.579,
+        # v 0.471-0.572 over almost the whole door band. That is why the nose
+        # renders as the door's scattered comma marks where the photograph
+        # shows scrollwork. Per-face UVs alone cannot fix it: the flank already
+        # occupies u 0.28-1.34 of the 3.846 m period, so there is no unused
+        # band to move the nose into. It needs a SECOND IMAGE.
+        # tex/nose.png carries the measured wedge round both front corners
+        # (gold 11.34 % against a measured 11.44, dark 2.38 against 2.42) and
+        # is deliberately EMPTY in the middle of the face, which the folk-art
+        # measurement records as NOT MEASURABLE. ext='CLIP' returns alpha 0
+        # outside the window, so a mis-wired selector cannot leak it onto the
+        # body.
+        if _NOSE_SEL[0] is not None:
+            isNose, nose = _NOSE_SEL[0]
+            mixNC = nt.nodes.new("ShaderNodeMix"); mixNC.location = (-960, -560)
+            mixNC.data_type = 'RGBA'
+            nt.links.new(isNose.outputs[0], mixNC.inputs[0])
+            nt.links.new(mixC.outputs[2], mixNC.inputs[6])
+            nt.links.new(nose.outputs["Color"], mixNC.inputs[7])
+            nt.links.new(mixNC.outputs[2], hs.inputs["Color"])
+        else:
+            nt.links.new(mixC.outputs[2], hs.inputs["Color"])
         nt.links.new(amask.outputs[0], mix_g.inputs[0])
         nt.links.new(hs.outputs[0], mix_g.inputs[7])
     else:

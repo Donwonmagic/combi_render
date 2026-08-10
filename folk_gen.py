@@ -1,4 +1,55 @@
-"""Flank folk art -- `tex/swirl.png` (show side) and `tex/swirl_b.png` (off side).
+"""Flank folk art -- `tex/swirl.png` (show side), `tex/swirl_b.png` (off side)
+and `tex/nose.png` (nose front face decal, not yet read by t1_mats.py).
+
+rev 11 -- THE COMPOSITION
+=========================
+rev 10 hit the coverage and the contrast: cab-door gold 29.09 % against a
+measured 29.08 %, gold-to-red luma ratio x2.050 against a measured x2.048.
+Held against `ref_side.jpg` it was still visibly wrong, and the failure was
+COMPOSITIONAL.  Coverage is a MARGINAL; a generator can match it exactly and
+still be wrong, because the same 10 % gold over the same flank can be one
+bouquet or five hundred commas.
+
+Measured on `ref_side.jpg` (door rectified into its own plane on
+folk_door.md sec.1's four corners; flank in the body plane, painted field
+extracted per column, script ink and hardware masked):
+
+    quantity                                 ref_side   rev 10   rev 11
+    gold connected components, whole flank       66        95       30
+    gold in the LARGEST component               47.8 %    32.4 %   44.9 %
+    gold in the largest 3                       84.4 %    67.2 %   92.5 %
+    gold in the largest 10                      93.5 %    87.5 %   97.3 %
+    components of 300-3000 mm2                   13        47       16
+    gold on the open panel X +0.87..-0.62        0.29 %    1.85 %   0.02 %
+    gold in the script band, v 0.05-0.75         0.02 %    1.65 %   0.00 %
+    gold under the script, v 0.55-1.00           0.04 %    1.93 %   0.00 %
+    gold in the top margin, v 0-0.10             0.73 %   16.95 %   0.00 %
+
+Three findings drove the rebuild, and all three are corrections to numbers this
+file previously took on trust:
+
+  1. folk_door.md sec.11's mid-flank bins (0.72-3.28 % gold from X +0.74 to
+     -0.40) are CONTAMINATED.  That scan swept two fixed body lines and did not
+     mask the script.  The counter's BRASS NOSING sits at the top of that band
+     (G/R 0.6-0.8, B/R 0.2-0.4) and the script's TARNISHED SILVER LEAF reads
+     (85,46,35) = G/R 0.554, B/R 0.419 -- both inside the gold gate
+     (G/R >= 0.475, B/R < 0.52), against the folk gold's own B/R of 0.03-0.05.
+     Re-measured with the field taken per column below the nosing and the
+     script masked on its own B/R signature, the open panel is 0.00-0.14 % gold
+     per 0.10 m bin and 0.29 % overall.  SPEC 10.9's original "0.0-0.2 % bare
+     red where the script sits" was RIGHT.
+  2. The COUNTER hides the top 125 mm of the flank band (t1_detail.CNT_ZB
+     1.1470 authored = Z_BELT0 - 0.1250 after the shear; the photograph's
+     visible cream->red break sits 124.8 mm below the cab door's belt across
+     621 measured columns).  rev 10 authored art into that strip.
+  3. The REAR ARCH cuts the band.  rev 10's band ran belt-to-sill everywhere,
+     so art placed in band fractions went into the wheel arch.
+
+The generator changed shape as a result.  rev 10 solved 56 independent per-bin
+coverage targets by adding small curls from a candidate pool.  That reaches any
+coverage profile and cannot reach a composition.  rev 11 places the MEASURED
+INVENTORY -- two large connected masses at their measured boxes, four tendrils,
+eight rosettes, five dark commas -- and solves SIZES, never counts.
 
 rev 10.  REBUILT against `/home/claude/work/measure/folk_door.md`, which
 re-measured the cab door in the DOOR'S OWN PLANE (the door is swung open ~49
@@ -219,15 +270,60 @@ def door_bot_z(x):
 DOOR_H = ((_DOOR_TOP_AUTH - rake_drop(1.36)) - door_bot_z(1.36))   # ~1.017 m
 
 
+# --- rev 11: two things the flank band was getting wrong ------------------
+#
+# (1) THE COUNTER HIDES THE TOP 125 mm OF THE FLANK.  `t1_detail.CNT_ZB` is
+#     1.1470 authored; after the shear that is 1.1470 - rake_drop(0) = 1.1105
+#     at x = 0, i.e. exactly Z_BELT0 - 0.1250.  And the photograph agrees to
+#     the millimetre: the visible cream->red break in `ref_side.jpg` sits at
+#     yref 439.45 +/- 0.5 from image x 400 to 920 (measured per column, 621
+#     columns), which is 26.35 px = 124.8 mm below the cab door's own belt at
+#     yref 413.1.  `build.py:256` puts the counter on `S.SHOW_SIDE` only, so
+#     strictly this band is visible on the off flank -- but the composition
+#     being replicated was measured UNDER the counter, and inventing art for
+#     the strip would breach SPEC 10.10.  Both tiles therefore leave it bare.
+#     Whether the body's own two-tone break is at the belt or 125 mm below it
+#     is NOT MEASURABLE: the counter covers it in the only photograph that
+#     shows this flank.
+#
+# (2) THE REAR ARCH CUTS THE BAND.  Art authored in band fractions without it
+#     goes into the wheel arch, where there is no sheet metal.  Circle taken
+#     from the model's own geometry (t1_core.TIRE_R, t1_shell.ARCH_R,
+#     t1_core.X_AXLE_R) and cross-checked against the photograph: the arch lip
+#     at body X -0.965 measures 0.696 m above ground off `ref_side.jpg`
+#     (ground-line datum + the 28.6 mm common-mode correction of RULES 3)
+#     against the model's 0.681 m -- 15 mm.  The arch WIDTH does not agree:
+#     `analysis/final_numbers.py` reads the opening as 0.952 m off the
+#     photograph against the model's 2*ARCH_R = 0.747 m.  That is a
+#     pre-existing model/reference discrepancy, not this file's to fix; the
+#     model's own circle is used, because the art has to be visible on the
+#     body that is actually rendered.
+CNT_DROP = 0.1248
+TIRE_R, ARCH_R = 0.3325, 0.3735              # t1_core.py:35, t1_shell.py:203
+X_AXLE_R = -1.100                            # t1_core.py:25
+
+
+def arch_top(x):
+    """height above ground of the rear wheel-arch lip, or None off the arch."""
+    d = x - X_AXLE_R
+    if abs(d) >= ARCH_R:
+        return None
+    return TIRE_R + math.sqrt(ARCH_R * ARCH_R - d * d) - RAKE_DZDX * d
+
+
 def panel_top(x):
-    """top of the paintable red field."""
+    """top of the VISIBLE painted red field."""
+    if x < DOOR_X0:
+        return belt_z(x) - CNT_DROP
     return belt_z(x)
 
 
 def panel_bot(x):
     if DOOR_X0 <= x <= DOOR_X1:
         return door_bot_z(x)
-    return sill_z(x)
+    a = arch_top(x)
+    s = sill_z(x)
+    return s if a is None else max(s, a)
 
 
 # ===========================================================================
@@ -264,37 +360,123 @@ CURLS = [                                        # (u, v, su, sv)  sec.9
 EDGE_E = (0.988, 0.593, 0.031, 0.095)
 DARK_1 = (0.020, 0.591, 0.028, 0.073)
 
-# sec.11 corrected coverage-vs-X scan.  gold % of (red+gold) painted flank.
-# `arch` marks bins the report says are unreliable -- the rear wheel arch eats
-# the sampling band there and strips out the low, dense part of the panel, so
-# those bins are LOWER BOUNDS, not measurements.  The X -1.34 bin (6.33 %) is
-# the artefact the report names explicitly and is discarded outright.
-FLANK_SCAN = [   # (X centre, gold %, reliable?)
-    (+0.739, 2.41, True), (+0.550, 3.28, True), (+0.361, 2.49, True),
-    (+0.171, 1.27, True), (-0.019, 1.16, True), (-0.208, 1.20, True),
-    (-0.397, 0.72, True), (-0.587, 2.12, True),
-    (-0.776, 8.18, False), (-0.965, 19.18, False), (-1.155, 20.13, False),
-    (-1.344, 6.33, None), (-1.534, 11.94, False), (-1.723, 19.12, True),
-    (-1.912, 39.81, True)]
+# ===========================================================================
+# 3b.  THE FLANK COMPOSITION -- re-measured 2026-08-10 from `ref_side.jpg`
+#
+# WHY folk_door.md sec.11's scan HAD TO BE RE-DONE.  That scan swept the
+# project's two FIXED body lines (`y = 439.45 - 0.0385(x-749.6)` down to
+# `y = 594.4 - ...`) and classified everything inside them.  Two things that
+# are not folk art fall inside those lines and pass the gold gate
+# (G/R >= 0.475, B/R < 0.52):
+#
+#   * THE COUNTER'S BRASS NOSING.  `t1_detail.counter_nosing` is real brass
+#     and `analysis/final_numbers.py` puts it at yref 416.8; the fixed band's
+#     top edge at yref 439.45 sits within a few px of it and the JPEG's
+#     4:2:2 chroma smears it down across the boundary.  Measured on the strip
+#     itself: G/R 0.6-0.8, B/R 0.2-0.4.
+#   * THE SCRIPT'S TARNISHED SILVER LEAF.  SPEC 10.21 measures `Senor` at
+#     median (85, 46, 35).  That is G/R 0.554, B/R 0.419 -- inside the gold
+#     gate.  Re-measured here over the word's own pixels: G/R 0.554,
+#     B/R 0.419 (n = 392) against the folk gold's B/R 0.03-0.05 (n = 3640 on
+#     the rear-quarter mass).
+#
+# Re-measured with the painted field extracted PER COLUMN (top = the measured
+# cream->red break, which is below the nosing; bottom = the rocker or the arch
+# lip), the script masked on its own B/R signature, the hatch man's hand
+# masked, the louvre block masked and the field eroded 2 px so its own
+# boundary cannot be counted as ink:
+#
+#   quantity                          sec.11 scan     re-measured
+#   gold, X +0.74 .. -0.40            0.72 - 3.28 %   0.00 - 0.14 %
+#   gold, whole open panel +0.87..-0.62  ~2 %         0.29 %
+#   gold under the script (v .55-1)      ~1.5 %       0.04 %
+#
+# i.e. SPEC 10.9's original "0.0-0.2 % bare red where the script sits" was
+# RIGHT, and sec.11's correction of it was the artefact.  This matters far
+# more than 2 percentage points of coverage: a generator told the open panel
+# carries 1-3 % gold fills it with small marks, and small marks scattered over
+# open red is exactly the failure this rev exists to remove.
+# ===========================================================================
+FLANK_SCAN = [   # (X centre, gold % of the local visible band, reliable?)
+    (+0.850, 3.17, True), (+0.750, 0.00, True), (+0.550, 0.00, True),
+    (+0.350, 0.00, True), (+0.150, 0.00, True), (-0.050, 0.00, True),
+    (-0.250, 0.00, True), (-0.450, 0.00, True), (-0.550, 0.23, True),
+    (-0.650, 6.28, True), (-0.750, 6.06, True), (-0.850, 10.51, True),
+    (-0.950, 19.48, True), (-1.050, 26.19, True), (-1.150, 26.81, True),
+    (-1.250, 11.08, False), (-1.350, 8.48, False), (-1.450, 12.24, False),
+    (-1.550, 13.39, True), (-1.650, 16.28, True), (-1.750, 19.79, True),
+    (-1.850, 36.99, True), (-1.950, 37.83, True)]
 
-# The density model.  Monotone-ish envelope: every reliable bin is hit, every
-# arch-affected bin is treated as a lower bound, the -1.34 artefact is dropped.
 # Forward of the door the lower nose (sec.10) is 11.44 % gold / 2.42 % dark.
 NOSE_GOLD, NOSE_DARK = 11.44, 2.42
-FLANK_DENSITY = [           # (x, gold % of the local painted band)
+FLANK_DENSITY = [           # (x, gold % of the local VISIBLE band)
     (2.108, 11.4), (1.900, 11.4), (1.840, 7.0),
     (1.8171, 29.1),                              # <- the door, sec.3
     (0.9084, 29.1),
-    (0.860, 3.2), (0.739, 2.41), (0.550, 3.28), (0.361, 2.49), (0.171, 1.27),
-    (-0.019, 1.16), (-0.208, 1.20), (-0.397, 0.72), (-0.587, 2.12),
-    (-0.776, 9.5), (-0.965, 19.6), (-1.155, 20.3), (-1.344, 20.3),
-    (-1.534, 20.2), (-1.723, 19.4), (-1.912, 39.8), (-2.108, 42.0)]
-# rear quarter carries the heavy dark curlwork (sec.8: a 28 mm dark stroke
-# resolves there).  folk_door.md gives NO rear-quarter dark %, only the lower
-# nose's 2.42 %; this is an extrapolation from the same painter's hand and is
-# reported as such.
-REAR_DARK = 3.0
-REAR_CREAM = 4.0
+    (0.880, 3.2), (0.800, 0.1), (0.550, 0.0), (0.350, 0.0), (0.150, 0.0),
+    (-0.050, 0.0), (-0.250, 0.0), (-0.450, 0.0), (-0.550, 0.2),
+    (-0.620, 2.0), (-0.650, 6.3), (-0.750, 6.1), (-0.850, 10.5),
+    (-0.950, 19.5), (-1.050, 26.2), (-1.150, 26.8), (-1.250, 11.1),
+    (-1.350, 8.5), (-1.450, 12.2), (-1.550, 13.4), (-1.650, 16.3),
+    (-1.750, 19.8), (-1.850, 37.0), (-1.950, 37.8), (-2.108, 38.0)]
+
+# --- the flank's own v-profile.  folk_door.md sec.5 measures a v-profile on
+#     the DOOR only and rev 10 reused it everywhere.  Measured here on the
+#     flank itself, in 10 bins of the visible band, v = 0 at the field top:
+FLANK_V_REAR = np.array([                        # X -1.45 .. -2.01
+    2.84, 3.50, 24.00, 66.11, 54.19, 35.37, 30.26, 31.05, 26.14, 11.13])
+FLANK_V_ARCH = np.array([                        # X -0.83 .. -1.45
+    0.86, 0.00, 0.00, 0.00, 24.78, 43.59, 39.65, 23.19, 26.29, 25.50])
+
+# --- CLEAR ZONES.  (name, X hi, X lo, v0, v1, measured gold %, tolerance)
+CLEAR_ZONES = [
+    ("script band  X +0.87..-0.55 v .05-.75", 0.872, -0.55, 0.05, 0.75, 0.02),
+    ("under script X +0.60..-0.30 v .55-1.0", 0.600, -0.30, 0.55, 1.00, 0.04),
+    ("open panel   X +0.87..-0.62 all v",     0.872, -0.62, 0.00, 1.00, 0.29),
+    ("top margin   X +0.87..-2.01 v 0-.10",   0.872, -2.007, 0.00, 0.10, 0.73),
+]
+
+# --- COMPOSITION.  Connected components of the gold, `ref_side.jpg`, closed at
+#     ~15 mm, door in its own plane and flank in the body plane, on one list.
+#     66 components carry 0.2826 m2 of gold.
+COMP_TOP = {1: 47.8, 2: 73.7, 3: 84.4, 5: 87.8, 10: 93.5}
+COMP_HIST = [                # (bin, n, % of all gold)
+    ("<100", 24, 0.42), ("100-300", 21, 1.32), ("300-1k", 3, 0.55),
+    ("1k-3k", 10, 5.96), ("3k-10k", 5, 7.32), ("10k-30k", 0, 0.00),
+    (">30k", 3, 84.43)]
+
+# --- the measured inventory.  v is a fraction of the VISIBLE band.
+#     (id, X0, X1, v0, v1, area mm2, elongation)   X0 = aft end.
+FLANK_MASSES = [
+    ("MASS-R1  rear-most quarter", -2.007, -1.557, 0.18, 0.96, 73213, 1.35),
+    ("MASS-R2  over the rear arch", -1.216, -0.828, 0.40, 0.95, 30285, 1.50)]
+FLANK_TENDRILS = [           # (X0, X1, v0, v1, area mm2, elong)
+    (-0.861, -0.747, 0.51, 0.91, 5290, 2.08),
+    (-1.391, -1.268, 0.72, 0.95, 2578, 3.40),
+    (-1.538, -1.476, 0.63, 0.91, 1726, 2.73),
+    (-2.007, -1.978, 0.01, 0.17, 1211, 4.02)]
+FLANK_ROSETTES = [           # (X centre, v centre, gold-blob area mm2)
+    (-0.687, 0.45, 3632), (-1.688, 0.75, 3564), (-1.744, 0.87, 1838),
+    (-1.254, 0.75, 1816), (-0.671, 0.91, 1524), (+0.845, 0.81, 1435),
+    (-1.444, 0.71, 1076), (-1.848, 0.90, 740)]
+# dark-brown ink.  The 0.62 x red gate of sec.3 resolves only the ink's core
+# (0.12 % of the flank field); at 0.78 x red -- still well below the red
+# ground -- the marks resolve as objects and 5 of them carry 83 % of the dark.
+# Both numbers are reported; neither is "the" area, exactly as sec.8 says.
+FLANK_DARKS = [              # (X0, X1, v0, v1, area mm2)
+    (-0.781, -0.511, 0.60, 0.92, 11881), (-1.429, -1.263, 0.71, 0.93, 8384),
+    (-1.784, -1.723, 0.06, 0.26, 4439), (-1.652, -1.538, 0.62, 0.92, 2376),
+    (-1.836, -1.794, 0.18, 0.25, 1098)]
+# measured zone fractions (visible band, script ink and hardware excluded)
+FLANK_GOLD = 10.03           # whole field X +0.872 .. -2.007
+OPEN_GOLD = 0.29             # X +0.872 .. -0.62
+BOUQ_GOLD = 13.93            # X -0.62 .. -1.45
+REAR_GOLD = 27.86            # X -1.45 .. -2.007
+# rev 10 carried REAR_DARK 3.0 / REAR_CREAM 4.0 as EXTRAPOLATIONS because
+# folk_door.md measures neither.  Both are now measured on the flank itself.
+REAR_DARK = 4.21             # X -1.45..-2.01 at the 50 %-ink gate (0.14 at 0.62)
+FLANK_DARK = 3.83            # whole field, same gate (0.12 at 0.62)
+REAR_CREAM = 1.10            # X -1.45..-2.01
 
 
 def flank_density(x):
@@ -545,10 +727,190 @@ def curl(R, cx, cz, size, chir=1, phase=0.0, w=0.030, dark=0.0):
     return p
 
 
+def _seg(R, cls, run, w0, w1, n):
+    """draw one surviving run of a clipped stroke, keeping its own taper."""
+    f0 = run[0][0] / max(n - 1, 1)
+    f1 = run[-1][0] / max(n - 1, 1)
+    R.stroke(cls, [q for _, q in run],
+             w0 + (w1 - w0) * f0, w0 + (w1 - w0) * f1)
+
+
+def bouquet(R, x0, x1, z0, z1, w, chir=1, phase=0.0, head=-1, keep=None,
+            rich=1.0, nvol=5, ncurl=4, leaves=3, tail=True, lat=0.0,
+            jit=None, bow=0.50, wf=1.15):
+    """ONE CONNECTED MASS filling the box (x0..x1, z0..z1).
+
+    This is the element the photograph is built from and rev 10 did not have.
+    Every stroke starts ON the spine, so the whole thing rasterises as a SINGLE
+    connected component -- which is what makes "the largest component carries
+    48 % of all the gold" reachable at all.
+
+    Shape read off `ref_rear34.jpg`'s rear quarter, which resolves this mass at
+    roughly twice `ref_side.jpg`'s sampling: a broad tapering paisley body
+    sweeping corner to corner, a rolled C-scroll HEAD, C-scroll volutes budding
+    off the head half of the spine, small curls, two leaves and a thin tail.
+
+    Two proportions decide whether this reads as signwriting or as a worm, and
+    rev 11 got both wrong before getting them right:
+
+      * a spiral needs RADIUS >= ~2.8x its own stroke width or it rasterises as
+        a filled disc.  `w` is therefore clamped to 0.22 R0 and the AREA is
+        bought with stroke LENGTH -- more elements -- not with width.
+      * the measured mass is not centred in its own box: component 1 of
+        `ref_side.jpg` has its centroid 0.675 of the way from the forward edge
+        to the aft edge.  The head sits deep in the head-end quarter and the
+        volutes hang off the head half of the spine.
+
+    `keep(x, z) -> bool` vetoes a point; strokes are CLIPPED to the allowed
+    region, never dropped whole (section 8, the lower nose's shared texels).
+    """
+    cx, cz = 0.5 * (x0 + x1), 0.5 * (z0 + z1)
+    hx, hz = 0.5 * (x1 - x0), 0.5 * (z1 - z0)
+    # R0 sets every scroll's radius.  min(hx, hz) starves a wide flat box (the
+    # mass over the rear arch is 388 x 244 mm), so use the geometric mean and
+    # cap each scroll against the box height instead.
+    # per-side phase / placement jitter.  The two flanks must carry the SAME
+    # measured composition (same boxes, same areas, same aft-weighted
+    # centroid), so the only room left for decorrelation is INSIDE each mass:
+    # every scroll's phase and every volute's seat are re-drawn per side.
+    def J(a=1.0):
+        return 0.0 if jit is None else float(jit.uniform(-a, a))
+
+    R0 = math.sqrt(hx * hz)
+    w = min(w * (0.72 + 0.28 * min(rich, 1.8)), R0 * 0.22)
+
+    def put(cls, p, aa, bb):
+        if keep is None:
+            R.stroke(cls, p, aa, bb)
+            return
+        run, n = [], len(p)
+        for i, (px, pz) in enumerate(p):
+            if keep(px, pz):
+                run.append((i, (px, pz)))
+                continue
+            if len(run) > 3:
+                _seg(R, cls, run, aa, bb, n)
+            run = []
+        if len(run) > 3:
+            _seg(R, cls, run, aa, bb, n)
+
+    def scroll(px, pz, size, ch, ph, ww):
+        """`acanthus_scroll`'s geometry, routed through the clipper."""
+        main = spiral(px, pz, size, size * 0.34, 0.60, ph, ch)
+        put(GOLDS, [(q, r - ww * 0.26) for (q, r) in main], ww * 1.06, ww * 0.26)
+        put(GOLD, main, ww, ww * 0.22)
+        tipx, tipz = main[-1]
+        put(GOLD, spiral(tipx + ch * size * 0.10 * math.cos(ph + 3.4),
+                         tipz + size * 0.10 * math.sin(ph + 3.4),
+                         size * 0.12, size * 0.03, 0.70, ph + 3.4, ch),
+            ww * 0.30, ww * 0.10)
+        for f in (0.30, 0.62):
+            i = int(f * (len(main) - 1))
+            put(GOLD, spiral(main[i][0], main[i][1], size * 0.34, size * 0.07,
+                             0.66, ph + 2.2, -ch), ww * 0.38, ww * 0.11)
+        return main
+
+    # --- body: a broad tapering sweep from the tail corner to the head corner
+    tx = cx - head * hx * 0.92
+    tz = cz - hz * 0.66 * chir
+    hxx = cx + head * hx * 0.78
+    hzz = cz + hz * 0.52 * chir
+    # the spine's BELLY must fall on the head side, or the mass's centroid
+    # lands in the wrong half of its own box (measured 0.675 of the way aft).
+    spine = arc(tx, tz, hxx, hzz, -hz * bow * chir * head, n=56)
+    # The BODY is the widest stroke in the mass -- it is a paisley body, not a
+    # tendril -- and it is also the stroke that carries the mass's ORIENTATION.
+    # Buying area here instead of with more volutes keeps the two flanks
+    # distinguishable: at high volute counts a mass degenerates into a filled
+    # box and the two sides correlate no matter how they were drawn.
+    put(GOLDS, [(x, z - w * 0.28) for (x, z) in spine], w * 1.62, w * 0.34)
+    put(GOLD, spine, w * 1.50, w * 0.30)
+
+    def at(f):
+        return spine[int(np.clip(f, 0.0, 1.0) * (len(spine) - 1))]
+
+    # --- head scroll, deep in the head end
+    scroll(hxx, hzz, R0 * 0.62, chir, phase + J(2.2), w * 1.25)
+
+    # --- volutes budding off the spine ALONG ITS WHOLE LENGTH, biggest at the
+    #     head end so the mass's centroid lands where the measurement puts it.
+    #     `rich` is the solver's area knob: it adds ATTACHED elements, which
+    #     grows the mass's area without growing the component COUNT.  Width is
+    #     not the knob -- width past 0.22 R0 turns every scroll into a disc.
+    nv = int(np.clip(round(nvol * rich), 2, 26))
+    for k in range(nv):
+        # Volutes are placed on a 2-D low-discrepancy lattice inside the box,
+        # each STEMMED back to its nearest spine point.  Strung along the spine
+        # instead (rev 11's third attempt) they leave the box corners bare and
+        # the mass cannot reach the measured fill of 0.30 no matter how rich it
+        # gets: a 1-D chain of scrolls has no way to fill a 2-D box.
+        u1 = (lat + (k + 1) * 0.6180339887) % 1.0       # golden-ratio sequence
+        u2 = (0.37 * lat + (k + 1) * 0.7548776662) % 1.0
+        f = 0.96 - 0.80 * u1 ** wf                      # weighted to the head
+        sx, sz = at(f)
+        rr = 0.34 + 0.60 * u2
+        ang = phase + 2.399963 * k                      # golden angle
+        vxc = sx + head * hx * (0.52 * rr * math.cos(ang) + J(0.10))
+        vzc = sz + hz * (0.60 * rr * math.sin(ang) * chir + J(0.10))
+        size = min(R0 * (0.18 + 0.26 * f), hz * 0.60, hx * 0.60)
+        ww = w * (0.40 + 0.26 * f)
+        if keep is not None and not keep(vxc, vzc):
+            # the volute's centre landed in a forbidden slice (the lower nose's
+            # shared texels).  Slide it OUT of the slice rather than let the
+            # clipper eat it -- same inventory, nudged, which is what a painter
+            # working round an obstruction does.
+            for dz in np.arange(0.02, 0.40, 0.02):
+                if keep(vxc, vzc + dz):
+                    vzc += dz
+                    break
+                if keep(vxc, vzc - dz):
+                    vzc -= dz
+                    break
+        put(GOLD, arc(sx, sz, vxc, vzc, 0.0, n=10), ww * 0.85, ww * 0.85)
+        scroll(vxc, vzc, size, chir * (1 if k % 2 == 0 else -1),
+               phase + 1.7 + 1.35 * k + J(3.14), ww)
+
+    # --- small curls between the volutes
+    nc = int(np.clip(round(ncurl * rich), 2, 18))
+    for k in range(nc):
+        f = 0.88 - 0.78 * ((k + 0.5) / nc)
+        ex, ez = at(f)
+        s = R0 * (0.14 + 0.13 * f)
+        put(GOLD, spiral(ex, ez, s * 0.92, s * 0.12, 0.85,
+                         phase + 2.6 + 1.9 * k + J(3.14), -chir),
+            w * 0.44, w * 0.12)
+
+    # --- leaves reaching for the box corners
+    nl = int(np.clip(round(leaves * rich), 1, 9))
+    for k in range(nl):
+        f = 0.86 - 0.62 * ((k + 0.5) / nl)
+        ex, ez = at(f)
+        ang = phase + 1.1 + 2.3 * k + J(1.2)
+        put(GOLD, arc(ex, ez, ex + head * hx * 0.52 * math.cos(ang),
+                      ez - hz * 0.72 * math.sin(ang) * chir,
+                      hz * 0.16 * chir, n=22), w * 0.62, w * 0.08)
+
+    # --- tail: a long thin sweep with its own coil
+    if tail:
+        t = arc(tx, tz, cx - head * hx * 1.00, cz + hz * 0.22 * chir,
+                -hz * 0.24 * chir * head, n=28)
+        put(GOLDS, [(x, z - w * 0.12) for (x, z) in t], w * 0.60, w * 0.09)
+        put(GOLD, t, w * 0.52, w * 0.07)
+        put(GOLD, spiral(t[-1][0], t[-1][1], R0 * 0.22, w * 0.30, 0.80,
+                         phase + 4.6, -chir), w * 0.34, w * 0.09)
+    return spine
+
+
 # rosette: outer ring of cream pearls, cream scalloped mid-ring, gold disc,
 # DARK CENTRE.  folk_door.md sec.4 -- the door rosettes are 8-11 px in the
 # photograph so this sub-structure is taken from the same painter's rosettes on
-# the rear quarter at (890, 545), as the report instructs.
+# the rear quarter at (890, 545), as the report instructs.  CONFIRMED at 12x on
+# `ref_rear34.jpg` (855,565)-(915,625), where the same flower resolves at ~2x
+# `ref_side.jpg`'s sampling: twelve pale pearls on an outer ring, a scalloped
+# mid-ring, a pale disc with a small dark dot.  It is a PALE motif, not a gold
+# one -- the reason it classifies as gold in `ref_side.jpg` is that at
+# 4.7 mm/px the whole 40 mm flower blurs into one warm blob whose B/R lands at
+# 0.16-0.31, inside the gold gate.
 # geometry solved so cream / (pi R^2) = ROS_CREAM_FRAC, which is what turns the
 # measured 10-rosette disc area into the measured 3.90 % cream.
 ROS_PEARLS = 12
@@ -741,44 +1103,169 @@ def build_nose(R, rng, variant=0, gs=1.0, ds=1.0):
                     w=0.030 * gs, eyes=(0.45,), shade=False)
 
 
-def build_rear(R, rng, variant=0, ws=1.0):
-    """Rear-quarter bouquet.  sec.8: this is where the heavy dark-brown
-    curlwork lives -- a 28 mm dark stroke resolves here and nowhere on the
-    door.  Kept clear of the nose band inside the shared strip, and clear of
-    x < -2.02 (which would wrap onto the cab door's hinge edge)."""
-    dk = 0.013                                   # keyline half-width -> 26 mm
+def vz(x, v):
+    """body z at fraction `v` down the VISIBLE band at station x."""
+    t, b = panel_top(x), panel_bot(x)
+    return t - v * (t - b)
+
+
+def nose_free(x, z):
+    """False where a flank motif would land on the lower nose's own texels.
+
+    The tile period is 1/MAP_SCALE = 3.846 m, so x and x - 3.846 are the same
+    texel.  The lower-nose composition occupies x 1.87-2.02 at z 0.470-0.700,
+    which is the same paint as x -1.976..-1.826 at the same z -- i.e. a 150 mm
+    window inside the rear-quarter mass.  The two cannot both be authored:
+    sec.10 puts 11.4 % gold on the nose and the flank scan puts 37 % there.
+    The rear mass yields, and the residual is reported, not hidden.  The fix is
+    in section 12(e)/(f) and it is a t1_mats.py change, not a tile change.
+    """
+    # `build_nose` puts its two motifs at x 1.866-2.010, so the shared window
+    # is exactly x - 3.846 = -1.980 .. -1.836, plus a 5 mm margin.
+    if not (-2.020 <= x <= -1.796):
+        return True
+    return not (NOSE_Z0 - 0.035 <= z <= NOSE_Z1 + 0.035)
+
+
+def build_rear(R, rng, variant=0, ws=1.0, aw=1.0):
+    """THE FLANK COMPOSITION.  Two large connected masses where the photograph
+    puts them, plus the four measured tendrils.  Nothing else.
+
+    rev 10 built this as six `acanthus_scroll`s at hand-picked stations and
+    then let a 56-bin density controller add small curls until the coverage
+    profile matched.  The coverage profile did match; the composition did not.
+    Measured on `ref_side.jpg`, the gold aft of the door is TWO components
+    carrying 78 % of it (0.0732 and 0.0303 m2), four tendrils carrying 8 %,
+    eight rosette blobs carrying 12 %, and a tail of chroma fringes.
+    """
     sgn = 1 if variant == 0 else -1
-    t, b = band(-1.90)
-    # dominant paisley of the rear-most panel, sitting ABOVE the nose band
-    acanthus_scroll(R, -1.900, NOSE_Z1 + 0.175, 0.108, chir=sgn,
-                    phase=1.3 + variant, w=0.082 * ws, dark=dk)
-    acanthus_scroll(R, -1.860, NOSE_Z1 + 0.400, 0.086, chir=-sgn, phase=3.4,
-                    w=0.058 * ws, dark=dk)
-    leaf(R, -1.98, t - 0.09, -1.83, t - 0.05, 0.05 * sgn, 0.044 * ws)
-    for i, cx in enumerate((-1.56, -1.36, -1.16, -0.99)):
-        t2, b2 = band(cx)
-        m2 = 0.5 * (t2 + b2)
-        acanthus_scroll(R, cx, m2 + 0.05 * (1 if i % 2 else -1),
-                        0.150 - 0.008 * i, chir=sgn * (1 if i % 2 else -1),
-                        phase=0.8 + 1.9 * i + variant, w=0.060 * ws,
-                        dark=dk if i == 0 else 0.0)
+
+    def guard(x, z):
+        # no flank stroke may reach x < XART_LO: that texel is the cab door's
+        # hinge edge (x = -2.029 and x = +1.817 are the same paint).
+        # + 12 mm.  Anything aft of XART_LO wraps onto the cab door's hinge
+        # edge (x = -2.029 and x = +1.817 are the same texel); the margin is
+        # kept small because the last 40 mm of the tail is where the measured
+        # rear mass is densest -- at +40 mm the X -1.95 bin lost 13 points.
+        return x >= XART_LO + 0.012 and nose_free(x, z)
+
+    for i, (nm, xa, xb, v0, v1, area, el) in enumerate(FLANK_MASSES):
+        # variant 1 flips the sweep of each mass inside its own box and
+        # re-phases it: same box, same area, a different drawing.
+        ch = sgn if i == 0 else -sgn
+        xm = 0.5 * (xa + xb)
+        bouquet(R, xa, xb, vz(xm, v1), vz(xm, v0),
+                w=0.060, rich=(ws if i == 0 else aw),
+                chir=ch, phase=(1.15 if i == 0 else 3.9) + 2.77 * variant,
+                # head stays AFT on both flanks: it is the measured centroid,
+                # not a stylistic choice.  The two sides are decorrelated by
+                # chirality, phase and the volute lattice's offset instead.
+                head=-1, keep=guard, lat=0.0 if variant == 0 else 0.41,
+                jit=rng,
+                # the off flank is a DIFFERENT DRAWING of the same composition:
+                # same box, same area, same aft-weighted centroid, but the body
+                # sweeps the other way through the box and the volutes seat on
+                # a different lattice with the opposite weighting.
+                bow=0.50 if variant == 0 else 0.86,
+                wf=1.15 if variant == 0 else 0.62,
+                nvol=5 if variant == 0 else 6,
+                ncurl=4 if variant == 0 else 3,
+                leaves=3 if variant == 0 else 2)
+    for k, (xa, xb, v0, v1, area, el) in enumerate(FLANK_TENDRILS):
+        xm, zm0, zm1 = 0.5 * (xa + xb), vz(0.5 * (xa + xb), v0), \
+            vz(0.5 * (xa + xb), v1)
+        # a tendril is a single tapered sweep; its measured elongation sets
+        # which way round it runs
+        if el > 2.6:                     # tall and thin -> runs down the panel
+            p0, p1 = (xb, zm0), (xa, zm1)
+        else:
+            p0, p1 = (xb, zm1), (xa, zm0)
+        if variant:
+            p0, p1 = p1, p0
+        L = max(math.hypot(p1[0] - p0[0], p1[1] - p0[1]), 1e-4)
+        wid = (area * 1e-6) / L          # mm2 -> m2, over the stroke length
+        pts = arc(p0[0], p0[1], p1[0], p1[1],
+                  (0.030 if k % 2 else -0.030) * sgn, n=24)
+        # the tendrils' areas are MEASURED, so they carry no solver scale --
+        # rev 11 briefly multiplied them by the mass richness and put 16 % gold
+        # into a bin the photograph holds at 6 %.
+        if all(guard(px, pz) for (px, pz) in pts):
+            R.stroke(GOLD, pts, wid * 1.35, wid * 0.35)
+            c = spiral(p1[0], p1[1], 0.030, 0.008, 0.72,
+                       1.1 + 1.7 * k + variant, sgn * (1 if k % 2 else -1))
+            R.stroke(GOLD, c, wid * 0.90, wid * 0.25)
 
 
 def rear_rosettes(R, rng, variant=0, scale=1.0):
-    """folk_door.md does NOT measure cream on the rear quarter -- sec.4 only
-    says the same painter's rosettes are legible there at ~18 px.  This is an
-    extrapolation at REAR_CREAM %, flagged as such in the report."""
-    x = -1.985
-    while x < -0.86:
-        dens = flank_density(x) / 40.0
-        if rng.random() < 0.85 * dens * scale:
-            t, b = band(x)
-            z = b + (t - b) * float(np.clip(rng.beta(2.0, 2.0), 0.06, 0.94))
-            d = float(rng.uniform(0.048, 0.098))
-            shared = FLANK_X0 <= x <= FLANK_X1 - 1.0 / MAP_SCALE
-            if not (shared and NOSE_Z0 - 0.02 - d < z < NOSE_Z1 + 0.02 + d):
-                rosette(R, x, z, d, phase=rng.random())
-        x += 0.030
+    """The eight rosettes measured on the flank, at their measured stations.
+
+    rev 10 scattered these on a density-weighted Poisson walk from x -1.985 to
+    -0.86 at a 30 mm step, which put 20-30 of them on the panel.  The
+    photograph has EIGHT aft of the shut line, and one of those (X +0.845) is
+    the only piece of folk art on the whole open panel between the cab door and
+    the bouquet.  Diameters are the measured blob diameters: at the
+    photograph's 4.7 mm/px a rosette reads as one warm blob, so
+    d_eq = 2 sqrt(area / pi) is the rosette's own diameter to within the PSF.
+    """
+    out = []
+    for k, (x, v, area) in enumerate(FLANK_ROSETTES):
+        d = 2.0 * math.sqrt(area * 1e-6 / math.pi) * scale
+        if variant:
+            # same inventory, mirrored within its own zone and jittered, so the
+            # two flanks do not rhyme.  The lone open-panel rosette keeps its
+            # station: it is a composition anchor, not a texture.
+            if x > 0.0:
+                xx, vv = x, v          # the open-panel anchor does not move
+            else:
+                xx = float(np.clip(-2.0 - (x + 2.0) * 0.86 - 0.28, -1.99, -0.64))
+                vv = float(np.clip(1.02 - v + rng.normal(0, 0.02), 0.08, 0.94))
+        else:
+            xx, vv = x, v
+        xx = float(np.clip(xx, XART_LO + 0.6 * d, XART_HI - 0.6 * d))
+        z = vz(xx, vv)
+        if not nose_free(xx, z):
+            z = vz(xx, min(0.94, vv + 0.22))
+        rosette(R, xx, z, d, phase=rng.random())
+        out.append((xx, vv, d))
+    return out
+
+
+def flank_dark(R, rng, variant=0, ds=1.0):
+    """The five dark-brown marks that carry 83 % of the flank's dark ink.
+
+    folk_door.md sec.8 says the heavy dark curlwork is a rear-quarter and
+    lower-nose feature and gives no rear area fraction; rev 10 therefore laid a
+    26 mm dark KEYLINE under every rear gold stroke and called it 3 %
+    extrapolated.  Measured, the dark is not a keyline at all -- it is a small
+    number of free-standing paisley commas, and the largest of them
+    (0.0119 m2, 275 x 204 mm at X -0.51..-0.78) sits on OPEN RED just forward
+    of the gold bouquet, which is a composition element in its own right.
+    """
+    sgn = 1 if variant == 0 else -1
+    for k, (xa, xb, v0, v1, area) in enumerate(FLANK_DARKS):
+        xm = 0.5 * (xa + xb)
+        zt, zb = vz(xm, v0), vz(xm, v1)
+        w = xb - xa
+        if variant:
+            xm = float(np.clip(xm - 0.085 * (1 if k % 2 else -1),
+                               XART_LO + 0.10, 0.80))
+            xa, xb = xm - 0.5 * w, xm + 0.5 * w
+        if min(xa, xb) < XART_LO + 0.05 or not (nose_free(xa, zb)
+                                                and nose_free(xb, zt)):
+            continue
+        # a comma: a fat tapering hook with a rolled head, area-matched
+        L = math.hypot(xb - xa, zt - zb)
+        wid = (area * 1e-6) / max(L * 0.78, 1e-4) * ds
+        ch = sgn * (1 if k % 2 else -1)
+        p = arc(xb, zt, xa, zb, 0.34 * L * ch, n=28)
+        R.stroke(DARK, p, wid * 1.05, wid * 0.14)
+        R.stroke(DARK, spiral(xa, zb, 0.34 * L, 0.05 * L, 0.80,
+                              1.2 + 1.9 * k, ch), wid * 0.62, wid * 0.12)
+        for j in range(2):                        # the comma's dot pair
+            f = 0.34 + 0.24 * j
+            i = int(f * (len(p) - 1))
+            R.disc(DARK, p[i][0] + 0.030 * ch, p[i][1] - 0.012,
+                   0.30 * wid)
 
 
 # ------------------------------------------------------- filler candidates
@@ -970,58 +1457,49 @@ def solve_door(side, seed, variant, verbose=True):
 
 
 def solve_flank(side, seed, variant, door_ops, verbose=True):
-    """Same closed loop for the rest of the flank: hit FLANK_DENSITY(x), which
-    is folk_door.md sec.11's corrected scan with the wheel-arch bins treated as
-    lower bounds and the X -1.34 artefact discarded.
+    """The flank is now COMPOSED, not filled.
 
-    Bins forward of x 1.83 are NOT solved: their texels are the rear-most
-    quarter's (see the wrap note in section 8) and are authored there, with the
-    nose's own z-window (0.470-0.700) left free for the nose composition."""
+    rev 10 solved 56 independent per-bin coverage targets by adding small
+    curls from a candidate pool until each bin matched.  That reaches any
+    coverage profile and cannot reach a composition: coverage is a marginal.
+    Held against `ref_side.jpg` it produced 55 free marks of 300-3000 mm2
+    against the photograph's 13, and 1.7 % gold on the open panel the
+    photograph keeps at 0.29 %.
+
+    What is solved here is five scalars, and every one of them is a SIZE, not a
+    count:
+        wsR  element richness of MASS-R1, the rear-most quarter's paisley
+        wsA  element richness of MASS-R2, the mass over the rear arch
+        rs   rosette diameter scale (count and stations are measured)
+        dks  dark-comma stroke width
+        gs, dsn   the two lower-nose motifs, sec.10's 11.44 % / 2.42 %
+    Solving sizes cannot invent marks, so the component statistics are a
+    property of the inventory and not of the controller.
+    """
     pen = Pen(side)
     NB = 56
     edges = np.linspace(FLANK_X0, FLANK_X1, NB + 1)
-    Xs, Zs, tgt, live, pools = [], [], [], [], []
-    SH_R0, SH_R1 = FLANK_X0, FLANK_X1 - 1.0 / MAP_SCALE      # the shared strip
+    Xs, Zs, tgt, live = [], [], [], []
     for i in range(NB):
         x0, x1 = edges[i], edges[i + 1]
         xc = 0.5 * (x0 + x1)
         indoor = DOOR_X0 - 0.02 < xc < DOOR_X1 + 0.02
         bf = rocker_band if indoor else full_band
-        shared = SH_R0 <= xc <= SH_R1
         X, Z = band_grid(x0, x1, 12, 110, bf)
         Xs.append(X)
         Zs.append(Z)
-        t = 1.6 if indoor else flank_density(xc)
-        tgt.append(t)
+        tgt.append(0.0 if indoor else flank_density(xc))
         live.append(xc < 1.83)
-
-        def zf(x, f, indoor=indoor, shared=shared):
-            tt, bb = (rocker_band if indoor else band)(x)
-            if not shared:
-                return bb + (tt - bb) * (1.0 - f ** 1.35)
-            lo, hi = NOSE_Z0 - 0.018, NOSE_Z1 + 0.018     # leave the nose band
-            span = (tt - bb) - (hi - lo)                  # to the nose motifs
-            val = bb + span * (1.0 - f ** 1.35)
-            return val if val < lo else val + (hi - lo)
-        sparse = t < 6.0
-        # a motif may not reach past XART_LO, which wraps onto the door
-        smax = min(0.030 if sparse else 0.070, max(0.034, x0 - XART_LO))
-        pools.append(_cands(seed + 5, [i], x0, x1, zf, n=180,
-                            smin=min(0.012 if sparse else 0.026, smax * 0.55),
-                            smax=smax))
     tgt = np.array(tgt)
     live = np.array(live)
 
-    def anchors(ws, gs=1.0, ds=1.0):
+    def build(wsR, wsA, rs, dks, gs, dsn):
         R = Raster(Pen(side))
         rng = np.random.default_rng(seed + 31)
-        build_nose(R, rng, variant, gs, ds)
-        build_rear(R, rng, variant, ws)
-        return R.ops
-
-    def rosettes_of(cs):
-        R = Raster(Pen(side))
-        rear_rosettes(R, np.random.default_rng(seed + 91), variant, cs)
+        build_rear(R, rng, variant, wsR, wsA)
+        flank_dark(R, np.random.default_rng(seed + 53), variant, dks)
+        rear_rosettes(R, np.random.default_rng(seed + 91), variant, rs)
+        build_nose(R, rng, variant, gs, dsn)      # LAST: it owns its texels
         return R.ops
 
     def render(ops):
@@ -1029,13 +1507,13 @@ def solve_flank(side, seed, variant, door_ops, verbose=True):
         R.ops = ops
         return np.asarray(R.render(), dtype=np.uint8)
 
-    def profile(lab):
-        return np.array([frac(lab, pen, Xs[i], Zs[i])[0] for i in range(NB)])
+    def zone(lab, xa, xb, n=64):
+        X, Z = band_grid(xa, xb, n, 200, full_band)
+        return frac(lab, pen, X, Z)
 
     Xn, Zn = band_grid(1.870, 2.020, 60, 170, nose_band)
-    Xc, Zc = band_grid(-2.000, -1.700, 60, 200, full_band)
 
-    def bisect(f, lo, hi, n=7):
+    def bisect(f, lo, hi, n=8):
         for _ in range(n):
             m = 0.5 * (lo + hi)
             if f(m):
@@ -1044,55 +1522,164 @@ def solve_flank(side, seed, variant, door_ops, verbose=True):
                 hi = m
         return 0.5 * (lo + hi)
 
-    # 1) global width scale on the rear bouquet, so the anchors alone sit under
-    #    the target everywhere -- the per-bin filler can only ADD.
-    rear = (edges[:-1] > -2.0) & (edges[:-1] < -0.90)
-    ws = bisect(lambda m: profile(render(door_ops + anchors(m)))[rear].mean()
-                < 0.52 * tgt[rear].mean(), 0.40, 1.30, 6)
-    # 2) the two lower-nose motifs, against sec.10's 11.44 % / 2.42 %
-    gs = bisect(lambda m: frac(render(door_ops + anchors(ws, m)), pen,
-                               Xn, Zn)[0] < NOSE_GOLD, 0.20, 2.2, 8)
-    ds = bisect(lambda m: frac(render(door_ops + anchors(ws, gs, m)), pen,
-                               Xn, Zn)[2] < NOSE_DARK, 0.05, 2.0, 8)
-    anc = anchors(ws, gs, ds)
-    if verbose:
-        print("      scales: rear bouquet %.3f  nose gold %.3f  nose dark %.3f"
-              % (ws, gs, ds))
+    def dens_target(xa, xb, n=96):
+        """the FLANK_DENSITY profile averaged over a zone, weighted by the
+        MODEL's own band height -- which is what the tile can actually fill."""
+        q = np.linspace(min(xa, xb), max(xa, xb), n)
+        h = np.array([max(panel_top(x) - panel_bot(x), 0.0) for x in q])
+        d = np.array([flank_density(x) for x in q])
+        return float((d * h).sum() / max(h.sum(), 1e-9))
 
-    # 4) per-bin filler.  Each bin's target is independent, so a damped
-    #    proportional controller is enough; motif spill between bins is a
-    #    smoothing operator and does not destabilise it.
-    nbud = np.zeros(NB)
-    K = 0.30
-    best, bops, blab = None, None, None
-    for it in range(30):
-        Rf = Raster(Pen(side))
-        for i in range(NB):
-            if live[i]:
-                p, zf = pools[i]
-                _draw_cands(Rf, p, zf, nbud[i])
-        ops = door_ops + anc + Rf.ops
-        lab = render(ops)
-        got = profile(lab)
-        err = (got - tgt)[live]
-        rms = float(np.sqrt((err ** 2).mean()))
-        if best is None or rms < best:
-            best, bops, blab = rms, ops, lab
-        if verbose and it % 4 == 0:
-            print("      iter %2d  flank rms %5.2f  max %5.2f"
-                  % (it, rms, float(np.abs(err).max())))
-        nbud = np.maximum(0.0, nbud + 0.55 * K * (tgt - got))
+    T_R1 = dens_target(-1.53, -2.007)
+    T_R2 = dens_target(-0.80, -1.30)
+    P = dict(wsR=1.0, wsA=1.0, rs=1.0, dks=1.0, gs=1.0, dsn=1.0)
+
+    def lab_of(**kw):
+        q = dict(P)
+        q.update(kw)
+        return render(door_ops + build(**q))
+
+    # 1) MASS-R1 against the measured 27.86 % over X -1.45..-2.007
+    P["wsR"] = bisect(lambda m: zone(lab_of(wsR=m), -1.53, -2.007)[0]
+                      < T_R1, 0.40, 8.00)
+    # 2) MASS-R2 against the measured 13.93 % over X -0.62..-1.45
+    P["wsA"] = bisect(lambda m: zone(lab_of(wsA=m), -0.80, -1.30)[0]
+                      < T_R2, 0.40, 8.00)
+    # 3) rosette diameters are MEASURED (d_eq of the blob each one makes in
+    #    `ref_side.jpg`), so they are NOT solved -- the achieved cream is
+    #    reported as an outcome.  sec.3's cream gate (B/R >= 0.42 against a
+    #    red ground at 0.193 and a cream ink at 0.53) sits ABOVE the 50 %-ink
+    #    crossing, so the measured 1.10 % rear cream is itself a floor.
+    P["rs"] = 1.0
+    # 4) dark commas against the rear quarter's measured dark.  The gate used
+    #    is the 50 %-ink crossing (0.78 x the local red ground), which is the
+    #    unbiased area estimator for a blurred edge -- sec.3's 0.62 x gate is
+    #    ~88 % pure and reads only the marks' cores (0.14 % against 4.21 %).
+    #    The same argument says sec.3's gold gate IS unbiased: G/R 0.475 sits
+    #    at the midpoint of red 0.249 and gold ink 0.75.
+    P["dks"] = bisect(lambda m: zone(lab_of(dks=m), -1.45, -2.007)[2]
+                      < REAR_DARK, 0.30, 2.40)
+    # 5) the two lower-nose motifs, sec.10
+    P["gs"] = bisect(lambda m: frac(lab_of(gs=m), pen, Xn, Zn)[0]
+                     < NOSE_GOLD, 0.20, 2.2)
+    P["dsn"] = bisect(lambda m: frac(lab_of(dsn=m), pen, Xn, Zn)[2]
+                      < NOSE_DARK, 0.05, 2.0)
+    # 6) re-close R1/R2 once, because 3-5 add ink inside their zones
+    for _ in range(2):
+        P["wsR"] = bisect(lambda m: zone(lab_of(wsR=m), -1.53, -2.007)[0]
+                          < T_R1, 0.40, 8.00, 7)
+        P["wsA"] = bisect(lambda m: zone(lab_of(wsA=m), -0.80, -1.30)[0]
+                          < T_R2, 0.40, 8.00, 7)
+
+    ops = door_ops + build(**P)
+    lab = render(ops)
     if verbose:
-        print("      best flank rms %.2f %% (over %d live bins)"
-              % (best, int(live.sum())))
-    # 5) rear-quarter rosettes LAST, so the filler cannot overdraw them
-    #    (extrapolated target -- folk_door.md measures no rear cream)
-    cs = bisect(lambda m: frac(render(bops + rosettes_of(m)), pen,
-                               Xc, Zc)[1] < REAR_CREAM, 0.10, 4.0, 8)
-    bops = bops + rosettes_of(cs)
+        print("      sizes: R1 %.3f  R2 %.3f  rosette %.3f  dark %.3f  "
+              "nose gold %.3f  nose dark %.3f"
+              % (P["wsR"], P["wsA"], P["rs"], P["dks"], P["gs"], P["dsn"]))
+        got = np.array([frac(lab, pen, Xs[i], Zs[i])[0] for i in range(NB)])
+        e = (got - tgt)[live]
+        print("      flank density rms %.2f %%, max %.2f %% (%d bins); "
+              "open panel %.2f %% against a measured %.2f %%\n"
+              "      zone targets: R1 %.2f got %.2f   R2 %.2f got %.2f"
+              % (float(np.sqrt((e ** 2).mean())), float(np.abs(e).max()),
+                 int(live.sum()), zone(lab, 0.872, -0.62)[0], OPEN_GOLD,
+                 T_R1, zone(lab, -1.53, -2.007)[0],
+                 T_R2, zone(lab, -0.80, -1.30)[0]))
+    return ops, lab
+
+
+# ---------------------------------------------------------------- nose decal
+# `tex/nose.png`.  NOT read by t1_mats.py yet -- see section 12(f) for the four
+# nodes that wire it in.  It exists because the nose FRONT face is box-projected
+# and therefore samples (y, z), which lands in the same u-band as the cab door's
+# flank footprint: the door's lower art appears on the nose.
+#
+# Content is deliberately almost empty.  folk_door.md sec.10 measures the lower
+# nose WEDGE (the red below the open door, above the bumper, source x 93-124,
+# y 545-601) at 11.44 % gold / 2.42 % dark, and says of the front face itself
+# that the bullet indicator and the headlamp bezel occupy essentially all of it
+# and that the strip between the lamps and the door's leading edge is 4-9 px
+# wide at grazing incidence -- NOT MEASURABLE.  So this decal carries the
+# measured wedge composition around BOTH front corners at the measured band
+# height and asserts nothing about the middle of the face, which is left bare.
+# Inventing scrollwork for the centre would breach SPEC 10.10.
+NOSE_TEX = 1024
+NOSE_Y0, NOSE_Y1 = -0.780, 0.780       # decal window in object space
+NOSE_ZA, NOSE_ZB = 0.020, 1.580        # square, so the art is undistorted
+
+
+class NosePen:
+    """maps (y, z) to the nose decal, the way a FLAT projection on
+    CombineXYZ(Y, 0, Z) would.  `x` in every motif call is the body Y."""
+
+    def __init__(self):
+        self.view = (0, 0, NOSE_TEX * SS, NOSE_TEX * SS)
+
+    def px(self, y, z):
+        u = (y - NOSE_Y0) / (NOSE_Y1 - NOSE_Y0)
+        v = (z - NOSE_ZA) / (NOSE_ZB - NOSE_ZA)
+        return u * NOSE_TEX * SS, (1.0 - v) * NOSE_TEX * SS
+
+    def m(self, d):
+        return d * NOSE_TEX * SS / (NOSE_Y1 - NOSE_Y0)
+
+
+def make_nose(path=None, verbose=True):
+    pen = NosePen()
+    R = Raster(pen)
+    zc = 0.5 * (NOSE_Z0 + NOSE_Z1)
+    for s in (-1, +1):
+        y = s * 0.615
+        R.stroke(DARK, spiral(y - s * 0.042, zc + 0.045, 0.040, 0.012, 0.46,
+                              2.4, -s), 0.0152, 0.0047)
+        acanthus_scroll(R, y, zc - 0.008, 0.062, chir=s, phase=0.7,
+                        w=0.030, eyes=(0.45,), shade=False)
+    lab = np.asarray(R.render(), dtype=np.uint8)
+    W = {}
+    for c in (GOLD, GOLDS, CREAM, DARK):
+        W[c] = ((lab == c).reshape(NOSE_TEX, SS, NOSE_TEX, SS)
+                .sum(axis=(1, 3), dtype=np.int32) / float(SS * SS))
+    alpha = sum(W.values())
+    acc = np.zeros((NOSE_TEX, NOSE_TEX, 3), np.float32)
+    for c, col in PAL.items():
+        acc += W[c][..., None] * col.astype(np.float32)
+    rgb = np.where(alpha[..., None] > 1e-6,
+                   acc / np.maximum(alpha, 1e-6)[..., None], 0.0)
+    if ndimage is not None:
+        m = (alpha > 1e-6).astype(np.float32)
+        for _ in range(5):
+            w = ndimage.uniform_filter(m, 9)
+            for k in range(3):
+                sm = ndimage.uniform_filter(rgb[..., k] * m, 9)
+                rgb[..., k] = np.where(m > 0.5, rgb[..., k],
+                                       sm / np.maximum(w, 1e-6))
+            m = (w > 1e-6).astype(np.float32)
+    out = np.zeros((NOSE_TEX, NOSE_TEX, 4), np.uint8)
+    out[..., :3] = np.clip(lin_to_srgb(rgb) * 255.0 + 0.5, 0, 255).astype(np.uint8)
+    out[..., 3] = np.clip(alpha * 255.0 + 0.5, 0, 255).astype(np.uint8)
+    p = path or os.path.join(TEXDIR, "nose.png")
+    Image.fromarray(out, "RGBA").save(p)
+    # measure it in the same wedge folk_door.md sec.10 measured
+    g = ((lab == GOLD) | (lab == GOLDS))
+    d = (lab == DARK)
+    ys = np.linspace(0.545, 0.690, 60)
+    zs = np.linspace(NOSE_Z0, NOSE_Z1, 170)
+    Y, Z = np.meshgrid(ys, zs)
+    px, py = pen.px(Y, Z)
+    c = np.clip(px.astype(int), 0, NOSE_TEX * SS - 1)
+    r = np.clip(py.astype(int), 0, NOSE_TEX * SS - 1)
     if verbose:
-        print("      rear rosette scale %.3f" % cs)
-    return bops, render(bops)
+        print("  [nose] %s  %dx%d, window y %.3f..%.3f z %.3f..%.3f "
+              "(%.3f m square)"
+              % (p, NOSE_TEX, NOSE_TEX, NOSE_Y0, NOSE_Y1, NOSE_ZA, NOSE_ZB,
+                 NOSE_Y1 - NOSE_Y0))
+        print("        corner wedge: gold %.2f %% (sec.10 %.2f), "
+              "dark %.2f %% (sec.10 %.2f); rest of the face bare by design"
+              % (100 * g[r, c].mean(), NOSE_GOLD,
+                 100 * d[r, c].mean(), NOSE_DARK))
+        print("        whole face alpha %.2f %%" % (100 * (alpha > 0.5).mean()))
+    return p
 
 
 def make(path=None, side="show", seed=196301, variant=0, verbose=True):
@@ -1101,7 +1688,7 @@ def make(path=None, side="show", seed=196301, variant=0, verbose=True):
         print("  [%s] cab door -- folk_door.md sec.3/sec.5" % side)
     dops = solve_door(side, seed, variant, verbose)
     if verbose:
-        print("  [%s] flank -- folk_door.md sec.11 corrected scan" % side)
+        print("  [%s] flank -- the MEASURED inventory (sec.3b)" % side)
     ops, lab = solve_flank(side, seed, variant, dops, verbose)
     rgba, alpha, W = resolve(lab)
     p = path or os.path.join(TEXDIR, SIDES[side][2])
@@ -1282,6 +1869,89 @@ def demirror_check(res_show, res_off):
     }
 
 
+def composition(res, x0=0.872, x1=-2.007):
+    """The measurement this rev exists for: CONNECTED COMPONENTS of the gold,
+    sampled in body coordinates at `ref_side.jpg`'s own 4.735 mm/px so the
+    component census is comparable with the photograph's.
+
+    Coverage is a marginal.  Two tiles can carry the same 10 % gold over the
+    same flank and read as signwriting or as confetti, and only this
+    measurement tells them apart.
+    """
+    if ndimage is None:
+        return None
+    lab, pen = res["lab"], Pen(res["side"])
+    mm = 1000.0 / 211.21
+    xs = np.arange(x0, x1, -mm / 1000.0)
+    nz = 40
+    fz = (np.arange(nz) + 0.5) / nz
+    X, F = np.meshgrid(xs, fz)
+    T = np.array([panel_top(x) for x in xs])[None, :]
+    B = np.array([panel_bot(x) for x in xs])[None, :]
+    Z = T - F * (T - B)
+    v = look(lab, pen, X, Z)
+    gold = (v == GOLD) | (v == GOLDS)
+    dark = v == DARK
+    cream = v == CREAM
+    cell = mm * 1000.0 * float((T - B).mean()) / nz
+    M = ndimage.binary_closing(gold, np.ones((3, 3)))
+    L, n = ndimage.label(M, structure=np.ones((3, 3)))
+    fa = ndimage.sum(M, L, range(1, n + 1)) * cell if n else np.zeros(0)
+
+    # the door in its own plane at 1 mm/px, sec.5's own recipe
+    nu, nv = 940, 524
+    UD, PV = np.meshgrid((np.arange(nu) + 0.5) / nu, (np.arange(nv) + 0.5) / nv)
+    Xd = DOOR_X1 - UD * DOOR_W
+    ZT = np.array([panel_top(x) for x in Xd[0]])[None, :]
+    ZB = np.array([panel_bot(x) for x in Xd[0]])[None, :]
+    vd = look(lab, pen, Xd, ZT - PV * (ZT - ZB))
+    gd = (vd == GOLD) | (vd == GOLDS)
+    Md = ndimage.binary_closing(gd, np.ones((15, 15)))
+    Ld, nd = ndimage.label(Md, structure=np.ones((3, 3)))
+    da = ndimage.sum(Md, Ld, range(1, nd + 1)) * 1.0 if nd else np.zeros(0)
+
+    allar = np.concatenate([da, fa])
+    o = np.argsort(allar)[::-1]
+    tot = allar.sum()
+    cum = np.cumsum(allar[o]) / max(tot, 1e-9)
+    zones = {}
+    for nm, xa, xb, v0, v1, tgt in CLEAR_ZONES:
+        m = (X <= xa) & (X >= xb) & (F >= v0) & (F <= v1)
+        if m.sum() > 20:
+            zones[nm] = (100 * gold[m].mean(), tgt)
+    return dict(areas=allar, n=allar.size, m2=tot * 1e-6,
+                top={k: 100 * cum[min(k, allar.size) - 1] for k in
+                     (1, 2, 3, 5, 10)},
+                zones=zones, gold=100 * gold.mean(), dark=100 * dark.mean(),
+                cream=100 * cream.mean())
+
+
+def report_composition(res):
+    c = composition(res)
+    if c is None:
+        print("  (composition report needs scipy)")
+        return
+    print("  COMPOSITION -- gold connected components, whole flank")
+    print("    %-26s %10s %10s" % ("", "ref_side", "achieved"))
+    print("    %-26s %10d %10d" % ("components", 66, c["n"]))
+    print("    %-26s %10.4f %10.4f" % ("gold area (m2)", 0.2826, c["m2"]))
+    for k in (1, 2, 3, 5, 10):
+        print("    %-26s %10.1f %10.1f"
+              % ("gold in the largest %-2d (%%)" % k, COMP_TOP[k], c["top"][k]))
+    print("    size histogram (mm2)      %10s %10s   %10s %10s"
+          % ("ref n", "got n", "ref % gold", "got %"))
+    edges = [0, 100, 300, 1000, 3000, 10000, 30000, 1e12]
+    a = c["areas"]
+    T = max(a.sum(), 1e-9)
+    for i, (nm, rn, rp) in enumerate(COMP_HIST):
+        sel = (a >= edges[i]) & (a < edges[i + 1])
+        print("      %-24s %10d %10d   %10.2f %10.2f"
+              % (nm, rn, int(sel.sum()), rp, 100 * a[sel].sum() / T))
+    print("  CLEAR ZONES (gold %, ref_side -> achieved)")
+    for nm, (got, tgt) in c["zones"].items():
+        print("    %-42s %6.2f -> %6.2f" % (nm, tgt, got))
+
+
 def report(out):
     for side in ("show", "off"):
         r = out[side]
@@ -1356,13 +2026,16 @@ def report(out):
             print("    %-20s target x%.3f    got %6.2f = x%.3f   <- BLOCKED"
                   % (nm, t, cs2[nm], cs2[nm] / RED_LUMA))
 
+        report_composition(r)
+
     print("\n  ============ materials-14: are the flanks the same art? ========")
     for k, v in demirror_check(out["show"], out["off"]).items():
         print("    %-42s %s" % (k, v if isinstance(v, tuple) else "%.4f" % v))
 
 
 def main():
-    print("folk_gen rev10  --  built against measure/folk_door.md")
+    print("folk_gen rev 11  --  composition re-measured from ref_side.jpg;\n"
+          "  coverage and contrast held at folk_door.md's values")
     print("  tile %d px, ss %d, 1 texel = %.3f mm on the body, period %.3f m"
           % (N, SS, 1000.0 / (N * MAP_SCALE), 1.0 / MAP_SCALE))
     print("  palette solved for the sec.7 contrast ratios against t1_mats.RED "
@@ -1375,6 +2048,7 @@ def main():
     out = {}
     for side, seed, variant in (("show", 196301, 0), ("off", 771963, 1)):
         out[side] = make(side=side, seed=seed, variant=variant)
+    make_nose()
     report(out)
     return out
 
@@ -1430,6 +2104,68 @@ def main():
 #       convention the two tiles here are authored for.  Also drop
 #       projection_blend 0.32 -> 0.10 (t1_mats.py:826): at 0.32 the nose corner
 #       cross-fades two unrelated regions of the tile.
+#
+#   (f) THE NOSE FRONT FACE -- a KNOWN OPEN DEFECT, and the reason this file
+#       now also writes `tex/nose.png`.  The swirl image is BOX-projected in
+#       object space, so Blender picks the sampling axes from the largest
+#       normal component.  On the nose front face that is |Nx|, and the face is
+#       therefore sampled on (tile_co.y, tile_co.z):
+#           u = 0.410 + 0.26 y   ->  u 0.192 .. 0.628  over y -0.84 .. +0.84
+#           v = 0.263 + 0.26 z   ->  v 0.380 .. 0.575  over z  0.45 .. 1.20
+#       The cab door's own flank footprint is
+#           u = 0.815 - 0.26 x   ->  u 0.379 .. 0.579  over x +0.908 .. +1.817
+#           v = 0.263 + 0.26 z   ->  v 0.471 .. 0.572  over the painted panel
+#       The two windows overlap over almost the whole of the door's band, so
+#       WHATEVER IS IN THE DOOR'S LOWER BAND IS ALSO ON THE NOSE.  That is why
+#       the rev-10 render shows the door's scattered comma marks across the
+#       nose.  It is not a tile defect and no change to this file can fix it:
+#       one image cannot hold two different drawings for one (u, v).
+#
+#       PER-FACE UVs ALONE DO NOT FIX IT EITHER.  The flank already uses
+#       u 0.28 .. 1.34 (mod 1) of a 3.846 m period -- the tile has no unused
+#       band to move the nose into.  The fix is A SECOND IMAGE.  `tex/nose.png`
+#       is written by `make_nose()` above: 1024 px square covering the object-
+#       space window y -0.780 .. +0.780, z 0.020 .. 1.580 (1.560 m square, so
+#       the art is undistorted), carrying folk_door.md sec.10's measured wedge
+#       composition round both front corners and NOTHING in the middle of the
+#       face, which sec.10 records as NOT MEASURABLE.
+#
+#       Node changes in `body_paint`, against the tree this was written on
+#       (`sideY`, `mixA`, `mixC`, `hs`, `sep`, `mp` all already exist):
+#
+#         geo   = nt.nodes.new("ShaderNodeNewGeometry")
+#         sepN  = nt.nodes.new("ShaderNodeSeparateXYZ")            # geo.Normal
+#         nt.links.new(geo.outputs["Normal"], sepN.inputs[0])
+#         absx  = _math(nt, 'ABSOLUTE', sepN.outputs["X"], None, ...)
+#         facex = _math(nt, 'GREATER_THAN', absx, 0.70, ...)       # front face
+#         fwd   = _math(nt, 'GREATER_THAN', sep.outputs["X"], 1.60, ...)
+#         isNose= _math(nt, 'MULTIPLY', facex, fwd, ...)
+#         # decal vector: FLAT on (y, z), mapped into the window above
+#         cmb   = nt.nodes.new("ShaderNodeCombineXYZ")
+#         nt.links.new(sep.outputs["Y"], cmb.inputs[0])            # -> u axis
+#         nt.links.new(sep.outputs["Z"], cmb.inputs[1])            # -> v axis
+#         nmp   = nt.nodes.new("ShaderNodeMapping")                # POINT
+#         nmp.inputs["Scale"].default_value    = (0.6410, 0.6410, 1.0)
+#         nmp.inputs["Location"].default_value = (0.5000, -0.0128, 0.0)
+#         nt.links.new(cmb.outputs[0], nmp.inputs["Vector"])
+#         nose  = _img(nt, "nose.png", ..., projection='FLAT', ext='CLIP')
+#         nt.links.new(nmp.outputs[0], nose.inputs["Vector"])
+#         # select: the nose decal WINS on the front face, the flank tile
+#         # everywhere else.  Insert between mixC/mixA and hs/amask:
+#         mixNC = Mix RGBA (Factor isNose, A mixC.Result, B nose.Color)
+#         mixNA = Mix FLOAT(Factor isNose, A mixA.Result, B nose.Alpha)
+#         nt.links.new(mixNC.outputs[2], hs.inputs["Color"])
+#         nt.links.new(mixNA.outputs[0], amask.inputs[0])
+#
+#       Scale check: 0.6410 = 1 / 1.560, and 0.5 - 0.6410 * 0.0200 = 0.4872,
+#       so z = 0.020 maps to v = 0 and z = 1.580 to v = 1; y = 0 maps to
+#       u = 0.5.  `ext='CLIP'` keeps the decal off the rest of the body if the
+#       selector is ever mis-wired -- outside the window it returns alpha 0.
+#
+#       Once (f) is in, the shared-texel collision of section 8 also goes away
+#       for the nose motifs and `nose_free()` here can be retired: the rear
+#       quarter currently gives up a 154 x 266 mm slice of MASS-R1 to the lower
+#       nose's texels, which costs the X -1.85 bin about 6 points of gold.
 #
 #   (e) OPTIONAL, removes the nose/tail texture-wrap collision documented in
 #       section 8: t1_mats.py:823 Scale 0.2600 -> 0.2280 and :815 Location
