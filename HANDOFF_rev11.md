@@ -92,6 +92,28 @@ Each of these was produced by a specialist who did not own the file it lands in.
 5. **Two shelves in `galley()` at x −1.500 / −1.780** are behind the solid rear
    corner panel and visible from nowhere.
 
+## The comprehensive audit — DEFERRED, NOT DROPPED
+
+Donald asked for "a complete and comprehensive workflow by a number of expert
+specialists". It was written and launched: ten specialists, one per dimension, each
+measuring the model and the heroes against the source photographs; then an
+adversarial verifier per ranked finding whose instruction is to REFUTE it; then a
+synthesis into `AUDIT_rev11.md`.
+
+**It did not run, and that was my scheduling call, not a judgement that it was not
+worth doing.** This container has two CPU cores, so the Workflow runner executed
+about two agents at a time; two hours in it had started 2 of its 25 agents. I stopped
+waiting and redirected to three targeted specialists, which is what produced the
+galley, mural and folk-art fixes in this revision. Donald has since said explicitly
+that he wants the audit conducted.
+
+The script is preserved at **`workflows/tacombi-rev11-audit.js`** with a header
+listing exactly what to update before running it (four of the ten dimension briefs
+were written against rev 10 and rev 11 moved them). On a wide box, run it as a
+Workflow. On a narrow one, lift the ten dimension briefs out of it and run them 3-4
+at a time with the Agent tool on disjoint files — that is what rev 11 did and it
+worked well.
+
 ## What still does not match, ranked by what a viewer sees first
 
 Every number is display luma or a measured fraction against the named photograph.

@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-10 14:43:05 UTC |
-| git commit | `9a227cd` |
-| git subject | rev 11: the galley reads, the folk art is composed, the mural is not lifted |
+| generated | 2026-08-10 14:48:01 UTC |
+| git commit | `df2cb7f` |
+| git subject | rev 11 handoff: SPEC 10.26 roof topology, 10.27 the roof hole is never cut |
 | working tree | **DIRTY** — this state is not committed |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=1 (applied, destructive, before booleans) |
