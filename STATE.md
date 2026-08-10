@@ -8,10 +8,10 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-10 01:33:12 UTC |
-| git commit | `c9d9ebc` |
-| git subject | SPEC 10.10: absolute replication of artwork as a standing requirement |
-| working tree | **DIRTY** — this state is not committed |
+| generated | 2026-08-10 01:33:43 UTC |
+| git commit | `97ce40b` |
+| git subject | Regenerate STATE.md against a clean rev 8 tree |
+| working tree | clean |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=1 (applied, destructive, before booleans) |
 | geometry source | procedural, built this run |
