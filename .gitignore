@@ -5,3 +5,4 @@ out/
 *.blend1
 tex/prev_*.png
 *.log
+*.bundle
