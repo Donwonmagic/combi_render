@@ -343,13 +343,24 @@ log("brightwork + lamps")
 # conform_panel_true rides the MEASURED body surface, not T.flank_y(): at
 # z = 0.445 the analytic half width is 4.5 mm inboard of the real skin, which
 # would bury the foot of the lockup.
-SCR = dict(x0=0.784, x1=-0.494, z0=0.4450, z1=0.9180)    # 2.702:1 = tex AR
+# rev 9: script rebuilt as explicit letterforms (script_gen.py); the panel
+# follows the new texture AR. x extents unchanged -- SKEPTIC C3 measured
+# them and they still hold. z centre unchanged, height from the AR.
+SCR = dict(x0=0.784, x1=-0.494, z0=0.4453, z1=0.9177)    # 2.705:1 = tex AR
 A(D.conform_panel_true(body, SCR["x0"], SCR["x1"], SCR["z0"], SCR["z1"],
                        S.SHOW_SIDE, name="script_L"), "script")
 A(D.conform_panel_true(body, SCR["x0"], SCR["x1"], SCR["z0"], SCR["z1"],
                        -S.SHOW_SIDE, name="script_R"), "script")
 # "100% Calidad" on the solid rear-corner panel, show side (SPEC r4 sec.3)
-CAL = dict(x0=-1.350, x1=-1.847, z0=1.4400, z1=1.7800)   # 1.463:1 = tex AR
+# rev 9: moved 198 mm forward and enlarged. Checked by a datum that needs no
+# pixel-to-metre mapping -- the decal's FRACTION of the solid rear-corner
+# panel. In ref_side.jpg the panel runs x 698 (aft edge of bay 3) to x 902
+# (tail) and the decal occupies 18.6%-67.2% of it; the old placement sat at
+# 37.3%-84.7%. Width 0.513 and height 0.380 both come from the local scale
+# there, 194.8 px/m, NOT the 211.5 px/m that holds at mid-body -- the flank is
+# foreshortened toward the tail. Vertical CENTRE is unchanged on purpose: see
+# SPEC 10.11, the ground-line datum carries a ~70 mm common-mode error.
+CAL = dict(x0=-1.155, x1=-1.668, z0=1.4200, z1=1.8000)   # 1.350:1 = tex AR
 A(T.conform_panel(CAL["x0"], CAL["x1"], CAL["z0"], CAL["z1"], S.SHOW_SIDE,
                   name="calidad_L"), "calidad")
 log("signwriting")
