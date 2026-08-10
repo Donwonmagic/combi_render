@@ -464,6 +464,31 @@ on an assumption nobody had put to him, and the check cost one crop and one
 question.
 
 
+### 10.16 The script's keyline and drop shadow are not measurable
+
+SPEC sec.3 states the side script carries a dark keyline and a drop shadow.
+Sampling outward from the ink edge in `ref_side.jpg` does not support it at
+this resolution:
+
+| distance outside the ink | mean luma |
+|---|---|
+| +1 px | 80.5 |
+| +2 px | 63.1 |
+| +3 px | 61.7 |
+| open ground, +5-6 px | 58.7 |
+
+A monotone decay toward ground with no dark ring at any radius -- that is edge
+blur, not a keyline. Either establish it from a higher-resolution photograph or
+retire the claim. **Do not add a keyline to the generator because sec.3 says
+so**; that is the same error as building from the thumbnail.
+
+What the same sampling DOES establish: the silver is **not flat**. Ink
+per-channel std is 16-19 and luma spans 85-135 at p5-p95. `tex/senor.png`
+currently emits a constant (214, 216, 218) with all shape in alpha, and at hero
+scale that flatness is probably a larger fidelity loss than any single glyph
+outline error.
+
+
 ## Change log
 
 | Date | Change |

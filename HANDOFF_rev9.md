@@ -71,15 +71,58 @@ invalidates a method a previous revision trusted.
 
 He called time on the context with three things, and all three are correct:
 
-1. **"Doesn't quite look the same font as the original though."** He is right,
-   and the numbers agree with him: 0.511 against a ceiling of 0.77–0.81 is the
-   same statement in another form. The character is now right — fat rounded
-   psychedelic, real spiral counters, ribbon swash, arced baseline — the
-   *specific letterforms* are not. Weakest: `b` 0.41, `a` 0.45, `Señor` not
-   fitted at all. **Do not restart this from scratch**; the measurement
-   infrastructure (`script_gen.py` control points in the photograph's own pixel
-   frame, `compare_script.py`) is the asset. Refine glyph by glyph against the
-   per-glyph IoU and the overlay.
+1. **"Doesn't quite look the same font as the original though"** and, on
+   seeing it again: **"the Señor Tacombi text is better but I think deserves a
+   more finely tuned recreation pass. There are a lot of features that are
+   missed or improperly displayed in what I see."**
+
+   He is right, and the numbers agree: 0.511 against a ceiling of 0.77–0.81 is
+   the same statement in another form. The *character* is now right — fat
+   rounded psychedelic, real spiral counters, ribbon swash, arced baseline. The
+   specific letterforms are not, and there is a whole class of feature the
+   generator does not attempt at all.
+
+   **Do not restart this.** The measurement infrastructure is the asset:
+   `script_gen.py` holds control points in the photograph's own pixel frame,
+   `compare_script.py` gives per-glyph IoU plus a mask overlay, and
+   `flank_compare.py` crops the rendered flank by projecting the panel through
+   the ortho camera rather than by eye. Work the list below against those.
+
+   **Missed entirely — not a tuning problem, a feature the generator lacks:**
+
+   * **The silver is flat.** In `ref_side.jpg` the ink varies: per-channel std
+     16–19, luma p5–p95 spanning **85–135**. `tex/senor.png` is a constant
+     `(214, 216, 218)` with the whole shape carried in alpha. Real silver leaf
+     on a hand-painted panel is mottled, tarnished unevenly, and brushed. At
+     hero scale this flatness is very likely the strongest "it is CG" tell in
+     the lettering, ahead of any outline error.
+   * **No keyline and no drop shadow.** SPEC §3 says the script carries both.
+     Worth knowing before chasing it: **it is not measurable in `ref_side.jpg`
+     at this resolution.** Sampling outward from the ink edge gives luma 80.5 /
+     63.1 / 61.7 at +1/+2/+3 px against open ground 58.7 — a monotone decay,
+     i.e. edge blur, with no dark ring anywhere. So either find it in a better
+     photograph or retire §3's claim; do not add a keyline because the spec
+     says so.
+   * **Uniform stroke weight and uniform terminals.** The reference has strong
+     thick/thin modulation *within* each glyph and bulbous terminals of varying
+     size; the generator uses round caps of one radius per stroke end.
+
+   **Improperly displayed — per-glyph, worst first:**
+
+   | glyph | IoU | what is wrong |
+   |---|---|---|
+   | `Señor` | 0.089 | not fitted at all; see §4.4. The number is meaningless, not good |
+   | `b` | 0.41 | ascender too short and too even; the flag at its top is a guess |
+   | `a` | 0.45 | drawn as a symmetric bowl; the reference bowl is asymmetric with a distinct stem |
+   | `i` | 0.50 | exit flourish is a plain taper where the reference hooks |
+   | `m` | 0.54 | generic arches; reference has narrow slot counters with rounded tops and a spur |
+   | `c` | 0.62 | aperture is a plain wedge cut; reference has rolled terminals top and bottom |
+   | `o` | 0.61 | closest of the bowls; groove phase still slightly off |
+   | swash | 0.62 | arch and roll are right; the taper along the ribbon is not |
+   | `T` | 0.68 | best of them; foot flare shape is approximate |
+
+   Whole lockup is also **8 % heavier** than the reference (8609 ink px vs
+   7982) — thin globally before chasing individual outlines.
 2. **"I don't believe that La Santa part of the roof exists."** — and then,
    looking at the crop: **"That is also the front end of the bus open towards
    the front. What we are looking at is the inside of the front panel."**
