@@ -8,10 +8,10 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-10 01:44:29 UTC |
-| git commit | `2083bab` |
-| git subject | Point the prompt at its own HEAD |
-| working tree | clean |
+| generated | 2026-08-10 03:34:23 UTC |
+| git commit | `f7c4941` |
+| git subject | rev 9: art-direct the Playa rig; correct the flank hue; per-strip hero driver |
+| working tree | **DIRTY** — this state is not committed |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=1 (applied, destructive, before booleans) |
 | geometry source | procedural, built this run |

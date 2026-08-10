@@ -318,6 +318,125 @@ coolairvw.co.uk splitscreen production changes · type2.com tyre FAQ.
 
 ---
 
+### 10.11 The ground-line datum carries a common-mode error — do not place from it
+
+`REF_MEASUREMENTS.md` §0.3 puts the ground line in `ref_side.jpg` at **y = 670
+± 2 px**. Three features placed from it all land low against a model SPEC
+independently locks:
+
+| feature | placed from y = 670 | model / SPEC | delta |
+|---|---|---|---|
+| script ink, z extent | 0.383 → 0.851 | 0.4453 → 0.9177 | **−62 mm** |
+| Calidad decal, z extent | 1.376 → 1.721 | 1.4200 → 1.8000 | **−64 mm** |
+| belt paint break @ the script station | 1.152 | 1.2315 (`z_belt(x)`) | **−79 mm** |
+
+Three independent features disagreeing with one method **by the same amount and
+the same sign** locates the error in the datum, not in three separate
+placements — a ground line at y ≈ 683 reconciles all three to within 6 mm. The
+±2 px band (±9 mm) does not cover a 13–15 px error.
+
+**Consequence, and it is a rule, not a note: never set a vertical position from
+the ground line.** Set it from the belt, which is locked and measured, or from
+a vertical EXTENT — a difference, in which any common-mode datum offset
+cancels. The rev 9 art pass moved the Calidad decal horizontally by 198 mm and
+deliberately moved **nothing** vertically for this reason.
+
+Not resolved: whether y = 670 is itself wrong or whether the px/m scale drifts
+with it. Resolving it needs a feature of known height touching the ground in
+`ref_side.jpg`, unoccluded. The wheel/ground contact is the obvious candidate
+and a man stands in front of the front wheel.
+
+### 10.12 Flank hue — the locked RED came off the retired thumbnail
+
+**Locked:** `RED` = sRGB **(196, 49, 36)**, hue 5.0, saturation 0.816.
+**Was:** sRGB (196, 106, 36), hue 26.2, from the 246×197 thumbnail.
+Revert with `T1_RED=196,106,36`.
+
+This does **not** re-open §10.9. That section settled the *saturation* question
+— 0.816 is an albedo number, no beauty pixel of a dielectric under a white
+softbox reaches it, and "raise the flank saturation to 0.816" stays rejected.
+Saturation is unchanged here. The claim is about **hue**, which §10.9 never
+tested against the reference.
+
+Three lines, each independent:
+
+1. **The rig cannot be the cause.** §10.9's own decomposition is a *neutral*
+   additive specular term `A`. The ratio `(G−B)/(R−B)` is invariant under
+   adding a constant to all three channels — `(G+A−B−A)/(R+A−B−A)` — so `A`
+   moves saturation and leaves hue exactly where it was. A hue error is
+   therefore in the albedo, by construction.
+2. **Measured on the high-resolution photograph.** Clean red-flank patches in
+   `ref_side.jpg`, pooled n = 5218, median (168, 25, 8), hue 6.4. In the
+   least-lit patches — least contaminated by warm bounce — hue **4.0–4.3**,
+   ratio 0.067. Patches under strong warm bounce read hue 19–23; that bounce is
+   not neutral (G lifts to 59–67 while B stays at 5–7), which is what a
+   non-neutral additive does and is exactly why the deep-shade patches are the
+   ones to trust. White balance checked on well-lit cream: (236, 229, 227),
+   R−B +9.
+3. **The old value is the folk art.** Locked RED's ratio is 0.438. The
+   reference GOLD folk-art motif (audit livery-8, (190,118,59)) is **0.450** —
+   they agree to 2.9 %. On a 246×197 thumbnail the flank is ~100 px wide and
+   the gold motifs cover a large fraction of it. That is what a contaminated
+   average looks like, and it explains why a "red" measured hue 26.
+
+A/B at `out/hue_ab.png`, Playa scene, one variable.
+
+### 10.13 The Playa rig was never showing its environment
+
+Three defects, compounding, all fixed in rev 9. Any one of them alone would
+have made the scene unusable and the first two made the third invisible.
+
+1. **The film was keyed and composited on white.** `render_set(transparent=True)`
+   runs `composite_on_white()`. `ground_playa()` renders — it is not a shadow
+   catcher — but the WORLD does not, so every Playa frame came back with a
+   blown white sky and a hard horizon. `build.py` now passes
+   `transparent=(scene != "playa")`.
+2. **The world ramp was keyed in the wrong space.** A world shader's
+   `Generated` coordinate is the **view vector**: Z runs −1…1. The ramp stops
+   sat at 0.36/0.72 in 0…1, so every direction at or below the horizon clamped
+   to the bottom stop and the background rendered as one flat colour even once
+   (1) was fixed. Remapped −1…1 → 0…1 so 0.5 *is* the horizon.
+3. **It was lit for a scene that had no sky.** With the world finally reaching
+   pixels: three ramp stops (limestone bounce / haze band / tropical sky) not
+   two, strength 0.42 → 1.30, sun 3.05 → 4.70 — 3.05 read as overcast once
+   there was a sky to read it against — and paving on two noise scales, one
+   slow for patch colour and one fast for surface, because at eye height a
+   single octave at 5.5 was flat grey mud.
+
+Still not a sunset postcard. The horizon band is warm-pale, not orange:
+`SKEPTIC_PASS.md` §B5 is explicit that neither in-service photograph is in
+direct sun, so an orange grade would be a different lie from a white one.
+
+### 10.14 Strip rendering: abutting strips seam, overlapping strips do not
+
+The strip machinery was committed in rev 8 and had never been run end to end.
+Run exactly as prescribed — four abutting `T1_BORDER` strips, `T1_FX=0`,
+`post.py` once on the stitch — it produces a **measurable seam**.
+
+Method: render the same 1200×800 `hero34f` frame single-pass as ground truth
+and diff. Frame-wide per-row error **0.090 DN**; at the three seam rows
+**0.657 / 2.254 / 0.991 DN**, z = **+5.19 / +19.36 / +8.15** above the frame's
+own Monte-Carlo floor. 47 pixels over 20 DN within one row of a seam against 18
+in the entire rest of the frame.
+
+Cause is **not** mainly the reconstruction filter (`filter_width` 1.50 px).
+Cycles denoising is on, and OpenImageDenoise's receptive field is tens of
+pixels, so a band edge is denoised against neighbours that do not exist. A 2 px
+filter margin would have fixed the small cause and left the large one.
+
+Fix (`hero.py`): render each strip with **PAD = 48 px** of overlap on each side
+and copy only the rows the strip owns. Re-measured against the same reference:
+seam z **−0.27 / +2.22 / +0.71**, pixels over 20 DN near a seam **47 → 0**,
+frame mean error 0.090 → 0.036 DN. `post.py` applied once to the stitch adds no
+banding (seam z ≤ 1.75).
+
+`stitch.py` takes the band mapping as a **declared argument**, never inferred:
+with the white composite an unrendered region and a rendered backdrop row are
+byte-identical (measured max |diff| = 0 over a full backdrop row), so content
+detection cannot find a band edge — a wrong row mapping would survive a test
+frame and appear only on the hero.
+
+
 ## Change log
 
 | Date | Change |
@@ -697,3 +816,4 @@ what shipped in rev 8 and Donald rejected it by name.
 ---
 
 | 2026-08-10 | **rev 8 — the rake, the lids, and the saturation target.** Step 8b shears instead of dropping; roof at the rear axle 1.871 → 1.923 against a measured 1.960, residual −37 mm logged. `Z_BELT` is a line; `verify.py`'s frame offset is a function of x; `audit.py`'s height row is a three-station roof-line check. Wheels held level. Cab-door shut line lifted 20 mm because the rake ate its arch clearance — the SUB=2 collapse condition, now asserted at import. **The retired canvas ragtop was still shipping** and no guard caught it; replaced with rigid hinged steel lids modelled OPEN, mural and lettered rear lid, and the guard rebuilt as a reviewed map plus a §0.2 drift check. Flank saturation diagnosed by measurement: folk art and AgX Punchy both **refuted** (Punchy *adds* 0.127), the deficit is a 0.0592 achromatic specular term, and SPEC's 0.816 is an **albedo** number that no beauty pixel can meet — target restated. Folk-art density measured and found to run backwards; two lobes. Fresnel 0.21 → 0.50, sweep albedo 0.94 → 0.76, world 0.17 → 0.05, clamps released, VW glyph two mitred prisms, brass folded in, bulbs emissive. |
+| 2026-08-10 | **rev 9 — the art reproduction pass, and the first heroes to land.** The "Señor Tacombi" script is rebuilt as explicit letterforms (`script_gen.py`); the font-plus-flourishes approach Donald rejected by name is gone. Control points read off `ref_side.jpg` at 6–14× in that photograph's own pixel frame. Corrected by measurement: spiral counters are ~1.1–1.3 turns with a wide groove (the o's counter is 224 px in a 21×25 box, 43 % fill), not tight spirals; the swash is an **arch**, cresting at y 36.2 near x 57 and falling back to 41.5 by x 90, not a monotonic rise; its left terminal is a 0.80-turn spiral about (17,59). Whole-lockup IoU **0.511** against a measured ceiling of 0.77–0.81 — a 1 px shift of the reference against itself costs 0.14 — with a global alignment search buying only +0.012, so the residual is distributed shape error of ~1.5–2 px, not misregistration. **Calidad** built for the first time (`cal_gen.py`): uneven-tipped burst, measured gradient, white bold italic at the measured −19.7°, bunting with pennants, pink star, counters punched on a mask. Moved **198 mm forward** on a panel-fraction datum immune to the perspective foreshortening that makes one linear scale wrong at the tail (194.8 px/m there against 211.5 at mid-body). §10.11 the ground-line datum is refuted as a placement source at ~70 mm common-mode; §10.12 `RED` hue 26.2 → **5.0**, saturation untouched; §10.13 the Playa rig was compositing its own world away; §10.14 abutting strips seam and overlapping strips do not. **White-studio and Playa heroes delivered at 2400×1600, 64 samples, six strips, worst seam z = 1.88 and 1.45 against a threshold of 4 — the first heroes in nine revisions.** |
