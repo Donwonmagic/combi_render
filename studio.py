@@ -165,8 +165,8 @@ def playa(key=1.0):
 
     # --- low warm sun, show side and slightly aft, raking down the flank
     sun = bpy.data.lights.new("sun", 'SUN')
-    sun.energy = 3.05 * key
-    sun.color = (1.0, 0.836, 0.652)
+    sun.energy = 4.70 * key           # rev 9: 3.05 read as overcast once
+    sun.color = (1.0, 0.842, 0.664)   # the world was actually visible
     sun.angle = math.radians(2.6)          # softened by haze and palm
     so = bpy.data.objects.new("sun", sun)
     bpy.context.collection.objects.link(so)
@@ -200,14 +200,37 @@ def playa(key=1.0):
     tc = nt.nodes.new("ShaderNodeTexCoord")
     sep = nt.nodes.new("ShaderNodeSeparateXYZ")
     nt.links.new(tc.outputs["Generated"], sep.inputs[0])
+    # rev 9: three stops, not two. Until now the film was rendered transparent
+    # and composited on white, so this gradient never reached a pixel and the
+    # sky read as blown paper with a hard horizon. With the alpha-over path off
+    # for T1_SCENE=playa it is the background, and it has to do the work:
+    #   below the horizon  warm limestone bounce
+    #   at the horizon     the haze band -- this is what reads as "outside"
+    #   above              a deeper tropical sky, cool enough to keep the cream
+    #                      cream (SPEC 10.9: a flat world was half of what
+    #                      desaturated the paint)
+    # Still not a sunset postcard. The horizon band is warm-pale, not orange;
+    # SKEPTIC B5 is explicit that neither in-service photograph is in direct
+    # sun, so an orange grade would be a different lie from a white one.
     ramp = nt.nodes.new("ShaderNodeValToRGB")
-    ramp.color_ramp.elements[0].position = 0.36
-    ramp.color_ramp.elements[0].color = (0.412, 0.318, 0.226, 1)
-    ramp.color_ramp.elements[1].position = 0.72
-    ramp.color_ramp.elements[1].color = (0.408, 0.506, 0.664, 1)
-    nt.links.new(sep.outputs["Z"], ramp.inputs[0])
+    ramp.color_ramp.elements[0].position = 0.280
+    ramp.color_ramp.elements[0].color = (0.520, 0.436, 0.328, 1)
+    e_h = ramp.color_ramp.elements.new(0.495)
+    e_h.color = (0.930, 0.882, 0.790, 1)
+    ramp.color_ramp.elements[1].position = 0.640
+    ramp.color_ramp.elements[1].color = (0.286, 0.452, 0.720, 1)
+    # rev 9: a world shader's Generated coordinate is the VIEW VECTOR, so Z
+    # runs -1..1, not 0..1. The ramp was keyed in 0..1, so every direction at
+    # or below the horizon clamped to the bottom stop and the whole background
+    # rendered as one flat colour. That, plus the alpha-over path above, is why
+    # the sky never existed. Remap -1..1 -> 0..1 so 0.5 IS the horizon.
+    mr = nt.nodes.new("ShaderNodeMapRange")
+    mr.inputs["From Min"].default_value = -1.0
+    mr.inputs["From Max"].default_value = 1.0
+    nt.links.new(sep.outputs["Z"], mr.inputs["Value"])
+    nt.links.new(mr.outputs["Result"], ramp.inputs[0])
     nt.links.new(ramp.outputs["Color"], bg.inputs[0])
-    bg.inputs[1].default_value = float(os.environ.get("T1_WORLD_PLAYA", 0.42))
+    bg.inputs[1].default_value = float(os.environ.get("T1_WORLD_PLAYA", 1.30))
 
 
 def ground_playa(size=90.0):
@@ -223,14 +246,28 @@ def ground_playa(size=90.0):
     mat.use_nodes = True
     nt = mat.node_tree
     b = nt.nodes["Principled BSDF"]
-    b.inputs["Base Color"].default_value = (0.402, 0.362, 0.310, 1)
-    b.inputs["Roughness"].default_value = 0.86
-    b.inputs["Specular IOR Level"].default_value = 0.28
+    # rev 9: at eye height the ground occupies the whole lower third of the
+    # frame, so one noise octave at scale 5.5 read as flat grey mud. Two scales
+    # now: a slow one that varies the colour of the paving in patches, and a
+    # fast one for the surface itself. Base is warmer -- pale limestone in warm
+    # light, not neutral aggregate.
+    b.inputs["Roughness"].default_value = 0.84
+    b.inputs["Specular IOR Level"].default_value = 0.30
+    slow = nt.nodes.new("ShaderNodeTexNoise")
+    slow.inputs["Scale"].default_value = 0.55
+    slow.inputs["Detail"].default_value = 4.0
+    cr = nt.nodes.new("ShaderNodeValToRGB")
+    cr.color_ramp.elements[0].position = 0.36
+    cr.color_ramp.elements[0].color = (0.472, 0.418, 0.340, 1)
+    cr.color_ramp.elements[1].position = 0.68
+    cr.color_ramp.elements[1].color = (0.706, 0.652, 0.548, 1)
+    nt.links.new(slow.outputs["Fac"], cr.inputs[0])
+    nt.links.new(cr.outputs["Color"], b.inputs["Base Color"])
     n = nt.nodes.new("ShaderNodeTexNoise")
-    n.inputs["Scale"].default_value = 5.5
-    n.inputs["Detail"].default_value = 8.0
+    n.inputs["Scale"].default_value = 26.0
+    n.inputs["Detail"].default_value = 10.0
     bump = nt.nodes.new("ShaderNodeBump")
-    bump.inputs["Strength"].default_value = 0.22
+    bump.inputs["Strength"].default_value = 0.16
     nt.links.new(n.outputs["Fac"], bump.inputs["Height"])
     nt.links.new(bump.outputs["Normal"], b.inputs["Normal"])
     ob.data.materials.append(mat)
@@ -556,7 +593,7 @@ def views(dist=1.0):
         # looking slightly up at the mural board with the counter lip in the
         # near field. Wider aperture than the studio heroes: at f/3.5 the tail
         # and the background go soft the way an eye does.
-        "playa":    dict(loc=(2.05, 4.35, 1.62), tgt=(-0.35, 0.55, 1.44),
+        "playa":    dict(loc=(3.15, 5.75, 1.60), tgt=(-0.30, 0.45, 1.40),
                          lens=42, focus=(0.10, 1.05, 1.30), fstop=3.5),
         "playa_w":  dict(loc=(6.40, 6.90, 1.70), tgt=(-0.30, 0.20, 1.42),
                          lens=50, focus=(0.90, 0.95, 1.25), fstop=4.5),

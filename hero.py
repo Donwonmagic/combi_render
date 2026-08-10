@@ -71,6 +71,9 @@ def main():
     ap.add_argument("--no-post", action="store_true")
     ap.add_argument("--post-args", default="")
     ap.add_argument("--extra", default="")
+    ap.add_argument("--only", type=int, default=None,
+                    help="render just this strip index and exit")
+    ap.add_argument("--stitch-only", action="store_true")
     a = ap.parse_args()
 
     W, H = (int(t) for t in a.res.lower().split("x"))
@@ -88,6 +91,17 @@ def main():
     total = 0.0
     parts = []
     for i in range(a.strips):
+        if a.stitch_only:
+            r0, r1 = edges[i], edges[i + 1] - 1
+            f = os.path.join(tmp, "p%d_%s.png" % (i, a.view))
+            if not os.path.exists(f):
+                sys.exit("FAIL missing strip %d at %s" % (i, f))
+            parts.append((r0, r1, f))
+            continue
+        if a.only is not None and i != a.only:
+            r0, r1 = edges[i], edges[i + 1] - 1
+            parts.append((r0, r1, os.path.join(tmp, "p%d_%s.png" % (i, a.view))))
+            continue
         r0, r1 = edges[i], edges[i + 1] - 1          # rows this strip OWNS
         p0 = max(0, r0 - a.pad)                      # rows it RENDERS
         p1 = min(H - 1, r1 + a.pad)
@@ -111,6 +125,8 @@ def main():
         parts.append((r0, r1, f))
         print("  strip %d/%d  owns rows %4d-%4d  rendered %4d-%4d  %5.1f s"
               % (i + 1, a.strips, r0, r1, p0, p1, dt))
+        if a.only is not None:
+            return
 
     # --- stitch: copy ONLY the owned rows out of each strip -----------------
     canvas = np.zeros((H, W, 4), dtype=np.uint8)

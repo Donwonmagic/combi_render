@@ -445,9 +445,16 @@ if os.environ.get("T1_PREVIEW"):
     else:
         ST.lighting(float(os.environ.get("T1_KEY", "1.0")))
     ST.camera()
+    # rev 9: the Playa scene must NOT go through the studio's alpha-over path.
+    # With transparent=True the film is keyed and composite_on_white() lays the
+    # frame over pure white -- so ground_playa() renders but the WORLD does
+    # not, and every Playa probe came back with a blown white sky and a hard
+    # horizon line. That is the whole reason the rig "had not been
+    # art-directed": it was never actually showing its environment.
     ST.render_set(os.environ["T1_PREVIEW"].split(","),
                   os.environ.get("T1_OUT", os.path.join(os.path.dirname(os.path.abspath(__file__)), "out")),
                   prefix=os.environ.get("T1_PFX", "c"),
                   res=(int(os.environ.get("T1_RX", "900")),
                        int(os.environ.get("T1_RY", "600"))),
-                  samples=int(os.environ.get("T1_SAMP", "24")), log=log)
+                  samples=int(os.environ.get("T1_SAMP", "24")),
+                  transparent=(_scene != "playa"), log=log)

@@ -51,11 +51,40 @@ TEXDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tex")
 
 # SPEC r4 sec.3: measured (196,106,36) sRGB in sun -> faded orange-red /
 # vermillion, hue ~26deg. NOT a deep crimson.
-RED = (0.5520, 0.1441, 0.0176)   # = sRGB(196,106,36) converted properly.
+# rev 9: sRGB(196,49,36). See the note below and SPEC 10.12 -- the previous
+# value's hue came off the retired 246x197 thumbnail and matches the reference
+# GOLD folk-art hue to 2.9%, which is what contamination looks like on a
+# thumbnail where the flank is ~100 px wide. Saturation is UNCHANGED at 0.816:
+# SPEC 10.9 settled that and this does not re-open it. Revert with
+# T1_RED=196,106,36.
+RED = (0.5520, 0.0294, 0.0176)   # = sRGB(196,49,36), hue 5.0, sat 0.816
+_RED_THUMB = (0.5520, 0.1441, 0.0176)   # sRGB(196,106,36), hue 26.2 (retired)
                                  # rev-3 shipped (0.5250,0.0395,0.0072) =
                                  # sRGB(192,56,20), hue 12.5 sat 0.894 -- a
                                  # DEEP CRIMSON, which SPEC 0.2 retires by
                                  # name. Its green channel was 3.6x low.
+
+
+def _srgb_to_lin(c):
+    c = c / 255.0
+    return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
+
+
+# rev 9: T1_RED="r,g,b" (sRGB 0-255) overrides the flank albedo, so the hue
+# question below can be A/B'd without editing a locked constant.
+#
+# The locked (196,106,36) comes from the retired 246x197 thumbnail. Measured on
+# ref_side.jpg instead, the red flank reads hue 4.0-4.3 deg in its least-lit
+# patches and 19-23 deg where warm bounce is strong. The hue-invariant ratio
+# (G-B)/(R-B) -- which any NEUTRAL additive term leaves unchanged, so SPEC
+# 10.9's specular pedestal cannot move it -- is 0.067 in deep shade against
+# 0.438 for the locked value. And 0.438 matches the reference GOLD folk-art
+# motif's 0.450 to 2.9%: on a thumbnail where the flank is ~100 px wide and
+# the gold covers much of it, that is what contamination looks like.
+# Nothing is changed by default. See SPEC 10.12.
+if os.environ.get("T1_RED"):
+    RED = tuple(_srgb_to_lin(float(v))
+                for v in os.environ["T1_RED"].split(","))
 # measured (206,208,200) sRGB -> sun-bleached near-neutral off-white
 CREAM = (0.6172, 0.6308, 0.5776) # = sRGB(206,208,200). rev-3 had R > G;
                                  # the measurement has G > R, and rev-3 was
