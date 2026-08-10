@@ -190,6 +190,61 @@ def playa(key=1.0):
     _softbox("rim", (-8.4, 2.6, 3.4), c, (4.0, 3.2), 33.0 * key,
              (1.0, 0.930, 0.860))
 
+    # --- broken palm shade -------------------------------------------------
+    # rev 9: this rig's docstring has claimed "broken palm shadow rather than an
+    # even key" since rev 8 and NOTHING implemented it -- the sun was a clean
+    # 2.6 deg source and the vehicle sat in flat light. A gobo does it honestly:
+    # a plane the camera cannot see, opaque in patches, placed where its shadow
+    # actually lands on the vehicle rather than wherever looked convenient.
+    #
+    # Where it goes is arithmetic, not taste. The sun sits at (-6, 9, 6.4)
+    # aiming at (0.2, 0, 1.15), so its direction is (6.2, -9, -5.25). For a
+    # gobo at z = 5.6 to shadow the vehicle at z ~ 1.2 the ray runs
+    # t = 4.4/5.25 = 0.838, i.e. dx +5.20, dy -7.54. So the patch of sky that
+    # lands on the bus is centred near (-5.2, 7.5) -- which is where this goes.
+    gob = bpy.data.meshes.new("dapple")
+    hh = 15.0
+    gob.from_pydata([(-hh, -hh, 0), (hh, -hh, 0), (hh, hh, 0), (-hh, hh, 0)],
+                    [], [(0, 1, 2, 3)])
+    gob.validate()
+    gb = bpy.data.objects.new("dapple", gob)
+    bpy.context.collection.objects.link(gb)
+    gb.location = (-5.2, 7.5, 5.6)
+    gm = bpy.data.materials.new("dapple")
+    gm.use_nodes = True
+    gnt = gm.node_tree
+    for n in list(gnt.nodes):
+        if n.type != 'OUTPUT_MATERIAL':
+            gnt.nodes.remove(n)
+    out = gnt.nodes["Material Output"]
+    tr = gnt.nodes.new("ShaderNodeBsdfTransparent")
+    df = gnt.nodes.new("ShaderNodeBsdfDiffuse")
+    df.inputs["Color"].default_value = (0.02, 0.02, 0.02, 1)
+    mix = gnt.nodes.new("ShaderNodeMixShader")
+    vor = gnt.nodes.new("ShaderNodeTexVoronoi")
+    vor.inputs["Scale"].default_value = 0.62
+    nz = gnt.nodes.new("ShaderNodeTexNoise")
+    nz.inputs["Scale"].default_value = 1.35
+    nz.inputs["Detail"].default_value = 6.0
+    mixf = gnt.nodes.new("ShaderNodeMix")
+    mixf.data_type = 'FLOAT'
+    mixf.inputs[0].default_value = 0.45
+    rmp = gnt.nodes.new("ShaderNodeValToRGB")
+    # ~60 % open: dappled, not a stencil. A hard gobo reads as a pattern.
+    rmp.color_ramp.elements[0].position = 0.36
+    rmp.color_ramp.elements[1].position = 0.68
+    gnt.links.new(vor.outputs["Distance"], mixf.inputs[2])
+    gnt.links.new(nz.outputs["Fac"], mixf.inputs[3])
+    gnt.links.new(mixf.outputs[0], rmp.inputs[0])
+    gnt.links.new(rmp.outputs["Color"], mix.inputs[0])
+    gnt.links.new(tr.outputs[0], mix.inputs[1])
+    gnt.links.new(df.outputs[0], mix.inputs[2])
+    gnt.links.new(mix.outputs[0], out.inputs["Surface"])
+    gb.data.materials.append(gm)
+    gb.visible_camera = False          # it shades; it is never in frame
+    gb.visible_diffuse = False
+    gb.visible_glossy = False
+
     w = bpy.data.worlds.new("w_playa")
     bpy.context.scene.world = w
     w.use_nodes = True
@@ -262,7 +317,25 @@ def ground_playa(size=90.0):
     cr.color_ramp.elements[1].position = 0.68
     cr.color_ramp.elements[1].color = (0.706, 0.652, 0.548, 1)
     nt.links.new(slow.outputs["Fac"], cr.inputs[0])
-    nt.links.new(cr.outputs["Color"], b.inputs["Base Color"])
+    # rev 9: 90 m of paving meeting the sky at full contrast gives a hard
+    # cut-out horizon. Fade the ground into the haze band beyond ~14 m so the
+    # join reads as distance rather than as the edge of a plane.
+    tc2 = nt.nodes.new("ShaderNodeTexCoord")
+    vlen = nt.nodes.new("ShaderNodeVectorMath")
+    vlen.operation = 'LENGTH'
+    nt.links.new(tc2.outputs["Object"], vlen.inputs[0])
+    far = nt.nodes.new("ShaderNodeMapRange")
+    far.inputs["From Min"].default_value = 14.0
+    far.inputs["From Max"].default_value = 52.0
+    far.inputs["To Min"].default_value = 0.0
+    far.inputs["To Max"].default_value = 0.88
+    nt.links.new(vlen.outputs["Value"], far.inputs["Value"])
+    hazemix = nt.nodes.new("ShaderNodeMix")
+    hazemix.data_type = 'RGBA'
+    hazemix.inputs[7].default_value = (0.930, 0.882, 0.790, 1)   # the haze band
+    nt.links.new(far.outputs["Result"], hazemix.inputs[0])
+    nt.links.new(cr.outputs["Color"], hazemix.inputs[6])
+    nt.links.new(hazemix.outputs[2], b.inputs["Base Color"])
     n = nt.nodes.new("ShaderNodeTexNoise")
     n.inputs["Scale"].default_value = 26.0
     n.inputs["Detail"].default_value = 10.0

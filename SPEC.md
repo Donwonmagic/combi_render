@@ -437,6 +437,33 @@ detection cannot find a band edge — a wrong row mapping would survive a test
 frame and appear only on the hero.
 
 
+### 10.15 `ref_rear34.jpg` is mis-identified — treat every number from it as suspect
+
+Donald, 2026-08-10, looking at a 6x crop of the lettered cream panel in
+`ref_rear34.jpg`: **"That is also the front end of the bus open towards the
+front. What we are looking at is the inside of the front panel."**
+
+The file name, and every crop attributed to it in this document and in
+`REF_MEASUREMENTS.md`, assumes a rear three-quarter view. The person who has
+stood in the vehicle says it is the front, with the roof opening **forward**
+and the lettering on the **underside of the front panel**.
+
+Affected, and unverified as of rev 9:
+
+| item | crop | state before this note |
+|---|---|---|
+| flank paisley (§10.10 item 2) | (620,560)-(1200,820) | marked **done** |
+| rear-lid lettering (§10.10 item 7) | (700,20)-(1050,300) | placeholder |
+| "1963" plate surround (§10.10 item 8) | (1330,780)-(1500,860) | modelled |
+| roof topology: main lid + smaller aft lid | -- | built, SPEC sec.1 |
+
+**Rule: do not carry a number derived from `ref_rear34.jpg` forward until the
+view is re-established with Donald.** More generally -- ask what a supplied
+photograph shows before measuring from it. Three revisions of geometry rested
+on an assumption nobody had put to him, and the check cost one crop and one
+question.
+
+
 ## Change log
 
 | Date | Change |
@@ -817,3 +844,4 @@ what shipped in rev 8 and Donald rejected it by name.
 
 | 2026-08-10 | **rev 8 — the rake, the lids, and the saturation target.** Step 8b shears instead of dropping; roof at the rear axle 1.871 → 1.923 against a measured 1.960, residual −37 mm logged. `Z_BELT` is a line; `verify.py`'s frame offset is a function of x; `audit.py`'s height row is a three-station roof-line check. Wheels held level. Cab-door shut line lifted 20 mm because the rake ate its arch clearance — the SUB=2 collapse condition, now asserted at import. **The retired canvas ragtop was still shipping** and no guard caught it; replaced with rigid hinged steel lids modelled OPEN, mural and lettered rear lid, and the guard rebuilt as a reviewed map plus a §0.2 drift check. Flank saturation diagnosed by measurement: folk art and AgX Punchy both **refuted** (Punchy *adds* 0.127), the deficit is a 0.0592 achromatic specular term, and SPEC's 0.816 is an **albedo** number that no beauty pixel can meet — target restated. Folk-art density measured and found to run backwards; two lobes. Fresnel 0.21 → 0.50, sweep albedo 0.94 → 0.76, world 0.17 → 0.05, clamps released, VW glyph two mitred prisms, brass folded in, bulbs emissive. |
 | 2026-08-10 | **rev 9 — the art reproduction pass, and the first heroes to land.** The "Señor Tacombi" script is rebuilt as explicit letterforms (`script_gen.py`); the font-plus-flourishes approach Donald rejected by name is gone. Control points read off `ref_side.jpg` at 6–14× in that photograph's own pixel frame. Corrected by measurement: spiral counters are ~1.1–1.3 turns with a wide groove (the o's counter is 224 px in a 21×25 box, 43 % fill), not tight spirals; the swash is an **arch**, cresting at y 36.2 near x 57 and falling back to 41.5 by x 90, not a monotonic rise; its left terminal is a 0.80-turn spiral about (17,59). Whole-lockup IoU **0.511** against a measured ceiling of 0.77–0.81 — a 1 px shift of the reference against itself costs 0.14 — with a global alignment search buying only +0.012, so the residual is distributed shape error of ~1.5–2 px, not misregistration. **Calidad** built for the first time (`cal_gen.py`): uneven-tipped burst, measured gradient, white bold italic at the measured −19.7°, bunting with pennants, pink star, counters punched on a mask. Moved **198 mm forward** on a panel-fraction datum immune to the perspective foreshortening that makes one linear scale wrong at the tail (194.8 px/m there against 211.5 at mid-body). §10.11 the ground-line datum is refuted as a placement source at ~70 mm common-mode; §10.12 `RED` hue 26.2 → **5.0**, saturation untouched; §10.13 the Playa rig was compositing its own world away; §10.14 abutting strips seam and overlapping strips do not. **White-studio and Playa heroes delivered at 2400×1600, 64 samples, six strips, worst seam z = 1.88 and 1.45 against a threshold of 4 — the first heroes in nine revisions.** |
+| 2026-08-10 | **rev 9 addendum — §10.15.** Donald identifies `ref_rear34.jpg` as showing the FRONT of the vehicle with the roof opening forward, not a rear three-quarter. Every crop attributed to that file is now suspect, including the flank paisley that §10.10 marked done. He also restates the governing standard for rev 10: *"we are recreating a photo realistic version of that exact bus."* |
