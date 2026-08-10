@@ -20,7 +20,7 @@ git clone tacombi_history_rev9.bundle tacombi && cd tacombi
 git pull ../tacombi_rev12_incremental.bundle HEAD
 ```
 
-`HEAD` should be `a18e957`, 44 commits, clean tree. The same tree is also on my disk at `tacombi_bus_render/tacombi_rev12_repo/`. Ignore every older `tacombi*` directory. Note `rev9-bundle-archive` is a read-only bundle, not a pushable remote — delivery is by bundling back to my disk.
+`HEAD` should be the tip of that bundle and `git rev-list --count HEAD` should read **46**, clean tree. (Restore is verified end to end: a fresh clone of the rev9 bundle plus this one pull lands on 46 commits with an empty `git status`.) The same tree is also on my disk at `tacombi_bus_render/tacombi_rev12_repo/`. Ignore every older `tacombi*` directory. Note `rev9-bundle-archive` is a read-only bundle, not a pushable remote — delivery is by bundling back to my disk.
 
 Step 3 — install Blender 4.5.3 and run BOTH guards. Report their actual output before proposing anything.
 

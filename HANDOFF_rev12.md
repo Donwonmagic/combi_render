@@ -29,7 +29,7 @@ on the 3d model."* He wants resolution, detail and fidelity to keep going up.
 
 ```bash
 git clone tacombi_history_rev9.bundle tacombi && cd tacombi
-git pull ../tacombi_rev12_incremental.bundle HEAD      # -> a18e957, 44 commits
+git pull ../tacombi_rev12_incremental.bundle HEAD      # applies straight onto the rev9 clone
 curl -fsSL -o b.tar.xz https://download.blender.org/release/Blender4.5/blender-4.5.3-linux-x64.tar.xz
 tar -xf b.tar.xz && mv blender-4.5.3-linux-x64 /tmp/blender
 T1_SUB=1 T1_VERIFY=1 /tmp/blender/blender -b --python build.py
