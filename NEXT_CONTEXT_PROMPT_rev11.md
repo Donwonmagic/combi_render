@@ -99,13 +99,13 @@ tuning. rev 11 stands it in with an emissive panel. SPEC §10.27 has the constra
 1.11 × 2.03 m, cut **after** solidify, and it changes the roof's manifold state so
 the non-manifold count and the shut-line probes must be re-run at both levels.
 
-**6.2 Run the comprehensive specialist audit.** It is written and waiting at
-`workflows/tacombi-rev11-audit.js` with a header explaining what to change before
-running it. It was deferred in rev 11 — my scheduling call, not a judgement that it
-wasn't worth doing — because that container had two cores and it would have taken
-hours. **I want it conducted.** If your box is wide, run it as a Workflow. If it is
-narrow, take the ten dimension briefs out of it and run them 3–4 at a time with the
-Agent tool on disjoint files, which is what rev 11 actually did and it worked well.
+**6.2 READ `AUDIT_rev11.md` BEFORE YOU TOUCH ANYTHING.** Three of the ten audit
+dimensions have been run in a parallel context and the findings are large — including
+that `flank_compare.py`, the script's stated acceptance test, computes no metric at
+all, and that the script panel's aspect ratio had been stale by 15.8 % since rev 10.
+The remaining six dimensions (fascia, counter/galley contrast, wheels and contact
+shadow, tail, roof, optics) are still to run; their briefs are in
+`workflows/tacombi-rev11-audit.js`.
 
 **6.3 Weathering.** Nothing on this vehicle is dirty. No road grime, no edge wear on
 the arches or the counter lip, no chalking gradient where the sun would put one.
