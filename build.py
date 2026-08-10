@@ -398,7 +398,26 @@ log("brightwork + lamps")
 # rev 9: script rebuilt as explicit letterforms (script_gen.py); the panel
 # follows the new texture AR. x extents unchanged -- SKEPTIC C3 measured
 # them and they still hold. z centre unchanged, height from the AR.
-SCR = dict(x0=0.784, x1=-0.494, z0=0.4453, z1=0.9177)    # 2.705:1 = tex AR
+# rev 11 AUDIT.  z1 was 0.9177, giving 1.278 x 0.4724 = 2.705:1, and the
+# comment said "= tex AR".  That was true of the rev-9 texture (2702x1000).
+# rev 10 rebuilt the script and tex/senor.png is now 4096x1738 = 2.3567:1.
+# The constant was never updated, so the lockup has been squashed 15.8 %
+# vertically ever since -- and the whole-lockup IoU of 0.942 could not see it,
+# because compare_script.py scores the TEXTURE against the reference mask and
+# never looks at the panel the texture lands on.
+#
+# Two independent derivations agree on the height:
+#   texture aspect      1.2784 / 2.3567 = 0.5424
+#   measured off photo  0.5440 +/- 0.008 m   (ink height, 211.2 px/m)
+# Width is already right: photo 1.2784 +/- 0.012 against 1.278 built (-0.4 mm),
+# and the x extents are independently confirmed at +3 / -1 mm.
+#
+# GROWN UPWARD, not recentred.  z0 = 0.4453 is measured and carries the warning
+# above it (the analytic half width is 4.5 mm inboard of the real skin there).
+# And the missing height belongs at the TOP: SPEC 10.20 found the reference ink
+# runs 16 rows higher than the frame allowed, and those rows are the top of
+# 'Senor'.  A panel too short at the top is exactly what clips them.
+SCR = dict(x0=0.784, x1=-0.494, z0=0.4453, z1=0.9896)    # 2.357:1 = tex AR
 A(D.conform_panel_true(body, SCR["x0"], SCR["x1"], SCR["z0"], SCR["z1"],
                        S.SHOW_SIDE, name="script_L"), "script")
 A(D.conform_panel_true(body, SCR["x0"], SCR["x1"], SCR["z0"], SCR["z1"],
