@@ -45,7 +45,7 @@ proceeding.
 git clone tacombi_history_rev8.bundle tacombi
 ```
 
-HEAD should be `2ed1b4e`. The repo also lives checked out and clean in my
+HEAD should be `c9d9ebc` or later. The repo also lives checked out and clean in my
 `tacombi_bus_render` folder.
 
 **3. Install Blender 4.5.3 and run BOTH guards. Report their actual output
