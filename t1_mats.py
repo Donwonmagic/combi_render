@@ -995,10 +995,30 @@ def silver_script(name="script"):
     nt.links.new(trans.outputs[0], mixs.inputs[1])
     nt.links.new(b.outputs[0], mixs.inputs[2])
     nt.links.new(mixs.outputs[0], out.inputs[0])
-    b.inputs["Roughness"].default_value = 0.185
-    b.inputs["Metallic"].default_value = 0.55
-    b.inputs["Coat Weight"].default_value = 0.70
-    b.inputs["Coat Roughness"].default_value = 0.025
+    # rev 10.  This is silver LEAF, hand-laid on a painted panel and sixty
+    # years weathered -- not silver paint.  Metallic 0.55 with a hard 0.025
+    # coat was reading as grey plastic under a gloss.  Measured character it
+    # has to carry: 7.4 DN of directional mottle on the untarnished leaf, with
+    # a correlation length of 1.6-2.0 stroke widths ALONG the brush against
+    # 0.44-0.63 across.  Mottle that lives only in base colour cannot show
+    # that, because a metal's appearance is dominated by its specular; so the
+    # texture's own value also drives ROUGHNESS, and the leaf reads as laid by
+    # hand rather than sprayed.
+    b.inputs["Roughness"].default_value = 0.260
+    b.inputs["Metallic"].default_value = 0.780
+    b.inputs["Coat Weight"].default_value = 0.28
+    b.inputs["Coat Roughness"].default_value = 0.090
+    if tex.image:
+        bw = nt.nodes.new("ShaderNodeRGBToBW"); bw.location = (-240, -60)
+        nt.links.new(tex.outputs["Color"], bw.inputs[0])
+        rg = nt.nodes.new("ShaderNodeMapRange"); rg.location = (-80, -60)
+        rg.clamp = True
+        rg.inputs[1].default_value = 0.18     # deep tarnish
+        rg.inputs[2].default_value = 0.72     # clean leaf
+        rg.inputs[3].default_value = 0.520    # tarnish is matt
+        rg.inputs[4].default_value = 0.205    # clean leaf is bright
+        nt.links.new(bw.outputs[0], rg.inputs[0])
+        nt.links.new(rg.outputs[0], b.inputs["Roughness"])
     m.blend_method = 'BLEND'
     m.show_transparent_back = False
     return m

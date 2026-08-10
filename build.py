@@ -345,7 +345,22 @@ ROUNDEL_Z = ROUNDEL_Z_AG + T.rake_drop(2.1155)
 vr, vd = D.roundel(R=ROUNDEL_D / 2)
 for o, k in ((vr, "roundelred"), (vd, "cream")):
     D.place(o, loc=(2.1155, 0.0, ROUNDEL_Z)); A(o, k)
-for b in D.vw_logo(x=2.1210):                 # V over W, never inverted
+# rev 10.  The V and the W had merged into an X again -- the same failure
+# SKEPTIC_PASS sec.D fixed in rev 8, returning by a different route.
+#
+# vw_logo's R and w were ABSOLUTE (0.1385 / 0.0275), tuned against the then
+# locked ring diameter of 0.370, while the ring itself is driven by
+# ROUNDEL_D.  Correcting ROUNDEL_D to the measured 0.280 shrank the ring by
+# 24 % and left the glyph at its old size, so the bars became proportionally
+# fat, the designed 12.7 mm air gap between the V's apex and the W's peak
+# closed, and the two prisms touched.  Nothing about the glyph code was
+# wrong; the coupling was missing.
+#
+# Tie them.  The rev-8 proportions are preserved exactly: glyph R was 0.7486
+# of the ring's outer radius and the bar width 0.1986 of that R, which is what
+# holds the arms 12.29 deg apart with clear air between them at ANY diameter.
+_VW_R = 0.7486 * (ROUNDEL_D / 2)
+for b in D.vw_logo(R=_VW_R, w=0.1986 * _VW_R, x=2.1210):   # V over W, never inverted
     D.place(b, loc=(0.0, 0.0, ROUNDEL_Z)); A(b, "roundelred")
 
 # SPEC sec.4 detail inventory: rear-quarter louvres (10 per side), fuel filler

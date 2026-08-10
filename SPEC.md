@@ -527,10 +527,172 @@ rest of the vehicle advanced through rev 8 and rev 9 and the front did not:
 items 2-5 have been logged and unapplied for several revisions.
 
 
+### 10.19 `ref_rear34.jpg` — the view, settled with the owner 2026-08-10
+
+SPEC 10.15 quarantined every number derived from this photograph because the
+frame had been treated as a rear three-quarter and Donald had then said, of a
+crop of the lettered cream panel, "that is also the front end of the bus open
+towards the front". Put to him directly with marked crops, the answer resolves
+both readings and they are not in conflict:
+
+| region | what it is |
+|---|---|
+| near end, right of frame (x >= ~930) | the **TAIL** — engine lid, chrome-framed "1963" plate, oval amber tail lamp with chrome bezel, chrome T-handle |
+| cream panel lettered in red script with a red star (x 555-860, y 5-215) | the **UNDERSIDE OF THE LID OVER THE FRONT** — the roof lids open FORWARD |
+| counter overhang | past the **tail only**, as SPEC already had it |
+
+So the FRAME is a rear three-quarter and the LIDS open forward. Numbers
+attributed to the near end are correctly attributed to the tail and are
+released from quarantine. Numbers that treated the lettered panel as a REAR
+lid are wrong and are re-attributed to the front lid.
+
+**The quarantine is lifted for: the "1963" plate surround, the flank paisley
+source crops, and the tail-end topology. It stands for: the lettered panel's
+placement.**
+
+### 10.20 The script's reference mask was dropping 14 % of the ink
+
+The rev-9 reference segmentation was `sat < 0.36 & 55 < max < 228`. That finds
+untarnished silver and nothing else, and the ink is not all untarnished.
+
+| | px |
+|---|---|
+| rev-9 segmentation | 7 982 |
+| rev-10, silver rule alone | 8 006 (agrees to 0.3 % — the rule was fine) |
+| tarnish zones add | +1 123 |
+| **true ink footprint** | **9 129 +/- 300** |
+
+Two recorded "generator defects" were artefacts of the wrong target:
+
+* `Senor` scored 0.089 and was written off as unfittable. It is not: the word
+  is invisible in LUMA (Michelson 0.132) but obvious in CHROMATICITY — the red
+  ground carries B = 6.0 +/- 3.6 DN and the word carries B = 21-81.
+* The lockup was recorded as running **8 % heavy**. Against the true footprint
+  it runs **6 % LIGHT**. The rev-9 handoff prescribed thinning it globally.
+
+The mask rule is now the measured one and lives in `compare_script.py`: `T` is
+the redness of a 50 %-area optical mix of the ink and ground endmembers, mixed
+in LINEAR light and re-encoded. That is the geometrically correct mask edge —
+the locus where a pixel is half covered by paint. The gamma encoding makes the
+mapping strongly non-linear (25 % coverage sits at r = 0.275), so a naive
+midpoint threshold is badly wrong. Tarnished ink is a different endmember and
+its four measured zones each carry their own threshold.
+
+**The comparison window also clipped the reference.** It ran y 486-599 while
+the ink runs 474-588 — twelve rows of real ink, the top of `Senor`, were
+outside the test entirely, and the generated lockup was 99 px tall against a
+reference 114 px. The canvas now carries a 16-row pad above y = 0.
+
+### 10.21 The silver, and one error made and corrected inside rev 10
+
+Measured on untarnished, PSF-safe stroke interiors:
+
+| quantity | measured |
+|---|---|
+| clean silver | (127.4, 124.9, 130.0), std (7.4, 8.5, 9.0) |
+| genuine mottle | **7.4 DN** against a 1.5 DN imaging noise floor |
+| mottle structure | **no dominant period**; correlation length 13-16 px along the stroke against 3.5-5.0 px across (z = +6.5 at 150 deg against an isotropic null) |
+| edge concentration | **none** — r = +0.086 once the 2.07 px PSF ring is excluded |
+| tarnish hue | **WARM**, not green-black: darkest quartile a\* +14.0 against lightest +6.9 |
+| `Senor` vs clean silver | median (85, 46, 35) against (126, 123, 127) = (0.675, 0.374, 0.276) |
+| thick/thin ratio | swash 3.61, b 3.50, o 2.92, c 2.69, a 2.41, i 1.68, m 1.60, T 1.26 |
+
+**The error, kept because the reasoning is the trap.** The first attempt read
+"the silver sits at 0.293 of the cream's linear luminance in ref_side.jpg" and
+set the ALBEDO to 0.293 x CREAM. It rendered as dull blue-grey paint. That
+0.293 is a ratio of RENDERED values between a near-mirror METAL and a diffuse
+dielectric, and those do not scale together when the environment changes. The
+leaf is dark in the reference BECAUSE the reference is open shade under an
+absorbing canopy. Under a white softbox the same leaf is bright, and that is
+not an error — it is what a photograph of the real vehicle in a white studio
+would show.
+
+**Rule, generalising SPEC 10.12: a rendered ratio is only an albedo ratio
+between two surfaces of the SAME class under the SAME light.**
+
+### 10.22 Front fascia — three findings applied, two refuted, one not measurable
+
+| finding | verdict | action |
+|---|---|---|
+| `materials-6` bezels are brass not chrome | **CONFIRMED** — bezel b\* +31.6 at L\* 65.6 against five neutrals in the same frame at b\* -2.4...+1.6; not a bounce (every warm surface there carries a\* with its b\*; the bezel's ratio is 0.07) | applied |
+| `livery-9` roundel 9 % undersized, 32 mm high | **REFUTED, and it had been applied in the wrong direction.** Measured **0.280 +/- 0.030 m** by an exact relation needing no camera pose; centre **0.149 +/- 0.030 m BELOW the belt**. The build read `ROUNDEL_D = 0.3700` — 32 % over — and the finding's only photographic support was `ref_source.jpeg`, retired in 0.2 | corrected to 0.280, and **113 mm down** |
+| `geometry-4` roof dome +83/+203 mm per side | **NOT MEASURABLE** — no elevation exists in the admissible set; in `ref_workshop` the camera sits at 1.93 m against a ~1.9 m crown so the roof's upper boundary is a tangent locus, not a section; and the lids are open in both usable frames, so the surface the finding describes is physically absent | NOT applied. The blueprint was not passed through |
+| `inventory-9` indicators 20 mm inboard | position **CONFIRMED but 7x understated**: measured **0.130 +/- 0.035 m OUTBOARD**. The proposed flat-oval lens is **REFUTED** — the existing bullet is closer to the photograph | Y moved outboard; type kept |
+| front bumper reads thin | blade is **already correct** (0.110 +/- 0.010 measured against 0.113 built; blade/wheel 0.166 +/- 0.016 in two frames agreeing to 2 %) | see 10.24 |
+
+### 10.23 The Playa rig described four things the photograph does not contain
+
+| removed | why |
+|---|---|
+| the sun | brightest ground patches are **+5 L\*** over surround with **7.4 px** edges, and the bright/dark ground split measures **db\* +2.4** — the SHADOWS ARE WARMER, which is the opposite sign to a sun/skylight pair |
+| the dapple gobo | same evidence. rev 9 added it to honour a docstring; the docstring was wrong |
+| the sky | the world ramp topped out at (0.286, 0.452, 0.720) at strength 1.30. There is no sky in frame |
+| the haze band | aerial perspective measures **zero** — canopy shadow floor holds at Y p5 = 0.014-0.019 across the full depth range, airlight bound dY < 0.004 |
+
+And **there is no papel picado.** The band across the top of the reference is a
+continuous flowering mass — 55.1 % foliage, 13.4 % crimson heads, 5.5 % cream
+florets, jagged interpenetrating lower edge, no flag silhouettes. Bunting in
+that render would be an invention.
+
+What IS there: ONE large low LATERAL source under an absorbing ceiling.
+Signature — the same red reads **3.95 : 1** between the flank facing the
+opening and the tail face 72 deg away; the palm trunk runs **12.5 : 1** across
+its own diameter; and an up-facing cream surface is DARKER than a vertical one
+facing the opening (0.93 : 1) while brighter than one turned away (1.87 : 1).
+The rig reproduces 4.00 / 1.91 / 0.787 against measured 3.95 / 1.87 / 0.772,
+and the last of those was never fitted to.
+
+**Absolute level is set by the FILM, not by the photograph.** The rig was
+solved in scene-linear at cream = 0.787; this pipeline runs AgX + Punchy under
+which the studio's paper white sits at linear 21.0 (SPEC 10.8), so the solved
+rig lands ~5.6 stops down. `T1_KEY_PLAYA` scales the whole rig together so the
+solved ratios are untouched.
+
+### 10.24 OPEN — three things measured, applied, and then reverted
+
+Each was applied from a measurement, broke something that is independently
+locked, and was reverted rather than laundered. None is closed.
+
+1. **Front bumper standoff.** Measured ">= 0.080 m from the body against
+   0.032 m built". Applied, it put the blade **63 mm PROUD of the nose crown**
+   and took the overall length to 4.327 against the locked 4.290 — `verify.py`
+   failed it, correctly. A third method, the frontal silhouette of
+   `ref_side.jpg` scanned row by row for the left-most vehicle column, puts the
+   **nose crown at column 78 and the bumper face at 82-91** — the bumper is
+   17-56 mm BEHIND the crown. Most likely the two figures use different datums
+   (the tucked apron at bumper height versus the forward-most nose).
+2. **Indicator lens depth.** Measured ~65 mm proud against 41.5 mm built.
+   The same silhouette puts the indicator's front face at column 80 against the
+   crown's 78 — ~9 mm behind. If the 65 mm is right, the fix is the pod's
+   MOUNTING STATION, not its depth.
+3. **Headlamp vertical position.** The same pass gives headlamp centre =
+   belt - 0.339 +/- 0.025 m, against the build's belt - 0.242 — a 97 mm
+   discrepancy at ~3.9 sigma. NOT applied: it is a single-chain claim that
+   moves the face of the vehicle, and it deserves a second derivation first.
+
+### 10.25 The VW glyph merged into an X again, by a new route
+
+`SKEPTIC_PASS` sec.D fixed this in rev 8 by rebuilding the emblem as two closed
+mitred prisms. It returned in rev 10 for a different reason: `vw_logo`'s R and
+w were ABSOLUTE (0.1385 / 0.0275), tuned against the then-locked ring diameter
+of 0.370, while the ring is driven by `ROUNDEL_D`. Correcting `ROUNDEL_D` to
+the measured 0.280 shrank the ring 24 % and left the glyph at its old size, so
+the designed 12.7 mm air gap between the V's apex and the W's peak closed.
+
+Nothing about the glyph code was wrong. **The coupling was missing.** The two
+are now tied: glyph R = 0.7486 of the ring's outer radius, bar width = 0.1986
+of that R — the rev-8 proportions, which hold the arms 12.29 deg apart with
+clear air between them at ANY diameter.
+
+*Lesson worth keeping: a constant tuned against another constant must be
+expressed in terms of it, or correcting one silently breaks the other.*
+
+
 ## Change log
 
 | Date | Change |
 |---|---|
+| 2026-08-10 | **rev 10.** Photograph identity settled with the owner (10.19). Script reference mask corrected -- it was dropping 14 % of the ink and two recorded generator defects were artefacts of it (10.20); whole-lockup IoU 0.511 -> 0.942, `Senor` 0.089 -> 0.825. Silver measured and modelled as LEAF, with one albedo-versus-rendered-ratio error made and corrected in flight (10.21). Folk art: `W_ART` 0.30 opacity ceiling retired -- it made the measured x2.048 gold-to-red contrast arithmetically unreachable; cab-door coverage 0.0-0.2 % -> 29.1 %; both flanks de-mirrored (materials-14). Fascia: roundel 0.370 -> 0.280 and 113 mm down, bezels to brass, indicators outboard (10.22). Playa rig: sun, dapple, sky and haze all removed as unsupported; vegetation built and placed by inverting the reference camera (10.23). Three findings reverted and logged OPEN (10.24). VW glyph coupling fixed (10.25). |
 | 2026-08-08 | Initial lock. Body corrected from single-cab pickup to Kombi van. |
 | 2026-08-08 | Script text corrected to "Señor Tacombi"; capital T must be an ornate swash. |
 | 2026-08-08 | Script colour corrected to **silver**. |

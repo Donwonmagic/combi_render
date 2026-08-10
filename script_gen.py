@@ -631,8 +631,34 @@ def senor_only():
 # That is the photograph's own lighting falling across the flank; baking it in
 # would light the model twice.
 CREAM_LIN = (0.6172, 0.6308, 0.5776)     # t1_mats.CREAM, linear
-SILVER_OVER_CREAM = 0.2934               # measured linear luminance ratio
 SILVER_CHROMA = (127.4, 124.9, 130.0)    # measured sRGB of clean silver
+
+# CORRECTION MADE WITHIN rev 10, kept visible because the reasoning is the
+# trap and not the number.
+#
+# The first attempt read "the silver sits at 0.293 of the cream's linear
+# luminance in ref_side.jpg" and set the ALBEDO to 0.293 x CREAM.  It rendered
+# as dull blue-grey paint.  The error: that 0.293 is a ratio of RENDERED
+# values between a near-mirror METAL and a diffuse dielectric, and those two
+# do not scale together when the environment changes.  Silver leaf is dark in
+# the reference BECAUSE the reference is open shade under an absorbing canopy
+# with one lateral opening -- the leaf is reflecting a dark room.  Put the same
+# leaf under a white studio softbox and it is bright, and that is not an error,
+# it is what a photograph of the real vehicle in a white studio would show.
+#
+# This is the same class of mistake SPEC 10.12 already records against the
+# flank saturation: "no beauty pixel of a dielectric under a white softbox
+# reaches the albedo saturation".  The rule generalises -- a rendered ratio is
+# only an albedo ratio between two surfaces of the SAME class under the SAME
+# light.
+#
+# So the albedo is set from what the material IS: weathered, varnished silver
+# leaf, luminance 0.66 (fresh leaf is ~0.90; this is chalked and 60 years old),
+# carrying the measured chromaticity.  What the photograph DOES fix, because
+# they are internal to one surface under one light, are the ratios kept below:
+# the mottle amplitude, the tarnish distribution, and the 0.43 that separates
+# tarnished ink from clean.
+SILVER_Y = float(os.environ.get("T1_SILVER_Y", 0.66))    # linear luminance
 TARNISH_K = (0.675, 0.374, 0.276)        # 'Senor' median / clean silver median
 MOTTLE_REL = 0.059                       # 7.4 DN on a mean of 125.8
 MOTTLE_LONG = 14.5                       # mask px, measured 13-16
@@ -667,8 +693,7 @@ def silver_albedo():
     if env:
         return np.array([float(t) for t in env.split(",")], float)
     chroma = _srgb_to_lin(SILVER_CHROMA)
-    target = SILVER_OVER_CREAM * _luma(CREAM_LIN)
-    return _lin_to_srgb(chroma * (target / _luma(chroma)))
+    return _lin_to_srgb(chroma * (SILVER_Y / _luma(chroma)))
 
 
 def mottle_field(h, w, px_per_mask):

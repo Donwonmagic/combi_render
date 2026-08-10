@@ -8,10 +8,10 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-10 04:40:01 UTC |
-| git commit | `e6531b2` |
-| git subject | NEXT_CONTEXT_PROMPT_rev9: the prompt for rev 10 |
-| working tree | clean |
+| generated | 2026-08-10 09:51:28 UTC |
+| git commit | `36c0374` |
+| git subject | rev 10: measured silver, measured letterforms, measured folk art, the place |
+| working tree | **DIRTY** — this state is not committed |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=1 (applied, destructive, before booleans) |
 | geometry source | procedural, built this run |

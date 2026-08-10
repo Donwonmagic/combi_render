@@ -178,6 +178,19 @@ def playa(key=1.0):
     that was never fitted to).  SPEC 10.23.
     """
     import math as _m
+    # rev 10.  The rig geometry and the RATIOS below were solved against the
+    # photograph in scene-linear (flank:f72 4.00 against a measured 3.95).
+    # The absolute level is a separate question and it is set by the FILM, not
+    # by the photograph: this pipeline runs AgX + Punchy, under which the
+    # studio's paper white sits at linear 21.0 to reach display 253 (SPEC 10.8).
+    # A rig solved at cream = 0.787 linear therefore lands ~5.6 stops down.
+    # T1_KEY_PLAYA carries the whole rig -- key, world and galley fill together
+    # -- so the solved ratios are untouched by it.
+    # Solved by sweep against the film, 2026-08-10.  The reference's cream
+    # bodywork sits at display code ~205, i.e. linear 0.593.  Sweep of the
+    # up-facing cream roof, in linear: key 30 -> 0.566, 150 -> 0.865,
+    # 600 -> clipped.  35 lands it at 0.593.
+    key = key * float(os.environ.get("T1_KEY_PLAYA", 35.0))
     KEY_AZ, KEY_EL, KEY_D = 89.0, 10.0, 9.5
     AZ, EL = _m.radians(KEY_AZ), _m.radians(KEY_EL)
 
@@ -237,8 +250,14 @@ def playa(key=1.0):
     w.use_nodes = True
     bgn = w.node_tree.nodes["Background"]
     bgn.inputs[0].default_value = (0.92, 0.95, 1.0, 1)
-    bgn.inputs[1].default_value = float(
-        os.environ.get("T1_WORLD_PLAYA", 0.30))
+    # The 0.30 : 306 W ratio was solved in an open test cell.  In the built
+    # scene the world is a UNIFORM ambient that also lights 90 m of ground the
+    # canopy does not cover, so at the solved ratio the terrace blew out and
+    # dragged the whole frame flat and pink.  Swept against the reference's own
+    # display codes (cream 152, red 167, foliage 81): key 35 / world 0.25 gives
+    # cream 160, red 195, foliage 75.
+    bgn.inputs[1].default_value = 0.30 * key * float(
+        os.environ.get("T1_WORLD_PLAYA", 0.10))
 
     # --- the place itself ---------------------------------------------------
     # Procedural vegetation and set dressing, placed by inverting the reference
@@ -282,9 +301,16 @@ def ground_playa(size=90.0):
     slow.inputs["Detail"].default_value = 4.0
     cr = nt.nodes.new("ShaderNodeValToRGB")
     cr.color_ramp.elements[0].position = 0.36
-    cr.color_ramp.elements[0].color = (0.472, 0.418, 0.340, 1)
+    # rev 10: halved.  Measured against ref_rear34.jpg the terrace sits at
+    # display 108 against the cream bodywork's 241 -- a ratio of 0.45.  At the
+    # rev-9 albedo the render put it at 209/243 = 0.86, i.e. the paving was
+    # nearly as bright as the paint.  That is not only wrong in itself: a
+    # terrace that bright throws a large bounce up onto the red flank, and the
+    # red below the counter came out at display 198 against the reference's
+    # 118.  This is limestone in deep open shade, not a lit apron.
+    cr.color_ramp.elements[0].color = (0.245, 0.216, 0.176, 1)
     cr.color_ramp.elements[1].position = 0.68
-    cr.color_ramp.elements[1].color = (0.706, 0.652, 0.548, 1)
+    cr.color_ramp.elements[1].color = (0.367, 0.339, 0.285, 1)
     nt.links.new(slow.outputs["Fac"], cr.inputs[0])
     # rev 9: 90 m of paving meeting the sky at full contrast gives a hard
     # cut-out horizon. Fade the ground into the haze band beyond ~14 m so the
@@ -643,12 +669,67 @@ def views(dist=1.0):
         # and the background go soft the way an eye does.
         "playa":    dict(loc=(3.15, 5.75, 1.60), tgt=(-0.30, 0.45, 1.40),
                          lens=42, focus=(0.10, 1.05, 1.30), fstop=3.5),
+        # rev 10.  The reference photograph's own camera, recovered from the
+        # rear rim flange (139.1 px conic fit = 0.440 m -> 316 px/m), the
+        # horizon row (230 +/- 30) and the wheel-ellipse axis ratio: it sits at
+        # (-4.83, +2.22, 1.90) -- level with the bus's roof line -- with a
+        # 53.1 deg horizontal field, i.e. a 36 mm lens.  Confirmed by a feature
+        # the solve never saw: it predicts the bus's far top corner at image
+        # column 554.6 and the cream lid panel is read at 555.
+        #
+        # This is the frame Donald wants the owner to remember standing in.
+        # Everything playa_env places is placed by inverting THIS camera, so it
+        # is also the one view where every plant is exactly where it was
+        # measured to be.
+        "playa_ref": dict(loc=(-4.829, 2.222, 1.900), tgt=(-0.55, -0.10, 1.28),
+                          lens=36, focus=(-1.20, 0.55, 1.20), fstop=4.5),
         "playa_w":  dict(loc=(6.40, 6.90, 1.70), tgt=(-0.30, 0.20, 1.42),
                          lens=50, focus=(0.90, 0.95, 1.25), fstop=4.5),
         # serving counter three-quarter, close -- the shot that says taqueria
         "counter":  dict(loc=(3.40, 5.20, 1.98), tgt=(-0.55, 0.75, 1.26),
                          lens=90, focus=(0.20, 1.05, 1.22), fstop=6.3),
     }
+
+
+def _cull_foreground(loc, tgt, margin=2.20, log=print):
+    """Hide environment geometry that stands between the camera and the vehicle.
+
+    playa_env places its masses by inverting the REFERENCE photograph's camera,
+    which is the right thing to do -- every plant is at the depth and bearing
+    the measurement puts it at.  But the hero cameras are not the reference
+    camera, and a plant that is correctly 6 m behind the vehicle from one
+    bearing is correctly in front of it from another.  The rev-10 probe from
+    `playa_w` was a wall of fronds with the bus behind it.
+
+    So this hides from the LENS ONLY (visible_camera) anything named pl_* whose
+    origin lies closer to the camera than the vehicle's near side.  It still
+    shades, still casts, still bounces light -- the scene is unchanged
+    radiometrically, and only the occluders are taken out of the shot.  That is
+    a framing decision, not a lighting one.
+    """
+    import mathutils
+    C = mathutils.Vector(loc)
+    T = mathutils.Vector(tgt)
+    fwd = (T - C)
+    L = fwd.length
+    if L < 1e-6:
+        return
+    fwd = fwd / L
+    hid = 0
+    for ob in bpy.data.objects:
+        if ob.type != 'MESH' or not ob.name.startswith("pl_"):
+            continue
+        was = ob.visible_camera
+        rel = ob.matrix_world.translation - C
+        t = rel.dot(fwd)                       # depth along the view ray
+        perp = (rel - fwd * t).length          # lateral offset from the ray
+        # in front of the vehicle, and close enough to the axis to occlude it
+        front = (t < L - margin) and (perp < max(3.0, 0.55 * t))
+        ob.visible_camera = not front
+        if front and was:
+            hid += 1
+    if hid:
+        log("  culled %d pl_* objects from the lens (they still shade)" % hid)
 
 
 def render_set(names, outdir, prefix="r", res=(1600, 1100), samples=64,
@@ -686,6 +767,7 @@ def render_set(names, outdir, prefix="r", res=(1600, 1100), samples=64,
         v = V[n]
         d = aim(cam, v["loc"], v["tgt"], v.get("lens"), v.get("ortho"),
                 v.get("focus"), v.get("fstop"))
+        _cull_foreground(v["loc"], v["tgt"], log=log)
         if d:
             dist, fs, near, far, H = d
             log("cam %-9s %.0f mm  f/%.1f  focus %.2f m  "
