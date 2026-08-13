@@ -175,8 +175,104 @@ def lighting(key=1.0):
     # the aft red 128.16 -> 131.04 (+2.2 %).  Accepted on SPEC 10.9's finding
     # that the beauty-pass flank value is an OUTCOME of the rig and not a
     # target; the albedo, which is the guarded quantity, does not move at all.
-    _softbox("fill_galley", (-0.35, 2.35, 1.58), (-0.35, 0.0, 1.47),
-             (1.7, 0.55), _envf("T1_FILLG", 21.0) * key, (1.0, 0.965, 0.915))
+    #
+    # rev 15, work-list item 6 -- IT IS PER-BAY NOW, and the sign of the lever
+    # is the opposite of what four revisions of "lift the galley" assumed.
+    # MEASURED by ablation on a 1248x858 side ortho (211.5 px/m, the scale of
+    # ref_side.jpg itself), windows = each bay's own projected aperture inset
+    # 8 px, against a light-that-cannot-reach-the-bays null of mean|d| 0.4-0.8:
+    #     rig as shipped      sd 24.74 / 19.52 / 22.55
+    #                         mean 145.4 / 168.2 / 181.6
+    #     fill_galley ABLATED sd 28.09 / 23.66 / 26.04
+    #                         mean 136.0 / 158.9 / 170.6
+    # Removing the source RAISES the contrast in all three bays by 3.4-4.1 sd.
+    # It is a frontal wash at near-normal incidence: it lifts the far wall of
+    # the galley without casting anything, so it adds level and subtracts
+    # structure.  The photograph (same windows, located on its own aperture
+    # edges) wants sd 24.16 in bay 2 at mean 158.0 -- which is where bay 2
+    # lands with NO fill at all (23.66 at 158.9), and bay 3 already ran over.
+    # So the fix is not more light, it is less light IN ONE BAY, and the source
+    # has to be split to do that: one 1.7 m box spanning x -1.20...+0.50 covers
+    # all three bays and cannot be aimed.
+    #
+    # Three boxes, one per bay, riding t1_shell.BAYS so they follow the
+    # apertures if those ever move again.  BAY 2'S IS OFF.
+    #
+    # Splitting the source is necessary but NOT sufficient: three 0.55 m boxes
+    # at the old stand-off of 1.48 m from the flank still spill into bay 2 from
+    # 0.625 m away and it only reached sd 21.53 (bay 2 mean +4.9 DN over the
+    # no-fill floor).  Two further changes, both swept and measured, kill the
+    # spill: bring the boxes IN to 0.48 m off the flank (clear of the counter
+    # nosing, which is the outermost thing on this side at y = 1.173) and cut
+    # the emission SPREAD to 30 deg, which at that stand-off confines the
+    # footprint to ~0.68 m -- about one bay.  Spread alone at the old distance
+    # is worthless and was tried: it just concentrates the same watts (bay
+    # means 198 / 182 / 226).
+    # Swept at (y = 1.35, 0.42 m box, spread 30), watts per bay 1/3:
+    #     0.25 / 0.29 -> sd 23.62 / 23.44 / 21.84   mean 147.1 / 159.4 / 182.5
+    #     0.40 / 0.46 -> sd 22.67 / 23.31 / 20.67   mean 152.2 / 159.7 / 187.2
+    #     0.60 / 0.70 -> sd 22.22 / 23.16 / 19.53   mean 157.9 / 160.1 / 192.7
+    # against the photograph's 33.69(18.50 man-masked) / 24.16 / 21.36 at mean
+    # 147.7 / 158.0 / 178.3.  0.25 / 0.29 is taken: bay 2 goes 19.52 -> 23.44
+    # against a target of 24.16 -- 84 % of the gap -- while bay 3 moves 22.55 ->
+    # 21.84 TOWARD the photograph rather than further over it, and bay 1's mean
+    # lands on 147.1 against 147.7.  Residual spill into bay 2 is +0.5 DN over
+    # the no-fill floor, down from +4.9.
+    #
+    # A/B RE-RUN AT THE END, same tree, same seed, one render each, +/- is the
+    # sd over nine +/-3 px window placements:
+    #   before (one 1.7 m box, 21 W)  sd 24.72+-0.64 / 19.51+-0.31 / 22.55+-1.13
+    #   after  (this)                 sd 23.63+-0.57 / 23.44+-0.22 / 21.85+-0.91
+    #   ref_side.jpg                  sd 33.69+-0.99 / 24.16+-0.76 / 21.36+-1.38
+    #   means  before 145.4 / 168.2 / 181.5   after 147.1 / 159.4 / 182.5
+    #                                         photo 147.7 / 158.0 / 178.3
+    # Photograph windows, printed so this is reproducible: each bay's aperture
+    # CUT EDGE found by row/column gradient in ref_side.jpg and inset 8 px --
+    # bay1 u[332,422] v[330,399], bay2 u[463,554] v[325,393],
+    # bay3 u[596,689] v[319,388]; those boxes are 106/107/109 px wide and 85 px
+    # tall against the render's own projected apertures at 107.3/107.3/107.4
+    # and 85.1, which is the cross-check that the two window sets are the same
+    # physical rectangle.  BAY 1 IS NOT A TARGET: a man in a white shirt fills
+    # its window in the photograph -- his forearm crosses the full width and
+    # the shirt covers the right two thirds -- so 33.69 is him, and the audit's
+    # man-masked 18.50 +/- 2.02 is the only usable ceiling there.
+    #
+    # THE ONE SIDE EFFECT, measured and not hidden: total galley-fill wattage
+    # falls 21.0 -> 0.54 W, because a 30 deg 0.42 m box at 0.48 m stand-off is
+    # ~30x more efficient per watt INSIDE the bay (7.6 W at the old stand-off
+    # and 0.25 W here both put bay 1 at mean 146-147).  The bays get the
+    # same light
+    # (their means match the photograph better than before); what disappears is
+    # the part that was never lighting the galley at all.  On a 900x620 side
+    # ortho, model-space patches: the aft cream roof shoulder moves 219.77 ->
+    # 219.43 (-0.16 %) and the FORWARD RED FLANK 124.53 -> 117.38 (-5.75 %),
+    # whole subject (L < 250, 209 022 px) 139.51 -> 134.51.  So the shipped
+    # 21 W source was carrying about 4 % of the show flank's key from 1.5 m
+    # away -- it was never the "small and dim" source the docstring above
+    # promises, and this restores that promise.  SPEC 10.9 governs: the
+    # beauty-pass flank VALUE is an outcome of the rig, not a target, and the
+    # guarded quantity -- the red albedo saturation -- is a material property
+    # and cannot move with a light.  T1_FILLG_SPR=180 T1_FILLG_Y=2.35
+    # T1_FILLG_S=0.55 T1_FILLG1=7.6 T1_FILLG3=8.8 reproduces the wide version.
+    try:
+        import t1_shell as _S
+        _bcx = tuple((b[0] + b[1]) / 2.0 for b in _S.BAYS)
+    except Exception:                       # studio.py must stand alone
+        _bcx = (0.6720, 0.0470, -0.5980)
+    # T1_FILLG is kept as the MASTER, scaled off its old 21.0, so every existing
+    # A/B recipe (T1_FILLG=0 ablates the galley fill) still does what it did.
+    _gk = _envf("T1_FILLG", 21.0) / 21.0
+    _gw = (_envf("T1_FILLG1", 0.25), _envf("T1_FILLG2", 0.0),
+           _envf("T1_FILLG3", 0.29))
+    _gy = _envf("T1_FILLG_Y", 1.35)         # 0.48 m off the flank
+    _gs = _envf("T1_FILLG_S", 0.42)
+    _gsp = _envf("T1_FILLG_SPR", 30.0)      # >=180 restores the omni wash
+    for _i, _bx in enumerate(_bcx):
+        if _gw[_i] * _gk <= 0.0:
+            continue
+        _softbox("fill_galley%d" % (_i + 1), (_bx, _gy, 1.58), (_bx, 0.0, 1.47),
+                 (_gs, _gs), _gw[_i] * _gk * key, (1.0, 0.965, 0.915),
+                 spread=(_gsp if 0 < _gsp < 180 else None))
 
     w = bpy.data.worlds.new("w")
     bpy.context.scene.world = w
@@ -649,6 +745,40 @@ def setup_render(res=(1600, 1100), samples=64, transparent=False):
     # sample_clamp_indirect sat at the factory 10.0 against a paper white of
     # 21-25 -- every reflected highlight was ceilinged about a stop BELOW the
     # backdrop and then blurred. Nothing in frame could read as polished metal.
+    # rev 15, work-list item 4 ("the glass, the rig half") -- REFUTED, and the
+    # clamps stay at 0.0.  The brief was that the rear pane still renders as a
+    # mirror at CV 1.22 against the photograph's 0.24, that 81 % of its
+    # brightness is the rig, and that the cause was a near-specular strip, or
+    # these two clamps letting one bright sample through.  MEASURED on hero34r
+    # at 1560x1080, the pane isolated by the CONVEX HULL OF ITS OWN PROJECTED
+    # VERTICES eroded 4 px (13 075 px) -- not by a bounding box, which is what
+    # produced the old number: the pane is a tilted rounded rectangle, so its
+    # axis-aligned box catches cream bodywork in all four corners and reads
+    # CV 0.772 on the very same render that the mask reads 0.214 on.
+    # All three rows below at 160 samples, same mask, same seed:
+    #     rear pane, tree as it stands          CV 0.222   mean 26.65
+    #     same pane re-SMOOTH-shaded (pos ctrl) CV 0.833   mean 27.85, max 196
+    #     whole rig ablated (neg ctrl)          mean  7.38 (rig = 72 % of level)
+    #     ref_side.jpg cab door glazing, four independently placed windows
+    #                                           CV 0.221 / 0.232 / 0.287 / 0.293
+    #     render cab door glass, same mask rule CV 0.244
+    # The mirror was the SMOOTH SHADING, and build.py's `_FLAT_SHADED` already
+    # killed it in rev 14: the positive control reproduces the reported defect
+    # at 3.8x the fixed pane on request.  There is nothing left in the rig to
+    # fix on the rear pane, and softening or de-rating `strip` to chase it
+    # would cost the streak that carries the whole flank for no measured gain.
+    # (Separately: with T1_GRAIN=0 the pane reads CV 0.142 and the seed-to-seed
+    # null collapses from sd 5.56 to 0.575 -- essentially ALL of the residual
+    # spread on a dark pane is the compositor's film grain, which also lifts
+    # the pane's displayed mean 16.9 -> 26.7 because AgX is steep down there.
+    # Any future CV work on dark glass must state whether grain is on.)
+    # STILL OPEN and NOT fixed here: the windscreen reads CV 0.94 on the same
+    # mask rule, from a hard-edged pale wedge in its upper outboard corner that
+    # survives ablation of every single light (largest single contributor
+    # `strip`, mean|d| 6.60 against a null of 4.69-4.84).  It is not compared
+    # here because NO reference photograph shows this vehicle's windscreen --
+    # judging it against a cab-door number measured on a different pane in a
+    # different scene is the comparison this project keeps getting burned by.
     sc.cycles.sample_clamp_direct = 0.0
     sc.cycles.sample_clamp_indirect = 0.0
     sc.cycles.caustics_reflective = True

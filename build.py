@@ -354,7 +354,31 @@ for s in (1, -1):
     ibase, ilens = D.bullet_indicator(f"ind{s}")
     D.place(ibase, loc=(2.0960, s * 0.6750, 1.2360)); A(ibase, "chrome")
     D.place(ilens, loc=(2.0960, s * 0.6750, 1.2360)); A(ilens, "amber")
-    tl = D.small_lamp(0.0455, 0.0270, f"tail{s}")
+    # rev 15 -- TAIL LAMP DIAMETER.  It is ROUND (locked) and it was half size.
+    # ref_rear34.jpg, probe box (918,636,975,730).  50 %-crossings of the
+    # paint/lens step down each column; columns x 925-941 are thrown out
+    # because the yellow flower above the lamp is a separate dark blob there.
+    # Over the clean columns x 943-961 the vertical extent peaks at 69.06 px
+    # (top 6 columns mean 68.57, sd 0.35).  The vertical is the unforeshortened
+    # axis for a round lamp on a panel turned about a vertical axis, and the
+    # plate frame beside it is the only VERTICAL ruler at the tail:
+    #
+    #   lamp vertical D / plate outer H = 1.1627 +/- 0.0271     photograph
+    #                                     0.4619                built (rev 14)
+    #   -> lamp OD 0.1956 m against 0.1030 built = 1.90x too small
+    #
+    # 1.90x is the low end of the work list's 1.9-2.2x, and it only reads that
+    # way once the plate itself is corrected (t1_detail.plate_1963); against
+    # the rev-14 plate the same pixels give 2.52x.  Tied to PLATE_OUTER_H on
+    # purpose -- that IS the ruler the ratio was measured against.
+    #
+    # DEPTH NOT CHANGED, deliberately.  Nothing in any frame we hold resolves
+    # how proud the lens stands, and scaling 0.0270 with the radius would push
+    # the lamp's tip to x -2.159, past the T-handle, making it the rear-most
+    # object on the vehicle and adding ~24 mm to verify.py row 1's overall
+    # length -- through a guard, on an unmeasured number.
+    TAIL_LAMP_OD = 1.1627 * D.PLATE_OUTER_H
+    tl = D.small_lamp(TAIL_LAMP_OD / 2 - 0.006, 0.0270, f"tail{s}")
     for v in tl.data.vertices:
         v.co.x = -v.co.x
     T.fix_normals(tl)
@@ -409,8 +433,16 @@ for o, k in ((vr, "roundelred"), (vd, "cream")):
 # Tie them.  The rev-8 proportions are preserved exactly: glyph R was 0.7486
 # of the ring's outer radius and the bar width 0.1986 of that R, which is what
 # holds the arms 12.29 deg apart with clear air between them at ANY diameter.
-_VW_R = 0.7486 * (ROUNDEL_D / 2)
-for b in D.vw_logo(R=_VW_R, w=0.1986 * _VW_R, x=2.1210):   # V over W, never inverted
+#
+# rev 15.  The coupling above is right and stays; the FRACTION was wrong.
+# 0.7486 leaves the glyph floating in the middle of the ring with 11 mm of
+# clear air all round; the emblem in ref_workshop.jpg has every stroke end
+# running into the ring band.  Measured there (crop box (258,494,352,604)):
+# glyph height / ring outer D = 0.746 +/- 0.028 against 0.5639 built, 5.1
+# sigma.  D.vw_logo_fit sizes the glyph off its OWN built outline so the
+# extreme corner lands on the ring's outer radius -- no fraction is written
+# down at all, so there is nothing left here to go stale a third time.
+for b in D.vw_logo_fit(ROUNDEL_D / 2, x=2.1210):   # V over W, never inverted
     D.place(b, loc=(0.0, 0.0, ROUNDEL_Z)); A(b, "roundelred")
 
 # SPEC sec.4 detail inventory: rear-quarter louvres (10 per side), fuel filler

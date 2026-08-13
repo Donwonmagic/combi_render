@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-13 22:28:53 UTC |
-| git commit | `5087b84` |
-| git subject | rev 14: handoff + next-context prompt |
+| generated | 2026-08-13 23:36:51 UTC |
+| git commit | `27cb813` |
+| git subject | rev 15: merge the rev-13 tip that the rev-14 line never saw |
 | working tree | **DIRTY** — this state is not committed |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=1 (applied, destructive, before booleans) |

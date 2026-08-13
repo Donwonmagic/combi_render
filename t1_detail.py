@@ -62,10 +62,30 @@ def tyre(name="tyre"):
                    (0.0278, 0), (0.0400, 0), (0.0422, 1), (0.0500, 1),
                    (0.0522, 0)]:
         tread.append((y, crown(y) - (0.0080 if d else 0.0)))
+    # rev 15 -- THE BEAD SITS ON T.RIM_R, NOT ON A 15in LITERAL.
+    # The sidewall above was authored for a 15in flange (BEAD_AUTHORED), but
+    # the rims are 16in (t1_core.RIM_R, flange OD 0.4396) and that constant was
+    # referenced by nothing.  Measured in ref_side.jpg, rear wheel, crop box
+    # (680,530,825,685): cream-ring D / tyre D = 0.660 +/- 0.008 against 0.5729
+    # built -- 11 sigma.  Fix by moving the BEAD out, never by shrinking the
+    # tyre: the shoulder (and hence the tread band and TYRE_D 0.665, LOCKED and
+    # guarded) is held fixed and only the sidewall height changes.  That is
+    # exactly what a 16in rim under a 0.665 m tyre means -- a lower-profile
+    # sidewall -- and REF_MEASUREMENTS sec.8 already calls the tyre "a modern
+    # low-profile radial".
+    BEAD_AUTHORED = 0.1905                            # 15in flange the list uses
+    SHOULDER      = up[-1][1]                         # held: tread/TYRE_D fixed
+    _k = (SHOULDER - T.RIM_R) / (SHOULDER - BEAD_AUTHORED)
+
+    def _bead(r):
+        return SHOULDER - (SHOULDER - r) * _k
+
+    up = [(y, _bead(r)) for (y, r) in up]
     prof = list(up)                                   # +Y sidewall
     prof += tread[::-1]                               # tread, +Y -> -Y
     prof += [(-y, r) for (y, r) in up[::-1]]          # -Y sidewall
-    prof += [(-0.0500, 0.1880), (0.0500, 0.1880)]     # inner bead
+    _ib = _bead(0.1880)                               # inner bead, same map
+    prof += [(-0.0500, _ib), (0.0500, _ib)]
     # SPEC r4: BLACKWALL. The white ring in the reference is the painted
     # steel rim, not a whitewall band (measured: SPEC 8.1). Single slot -
     # this also removes the materials.clear() index-loss bug (old D2).
@@ -73,7 +93,15 @@ def tyre(name="tyre"):
 
 
 def rim(name="rim"):
-    """15in steel wheel: barrel + domed disc"""
+    """16in steel wheel (t1_core.RIM_R): barrel + domed disc.
+
+    rev 15: the flange radius is T.RIM_R, not a literal.  The barrel and disc
+    profiles below were authored against a 15in flange (FLANGE_AUTHORED) and
+    are scaled radially onto RIM_R, so the live geometry now REFERENCES the
+    constant instead of shadowing it with a hand-tuned absolute.
+    """
+    FLANGE_AUTHORED = 0.1905
+    S = T.RIM_R / FLANGE_AUTHORED
     prof = [
         (0.0600, 0.1905), (0.0640, 0.1885), (0.0625, 0.1820),
         (0.0560, 0.1795), (0.0520, 0.1720), (0.0480, 0.1660),
@@ -84,6 +112,7 @@ def rim(name="rim"):
         (0.0330, 0.1560), (0.0480, 0.1590), (0.0540, 0.1660),
         (0.0570, 0.1760), (0.0560, 0.1840),
     ]
+    prof = [(y, r * S) for (y, r) in prof]
     barrel = T.revolve(prof, seg=96, axis='Y', name=name + "_barrel")
     # disc face (slightly dished)
     disc_prof = [
@@ -91,6 +120,7 @@ def rim(name="rim"):
         (0.0520, 0.1200), (0.0450, 0.0900), (0.0430, 0.0620),
         (0.0450, 0.0400), (0.0470, 0.0000),
     ]
+    disc_prof = [(y, r * S) for (y, r) in disc_prof]
     verts, faces = [], []
     seg = 96
     n = len(disc_prof)
@@ -112,7 +142,11 @@ def rim(name="rim"):
     disc = bpy.data.objects.new(name + "_disc", me)
     bpy.context.collection.objects.link(disc)
     T.fix_normals(disc)
-    # five vent holes
+    # Five vent holes -- DELIBERATELY NOT scaled by S.  They must stay under
+    # the hubcap (R 0.1345, which is CORRECT at 0.35 sigma and locked): they
+    # reach 0.1415, so only 7 mm (1.5 px in ref_side.jpg) of each crescent
+    # clears the cap.  Scaling them would put them at 0.1633 -- 29 mm / 6 px
+    # of dark notch in a cream annulus that the photograph shows unbroken.
     cuts = []
     for i in range(5):
         a = TAU * i / 5 + 0.31
@@ -128,9 +162,17 @@ def rim(name="rim"):
     return barrel, disc
 
 
+CAP_R = 0.1345          # hubcap dome radius.  LOCKED: hubcap D / tyre D
+                        # measures 0.4134 against 0.4211 built (ref_side.jpg,
+                        # rear wheel, 302-ray circle fit, sd 0.79 px) -- correct,
+                        # and it is the control that validated the tyre radius
+                        # used for the rim fix above.  Do not touch.
+CAP_D = 2 * (CAP_R + 0.0025)        # what the profile below actually reaches
+
+
 def hubcap(name="cap"):
     """large solid RED dome (SPEC rev3.2) -- not a small chrome moon cap"""
-    R = 0.1345
+    R = CAP_R
     prof = [
         (0.0745, 0.0000), (0.0736, 0.0300), (0.0710, 0.0560),
         (0.0664, 0.0800), (0.0596, 0.1010), (0.0502, 0.1180),
@@ -143,11 +185,38 @@ def hubcap(name="cap"):
     return T.revolve(prof, seg=96, axis='Y', name=name)
 
 
+# ref_side.jpg, rear wheel, crop box (736,591,764,619): the white emblem on the
+# red dome spans 18 +/- 1 px vertically and 19 +/- 1 px horizontally against a
+# hubcap disc of 58.370 px, so
+#
+#     emblem D / hubcap D = 0.317 +/- 0.017        photograph
+#                           0.1897                 built (rev 14)   -> 7.0 sigma
+#                           0.3170                 built (this fix)
+#
+# Same defect as the nose roundel and the same fix: a fraction of the disc it
+# sits on, never a fresh absolute.  0.0345 was absolute.
+CAP_EMBLEM_D = 0.3170 * CAP_D
+CAP_EMBLEM_WFRAC = 0.2087           # w/R as authored (0.0072 / 0.0345), kept
+
+
 def cap_emblem(y, side):
-    """white VW in the centre of the red dome"""
-    return T.vw_bars(0.0345, 0.0072, (0.0, y + side * 0.0805, 0.0),
-                     (1, 0, 0), (0, 0, 1), (0, side, 0), 0.0060,
-                     tag=f"capvw{side}")
+    """white VW in the centre of the red dome.
+
+    NOT DONE, and reported rather than invented: the reference emblem is a
+    VW inside a RING, exactly like the nose roundel -- the ring is plainly
+    there in the 16x crop and in the threshold mask -- and this build has no
+    hubcap ring at all.  The emblem is 18 px across in the only frame that
+    shows it, which is enough to size it but not enough to author a ring
+    cross-section or a proud height.  The size fix below therefore treats the
+    measured 18 px as the glyph's own extent, which is what the "strokes run
+    flush into the ring" geometry gives; adding the ring later will not move
+    it.
+    """
+    obs = T.vw_bars(1.0, CAP_EMBLEM_WFRAC, (0.0, y + side * 0.0805, 0.0),
+                    (1, 0, 0), (0, 0, 1), (0, side, 0), 0.0060,
+                    tag=f"capvw{side}")
+    _fit_glyph(obs, CAP_EMBLEM_D / 2, ax=('x', 'z'))
+    return obs
 
 
 def wheel_assembly(x, y, steer=0.0):
@@ -816,6 +885,70 @@ def vw_logo(R=0.1385, w=0.0275, x=2.1215, depth=0.0110):
                      depth, tag="vwbar")
 
 
+def _fit_glyph(obs, target_r, ax=('y', 'z')):
+    """Scale a finished V+W glyph in its own plane so the outline's extreme
+    corner lands exactly on `target_r`.  Returns the scale applied.
+
+    The scale is read back off the BUILT outline, not from a copy of
+    t1_core's spine tables.  That matters: the glyph merged into an X twice
+    because a number derived from those tables was written down as a literal
+    and then went stale.  Nothing here can go stale -- if the spine or the
+    width fraction ever changes, rmax changes with it.
+    """
+    rmax = max(math.hypot(getattr(v.co, ax[0]), getattr(v.co, ax[1]))
+               for o in obs for v in o.data.vertices)
+    s = target_r / rmax
+    for o in obs:
+        for v in o.data.vertices:
+            setattr(v.co, ax[0], getattr(v.co, ax[0]) * s)
+            setattr(v.co, ax[1], getattr(v.co, ax[1]) * s)
+        o.data.update()
+    return s
+
+
+def vw_logo_fit(ring_r, x=2.1215, depth=0.0110, wfrac=0.1986):
+    """V over W sized so its strokes run INTO the roundel ring and stop flush
+    with the ring's OUTER radius -- which is what the emblem does.
+
+    rev 15.  MEASURED on ref_workshop.jpg, crop box (258,494,352,604), the
+    only frame that shows the nose emblem.  The ring's outer boundary fits a
+    conic to 0.111 px sd over 149 rays: vertical D 91.885 px, horizontal
+    63.143 px (axis ratio 0.687 -- a strongly oblique view, so ONLY vertical
+    extents are used and the ratio below is dimensionless).  Glyph vertical
+    extent read off the labelled grid: top y 512.5 +/- 1.5 (the V's arms
+    terminate in the ring band), bottom y 581 +/- 2 (the W's legs likewise)
+    -> 68.5 +/- 2.5 px.
+
+        glyph height / ring outer D  =  0.746 +/- 0.028     photograph
+                                        0.5639              built (rev 14)
+                                        0.7761              built (this fix)
+
+    i.e. the glyph was 24 % undersized, 6.6 sigma out.  The fix is a pure
+    scale expressed in terms of the ring radius; every angle, the 12.29 deg
+    arm separation and the w/R proportion are untouched.
+
+    WHY "flush with the ring's OUTER radius" and not some fitted number: in
+    the photograph every stroke end -- both V arms, both W outer arms, both W
+    legs -- disappears into the ring band, and the ring's outer boundary is
+    unbroken.  Those two facts together fix the size geometrically, with no
+    tuned literal to go stale.  It also lands inside both measurements of the
+    ratio (0.746 +/- 0.028 here; 0.796 +/- 0.020 in the work-list).
+
+    REFUTED, and reported rather than fixed because it lives in t1_core.py:
+    t1_core.vw_bars' docstring claims "a clear 12.7 mm air gap between the V
+    apex and the W peak at the locked ring diameter of 0.370".  There is no
+    gap and there never was one at any diameter -- the V's outline dips
+    37.66 mm below the W's outer-arm tops at ROUNDEL_D 0.280, and because the
+    spine and the width both scale with R the overlap is a fixed FRACTION of
+    R, so no diameter can open it.  The reference agrees: the V's apex sits
+    on the W's centre peak, fused.  SPEC 10.25's premise is wrong, its fix
+    (tying the glyph to the ring) is right, and the fusion must stay.
+    """
+    obs = vw_logo(R=1.0, w=wfrac, x=x, depth=depth)     # unit glyph
+    _fit_glyph(obs, ring_r)
+    return obs
+
+
 # ###########################################################################
 #                       SPEC sec.4 DETAIL INVENTORY
 #
@@ -1207,7 +1340,23 @@ def menu_cards():
 # "1963", EMPTY.  CONFIRMED in ref_rear34.jpg.  The digit forms are schematic
 # (seven-segment bars); at the hero scale a digit is ~5 px.  FLAGGED.
 PLATE_Z = 0.7800
-PLATE_W, PLATE_H = 0.3300, 0.1850
+PLATE_W = 0.3300
+# rev 15 -- ASPECT CORRECTED.  See plate_1963's docstring for the measurement
+# and its two controls.  The WIDTH is held and every Z dimension of the frame
+# is scaled by _PV, so the frame keeps its shape and only its aspect changes.
+PLATE_ASPECT = 1.9616                  # outer W/H, measured; was 1.4798 built
+PLATE_OUTER_H = PLATE_W / PLATE_ASPECT
+_PV = PLATE_OUTER_H / 0.2230           # vs the rev-14 authored outer height
+PLATE_H = 0.1850 * _PV                 # aperture height
+_PR_TOP, _PR_BOT = 0.0380 * _PV, 0.0180 * _PV
+_PR_GAP = 0.0100 * _PV                 # top rail stands off the aperture
+_PR_OFF = 0.0050 * _PV                 # side rails' vertical centre offset
+_PR_SIDE = 0.0180                      # side rail WIDTH -- a y dimension, held
+_PD_H = 0.0210 * _PV                   # digit height, must stay inside _PR_TOP
+PLATE_TOP_Z = PLATE_Z + PLATE_H / 2 + _PR_GAP + _PR_TOP / 2
+PLATE_BOT_Z = PLATE_Z - PLATE_H / 2 - _PR_BOT / 2
+PLATE_OUTER_CZ = 0.5 * (PLATE_TOP_Z + PLATE_BOT_Z)
+assert abs((PLATE_TOP_Z - PLATE_BOT_Z) - PLATE_OUTER_H) < 1e-12
 SEG = {                      # a b c d e f g
     "1": "bc", "9": "abcdfg", "6": "acdefg", "3": "abcdg",
 }
@@ -1228,12 +1377,77 @@ def _seg_bars(ch, cx, cy, w, h, t):
 
 
 def plate_1963(body=None):
-    """chrome surround + schematic '1963' on its top rail, on the engine lid"""
+    """chrome surround + schematic '1963' on its top rail, on the engine lid
+
+    rev 15 -- THE "31-66 % TOO TALL" CLAIM IS NOT APPLIED, AND HERE IS WHY.
+
+    Measured in ref_rear34.jpg, probe box (1065,615,1195,760).  Sub-pixel
+    50 %-crossings of the paint/chrome step give four edge lines:
+
+        top    y = -0.092442 x + 735.839   resid 0.204 px  (n=15)
+        bottom y = -0.078131 x + 779.268   resid 1.031 px  (n=15)
+        left   x = +0.052766 y + 1045.786  resid 0.391 px  (n=8)
+        right  x = +0.087034 y + 1121.306  resid 0.826 px  (n=8)
+
+    -> corners (1079.4,636.1) (1175.9,627.1) (1181.1,687.0) (1082.4,694.7),
+    edge lengths 96.95 / 98.96 / 58.72 / 60.08 px, RAW IMAGE aspect 1.6492.
+
+    The raw image aspect is not the aspect: the panel is oblique.  Rectified
+    properly -- both vanishing points from the frame's own opposite edges,
+    principal point at the image centre, square pixels, f solved from
+    v1' . v2' = -f^2 -- f comes out 1667 px (39.6 deg hFOV, a 50 mm-equivalent
+    lens: physically sensible) and
+
+        plate outer W/H  =  1.470          rectified
+                            1.4798         built          -> 0.05 sigma
+
+    BUT the vanishing points are only ~1.2 sigma detections (the opposite
+    edges' slopes differ by 0.0143 and 0.0342 against combined slope errors of
+    0.0120 and 0.0343), so a Monte-Carlo over the four line-fit covariances
+    gives 1.42 median with a 16-84 % band of 1.12-1.66 and a 5-95 % band of
+    0.87-1.94.  A second, independent systematic: the rear panel is CURVED --
+    the two long body grooves at y ~ 575 and ~ 595 fit straight lines with
+    2.8 and 3.2 px residuals over 290 px -- so a planar rectification is only
+    locally valid here at all.
+
+    That route does not resolve the aspect to better than about +/- 20 %, and
+    the built value sits at the centre of it -- so on its own it would have
+    said "leave it alone".  IT IS SUPERSEDED, by a route that needs no
+    vanishing point at all:
+
+    THE WHEEL IS THE PROTRACTOR.  The cream rim is a circle (its outer
+    boundary fits a circle to 0.35 px sd over 354 rays in ref_side.jpg), so
+    its apparent aspect in ref_rear34.jpg IS the flank's foreshortening.
+    Crop box (695,640,815,824): the cream annulus spans x 712..790 and
+    y 660..805, AR = 1.847 +/- 0.055.  The flank normal and the rear-panel
+    normal are perpendicular and both horizontal, so cos(theta_rear) =
+    sin(theta_flank) and the factor that un-compresses the rear panel's
+    HORIZONTAL is k = AR / sqrt(AR^2 - 1) = 1.1894 (+0.016 / -0.014 -- the
+    sqrt makes it almost insensitive to AR).  Hence
+
+        plate outer W/H = 1.6492 x 1.1894 = 1.962 +/- 0.034   photograph
+                                            1.4798            built (rev 14)
+                                                              -> +32.6 %, 14 sigma
+
+    which lands on the LOW end of the work list's "+31 % to +66 %".  Nothing
+    in this chain is a px/m scale; it is two image aspect ratios and one
+    right angle.
+
+    CONTROL: the tail lamp is round and sits on the corner ROUNDING between
+    the two planes, so its apparent AR must fall between k (1.189, flat rear)
+    and 1.847 (flank).  Measured 69.06 / 46.8 = 1.476.  It does.
+    CONTROL: an independent metric route agrees.  The cream rim's 145 px
+    vertical extent over its 0.4396 m OD is 330 px/m at the WHEEL, which is
+    FURTHER from the camera than the plate, so 59.40 px of plate height is an
+    upper bound of 0.180 m -- and 0.3300/1.962 = 0.168 m sits under it.
+
+    The frame is therefore scaled in Z ONLY, by _PV, holding PLATE_W.
+    """
     x = -2.1070                                   # measured tail skin at z 0.78
-    rails = [(0.0, PLATE_Z + PLATE_H / 2 + 0.0100, PLATE_W, 0.0380),
-             (0.0, PLATE_Z - PLATE_H / 2, PLATE_W, 0.0180),
-             (-PLATE_W / 2 + 0.0090, PLATE_Z + 0.0050, 0.0180, PLATE_H),
-             (PLATE_W / 2 - 0.0090, PLATE_Z + 0.0050, 0.0180, PLATE_H)]
+    rails = [(0.0, PLATE_Z + PLATE_H / 2 + _PR_GAP, PLATE_W, _PR_TOP),
+             (0.0, PLATE_Z - PLATE_H / 2, PLATE_W, _PR_BOT),
+             (-PLATE_W / 2 + _PR_SIDE / 2, PLATE_Z + _PR_OFF, _PR_SIDE, PLATE_H),
+             (PLATE_W / 2 - _PR_SIDE / 2, PLATE_Z + _PR_OFF, _PR_SIDE, PLATE_H)]
     parts = []
     for i, (cy, cz, w, h) in enumerate(rails):
         parts.append(T.solid_prism((x - 0.0040, 0.0, 0.0), (0, 1, 0), (0, 0, 1),
@@ -1245,11 +1459,11 @@ def plate_1963(body=None):
     FLAT.append(frame)
     VISIBILITY_WATCH.append(frame.name)
 
-    dz = PLATE_Z + PLATE_H / 2 + 0.0100
+    dz = PLATE_Z + PLATE_H / 2 + _PR_GAP        # top rail centre
     digits = []
     for i, ch in enumerate("1963"):
         cy = (i - 1.5) * 0.0210
-        for j, o in enumerate(_seg_bars(ch, cy, dz, 0.0110, 0.0210, 0.0026)):
+        for j, o in enumerate(_seg_bars(ch, cy, dz, 0.0110, _PD_H, 0.0026)):
             digits.append(T.solid_prism((x - 0.0125, 0.0, 0.0), (0, 1, 0),
                                         (0, 0, 1), (-1, 0, 0), o, 0.0040,
                                         name=f"pd{i}_{j}"))
@@ -1291,16 +1505,50 @@ def roof_vent(body):
     return [ob]
 
 
+# rev 15 -- THE T-HANDLE IS BELOW THE PLATE, NOT ABOVE IT.
+#
+# ref_rear34.jpg.  Plate frame outer boundary from sub-pixel 50 %-crossings of
+# the paint/chrome step (probe box (1065,615,1195,760); 15 columns per
+# horizontal rail, 8 rows per side rail; line-fit residuals 0.20 / 1.03 / 0.39 /
+# 0.83 px).  Handle centroid from the same step in probe box (1112,716,1140,754),
+# stable to 0.85 px across thresholds RD < 70 / 80 / 90.
+#
+#     plate outer centre   (1129.69, 661.22) px      outer height 59.40 px
+#     handle centroid      (1126.80, 737.27) px
+#     displacement resolved along the panel-vertical (the mean of the two side
+#     rails' image slopes, dx/dy = 0.0699) = 75.69 px BELOW
+#
+#     handle drop / plate outer height = 1.274 +/- 0.025      photograph
+#                                       -1.076                built (rev 14)
+#
+# i.e. the build had it 240 mm ABOVE.  The ratio is dimensionless and both
+# terms are VERTICAL extents a few tens of px apart, so neither the horizontal
+# foreshortening nor any px/m scale enters.
+#
+# EXPRESSED AS A RATIO OF PLATE_OUTER_H ON PURPOSE, and this is not decoration.
+# The plate frame was ALSO 32.6 % too tall (see plate_1963 above), and this
+# handle is placed with the plate as its ruler, so the two are the same
+# measurement.  Written as an absolute the two would drift: against the rev-14
+# plate this ratio puts the handle 284 mm below the plate centre, against the
+# corrected plate 214 mm -- and 214 mm is what the work list's own "205 mm
+# BELOW" was reaching for.  Anyone who touches PLATE_ASPECT again moves this
+# handle with it, automatically, which is the only way the photograph stays
+# satisfied.
+ENGLID_HANDLE_DROP = 1.274 * PLATE_OUTER_H
+
+
 def englid_handle():
-    """SPEC sec.4: engine lid T-handle, top centre of the lid.
+    """SPEC sec.4: engine lid T-handle, BELOW the number plate on the lid.
 
     Projection held to 30.6 mm.  This is the rear-most object on the vehicle
     and verify.py row 1 measures overall length across EVERY mesh object, so
     the aft extent here is load bearing: at 43 mm proud (the first cut) it
     alone pushed L to 4.310 and raised a warn.  See the note on CNT_X1.
+    The rev-15 move is in Z ONLY -- x, size and material are untouched, and
+    since the aft extent is an x quantity the length guard is unaffected.
     """
-    x = -2.1070                                   # measured tail skin at z 1.03
-    z = 1.0300
+    x = -2.1070               # tail skin: -2.1074 at z 0.79, -2.1061 at z 0.51
+    z = PLATE_OUTER_CZ - ENGLID_HANDLE_DROP
     base = T.revolve([(0.0000, 0.0000), (0.0000, 0.0250), (0.0075, 0.0235),
                       (0.0100, 0.0170)], seg=24, axis='X', name="englid_esc")
     _align_x(base, Vector((-1.0, 0.0, 0.0)), Vector((x - 0.0020, 0.0, z)))
