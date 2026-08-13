@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-13 20:12:05 UTC |
-| git commit | `5e5bb82` |
-| git subject | rev 13: merge the rev-11 audit line into rev 12 |
+| generated | 2026-08-13 20:20:01 UTC |
+| git commit | `ac51f10` |
+| git subject | rev 13: the rake is re-derived and 33.0 mm/m is rejected at 4.5 sigma |
 | working tree | **DIRTY** — this state is not committed |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=1 (applied, destructive, before booleans) |

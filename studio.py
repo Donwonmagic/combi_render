@@ -151,8 +151,32 @@ def lighting(key=1.0):
     # holes. This sits just outboard of the show flank and rakes into the bays
     # so the openings read as depth. Small and dim: it must not spill onto the
     # paint or wash the contact shadow.
+    # rev 13: `gal_ceiling`, the emissive stand-in for the roof opening, is
+    # DELETED -- the rig now lights the galley through the hole that has been
+    # real geometry since rev 12.  Measured on a 1400x933 side ortho, matched
+    # windows, against the photograph's 154 / 169 / 181 mean and 38.0 / 32.3 /
+    # 17.7 sd:
+    #     rev 12 (stand-in)  132 / 158 / 172   sd 17.1 / 18.5 / 17.4
+    #     rev 13 (real hole) 141 / 164 / 175   sd 27.6 / 21.8 / 26.9
+    # Every mean moved toward the photograph and the two FLAT bays gained real
+    # internal contrast -- from the physics, not from dressing.  The remaining
+    # deficit was a LEVEL, so this is the one constant that retunes; swept 10.2
+    # / 15.0 / 21.0 and measured, not guessed:
+    #     10.2 -> 141.8 / 164.0 / 175.0
+    #     15.0 -> 140.4 / 164.8 / 177.9
+    #     21.0 -> 142.8 / 167.2 / 180.8    <- bays 2 and 3 land within 2 DN
+    # Bay 1 stays 11 DN low and that is a DISTRIBUTION problem, not a level one:
+    # cranking the global further over-lights the other two.  Logged, not
+    # cranked.
+    #
+    # SPILL, measured rather than asserted, because the rev-11 docstring's whole
+    # justification for keeping this source small was "it must not spill onto
+    # the paint": 15.0 -> 21.0 moves the aft cream 195.83 -> 198.83 (+1.5 %) and
+    # the aft red 128.16 -> 131.04 (+2.2 %).  Accepted on SPEC 10.9's finding
+    # that the beauty-pass flank value is an OUTCOME of the rig and not a
+    # target; the albedo, which is the guarded quantity, does not move at all.
     _softbox("fill_galley", (-0.35, 2.35, 1.58), (-0.35, 0.0, 1.47),
-             (1.7, 0.55), 10.2 * key, (1.0, 0.965, 0.915))
+             (1.7, 0.55), _envf("T1_FILLG", 21.0) * key, (1.0, 0.965, 0.915))
 
     w = bpy.data.worlds.new("w")
     bpy.context.scene.world = w

@@ -829,10 +829,212 @@ added are gone. The surviving six are transmissive or the sealed reflector, whic
 `STATE.md` names as the only legitimate exemptions -- plus `gal_sky`, argued
 rather than claimed, and which should be DELETED now the aperture is real.
 
+### 10.29 rev 13 -- the rake falls, and a 100 mm origin error surfaces twice
+
+**THE RAKE IS 17.75 mm/m, NOT 33.0, AND THE OWNER AUTHORISED RE-OPENING IT.**
+His settled list names ~1.9 deg. The condition he set was a fourth derivation
+before anything moved, and this is it. The method needs **no ground line, no
+px/m and no vanishing point**: both hub centres sit at exactly one tyre radius
+above flat ground BY CONSTRUCTION, so the rocker's height above its own hub,
+taken at each axle and scaled by that wheel's own tyre, differences straight
+into the rake.
+
+| station | hub, sub-pixel polar fit | local px/m | rocker above hub |
+|---|---|---|---|
+| front axle | u 242.60, v 607.84 | 204.4 | **-0.0004 m** |
+| rear axle | u 749.27, v 604.13 | 213.5 | **+0.0422 m** |
+
+`rake = 0.0426 / 2.400 =` **0.01775 m/m, 17.6 +/- 3.4 mm/m**. From the built
+0.0330 that is **4.5 sigma -- rejected**. From the audit line's independent
+14.4 +/- 3.1 it is 0.70 sigma -- consistent.
+
+Three things made this unresolvable for five revisions and all three are now
+named:
+
+1. **An image slope of a fore-aft line is not the rake.** Every one of rev 8's
+   chains measured one. All of the vehicle's own horizontal lines converge on a
+   vanishing point at u ~ -11700, so a raw slope carries the perspective term
+   as well. Re-fitting the rocker trim ridge sub-pixel gives -0.025415 +/-
+   0.000178 px/px (rms 0.299, n = 324) -- **neither candidate**, because it is
+   not the quantity.
+2. **The front wheel is 54 % unoccluded**, not unusable. Polar sectors
+   -40...+66 and +110...+198 are clear of the man; that is enough for a
+   constrained circle fit. Every previous attempt used a bounding-box search
+   and locked onto his red shirt.
+3. **The arch-gap identity is a BOUND, not an estimator.** `rear - front =
+   rake x wheelbase` holds only if both lips sit at the same height above their
+   own hub, and on a T1 they are different pressings -- so it confounds the rake
+   with a design difference. It still bounds: a non-negative front gap needs
+   rake <= 0.0171, which kills 0.0330 on its own. **10.9's contradiction is
+   closed against the built value.** The rear gap itself re-measures 41.0 +/-
+   3.5 mm -- exactly the built `ARCH_R - TIRE_R` -- refuting the audit line's
+   own 52 mm at 3 sigma.
+
+`RAKE_Z0` is re-anchored in the same solve, not carried over: the model sat
+-0.0088 above its hub at the front and +0.0704 at the rear, so **both ends
+move**, the nose up 8 mm and the tail down 28 mm. `X_DROP_REF` is now DERIVED
+from the rake (10.25), which holds `RIDE_DROP` at exactly 0.0650 and therefore
+keeps `Z_BELT` = 1.2070 and `V_APEX` = 0.3400 **bit-identical** through the
+change. `t1_mats.Z_BELT0` / `V_APEX0` were literals carrying their derivation
+only in a comment -- the same shape of bug that merged the VW glyph into an X
+twice -- and are now expressed in terms of `RAKE_Z0`.
+
+**THE ROOF GUARD IS STRENGTHENED, NOT WIDENED.** The lower rake takes the crown
+1.923 -> 1.894, so the raw residual against REF 2.3's 1.960 grows -37 -> -66 mm.
+That is not the rake getting worse; it is a second, separately measured defect
+becoming visible. The transverse roof section is **3.9x too flat**: crown R
+**2.45 +/- 0.15 m** measured against 9.65 built, gutter-to-crown **0.188 +/-
+0.015 m** against 0.083. Two frames, two physics -- crown-minus-drip-rail at the
+same column in `ref_side.jpg`, and the open lid's forward CUT EDGE in
+`ref_workshop.jpg`, which is literally a transverse section of the roof and fits
+a circle at rms 0.49 px against a straight line's 4.51. So the crown sits
+**0.098 +/- 0.010 m** below where its own gutter puts it. Encoded as a named
+`DOME_DEFICIT` that **must be driven to zero** when the section is rebuilt,
+rather than by widening a band that would then also swallow a rake regression.
+The RAW residual is logged every run so it cannot go quiet. This also
+**overturns 10.22's `geometry-4` NOT MEASURABLE**: rev 10 could not find a
+datum, and the drip-rail gutter is one.
+
+**THE 100 mm ORIGIN ERROR, found independently in two dimensions.**
+`REF_MEASUREMENTS` maps the photograph as `X = (495.8 - u)/211.5` and calls
+X = 0 mid-wheelbase. But 495.8 px **is the hub midpoint**, and this model's
+axles are at +1.300 / -1.100, so its mid-wheelbase is **x = +0.100**. Every REF
+model-frame number is 100 mm aft of where it says. All three serving bays sat
+**105 mm too far aft** as a pure translation; the same 100 mm is inside 10.7's
+"99 mm tail", which is why that number never reconciled.
+
+**THE SERVING BAYS ARE EQUAL, at 0.5155 m.** Three exactly equal bays project to
+106.76 / 109.12 / 111.52 px against a measured 107.23 / 109.13 / 111.04 --
+residuals +0.47 / +0.01 / -0.48 px. **10.5's 0.507 / 0.516 / 0.525 taper is
+perspective, not geometry**, and perspective in fact over-explains it (4.4-4.5
+points predicted against 3.55 measured). rev-3's three equal 0.600s stay
+retired: the width is 0.5155, so "equal" was never what was wrong with them.
+The guard is strengthened -- it still pins every edge to 1e-6 and now pins the
+widths to each other.
+
+**`optics-6` IS REFUTED. THE VEHICLE DOES NOT FLOAT AND THE CATCHER WAS NEVER
+BROKEN.** The diagnosis "the catcher writes identically zero alpha" was measured
+on the **`side` camera**, which is an orthographic elevation at z = 1.52 aimed
+at z = 1.52 -- a perfectly horizontal optical axis, so the ground plane at z = 0
+is exactly edge-on and is **never sampled**. Below the contact patch that frame
+contains no ground at all: it is transparent film, composited to white. The two
+numbers that "proved" the defect -- 255.00 at every row, and 177.00 against
+177.00 with the backdrop forced to linear 1.0 -- were measuring the backdrop,
+twice. Probing the raw RGBA with the compositor disabled on `hero34f`, which can
+see the ground: **23.2 % of the frame carries partial alpha, max 0.9765.**
+
+Measured properly, at 1022 px/m on the rear contact patch, against the
+photograph's own profile as ratios to open ground in the same row:
+
+| outboard | render | photograph |
+|---|---|---|
+| at the contact line | **0.484** | 0.57 +/- 0.10 |
+| 5 mm | **0.797** | 0.89 |
+| 10 mm | **0.921** | 0.94 |
+| 15 mm | **0.999** | 0.97 |
+| 20-450 mm | **1.000** | 1.00 +/- 0.06 |
+
+Every station within ~1 sigma, and if anything the render is slightly too dark
+at the contact. **The whole feature is 15 mm wide** -- which is correct, because
+the photograph has no penumbra either. At 3000 px across a 4.3 m vehicle that is
+9 px, and the dark part is 3 px. The vehicle "reads as floating" because the
+real vehicle in open shade under a canopy also has almost no ground shadow, not
+because the render is missing one. **Do not add a shadow this vehicle does not
+cast.**
+
+**`gal_ceiling` IS DELETED.** The emissive stand-in for a roof opening that has
+been real geometry since rev 12 is gone. The owner settled what is up there
+before anything was measured from it: through the opening you see the **bare
+inside of the body's own red exterior paint** -- no interior colour, no
+headlining. So nothing replaces it; the solidified shell already carries that
+surface. Measured on a 1400x933 side ortho against the photograph's 154 / 169 /
+181 mean and 38.0 / 32.3 / 17.7 sd:
+
+| | bay means | bay sd |
+|---|---|---|
+| rev 12, emissive stand-in | 132 / 158 / 172 | 17.1 / 18.5 / 17.4 |
+| rev 13, real hole, `T1_FILLG` 10.2 | 141.8 / 164.0 / 175.0 | 27.6 / 21.8 / 26.9 |
+| rev 13, `T1_FILLG` 21.0 (locked) | **142.8 / 167.2 / 180.8** | 25.2 / 19.8 / 24.1 |
+
+Bays 2 and 3 land within 2 DN. Bay 1 stays 11 DN low and that is a
+**distribution** problem, not a level one -- cranking the global over-lights the
+other two. Bay 1's sd is now at its own measured ceiling (~23; about 37 % of the
+photograph's variance there is the man working inside). Spill measured rather
+than asserted, because the rev-11 docstring's justification for keeping this
+source small was that it must not spill: 15.0 -> 21.0 moves the aft cream
+195.83 -> 198.83 (+1.5 %) and the aft red 128.16 -> 131.04 (+2.2 %). Accepted on
+10.9's finding that the beauty-pass flank value is an outcome of the rig, not a
+target; the albedo does not move.
+
+`materials-5`'s duplication MECHANISM is removed outright rather than
+de-symmetrised, and the acceptance target is measured for the first time:
+inter-bay NCC in the photograph is **-0.102 / -0.228 / -0.127** against a
+self-flipped null control of -0.148 -- the three bays are UNCORRELATED.
+Acceptance |NCC| <= 0.20. Constant-roughness materials **6 -> 5**; `gal_sky`,
+the one exemption `STATE.md` argued rather than claimed, is gone as 10.28 asked.
+
+**THE OWNER'S READING ON THE APERTURE BULBS IS REFUTED, and it is recorded
+because it changes the fix.** He named daylight through the roof opening PLUS
+the bulbs around the serving apertures. Measured: the trim ringing each aperture
+reads S 0.110-0.152, while the drip-rail festoon in the same rows reads S
+0.281-0.317 and 15-40 codes brighter. The aperture surround is a **matte white
+bobble fringe**, not lamps; the only lit string is on the drip rail OUTSIDE the
+skin, ~55 mm above the aperture heads, where it lights the customer and cannot
+reach the galley. The roof opening does all of it.
+
+**BULB PITCH 0.1350 -> 0.0286.** Measured twice, blind, by two specialists using
+different methods: FFT along the string gives **28.6 +/- 1.0 mm** (~115 bulbs);
+peak counting on three clean runs gives <= 25 mm and its author flagged it as
+Nyquist-limited. 26 bulbs on a 3.50 m rail was 4.7x too coarse. The EXTENT is
+confirmed, not changed (+5 %). `BULB_R` unchanged -- 22 mm on a 28.6 mm pitch
+still leaves air, and the spacing was the defect, not the size.
+
+**TAIL LAMP `ruby` -> `amber`.** Same frame, same light, same class: lens hue
+21.4 deg, G/R 0.456, against the paint it is mounted on at hue 12.2 deg, G/R
+0.275. The lens is **yellower and less red-dominant than its own surround**, and
+`ruby` is redder than that surround.
+
+**THE CREAM IS TOO CLEAN, NOT TOO WEATHERED -- 6.4 refuted by measurement.**
+The rendered cream's local luminance variation is **1.24 % RMS at 25 mm**
+against 10.4's target of 4.22 % and a direct re-measurement of `ref_side.jpg` at
+7.37 %. It is 3.4-6x too UNIFORM. The impression off the rev-12 hero was of
+blotches on the cab ROOF, which is an upward-facing surface driven by a
+different node from the flank breakup -- so it is not contradicted by this, but
+the flank cream must not be cleaned up any further.
+
+**`COUNTERTAN` -- the ratio was inadmissible and the owner's answer says why.**
+He identifies the counter top as **bare or varnished plywood**. 10.21 permits a
+rendered ratio to become an albedo ratio only between the same class under the
+same light, and both bracket references are cream PAINT -- so the derivation was
+inadmissible by construction, which is exactly why they bracket rather than
+agree. It is worse than that: the fascia reference is 1.27x redder than the
+flank cream above it (normalised r/g 1.268), so it corrupts the CHROMATICITY
+too, and the sample window used is 80 % covered by the napkin dispensers.
+No same-class partner exists and none can be manufactured -- there is no
+up-facing painted surface in `ref_side.jpg` and every cream in `ref_rear34.jpg`
+clips at 36-71 %. Method that needs none, for the next pass: hold `COUNTERCREAM`
+(locked, tied to the up-facing dust solve), measure the gold-line-referenced
+top/fascia linear ratio in the photograph -- **(0.796, 0.810, 0.633) +/- 0.02**
+on clean columns -- and solve `T1_CTAN` onto it in the RENDER, three points.
+Honest bracket is **-21 %/+22 %**, not -16/+15, and the **hue does not survive**:
+the model is ~16 % too orange (b/g 0.673 against 0.781; r/g should be 1.01-1.03,
+not 1.191).
+
+**LOGGED, NOT APPLIED -- the serving bays may be GLAZED.** The counter dimension
+argues it from the interior floor never dropping below display luma 79/94/119,
+a smooth -20.9-code gradient across bay 3's object-free back wall over 70 px,
+bright veils crossing object edges, and a dynamic range of only 11:1. That
+contradicts a reading **the owner settled himself** -- three glassless serving
+apertures -- and this project's rule is that a finding which breaks something
+independently locked needs a third method first. Flare in open shade under an
+absorbing canopy produces the same signature. **Do not apply without a third
+method or a new photograph.**
+
 ## Change log
 
 | Date | Change |
 |---|---|
+| 2026-08-13 | **rev 13 — the rake falls to 17.75 mm/m and `optics-6` is refuted.** The two divergent lines are merged. The rake is re-derived a fourth way, hub-referenced and scale-free, and 33.0 is rejected at **4.5σ**; §10.9's rake-versus-arch-gap contradiction closes against the built value, and the arch-gap identity is demoted from estimator to bound. A **100 mm origin error** in `REF_MEASUREMENTS` surfaces independently in two dimensions — the bays sat 105 mm aft and §10.7's "99 mm tail" contained it. **The bays are equal at 0.5155 m**; §10.5's taper is perspective. **`optics-6` is refuted**: the catcher was never broken, the diagnosis was measured on a camera that cannot see the ground plane, and the contact profile matches the photograph within ~1σ at every station. **`gal_ceiling` deleted** and the galley lit through the real hole — every bay mean moved toward the photograph and the two flat bays gained real contrast. Bulb pitch 4.7× too coarse, tail lamp amber not ruby. The cream is measured **too clean, not too weathered**. The roof guard is strengthened with a named `DOME_DEFICIT` rather than widened. |
 | 2026-08-10 | **rev 12.** The roof hole is CUT -- one opening, settled with the owner, cut after solidify, guarded two-sided by `verify.py` 11d2; non-manifold still 0 and 0 fail / 1 warn at both levels. The galley is no longer a sealed steel box. The cream lettered panel is a DETACHED SIGN and is off the vehicle (10.28). Counter given a measured tan top and its brass nosing re-measured -- it was 1.6x too DEEP, not thin. Weathering: the dust tide line re-fitted to h 0.424 +/- 0.020 and the upward-facing deposit split from the road film, which had been delivering dC* +0.58 against a target of +5.0. Constant-roughness materials 9 -> 6. `optics-6` measured properly and its obvious fix refuted. |
 | 2026-08-10 | **rev 11.** Roof topology settled by the owner and 10.19 corrected -- the lids do NOT open forward; the main lid hinges fore-aft and opens to the serving side, corroborated by a vanishing-point fit agreeing with the bulb string to 2 % (10.26). The roof hole is never cut, which is why the galley was black (10.27). Galley dressed and lit: bays 22/33/24 -> 130/160/167 against a measured 137/157/175. Mural un-lifted -- `EXPOSURE = 1.58` was a scalar rev 9 baked into every measured colour; removed, and every palette class now lands within half a point. Flower heads measured at EIGHT petals not twelve; THREE menu strips not four. Folk art recomposed: 84.4 % of the photograph gold sits in three connected masses, rev 10 had 67.9 % in its largest three, rev 11 has 81.0 %. Nose given its own decal -- the flank tile is box-projected and the nose face was sampling the cab door u-band. |
 | 2026-08-10 | **rev 10.** Photograph identity settled with the owner (10.19). Script reference mask corrected -- it was dropping 14 % of the ink and two recorded generator defects were artefacts of it (10.20); whole-lockup IoU 0.511 -> 0.942, `Senor` 0.089 -> 0.825. Silver measured and modelled as LEAF, with one albedo-versus-rendered-ratio error made and corrected in flight (10.21). Folk art: `W_ART` 0.30 opacity ceiling retired -- it made the measured x2.048 gold-to-red contrast arithmetically unreachable; cab-door coverage 0.0-0.2 % -> 29.1 %; both flanks de-mirrored (materials-14). Fascia: roundel 0.370 -> 0.280 and 113 mm down, bezels to brass, indicators outboard (10.22). Playa rig: sun, dapple, sky and haze all removed as unsupported; vegetation built and placed by inverting the reference camera (10.23). Three findings reverted and logged OPEN (10.24). VW glyph coupling fixed (10.25). |
