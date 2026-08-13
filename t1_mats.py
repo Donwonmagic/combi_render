@@ -181,14 +181,30 @@ W_N1_SCALE, W_N1_DETAIL, W_N1_ROUGH = 3.5, 6.0, 0.55
 W_N2_SCALE, W_N2_DETAIL = 22.0, 4.0
 W_N1_W, W_N2_W = 0.65, 0.35
 W_ROUGH_SWING = 0.09           # +- about the material's base roughness
-W_ALBEDO = float(os.environ.get("T1_W_ALB", 0.130))
+W_ALBEDO = float(os.environ.get("T1_W_ALB", 0.260))
+# rev 14, SPEC 10.29: the flank cream is too CLEAN, not too weathered. The
+# rendered local luminance variation is 1.24 % RMS at 25 mm against SPEC
+# 10.4's 4.22 % target and a direct re-measure of ref_side.jpg at 7.37 % --
+# 3.4-6x too uniform. The owner's "weathering looks too heavy" impression was
+# measured and REFUTED for the flank; it was the cab ROOF, a different node.
+# 0.130 -> 0.260 is the first step of that solve and it is NOT the solve: the
+# relationship is not linear (this file's own calibration below records 0.06
+# realising 1.2 % albedo sd and 0.13 % display residual, while 0.130 realises
+# 1.24 % display -- so most of the shipped 1.24 % is coming from somewhere
+# other than this node). Measured after the change and reported; the residual
+# is left open rather than tuned to a number nobody watched print.
+# The other lever is the MAP WINDOW, exposed below: the noise Fac is
+# approximately N(0.5, s) and a 0.30-0.70 window passes most of the
+# distribution, so only ~20 % of the half-range is realised. Move ONE of the
+# two at a time.
                                # +- albedo half-range over the 0.30-0.70 map
                                # window.  The design entered 0.06; measured,
                                # that realises only 1.2 % albedo sd and 0.13 %
                                # display residual (see the report).  0.70
                                # realises 14.2 % albedo sd.
 _NOSE_SEL = [None]          # rev 11: nose-decal selector handoff
-W_MAP_LO, W_MAP_HI = 0.30, 0.70
+W_MAP_LO = float(os.environ.get("T1_W_MAPLO", 0.30))
+W_MAP_HI = float(os.environ.get("T1_W_MAPHI", 0.70))
 # rev 10.  This was 0.30 -- a 30 % opacity ceiling on hand-painted signwriting,
 # put there in rev 8 to stop the folk art dragging the flank saturation down.
 # It is the arithmetic cause of Donald's "far too faint and sparse": measured
@@ -633,7 +649,7 @@ def weather_group(name="WEATHER"):
     s = I.new_socket("Base Color", in_out='INPUT', socket_type='NodeSocketColor')
     s.default_value = (*CREAM, 1)
     for nm, dv in (("Roughness", 0.42), ("Dust", 0.0), ("Wear", 0.0),
-                   ("Fade", 0.0), ("Peel", 0.0)):
+                   ("Fade", 0.0), ("Peel", 0.0), ("FadeVert", 0.0)):
         s = I.new_socket(nm, in_out='INPUT', socket_type='NodeSocketFloat')
         s.default_value = dv
         s.min_value, s.max_value = 0.0, 2.0
@@ -647,7 +663,8 @@ def weather_group(name="WEATHER"):
     go = ng.nodes.new("NodeGroupOutput"); go.location = (1800, 0)
     IN = dict(col=gi.outputs["Base Color"], rgh=gi.outputs["Roughness"],
               dust=gi.outputs["Dust"], wear=gi.outputs["Wear"],
-              fade=gi.outputs["Fade"], peel=gi.outputs["Peel"])
+              fade=gi.outputs["Fade"], peel=gi.outputs["Peel"],
+              fadev=gi.outputs["FadeVert"])
 
     # ---- front end.  Object coordinates, never Generated.
     texco = ng.nodes.new("ShaderNodeTexCoord"); texco.location = (-2600, -600)
@@ -675,7 +692,39 @@ def weather_group(name="WEATHER"):
     col = _mixc(nt, 1.0, IN['col'], alb.outputs[0], -1380, 320, blend='MULTIPLY')
 
     # ---- 2d sun fade (UNDER the dust film) ------------------------------
+    # AUDIT_rev11 W2, severity 5: this MapRange is keyed on Normal.Z over
+    # 0..1, so a VERTICAL surface has Nz = 0 and receives a fade factor of
+    # exactly ZERO.  The flank is the largest painted area on the vehicle and
+    # it was getting none.
+    #
+    # Measured in ref_side.jpg on the CREAM corner panel, X -1.60..-1.84:
+    #     chroma  C* 14.55 -> 6.53  (-55 %)
+    #     L*      89.6 -> 96.2
+    #     hue     constant 67-73 deg      <- a fade signature, not a colour shift
+    # the same panel in the render: C* 1.98 -> 1.59.
+    #
+    # WHY THIS IS NOT A BLANKET FIX, and what stopped me applying one.
+    # SPEC 10.12 locks `RED` at sRGB (196,49,36) with saturation 0.816 as an
+    # ALBEDO.  Feeding a vertical fade into every material would run the flank
+    # red through HueSaturation at W_FADE_SAT = 0.88 and take that locked
+    # albedo saturation to ~0.77 -- breaking an independently locked value to
+    # satisfy a finding, which this project has learned not to do (10.24 holds
+    # three findings applied then reverted for exactly this reason).
+    #
+    # So the vertical term is a SEPARATE, per-material input, default 0.0, and
+    # it is switched on ONLY for the cream family -- which is where the
+    # measurement above was actually taken, and none of which carries a locked
+    # saturation.  `T1_paint`, `capred`, `roundelred` and `script` keep 0.0 and
+    # the red lock is untouched.  See build_all().
+    #
+    # The value itself is not a fudge: the diffuse view factor of a plane to a
+    # uniform hemisphere is (1 + Nz)/2, so a vertical surface sees exactly half
+    # the sky a horizontal one does.  0.50 is that view factor, not a taste
+    # call.  The measured -55 % is a spatial GRADIENT along the flank toward
+    # the corner; this delivers the uniform part of it only, and the gradient
+    # is left open rather than faked.
     fz = _mr(nt, nsep.outputs["Z"], 0.0, 1.0, 0.0, 1.0, -1380, -180)
+    fz = _math(nt, 'MAXIMUM', fz.outputs[0], IN['fadev'], -1290, -180)
     ffac = _math(nt, 'MULTIPLY', fz, IN['fade'], -1200, -180, clamp=True)
     hs = ng.nodes.new("ShaderNodeHueSaturation"); hs.location = (-1020, 200)
     hs.inputs["Saturation"].default_value = W_FADE_SAT
@@ -783,7 +832,8 @@ def _bsdf(m):
     return next(n for n in m.node_tree.nodes if n.type == 'BSDF_PRINCIPLED')
 
 
-def apply_weather(m, dust=0.0, wear=0.0, fade=0.0, peel=0.0, normal=True):
+def apply_weather(m, dust=0.0, wear=0.0, fade=0.0, peel=0.0, normal=True,
+                  fadev=0.0):
     """Splice the WEATHER group between the material's colour/roughness
     sources and its Principled BSDF."""
     nt = m.node_tree
@@ -827,6 +877,7 @@ def apply_weather(m, dust=0.0, wear=0.0, fade=0.0, peel=0.0, normal=True):
     g.inputs["Wear"].default_value = wear
     g.inputs["Fade"].default_value = fade
     g.inputs["Peel"].default_value = peel
+    g.inputs["FadeVert"].default_value = fadev
 
     nt.links.new(g.outputs[0], b.inputs["Base Color"])
     nt.links.new(g.outputs[1], b.inputs["Roughness"])
@@ -1140,6 +1191,49 @@ def body_paint(name="T1_paint"):
     nt.links.new(_nmp.outputs[0], _nose.inputs["Vector"])
     _NOSE_SEL[0] = (_isNose, _nose) if _nose.image else None
 
+    # ---- TAIL selector, rev 14 -----------------------------------------
+    # AUDIT_rev12 item 2, severity 5, and the highest visible-defect-per-line
+    # item in the whole report: the flank tile is BOX-projected, so EVERY face
+    # whose normal is X-dominant samples it on (y, z).  `_facex` above is
+    # |Nx| > 0.70 and is therefore true on the TAIL as well as the nose --
+    # `_fwd` (X > +1.60) rescues only the nose.  Nothing gated the tail, so
+    # gold folk art printed across the flat tail face.
+    #
+    # MEASURED, rev 14, independently of the audit and on a fixed row band
+    # (ref_rear34.jpg rows 545-725), one gate (hue 25-90 deg, S > 0.35,
+    # V > 0.45):
+    #
+    #     rear quarter, cols 830-940   43.687 % gold   n = 19 800 px  <- control
+    #     flat tail face, cols 965-1150 0.006 % gold   n = 33 300 px
+    #
+    # Four orders of magnitude, with a positive control in the same rows of
+    # the same frame.  AUDIT_rev12 measured 0.00 % gate-independent in 35 991
+    # px against a 20.94 % control; the two agree.
+    #
+    # THE TRAP, named by the audit and confirmed here: the rear QUARTER's real
+    # 43.7 % must survive.  The gate is keyed on |Nx|, and the quarter's normal
+    # is not X-dominant -- it is still mostly +-Y on the corner radius -- so the
+    # quarter keeps its art and only the rear-FACING panel loses it.  That is
+    # also exactly where the photograph's art terminates: the aft-most gold is
+    # at image column 952, which is the cream/red branch intersection, i.e. the
+    # station where the corner turns.
+    #
+    # X < -1.60 is not a measured station and does not need to be: |Nx| > 0.70
+    # already selects rear-facing geometry, and the X term exists ONLY to
+    # exclude the nose, which sits at X > +1.60.  It can be wrong by 300 mm in
+    # either direction without changing a single shaded pixel.
+    #
+    # Blended over 0.66-0.76 rather than a hard GREATER_THAN so a motif that
+    # straddles the latitude fades instead of being sliced.  0.10 matches the
+    # BOX projection_blend already in use two nodes up.
+    _aft = _math(nt, 'LESS_THAN', sep.outputs["X"], -1.60, -1140, -1740)
+    _tailface = _mr(nt, _absx.outputs[0], 0.66, 0.76, 0.0, 1.0,
+                    -990, -1740, smooth=True)
+    _isTail = _math(nt, 'MULTIPLY', _tailface.outputs[0], _aft.outputs[0],
+                    -840, -1740)
+    _notTail = _math(nt, 'SUBTRACT', 1.0, _isTail.outputs[0], -700, -1740,
+                     clamp=True)
+
     # --- density mask (SPEC sec.3): heaviest on the nose, trailing along the
     #     belt, sparse at the tail. Applied as a spatially varying cutoff on a
     #     low-frequency noise so whole motifs drop out rather than fading.
@@ -1225,6 +1319,14 @@ def body_paint(name="T1_paint"):
     # the dense regions run at the tile's own alpha, which covers the red
     # almost completely and drags the flank from sat 0.82 to 0.27.
     amask = _math(nt, 'MULTIPLY', amask.outputs[0], W_ART, 240, -1240)
+
+    # rev 14: kill the folk art on the flat tail face (selector built above).
+    # Done on the ALPHA, not the colour: where alpha is 0 the base colour is
+    # already the body red, so the tail face needs no colour branch of its own
+    # and there is nothing that can leak.  This is why the tail did not need
+    # the second image the NOSE needed.
+    amask = _math(nt, 'MULTIPLY', amask.outputs[0], _notTail.outputs[0],
+                  380, -1240)
 
     # red + gold
     mix_g = nt.nodes.new("ShaderNodeMix"); mix_g.location = (-820, -420)
@@ -1425,7 +1527,39 @@ def build_all():
 
     # rev 8: the lid boards. Painted board, matte, NOT emissive -- the warm
     # read in the reference is the scene light, not the paint.
-    M["lidmural"] = img_paint("lidmural", "lidmural.png", rough=0.52)
+    # AUDIT_rev12 item 6, severity 5 -- "the mural texture is RIGHT and the
+    # render is not", settled by area means rather than class fractions
+    # (8.2x minification destroys a dark tail regardless, so the class-fraction
+    # limb of that finding is contaminated and was set aside):
+    #
+    #   ref_side.jpg, board interior   (126, 60, 24)   b-chrom 0.1129
+    #   tex/lidmural.png, interior     (127, 59, 23)   b-chrom 0.1101   <- 1 code
+    #   render                         (148, 92, 69)   b-chrom 0.2227
+    #
+    # The texture matches the photograph to ONE sRGB code per channel. The
+    # render is displaced +21 R / +33 G / +46 B away from the texture's own
+    # area mean, which minification cannot do. So: fix the shader. NEVER touch
+    # tex/lidmural.png.
+    #
+    # THE MECHANISM, found by tracing the node graph: this material has no
+    # additive node at all. It is 5 nodes -- Image -> Base Color, Image ->
+    # RGBToBW -> MapRange -> Roughness, and a Principled. The only near-neutral
+    # additive term in the chain is `img_paint`'s default `spec = 0.42`, i.e.
+    # Specular IOR Level, F0 = 0.08 x 0.42 = 0.0336, with Specular Tint (1,1,1)
+    # -- an achromatic white pedestal laid on top of a DARK, SATURATED albedo.
+    # On a linear albedo of (0.2051, 0.0423, 0.0091) a neutral +0.03 moves
+    # B by ~330 %, G by ~70 %, R by ~16 %: B most, R least, which is exactly
+    # the directional signature of (127,59,23) -> (148,92,69).
+    #
+    # 0.16 is F0 = 0.0128, a chalky distempered board rather than a varnished
+    # one, and it is a FIRST STEP, not a solve. `T1_MURAL_SPEC` overrides it so
+    # the three-point solve can be run against the (126,60,24) target without
+    # editing this file. The audit's instruction stands: measure it on the
+    # ALBEDO pass, not on the beauty pixel -- the beauty pixel crosses AgX +
+    # Punchy and an sRGB decode, and comparing a texture-file mean to a
+    # tonemapped render mean crosses two nonlinear transforms.
+    M["lidmural"] = img_paint("lidmural", "lidmural.png", rough=0.52,
+                              spec=float(os.environ.get("T1_MURAL_SPEC", 0.16)))
     M["lidsign"] = img_paint("lidsign", "lidsign.png", rough=0.48)
 
     # rev 8: brass was defined locally in t1_detail._brass() because this
@@ -1460,11 +1594,28 @@ def build_all():
 
     # ------------------------------------------------------- weathering
     # full group: colour breakup + edge wear + dust + fade + orange peel
-    for k in ("paint", "bumpercream", "cream", "roundelred", "calidad"):
+    # rev 14: `fadev` is the vertical-surface sun-fade term (WEATHER's new
+    # FadeVert input).  It is the diffuse view factor of a vertical plane to a
+    # uniform hemisphere, 0.50, and it is switched on ONLY for the cream
+    # family -- the surfaces the -55 % chroma fade was actually measured on
+    # (ref_side.jpg, cream corner panel X -1.60..-1.84).  `paint`,
+    # `roundelred`, `capred` and `script` stay at 0.0 because SPEC 10.12 locks
+    # RED's albedo saturation at 0.816 and W_FADE_SAT = 0.88 would move it.
+    # `calidad` stays at 0.0 for the same reason -- it is a red-orange decal
+    # whose gradient was measured, not designed.  See weather_group() 2d.
+    FADEV_CREAM = 0.50
+    for k in ("paint", "roundelred", "calidad"):
         apply_weather(M[k], dust=1.0, wear=WEAR[M[k].name], fade=1.0, peel=1.0)
+    apply_weather(M["bumpercream"], dust=1.0, wear=WEAR[M["bumpercream"].name],
+                  fade=1.0, peel=1.0, fadev=FADEV_CREAM)
+    apply_weather(M["cream"], dust=1.0, wear=WEAR[M["cream"].name],
+                  fade=1.0, peel=1.0, fadev=FADEV_CREAM)
     # group minus peel (not sprayed sheet metal), dust weighted up
-    for k in ("countercream", "countertan", "wheelcream", "capred", "capwhite"):
+    for k in ("countertan", "capred"):
         apply_weather(M[k], dust=1.4, wear=WEAR[M[k].name], fade=1.0, peel=0.0)
+    for k in ("countercream", "wheelcream", "capwhite"):
+        apply_weather(M[k], dust=1.4, wear=WEAR[M[k].name], fade=1.0, peel=0.0,
+                      fadev=FADEV_CREAM)
     # hand-painted silver: inherit the panel's dust and roughness field so it
     # does not float, but chip the paint UNDER it, not the silver
     apply_weather(M["script"], dust=1.0, wear=0.0, fade=0.5, peel=0.0)

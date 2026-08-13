@@ -25,12 +25,35 @@ ASSIGN = []
 FAILED_CUTS = []
 
 
+# rev 14, AUDIT_rev12 item 3 (all glass reads as a mirror): `A()` called
+# `shade_smooth()` UNCONDITIONALLY on every mesh routed through it, including
+# the glazing. Every pane is a 6 mm SOLID slab (`thick=0.006`), so smooth
+# shading averages the flat face normal with the 90 deg normals of the rim
+# faces all the way round the perimeter -- bending the mirror inward at every
+# edge. Flat glass is flat: its normal is constant by definition.
+#
+# MEASURED by the audit: forcing flat shading changes 88.7 % of pane pixels at
+# mean |delta| 39.18, against a render-to-render null of 4.19 -- 9.4x the
+# noise floor. It is not the whole defect (81 % of the pane's brightness is
+# the rig: deleting the rig drops pane mean 34.05 -> 6.54, and `gal_ceiling`'s
+# visible_glossy was REFUTED as the cause at 1.87 against a 4.19 null), but it
+# is the half that is unambiguously wrong and costs nothing.
+#
+# Named by prefix, not by material, because `A()` runs before materials are
+# assigned. Covers glass_ws, glass_dm/dv +-1, glass_bay{0,1,2}_{L,R},
+# glass_rear -- 10 objects at the time of writing.
+_FLAT_SHADED = ("glass_",)
+
+
 def A(objs, key):
     if not isinstance(objs, (list, tuple)):
         objs = [objs]
     for o in objs:
         if o.type == 'MESH':
-            o.data.shade_smooth()
+            if o.name.startswith(_FLAT_SHADED):
+                o.data.shade_flat()
+            else:
+                o.data.shade_smooth()
         ASSIGN.append((o, key))
     return objs
 

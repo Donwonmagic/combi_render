@@ -8,10 +8,10 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-13 20:20:01 UTC |
-| git commit | `ac51f10` |
-| git subject | rev 13: the rake is re-derived and 33.0 mm/m is rejected at 4.5 sigma |
-| working tree | **DIRTY** — this state is not committed |
+| generated | 2026-08-13 22:20:57 UTC |
+| git commit | `fcf6e3d` |
+| git subject | rev 14: the tail gate, the vertical sun fade, flat glass, and a starburst nobody had seen |
+| working tree | clean |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=1 (applied, destructive, before booleans) |
 | geometry source | procedural, built this run |
@@ -54,8 +54,8 @@ Shaders read the dropped frame, so `Z_BELT`/`V_APEX` are already AG.
 
 | dimension | measured | SPEC | delta |
 |---|---|---|---|
-| overall length (ex counter) | 4.5830 | 4.2900 | +293.0 mm **OUT** |
-| counter tail overhang past body | 0.0070 | — | — |
+| overall length (ex counter) | 4.2984 | 4.2900 | +8.4 mm ok |
+| counter tail overhang past body | 0.2916 | — | — |
 | overall width (body) | 1.7498 | 1.7500 | -0.2 mm ok |
 | overall height (max, any station) | 2.9799 | 1.9600 | +1019.9 mm **OUT** |
 | _(rev 8: a single scalar height is the WRONG test now that the rake is modelled — 1.960 is the maximum of a sloping line, taken at its highest station. See the three-station roof line below. §2.3's inference that the roof-lid frame stands 0.10–0.15 m proud is **refuted** at ~13σ; measured proud height is 26 ± 7 mm.)_ | | | |

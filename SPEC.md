@@ -1030,6 +1030,283 @@ independently locked needs a third method first. Flare in open shade under an
 absorbing canopy produces the same signature. **Do not apply without a third
 method or a new photograph.**
 
+### 10.30 rev 14 -- the tail gate lands, and an elevation nobody had rendered
+
+**The flat tail face is clean.** `t1_mats.py` gains a TAIL selector mirroring the
+nose one. The flank folk-art tile is BOX-projected, so every face whose normal
+is X-dominant samples it on (y, z); `_facex` (|Nx| > 0.70) was true on the tail
+as well as the nose and only `_fwd` (X > +1.60) rescued the nose. Nothing gated
+the tail, so gold scrollwork printed across the flat rear panel.
+
+Re-measured in rev 14 independently of AUDIT_rev12, on a fixed row band of
+`ref_rear34.jpg` (rows 545-725), one gate (hue 25-90 deg, S > 0.35, V > 0.45):
+
+| region | gold | n |
+|---|---|---|
+| rear quarter, cols 830-940 (**positive control**) | **43.687 %** | 19 800 px |
+| flat tail face, cols 965-1150 | **0.006 %** | 33 300 px |
+
+AUDIT_rev12 measured 0.00 % gate-independent in 35 991 px against a 20.94 %
+control. The two agree, four orders of magnitude apart from each other.
+
+**The gate is keyed on the surface NORMAL, not a station.** The rear quarter's
+real 43.7 % must survive, and it does, because the quarter's normal is not
+X-dominant. `X < -1.60` is not a measured station and does not need to be: it
+exists only to exclude the nose and could be wrong by 300 mm either way without
+changing a shaded pixel. The band is a SMOOTHSTEP over |Nx| 0.66-0.76 rather
+than a hard `GREATER_THAN`, so a motif straddling the latitude fades instead of
+being sliced; 0.10 matches the BOX `projection_blend` already in use. Applied to
+the ALPHA, not the colour -- where alpha is 0 the base colour is already the
+body red, which is why the tail needed no second image the way the nose did.
+
+**Measured after the change, with a negative control, on a 1400x1000 rear
+ortho** (central 40 % of the body width, which excludes both corner radii):
+
+| arm | gold on the flat tail face |
+|---|---|
+| as built | **2.129 %** |
+| `T1_W_ART=0` (folk art switched off entirely) | **2.079 %** |
+
+The folk art therefore contributes **0.05 percentage points** to the flat tail
+face. The ~2.1 % both arms report is the measuring gate firing on something
+else -- see 10.30b -- not residual art. Pre-fix the audit measured 14.30-18.11 %.
+**Report the controlled difference, never the raw 2.1 %.**
+
+### 10.30b THE TAIL AND NOSE CAPS ARE POLES -- new, severity high, NOT fixed
+
+Rendering a rear elevation -- a view no revision had ever rendered -- showed a
+radial starburst across the whole tail face, visible on the red and faintly on
+the cream roof. Four arms, same view, same seed, 700x500, high-pass sd measured
+on a clean 100x220 patch of the engine lid:
+
+| arm | patch mean | high-pass sd |
+|---|---|---|
+| as built | (109.9, 49.2, 35.3) | **15.478** |
+| `T1_W_ART=0` | (109.8, 48.2, 35.2) | **15.459** |
+| `T1_W_ALB=0` | (109.1, 49.0, 35.2) | **15.412** |
+| `T1_SPEC=0` | (107.0, 43.9, 30.0) | **16.834** |
+
+So it is **not** the folk art, **not** the albedo breakup, and **not** the
+specular -- the three obvious candidates, all refuted, the last of them in the
+wrong direction. It is topology. Probing `T1_body` for incident-face counts:
+
+```
+POLES: vertices with >=8 incident faces: 4
+  POLE valence 115 at (-2.1080, -0.0000, +0.9612)     <- tail, outer skin
+  POLE valence 112 at (-2.1052, -0.0000, +0.9611)     <- tail, inner skin
+  POLE valence 110 at (+2.1224, +0.0000, +0.7729)     <- nose, outer skin
+  POLE valence 110 at (+2.1252, +0.0000, +0.7727)     <- nose, inner skin
+TRIS 233 total, 143 forward of x=0, 90 aft
+```
+
+A 115-triangle fan converging on one vertex at the exact centre of the flat
+tail face, smooth-shaded. That is the starburst, and it explains why it
+survives every shading ablation: it is a normal artifact, not a texture one.
+The two poles per end are the outer and inner skins of the solidified shell,
+2.8 mm apart.
+
+**Deliberately NOT fixed in rev 14.** It is loft topology; the shell carries a
+boolean history whose ordering is load-bearing (only the wheel arches are cut
+before solidify) and an assertion at `t1_shell.py:286` that exists because a
+shut line crossing an arch lip collapsed the shell from 205 562 v to 12 v for
+six revisions. It belongs with the phase-5 loft work, alongside the roof crown
+and the rear arch -- not in a shader batch. Recorded here so it cannot be lost.
+
+### 10.30c Sun fade reaches vertical surfaces, without breaking the red lock
+
+AUDIT_rev11 W2: the fade MapRange is keyed on `Normal.Z` over 0..1, so a
+vertical surface has Nz = 0 and a fade factor of exactly **zero**. The flank is
+the largest painted area on the vehicle and was getting none. Measured on the
+cream corner panel of `ref_side.jpg`, X -1.60..-1.84: C* **14.55 -> 6.53**
+(-55 %), L* 89.6 -> 96.2, hue constant 67-73 deg -- a fade signature, not a
+colour shift. The same panel in the render: C* 1.98 -> 1.59.
+
+A blanket fix would have run the flank red through `W_FADE_SAT = 0.88` and
+taken **SPEC 10.12's locked albedo saturation of 0.816 to ~0.77**. This project
+has learned not to break an independently locked value to satisfy a finding
+(10.24 holds three findings applied then reverted for exactly that). So the
+vertical term is a NEW, separate, per-material WEATHER input, `FadeVert`,
+default **0.0**, combined as `MAXIMUM(MapRange(Nz), FadeVert)`.
+
+It is switched on ONLY for the cream family -- `cream`, `bumpercream`,
+`countercream`, `wheelcream`, `capwhite` -- which is where the -55 % was
+actually measured and none of which carries a locked saturation. `T1_paint`,
+`roundelred`, `capred`, `calidad` and `script` stay at 0.0 and **the red lock is
+untouched**.
+
+The value is **0.50**, and it is not a taste call: the diffuse view factor of a
+plane to a uniform hemisphere is (1 + Nz)/2, so a vertical surface sees exactly
+half the sky a horizontal one does. The measured -55 % is a spatial GRADIENT
+along the flank toward the corner; this delivers the uniform part only, and the
+gradient is left open rather than faked.
+
+### 10.30d Glass panes are flat-shaded
+
+AUDIT_rev12 item 3. `build.py`'s `A()` called `shade_smooth()` unconditionally
+on every mesh routed through it, including the glazing. Every pane is a 6 mm
+SOLID slab (`thick=0.006`), so smooth shading averaged the flat face normal
+with the 90-degree rim normals all the way round the perimeter, bending the
+mirror inward at every edge. Flat glass is flat: its normal is constant by
+definition.
+
+Measured by the audit: forcing flat shading changes **88.7 %** of pane pixels at
+mean |delta| **39.18**, against a render-to-render null of **4.19** -- 9.4x the
+noise floor. This is **not the whole defect**: 81 % of the pane's brightness is
+the rig (deleting the rig drops pane mean 34.05 -> 6.54), and `gal_ceiling`'s
+`visible_glossy` was REFUTED as the cause at 1.87 against that 4.19 null. It is
+the half that is unambiguously wrong and costs nothing. Named by object-name
+prefix (`glass_`) because `A()` runs before materials are assigned; covers 10
+objects.
+
+### 10.30e The mural's neutral lift is the specular pedestal
+
+AUDIT_rev12 item 6, settled by area means rather than class fractions (8.2x
+minification destroys a dark tail regardless, so that limb is contaminated):
+
+| | sRGB | b-chromaticity |
+|---|---|---|
+| `ref_side.jpg`, board interior | (126, 60, 24) | 0.1129 |
+| `tex/lidmural.png`, interior | **(127, 59, 23)** | 0.1101 |
+| render | (148, 92, 69) | 0.2227 |
+
+**The texture matches the photograph to one sRGB code per channel.** The render
+is displaced +21 R / +33 G / +46 B away from the texture's own area mean, which
+minification cannot do. Fix the shader; never touch `tex/lidmural.png`.
+
+Tracing the node graph found no additive node at all -- the material is five
+nodes. The only near-neutral additive term is `img_paint`'s default
+`spec = 0.42`, i.e. Specular IOR Level, F0 = 0.08 x 0.42 = **0.0336**, with
+Specular Tint (1,1,1): an achromatic white pedestal on a dark, saturated albedo.
+On a linear albedo of (0.2051, 0.0423, 0.0091) a neutral +0.03 moves B by
+~330 %, G by ~70 %, R by ~16 % -- B most, R least, which is exactly the
+directional signature of (127,59,23) -> (148,92,69).
+
+Set to **0.16** (F0 = 0.0128, a chalky distempered board) as a FIRST STEP, not a
+solve, overridable with `T1_MURAL_SPEC`. The three-point solve onto (126,60,24)
+must be run **on the albedo pass, not the beauty pixel** -- the beauty pixel
+crosses AgX + Punchy and an sRGB decode, so comparing a texture-file mean to a
+tonemapped render mean crosses two nonlinear transforms.
+
+### 10.30f Cream albedo breakup raised, and honestly not solved
+
+SPEC 10.29: the flank cream is too CLEAN, not too weathered -- 1.24 % RMS at
+25 mm against 10.4's 4.22 % target and a direct re-measure of `ref_side.jpg` at
+**7.37 %**, i.e. 3.4-6x too uniform. The owner's "too heavy" impression was
+measured and refuted for the flank; it was the cab ROOF, a different node.
+
+`W_ALBEDO` **0.130 -> 0.260**, and this is explicitly the first step of a solve,
+not the solve. The relationship is not linear and the file's own calibration
+proves it: 0.06 realises 1.2 % albedo sd and **0.13 %** display residual, while
+0.130 realises **1.24 %** display -- so most of the shipped 1.24 % is coming from
+somewhere other than this node, and scaling it alone will not reach 4.22 %.
+`W_MAP_LO` / `W_MAP_HI` are now env-overridable (`T1_W_MAPLO` / `T1_W_MAPHI`)
+because the map window is the other lever: the noise Fac is approximately
+N(0.5, s) and a 0.30-0.70 window passes most of the distribution, realising only
+~20 % of the half-range. **Move one of the two at a time.**
+
+### 10.30g `flank_compare.py` computes a number, and the flank script FAILS
+
+The SPEC-designated acceptance test for the flank script printed three
+provenance lines and wrote a stacked image. It now measures. All three framing
+errors are fixed: the reference is cropped over its FULL ink extent using
+`compare_script.ref_mask()` (imported, not re-derived); `SCR` is parsed out of
+`build.py` with `ast` so it can never go stale again, and all four corners are
+projected with their own `rake_drop(x)` so the target is the RENDERED panel;
+both masks go into ONE common frame at one mm/px with translation-only
+registration, so a size or aspect error cannot be absorbed.
+
+```
+ink area ratio   0.8869              target 1.000 +/- 0.10   FAIL
+ink aspect       2.7244 vs 2.3478    target within 5 %       FAIL  (+16.04 %)
+IoU vs ceiling   0.7496              >= 0.85 x 0.8591        PASS
+worst region     0.126  (Senor)      >= 0.75 of its ceiling  FAIL
+```
+
+Ceiling **0.8591 measured this run** (reference against itself at 1 px), against
+AUDIT_rev11's inherited 0.87 -- they agree to 0.011. A hard projection guard
+checks the ground plane against the render's own silhouette before any number is
+trusted: predicted row 962.2, measured 960, delta -2.2 px = -8.1 mm.
+
+**The aspect error is dimensionless**, so no px/m error on either side can
+produce it. `SCR` is now the right shape (panel 544 mm tall), so the shortfall is
+INSIDE the panel: the ink sits **+95 mm below the panel top**.
+
+**Why the old test could not fail.** Its `REF_INK` crop was 271 x 99 px = aspect
+**2.7374**, within **0.48 %** of the render's squashed **2.7244**. It had cropped
+the photograph down to the render's own error and then normalised both to one
+width.
+
+`Senor` scores **0.099 against a 0.783 ceiling**. The marks ARE rendered; they do
+not read as ink -- 19 % of the way from ground to silver in redness -- and the
+render's tarnish runs darker and warmer where the photograph's runs cooler, the
+opposite chromatic sign. Build finding, logged, not chased.
+
+### 10.30h post.py -- the backdrop A/B, built and not applied
+
+rev 13 raised `post.bloom`'s threshold 0.72 -> 0.94, which fixed the veil on the
+PAINT (cream at display 224 linearises to 0.7454 and now gets mask m = 0.000).
+The fix is **partial**: `composite_on_white` puts the backdrop at display
+253-255 -> linear 0.982-1.000, where the mask is **0.704-1.000**, so the backdrop
+is still lifted to 1.09-1.16 and still clips. Measured consequences survive
+exactly as audited.
+
+SPEC 6 locks the backdrop to pure white, so retiring that is the owner's call
+and he asked to see an A/B. Both arms now render from one stitched frame with no
+re-render. Default is **byte-identical** to rev 13 (hash-verified, with no flags
+and with an explicit `--backdrop white`, on both RGB and RGBA input). Measured on
+a 3000x2000 synthetic built to the hero's exact corner radius:
+
+| | arm A (locked) | arm B (headroom, peak 252) |
+|---|---|---|
+| four 40x40 corner boxes | **255.000** every channel | 246.008-246.021 |
+| vignette falloff | **0.0000 DN** | **-4.7889 DN**, monotone every bin |
+| backdrop grain sd | 0.0000 / 0.0000 / 0.0000 | 0.9009 / 0.9007 / 0.9010 |
+| backdrop exactly (255,255,255) | **100.0000 %** | 0.0007 % |
+
+`--bloom-thr` is now a real flag -- the rev-13 comment claimed it existed and the
+parser could not accept it. An unrecognised `--flag` is now a **hard exit**, not
+a silent no-op; the comment alone was never a guard.
+
+**The hero PNG has an alpha channel and it carries no information.** Probed at
+64x48 through the real compositor: alpha min 255, max 255, unique [255] --
+`composite_on_white` ends in an AlphaOver over an opaque node. A true matte needs
+a File Output tap in `studio.py`. `--matte` is plumbed and waiting.
+
+CA left at `0.0011` deliberately, exposed as `--ca-coef` with the measurement in
+comment: 3.96 px of R-B at the corner of a 3000 px frame against 1-2 px for a
+good 78 mm prime. Verified `--ca-coef 0.0005` gives 1.7244 px, inside the band.
+One line, its own A/B.
+
+### 10.30i Settled by the owner, rev 14
+
+- **The windscreen is a SPLIT screen -- two flat panes with a centre divider.**
+  Put to him on a marked crop of `ref_workshop.jpg`. This was on AUDIT_rev12's
+  NOT MEASURABLE list (the cab door is open 49 deg across the relevant columns
+  and a column scan cannot isolate a divider) with an explicit instruction not
+  to settle it from the VW factory catalogue. The build already has two panes.
+  **Item closed.**
+- **Process correction, mine.** The tail-face crop I put to him marked image
+  columns 834-930 as "the flat tail face". The art's aft-most extent is column
+  **952**, so the box sat entirely on the curved rear quarter -- the one place
+  the gold definitely lives. He looked at it, saw scrollwork, and said so
+  correctly. The rule *check what a probe can physically see* now applies to
+  crops drawn FOR the owner, not only to guards.
+- **Photograph search, conducted at his instruction.** No left-side broadside
+  and no off-side or rear view of the Playa vehicle exists on the reachable
+  open web. **Unresolved and material: every colour reference for the PLAYA
+  vehicle says GREEN** -- Tacombi's own story page ("the original green
+  Tacombi has since slipped into a new lick of paint"), CNBC Jan 2023 ("1963
+  green VW bus"), and a blogger standing in Playa in 2012 ("a distinct lime
+  green") -- while the red/cream two-tone is consistently attached to NOLITA.
+  Three readings, none excluded: the red livery is the post-repaint state and
+  the Nolita bus is the same steel; it was repainted red while still in Playa;
+  or there were two vehicles (the company timeline says two Playa locations
+  opened). **This bears on which photographs are admissible and must be put to
+  the owner before any Nolita frame is measured.** Two leads were blocked
+  rather than absent: Tacombi's Instagram retrospective post (robots-
+  disallowed) and the brand film on YouTube (rate-limited over six attempts).
+
+
 ## Change log
 
 | Date | Change |
@@ -1416,3 +1693,4 @@ what shipped in rev 8 and Donald rejected it by name.
 | 2026-08-10 | **rev 9 — the art reproduction pass, and the first heroes to land.** The "Señor Tacombi" script is rebuilt as explicit letterforms (`script_gen.py`); the font-plus-flourishes approach Donald rejected by name is gone. Control points read off `ref_side.jpg` at 6–14× in that photograph's own pixel frame. Corrected by measurement: spiral counters are ~1.1–1.3 turns with a wide groove (the o's counter is 224 px in a 21×25 box, 43 % fill), not tight spirals; the swash is an **arch**, cresting at y 36.2 near x 57 and falling back to 41.5 by x 90, not a monotonic rise; its left terminal is a 0.80-turn spiral about (17,59). Whole-lockup IoU **0.511** against a measured ceiling of 0.77–0.81 — a 1 px shift of the reference against itself costs 0.14 — with a global alignment search buying only +0.012, so the residual is distributed shape error of ~1.5–2 px, not misregistration. **Calidad** built for the first time (`cal_gen.py`): uneven-tipped burst, measured gradient, white bold italic at the measured −19.7°, bunting with pennants, pink star, counters punched on a mask. Moved **198 mm forward** on a panel-fraction datum immune to the perspective foreshortening that makes one linear scale wrong at the tail (194.8 px/m there against 211.5 at mid-body). §10.11 the ground-line datum is refuted as a placement source at ~70 mm common-mode; §10.12 `RED` hue 26.2 → **5.0**, saturation untouched; §10.13 the Playa rig was compositing its own world away; §10.14 abutting strips seam and overlapping strips do not. **White-studio and Playa heroes delivered at 2400×1600, 64 samples, six strips, worst seam z = 1.88 and 1.45 against a threshold of 4 — the first heroes in nine revisions.** |
 | 2026-08-10 | **rev 9 addendum — §10.15.** Donald identifies `ref_rear34.jpg` as showing the FRONT of the vehicle with the roof opening forward, not a rear three-quarter. Every crop attributed to that file is now suspect, including the flank paisley that §10.10 marked done. He also restates the governing standard for rev 10: *"we are recreating a photo realistic version of that exact bus."* |
 | 2026-08-10 | **rev 9 addendum — §10.17, §10.18.** Donald restates the acceptance criterion as **per-measurement**: "nearly indistinguishable from the original. Any single measurement off is unacceptable." And flags the front fascia as drifting — six items, four of them audit findings logged and unapplied for several revisions, one new (cab-door folk art far too faint), one unmeasured (bumper depth). The folk-art item contradicts §10.9's near-nose coverage lobes, which were scanned by body x across an OPEN cab door. |
+| 2026-08-13 | **rev 14 — the tail gate, and a starburst nobody had seen.** The flank tile stops printing on the flat tail face: a TAIL selector mirroring the nose one, keyed on the surface normal so the rear quarter keeps its real 43.687 % gold while the flat face goes to **0.05 percentage points measured against a `T1_W_ART=0` negative control** (photograph 0.006 %, pre-fix render 14.30–18.11 %). Rendering a rear elevation for the first time in fourteen revisions exposed a radial starburst that survives ablation of the folk art, the albedo breakup and the specular — **the tail cap is a valence-115 pole and the nose cap a valence-110 pole**, recorded and deliberately left for the phase-5 loft work. Sun fade reaches vertical surfaces through a new per-material `FadeVert` input at the diffuse view factor 0.50, switched on for the cream family only so SPEC 10.12’s locked red albedo saturation is untouched. Glass panes flat-shaded (88.7 % of pane pixels, 9.4× the null). The mural’s neutral lift identified as `img_paint`’s specular pedestal, 0.42 → 0.16, first step not a solve. `W_ALBEDO` 0.130 → 0.260 with the map window exposed, and honestly not solved. **`flank_compare.py` computes a number for the first time and the flank script FAILS 3 of 4** — aspect +16.04 %, dimensionless; the old test could not fail because it had cropped the photograph down to the render’s own error. `post.py` gains the backdrop A/B the owner asked for, default byte-identical. Owner settles the split windscreen. |
