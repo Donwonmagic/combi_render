@@ -1,5 +1,13 @@
 # AUDIT rev 12 — the five remaining dimensions
 
+> **READ §6 FIRST.** This audit was measured against `c8f66fe`, the rev-12 line.
+> **rev 13 shipped while it was running** and has already consumed part of it.
+> §6 walks every item against rev 13 (`95a8bb2`, 53 commits) and marks it
+> **LIVE / DONE / CONSUMED / STALE**. §0 below is entirely stale — both fixes it
+> reports missing are now merged in. Everything else in §§1–5 is written as it
+> was measured, deliberately, so the reasoning stays auditable; §6 is the
+> overlay, not a rewrite.
+
 **Read-only audit.** Nothing in this repo was edited except this file and `measure/`
 and `out/`. No build file was touched, by me or by any subagent. Where a finding
 proposes a change, the change is written down and **not applied**.
@@ -991,3 +999,170 @@ overlays, per-agent working files under `a_*`, `b*`, `c/`, `d_*`, `e_*`, `v1_*`,
 `v2/`, `v3_*`, `v4_*`) and `out/` (renders, gitignored). `measure/AUDIT_RULES.md`
 carries the brief every agent was held to. `AUDIT_rev11.md` sits at the repo root
 as an untracked reference. **Only this file is committed.**
+
+---
+
+# 6. RECONCILIATION AGAINST rev 13
+
+rev 13 shipped onto his Desktop minutes before this audit landed. §§1–5 above
+were measured against `c8f66fe`. This section is the overlay.
+
+| | |
+|---|---|
+| line reconciled against | `95a8bb2`, 53 commits, clean tree |
+| verified by CONTENT, not hash | `git status` clean · `SPEC.md` contains `### 10.29` · `grep -c DOME_DEFICIT verify.py` = **4** |
+| commits since `c8f66fe` | **6** — `869be6f` + `2b8d3c1` (the audit line, pulled in), `5e5bb82` (the merge), `ac51f10` (the rake), `7f204e6` (SPEC 10.29 + `fill_galley` + STATE), `95a8bb2` (handoff) |
+| `c8f66fe` is an ancestor | yes — so this audit's commit re-cuts cleanly onto rev 13 |
+| source files touched | `build.py` `studio.py` `t1_core.py` `t1_detail.py` `t1_mats.py` `t1_shell.py` `verify.py`. **`post.py`, `hero.py`, `stitch.py`, `folk_gen.py`, `lid_gen.py`, `tex/*` untouched.** |
+
+**Guards re-run here, both levels, actual output:**
+
+```
+T1_SUB=1   cut roof hole: 56293v
+           dims  L=4.298 W=1.750 roof@rear-axle=1.894
+                 (raw resid -66 mm; dome deficit +98 mm still unmodelled)
+           bay widths 0.516 0.515 0.516
+           VERIFY: 0 fail, 1 warn
+             warn  roof crown @ rear axle (dome-corrected) 1.992 vs spec 1.960 (+32 mm)
+
+T1_SUB=2   cut roof hole: 207383v
+           dims  ... roof@rear-axle=1.895 (raw resid -65 mm; dome deficit +98 mm)
+           VERIFY: 0 fail, 1 warn
+             warn  roof crown @ rear axle (dome-corrected) 1.993 vs spec 1.960 (+33 mm)
+```
+
+One unexplained discrepancy, flagged not resolved: `HANDOFF_rev13.md` quotes
+`207806v` at SUB=2; I measure **207383v**, a 423-vertex difference. SUB=1 matches
+exactly (56293). `STATE_rev13.md`'s own provenance says its working tree was
+**DIRTY** when it was generated, which is the likeliest explanation — but it
+means the handoff's SUB=2 figure should not be used as an acceptance test until
+somebody reproduces it from a clean tree.
+
+## 6.1 §0 is STALE — the branch divergence is resolved
+
+Both fixes are in, verified by grep on this tree:
+
+* `build.py:447` — `SCR = dict(x0=0.784, x1=-0.494, z0=0.4453, z1=0.9896)  # 2.357:1 = tex AR`. **Applied.**
+* `t1_mats.py` — zero non-comment occurrences of `_NOSE_SEL[0] = None`. The line
+  survives only inside a comment recording why it was removed. **Applied. The
+  nose no longer renders as black marks.**
+
+Also merged in: `Z_BELT0` and `V_APEX0` are no longer literals but
+`Z_BELT_AUTH − T.RAKE_Z0` and `V_APEX_AUTH − T.RAKE_Z0`. That is the correct
+shape and it matters for item 13 below.
+
+## 6.2 The rake — item 5 is CONSUMED, and its prediction landed
+
+`t1_core.py`: `RAKE_DZDX` 0.0330 → **0.017750**, `RAKE_Z0` 0.0365 → **0.047925**.
+SPEC §10.29 records a fourth derivation needing no ground line, no px/m and no
+vanishing point.
+
+Item 5 predicted that applying a reduced rake alone would take the roof residual
+from −37 mm to **−58 / −74 mm**, through `verify.py`'s 40 mm fail threshold. The
+measured raw residual on this tree is **−66 mm**, inside that band. rev 13 kept
+the guard green by introducing `DOME_DEFICIT` — an explicit **+98 mm of
+unmodelled transverse dome** — and restating the warn as dome-corrected.
+
+That is the right move, and it has a consequence for item 4: **the build now
+carries its own number for the missing dome (+98 mm) and this audit
+independently measured the lid's crown at 122 ± 16 mm.** Two routes, two
+methods, one missing dome. It strengthens the finding and it settles the caveat —
+**they are the same defect. Do not bank it twice.** The remaining question is not
+*whether* the dome is missing but whether 98 or 122 mm is the better number, and
+that is now a one-parameter fit, not an open investigation.
+
+## 6.3 Item-by-item
+
+| # | finding | status against rev 13 | evidence on this tree |
+|---|---|---|---|
+| — | §0 branch divergence | **STALE** | both fixes present (§6.1) |
+| 1 | `post.bloom` clips the frame | **LIVE** | `post.py` untouched since `c8f66fe` |
+| 2 | gold folk art on the flat tail face | **LIVE** | `swirl`/`swirl_b` still `projection='BOX'` at `t1_mats.py:1114,1117`; zero occurrences of any tail selector |
+| 3 | all glass reads as a mirror | **LIVE** | the only `t1_mats.py` changes since `c8f66fe` are the `Z_BELT_AUTH` refactor and the `_NOSE_SEL` fix — the glass material is untouched. One `use_smooth = False` exists at `t1_detail.py:861`; it is **not** on the glass panes |
+| 4 | the lid is built flat | **PARTLY OVERTAKEN — see §6.2** | `_lid_panel` still sets z = 0; but the deficit is now named and quantified in the build at +98 mm |
+| 5 | rake / roof coupling | **CONSUMED** | prediction landed at −66 mm (§6.2) |
+| 6 | mural renders washed out | **LIVE** | `lid_gen.py` and `tex/*` untouched; nothing in the `t1_mats.py` diff touches the lid material |
+| 7 | cream rim ~59 mm small | **LIVE** | `TIRE_R = 0.3325`, `RIM_R = 0.2198` unchanged — and `grep -rn RIM_R *.py` still returns **only its own definition**. The constant is still dead |
+| 8 | zero vignette, zero backdrop noise | **LIVE** | `post.py` untouched |
+| 9 | tail lamps ~2× short, wrong hue | **HALF DONE** | `build.py:345` now reads `A(tl, "amber")` — the material is fixed. Geometry unchanged: `small_lamp(0.0455, 0.0270)` |
+| 10 | bulbs do not read as tungsten | **LIVE** | the `bulb` material is untouched |
+| 11 | drip-rail bulb pitch 4.7× coarse | **DONE** | `BULB_PITCH` 0.1350 → **0.0286**, against this audit's measured 28.8 ± 2.0 mm. `BULB_R = 0.0110` unchanged (22 mm against a measured 13 +5/−4) — **the diameter half is still open, marginally** |
+| 12 | bay 2 galley contrast | **PARTLY ADDRESSED — re-measured below** | `gal_ceiling` deleted; `fill_galley` 10.2 → `T1_FILLG` default **21.0** × key |
+| 13 | 18 mm red strip above the counter | **LIVE, and now cleaner to state** | `Z_BELT_AUTH = 1.2720` and `CNT_ZT = 1.2540` are both authored un-dropped, so the offset is **exactly 18.0 mm at every station, independent of the new rake** — which is what the finding's own mechanism predicted |
+| 14 | hero framed backwards | **LIVE** | `hero34f` camera unchanged |
+| 15 | T-handle on the wrong side of the plate | **LIVE** | `t1_detail.englid_handle()` still `x = -2.1070`, `z = 1.0300` |
+| 16 | plate frame too tall for its width | **LIVE** | `PLATE_W, PLATE_H = 0.3300, 0.1850`; `PLATE_Z = 0.7800` — all unchanged |
+| 17 | tail 195–300 mm too long | **LIVE** | body x range and `L = 4.298` unchanged |
+| 18 | counter fascia speckle ~5× | **LIVE** | the weathering path in `t1_mats.py` is untouched |
+| 19 | louvre block ~100 mm aft, 57 mm long | **LIVE** | `LOUV_X0, LOUV_X1 = -1.2850, -1.6700`; `LOUV_N = 10` — unchanged. Still the uncorrected `REF_MEASUREMENTS` numbers |
+| 20 | hubcap has no ring; its VW is fused | **LIVE** | `cap_emblem` unchanged |
+| 21 | rear arch not applied, wrong shape | **LIVE** | `ARCH_R = 0.3735` unchanged |
+| 22 | tyres do not deflect | **LIVE** (deliberately parked) | `tyre()` still an axisymmetric revolve |
+| 23 | off-side bay glazing | **LIVE** | `t1_shell.py:187` still builds `glass_bay{i}_L` **and** `_R` |
+| 24 | `audit.py:308` guard bug | **LIVE — and still publishing a phantom** | line 308 unchanged; `STATE_rev13.md` still carries `overall length (ex counter) 4.5830 … +293.0 mm OUT` and `counter tail overhang 0.0070`. **Cheapest item in the report and it is still wrong on his disk** |
+| 25 | the smaller gaps | **LIVE** except the bulb pitch (item 11) | shut lines, plate legend, rear glazing, struts/hinges, `lid_board` inset, the roof box, `lid_gen` invented glyphs, curlwork masses, fringe pitch, card stripe pitch, `COUNTERTAN` hue, hubcap dome, CA coefficient — none touched |
+
+Also changed and worth knowing: **182 → 181 meshes** and **6 → 5
+constant-roughness materials**, both accounted for by the `gal_ceiling` deletion
+taking its `gal_sky` material with it. And `BAYS` is now derived —
+`BAY_W = 0.5155`, `BAY_CX = (0.6720, 0.0470, -0.5980)` — so the three apertures
+are equal where they were 0.507 / 0.516 / 0.525. **Every galley window in §1 A
+was measured on the old extents.**
+
+## 6.4 Item 12 re-measured on rev 13
+
+One fresh ortho broadside at matched settings (1600×1100, 32 samples), bay
+windows derived from each line's own `BAYS` so the comparison is like for like.
+Photograph windows are the verifier's independently located boxes.
+
+| bay | photograph sd | rev-12 render | rev-13 render | change |
+|---|---|---|---|---|
+| 1 | 32.23 ± 1.64 (mean 147.1) | 15.11 (132.9) | **24.34** (142.2) | +9.2 |
+| 2 | 24.28 ± 1.03 (mean 160.2) | 15.52 (153.8) | **19.65** (166.2) | +4.1 |
+| 3 | 18.11 ± 1.19 (mean 182.0) | 25.13 (172.7) | **24.89** (179.6) | −0.2 |
+
+*Caveat stated plainly: this is a **third** window placement, derived from the
+built geometry rather than from edge detection, and it puts bay 3's render higher
+than either specialist's placement did. Treat the rev-12 → rev-13 **change** as
+the robust result — same window, same method, both frames — and defer the
+absolute comparison to §1 A's more carefully located boxes.*
+
+What survives: **bay 2 is still short** (19.65 against 24.28), and **bay 3 still
+runs over the photograph** — it was over before the change and it is over after
+it. Bay 1 now sits above the man-masked ceiling of 18.5 ± 2.0 established in §3.
+So the finding's prescription is *more* relevant after rev 13, not less: the
+lift was global, it moved all three the same way, and what remains is per-bay.
+**Do not apply another global lift.**
+
+## 6.5 What this changes in the §5 work list
+
+* **Phase 0 step 1 is done** — delete it. Steps 2–4 stand; step 2
+  (`audit.py:308`) is now the single cheapest correction in the whole report and
+  it is still shipping a false failure in `STATE_rev13.md`.
+* **Phase 1 step 6** (`ruby` → `amber`) is done. The rest of phase 1 stands
+  untouched, and step 5 (the tail selector) is still the highest
+  visible-defect-per-line-of-code item in the report.
+* **Phase 2 is entirely untouched by rev 13** — `post.py` has not been edited.
+  Items 1, 8 and the CA coefficient are exactly as measured.
+* **Phase 3 step 16 is done** (`gal_ceiling` deleted and `fill_galley`
+  re-solved). Step 17 remains, and §6.4 says it must now be **per-bay**.
+* **Phase 4 step 24** (bulb pitch) is done except the bulb *diameter*.
+* **Phase 5 step 30 has been half-taken**: the rake moved and the dome is now
+  named at +98 mm. What is left is a one-parameter fit — 98 against this audit's
+  122 ± 16 — not the joint re-derivation the step describes. Steps 31 and 32 are
+  untouched and their ordering constraint still holds.
+* **Phase 6 is untouched.**
+
+## 6.6 The two photographs, restated
+
+Nothing in rev 13 changes §4. The left broadside (door shut, nobody in front of
+the front wheel) and a square-on rear elevation or an off-side rear three-quarter
+would between them close: the front wheel entirely, the rim-versus-whitewall
+question that decides how item 7 is fixed, tumblehome, the belt line, a clean
+second derivation of the tail, the engine lid's width and shut lines, the
+rear-lamp count, the plate's lateral position, the roof opening's forward
+station, the hinge count, and whether the off flank should carry glazing at all.
+
+rev 13's rake work makes the first of those *more* valuable, not less: SPEC
+§10.29's derivation is the fourth on that quantity, and a square-on broadside
+would be the first one that needs no inference at all.
