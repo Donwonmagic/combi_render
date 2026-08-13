@@ -258,6 +258,37 @@ def backdrop_headroom(lin, m, peak=BACKDROP_PEAK):
 # re-clips.  `exclude` is the other half of that fix and is only ever passed in
 # `--backdrop headroom`: a lifted diffuse sweep is not a specular, and if it is
 # left in the blur source it re-lifts itself no matter how far it was scaled.
+#
+# ---------------------------------------------------------------------------
+# rev 15 MERGE NOTE -- BRANCH DIVERGENCE, PRESERVED RATHER THAN DROPPED.
+#
+# The rev-14 line branched from `258730a` and never saw `f3c53f4`, the true tip
+# of the rev-13 line, which touches ONLY this file.  rev 14's claim that the
+# post.py default is "byte-identical to rev 13" was therefore measured against
+# the wrong rev 13.  `f3c53f4` recorded this, verbatim:
+#
+#   post-processed, bloom ON  thr=0.94 : corners (255,255,255) x4, backdrop
+#                                        100.00 % exactly (255,255,255)
+#   post-processed, bloom OFF          : corners (249,249,249), backdrop
+#                                        0.00 % exactly white
+#   bloom OFF grain high-pass sd       : 6.90 / 7.50 / 6.87 on the subject
+#
+# and concluded: "The threshold is not the parameter.  In a DISPLAY-REFERRED
+# frame the backdrop sits AT the maximum, so any threshold below 1.0 makes the
+# entire backdrop its own bloom source ... paper white and a blown specular are
+# the same number once the frame is display-referred."  Its remedy was to
+# default `bloom` to 0.0 for the stitched path.
+#
+# rev 14 independently re-measured the SAME numbers on its arm A (corners
+# 255.000, vignette 0.0000 DN, grain sd 0.0000, 100.0000 % of backdrop exactly
+# white) and shipped them as the baseline.  The two lines agree on the
+# measurement and disagree only on what to do about it.
+#
+# NOTHING IS CHANGED IN THIS MERGE COMMIT.  `exclude` is rev 14's structural
+# answer and it is strictly better than switching bloom off -- but it is wired
+# only into `--backdrop headroom`, so the DEFAULT arm still has no exclusion and
+# still reproduces the defect above.  Settled by measurement in rev 15, not here.
+# ---------------------------------------------------------------------------
 def bloom(lin, amount=1.0, thr=BLOOM_THR, sigma=BLOOM_SIGMA, exclude=None):
     """veiling glare off the brightest speculars only"""
     if amount <= 0:
