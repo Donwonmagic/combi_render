@@ -60,10 +60,32 @@ def _blur(a, sigma):
 # silhouette wore a one-sided inward glow.  91 % of the "bloom on the speculars"
 # was the subject's own diffuse energy.
 #
-# In a display-referred frame the only pixels that should bloom are the ones at
-# or near clipping.  0.94 puts the knee above the cream (0.78-0.82 typical) and
-# above the backdrop's own texture, leaving the speculars and the bulb string --
-# which is what a real lens flares.  `--bloom-thr` overrides it for A/B.
+# rev 13 RAISED THE THRESHOLD 0.72 -> 0.94 AND MEASURED THAT IT DOES NOT WORK.
+# Kept, with the failure recorded, because the reasoning is the trap:
+#
+#   post-processed, bloom ON  thr=0.94 : corners (255,255,255) x4, backdrop
+#                                        100.00 % exactly (255,255,255)
+#   post-processed, bloom OFF          : corners (249,249,249), backdrop
+#                                        0.00 % exactly white
+#
+# The threshold is not the parameter. In a DISPLAY-REFERRED frame the backdrop
+# sits AT the maximum, so any threshold below 1.0 makes the entire backdrop its
+# own bloom source, and the blurred result adds straight back over the vignette
+# and the grain. There is no threshold that fixes this, because paper white and
+# a blown specular are the same number once the frame is display-referred.
+#
+# THE REAL FIX, and it is structural: bloom belongs on the LINEAR render BEFORE
+# the white composite -- which is exactly what `studio.composite_on_white()`
+# already does in-render, and its docstring says why. `post.py` is handed a
+# composited PNG, so it cannot do this correctly at all. Either `hero.py` must
+# stitch a LINEAR frame (EXR) and post must bloom that before compositing, or
+# post must be given the render's alpha so it can exclude the backdrop from the
+# bloom SOURCE while still letting the subject's speculars flare over it.
+#
+# UNTIL THEN BLOOM DEFAULTS OFF for the stitched path. That is not a preference:
+# with it on, the vignette delivers 0.00 of its designed ~4.4 code values, the
+# grain's high-pass sd is 0.0000 in all three channels, and every specular above
+# 240 is flattened. `--bloom 1` restores the old behaviour for A/B.
 def bloom(lin, amount=1.0, thr=0.94, sigma=9.0):
     """veiling glare off the brightest speculars only"""
     if amount <= 0:
@@ -120,7 +142,7 @@ def grain(srgb, amount=1.0, sigma=0.0042, seed=7):
 
 def main(a):
     src, dst = a[0], a[1]
-    o = {"bloom": 1.0, "ca": 1.0, "vig": 1.0, "grain": 1.0}
+    o = {"bloom": 0.0, "ca": 1.0, "vig": 1.0, "grain": 1.0}   # bloom OFF: see bloom()
     for i, t in enumerate(a):
         if t.startswith("--") and t[2:] in o:
             o[t[2:]] = float(a[i + 1])
