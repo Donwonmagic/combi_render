@@ -113,8 +113,18 @@ Never correct this vehicle toward the VW factory catalogue.
 > I want the owner to remember standing in the kombi, in this very picture
 > that was provided."*
 
-`HEAD fcf6e3d`, **59 commits**, clean tree. Guards **0 fail / 1 warn at BOTH
-subdivision levels**, warn unchanged.
+**Verify by CONTENT, never by hash or commit count** — §1 has the checks. Guards
+**0 fail / 1 warn at BOTH subdivision levels**, warn unchanged.
+
+> Why no hash here: rev 14 originally quoted `HEAD fcf6e3d / 59 commits`. That
+> hash was read BEFORE a `--amend` that folded a regenerated `STATE.md` into the
+> same commit, so it named an object that is no longer on the branch. Corrected
+> rather than laundered, and the claim is removed rather than replaced — this
+> project's own rule is that hashes and counts move whenever the handoff itself
+> is committed, so they were never the right thing to assert. `STATE.md`'s
+> `git commit` provenance row names the commit whose TREE it measured, which is
+> the parent of the commit that carries the file. That is inherent, not an
+> error.
 
 ---
 
