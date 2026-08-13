@@ -335,7 +335,14 @@ for s in (1, -1):
     for v in tl.data.vertices:
         v.co.x = -v.co.x
     T.fix_normals(tl)
-    D.place(tl, loc=(-2.1040, s * 0.6200, 0.8250)); A(tl, "ruby")
+    # rev 13, tail dimension: the lens is AMBER, not ruby.  Measured in
+    # ref_rear34.jpg against the paint it is mounted on -- lens hue 21.4 deg,
+    # G/R 0.456; adjacent tail red hue 12.2 deg, G/R 0.275.  The lens is
+    # YELLOWER and LESS red-dominant than the body it sits on, and `ruby` is
+    # redder than that body.  Same-frame, same-light, same class (both are
+    # coloured transmissive/painted surfaces under one source), so the
+    # comparison is admissible under SPEC 10.21.
+    D.place(tl, loc=(-2.1040, s * 0.6200, 0.8250)); A(tl, "amber")
 
 # SPEC r4 8.3: roundel ring + strokes are painted RED on the cream nose
 # MEASURED: ring outer diameter 0.370 (was 0.336), centre 1.130 above ground.

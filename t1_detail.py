@@ -1120,7 +1120,21 @@ def bobble_fringe():
 # cream band on the show side.  Pitch, bulb size and the fact that it is show
 # side only are INFERRED.  Rendered as unlit pearl glass: this project has no
 # emissive material and t1_mats is owned elsewhere.
-BULB_X0, BULB_X1, BULB_PITCH, BULB_R = -1.8000, 1.7000, 0.1350, 0.0110
+# rev 13.  BULB_PITCH was 0.1350, which put 26 bulbs on a 3.50 m rail.  Measured
+# TWICE, by two specialists working blind to each other and by different
+# methods, and they agree:
+#   * FFT along the string in ref_side.jpg, top-5 periods 6.05-6.30 px at
+#     211 px/m  ->  pitch 28.6 +/- 1.0 mm, ~115 bulbs
+#   * peak counting on three clean runs (x 460-600, 600-760, 770-900; 36 / 38 /
+#     27 peaks) -> 4.0 +/- 0.5 px = 19 +/- 3 mm, quoted as <= 25 mm because it
+#     is at the JPEG 4:2:0 Nyquist floor
+# The FFT number is the admissible one (the peak count is aliasing-limited and
+# its author said so).  The EXTENT is confirmed, not changed: the string runs
+# model x +1.69 -> -1.64 photographed against -1.80 -> +1.70 built, +5 %.
+# BULB_R stays 0.0110 -- 22 mm diameter against a 28.6 mm pitch still leaves
+# air between them, which is what the photograph shows.  At the old pitch the
+# spacing was the defect, not the size.
+BULB_X0, BULB_X1, BULB_PITCH, BULB_R = -1.8000, 1.7000, 0.0286, 0.0110
 
 
 def bulb_string(side=1):
@@ -1618,37 +1632,25 @@ def galley_dressing():
     m_green = _gm("gal_green", GAL_GREEN, rough=0.44, spec=0.42)
     m_amber = _gm("gal_amber", GAL_AMBER, rough=0.26, spec=0.55)
     m_pale = _gm("gal_pale", (0.7650, 0.7550, 0.7700), rough=0.48, spec=0.36)
-    # ---- the roof aperture t1_shell does not cut, standing in at its plane.
-    # rev 11 stood it in at the GALLEY BOX's footprint, 2.340 x 1.060 from
-    # x -1.300..1.040.  That is not the opening.  SPEC 10.27 measures the
-    # opening at 1.11 x 2.03 and t1_shell locks the same rectangle three ways
-    # -- LID_X0/LID_X1 = 0.964/-1.070 (2.034 long) and LID_Y_HINGE + LID_W
-    # (1.110 wide) -- so the stand-in over-ran the real hole by 230 mm aft and
-    # 76 mm forward and was 50 mm narrow.
+    # ---- rev 13: the roof-aperture EMISSIVE STAND-IN IS GONE.
+    # rev 11 stood the un-cut roof opening in with an emissive panel; rev 12 cut
+    # the real hole and hid the panel from camera rays but kept it lighting the
+    # bays; rev 13 deletes it. The rectangle it occupied is still needed as a
+    # footprint by nothing -- the hole is geometry now -- so only the two corner
+    # stations survive, and they are still expressed in terms of the lid so that
+    # moving the lid moves them (SPEC 10.25).
     #
-    # That over-run is the mechanism behind the open `materials-5`: an emitter
-    # longer than all three bays and near-symmetric about their own centre
-    # subtends nearly the same solid angle at each bay, so all three see the
-    # same source and render the same reflection (NCC 0.94-0.97 between them).
-    # At the real footprint bay 1 (x 0.313-0.820) has the source cut off
-    # 144 mm forward of its front edge, bay 3 (x -0.960..-0.435) has it cut off
-    # 110 mm aft of its rear edge, and bay 2 sees it whole -- three different
-    # sources, which is what the vehicle actually has.
-    #
-    # GAL_SKY was tuned against the OLD footprint's area, so it is scaled by
-    # the area ratio and the TOTAL emitted flux is held: a raw GAL_SKY at the
-    # smaller rectangle would darken every bay by 9 %.  Expressed as a ratio
-    # rather than a re-tuned number, so correcting one does not break the
-    # other (SPEC 10.25).  NOTE: flux is conserved but its DISTRIBUTION is
-    # not -- this moves light off the two ends and onto the middle, so the
-    # three bay means must be re-measured after the rebuild.
+    # `materials-5` note that must travel: the stand-in's over-run WAS the
+    # duplication mechanism -- an emitter longer than all three bays and
+    # near-symmetric about their centre subtends nearly the same solid angle at
+    # each, so all three rendered the same reflection (NCC 0.94-0.97). Deleting
+    # it removes the mechanism outright rather than de-symmetrising it. The
+    # photograph's own figure is now measured for the first time and it is the
+    # acceptance target: inter-bay NCC -0.102 / -0.228 / -0.127 against a
+    # self-flipped null control of -0.148, i.e. the three bays are UNCORRELATED.
+    # Acceptance: |NCC| <= 0.20.
     SKY_X0, SKY_X1 = S.LID_X1, S.LID_X0                     # -1.070 .. +0.964
     SKY_Y0, SKY_Y1 = S.LID_Y_HINGE, S.LID_Y_HINGE + S.LID_W  # -0.545 .. +0.565
-    SKY_A0 = 2.3400 * 1.0600            # rev-11 footprint, what GAL_SKY is on
-    SKY_A1 = abs(SKY_X1 - SKY_X0) * abs(SKY_Y1 - SKY_Y0)
-    m_sky = _gm("gal_sky", (0.7600, 0.7600, 0.7600), rough=0.85, spec=0.05,
-                emit=(1.000, 0.988, 0.962), estr=GAL_SKY * SKY_A0 / SKY_A1,
-                rvar=0.0)
     # the practical.  Warm-white fluorescent, which is what a taqueria runs.
     m_tube = _gm("gal_tube", (0.8200, 0.8150, 0.7950), rough=0.30, spec=0.40,
                  emit=(1.000, 0.918, 0.790), estr=GAL_LUM, rvar=0.0)
@@ -1672,26 +1674,31 @@ def galley_dressing():
       m_cream)
     A(_gbox("gal_end_a", X0 - 0.030, X0, -0.5000, 0.4000, 1.2000, 1.8600),
       m_white)
-    # ceiling: pale, and carrying the roof-aperture stand-in at the REAL
-    # opening footprint, not the galley box's (see m_sky above)
-    _ceil = _gbox("gal_ceiling", SKY_X0, SKY_X1, SKY_Y0, SKY_Y1, 1.8600, 1.8780)
-    # rev 12: the roof hole is now REAL GEOMETRY (SPEC 10.28), and the first
-    # 3000x2000 hero rendered with it showed exactly what that costs: this
-    # stand-in sits at the opening's own footprint, so a 3/4 camera looking down
-    # into the hole photographed a solid pale glowing slab where the galley
-    # should be. It read as a closed lid, which is worse than the sealed box it
-    # was standing in for.
+    # rev 13: `gal_ceiling` IS DELETED.  It was an emissive stand-in for a roof
+    # opening that did not exist; the opening has existed since rev 12 and the
+    # stand-in was only still here because deleting it needed renders to
+    # converge.  The owner settled what is actually up there before anything was
+    # measured from it: looking down through the opening you see the BARE INSIDE
+    # OF THE BODY'S OWN RED EXTERIOR PAINT -- no separate interior colour, no
+    # headlining, no pale ceiling.  So the correct object is not a dimmer
+    # emitter, it is no emitter: the studio rig lights the galley through the
+    # hole, and what it lands on is red steel.
     #
-    # Hidden from CAMERA rays only -- it still emits, still lights the bays, and
-    # still casts. That keeps the measured bay levels (132 / 158 / 172 against
-    # 154 / 169 / 181 on matched windows) while removing the slab.
-    #
-    # This is a STAND-IN and it is still a stand-in. The real fix is to delete
-    # it and let the studio rig light the interior through the hole that now
-    # exists, then re-measure the three bays and retune `fill_galley`. That
-    # needs renders to converge and is the first job of the next pass.
-    _ceil.visible_camera = False
-    A(_ceil, m_sky)
+    # He also named the sources: daylight through the roof opening, plus the
+    # bulbs.  The bulb half of that is REFUTED by measurement and it is recorded
+    # here because it changes the fix: the trim ringing each serving aperture
+    # reads S 0.110-0.152 while the drip-rail festoon in the same rows reads
+    # S 0.281-0.317 and 15-40 codes brighter.  The aperture surround is a matte
+    # white bobble fringe, not lamps, and the only lit string is on the drip
+    # rail OUTSIDE the skin, ~55 mm above the aperture heads, where it lights
+    # the customer and cannot reach the galley.  The roof opening does all of it.
+    _ceil = None
+    # Nothing replaces it. The body is solidified to a 2.8 mm shell, so the
+    # underside of the surviving roof strips either side of the opening is
+    # already real geometry carrying the body material -- which IS the inside of
+    # the red exterior paint the owner describes. Adding a panel here would put
+    # a lid back over the hole, which is the defect rev 12 removed.
+    del _ceil
 
     # ------------------------------------------- 2. the practical strip light
     # Tucked 20 mm under the head rail so the ortho flank and both studio 3/4

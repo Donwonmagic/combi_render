@@ -105,7 +105,34 @@ DOOR_VENT_S = _smooth(_resample(DOOR_VENT, 56), 3)
 #   bay 1  front +0.195  rear -0.321   width 0.516
 #   bay 2  front -0.435  rear -0.960   width 0.525
 # The bays grow slightly toward the tail; they are NOT equal.
-BAYS = [(0.3130, 0.8200), (-0.3210, 0.1950), (-0.9600, -0.4350)]
+# rev 13.  TWO corrections, both measured, and the first explains a 100 mm error
+# that also turned up independently in the tail length.
+#
+# (1) POSITION.  All three bays sat 105 mm too far AFT, as a pure translation --
+#     the widths and the spacings were right.  `REF_MEASUREMENTS`'s "MODEL x"
+#     column maps the photograph as X = (495.8 - u)/211.5 and calls X = 0
+#     mid-wheelbase.  But 495.8 px IS the hub midpoint, and this model's axles
+#     are at +1.300 / -1.100, so its mid-wheelbase is x = +0.100.  Every REF
+#     model-frame number is 100 mm aft of where it says.  Measured bay centres,
+#     from six sub-pixel cut edges anchored by ratio to the two hubs (which are
+#     both locked by the 2.400 m wheelbase): +0.672 / +0.047 / -0.598 +/- 0.015.
+#
+# (2) WIDTH.  The bays are EQUAL.  SPEC 10.5's 0.507 / 0.516 / 0.525 is
+#     perspective, not geometry: three exactly equal 0.5155 m bays project to
+#     106.76 / 109.12 / 111.52 px against a measured 107.23 / 109.13 / 111.04 --
+#     residuals +0.47 / +0.01 / -0.48 px.  Under the corrected homography the
+#     measured widths are 0.5177 / 0.5155 / 0.5132, spread 0.36 % of the mean.
+#     Perspective in fact over-explains the taper (4.4-4.5 points predicted
+#     against 3.55 measured), so if anything they narrow very slightly forward.
+#     Held equal: a 2 mm taper is below the measurement floor and inventing one
+#     is how 10.5's version got here.
+#
+# STATE.md's "SPEC 1.1 measured widths 0.507/0.516/0.526 -- they are NOT equal"
+# is therefore retired.  rev-3's three equal 0.600s stay retired; the width is
+# 0.5155, not 0.600.
+BAY_W = 0.5155                                   # equal, measured
+BAY_CX = (0.6720, 0.0470, -0.5980)               # measured centres
+BAYS = [(cx - BAY_W / 2.0, cx + BAY_W / 2.0) for cx in BAY_CX]
 OPEN_BAYS = (0, 1, 2)          # +Y show side: all three glass removed
 # SPEC r4: there is NO fourth bay. Aft of bay 3 is solid sheet metal carrying
 # the "100% Calidad" decal (measured: SPEC 8.4). Re-adding a bay is a regression.

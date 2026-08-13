@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-10 17:19:28 UTC |
-| git commit | `d1bd9e9` |
-| git subject | rev 12: the La Santa panel is a DETACHED SIGN - off the vehicle; SPEC 10.28 |
+| generated | 2026-08-13 20:12:05 UTC |
+| git commit | `5e5bb82` |
+| git subject | rev 13: merge the rev-11 audit line into rev 12 |
 | working tree | **DIRTY** — this state is not committed |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=1 (applied, destructive, before booleans) |
@@ -26,25 +26,25 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 ```
 x range [-2.138, 2.160]   full-Y [-1.064, 1.150]
-dims  L=4.298 W=1.750 roof@rear-axle=1.923 (bbox top 3.009)
+dims  L=4.298 W=1.750 roof@rear-axle=1.894 (raw resid -66 mm; dome deficit +98 mm still unmodelled) (bbox top 3.009)
 measured TRACK_F=1.3713  TRACK_R=1.3613  TYRE_D=0.6650
 open serving apertures on +Y: 3
-roof at tail = 1.942
+roof at tail = 1.903
 roof aperture: open, and solid fore / aft / both sides
 shut line door+1: 100 % open
 shut line door-1: 100 % open
 shut line cargo: 100 % open
 shut line englid: 100 % open
-band 1.372-1.775 un-dropped (1.307-1.710 AG)  bay widths 0.507 0.516 0.525
+band 1.372-1.775 un-dropped (1.307-1.710 AG)  bay widths 0.516 0.515 0.516
 VERIFY: 0 fail, 1 warn
-warn  roof @ rear axle 1.923 vs spec 1.960 (-37 mm)
+warn  roof crown @ rear axle (dome-corrected) 1.992 vs spec 1.960 (+32 mm)
 ```
 
 | | |
 |---|---|
 | cutters rolled back | none |
 | non-manifold edges (body) | 0 |
-| body faces | 49331 quad, 230 tri, 2830 ngon |
+| body faces | 49244 quad, 233 tri, 2836 ngon |
 
 ## Measured dimensions
 
@@ -57,17 +57,17 @@ Shaders read the dropped frame, so `Z_BELT`/`V_APEX` are already AG.
 | overall length (ex counter) | 4.5830 | 4.2900 | +293.0 mm **OUT** |
 | counter tail overhang past body | 0.0070 | — | — |
 | overall width (body) | 1.7498 | 1.7500 | -0.2 mm ok |
-| overall height (max, any station) | 3.0076 | 1.9600 | +1047.6 mm **OUT** |
+| overall height (max, any station) | 2.9799 | 1.9600 | +1019.9 mm **OUT** |
 | _(rev 8: a single scalar height is the WRONG test now that the rake is modelled — 1.960 is the maximum of a sloping line, taken at its highest station. See the three-station roof line below. §2.3's inference that the roof-lid frame stands 0.10–0.15 m proud is **refuted** at ~13σ; measured proud height is 26 ± 7 mm.)_ | | | |
 | wheelbase | 2.4000 | 2.4000 | +0.0 mm ok |
 | track front | 1.3690 | 1.3690 | +0.0 mm ok |
 | track rear | 1.3590 | 1.3590 | +0.0 mm ok |
 | tyre diameter | 0.6650 | 0.6650 | +0.0 mm ok |
-| rocker to ground | 0.3020 | — | — |
-| belt line @ x=0.864 (live) | 1.2070 | 1.2070 | +0.0 mm ok |
-| window sill @ x=0.864 | 1.3070 | 1.3070 | +0.0 mm ok |
-| window head @ x=0.864 | 1.7100 | 1.7100 | +0.0 mm ok |
-| V-swage apex @ x=0.864 | 0.3400 | 0.3400 | +0.0 mm ok |
+| rocker to ground | 0.3175 | — | — |
+| belt line @ x=0.962 (live) | 1.2070 | 1.2070 | +0.0 mm ok |
+| window sill @ x=0.962 | 1.3070 | 1.3070 | +0.0 mm ok |
+| window head @ x=0.962 | 1.7100 | 1.7100 | +0.0 mm ok |
+| V-swage apex @ x=0.962 | 0.3400 | 0.3400 | +0.0 mm ok |
 
 ### Roof line — three stations, not one scalar
 
@@ -78,17 +78,17 @@ signature. `Z_BELT` is a line too; see `t1_mats.z_belt(x)`.
 
 | station | x | roof z | belt z |
 |---|---|---|---|
-| front axle | +1.300 | 1.8463 | 1.1926 |
-| mid wheelbase | +0.100 | 0.3593 | 1.2322 |
-| rear axle | -1.100 | 1.9225 | 1.2718 |
+| front axle | +1.300 | 1.8541 | 1.2010 |
+| mid wheelbase | +0.100 | 0.3497 | 1.2223 |
+| rear axle | -1.100 | 1.8943 | 1.2436 |
 
-| roof line slope (measured off the mesh) | -31.8 mm/m |
-| rake coefficient applied | 33.0 mm/m (1.89°) |
+| roof line slope (measured off the mesh) | -16.8 mm/m |
+| rake coefficient applied | 17.8 mm/m (1.02°) |
 
 | stance | |
 |---|---|
-| ride drop @ x=0 | 36.5 mm |
-| ride drop @ front axle / rear axle | 79.4 / 0.2 mm |
+| ride drop @ x=0 | 47.9 mm |
+| ride drop @ front axle / rear axle | 71.0 / 28.4 mm |
 | arch radius − tyre radius | 41.0 mm (measured 41) |
 | V_APEX + V_RISE == Z_BELT | 1.2070 == 1.2070 — held |
 
@@ -98,7 +98,7 @@ Measured by `verify.py` by ray-testing the shell, not by counting panes:
 
 ```
 open serving apertures on +Y: 3
-band 1.372-1.775 un-dropped (1.307-1.710 AG)  bay widths 0.507 0.516 0.525
+band 1.372-1.775 un-dropped (1.307-1.710 AG)  bay widths 0.516 0.515 0.516
 ```
 
 SPEC §1.1 measured widths: 0.507 / 0.516 / 0.526 — they are **not** equal;
@@ -108,9 +108,9 @@ they grow slightly toward the tail. rev-3's three equal 0.600s are retired.
 
 | | |
 |---|---|
-| datablocks built | 45 |
-| bound to >=1 mesh | 44 |
-| **still a CONSTANT roughness** | 6 — amber, gal_sky, glass, lens, reflector, ruby |
+| datablocks built | 44 |
+| bound to >=1 mesh | 42 |
+| **still a CONSTANT roughness** | 5 — amber, glass, lens, reflector, ruby |
 
 > SPEC §3 locks the finish as WEATHERED. A constant roughness is the
 > physical definition of the plastic look. The only materials that may
@@ -121,9 +121,9 @@ they grow slightly toward the tail. rev-3's three equal 0.600s are retired.
 
 | | |
 |---|---|
-| mesh objects | 182 |
-| vertices (all meshes) | 126427 |
-| faces (all meshes) | 120611 |
+| mesh objects | 181 |
+| vertices (all meshes) | 129898 |
+| faces (all meshes) | 124743 |
 
 | prefix | n |
 |---|---|
@@ -185,7 +185,6 @@ they grow slightly toward the tail. rev-3's three equal 0.600s are retired.
 | `fuel_flap` | 1 |
 | `gal_appliance` | 1 |
 | `gal_backdrop_f` | 1 |
-| `gal_ceiling` | 1 |
 | `gal_end_a` | 1 |
 | `gal_end_f` | 1 |
 | `gal_pale` | 1 |

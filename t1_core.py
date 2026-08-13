@@ -53,10 +53,60 @@ TRACK_R     =  1.3590
 # SHEAR, NOT ROTATION. Every reference number is a height-versus-X; a 1.9 deg
 # rotation would also shift x by 63 mm at roof level and de-register every
 # longitudinal measurement.
-RAKE_Z0     =  0.0365          # ride drop at x = 0
-RAKE_DZDX   =  0.0330          # nose-down rake, m per m forward (+/- 0.0040)
-                               # 0.0302 from the belt, 0.0367 from the drip rail
-X_DROP_REF  =  0.8636          # station where drop(x) == the pre-rev-8 scalar
+# rev 13 -- THE RAKE IS RE-DERIVED AND 0.0330 IS REJECTED AT 4.5 SIGMA.
+#
+# Everything above this line is the rev-8 derivation and it is kept because the
+# SHEAR-not-rotation part of it is still right.  The MAGNITUDE is not.  Both of
+# rev 8's chains measure an IMAGE slope of a body line, and an image slope of a
+# fore-aft line contains the perspective term as well as the rake -- all of the
+# vehicle's own horizontal lines converge on a vanishing point at u ~ -11700, so
+# a raw slope cannot separate the two.  Re-fitting the rocker trim ridge
+# sub-pixel gives -0.025415 +/- 0.000178 px/px (rms 0.299 px, n = 324): neither
+# 0.0330 nor the audit's 0.0144, because it is not the rake at all.
+#
+# METHOD 4, and it needs no ground line, no px/m and no vanishing point: both
+# hub centres sit at exactly one tyre radius above flat ground BY CONSTRUCTION,
+# so the rocker's height above its own hub, taken at each axle and scaled by
+# that wheel's own tyre, differences into the rake directly.
+#
+#   station        hub (sub-pixel polar fit)   local px/m   rocker above hub
+#   front axle     u 242.60  v 607.84          204.4        -0.0004 m
+#   rear axle      u 749.27  v 604.13          213.5        +0.0422 m
+#   rake = 0.0426 / 2.400 = 0.01775 m/m
+#
+# The front wheel is 54 % unoccluded (polar sectors -40..+66 and +110..+198),
+# which is enough for a constrained circle fit; every previous attempt treated
+# it as unusable because the man's red shirt defeated a bbox search.  Three
+# independent rocker extractions agree to 0.2 % and a second datum (the
+# cream/red belt boundary, which needs no extrapolation at the rear) gives
+# 0.01747.  Quoted 17.6 +/- 3.4 mm/m; the dominant term is the 94 px
+# extrapolation past u = 650, not the fit.
+#
+#   from 0.0330                4.5 sigma   REJECTED
+#   from the audit's 0.0144    0.70 sigma  consistent
+#
+# Corroboration that needs no photograph: a non-negative front arch gap
+# requires rake <= 0.0171.  At 0.0330 the front gap is -27 mm -- the tyre inside
+# the bodywork -- which is what SPEC 10.9 logged as an unresolved contradiction
+# for five revisions.  It resolves against the built value.
+#
+# NOTE the arch-gap IDENTITY is NOT a valid estimator and is not used as one
+# here: the front and rear arch lips are different pressings, so
+# `rear - front = rake x wheelbase` confounds the rake with a design difference.
+# It bounds; it does not measure.
+#
+# RAKE_Z0 is re-anchored in the same solve, not carried over: the model's rocker
+# sat -0.0088 above its hub at the front axle and +0.0704 at the rear, so BOTH
+# ends move -- the nose up 8 mm, the tail down 28 mm.  Consequence, logged not
+# hidden: roof @ rear axle 1.923 -> ~1.895, so the deliberate warn against
+# REF 2.3's 1.960 grows from -37 mm to about -65 mm.  That is expected and it is
+# coherent with the roof dome being separately measured 90-105 mm too shallow
+# (crown R 2.45 m against the built 9.65 m): correcting the dome would take the
+# crown to 1.985-2.000 against 1.960 +/- 30, which the CURRENT build cannot
+# reach from 1.923 no matter what the dome does.
+RAKE_Z0     =  0.047925        # ride drop at x = 0   (was 0.0365)
+RAKE_DZDX   =  0.017750        # nose-down rake, m per m forward, 1.02 deg
+                               # (was 0.0330).  17.6 +/- 3.4 mm/m measured.
 
 
 def rake_drop(x):
@@ -64,6 +114,14 @@ def rake_drop(x):
     return RAKE_Z0 + RAKE_DZDX * x
 
 
+# SPEC 10.25: a constant tuned against another constant must be EXPRESSED in
+# terms of it.  X_DROP_REF is not a locked constant -- it is defined as "the
+# station where drop(x) equals the pre-rev-8 scalar 0.0650", so it has to be
+# solved from the rake, not left at the value it happened to have when the rake
+# was 0.0330.  Doing this keeps RIDE_DROP at exactly 0.0650, which in turn keeps
+# t1_mats.Z_BELT == 1.2070 and V_APEX == 0.3400 bit-identical through a rake
+# change -- both are guarded values and neither should move for this reason.
+X_DROP_REF  = (0.0650 - RAKE_Z0) / RAKE_DZDX        # == 0.96197 at rev-13 rake
 RIDE_DROP   =  RAKE_Z0 + RAKE_DZDX * X_DROP_REF     # == 0.0650
                                # rev6: LOWERED. Rear arch-to-tyre gap measures
                                # 41mm vs a stock 90-120. rev4 zeroed this in error.

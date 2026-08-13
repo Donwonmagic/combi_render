@@ -134,8 +134,17 @@ GOLD = (0.8600, 0.5400, 0.0600)
 # to both branches and V_APEX0 + V_RISE == Z_BELT0 keeps holding at every
 # station -- which is what makes the swage arms land on the belt line.
 RAKE_DZDX = T.RAKE_DZDX                 # single source of truth
-Z_BELT0 = 1.2355                        # = 1.2720 authored - RAKE_Z0 0.0365
-V_APEX0 = 0.3685                        # = 0.4050 authored - RAKE_Z0
+# rev 13, SPEC 10.25.  These were literals with the derivation only in a
+# comment -- "= 1.2720 authored - RAKE_Z0 0.0365" -- which is exactly the shape
+# that merged the VW glyph into an X twice.  Changing RAKE_Z0 would have left
+# the PAINTED break where it was while the PRESSED swage (t1_shell.V_APEX_Z,
+# authored) moved with the shear, de-registering two things SPEC 10.2 verifies
+# to 0.0 mm.  Now expressed in terms of the constant they are tuned against.
+# The authored values are the geometry-frame ones and they do NOT change.
+Z_BELT_AUTH = 1.2720                    # un-dropped, geometry frame
+V_APEX_AUTH = 0.4050                    # un-dropped == t1_shell.V_APEX_Z
+Z_BELT0 = Z_BELT_AUTH - T.RAKE_Z0       # above ground at x = 0
+V_APEX0 = V_APEX_AUTH - T.RAKE_Z0       # above ground at x = 0
 V_RISE = 0.8670
 V_POW = 0.60
 
