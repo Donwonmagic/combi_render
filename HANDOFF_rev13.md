@@ -49,7 +49,11 @@ warn  roof crown @ rear axle (dome-corrected) 1.992 vs spec 1.960 (+32 mm)
 
 and the dims line now reads
 `roof@rear-axle=1.894 (raw resid -66 mm; dome deficit +98 mm still unmodelled)`.
-Also `cut roof hole: 56293v` (SUB=1) / `207806v` (SUB=2), `roof aperture: open,
+Also `cut roof hole: 56293v` (SUB=1) / **`207383v`** (SUB=2 — corrected; the
+figure `207806v` that first shipped in this file was never observed. It was
+written from a truncated console tail and the audit-2 context caught it. A
+number in an acceptance test that nobody watched print is exactly the failure
+this project's rules exist to stop, and it happened anyway), `roof aperture: open,
 and solid fore / aft / both sides`, `TYRE_D=0.6650`, 3 open apertures, four shut
 lines `100 % open`, band `1.372–1.775`, **bay widths `0.516 0.515 0.516`**,
 **181 meshes**, 0 non-manifold edges, `cutters rolled back: none`,

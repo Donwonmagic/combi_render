@@ -305,7 +305,16 @@ A("Shaders read the dropped frame, so `Z_BELT`/`V_APEX` are already AG.")
 A("")
 A("| dimension | measured | SPEC | delta |")
 A("|---|---|---|---|")
-_bodyish = [o for o in meshes if o.name not in ("counter", "counter_nosing")]
+# rev 13, found independently by TWO audit contexts: this list excluded
+# `counter` and `counter_nosing` but not `counter_top`, which shares the
+# counter's plan and reaches x = -2.423.  So the "overall length (ex counter)"
+# row measured the COUNTER and reported 4.5830 / +293 mm OUT for two revisions
+# when the body is 4.2984 and in spec; and "counter tail overhang past body"
+# reported 0.0070, which is the nosing standing 7 mm proud of the top, not the
+# 0.32 m overhang it names.  A guard that measures a prop is worse than no
+# guard: this one certified a phantom defect AND hid a real number.
+_COUNTER_PARTS = ("counter", "counter_nosing", "counter_top")
+_bodyish = [o for o in meshes if o.name not in _COUNTER_PARTS]
 _blo2, _bhi2 = vbounds(_bodyish)
 A(_row("overall length (ex counter)", _bhi2.x - _blo2.x, 4.290, 0.025))
 A("| counter tail overhang past body | %.4f | — | — |" % (_blo2.x - lo.x))

@@ -37,7 +37,7 @@ T1_SUB=1 T1_VERIFY=1 /tmp/blender/blender -b --python build.py
 T1_SUB=2 T1_VERIFY=1 /tmp/blender/blender -b --python build.py
 T1_SUB=1 /tmp/blender/blender -b --python audit.py
 ```
-Expect at both levels `0 fail, 1 warn`. THE WARN CHANGED IN REV 13 AND IT IS DELIBERATE: `roof crown @ rear axle (dome-corrected) 1.992 vs spec 1.960 (+32 mm)`, and the dims line reads `roof@rear-axle=1.894 (raw resid -66 mm; dome deficit +98 mm still unmodelled)`. Also `cut roof hole: 56293v` at SUB=1 and `207806v` at SUB=2, `roof aperture: open, and solid fore / aft / both sides`, `TYRE_D=0.6650`, 3 open apertures, four shut lines `100 % open`, band `1.372–1.775`, bay widths `0.516 0.515 0.516`, 181 meshes, 0 non-manifold edges, `cutters rolled back: none`, 5 materials constant-rough. Anything else means something regressed in transit — find out what before building on it.
+Expect at both levels `0 fail, 1 warn`. THE WARN CHANGED IN REV 13 AND IT IS DELIBERATE: `roof crown @ rear axle (dome-corrected) 1.992 vs spec 1.960 (+32 mm)`, and the dims line reads `roof@rear-axle=1.894 (raw resid -66 mm; dome deficit +98 mm still unmodelled)`. Also `cut roof hole: 56293v` at SUB=1 and `207383v` at SUB=2, `roof aperture: open, and solid fore / aft / both sides`, `TYRE_D=0.6650`, 3 open apertures, four shut lines `100 % open`, band `1.372–1.775`, bay widths `0.516 0.515 0.516`, 181 meshes, 0 non-manifold edges, `cutters rolled back: none`, 5 materials constant-rough. Anything else means something regressed in transit — find out what before building on it.
 
 Both levels, every time. "Guards green" was true only at SUB=1 for six revisions while the production build silently lost both cab-door shut lines.
 

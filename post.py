@@ -49,7 +49,22 @@ def _blur(a, sigma):
     return out
 
 
-def bloom(lin, amount=1.0, thr=0.72, sigma=9.0):
+# rev 13, audit-2 dimension `optics`, severity 5 and it damages the WHOLE frame.
+# `main()` reads a DISPLAY-REFERRED PNG in which paper white is 1.0, not the
+# scene-linear 21-25 the studio actually renders at -- so a threshold of 0.72
+# fires on 70.3 % of the hero and adds ~+0.16 linear EVERYWHERE.  Measured
+# consequences on the shipped frame: the vignette delivered 0.00 of its designed
+# 4.4 code values and all four corners came out exactly 255.000; the grain's
+# high-pass sd was 0.0000 in all three channels and 99.51 % of the backdrop was
+# exactly (255,255,255); every specular above 240 was flattened; and the
+# silhouette wore a one-sided inward glow.  91 % of the "bloom on the speculars"
+# was the subject's own diffuse energy.
+#
+# In a display-referred frame the only pixels that should bloom are the ones at
+# or near clipping.  0.94 puts the knee above the cream (0.78-0.82 typical) and
+# above the backdrop's own texture, leaving the speculars and the bulb string --
+# which is what a real lens flares.  `--bloom-thr` overrides it for A/B.
+def bloom(lin, amount=1.0, thr=0.94, sigma=9.0):
     """veiling glare off the brightest speculars only"""
     if amount <= 0:
         return lin
