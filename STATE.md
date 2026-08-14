@@ -8,10 +8,10 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-14 14:18:40 UTC |
-| git commit | `7ce3d03` |
-| git subject | rev 16: commit the SUB=1 STATE.md and correct the commit count I did not watch print |
-| working tree | **DIRTY** — this state is not committed |
+| generated | 2026-08-14 14:27:39 UTC |
+| git commit | `667527c` |
+| git subject | rev 17: SPEC 10.38-10.44, handoff, and the rev-18 next-context prompt |
+| working tree | clean |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=1 (applied, destructive, before booleans) |
 | geometry source | procedural, built this run |
