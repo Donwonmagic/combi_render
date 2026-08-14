@@ -360,3 +360,172 @@ def rear34_character(box=_LID):
     print("  fades toward white and is currently spatially constant), and drive")
     print("  roughness with it.  It is not an albedo-breakup map.")
     print("=" * 74)
+
+
+# ---------------------------------------------------------------------------
+# rev 19 -- THE CREAM SOURCE MOVES OFF THE SIGN AND ONTO THE VEHICLE.
+#
+# `_LID` above is the panel lettered "La Santa".  Every cream number in rev 17
+# and rev 18 came off it, under the comment "the LID UNDERSIDE ... an
+# INWARD-FACING panel, so its weathering is a LOWER BOUND on the sun-exposed
+# flank's".  Shown the marked crop, the owner identified it as **A DETACHED
+# SIGN, SEPARATE FROM THE BUS** -- which is also his own earlier settled
+# reading.  So it is not the lid, it is not inward-facing bodywork, and its
+# paint history is not the vehicle's.  Both halves of that comment are void and
+# `_LID` is RETIRED as a cream reference.  It is kept only so the retired
+# numbers can be reproduced.
+#
+# `_BODY` is the surface he identified as the bus's own painted cream: the
+# solid sheet metal aft of the serving apertures.  His box was
+# (860,270)-(970,390); it is trimmed here for a measured reason, not a taste
+# one -- 10.17 % of that box is CLIPPED (max channel >= 254), all of it in
+# columns 860-882, a blown specular sheen on the left edge, plus a brass strip
+# across rows 270-287.  A clipped pixel carries NO texture, so leaving it in
+# drags a high-pass RMS toward zero.  The trim removes every clipped pixel:
+#
+#     (885, 968, 292, 388)   83 x 96 = 7968 px   clipped 0.00 %
+#
+# THE GATE IS GEOMETRY ONLY, and that is deliberate.  rev 17's rule is that a
+# class gate is a probe too.  Inside a box the owner has identified by eye, a
+# COLOUR gate cannot add information -- it can only remove pixels for looking
+# unlike whatever surface the gate was tuned on.  The old `sat < 0.20` gate is
+# tuned to the sign (C* 11.2) and rejects the bus's own cream (C* 19.9): it
+# returns 2.9 % purity on this very panel.  So the only rejection here is
+# CLIPPING, which is a sensor fact, not a class judgement.
+_BODY = (885, 968, 292, 388)        # u0, u1, v0, v1 -- bus cream, aft of bays
+
+
+def _lab(rgb01):
+    M = np.array([[0.4124, 0.3576, 0.1805],
+                  [0.2126, 0.7152, 0.0722],
+                  [0.0193, 0.1192, 0.9505]])
+    XYZ = rgb01 @ M.T
+    t = XYZ / np.array([0.9505, 1.0, 1.089]); d = 6 / 29
+    f = np.where(t > d ** 3, np.cbrt(np.clip(t, 1e-9, None)), t / (3 * d * d) + 4 / 29)
+    L = 116 * f[..., 1] - 16
+    A = 500 * (f[..., 0] - f[..., 1]); B = 200 * (f[..., 1] - f[..., 2])
+    return L, np.sqrt(A * A + B * B)
+
+
+def spectrum(box=_BODY, path="ref_rear34.jpg", label="bus cream", quiet=False):
+    """Scale-indexed REAL high-pass RMS on a geometry-gated patch.
+
+    Returns (dict sigma->real%, mask, Y) or **None** if the patch cannot
+    support the measurement.  It returns None rather than a number on purpose:
+    two phantoms in this repo came from a probe answering when it could not
+    (`audit.py`'s `or -9`, `_roof_at`'s fall-through), and rev 18 wrote the
+    rule.  `rear34_character` below obeys the same rule for its VERDICT.
+    """
+    from PIL import Image as _I
+    u0, u1, v0, v1 = box
+    raw = np.asarray(_I.open(path).convert("RGB"), dtype=np.float64)
+    sub = raw[v0:v1, u0:u1]
+    if sub.size == 0:
+        return None
+    mask = sub.max(2) < 254                      # clipping only -- see note
+    frac = float(mask.mean())
+    for _ in range(3):                           # 3 px erosion
+        m = mask.copy()
+        m[1:, :] &= mask[:-1, :]; m[:-1, :] &= mask[1:, :]
+        m[:, 1:] &= mask[:, :-1]; m[:, :-1] &= mask[:, 1:]
+        mask = m
+    Y = S2L(sub / 255.0) @ LUMA
+    n = int(mask.sum())
+    if not quiet:
+        print("=" * 74)
+        print("rev 19 -- %s off %s, u %d-%d v %d-%d  (%d x %d px)"
+              % (label.upper(), path, u0, u1, v0, v1, u1 - u0, v1 - v0))
+        print("  gate: GEOMETRY (owner-identified) + unclipped only.  No colour gate.")
+        print("  unclipped %.1f %% -> %d px survive a 3 px erosion" % (100 * frac, n))
+    if n < 500:
+        if not quiet:
+            print("  *** REFUSING TO REPORT: %d usable px is too few. Returns None." % n)
+        return None
+    out = {}
+    if not quiet:
+        print("  sigma_px   total %    leak %    codec %    REAL %")
+    for sg in (1.0, 2.0, 4.0, 8.0, 12.0):
+        lo = gblur(Y, sg)
+        t = float(np.sqrt((((Y - lo) / np.maximum(lo, 1e-6))[mask] ** 2).mean()))
+        lk, cf = codec_floor(path, box, mask, sg)
+        real = float(np.sqrt(max(t * t - cf * cf, 0.0)))
+        out[sg] = real
+        if not quiet:
+            print("   %5.1f    %8.3f  %8.3f  %8.3f  %8.3f"
+                  % (sg, 100 * t, 100 * lk, 100 * cf, 100 * real))
+    if not quiet:
+        print("  SCALE: px/m on THIS plane is not 344.1.  344.1 +- 6.7 is the")
+        print("    PLATE plane (SPEC 10.48).  See depth_correct() before any mm.")
+    return out, mask, Y
+
+
+def character(box=_BODY, path="ref_rear34.jpg", label="bus cream"):
+    """WHICH KIND of texture -- with a DERIVED verdict, not a printed one.
+
+    rev 19: `rear34_character` printed 'CHALKY SUN-FADE MOTTLE' as a constant
+    string.  Handed a box of pure RED body paint it reported class purity
+    0.0 %, every statistic nan, and still printed that verdict.  A conclusion
+    that cannot fail is not a measurement.  This one is computed from the
+    statistics and returns None when they do not support any verdict.
+    """
+    s = spectrum(box, path, label)
+    if s is None:
+        print("  VERDICT: None -- the patch could not support a measurement.")
+        return None
+    _, mask, Y = s
+    from PIL import Image as _I
+    u0, u1, v0, v1 = box
+    lin = S2L(np.asarray(_I.open(path).convert("RGB"),
+                         dtype=np.float64)[v0:v1, u0:u1] / 255.0)
+    Ls, Cs = _lab(lin)
+    print("-" * 74)
+    print("CHARACTER -- fade vs dirt vs brush vs dents   (verdict is DERIVED)")
+    print("  sigma   corr(dL*,dC*)   dL* rms   dC* rms   anisotropy v/u   skew")
+    rows = []
+    for sg in (2.0, 4.0, 8.0):
+        hl = Ls - gblur(Ls, sg); hc = Cs - gblur(Cs, sg)
+        if mask.sum() < 8:
+            return None
+        r = float(np.corrcoef(hl[mask], hc[mask])[0, 1])
+        b = Y - gblur(Y, sg); k = int(3 * sg + 1)
+        bb = b[k:-k, k:-k]; mm = mask[k:-k, k:-k]
+        if mm.sum() < 8:
+            print("  %5.1f      insufficient interior after %d px trim" % (sg, k))
+            continue
+        gx = np.diff(bb, axis=1); gy = np.diff(bb, axis=0)
+        an = float(np.sqrt((gy[mm[:-1, :]] ** 2).mean())
+                   / max(np.sqrt((gx[mm[:, :-1]] ** 2).mean()), 1e-12))
+        x = (Y - gblur(Y, sg))[mask]
+        sk = float(((x - x.mean()) ** 3).mean() / max(x.std() ** 3, 1e-12))
+        dl, dc = float(hl[mask].std()), float(hc[mask].std())
+        rows.append((sg, r, dl, dc, an, sk))
+        print("  %5.1f      %+7.3f       %6.3f    %6.3f        %.3f       %+6.2f"
+              % (sg, r, dl, dc, an, sk))
+    if len(rows) < 2 or any(not np.isfinite(v) for row in rows for v in row):
+        print("  VERDICT: None -- statistics are not finite. NOT a texture claim.")
+        return None
+    corr8 = rows[-1][1]; corr2 = rows[0][1]
+    dl8, dc8, an8 = rows[-1][2], rows[-1][3], rows[-1][4]
+    chroma_live = dc8 > 0.30 * dl8
+    anti = corr8 < -0.20
+    deepens = corr8 < corr2
+    iso = 0.70 <= an8 <= 1.43
+    print("  tests:  anti-correlated(<-0.20) %-5s  deepens-with-scale %-5s"
+          % (anti, deepens))
+    print("          chroma-structure-live(dC*>0.3 dL*) %-5s  isotropic(0.70-1.43) %-5s"
+          % (chroma_live, iso))
+    if anti and deepens and chroma_live:
+        v = "CHALKY SUN-FADE MOTTLE (patches oxidised lighter AND less chromatic)"
+    elif (not anti) and corr8 > 0.20 and chroma_live:
+        v = "DIRT / SOILING (L* and C* fall together)"
+    elif not chroma_live:
+        v = "ACHROMATIC STRUCTURE -- brush, roller, dents or noise, NOT fade"
+    else:
+        v = None
+    if v is None:
+        print("  VERDICT: None -- the tests do not agree on any single mechanism.")
+    else:
+        print("  VERDICT: %s" % v)
+        if not iso:
+            print("  CAVEAT: anisotropy %.3f is OUTSIDE 0.70-1.43 -- directional." % an8)
+    return v
