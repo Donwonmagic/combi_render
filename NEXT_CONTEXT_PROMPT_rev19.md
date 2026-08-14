@@ -158,7 +158,7 @@ git fetch ../tacombi_rev14b_incremental.bundle HEAD:refs/heads/b14   # FETCH
 git pull --ff-only ../tacombi_rev15_incremental.bundle HEAD      # -> 67
 git pull --ff-only ../tacombi_rev16_incremental.bundle HEAD      # -> 71
 git pull --ff-only ../tacombi_rev17_incremental.bundle HEAD      # -> 75
-git pull --ff-only ../tacombi_rev18_incremental.bundle HEAD      # -> 79, clean
+git pull --ff-only ../tacombi_rev18_incremental.bundle HEAD      # -> 81, clean
 ```
 **If a pull says "Need to specify how to reconcile divergent branches", STOP.**
 ```bash
@@ -261,7 +261,7 @@ arch lip collapsed the shell 205 562 v → 12 v for six revisions.** Respect it.
 took `0 fail` to `1 fail` to expose the arch, then fixed the geometry.
 
 ---
-**A NOTE ON THE COMMIT COUNT ABOVE.** It says 79 and it was written *after* the
+**A NOTE ON THE COMMIT COUNT ABOVE.** It says 81 and it was written *after* the
 commit that fixed it, then re-verified from a fresh clone. This has gone wrong
 in five consecutive revisions during handoff assembly. **Read the count off the
 console after the last commit, then re-cut the bundle, then verify again.** It

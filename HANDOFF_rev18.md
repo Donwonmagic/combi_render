@@ -1,6 +1,6 @@
 # HANDOFF rev 18
 
-**79 commits, clean tree, guards 0 fail / 1 warn at BOTH subdivision levels.**
+**81 commits, clean tree, guards 0 fail / 1 warn at BOTH subdivision levels.**
 Read off the console after the last commit, then the bundle was re-cut and
 verified again from a fresh clone.
 
@@ -54,7 +54,7 @@ git fetch ../tacombi_rev14b_incremental.bundle HEAD:refs/heads/b14   # FETCH
 git pull --ff-only ../tacombi_rev15_incremental.bundle HEAD      # -> 67
 git pull --ff-only ../tacombi_rev16_incremental.bundle HEAD      # -> 71
 git pull --ff-only ../tacombi_rev17_incremental.bundle HEAD      # -> 75
-git pull --ff-only ../tacombi_rev18_incremental.bundle HEAD      # -> 79, clean
+git pull --ff-only ../tacombi_rev18_incremental.bundle HEAD      # -> 81, clean
 ```
 
 Content checks — the last four are rev 18's, the middle ones are ancestors:
