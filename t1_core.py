@@ -11,7 +11,7 @@ Reference dimensions (1950-67 T1):
 Coordinate frame:  +X = forward (nose),  +Y = left,  +Z = up,  ground Z = 0
 """
 
-import bpy, bmesh, math
+import bpy, bmesh, math, os
 import numpy as np
 from mathutils import Vector, Matrix
 
@@ -24,7 +24,52 @@ WB          = 2.400
 X_AXLE_F    =  1.300
 X_AXLE_R    = -1.100
 X_NOSE      =  2.108           # front-most sheet metal
-X_TAIL      = -2.108           # rear-most sheet metal
+
+# ---------------------------------------------------------------------------
+# rev 16 -- THE TAIL RE-SPACE.  SPEC sec.10.35.
+#
+# The overhang past the rear axle was measured DIMENSIONLESSLY, from the two
+# hub columns and the tail silhouette only.  No origin, no metre scale, no
+# ground line, and nothing within 800 px of the lamppost:
+#
+#     rear overhang / wheelbase = (u_tail - u_rhub)/(u_rhub - u_fhub)
+#                               = 0.3412 +- 0.0015          (ref_side.jpg)
+#     built                     = 1.008 / 2.400 = 0.4200
+#
+# Through the projective flank map of LOFT_GROUND sec.0 that is 0.773 +- 0.022 m
+# against 1.008 built -- THE TAIL IS 235 +- 22 mm TOO LONG.  Cross-checked
+# against a completely different feature pair on the same flank, using no hub
+# at all: tail minus the rear arch's aft foot is 70 px = 0.320 m, which with
+# the re-measured arch half-width of 0.460 m puts the tail at -1.880.  Two
+# routes, 7 mm apart.  SPEC sec.10.7's "99 mm" is REFUTED at 10 sigma -- it
+# subtracted two numbers in different origins.
+#
+# APPLIED AS A RE-SPACE, NEVER AS A TRANSLATION.  The existing aft station set
+# already has a sensible distribution (it clusters hard into the corner roll);
+# translating it would drag that cluster off the corner.  Every aft station and
+# every aft LUT knot is therefore expressed as its fraction f of the OLD
+# overhang and re-issued against the NEW one, which is what `_aft()` does.
+# Anything anchored to the tail SKIN must be written in terms of X_TAIL, not
+# re-typed as a constant -- a constant tuned against another constant must be
+# expressed in terms of it.
+X_TAIL_OLD  = -2.108           # the artefact value, kept only for _aft()
+O_OLD       = X_AXLE_R - X_TAIL_OLD          # 1.008  built overhang
+O_NEW       = 0.773                          # measured, +- 0.022
+
+
+def _aft(x):
+    """Re-space an aft station by its fraction of the rear overhang.
+
+    f = 0 at the rear axle, f = 1 at the tail.  Stations forward of the rear
+    axle are returned unchanged, so this can be applied to a whole LUT.
+    """
+    if x >= X_AXLE_R:
+        return x
+    f = (x - X_AXLE_R) / (-O_OLD)
+    return X_AXLE_R - f * O_NEW
+
+
+X_TAIL      = _aft(X_TAIL_OLD)  # -1.873   rear-most sheet metal
 X_BUMP_F    =  2.140
 X_BUMP_R    = -2.140
 HALF_W      =  0.875           # max body half width (SPEC r4: W=1.750)
@@ -145,6 +190,16 @@ def lut(points):
     return f
 
 
+def aft_lut(points):
+    """lut() with every AFT knot re-spaced by rev 16's tail solve.
+
+    The authored table keeps its measured values verbatim -- the re-space is
+    structural and lives in exactly one place, so a future revision that
+    re-measures the overhang changes O_NEW and nothing else.
+    """
+    return lut([(_aft(x), y) for (x, y) in points])
+
+
 def qbez(p0, p1, p2, t):
     u = 1.0 - t
     return (u * u * p0[0] + 2 * u * t * p1[0] + t * t * p2[0],
@@ -166,8 +221,30 @@ G = lut([
 
 # segment point budget:  bottom-flat, bottom-roll, flank, top-roll, top-flat
 NA, NB, NC, ND, NE = 6, 8, 26, 8, 7
-NHALF = NA + NB + NC + ND + NE + 1          # 56
-NLOOP = NHALF * 2 - 2                       # 110
+# rev 16 EXPERIMENT, owner-directed: NLOOP = 2*NHALF - 2 is 110 at NHALF=56,
+# which the Coons cap splits 27/28/27/28 -- NOT mirror-symmetric about y = 0
+# (the mirror of loop index 27 is 83, not 82).  NHALF = 57 gives NLOOP = 112
+# = 4 x 28 and a cap grid that IS mirror-symmetric.  Selected by env so both
+# arms can be built and MEASURED rather than argued about.
+#
+# MEASURED, NOT ARGUED.  Both arms were built at BOTH subdivision levels:
+#
+#   NHALF 56, cap 27x28 (asymmetric)   SUB=1  0 fail    SUB=2  1 FAIL
+#                                      -> gap_englid REJECTED, "zero-area
+#                                         faces 0 -> 2", ROLLED BACK
+#   NHALF 57, cap 28x28 (symmetric)    SUB=1  0 fail    SUB=2  0 fail
+#
+# The engine-lid gap ring is symmetric about y = 0.  On a cap grid that is not,
+# its two sides land differently on the grid and the exact solver returns two
+# degenerate slivers.  Moving the cutter in x does NOT fix it -- 0.120, 0.158
+# and 0.200 all give exactly 2 zero-area faces -- which is what identifies it
+# as an outline/grid coincidence rather than a tangency.  So the symmetric cap
+# is not a tidiness preference; it is the only arm that passes at both levels,
+# and it was chosen on that number rather than on the argument.
+if os.environ.get("T1_NHALF57", "1") == "1":
+    NC = 27                                 # NHALF 56 -> 57, NLOOP -> 112
+NHALF = NA + NB + NC + ND + NE + 1          # 56, or 57 on the experiment arm
+NLOOP = NHALF * 2 - 2                       # 110, or 112
 
 
 def section(W, Zb, Zt, rb, rt, crown, bcrown=0.0):
@@ -212,6 +289,75 @@ def ring(x, W, Zb, Zt, rb, rt, crown, bcrown=0.0):
     return pts
 
 
+# --------------------------------------------------------------------------
+# rev 16 -- THE END-CAP POLES.  SPEC sec.10.30b closed.
+#
+# `loft(cap_first/cap_last)` used to append ONE n-gon at each end.  build.py
+# then runs SUBSURF first, and Catmull-Clark turns an n-gon into n quads around
+# a new FACE POINT of valence n.  That face point IS the pole.  Measured on the
+# shipped rev-15 build: valence 115 at (-2.1080, 0, 0.9612) and 112 alongside
+# it on the inner skin, 110/110 at the nose -- a 110-spoke smooth-shaded fan
+# at the exact centre of a FLAT panel, which is a specular starburst generator
+# independent of any material.  That is why all four rev-14 ablation arms
+# failed to move it (art 15.459, albedo 15.412, spec 16.834 against an
+# as-built 15.478 -- the spec arm moved it the WRONG WAY).
+#
+# It is not only a shading defect: the n-gon cap also pulls the flat tail face
+# 1.4 mm forward of its authored plane, leaving the pole standing proud of it.
+#
+# THE FIX IS A COONS QUAD GRID whose border IS the boundary loop, so no vertex
+# is added to the loop and the loft's own topology is untouched:
+#
+#     n = NLOOP  ->  a = n//4, b = n//2 - a      (sides a/b/a/b, 2(a+b) = n)
+#     n = 110    ->  27 x 28,  corners at loop indices 0, 27, 55, 82
+#     n = 112    ->  28 x 28,  corners at 0, 28, 56, 84  and MIRROR-SYMMETRIC
+#
+# A quad fan with a central quad is NOT an option (110 is not reducible to 4
+# without a pole) and re-spacing the stations is orthogonal to it -- the pole
+# is created by the CAP, at any spacing.
+#
+# Boolean order: unchanged and legal at every stage.  The cap change is inside
+# loft(), i.e. before SUBSURF, before nose_shape, before the arch cut and
+# before solidify; the shell is closed and manifold throughout, and the caps
+# are ~0.7 m from the nearest arch.  It makes the TAIL booleans strictly
+# easier -- the rear-window and engine-lid cutters previously had to cut a
+# 110-gon-derived fan and left 19 n-gons and 11 triangles jammed against the
+# pole; a regular patch gives the exact solver quads.
+def _coons_cap(loop_idx, verts, faces, flip):
+    """Cap a boundary loop with a Coons quad grid. Border reuses loop verts."""
+    n = len(loop_idx)
+    a = n // 4
+    b = n // 2 - a
+    if 2 * (a + b) != n or a < 2 or b < 2:          # odd loop: fall back
+        faces.append(tuple(reversed(loop_idx)) if flip else tuple(loop_idx))
+        return
+    P = [Vector(verts[k]) for k in loop_idx]
+    grid = [[None] * (b + 1) for _ in range(a + 1)]
+    for i in range(a + 1):                          # bottom / top rows
+        grid[i][0] = loop_idx[i]
+        grid[i][b] = loop_idx[(2 * a + b - i) % n]
+    for j in range(b + 1):                          # left / right columns
+        grid[a][j] = loop_idx[(a + j) % n]
+        grid[0][j] = loop_idx[(n - j) % n]
+    c00, c10 = P[0], P[a]
+    c01, c11 = P[(2 * a + b) % n], P[(a + b) % n]
+    for i in range(1, a):
+        u = i / a
+        A_, C_ = P[i], P[(2 * a + b - i) % n]
+        for j in range(1, b):
+            v = j / b
+            B_, D_ = P[(a + j) % n], P[(n - j) % n]
+            co = ((1 - v) * A_ + v * C_ + (1 - u) * D_ + u * B_
+                  - ((1 - u) * (1 - v) * c00 + u * (1 - v) * c10
+                     + (1 - u) * v * c01 + u * v * c11))
+            grid[i][j] = len(verts)
+            verts.append((co.x, co.y, co.z))
+    for i in range(a):
+        for j in range(b):
+            q = (grid[i][j], grid[i + 1][j], grid[i + 1][j + 1], grid[i][j + 1])
+            faces.append(tuple(reversed(q)) if flip else q)
+
+
 def loft(rings, cap_first=False, cap_last=False, name="loft"):
     verts, faces = [], []
     n = len(rings[0])
@@ -223,10 +369,10 @@ def loft(rings, cap_first=False, cap_last=False, name="loft"):
             j = (i + 1) % n
             faces.append((a + i, a + j, b + j, b + i))
     if cap_first:
-        faces.append(tuple(range(n - 1, -1, -1)))
+        _coons_cap(list(range(n)), verts, faces, flip=True)
     if cap_last:
         o = (len(rings) - 1) * n
-        faces.append(tuple(range(o, o + n)))
+        _coons_cap(list(range(o, o + n)), verts, faces, flip=False)
     me = bpy.data.meshes.new(name)
     me.from_pydata(verts, [], faces)
     me.validate()
@@ -239,7 +385,7 @@ def loft(rings, cap_first=False, cap_last=False, name="loft"):
 # longitudinal profiles
 # ----------------------------------------------------------------------------
 # under-body / sill bottom edge
-ZB = lut([
+ZB = aft_lut([
     (-2.108, 0.468), (-2.086, 0.432), (-2.050, 0.408), (-2.000, 0.394),
     (-1.900, 0.393), (-1.600, 0.387), (-1.200, 0.386), (-0.400, 0.385),
     ( 0.400, 0.385), ( 1.000, 0.387), ( 1.500, 0.391), ( 1.800, 0.397),
@@ -250,7 +396,7 @@ ZB = lut([
 # KOMBI / MICROBUS  --  one continuous shell, nose to tail (SPEC.md §1)
 # ---------------------------------------------------------------------------
 # top edge: tail roll-down -> roof -> windscreen -> cowl -> nose cap
-ZT_ALL = lut([
+ZT_ALL = aft_lut([
     (-2.108, 1.452), (-2.098, 1.545), (-2.083, 1.634), (-2.060, 1.714),
     (-2.030, 1.782), (-1.994, 1.834), (-1.948, 1.867), (-1.892, 1.884),
     (-1.820, 1.8908), (-1.600, 1.8928), (-1.100, 1.8940), (-0.400, 1.8944),
@@ -261,18 +407,65 @@ ZT_ALL = lut([
     ( 2.096, 1.2620), ( 2.108, 1.1800),
 ])
 
-RT_ALL = lut([
-    (-2.108, 0.082), (-2.055, 0.062), (-1.970, 0.054), (-1.860, 0.052),
-    ( 1.700, 0.054), ( 1.790, 0.046), ( 1.830, 0.038), ( 1.990, 0.036),
+# --------------------------------------------------------------------------
+# rev 16 -- THE TRANSVERSE ROOF SECTION.  Re-fitted jointly with the roof edge.
+#
+# The defect is LOCAL to the roof/side junction and it was measured without any
+# datum, scale or ground line, as a difference between two features at the same
+# depth on the same flank of ref_side.jpg:
+#
+#     drip-rail groove  ->  serving-aperture top
+#         bay 3  6.16 px over 83 columns (sd 0.19)   28.3 mm
+#         bay 2  6.05 px over 83 columns (sd 0.19)   27.4 mm
+#         bay 1  6.13 px over 62 columns (sd 0.21)   27.5 mm
+#         adopted 27.7 +- 0.5 mm      built 68.6 mm  ->  the roll starts
+#                                                        41 mm TOO HIGH
+#
+# A 2 % error in k_t moves 27.7 mm by 0.6 mm, so this is effectively scale-free.
+#
+# LOFT_GROUND_rev15 sec.1.3 proposed spending that 41 mm (it said 63) on
+# ZT_ALL.  REJECTED, and the reason is a lock: the windscreen is anchored at
+# absolute P_TOP = (1.8340, 0, 1.7745) in t1_shell, and lowering ZT_ALL puts
+# the shell's top edge BELOW the screen's own top at that station -- the cutter
+# would open a notch to the sky.  The measurement is local to the roof/side
+# junction, so it is spent on the junction: RT_ALL (where the flank stops being
+# vertical) and CR_ALL (the crown), with ZT_ALL, the rake, the tail roll-down
+# and the windscreen all untouched.  SPEC sec.10.34.
+#
+# WHY 63 BECAME 41.  Not a scale error -- k_t = 215.5 px/m is VALIDATED here,
+# because belt -> aperture-top measures 500.9 mm against the locked 503.0
+# (-2.1 mm, 0.4 %).  It is a DATUM error: the hub-referenced chain puts the
+# locked belt at 1.2145 AG against the model's 1.2436, 29 mm low -- the same
+# common-mode signature SPEC sec.10.11 bans the ground line for.
+#
+#   roll start (gutter lip) authored   1.8027   -> RT_ALL = 1.8940 - zt0
+#   crown authored                     2.0119   -> CR_ALL = crown - 1.8940
+#   D = RT + CR = 0.2128               LOFT_GROUND sec.1.3: 0.2116 +- 0.035
+#   R = Yt^2/(2 CR) = 2.24 m at Yt = 0.7273     (2.45 stays refuted: it needs
+#                                                D = 0.172, not 0.213)
+#
+# R is a RE-EXPRESSION of D, not a second finding, and it moves with Yt -- so
+# it is quoted with its Yt or not at all.  D is the robust number.
+RT_ALL = aft_lut([
+    (-2.108, 0.082), (-2.055, 0.062), (-1.970, 0.054), (-1.900, 0.0750),
+    (-1.820, 0.0949), ( 1.640, 0.0949), ( 1.730, 0.0700), ( 1.790, 0.046),
+    ( 1.830, 0.038), ( 1.990, 0.036),
     ( 2.030, 0.030), ( 2.070, 0.045), ( 2.108, 0.085),
 ])
 
-CR_ALL = lut([
-    (-2.108, 0.012), (-2.000, 0.020), (-1.860, 0.028), ( 1.700, 0.032),
-    ( 1.810, 0.015), ( 2.030, 0.010), ( 2.108, 0.018),
+CR_ALL = aft_lut([
+    (-2.108, 0.012), (-2.000, 0.030), (-1.900, 0.0700), (-1.800, 0.1179),
+    ( 1.620, 0.1179), ( 1.730, 0.0700), ( 1.810, 0.020),
+    ( 2.030, 0.010), ( 2.108, 0.018),
 ])
 
-STATIONS = [
+# rev 16: the aft half of this list is passed through `_aft()` below, so the
+# numbers here stay as authored and the f-distribution that clusters them into
+# the corner roll is preserved exactly.  LOFT_GROUND_rev15 sec.3.3's tabulated
+# f values are reproduced by construction rather than re-typed -- re-typing a
+# table of 21 metre values against an origin that has already moved once is
+# precisely the mistake SPEC sec.10.7 was made of.
+STATIONS = [_aft(_x) for _x in [
     -2.108, -2.1015, -2.093, -2.081, -2.066, -2.047, -2.024, -1.998,
     -1.968, -1.934, -1.896, -1.855, -1.805, -1.745, -1.678, -1.605,
     -1.525, -1.440, -1.350, -1.255, -1.155, -1.050, -0.940, -0.825,
@@ -282,7 +475,7 @@ STATIONS = [
      1.812,  1.834,  1.860,  1.890,  1.920,  1.950,  1.978,  2.000,
      2.018,  2.034,  2.048,  2.062,  2.074,  2.085,  2.094,  2.1015,
      2.108,
-]
+]]
 
 
 def build_kombi():
@@ -294,7 +487,7 @@ def build_kombi():
     return loft(rings, cap_first=True, cap_last=True, name="T1_body")
 
 # maximum half width
-WX = lut([                     # SPEC r4: scaled x1.01744 for W 1.720 -> 1.750
+WX = aft_lut([                     # SPEC r4: scaled x1.01744 for W 1.720 -> 1.750
     (-2.108, 0.7122), (-2.075, 0.7733), (-2.030, 0.8262), (-1.965, 0.8597),
     (-1.880, 0.8730), (-1.700, 0.8750), ( 1.760, 0.8750), ( 1.845, 0.8730),
     ( 1.930, 0.8628), ( 2.010, 0.8404), ( 2.065, 0.8038), ( 2.092, 0.7651),
@@ -320,7 +513,7 @@ CR_CAB = lut([
     ( 0.420, 0.026), ( 1.700, 0.030), ( 1.810, 0.015), ( 2.010, 0.010),
     ( 2.108, 0.018),
 ])
-RB_ALL = lut([
+RB_ALL = aft_lut([
     (-2.108, 0.085), (-2.000, 0.105), (-1.900, 0.120), (-0.400, 0.122),
     ( 1.500, 0.122), ( 1.900, 0.116), ( 2.060, 0.100), ( 2.108, 0.085),
 ])

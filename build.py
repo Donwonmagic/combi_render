@@ -389,7 +389,14 @@ for s in (1, -1):
     # redder than that body.  Same-frame, same-light, same class (both are
     # coloured transmissive/painted surfaces under one source), so the
     # comparison is admissible under SPEC 10.21.
-    D.place(tl, loc=(-2.1040, s * 0.6200, 0.8250)); A(tl, "amber")
+    # rev 16: the lamp mounts ON the tail skin, so it moves with it.  It was
+    # authored at -2.1040 = X_TAIL_OLD + 0.0040; the tail re-space carries that
+    # 4.0 mm standoff forward rather than re-typing the station.  Left where it
+    # was, this pair became the rear-most objects on the vehicle by 258 mm and
+    # verify row 1's "length 4.291 vs spec 4.290" would have kept PASSING on a
+    # phantom -- the same failure shape as the counter_top length row the
+    # rev-12 audit found at audit.py:308.
+    D.place(tl, loc=(T.X_TAIL + 0.0040, s * 0.6200, 0.8250)); A(tl, "amber")
 
 # SPEC r4 8.3: roundel ring + strokes are painted RED on the cream nose
 # MEASURED: ring outer diameter 0.370 (was 0.336), centre 1.130 above ground.

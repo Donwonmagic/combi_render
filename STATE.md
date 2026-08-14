@@ -8,28 +8,29 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-14 02:26:17 UTC |
-| git commit | `18ee2af` |
-| git subject | rev 15: the three shader solves -- all three refuted, with the numbers |
+| generated | 2026-08-14 03:37:32 UTC |
+| git commit | `f6e5abc` |
+| git subject | rev 15: correct the restore recipe and the ancestor check, both caught by running them |
 | working tree | **DIRTY** — this state is not committed |
 | blender | 4.5.3 LTS |
-| subdivision | T1_SUB=1 (applied, destructive, before booleans) |
+| subdivision | T1_SUB=2 (applied, destructive, before booleans) |
 | geometry source | procedural, built this run |
 
 ## Guard result
 
-**VERIFY: 0 fail, 1 warn** at T1_SUB=1.
+**VERIFY: 0 fail, 1 warn** at T1_SUB=2.
 
 > A pass here is only a pass *at this subdivision level*. The cab-door gap
 > booleans passed at SUB=1 and collapsed the shell at SUB=2 for six
 > revisions. Run both.
 
 ```
-x range [-2.138, 2.160]   full-Y [-1.064, 1.150]
-dims  L=4.298 W=1.750 roof@rear-axle=1.894 (raw resid -66 mm; dome deficit +98 mm still unmodelled) (bbox top 3.009)
+x range [-1.905, 2.160]   full-Y [-1.064, 1.150]
+dims  L=4.065 W=1.750 roof@rear-axle=1.983 (raw resid +23 mm; dome deficit +0 mm still unmodelled) (bbox top 3.046)
+rear overhang 0.7730 m = 0.3221 of the wheelbase (measured 0.773 +- 0.022 m)
 measured TRACK_F=1.3713  TRACK_R=1.3613  TYRE_D=0.6650
 open serving apertures on +Y: 3
-roof at tail = 1.903
+roof at tail = 1.988
 roof aperture: open, and solid fore / aft / both sides
 shut line door+1: 100 % open
 shut line door-1: 100 % open
@@ -37,14 +38,14 @@ shut line cargo: 100 % open
 shut line englid: 100 % open
 band 1.372-1.775 un-dropped (1.307-1.710 AG)  bay widths 0.516 0.515 0.516
 VERIFY: 0 fail, 1 warn
-warn  roof crown @ rear axle (dome-corrected) 1.992 vs spec 1.960 (+32 mm)
+warn  roof crown @ rear axle (dome-corrected) 1.983 vs spec 1.960 (+23 mm)
 ```
 
 | | |
 |---|---|
 | cutters rolled back | none |
 | non-manifold edges (body) | 0 |
-| body faces | 49244 quad, 233 tri, 2836 ngon |
+| body faces | 240338 quad, 1108 tri, 4434 ngon |
 
 ## Measured dimensions
 
@@ -54,16 +55,16 @@ Shaders read the dropped frame, so `Z_BELT`/`V_APEX` are already AG.
 
 | dimension | measured | SPEC | delta |
 |---|---|---|---|
-| overall length (ex counter) | 4.2984 | 4.2900 | +8.4 mm ok |
-| counter tail overhang past body | 0.2916 | — | — |
-| overall width (body) | 1.7498 | 1.7500 | -0.2 mm ok |
-| overall height (max, any station) | 2.9799 | 1.9600 | +1019.9 mm **OUT** |
+| overall length (ex counter) | 4.0648 | 4.2900 | -225.2 mm **OUT** |
+| counter tail overhang past body | 0.2902 | — | — |
+| overall width (body) | 1.7497 | 1.7500 | -0.3 mm ok |
+| overall height (max, any station) | 3.0169 | 1.9600 | +1056.9 mm **OUT** |
 | _(rev 8: a single scalar height is the WRONG test now that the rake is modelled — 1.960 is the maximum of a sloping line, taken at its highest station. See the three-station roof line below. §2.3's inference that the roof-lid frame stands 0.10–0.15 m proud is **refuted** at ~13σ; measured proud height is 26 ± 7 mm.)_ | | | |
 | wheelbase | 2.4000 | 2.4000 | +0.0 mm ok |
 | track front | 1.3690 | 1.3690 | +0.0 mm ok |
 | track rear | 1.3590 | 1.3590 | +0.0 mm ok |
 | tyre diameter | 0.6650 | 0.6650 | +0.0 mm ok |
-| rocker to ground | 0.3175 | — | — |
+| rocker to ground | 0.3177 | — | — |
 | belt line @ x=0.962 (live) | 1.2070 | 1.2070 | +0.0 mm ok |
 | window sill @ x=0.962 | 1.3070 | 1.3070 | +0.0 mm ok |
 | window head @ x=0.962 | 1.7100 | 1.7100 | +0.0 mm ok |
@@ -78,11 +79,11 @@ signature. `Z_BELT` is a line too; see `t1_mats.z_belt(x)`.
 
 | station | x | roof z | belt z |
 |---|---|---|---|
-| front axle | +1.300 | 1.8541 | 1.2010 |
-| mid wheelbase | +0.100 | 0.3497 | 1.2223 |
-| rear axle | -1.100 | 1.8943 | 1.2436 |
+| front axle | +1.300 | 1.9399 | 1.2010 |
+| mid wheelbase | +0.100 | 0.3503 | 1.2223 |
+| rear axle | -1.100 | 1.9833 | 1.2436 |
 
-| roof line slope (measured off the mesh) | -16.8 mm/m |
+| roof line slope (measured off the mesh) | -18.1 mm/m |
 | rake coefficient applied | 17.8 mm/m (1.02°) |
 
 | stance | |
@@ -122,8 +123,8 @@ they grow slightly toward the tail. rev-3's three equal 0.600s are retired.
 | | |
 |---|---|
 | mesh objects | 181 |
-| vertices (all meshes) | 129898 |
-| faces (all meshes) | 124743 |
+| vertices (all meshes) | 325750 |
+| faces (all meshes) | 318090 |
 
 | prefix | n |
 |---|---|

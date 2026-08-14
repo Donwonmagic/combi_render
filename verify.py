@@ -28,7 +28,23 @@ import t1_core as _T
 #     5.5 mm shut line reads 26 % open instead of 100 %.
 #
 # _frame_dz() below carries (2) so the two never get confused again.
-SPEC = dict(L=4.290, W=1.750, H=1.941, WB=2.400,
+# rev 16.  L IS NO LONGER THE FACTORY FIGURE, and it is not re-typed either.
+#
+# 4.290 came from the 1950-67 T1 catalogue ("overall length 4280 mm over
+# bumpers").  The rear overhang has now been MEASURED dimensionlessly off
+# ref_side.jpg -- 0.3412 +- 0.0015 of the wheelbase against 0.4200 built -- and
+# it is 235 mm shorter than the catalogue.  The standing instruction on this
+# project is to never correct this vehicle toward the VW factory catalogue, so
+# the measurement wins and the target follows it.
+#
+# Written as an EXPRESSION, not as 4.055: it is the catalogue length minus the
+# tail correction actually applied in t1_core, so re-measuring the overhang can
+# never leave this row asserting a stale number.  The forward end of L is still
+# X_NOSE, which has never been measured -- the lamppost at ref_side.jpg columns
+# 62-79 occludes it and has produced three separate confident wrong numbers --
+# so this row is a REGRESSION CATCHER, not a measurement.  The measurement is
+# the new overhang row below, which is the quantity that was actually observed.
+SPEC = dict(L=4.290 - (_T.O_OLD - _T.O_NEW), W=1.750, H=1.941, WB=2.400,
             TRACK_F=1.369, TRACK_R=1.359, TYRE_D=0.665,
             # rev 8: REF_MEASUREMENTS sec.2.3 measures 1.960 on the fixed roof
             # aft of the lid opening, at the rear-axle station. That is the
@@ -54,7 +70,12 @@ SPEC = dict(L=4.290, W=1.750, H=1.941, WB=2.400,
 # number is still logged every run so the defect can never go quiet, and
 # DOME_DEFICIT MUST BE DRIVEN TO ZERO when the roof section is rebuilt -- at
 # which point this guard tightens automatically.
-DOME_DEFICIT = 0.098
+# rev 16: DRIVEN TO ZERO.  The transverse section was re-fitted jointly with
+# the roof edge (SPEC sec.10.34) -- RT_ALL 0.054 -> 0.0949 and CR_ALL 0.032 ->
+# 0.1179, D = 0.2128 against LOFT_GROUND sec.1.3's independently measured
+# 0.2116 +- 0.035.  The dome is now MODELLED, so there is no deficit left to
+# carry and this guard tightens automatically, as its own comment promised.
+DOME_DEFICIT = 0.000
 RIDE_DROP_SPEC = 0.065        # rev 6: the bus IS lowered. See SPEC sec.2.
 
 BANNED = ("bed", "gate", "canopy", "fascia", "post")   # pickup-era geometry
@@ -339,6 +360,34 @@ def run(body, log=print):
         f"(raw resid {(Hroof - SPEC['H_ROOF'])*1000:+.0f} mm; "
         f"dome deficit {DOME_DEFICIT*1000:+.0f} mm still unmodelled) "
         f"(bbox top {H:.3f})")
+
+    # 1b. THE REAR OVERHANG, rev 16.  This is the row that carries the actual
+    # measurement; row 1's L cannot, because its forward end is X_NOSE and
+    # X_NOSE has never been measured (lamppost, ref_side.jpg cols 62-79).
+    #
+    # Measured DIMENSIONLESSLY and stated the same way, so no metre scale, no
+    # origin and no ground line enters this guard:
+    #
+    #     rear overhang / wheelbase = 0.3412 +- 0.0015   in the IMAGE
+    #     -> 0.773 +- 0.022 m through the projective flank map
+    #     -> 0.773 / 2.400 = 0.3221 in the WORLD
+    #
+    # The image ratio and the world ratio are NOT the same number and must not
+    # be compared to each other -- the flank map is projective (u_vp ~ -11140),
+    # which is exactly what LOFT_GROUND sec.0.3 refuted REF sec.0.2 over. The
+    # world value is what a mesh can be tested against, so it is what is
+    # tested here.  Tolerance is the measurement's own +-0.022 m, widened to
+    # 0.030 m for mesh/subdivision slack, and NOT to swallow a regression: the
+    # value it replaced was 0.4200, which is 26 sigma away.
+    _ovh = _T.X_AXLE_R - min(v.x for v in
+                             (body.matrix_world @ v.co for v in
+                              body.data.vertices))
+    _d = _ovh - _T.O_NEW
+    (fails if abs(_d) > 0.030 else warns if abs(_d) > 0.015
+     else []).append(f"rear overhang {_ovh:.4f} vs measured {_T.O_NEW:.4f} "
+                     f"({_d*1000:+.0f} mm)")
+    log(f"  rear overhang {_ovh:.4f} m = {_ovh/SPEC['WB']:.4f} of the "
+        f"wheelbase (measured 0.773 +- 0.022 m)")
 
     # 2. wheelbase / track / tyre diameter, MEASURED
     m = _measure_wheels()

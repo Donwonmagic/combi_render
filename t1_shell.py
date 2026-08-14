@@ -215,15 +215,21 @@ REAR_W, REAR_H, REAR_Z = 1.0400, 0.3400, 1.4500
 def rear_cutter():
     pts = T.rrect(REAR_W, REAR_H, 0.060, seg=8)
     pts = [(u, v + REAR_Z) for (u, v) in pts]
-    return T.solid_prism((-2.20, 0, 0), (0, 1, 0), (0, 0, 1), (-1, 0, 0),
-                         pts, 0.40, name="cut_rear")
+    # rev 16: anchored to the tail skin, not to a constant.  The tail
+    # re-space moved X_TAIL -2.108 -> -1.873 and this cutter stayed at -2.20,
+    # so it sat entirely BEHIND the vehicle and was rolled back -- caught by
+    # verify's rolled-back-cuts row, not by prose.
+    return T.solid_prism((T.X_TAIL - 0.092, 0, 0), (0, 1, 0), (0, 0, 1),
+                         (-1, 0, 0), pts, 0.40, name="cut_rear")
 
 
 def rear_glass():
     pts = T.rrect(REAR_W - 0.008, REAR_H - 0.008, 0.060, seg=8)
     pts = [(u, v + REAR_Z) for (u, v) in pts]
-    return T.solid_prism((-2.0880, 0, 0), (0, 1, 0), (0, 0, 1), (-1, 0, 0),
-                         pts, 0.006, name="glass_rear")
+    # rev 16: 20.0 mm inboard of the tail skin, as authored (-2.0880 against
+    # the old X_TAIL of -2.1080), now expressed in terms of it.
+    return T.solid_prism((T.X_TAIL + 0.0200, 0, 0), (0, 1, 0), (0, 0, 1),
+                         (-1, 0, 0), pts, 0.006, name="glass_rear")
 
 
 # --------------------------------------------------------------- wheel arch
@@ -258,12 +264,87 @@ def arch_z(x):
 ARCH_Z = arch_z(T.X_AXLE_R)          # back-compat scalar; prefer arch_z(x)
 
 
+# ---------------------------------------------- rev 16: the REAR arch is not
+# a circle.  LOFT_GROUND_rev15 sec.2 traced the lip sub-pixel on the R channel
+# (185 of 232 columns) and fitted it four ways:
+#
+#     circle                                rms 11.41 mm
+#     symmetric power law, best window      rms  2.7-4.2 mm
+#     superellipse                          rms  2.67 mm
+#
+# so a circle is refuted overwhelmingly.  The EXPONENT is NOT used here: it is
+# window-dependent (3.50 at +-0.249 m, 4.28 at +-0.449 m), so 3.9 +- 0.2 is a
+# property of a choice of window, not of the arch.  The assumption-free
+# normalised profile TABLE is used instead, exactly as NEXT_CONTEXT sec.6.2
+# instructs.  Delta-x as a fraction of the half-width, drop as a fraction of
+# crown-to-foot; the |t| = 1.0 end point is the foot by definition.
+#
+# Two things about the rear arch are already RIGHT and must not move:
+#   * lip height above the hub at the crown 0.3726 +- 0.0052 m against the
+#     built ARCH_R = 0.3735 -- the RADIUS is right, the SHAPE is not;
+#   * the crown is centred on the rear axle to 0.2 px ~ 1 mm (column-only
+#     comparison, no scale at all).
+# What is wrong is the WIDTH: 0.92 +- 0.03 m measured (dimensionless form
+# width / rear rim flange OD = 2.158 +- 0.027) against 2*ARCH_R = 0.747 built.
+#
+# The FRONT arch is left circular on purpose.  It was never measured -- a man
+# stands directly in front of it in ref_side.jpg and every attempt to trace it
+# has locked onto his red shirt -- and widening it would bring the arch lip to
+# within 57 mm of the cab-door shut line's bottom run, which is the exact
+# geometry that collapsed the shell 205562 v -> 12 v for six revisions
+# (see the assert below and SPEC sec.10.1).
+ARCH_W_REAR = 0.920                  # LOFT_GROUND sec.2.5, +- 0.03 m
+_ARCH_PROFILE = [                    # (delta-x / half-width, drop / crown-to-foot)
+    (-1.00, 1.000), (-0.95, 0.754), (-0.90, 0.583), (-0.80, 0.370),
+    (-0.70, 0.246), (-0.60, 0.156), (-0.50, 0.117), (-0.40, 0.090),
+    (-0.30, 0.078), (-0.20, 0.074), (-0.10, 0.068), ( 0.00, 0.060),
+    ( 0.10, 0.014), ( 0.20, 0.057), ( 0.30, 0.058), ( 0.40, 0.076),
+    ( 0.50, 0.101), ( 0.60, 0.146), ( 0.70, 0.217), ( 0.80, 0.354),
+    ( 0.90, 0.593), ( 0.95, 0.754), ( 1.00, 1.000),
+]
+# The table is stated for the forward half at -0.90 and the aft half at +0.90
+# with 0.583 / 0.593 -- it is a TRACE, not a symmetric model, and the small
+# left/right difference is kept rather than averaged away.  The -0.95 point is
+# mirrored from +0.95, which the trace reached and the forward side did not.
+_ARCH_T = [p[0] for p in _ARCH_PROFILE]
+_ARCH_D = [p[1] for p in _ARCH_PROFILE]
+
+
+def _arch_drop(t):
+    """drop as a fraction of crown-to-foot, at delta-x/half-width = t"""
+    return float(np.interp(t, _ARCH_T, _ARCH_D))
+
+
+def rear_arch_outline(x_axle, n=96, floor=-0.400):
+    """Closed (dx, dz) outline of the rear arch cutter, about (x_axle, arch_z).
+
+    dz is measured from the AXLE CENTRE, so the crown sits at +ARCH_R and the
+    concentricity that ref_side.jpg confirms to ~1 mm is structural here rather
+    than a comment.
+    """
+    a = ARCH_W_REAR / 2.0
+    z_foot = T.ZB(x_axle) - arch_z(x_axle)       # rocker underside, axle frame
+    h = ARCH_R - z_foot                          # crown-to-foot
+    pts = []
+    for i in range(n + 1):
+        t = -1.0 + 2.0 * i / n
+        pts.append((t * a, ARCH_R - h * _arch_drop(t)))
+    pts.append(( a, floor))
+    pts.append((-a, floor))
+    return pts
+
+
 def arch_cutters():
     obs = []
-    for x in (T.X_AXLE_F, T.X_AXLE_R):
-        for s in (1, -1):
-            obs.append(T.cylinder((x, s * 0.735, arch_z(x)), (0, 1, 0), ARCH_R,
-                                  0.62, seg=80, name=f"arch{x:.0f}{s}"))
+    for s in (1, -1):
+        obs.append(T.cylinder((T.X_AXLE_F, s * 0.735, arch_z(T.X_AXLE_F)),
+                              (0, 1, 0), ARCH_R, 0.62, seg=80,
+                              name=f"arch{T.X_AXLE_F:.0f}{s}"))
+    pts = rear_arch_outline(T.X_AXLE_R)
+    for s in (1, -1):
+        obs.append(T.solid_prism((T.X_AXLE_R, s * 0.735, arch_z(T.X_AXLE_R)),
+                                 (1, 0, 0), (0, 0, 1), (0, 1, 0),
+                                 pts, 0.62, name=f"arch{T.X_AXLE_R:.0f}{s}"))
     return obs
 
 
@@ -327,6 +408,7 @@ def door_gaps():
 # verify.py can assert positively that the shut lines exist in the geometry.
 CARGO_GAP = [(u + 0.2000, v + 1.1380)
              for (u, v) in T.rrect(1.3600, 1.4100, 0.045, seg=6)]
+ENGLID_CUT_DX = float(os.environ.get("T1_ENGLID_DX", "0.158"))
 ENGLID_GAP = [(u, v + 0.8700)
               for (u, v) in T.rrect(0.9400, 0.5000, 0.055, seg=6)]
 
@@ -348,8 +430,10 @@ def cargo_door_gaps():
 
 
 def engine_lid_gap():
-    return [T.gap_prism((-1.95, 0, 0), (0, 1, 0), (0, 0, 1), (-1, 0, 0),
-                        ENGLID_GAP, GAPW, 0.55, name="gap_englid")]
+    # rev 16: was -1.95, i.e. 158 mm inboard of the old tail skin.
+    return [T.gap_prism((T.X_TAIL + ENGLID_CUT_DX, 0, 0), (0, 1, 0),
+                        (0, 0, 1), (-1, 0, 0), ENGLID_GAP, GAPW, 0.55,
+                        name="gap_englid")]
 
 
 # ------------------------------------------------------------- closed ragtop
@@ -496,7 +580,16 @@ def roof_cutters():
         "roof cutter bottom z=%.4f is within 20 mm of the window head %.4f -- "
         "it would cut the header rail, not the roof" % (zlo, Z_HEAD))
 
-    return [T.solid_prism((cx, cy, zlo), (1, 0, 0), (0, 1, 0), (0, 0, 1),
+    # rev 16 BUG FIX, exposed by the re-fitted crown.  T.solid_prism extrudes
+    # +-depth/2 about its ORIGIN (t1_core._frame), so passing `zlo` as the
+    # origin put the prism's top at zlo + (zhi-zlo)/2, i.e. only halfway up the
+    # span it was computed to cover.  At the old CR_ALL = 0.032 the crown was
+    # so shallow that the prism still cleared the roof by 6 mm and the cut
+    # worked by luck; at CR_ALL = 0.1179 it stops 18 mm short and the aperture
+    # centre goes back to being sealed steel -- caught by verify 11d2, which is
+    # exactly the failure that guard was written for.
+    return [T.solid_prism((cx, cy, (zlo + zhi) / 2.0),
+                          (1, 0, 0), (0, 1, 0), (0, 0, 1),
                           pts, zhi - zlo, name="cut_roof")]
 
 

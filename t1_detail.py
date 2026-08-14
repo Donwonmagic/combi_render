@@ -297,7 +297,9 @@ def bumper(front=True, z=0.4800, name="bumper"):
             seq.append((nose[0], -nose[1] + 2 * nose[1] * i / 12))
         seq += [(x, y) for (x, y) in reversed(raw)]
     else:
-        raw = _plan_curve(z, -1.775, -2.108, 28)        # x decreasing
+        # rev 16: anchored to the tail skin (was -1.775 / -2.108, i.e.
+        # X_TAIL_OLD + 0.333 and X_TAIL_OLD exactly).
+        raw = _plan_curve(z, T.X_TAIL + 0.333, T.X_TAIL, 28)   # x decreasing
         tail = raw[-1]
         seq = [(x, y) for (x, y) in raw]
         for i in range(1, 12):                          # flat tail face
@@ -317,7 +319,7 @@ def bumper(front=True, z=0.4800, name="bumper"):
 
 def bumper_irons(front=True):
     obs = []
-    x = 2.045 if front else -2.030
+    x = 2.045 if front else (T.X_TAIL + 0.078)   # rev 16: was -2.030
     z0, z1 = 0.470, 0.585
     for s in (1, -1):
         pts = T.rrect(0.062, 0.030, 0.010, seg=3)
@@ -509,7 +511,15 @@ def moulding(z=1.372):
 # OVERHANGING the body", and ref_side.jpg measures the overhang at ~0.33 m.
 # The fix is one line in verify.py (see visibility_fails() at the bottom of
 # this file for the exact text).  Do not shorten the counter to silence it.
-CNT_X0, CNT_X1 = 0.9180, -2.4230
+CNT_X0 = 0.9180
+# rev 16: the counter's tail wrap is a MEASURED OVERHANG past the body, not
+# an absolute station -- ref_side.jpg puts the cream fascia's aft edge ~65 px
+# behind the rearmost sheet metal, 0.29 m at the tail's own longitudinal
+# scale, and the built overhang was X_TAIL_OLD - (-2.4230) = 0.3150 m.  The
+# tail re-space moves X_TAIL 235 mm forward, so the counter moves with it and
+# the overhang is preserved by construction rather than by luck.
+CNT_OVERHANG = 0.3150
+CNT_X1 = T.X_TAIL - CNT_OVERHANG
 CNT_ZT, CNT_ZB = 1.2540, 1.1470             # 107 mm thick
 CNT_Y_IN, CNT_Y_OUT = 0.8450, 1.1660        # 321 mm plan depth
 # INFERRED, not measured.  ref_rear34.jpg shows the cream slab and its gold
@@ -531,7 +541,9 @@ CNT_NOSE_F = 0.1860
 CNT_XA = CNT_X1 + CNT_R                     # -2.173  tail arc tangent point
 CNT_YA = CNT_Y_OUT - CNT_R                  #  1.016  tail arc tangent point
 CNT_X_IN = CNT_X1 + (CNT_Y_OUT - CNT_Y_IN)  # -2.002  tail leg inner face
-CNT_BRACKETS = (0.780, 0.120, -0.560, -1.080, -1.800)
+# rev 16: aft brackets re-spaced with the shell they hang off.
+CNT_BRACKETS = tuple(T._aft(_b) for _b in
+                     (0.780, 0.120, -0.560, -1.080, -1.800))
 
 
 def _counter_outer(side=1, seg=8):
@@ -718,12 +730,19 @@ def gutter():
     prof = [(0.0000, 0.0000), (0.0135, -0.0025), (0.0160, -0.0100),
             (0.0120, -0.0155), (0.0035, -0.0140), (0.0000, -0.0090)]
     obs = []
-    xs = [-1.880 + (1.806 + 1.880) * (i / 60) for i in range(61)]
+    # rev 16: the aft end follows the re-spaced shell.
+    _gx0 = T._aft(-1.880)
+    xs = [_gx0 + (1.806 - _gx0) * (i / 60) for i in range(61)]
     for s in (1, -1):
         path = []
         for x in xs:
             zt, rt = T.ZT_ALL(x), T.RT_ALL(x)
-            z = zt - rt * 0.72
+            # rev 16: RT_ALL grows 0.054 -> 0.0949 with the re-fitted roof
+            # section, so `zt - 0.72*rt` is a constant tuned against another
+            # constant and would drag the drip rail 28 mm up the new roll.
+            # Expressed in terms of what it was tuned against: at rt = 0.054
+            # the old form sat 0.01512 above the roll start zt0 = zt - rt.
+            z = (zt - rt) + 0.01512
             path.append((x, s * (T.WX(x) * T.G(z) + 0.0015), z + 0.004))
         pr = [(a * -s, b) for (a, b) in prof]
         obs.append(T.sweep(path, pr, up=(0, 0, 1), name=f"gutter{s}"))
@@ -1109,7 +1128,9 @@ def conform_panel_true(body, x0, x1, z0, z1, side, off=0.0016, nx=40, nz=14,
 # Built HORIZONTAL in the body frame.  Rake measured +3.9 deg but the peak is
 # broad (+2.2 ... +4.5) and confounded by JPEG block alignment, and 0-4 deg
 # nose-up is not excluded, so horizontal is the defensible choice.
-LOUV_X0, LOUV_X1 = -1.2850, -1.6700
+# rev 16: the rear-quarter air-intake louvre block is a station set on the
+# quarter panel and re-spaces with it.
+LOUV_X0, LOUV_X1 = T._aft(-1.2850), T._aft(-1.6700)
 LOUV_N = 10
 LOUV_Z_TOP, LOUV_Z_BOT = 1.0850, 0.8950
 LOUV_PITCH = (LOUV_Z_TOP - LOUV_Z_BOT) / (LOUV_N - 1)          # 0.021111
@@ -1153,7 +1174,11 @@ def louvres(nx=13):
 # INFERRED -- SPEC gives no coordinate and the flap is on the side neither
 # photograph shows.  Placed one flap-width aft of the louvre block, centred on
 # the louvre band.
-FLAP_X, FLAP_Z, FLAP_W, FLAP_H = -1.7950, 1.0100, 0.1450, 0.1450
+# rev 16: FLAP_X is a station on the rear quarter, so it re-spaces with the
+# shell.  Left at -1.7950 it would sit 78 mm forward of the tail skin, i.e.
+# on the corner roll rather than on the quarter panel.
+FLAP_X = T._aft(-1.7950)
+FLAP_Z, FLAP_W, FLAP_H = 1.0100, 0.1450, 0.1450
 
 
 def filler_flap():
@@ -1267,7 +1292,10 @@ def bobble_fringe():
 # BULB_R stays 0.0110 -- 22 mm diameter against a 28.6 mm pitch still leaves
 # air between them, which is what the photograph shows.  At the old pitch the
 # spacing was the defect, not the size.
-BULB_X0, BULB_X1, BULB_PITCH, BULB_R = -1.8000, 1.7000, 0.0286, 0.0110
+# rev 16: BULB_X0 re-spaced with the drip rail it hangs from.  BULB_PITCH is
+# a MEASURED 28.8 +- 2.0 mm and must NOT be re-spaced -- the string does not
+# stretch, it just runs out sooner.
+BULB_X0, BULB_X1, BULB_PITCH, BULB_R = T._aft(-1.8000), 1.7000, 0.0286, 0.0110
 
 
 def bulb_string(side=1):
@@ -1275,7 +1303,10 @@ def bulb_string(side=1):
     wire, verts, faces = [], [], []
     for i in range(n + 1):
         x = BULB_X0 + (BULB_X1 - BULB_X0) * i / n
-        z = T.ZT_ALL(x) - T.RT_ALL(x) * 0.72
+        # rev 16: same re-expression as t1_detail.gutter() -- the bulb string
+        # hangs off the drip rail, so it must follow the roll START, not a
+        # fraction of a roll radius that has since changed.
+        z = (T.ZT_ALL(x) - T.RT_ALL(x)) + 0.01512
         y = side * (T.WX(x) * T.G(z) + 0.0180)
         wire.append((x, y, z - 0.0060))
         _ball(verts, faces, (x, y + side * 0.0020, z - 0.0245), BULB_R,
@@ -1443,7 +1474,11 @@ def plate_1963(body=None):
 
     The frame is therefore scaled in Z ONLY, by _PV, holding PLATE_W.
     """
-    x = -2.1070                                   # measured tail skin at z 0.78
+    # rev 16: was -2.1070, fitted to the ARTEFACT tail surface at -2.1066
+    # that the 110-gon cap pulled 1.4 mm forward.  With the Coons grid cap
+    # the skin is flat at X_TAIL, so a re-typed constant would put this 1.0 mm
+    # INSIDE the bodywork.  LOFT_GROUND sec.4.3 item 3.
+    x = T.X_TAIL - 0.0004                         # 0.4 mm proud of the skin
     rails = [(0.0, PLATE_Z + PLATE_H / 2 + _PR_GAP, PLATE_W, _PR_TOP),
              (0.0, PLATE_Z - PLATE_H / 2, PLATE_W, _PR_BOT),
              (-PLATE_W / 2 + _PR_SIDE / 2, PLATE_Z + _PR_OFF, _PR_SIDE, PLATE_H),
@@ -1547,7 +1582,8 @@ def englid_handle():
     The rev-15 move is in Z ONLY -- x, size and material are untouched, and
     since the aft extent is an x quantity the length guard is unaffected.
     """
-    x = -2.1070               # tail skin: -2.1074 at z 0.79, -2.1061 at z 0.51
+    # rev 16: same re-anchor as plate_1963 -- see LOFT_GROUND sec.4.3 item 3.
+    x = T.X_TAIL - 0.0004     # 0.4 mm proud of the (now flat) tail skin
     z = PLATE_OUTER_CZ - ENGLID_HANDLE_DROP
     base = T.revolve([(0.0000, 0.0000), (0.0000, 0.0250), (0.0075, 0.0235),
                       (0.0100, 0.0170)], seg=24, axis='X', name="englid_esc")
@@ -2150,9 +2186,14 @@ def galley_dressing():
     # stands beside the caddies on the tail run of the counter.  Kept forward
     # of x = -2.10: verify row 1 measures overall length across every mesh
     # object except the counter itself and the margin is 17 mm.
-    for i, (bx, col) in enumerate(((-1.8600, GAL_RED), (-1.9250, GAL_AMBER),
-                                   (-1.9900, GAL_RED),
-                                   (-2.0550, (0.5400, 0.4200, 0.0700)))):
+    # rev 16: these stand on the counter's TAIL RUN, so they move with the
+    # counter (delta = X_TAIL - X_TAIL_OLD), not with the shell stations.
+    _dtail = T.X_TAIL - T.X_TAIL_OLD
+    for i, (bx, col) in enumerate(((-1.8600 + _dtail, GAL_RED),
+                                   (-1.9250 + _dtail, GAL_AMBER),
+                                   (-1.9900 + _dtail, GAL_RED),
+                                   (-2.0550 + _dtail,
+                                    (0.5400, 0.4200, 0.0700)))):
         A(_gcyl(f"gal_bot{i}", (bx, 1.0300, CNT_ZT), (0, 0, 1), 0.0195,
                 0.1350, seg=14), m_pale)
         A(_gcyl(f"gal_botcap{i}", (bx, 1.0300, CNT_ZT + 0.1350), (0, 0, 1),
