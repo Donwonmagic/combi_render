@@ -1903,6 +1903,46 @@ check-what-the-probe-can-physically-see.
 solved, still not part-tuned toward a target on a lever measured to be the wrong
 one.
 
+**FOLLOW-UP: THE PEDESTAL IS NOT DUST EITHER, AND IT IS STILL UNIDENTIFIED.**
+`T1_CTAN_DUST`, `T1_CTAN_WEAR` and `T1_CTAN_FADE` were added (defaults
+unchanged; the unset arm reproduces the control to five decimals) so the colour
+chain could be ablated one lever at a time. Top linear against the control
+`(0.12107, 0.09953, 0.07388)`:
+
+| arm | top linear | change |
+|---|---|---|
+| `T1_CTAN_DUST=0` | 0.12604 0.10813 0.08368 | **+4.1 / +8.6 / +13.3 %** |
+| `T1_CTAN_WEAR=0` | 0.12720 0.10458 0.07666 | +5.1 / +5.1 / +3.8 % |
+| `T1_CTAN_FADE=0` | 0.11965 0.09768 0.07116 | -1.2 / -1.9 / -3.7 % |
+| `T1_CTAN_SP=0 T1_CTAN_CT=0` | 0.11728 0.09587 0.06865 | -3.1 / -3.7 / -7.1 % |
+| **`COUNTERTAN` -> near-black** | 0.08518 0.06973 0.05511 | **-29.6 / -29.9 / -25.4 %** |
+
+**The dust hypothesis is REFUTED -- and it was helping**, not hurting: removing
+it takes the residual from (+0.107, +0.008, +0.074) to (+0.133, +0.058, +0.143).
+Note also that §10.31c's "coat and spec move it only 2.3-5.6 %" was measured on
+the RATIO, which cancels common-mode; on the top's ABSOLUTE radiance the answer
+is 3.1-7.1 %, i.e. the same conclusion by a statistic that could have disagreed.
+
+So dust, wear, fade, coat+spec and interreflection are **all excluded**, and
+together they account for roughly a fifth of a pedestal that is **~69 %** of the
+top's radiance (fitting `R = kA + P` through the two albedo points gives
+`P = 0.0839` against `R = 0.12107`). **THE SOURCE IS NOT IDENTIFIED. Nothing
+should be tuned until it is.**
+
+**A HYPOTHESIS TESTED AND THE TEST DISCARDED, not the hypothesis confirmed.**
+rev 15 found in `solve_mural` that the mask was rendered from the object in
+ISOLATION while the measured frame was rendered with the whole scene, so the
+mask covered pixels where something else stands in front -- its rule was
+"isolate the object in the measured render, not only in the mask". **That fix
+was never applied to `solve_ctan`**, whose `top` mask is built the same way and
+whose frame contains napkin dispensers, bottles and the brass nosing. The
+obvious per-pixel test -- render at two albedos and ask which mask pixels moved
+-- **cannot work at 48 samples: the seed-to-seed noise is 21.7 % per pixel
+(median), which is larger than the effect being looked for.** The probe also
+failed to reproduce the solve's own control, so it was discarded rather than
+read. The occlusion hypothesis is therefore **OPEN and untested**, and the test
+needs either a much higher sample count or an object-index pass.
+
 
 ## Change log
 

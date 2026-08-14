@@ -1749,8 +1749,29 @@ def build_all():
     apply_weather(M["cream"], dust=1.0, wear=WEAR[M["cream"].name],
                   fade=1.0, peel=1.0, fadev=FADEV_CREAM)
     # group minus peel (not sprayed sheet metal), dust weighted up
-    for k in ("countertan", "capred"):
-        apply_weather(M[k], dust=1.4, wear=WEAR[M[k].name], fade=1.0, peel=0.0)
+    #
+    # rev 20, SPEC 10.56: `countertan`'s dust is now overridable so it can be
+    # ABLATED.  The interreflection test measured that ~70 % of the counter
+    # top's rendered radiance does NOT come from `COUNTERTAN` -- a 96.6 %
+    # albedo cut moves it only 29.6 % -- and interreflection (9.0/8.2/6.0 %)
+    # and coat+spec (2.3-5.6 %, 10.31c) are both far too small to account for
+    # it.  `W_DUST_COL_UP` is a settled-ochre film whose colour is INDEPENDENT
+    # of the base albedo by construction, so a high-coverage dust mix is the
+    # remaining candidate and this is the lever that tests it.  Default 1.4 is
+    # unchanged, so the shipped build is untouched.
+    # rev 20: `wear` is overridable for the same reason and it is the next
+    # candidate after dust was excluded.  The chip path replaces the shaded
+    # colour with W_PRIMER and then W_STEEL -- both CONSTANTS, independent of
+    # the base albedo -- so a high wear on an upward-facing panel is exactly
+    # the shape of a base-independent pedestal.  `countertan` carries
+    # WEAR = 0.7, the joint-highest on the vehicle.  Defaults unchanged.
+    _CTAN_DUST = float(os.environ.get("T1_CTAN_DUST", 1.4))
+    _CTAN_WEAR = float(os.environ.get("T1_CTAN_WEAR",
+                                      WEAR[M["countertan"].name]))
+    apply_weather(M["countertan"], dust=_CTAN_DUST, wear=_CTAN_WEAR,
+                  fade=float(os.environ.get("T1_CTAN_FADE", 1.0)), peel=0.0)
+    apply_weather(M["capred"], dust=1.4, wear=WEAR[M["capred"].name],
+                  fade=1.0, peel=0.0)
     for k in ("countercream", "wheelcream", "capwhite"):
         apply_weather(M[k], dust=1.4, wear=WEAR[M[k].name], fade=1.0, peel=0.0,
                       fadev=FADEV_CREAM)
