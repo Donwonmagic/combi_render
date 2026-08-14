@@ -97,6 +97,23 @@ def cyclorama(size=90.0, **kw):
     # next attempt should look at why the catcher writes no alpha under a
     # vehicle that plainly occludes the rig, NOT at softening or lengthening a
     # shadow that does not exist. T1_CATCH=0 reproduces the A/B in one render.
+    #
+    # rev 17, and the paragraph above is PARTLY WRONG -- corrected by the matte
+    # tap, which is the first thing in this project that could look at the
+    # alpha directly (see matte_tap.__doc__ for the full numbers). On a 400x300
+    # hero34f the catcher's alpha is NOT identically zero: there is a large
+    # soft pool under and to the left of the vehicle reaching alpha 0.4980,
+    # 19.1 % of the frame is non-zero more than 4 px clear of the silhouette,
+    # and the subject-deleted control puts the same far field at 1/174 of that
+    # mean, so it is the vehicle's shadow and not noise. The beauty frame does
+    # carry it: 249.31 DN mean where 0 < alpha < 1 against 255.00 where
+    # alpha == 0. So the open item is NOT "the catcher writes no alpha"; it is
+    # "the catcher's shadow survives the alpha-over at a few code values".
+    # The rev-12 measurement is not thereby refuted -- it was a SIDE ORTHO with
+    # T1_BGW=1.0 and read rows below the contact patch, where this view also
+    # shows the pool at its weakest (mean alpha 0.0038 in the 4-30 px band
+    # directly below the silhouette). `optics-6` stays OPEN, with a different
+    # symptom.
     ob.is_shadow_catcher = bool(int(os.environ.get("T1_CATCH", "1")))
     return ob
 
@@ -728,6 +745,157 @@ def composite_on_white(scene, rgb=None, optics=True):
     return log
 
 
+# -------------------------------------------------------------- the matte
+def matte_tap(scene, outdir, log=print):
+    """File Output node tapping the render's OWN alpha, written BESIDE the frame.
+
+    THE DEFECT, re-measured here and NOT taken on trust (SPEC 10.30h,
+    HANDOFF_rev14): `composite_on_white` ends in an AlphaOver whose background
+    is an opaque RGB node, so the alpha that reaches the Composite output is 1
+    everywhere.  Confirmed on a 400x300 hero34f through the real compositor,
+    16-bit RGBA PNG: alpha min 255, max 255, unique [255], 1 distinct value.
+    The file HAS an alpha channel and it carries no information, exactly as
+    recorded.  Nothing downstream of the AlphaOver can recover the silhouette,
+    so the separation has to be taken UPSTREAM of it -- straight off Render
+    Layers `Alpha` -- and written to its own file.
+
+    THE CONTRACT IS post.py'S, not a new one.  Read out of `post._mask`:
+
+        mi = np.asarray(Image.open(o["matte"]).convert("L")).astype(np.float64)
+        if mi.shape != srgb.shape[:2]: sys.exit(...)
+        return 1.0 - mi / 255.0, "matte %s (white=subject)"
+
+    so the file must be (a) openable by PIL, (b) EXACTLY the frame's HxW, (c)
+    read as WHITE = SUBJECT on a 0-255 scale, and (d) linear in coverage,
+    because `backdrop_headroom` lerps its scale by that value across the
+    anti-aliased silhouette.  Three settings follow from (c) and (d) and each
+    one is load-bearing:
+
+      * color_mode 'BW'.  `convert("L")` on an RGBA file takes the LUMA of RGB
+        and throws the alpha away, so an RGBA matte would hand post.py the
+        beauty image, not the matte.
+      * color_depth '8'.  setup_render puts the beauty frame at 16 bit (audit
+        optics-16) and that is right for the beauty frame, but PIL reads a
+        16-bit GREY png as mode "I" and `convert("L")` then CLIPS at 255
+        instead of scaling -- every alpha above 255/65535 would come back as
+        subject.  Measured below.
+      * color_management OVERRIDE + view transform 'Raw'.  A File Output slot
+        otherwise inherits the scene view transform, and this scene runs
+        AgX/Punchy, which is a heavy S-curve: alpha 1.0 would be written as
+        display ~232 and alpha 0.5 as ~180, so the matte would neither be
+        white on the subject nor linear in coverage.  'Raw' is the identity.
+
+    This is a TAP, not a change of output.  The claim to make is that the
+    Composite chain is untouched, and BYTE-IDENTITY IS NOT THE TEST THAT SHOWS
+    IT, because this pipeline is not bit-reproducible against itself: two
+    400x300 hero34f renders with the tap OFF and nothing else changed differ by
+    max 40 DN, mean 0.2465 DN, over 12.86 % of pixels (OIDN and adaptive
+    sampling).  So two tests are given instead, and the second is the real one:
+
+      * numerically, tap-ON sits INSIDE that null.  off_A vs off_B max 40 /
+        mean 0.2465 / 12.86 % ; off_A vs ON max 41 / mean 0.2458 / 12.85 % ;
+        off_B vs ON max 41 / mean 0.2438 / 12.82 %.  The tap is not
+        distinguishable from re-running the same render.
+      * structurally, the subgraph reachable backwards from the Composite node
+        -- every node type, every input default, every incoming link -- is
+        serialised before and after `matte_tap` and compares EQUAL.  The tap
+        adds one leaf hanging off Render Layers and touches nothing else.
+
+    It is opt-in via T1_MATTE=1 regardless, so the shipped path does not even
+    gain the node.
+
+    WHAT THE MATTE ACTUALLY MEASURES, 400x300 hero34f, 16 samples, T1_SUB=1,
+    and this is the whole point of the item -- the alpha now carries
+    information where the beauty PNG's carried one value:
+
+        beauty PNG alpha   min 255  max 255  1 unique value
+        matte              min 0.0000  max 1.0000  256 unique values
+                           26.00 % of pixels strictly between 0 and 1
+                           subject cover (a > 0.5)   26.1475 %
+                           backdrop cover (1-a > 0.5) 73.8525 %
+
+    against the heuristic mask on the SAME frame at 69.4150 % backdrop (the
+    recorded 67.76 % is the same heuristic on the shipped hero).  The two
+    disagree in ONE direction only: 0 px are subject in the matte and backdrop
+    in the heuristic, and 5325 px are the reverse.  Vertical orientation is
+    checked rather than assumed -- subject IoU against the heuristic is 0.8549
+    upright and 0.5542 flipped.
+
+    NEGATIVE CONTROL, because an all-255 matte and a correct matte both
+    "exist": the same rig rendered with the subject deleted (cyclorama +
+    lighting + camera, no vehicle) gives cover 0.0000 % and mean alpha
+    0.000069 against 0.267238 -- a factor of 3900.  Its residual is 1.40 % of
+    pixels at 1/255-9/255, Monte-Carlo noise concentrated in the top two rows
+    where the 1.5 px reconstruction filter loses support; far from the
+    silhouette the subject arm carries 174x the control's mean alpha.
+
+    AND IT REFUTES PART OF THE RECORD.  `cyclorama`'s rev-12 note says the
+    shadow catcher's alpha "is not there at all, alpha is identically zero".
+    On this view it is not: the matte shows a large soft pool under and to the
+    left of the vehicle reaching alpha 0.48, 19.1 % of the frame is non-zero
+    more than 4 px clear of the silhouette, and the beauty frame is 249.31 DN
+    mean where 0 < alpha < 1 against 255.00 where alpha == 0.  The catcher is
+    writing a shadow.  What is true is that the shadow is FAINT -- a few code
+    values -- which is a different defect from the one recorded, and it is not
+    fixed here.
+
+    WITH T1_BORDER (hero.py's strips): the tap writes a FULL-SIZE matte with
+    content only in the rendered band -- measured on a y 0.500-1.000 border at
+    400x300, alpha is non-zero only in rows 0-149 -- so the strips' mattes
+    stitch under exactly the row-ownership rule hero.py already uses for the
+    beauty strips.  hero.py does not do that today and this file cannot make
+    it; until it does, the matte for a stripped hero has to come from a
+    single-pass render.
+    """
+    scene.use_nodes = True
+    nt = scene.node_tree
+    rl = next((n for n in nt.nodes if n.type == 'R_LAYERS'), None)
+    if rl is None:                          # e.g. transparent=False, no optics
+        rl = nt.nodes.new("CompositorNodeRLayers")
+        rl.location = (-900, 0)
+    fo = nt.nodes.new("CompositorNodeOutputFile")
+    fo.name = fo.label = "__matte_tap"
+    fo.location = (rl.location[0] + 250, rl.location[1] - 760)
+    fo.base_path = outdir
+    f = fo.format
+    f.file_format = 'PNG'
+    f.color_mode = 'BW'
+    f.color_depth = '8'
+    f.compression = 15
+    f.color_management = 'OVERRIDE'
+    f.view_settings.view_transform = 'Raw'
+    f.view_settings.look = 'None'
+    f.view_settings.exposure = 0.0
+    f.view_settings.gamma = 1.0
+    nt.links.new(rl.outputs["Alpha"], fo.inputs[0])
+    if not scene.render.film_transparent:
+        # NOT silently tolerated: with an opaque film the alpha is 1 everywhere
+        # and the matte would be a plausible-looking all-white file.
+        log("  matte tap: WARNING film_transparent is OFF -- the film alpha is "
+            "1 everywhere, so this matte will be blank (all subject)")
+    log("  matte tap: RLayers.Alpha -> File Output, PNG/BW/8/Raw, base %s"
+        % outdir)
+    return fo
+
+
+def _matte_collect(fo, scene, outdir, stem, log=print):
+    """Rename the frame-numbered File Output file to `<stem>_matte.png`.
+
+    A File Output slot always appends the frame number, so the node writes
+    `<stem>_matte0001.png`.  post.py takes a literal path, and hero.py's
+    documented recipe is `--matte out/<tag>_matte.png`, so the number is taken
+    off here.  If the file is not there this RAISES: a missing matte that is
+    silently skipped is exactly the failure mode this item exists to fix.
+    """
+    src = os.path.join(outdir, "%s_matte%04d.png" % (stem, scene.frame_current))
+    dst = os.path.join(outdir, "%s_matte.png" % stem)
+    if not os.path.exists(src):
+        raise RuntimeError("matte tap produced no file at %s" % src)
+    os.replace(src, dst)
+    log("  matte -> %s" % dst)
+    return dst
+
+
 # ------------------------------------------------------------------- render
 def setup_render(res=(1600, 1100), samples=64, transparent=False):
     sc = bpy.context.scene
@@ -916,11 +1084,17 @@ def _cull_foreground(loc, tgt, margin=2.20, log=print):
 
 
 def render_set(names, outdir, prefix="r", res=(1600, 1100), samples=64,
-               transparent=True, log=print):
+               transparent=True, log=print, matte=None):
     sc = setup_render(res, samples, transparent)
     fx = []
     if transparent:
         fx = composite_on_white(sc)
+    # OPT-IN. build.py is the only entry point and it does not pass kwargs, so
+    # the flag has to be an environment variable like every other switch here.
+    # Default OFF, so the shipped path is untouched -- see matte_tap.__doc__.
+    mt = None
+    if matte if matte is not None else _envi("T1_MATTE", 0):
+        mt = matte_tap(sc, outdir, log=log)
     cam = bpy.context.scene.camera or camera()
     V = views()
     os.makedirs(outdir, exist_ok=True)
@@ -961,5 +1135,9 @@ def render_set(names, outdir, prefix="r", res=(1600, 1100), samples=64,
             log("cam %-9s ortho %.3f  (no DoF)" % (n, v.get("ortho") or 0))
         sc.render.resolution_x, sc.render.resolution_y = res
         sc.render.filepath = os.path.join(outdir, f"{prefix}_{n}.png")
+        if mt:
+            mt.file_slots[0].path = f"{prefix}_{n}_matte"
         bpy.ops.render.render(write_still=True)
         log(f"rendered {n} -> {sc.render.filepath}")
+        if mt:
+            _matte_collect(mt, sc, outdir, f"{prefix}_{n}", log=log)

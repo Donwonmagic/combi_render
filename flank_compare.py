@@ -25,20 +25,91 @@ them cancelled, so the pair looked MORE alike than they were:
      error -- and an aspect-ratio error is exactly what rev 11 found (the
      panel had been squashed 15.8 % vertically for three revisions).
 
-All three are fixed below, and the file now prints measurements with their
-ceiling instead of an impression.
+rev 14 fixed those three and the test then FAILED 3 of 4, with `aspect 2.7244
+vs 2.3478 = +16.04 %` as its headline.  ALL THREE OF THOSE FAILURES WERE THE
+TEST'S OWN, and rev 17 measured which:
+
+  4. THE REFERENCE MASK CARRIES FOUR TARNISH ENDMEMBERS AND THE RENDER MASK
+     CARRIED ONE.  `compare_script.ref_mask()` is a silver rule PLUS four
+     separately measured tarnish zones with their own thresholds (T up to
+     0.562), because tarnished ink is a different endmember -- that is the
+     whole point of the rev-10 rule.  This file reproduced the silver half of
+     the construction against the render and silently dropped the tarnish
+     half, so the reference mask contained `Senor`, the `b` flag and the `i`
+     dot and the render mask could not.  In the render `Senor` reads
+     (179, 90, 78) against a ground endmember of (194, 87, 74): one global
+     threshold cannot see it, and 3.5 % of that box came back as ink against
+     the reference's 33.8 %.  That single omission is the whole of the
+     +16.04 % aspect error, most of the 0.8869 area deficit, and `Senor` at
+     0.126.  The four zones are carried into the render through the panel
+     correspondence below -- the texture IS the reference lockup, so the
+     zones map exactly -- and each gets its OWN endmembers measured in the
+     render, which is what the reference rule does on its own side.
+  5. `REF_PPM = 211.2 px/m`, ONE SCALAR FOR A PROJECTIVE PHOTOGRAPH.  The
+     standing rule on this project is that a single linear px->metre scale
+     does not hold along this flank, and it does not hold across the lockup
+     either: the calibrated map puts the local scale at 205.2 px/m at the
+     lockup's forward edge and 214.9 at its aft edge, a 4.7 % gradient, so a
+     flat 211.2 misplaces the ends by +-6 px against a ceiling that is worth
+     1 px.  Both masks are now carried into a METRIC frame with the
+     instruments SPEC 10.34/10.35 calibrated, and the common frame is that
+     metric frame rather than a resample of one image onto the other.
 
     python3 flank_compare.py [out/p_side.png] [out/flank_compare.png]
 
 The render it compares against is the ortho side probe, produced with:
 
-    T1_SUB=1 T1_PREVIEW=side T1_SAMP=32 T1_RX=1600 T1_RY=1100 T1_FX=0 \
+    T1_SUB=1 T1_PREVIEW=side T1_SAMP=24 T1_RX=1400 T1_RY=933 T1_FX=0 \
         T1_PFX=p /tmp/blender/blender -b --python build.py
 
 T1_FX=0 matters: chromatic aberration displaces R against B by a fraction of a
 pixel across the frame, and every mask here is a CHROMATICITY rule.  A
 measurement probe is rendered without the taking-lens artefacts; post.py puts
 them back on the pictures that are meant to be looked at.
+
+1400 px WIDE IS A FLOOR, NOT A SUGGESTION.  At 1400x933 the panel is 136 px
+tall against the reference lockup's 115, and one row of mask edge is 0.74 % of
+the aspect.  The same build at 900x600 gives 88 px, 1.14 % a row, and the
+aspect reads +5.81 % instead of +4.86 % -- a verdict flip across ASPECT_TOL
+for no change in the model at all.  The run prints the panel height against
+the reference's and says so when the render under-resolves the photograph.
+
+WHAT ref_side.jpg COSTS, MEASURED
+It is 1024x768 at 2.32 bits/px with a JPEG DC quantiser of 4, against
+ref_rear34.jpg and ref_workshop.jpg at 9.28 / 8.87 bits/px and DC quantiser 1
+-- four times more compressed than the project's other two frames.  The script
+is only clearly visible in this one, so there is no alternative; the cost is
+measured every run as the frame's own PSF, taken from the cream/red step edge
+over the lockup's own columns: LSF sigma 1.69 px, FWHM 3.98 px, 10-90 rise
+4.05 px = 19.4 mm on the flank.  Against that, the reference ink's median
+stroke is 7.2 px -- 1.8 x the FWHM, resolved -- but its p10 stroke is 4.0 px,
+1.0 x the FWHM, i.e. AT the resolution limit.  So the lockup's mass is
+measurable and its thinnest tenth (the swash tip, the counters, the top of
+the tarnished `Senor`) is not, and no threshold rule can recover it.  That is
+the floor under `swash` and `Senor` in the region table.
+
+WHAT THE RE-DERIVED WINDOWS FIND (rev 17, 1400x933, T1_SUB=1)
+  * The rev-16 loft moved NOTHING this file uses, and the run proves it
+    numerically rather than asserting it: the panel is entirely forward of
+    X_AXLE_R so `_aft()` is the identity on it, the widened rear arch's
+    forward foot is still 146 mm clear of the panel's aft edge, and the
+    roof/side junction is 810 mm above the panel's top.
+  * The +95 mm ink offset rev 14 left open is a WINDOW ERROR, not the loft
+    and not the panel: with the silver rule alone the ink top reads +90.1 mm
+    below the panel top; with the four tarnish windows restored it reads
+    +3.1 mm, against 3.8 mm of padding in the texture itself.
+  * The +16.04 % aspect failure was the same omission.  With the tarnish
+    windows the raw pixel bboxes -- exactly what rev 14 compared -- are 2.3478
+    and 2.3594, +0.5 %.
+  * What is left is real and it is not this test's: the lockup has to move
+    +76 mm forward and +62 mm down to sit where the calibrated map puts the
+    photograph's, cross-checked by SCR's own x extents sitting +83 / +80 mm
+    aft of flank_X(LOCKUP); and it is 5.5 % short in height (537.0 mm built
+    against 568.5 measured, or 555.7 under the map's own vertical scale).
+  * `Senor` still fails, at 0.504 of its own 0.782 ceiling -- and the
+    texture-alpha control scores 0.558 in the same box with the render and the
+    mask rule taken out of the loop, so that failure belongs to the panel and
+    to the `Senor` reconstruction, not to the render.
 """
 import ast
 import os
@@ -58,7 +129,8 @@ import compare_script as CS    # noqa: E402  -- the ESTABLISHED reference rule
 # ===========================================================================
 # THRESHOLDS.  Every one of them carries where it came from.  None of them is
 # a score out of 100: each is a measurement against the reference, and the IoU
-# is quoted against a ceiling measured in the same run.
+# is quoted against a ceiling measured in the same run.  rev 17 changed NONE
+# of them -- the numbers moved because the windows were wrong, not the bar.
 # ===========================================================================
 
 # Ink-area ratio, render / reference.  SPEC 10.20 puts the reference footprint
@@ -71,12 +143,14 @@ import compare_script as CS    # noqa: E402  -- the ESTABLISHED reference rule
 # same size, and that band is printed next to the ratio for exactly that reason.
 AREA_TOL = 0.10
 
-# Aspect ratio, ink bbox w/h.  This is the metric the old test could not see.
-# It is DIMENSIONLESS, so it does not depend on px/m on either side and no
-# scale error can cancel it.  The reference's own aspect uncertainty is the
-# projection isotropy (h/v 0.9989 +/- 0.010, AUDIT_rev11) plus a pixel of bbox
-# edge on 270 x 115 px, about 1.5 % combined.  0.05 is three sigma of that,
-# and one third of the 15.8 % squash that went unnoticed for three revisions.
+# Aspect ratio, ink bbox w/h, IN METRES on the vehicle -- not in pixels of
+# either frame.  It is DIMENSIONLESS, so no px/m error can cancel it, but it
+# is NOT free of the instruments: the two calibrated scales disagree by 2.3 %
+# at the rear hub (the projective map's 220.5 px/m against k_t's 215.5), which
+# is a floor of +-2.3 % on any height ratio measured here.  That floor is
+# printed with the number.  0.05 is three sigma of the reference's own
+# isotropy and one third of the 15.8 % squash that went unnoticed for three
+# revisions; it is left alone.
 ASPECT_TOL = 0.05
 
 # IoU is quoted as a FRACTION OF THE CEILING measured this run, never as a
@@ -100,16 +174,14 @@ REGION_IOU_FRAC = 0.75
 CEILING_INHERITED = 0.90            # AUDIT_rev11, "THE SCRIPT AND THE CALIDAD DECAL"
 CEILING_INHERITED_1PX = 0.87        # ... "or 0.87 with 1 px of registration slop"
 
-# Reference scale.  AUDIT_rev11, same section: "scale 211.2 +/- 1.0 px/m from
-# the locked wheelbase and independently from the bay frame lines", with
-# projection isotropy h/v 0.9989 +/- 0.010 (subpixel conic fit to the rear
-# hubcap ring, 180 rays) -- so one scalar is enough for both axes.
-REF_PPM = 211.2
-REF_PPM_SD = 1.0
-
-SEARCH = 14                    # +/- px of registration search, at REF_PPM this
-                               # is +/- 66 mm.  Reported, and flagged if the
-                               # optimum lands on the boundary.
+SEARCH_MM = 160.0              # +/- mm of translation-only registration search.
+                               # rev 14 searched +-14 px = +-66 mm and the
+                               # optimum sat ON that boundary, so the IoU it
+                               # printed was the IoU of a mis-registered pair.
+                               # The shift the optimum actually needs is a
+                               # MEASUREMENT -- the decal's placement error --
+                               # and it is printed as one; widening the search
+                               # is what lets it be read, not a loosened bar.
 PROJ_TOL_PX = 3.0              # projection self-check.  The tyre is TANGENT to
                                # z = 0, so its coverage falls off quadratically
                                # and the last fully dark row sits 1-2 px inside
@@ -120,7 +192,70 @@ PROJ_TOL_PX = 3.0              # projection self-check.  The tyre is TANGENT to
 MARGIN_PX = 10                 # slack around the projected panel, used only to
                                # measure the ground endmember and to detect a
                                # crop that clips the ink
-MIN_BLOB = 12                  # compare_script.ref_mask()'s own speckle filter
+MIN_BLOB_MM2 = 12.0 / 211.2 ** 2 * 1e6      # compare_script's 12 px speckle
+                                            # filter, in mm^2, so the same
+                                            # PHYSICAL speck is removed from a
+                                            # render at any resolution
+
+
+# ===========================================================================
+# THE CALIBRATED INSTRUMENTS.  Not invented here, and not a scale.
+# ===========================================================================
+# ref_side.jpg is not an orthographic side elevation.  Its camera was recovered
+# in rev 10 and sits at (-4.829, +2.222, 1.900) -- aft of the vehicle, above
+# the belt line -- so the flank is a PROJECTIVE image of a plane and every
+# scalar px/m is wrong somewhere.  Two instruments exist and this file uses
+# them instead of REF_PPM:
+#
+#   HORIZONTAL, SPEC 10.35.  The 1-D projective flank map, rebuilt from the two
+#   hub columns and the rim-flange OD ratio (the same physical object at two
+#   depths).  It reproduces X(242.84) = +1.3000 and X(749.38) = -1.1000 by
+#   construction, and -- on a feature pair that shares no datum with either --
+#   puts the rear arch's aft foot at -1.5615 against an independently measured
+#   -1.560, 1.5 mm.  Its LOCAL scale is A/(X+C)^2 and that is the quantity a
+#   flat px/m throws away.
+#
+#   VERTICAL, SPEC 10.34.  k_t = 215.5 +/- 3.0 px/m, measured at the REAR HUB
+#   and validated there (belt -> aperture-top measures 500.9 mm against the
+#   locked 503.0, -0.4 %).  It is a scale AT ONE STATION; carried to another
+#   column it must be scaled by the same depth ratio the horizontal map gives,
+#   because for a straight line the angle between the line and the image plane
+#   is constant, so the ratio of the two scales is constant along it and only
+#   the 1/depth factor moves.
+#
+#   THE TWO DISAGREE BY 2.3 % AT THE HUB, and that is reported, not hidden: at
+#   u = 749.38 the map gives 220.45 px/m horizontally against k_t's 215.5
+#   vertically.  For an oblique view of a vertical plane the horizontal scale
+#   should be the SMALLER of the two (it is the one that carries cos theta), so
+#   the sign is wrong and one of the two instruments is 2.3 % out.  Every
+#   height quoted here therefore carries +-2.3 %, and the aspect check is
+#   quoted twice, once under each instrument.
+FLANK_A, FLANK_B, FLANK_C = 641220.4, 11140.0, 55.0322     # SPEC 10.35
+K_T = 215.5                                                # SPEC 10.34, px/m
+K_T_SD = 3.0
+U_RHUB = 749.38                                            # where K_T was taken
+DRIP_A, DRIP_B = -0.04409, 332.301        # SPEC 10.34 drip-rail fit, rms 0.067
+
+
+def flank_X(u):
+    """ref_side.jpg column -> model x, metres.  SPEC 10.35."""
+    return FLANK_A / (np.asarray(u, float) + FLANK_B) - FLANK_C
+
+
+def flank_u(x):
+    """inverse of flank_X."""
+    return FLANK_A / (np.asarray(x, float) + FLANK_C) - FLANK_B
+
+
+def flank_mpp(u):
+    """LOCAL horizontal scale at column u, metres per pixel."""
+    return FLANK_A / (np.asarray(u, float) + FLANK_B) ** 2
+
+
+def flank_kv(u):
+    """LOCAL vertical scale at column u, px per metre.  k_t carried off the
+    rear hub by the map's own depth ratio -- see the note above."""
+    return K_T * flank_mpp(U_RHUB) / flank_mpp(u)
 
 
 # ===========================================================================
@@ -169,12 +304,15 @@ def _view(path, want):
 SCR = _const(os.path.join(HERE, "build.py"), "SCR")
 RAKE_Z0 = _const(os.path.join(HERE, "t1_core.py"), "RAKE_Z0")
 RAKE_DZDX = _const(os.path.join(HERE, "t1_core.py"), "RAKE_DZDX")
+X_AXLE_R = _const(os.path.join(HERE, "t1_core.py"), "X_AXLE_R")
+X_TAIL = -1.8727                    # SPEC 10.35, printed only to show that the
+                                    # rev-16 tail re-space cannot reach the panel
 VIEW = _view(os.path.join(HERE, "studio.py"), "side")
 
 
 def rake_drop(x):
     """t1_core.rake_drop(): authored z minus this == rendered z."""
-    return RAKE_Z0 + RAKE_DZDX * x
+    return RAKE_Z0 + RAKE_DZDX * np.asarray(x, float)
 
 
 # ===========================================================================
@@ -197,9 +335,15 @@ def projector(img_w, img_h):
     ppm = img_w / float(ortho)
 
     def f(x, z):
-        return (img_w * 0.5 - (x - tgt[0]) * ppm,
-                img_h * 0.5 - (z - tgt[2]) * ppm)
-    return f, ppm
+        return (img_w * 0.5 - (np.asarray(x, float) - tgt[0]) * ppm,
+                img_h * 0.5 - (np.asarray(z, float) - tgt[2]) * ppm)
+
+    def finv(px, py):
+        """pixel -> model (x, AUTHORED z), i.e. with the rake shear removed."""
+        x = tgt[0] - (np.asarray(px, float) - img_w * 0.5) / ppm
+        z = (img_h * 0.5 - np.asarray(py, float)) / ppm + tgt[2]
+        return x, z + rake_drop(x)
+    return f, finv, ppm
 
 
 # ===========================================================================
@@ -218,8 +362,8 @@ def projector(img_w, img_h):
 # B = 6.0 +/- 3.6 DN, the render is a white softbox over a ground at B = 92,
 # and SPEC 10.21's rule is explicit that a rendered ratio is not an albedo
 # ratio.  So the render gets the SAME CONSTRUCTION with its OWN endmembers,
-# measured from the render, and both the endmembers and the resulting
-# threshold are printed.
+# measured from the render -- INCLUDING the four tarnish zones, which rev 14
+# dropped.  Both the endmembers and every resulting threshold are printed.
 
 def _srgb_to_linear(v):
     v = np.asarray(v, float) / 255.0
@@ -270,14 +414,14 @@ def endmembers(rgb, redness):
     return split, float(ctr[i1]), float(ctr[i2]), E_i, E_g, ink
 
 
-def clean(mask):
+def clean(mask, min_blob):
     """compare_script.ref_mask()'s own morphology, applied to the render too."""
     m = nd.binary_closing(mask, np.ones((2, 2)))
     m = nd.binary_opening(m, nd.generate_binary_structure(2, 1))
     lab, n = nd.label(m)
     if n:
         sz = nd.sum(m, lab, range(1, n + 1))
-        m = np.isin(lab, 1 + np.nonzero(sz >= MIN_BLOB)[0])
+        m = np.isin(lab, 1 + np.nonzero(sz >= min_blob)[0])
     return m
 
 
@@ -291,9 +435,9 @@ def iou(a, b):
     return float((a & b).sum() / u) if u else 1.0
 
 
-def best_shift(ref, gen, rad=SEARCH):
-    """Integer-shift registration.  TRANSLATION ONLY -- no scaling, no
-    rotation, so a size or aspect error cannot be absorbed by the fit."""
+def best_shift(ref, gen, rad):
+    """Integer-cell registration in the METRIC frame.  TRANSLATION ONLY -- no
+    scaling, no rotation, so a size or aspect error cannot be absorbed."""
     best = (-1.0, 0, 0)
     for dy in range(-rad, rad + 1):
         for dx in range(-rad, rad + 1):
@@ -303,15 +447,150 @@ def best_shift(ref, gen, rad=SEARCH):
     return best
 
 
-def box_resample(a, size):
-    """Area-average resample of a float array to `size` = (w, h).
+# ===========================================================================
+# THE REFERENCE'S OWN DATUM LINE AND ITS PSF, BOTH MEASURED AT RUN TIME
+# ===========================================================================
+# NOT THE GROUND LINE.  SPEC 10.11 bans it (~70 mm common-mode) and SPEC 10.34
+# shows the hub-referenced chain carrying the same disease at ~29 mm.  The
+# datum used for every vertical statement below is the CREAM/RED BREAK -- the
+# belt-line family -- fitted here over the lockup's own columns, and it is
+# only ever used DIFFERENTIALLY: the same edge is fitted in the render and the
+# two ink-tops are quoted as distances below their own frame's edge, so the
+# datum's absolute height cancels and never enters a number.
+#
+# The reference edge is the counter fascia bottom (REF sec.3b, 1.082 m AG), not
+# the body's own painted break, because the body break is only visible on the
+# cab door 200 px forward of the lockup.  The counter stands 300 mm outboard,
+# which in this projective frame is worth ~16-21 mm of apparent height (REF
+# sec.3); that is a SYSTEMATIC on the differential and it is printed with it.
 
-    PIL's BOX filter is an exact area average on a downscale, so a binary mask
-    resamples to per-pixel COVERAGE, and thresholding that at 0.5 is the same
-    half-covered-pixel convention the mask rules themselves use.
-    """
-    return np.asarray(Image.fromarray(a.astype(np.float32), mode="F")
-                      .resize(size, Image.BOX), dtype=float)
+def fit_edge(lum_or_chroma, cols, r0, r1, sign, min_g):
+    """Sub-pixel row of the strongest signed gradient per column, robust line."""
+    us, vs = [], []
+    for u in cols:
+        s = lum_or_chroma[r0:r1, u]
+        g = np.gradient(s) * sign
+        i = int(np.argmax(g))
+        if g[i] < min_g:
+            continue
+        a, b = max(0, i - 2), min(len(g), i + 3)
+        w = np.clip(g[a:b], 0, None)
+        if w.sum() <= 0:
+            continue
+        us.append(u)
+        vs.append(r0 + (np.arange(a, b) * w).sum() / w.sum())
+    us, vs = np.array(us, float), np.array(vs, float)
+    if len(us) < 8:
+        sys.exit("FAIL cream/red datum edge not found in rows %d-%d over %d "
+                 "columns -- the window is not where it is supposed to be"
+                 % (r0, r1, len(cols)))
+    keep = np.ones(len(us), bool)
+    for _ in range(4):
+        a, b = np.polyfit(us[keep], vs[keep], 1)
+        res = vs - (a * us + b)
+        keep = np.abs(res) < 2.5 * max(res[keep].std(), 0.15)
+    a, b = np.polyfit(us[keep], vs[keep], 1)
+    return a, b, float((vs[keep] - (a * us[keep] + b)).std()), int(keep.sum()), len(us)
+
+
+def psf_sigma(lum, cols, r0, r1, sign):
+    """LSF sigma, px, from the edge-registered oversampled ESF of a step."""
+    prof, cent = [], []
+    for u in cols:
+        s = lum[r0:r1, u]
+        g = np.abs(np.gradient(s))
+        if g.max() < 3:
+            continue
+        i = int(np.argmax(g))
+        a, b = max(0, i - 2), min(len(g), i + 3)
+        w = g[a:b]
+        prof.append(s)
+        cent.append((np.arange(a, b) * w).sum() / w.sum())
+    if len(cent) < 20:
+        return float("nan"), float("nan")
+    P = np.array(prof)
+    xs = np.concatenate([np.arange(P.shape[1]) - c for c in cent])
+    ys = np.concatenate(list(P))
+    k = np.abs(xs) <= 4.0
+    xs, ys = xs[k], ys[k]
+    e = np.arange(-4, 4.001, 0.25)
+    idx = np.clip(np.digitize(xs, e) - 1, 0, len(e) - 2)
+    esf = np.array([ys[idx == j].mean() if (idx == j).any() else np.nan
+                    for j in range(len(e) - 1)])
+    bc = 0.5 * (e[:-1] + e[1:])
+    ok = np.isfinite(esf)
+    esf, bc = esf[ok], bc[ok]
+    lsf = np.abs(np.gradient(esf, bc))
+    lsf = np.clip(lsf - lsf.min(), 0, None)
+    m = (lsf * bc).sum() / lsf.sum()
+    sig = float(np.sqrt((lsf * (bc - m) ** 2).sum() / lsf.sum()))
+    f = (esf - esf[:3].mean()) / (esf[-3:].mean() - esf[:3].mean())
+    if f[0] > f[-1]:
+        f = 1 - f
+    o = np.argsort(f)
+    rise = float(abs(np.interp(0.9, f[o], bc[o]) - np.interp(0.1, f[o], bc[o])))
+    return sig, rise
+
+
+# ===========================================================================
+# THE METRIC FRAME -- where the two masks actually meet
+# ===========================================================================
+# Grid axes are MODEL x (metres, +x forward) and AUTHORED model z (metres, the
+# rake shear removed analytically on the render side and the flank's own line
+# slope removed on the reference side).  Both masks are sampled INTO it, so
+# neither image is resampled onto the other and neither frame's projection is
+# imposed on the other's.
+
+def raster(sample, x0, x1, z0, z1, pitch):
+    """Rasterise a metric-space indicator onto a grid.  `sample(X, Z) -> float
+    coverage in [0,1]`; a cell is ink where its centre samples >= 0.5."""
+    nx = int(np.ceil((x0 - x1) / pitch))
+    nz = int(np.ceil((z1 - z0) / pitch))
+    X = x0 - (np.arange(nx) + 0.5) * pitch                 # +x -> grid LEFT
+    Z = z1 - (np.arange(nz) + 0.5) * pitch                 # +z -> grid TOP
+    XX, ZZ = np.meshgrid(X, Z)
+    return sample(XX, ZZ) >= 0.5
+
+
+def sampler_ref(Rf, edge_a, edge_b):
+    """metric (X, Z) -> reference-mask coverage.  Z is measured DOWN from the
+    cream/red datum line, positive up, so Z = 0 is the datum."""
+    def f(X, Z):
+        u = flank_u(X)
+        v = (edge_a * u + edge_b) - Z * flank_kv(u)
+        return nd.map_coordinates(Rf, [v - CS.CY0 - 0.5, u - CS.X0 - 0.5],
+                                  order=1, mode="constant", cval=0.0)
+    return f
+
+
+def sampler_gen(Gf, proj, off_x, off_y, z_datum, zsq=1.0, zc=0.0):
+    """metric (X, Z) -> render-mask coverage, with the render's OWN cream/red
+    datum subtracted so the two frames share an origin they each measured.
+
+    `zsq` squashes the sampled mask about Z = zc.  It is 1.0 for the
+    measurement and is only ever set otherwise by the negative control, which
+    needs a KNOWN aspect error injected through the identical path."""
+    def f(X, Z):
+        Zs = zc + (Z - zc) / zsq
+        px, py = proj(X, (Zs + z_datum) - rake_drop(X))
+        return nd.map_coordinates(Gf, [py - off_y - 0.5, px - off_x - 0.5],
+                                  order=1, mode="constant", cval=0.0)
+    return f
+
+
+def sampler_tex(alpha, x0, x1, z0, z1, z_datum):
+    """metric (X, Z) -> tex/senor.png alpha coverage, mapped onto the SCR
+    rectangle exactly the way conform_panel_true's UVs do (u = 0 at x0, v = 0
+    at z0, both linear).  This touches no render and no threshold rule, so it
+    isolates the GEOMETRIC chain from the mask rule."""
+    h, w = alpha.shape
+
+    def f(X, Z):
+        fu = (X - x0) / (x1 - x0)
+        fv = ((Z + z_datum) - z0) / (z1 - z0)
+        return nd.map_coordinates(alpha, [(1.0 - fv) * h - 0.5, fu * w - 0.5],
+                                  order=1, mode="constant", cval=0.0)
+    return f
 
 
 # ===========================================================================
@@ -321,7 +600,7 @@ def main():
     out = sys.argv[2] if len(sys.argv) > 2 else "out/flank_compare.png"
     if not os.path.exists(src):
         sys.exit("FAIL no render at %s.  Produce one with:\n"
-                 "  T1_SUB=1 T1_PREVIEW=side T1_SAMP=32 T1_RX=1600 T1_RY=1100 "
+                 "  T1_SUB=1 T1_PREVIEW=side T1_SAMP=24 T1_RX=1400 T1_RY=933 "
                  "T1_FX=0 T1_PFX=p /tmp/blender/blender -b --python build.py"
                  % src)
 
@@ -333,57 +612,113 @@ def main():
     im = Image.open(src).convert("RGB")
     W, H = im.size
     A = np.asarray(im, dtype=float)
+    ref_im = Image.open("ref_side.jpg")
+    ref_rgb_full = np.asarray(ref_im.convert("RGB"), dtype=float)
+    ref_lum = ref_rgb_full @ [0.2126, 0.7152, 0.0722]
     print("render     %s  %dx%d  %s" % (
         src, W, H, time.strftime("%Y-%m-%d %H:%M:%S",
                                  time.localtime(os.path.getmtime(src)))))
-    print("reference  ref_side.jpg  %s  scale %.1f +/- %.1f px/m (AUDIT_rev11)"
-          % (Image.open("ref_side.jpg").size, REF_PPM, REF_PPM_SD))
-    print("SCR        read from build.py  x0=%.4f x1=%.4f z0=%.4f z1=%.4f"
-          % (SCR["x0"], SCR["x1"], SCR["z0"], SCR["z1"]))
+    nbytes = os.path.getsize("ref_side.jpg")
+    qdc = list(ref_im.quantization.values())[0][0]
+    print("reference  ref_side.jpg  %dx%d  %.2f bits/px  JPEG DC quantiser %d"
+          % (ref_im.size[0], ref_im.size[1],
+             8.0 * nbytes / (ref_im.size[0] * ref_im.size[1]), qdc))
+    print("           (ref_rear34.jpg 9.28 bits/px q1, ref_workshop.jpg 8.87 "
+          "q1 -- this frame is 4x more compressed, and it is the only one the")
+    print("            script is visible in, so the cost is measured below "
+          "rather than avoided)")
+    print("SCR        read from build.py  x0=%.4f x1=%.4f z0=%.4f z1=%.4f  "
+          "(%.4f x %.4f m, AR %.4f)"
+          % (SCR["x0"], SCR["x1"], SCR["z0"], SCR["z1"],
+             SCR["x0"] - SCR["x1"], SCR["z1"] - SCR["z0"],
+             (SCR["x0"] - SCR["x1"]) / (SCR["z1"] - SCR["z0"])))
     print("rake       read from t1_core.py  RAKE_Z0=%.6f  RAKE_DZDX=%.6f"
           % (RAKE_Z0, RAKE_DZDX))
     print("camera     read from studio.py views()['side']  ortho %.3f m  "
           "target z %.3f" % (VIEW["ortho"], VIEW["tgt"][2]))
 
+    # ------------------------------------------- did the rev-16 loft move us?
+    # Every window in this file is anchored either to the PHOTOGRAPH or to
+    # constants that rev 16 did not touch.  That is a claim, so it is checked
+    # numerically and printed, not asserted in a comment.
+    print("\nrev-16 loft, against the windows this file uses:")
+    print("  SCR x %.3f..%.3f is entirely FORWARD of X_AXLE_R=%.3f, and "
+          "t1_core._aft() returns x unchanged there" % (
+              SCR["x0"], SCR["x1"], X_AXLE_R))
+    print("     -> the tail re-space (X_TAIL -2.108 -> %.4f) cannot reach the "
+          "panel: it moves nothing at x >= %.3f" % (X_TAIL, X_AXLE_R))
+    print("  rear arch half-width 0.3735 -> 0.460 moves its FORWARD foot "
+          "%.3f -> %.3f; the panel's aft edge is %.3f, still %.0f mm clear"
+          % (X_AXLE_R + 0.3735, X_AXLE_R + 0.460, SCR["x1"],
+             1000 * (SCR["x1"] - (X_AXLE_R + 0.460))))
+    print("  RT_ALL/CR_ALL changed the roof/side junction at z ~ 1.80-2.01; "
+          "the panel's top is z=%.4f, %.0f mm below it" % (
+              SCR["z1"], 1000 * (1.80 - SCR["z1"])))
+    print("  CONCLUSION: no window here was fitted against the moved geometry."
+          "  What DID change is the INSTRUMENT SET -- see below.")
+
     # ---------------------------------------------------------- projection
-    proj, ppm = projector(W, H)
-    print("scale      render %.4f px/m   reference %.4f px/m   "
-          "ratio %.5f" % (ppm, REF_PPM, REF_PPM / ppm))
-    print("           (the panel's own extents give the same: %.3f m of SCR "
-          "spans %.1f px = %.4f px/m)"
-          % (SCR["x0"] - SCR["x1"], (SCR["x0"] - SCR["x1"]) * ppm, ppm))
+    proj, projinv, ppm = projector(W, H)
+    print("\nscale      render %.4f px/m (exact, ortho)" % ppm)
+    print("reference  NOT a scalar.  SPEC 10.35 map local scale %.2f px/m at "
+          "the lockup's forward edge (u=%d)," % (1 / flank_mpp(331), 331))
+    print("           %.2f at its aft edge (u=%d): a %.1f %% gradient across "
+          "the lockup, which a flat 211.2 px/m misplaces by +-%.1f px"
+          % (1 / flank_mpp(600), 600,
+             100 * (flank_mpp(331) / flank_mpp(600) - 1),
+             0.5 * 269 * abs(flank_mpp(331) - flank_mpp(600)) / flank_mpp(465)))
+    print("           lockup 331..600 spans %.4f m by the map; a flat 211.2 "
+          "px/m says %.4f m (%+.1f mm)"
+          % (flank_X(331) - flank_X(600), 269 / 211.2,
+             1000 * (269 / 211.2 - (flank_X(331) - flank_X(600)))))
+    aniso = (1 / flank_mpp(U_RHUB)) / K_T
+    print("           k_t = %.1f +/- %.1f px/m vertical at u=%.2f, where the "
+          "map gives %.2f px/m horizontal:" % (K_T, K_T_SD, U_RHUB,
+                                               1 / flank_mpp(U_RHUB)))
+    print("           the two instruments disagree by %.1f %% -- the floor on "
+          "every height ratio below" % (100 * (aniso - 1)))
+    print("SCR x0/x1 were measured off this photograph with the SUPERSEDED "
+          "flat scale.  The map puts")
+    print("           the lockup at x %+.4f .. %+.4f against the built "
+          "%+.4f .. %+.4f: %+.0f / %+.0f mm."
+          % (flank_X(CS.LOCKUP[0]), flank_X(CS.LOCKUP[2]), SCR["x0"], SCR["x1"],
+             1000 * (flank_X(CS.LOCKUP[0]) - SCR["x0"]),
+             1000 * (flank_X(CS.LOCKUP[2]) - SCR["x1"])))
+    print("           Width agrees to %+.1f mm, so this is a LONGITUDINAL "
+          "PLACEMENT finding for build.py,"
+          % (1000 * ((flank_X(CS.LOCKUP[0]) - flank_X(CS.LOCKUP[2]))
+                     - (SCR["x0"] - SCR["x1"]))))
+    print("           not a shape finding -- translation-only registration "
+          "absorbs it and the four metrics below do not see it.")
 
     # All FOUR corners, each with its own rake drop: step 8b is a SHEAR, so
     # the panel's two ends do not drop by the same amount and the rendered
     # panel is not a rectangle in the image.
-    d0, d1 = rake_drop(SCR["x0"]), rake_drop(SCR["x1"])
-    corners = {}
-    for xk in ("x0", "x1"):
-        for zk in ("z0", "z1"):
-            corners[(xk, zk)] = proj(SCR[xk], SCR[zk] - rake_drop(SCR[xk]))
-    cx = [c[0] for c in corners.values()]
-    cy = [c[1] for c in corners.values()]
-    print("rake drop  %.1f mm at x0=%+.3f   %.1f mm at x1=%+.3f   "
+    d0, d1 = float(rake_drop(SCR["x0"])), float(rake_drop(SCR["x1"]))
+    corners = [proj(SCR[xk], SCR[zk] - rake_drop(SCR[xk]))
+               for xk in ("x0", "x1") for zk in ("z0", "z1")]
+    cx = [float(c[0]) for c in corners]
+    cy = [float(c[1]) for c in corners]
+    print("\nrake drop  %.1f mm at x0=%+.3f   %.1f mm at x1=%+.3f   "
           "shear residual %.1f mm = %.2f px"
           % (d0 * 1000, SCR["x0"], d1 * 1000, SCR["x1"],
              abs(d0 - d1) * 1000, abs(d0 - d1) * ppm))
-    print("panel      authored z %.4f-%.4f -> rendered z %.4f-%.4f "
-          "(bbox over the shear)"
-          % (SCR["z0"], SCR["z1"], SCR["z0"] - max(d0, d1), SCR["z1"] - min(d0, d1)))
     px0, px1 = int(np.floor(min(cx))), int(np.ceil(max(cx)))
     py0, py1 = int(np.floor(min(cy))), int(np.ceil(max(cy)))
-    print("           projects to render px x %d-%d  y %d-%d  (%dx%d)"
+    print("panel      projects to render px x %d-%d  y %d-%d  (%dx%d)"
           % (px0, px1, py0, py1, px1 - px0, py1 - py0))
 
-    # Projection self-check that uses nothing from the decal: the wheels are
-    # placed so that they land at z = 0 after step 8b skips them, so the
-    # bottom of the tyre IS the ground plane.
+    # Projection self-check.  This is NOT a vertical datum -- both sides of it
+    # come from the same image and the same model, so the ~70 mm common-mode
+    # the ground line carries against the PHOTOGRAPH cannot enter.  It only
+    # asks whether the projector lands on the render it was handed.
     lum = A @ [0.2126, 0.7152, 0.0722]
     ground_meas = int(np.nonzero((lum < 100).any(1))[0].max())
-    ground_pred = proj(0.0, 0.0)[1]
-    print("projection self-check: z=0 predicted at row %.1f, lowest dark row "
-          "%d  (delta %+.1f px = %+.1f mm)  %s"
-          % (ground_pred, ground_meas, ground_meas - ground_pred,
+    ground_pred = float(proj(0.0, 0.0)[1])
+    print("projection self-check (render against itself, no photograph in it): "
+          "z=0 predicted at row %.1f," % ground_pred)
+    print("           lowest dark row %d  (delta %+.1f px = %+.1f mm)  %s"
+          % (ground_meas, ground_meas - ground_pred,
              (ground_meas - ground_pred) / ppm * 1000,
              "ok" if abs(ground_meas - ground_pred) <= PROJ_TOL_PX else "OUT"))
     if abs(ground_meas - ground_pred) > PROJ_TOL_PX:
@@ -391,14 +726,18 @@ def main():
                  "plane is %.1f px out.  Nothing below this would mean "
                  "anything." % (ground_meas - ground_pred))
 
+    # -------------------------------------- what the photograph can resolve
+    sig, rise = psf_sigma(ref_lum, range(CS.LOCKUP[0], CS.LOCKUP[2]), 425, 452, 1)
+    print("\nref_side.jpg PSF, from the cream/red step edge over the lockup's "
+          "own columns:")
+    print("           LSF sigma %.2f px  FWHM %.2f px  10-90 rise %.2f px  "
+          "= %.1f mm on the flank" % (sig, 2.3548 * sig, rise,
+                                      1000 * 2.3548 * sig / flank_kv(465.5)))
+
     # ------------------------------------------------- reference ink mask
-    # FULL ink extent.  The old REF_INK dropped 4 rows off the top and SPEC
-    # 10.20 established that the missing rows are the top of `Senor`.
     R = CS.ref_mask()
     rx0, ry0, rx1, ry1 = bbox(R)
-    ref_rgb = np.asarray(Image.open("ref_side.jpg").convert("RGB"),
-                         dtype=float)[CS.CY0:CS.CY0 + CS.CMH,
-                                      CS.X0:CS.X0 + CS.MW]
+    ref_rgb = ref_rgb_full[CS.CY0:CS.CY0 + CS.CMH, CS.X0:CS.X0 + CS.MW]
     print("\nreference mask: compare_script.ref_mask(), SPEC 10.20 rule "
           "(imported, not re-derived)")
     print("           window %dx%d at ref_side.jpg (%d,%d); ink bbox "
@@ -408,9 +747,6 @@ def main():
     if ry0 == 0 or rx0 == 0 or ry1 == CS.CMH - 1 or rx1 == CS.MW - 1:
         print("           !! the ink touches the window edge -- the window is "
               "clipping the reference")
-    # Said out loud because it is easy to read the bbox as an independent
-    # measurement made here, and it is not: ref_mask() clips to LOCKUP, the
-    # whole-lockup extent measured in SPEC 10.20 / AUDIT_rev11.
     lk = CS.LOCKUP
     binds = sum(int(a == b) for a, b in
                 ((CS.X0 + rx0, lk[0]), (CS.CY0 + ry0, lk[1]),
@@ -418,17 +754,61 @@ def main():
     print("           the mask is clipped to compare_script.LOCKUP %s, the "
           "MEASURED lockup extent, and the ink reaches %d of its 4 edges -- so "
           "the bbox above is that measurement, not a re-derivation" % (lk, binds))
+    dtr = nd.distance_transform_edt(R)
+    sw = 2 * dtr[R & (dtr >= nd.maximum_filter(dtr, 3) - 1e-9)]
+    print("           stroke width (2 x EDT ridge) median %.1f px, p10 %.1f px "
+          "-- against a %.2f px FWHM PSF the median stroke is resolved "
+          "(%.1fx) and the p10 stroke is %.1fx"
+          % (np.median(sw), np.percentile(sw, 10), 2.3548 * sig,
+             np.median(sw) / (2.3548 * sig),
+             np.percentile(sw, 10) / (2.3548 * sig)))
+
+    # ----------------------------------------------- the two datum edges
+    ea, eb, erms, ekeep, en = fit_edge(ref_lum, range(lk[0], lk[2]), 425, 452,
+                                       +1, 3.0)
+    print("\nreference datum: cream/red break over the lockup's own columns "
+          "(NOT the ground line)")
+    print("           v = %+.5f u %+.3f   rms %.3f px  n=%d/%d   "
+          "v(u=465.5) = %.2f" % (ea, eb, erms, ekeep, en, ea * 465.5 + eb))
+    vvp = DRIP_A * (-FLANK_B) + DRIP_B
+    pred = (ea * 465.5 + eb - vvp) / (465.5 + FLANK_B)
+    print("           cross-check: the drip-rail fit's X vanishing point "
+          "(u=%.0f, v=%.1f) predicts slope %+.5f here," % (-FLANK_B, vvp, pred))
+    print("           measured %+.5f -- %.2f px over the lockup's %d columns. "
+          "The two independent flank lines agree." % (ea, abs(pred - ea) * 269,
+                                                      lk[2] - lk[0]))
+
+    red_r = CS._redness(A)
+    gc0 = int(round(float(proj(flank_X(lk[0]), 0)[0])))
+    gc1 = int(round(float(proj(flank_X(lk[2]), 0)[0])))
+    glo, ghi = min(gc0, gc1), max(gc0, gc1)
+    ga_, gb_, grms, gkeep, gn = fit_edge(red_r, range(glo, ghi),
+                                         py0 - 45, py0 - 5, +1, 0.004)
+    print("render datum:    the SAME cream/red break, fitted in the render "
+          "over the same physical x range")
+    print("           y = %+.5f x %+.3f   rms %.3f px  n=%d/%d"
+          % (ga_, gb_, grms, gkeep, gn))
+    zdat_ref = 0.0                                  # the reference datum IS Z=0
+    cmid = float(proj(flank_X(465.5), 0)[0])
+    _, zdat_gen = projinv(cmid, ga_ * cmid + gb_)
+    print("           at the lockup's mid column that edge is authored "
+          "z = %.4f in the render; the reference's is the same physical edge, "
+          "so the two are used as ONE datum and its height never enters"
+          % zdat_gen)
 
     # ---------------------------------------------------- render ink mask
     mx0, mx1 = px0 - MARGIN_PX, px1 + MARGIN_PX
     my0, my1 = py0 - MARGIN_PX, py1 + MARGIN_PX
+    print("\nrender crop box (l,t,r,b) = (%d,%d,%d,%d)  -- panel + %d px; "
+          "drawn on the output image so it can be looked at, not trusted"
+          % (mx0, my0, mx1, my1, MARGIN_PX))
     crop = A[my0:my1, mx0:mx1]
-    r = CS._redness(crop)                       # the SAME chromaticity metric
+    r = CS._redness(crop)
     split, m1, m2, E_ink, E_gnd, _ = endmembers(crop, r)
     T50 = mix_threshold(E_ink, E_gnd, 0.50)
     T25 = mix_threshold(E_ink, E_gnd, 0.25)
     T75 = mix_threshold(E_ink, E_gnd, 0.75)
-    print("\nrender mask: same construction, endmembers measured IN THE RENDER")
+    print("render mask: same construction, endmembers measured IN THE RENDER")
     print("           redness modes %.4f (ink) and %.4f (ground), valley %.4f"
           % (min(m1, m2), max(m1, m2), split))
     print("           endmembers  ink (%.0f,%.0f,%.0f)  ground (%.0f,%.0f,%.0f)"
@@ -436,135 +816,238 @@ def main():
     print("           T(50%% cover) %.4f   band T(25%%) %.4f  T(75%%) %.4f"
           % (T50, T25, T75))
 
-    # Confine to the rendered panel QUAD, not its bbox: the decal cannot be
-    # outside the panel, and the panel is sheared, so each column has its own
-    # top and bottom row.  Anything the rule calls ink outside the quad is a
-    # misclassification and is reported rather than quietly kept.
     cols = np.arange(crop.shape[1]) + mx0 + 0.5
     xs_m = VIEW["tgt"][0] - (cols - W * 0.5) / ppm
-    top = np.array([proj(x, SCR["z1"] - rake_drop(x))[1] for x in xs_m])
-    bot = np.array([proj(x, SCR["z0"] - rake_drop(x))[1] for x in xs_m])
+    top = np.asarray(proj(xs_m, SCR["z1"] - rake_drop(xs_m))[1], float)
+    bot = np.asarray(proj(xs_m, SCR["z0"] - rake_drop(xs_m))[1], float)
     rows = (np.arange(crop.shape[0]) + my0 + 0.5)[:, None]
     in_panel = ((rows >= top[None, :]) & (rows <= bot[None, :])
                 & (xs_m <= SCR["x0"])[None, :] & (xs_m >= SCR["x1"])[None, :])
 
     raw = r < T50
-    outside = int((raw & ~in_panel).sum())
-    G_native = clean(raw & in_panel)
-    print("           ink px in the render at T(50%%): %d inside the panel, "
-          "%d outside it (rejected)" % (int((raw & in_panel).sum()), outside))
-    sens = [100.0 * ((r < T) & in_panel).sum() / (raw & in_panel).sum() - 100
-            for T in (T25, T75)]
-    print("           threshold sensitivity: %d px at T(25%%), %d at T(75%%) "
-          "= %+.1f%% / %+.1f%% on the area"
-          % (int(((r < T25) & in_panel).sum()),
-             int(((r < T75) & in_panel).sum()), sens[0], sens[1]))
-    gx0, gy0, gx1, gy1 = bbox(G_native)
-    touch = (gx0 <= MARGIN_PX - 1 or gy0 <= MARGIN_PX - 1
-             or gx1 >= crop.shape[1] - MARGIN_PX or gy1 >= crop.shape[0] - MARGIN_PX)
-    print("           ink bbox %dx%d px inside a %dx%d panel; ink reaches the "
-          "panel edge: %s" % (gx1 - gx0 + 1, gy1 - gy0 + 1, px1 - px0, py1 - py0,
-                              "yes" if touch else "no"))
-    # How much of the panel the ink actually uses.  tex/senor.png's alpha runs
-    # to within 13 of its 1738 rows and to within 12 of its 4096 columns, so a
-    # gap here is the LOCKUP not reaching the panel, not padding in the file.
-    print("           ink sits %+.0f mm below the panel top and %+.0f mm above "
-          "the panel bottom (panel is %.0f mm tall)"
-          % ((gy0 + my0 - top.min()) / ppm * 1000,
-             (bot.max() - (gy1 + my0)) / ppm * 1000,
-             (SCR["z1"] - SCR["z0"]) * 1000))
+    silver_only = raw & in_panel
+    n_silver = int(silver_only.sum())
 
-    # =================================================== THE MEASUREMENTS
+    # --- THE WINDOWS rev 14 DID NOT HAVE: the four measured tarnish zones ---
+    # compare_script.TARNISH is in ref_side.jpg pixels.  tex/senor.png IS the
+    # reference lockup rasterised (script_gen draws in compare_script's own
+    # canvas frame) and conform_panel_true maps that texture linearly onto the
+    # SCR rectangle, so LOCKUP -> SCR is the correspondence and it carries the
+    # zones across exactly.  Each zone then gets its OWN endmembers measured in
+    # the render and its own 50 %-mix threshold: the identical construction the
+    # reference rule applies on its own side, not a tuned number.
+    def ref_to_render(u, v):
+        fu = (u - lk[0]) / float(lk[2] - lk[0])
+        fv = (v - lk[1]) / float(lk[3] - lk[1])
+        x = SCR["x0"] + (SCR["x1"] - SCR["x0"]) * fu
+        z = SCR["z1"] + (SCR["z0"] - SCR["z1"]) * fv
+        return proj(x, z - rake_drop(x))
+
+    print("           tarnish windows carried in through LOCKUP -> SCR "
+          "(rev 14 had none of these):")
+    for tx0, ty0, tx1, ty1, T in CS.TARNISH:
+        p0 = ref_to_render(tx0, ty0)
+        p1 = ref_to_render(tx1, ty1)
+        a0 = int(round(min(float(p0[0]), float(p1[0])) - mx0))
+        a1 = int(round(max(float(p0[0]), float(p1[0])) - mx0))
+        b0 = int(round(min(float(p0[1]), float(p1[1])) - my0))
+        b1 = int(round(max(float(p0[1]), float(p1[1])) - my0))
+        zm = np.zeros_like(raw)
+        zm[max(0, b0):b1, max(0, a0):a1] = True
+        if zm.sum() < 40:
+            print("           !! zone (%d,%d)-(%d,%d) maps off the crop"
+                  % (tx0, ty0, tx1, ty1))
+            continue
+        sub = crop[zm].reshape(-1, 1, 3)
+        _, _, _, Ei2, Eg2, _ = endmembers(sub, r[zm].reshape(-1, 1))
+        Tz = mix_threshold(Ei2, Eg2, 0.50)
+        add = int((zm & (r < Tz) & ~raw & in_panel).sum())
+        print("             ref (%3d,%3d)-(%3d,%3d) T_ref %.3f  ->  render "
+              "(%3d,%3d)-(%3d,%3d)  ink (%3.0f,%3.0f,%3.0f) gnd "
+              "(%3.0f,%3.0f,%3.0f)  T %.4f  +%d px"
+              % (tx0, ty0, tx1, ty1, T, a0 + mx0, b0 + my0, a1 + mx0, b1 + my0,
+                 *Ei2, *Eg2, Tz, add))
+        raw = raw | (zm & (r < Tz))
+
+    min_blob_gen = max(4, int(round(MIN_BLOB_MM2 * (ppm / 1000.0) ** 2)))
+    G_native = clean(raw & in_panel, min_blob_gen)
+    outside = int((raw & ~in_panel).sum())
+    print("           ink px in the render: %d silver-rule only, %d with the "
+          "tarnish windows (%+.1f %%), %d outside the panel quad (rejected)"
+          % (n_silver, int((raw & in_panel).sum()),
+             100.0 * (raw & in_panel).sum() / max(n_silver, 1) - 100, outside))
+    sens = [100.0 * ((r < T) & in_panel).sum() / max(n_silver, 1) - 100
+            for T in (T25, T75)]
+    print("           threshold sensitivity of the silver rule: %+.1f %% at "
+          "T(25%%) / %+.1f %% at T(75%%) on the area" % (sens[0], sens[1]))
+    print("           speckle filter %d px at %.1f px/m = the same %.1f mm^2 "
+          "compare_script removes at 211.2 px/m"
+          % (min_blob_gen, ppm, MIN_BLOB_MM2))
+
+    # =================================================== INTO METRIC SPACE
+    ys_r, xs_r = np.nonzero(R)
+    U = xs_r + CS.X0 + 0.5
+    V = ys_r + CS.CY0 + 0.5
+    RX = flank_X(U)
+    RZ = ((ea * U + eb) - V) / flank_kv(U)              # metres BELOW the datum
+    ref_area = float((flank_mpp(U) / flank_kv(U)).sum())
+
+    gy_, gx_ = np.nonzero(G_native)
+    GX, GZa = projinv(gx_ + mx0 + 0.5, gy_ + my0 + 0.5)
+    GZ = GZa - zdat_gen                                 # same datum convention
+    gen_area = float(G_native.sum()) / ppm ** 2
+
     print("\n" + "-" * 78)
-    print("MEASUREMENTS   (mm from each frame's own scale; the render's is "
-          "exact from")
-    print("                the ortho camera, the reference's is %.1f +/- %.1f "
-          "px/m)" % (REF_PPM, REF_PPM_SD))
+    print("MEASUREMENTS   both masks carried into ONE metric frame: model x "
+          "and AUTHORED model z,")
+    print("               reference through SPEC 10.35 + k_t + its own "
+          "cream/red line, render through")
+    print("               the exact ortho projection with the rake shear "
+          "removed.  No image is resampled")
+    print("               onto the other, and no single px/m is used anywhere.")
     print("-" * 78)
 
-    ref_px = int(R.sum())
-    gen_px = int(G_native.sum())
-    ref_mm2 = ref_px / REF_PPM ** 2 * 1e6
-    gen_mm2 = gen_px / ppm ** 2 * 1e6
-    ref_mm2_sd = 2.0 * REF_PPM_SD / REF_PPM * ref_mm2      # area ~ 1/ppm^2
-    ratio = gen_mm2 / ref_mm2
-    ratio_sd = ratio * 2.0 * REF_PPM_SD / REF_PPM
-    print("ink area        reference %6d px = %8.0f +/- %.0f mm^2" %
-          (ref_px, ref_mm2, ref_mm2_sd))
-    print("                render    %6d px = %8.0f mm^2" % (gen_px, gen_mm2))
+    ratio = gen_area / ref_area
+    ratio_sd = ratio * 2.0 * K_T_SD / K_T
+    print("ink area        reference %6d px = %8.0f mm^2  (local scale; a "
+          "flat 211.2 px/m would say %.0f, %+.1f %%)"
+          % (R.sum(), ref_area * 1e6, R.sum() / 211.2 ** 2 * 1e6,
+             100 * (R.sum() / 211.2 ** 2 / ref_area - 1)))
+    print("                render    %6d px = %8.0f mm^2"
+          % (G_native.sum(), gen_area * 1e6))
     print("                ratio render/reference  %.4f +/- %.4f   (%+.1f %%)"
           % (ratio, ratio_sd, 100 * (ratio - 1)))
     print("                read against the render mask's own coverage band, "
           "%+.1f %% / %+.1f %%" % (sens[0], sens[1]))
 
-    rw_mm = (rx1 - rx0 + 1) / REF_PPM * 1000
-    rh_mm = (ry1 - ry0 + 1) / REF_PPM * 1000
-    gw_mm = (gx1 - gx0 + 1) / ppm * 1000
-    gh_mm = (gy1 - gy0 + 1) / ppm * 1000
-    ra, ga = (rx1 - rx0 + 1) / (ry1 - ry0 + 1), (gx1 - gx0 + 1) / (gy1 - gy0 + 1)
-    print("ink bbox        reference %7.1f x %6.1f mm   aspect %.4f"
-          % (rw_mm, rh_mm, ra))
+    rw, rh = RX.max() - RX.min(), RZ.max() - RZ.min()
+    gw, gh = GX.max() - GX.min(), GZ.max() - GZ.min()
+    ra, ga = rw / rh, gw / gh
+    print("ink extent      reference %7.1f x %6.1f mm   aspect %.4f"
+          % (rw * 1000, rh * 1000, ra))
     print("                render    %7.1f x %6.1f mm   aspect %.4f"
-          % (gw_mm, gh_mm, ga))
+          % (gw * 1000, gh * 1000, ga))
     print("                width  %+.1f mm (%+.1f %%)   height %+.1f mm (%+.1f %%)"
-          % (gw_mm - rw_mm, 100 * (gw_mm / rw_mm - 1),
-             gh_mm - rh_mm, 100 * (gh_mm / rh_mm - 1)))
+          % ((gw - rw) * 1000, 100 * (gw / rw - 1),
+             (gh - rh) * 1000, 100 * (gh / rh - 1)))
     print("                ASPECT DIFFERENCE %+.4f = %+.2f %%   "
-          "(dimensionless: no px/m enters it)"
-          % (ga - ra, 100 * (ga / ra - 1)))
+          "(dimensionless; +-%.1f %% instrument floor)"
+          % (ga - ra, 100 * (ga / ra - 1), 100 * (aniso - 1)))
+    print("                the same aspect with the map's own scale used "
+          "vertically instead of k_t: reference %.4f, %+.2f %%"
+          % (rw / (rh * K_T / (1 / flank_mpp(U_RHUB))),
+             100 * (ga / (rw / (rh * K_T * flank_mpp(U_RHUB))) - 1)))
+    print("                for reference, the raw pixel bboxes -- which is "
+          "what rev 14 compared -- are %.4f and %.4f"
+          % ((rx1 - rx0 + 1) / (ry1 - ry0 + 1),
+             (bbox(G_native)[2] - bbox(G_native)[0] + 1)
+             / (bbox(G_native)[3] - bbox(G_native)[1] + 1)))
+    # THE ASPECT NUMBER IS QUANTISATION-LIMITED BY THE SHORTER SIDE, and the
+    # shorter side is the render's, not the reference's, at anything below
+    # ~1400 px wide.  Measured: at 1400x933 the panel is 136 px tall and the
+    # aspect reads +4.86 %; the SAME build at 900x600 gives 88 px and +5.81 %,
+    # a verdict flip across ASPECT_TOL for no change in the model.  One row of
+    # mask edge is 1/136 = 0.74 % there and 1/88 = 1.14 % here.
+    ph = py1 - py0
+    rhpx = ry1 - ry0 + 1
+    print("                panel height %d px in this render against the "
+          "reference lockup's %d px: one row of mask edge is %.2f %% of the "
+          "aspect.  %s" % (ph, rhpx, 100.0 / ph,
+                           "adequately resolved" if ph >= rhpx else
+                           "!! THE RENDER UNDER-RESOLVES THE REFERENCE -- the "
+                           "aspect verdict is quantisation-limited, re-run "
+                           "wider"))
+
+    # ------------------------------------- WHERE THE INK SITS, DIFFERENTIALLY
+    # Never from the ground line.  Both numbers are distances below each
+    # frame's OWN cream/red break, so the datum's height cancels.
+    print("\nvertical placement, against the cream/red break in each frame "
+          "(the datum cancels):")
+    print("                reference ink top %7.1f mm below it, bottom %7.1f "
+          "mm  -> height %6.1f mm"
+          % (-RZ.max() * 1000, -RZ.min() * 1000, rh * 1000))
+    print("                render    ink top %7.1f mm below it, bottom %7.1f "
+          "mm  -> height %6.1f mm"
+          % (-GZ.max() * 1000, -GZ.min() * 1000, gh * 1000))
+    print("                render ink top sits %+.1f mm relative to the "
+          "reference's; the counter stands 300 mm outboard and REF sec.3 puts "
+          "that parallax at 16-21 mm, so this carries a +-20 mm systematic"
+          % ((-GZ.max() + RZ.max()) * 1000))
+    print("                ink top is %+.1f mm below the panel top z1=%.4f, "
+          "and the ink bottom %+.1f mm above z0=%.4f"
+          % (1000 * (SCR["z1"] - GZa.max()), SCR["z1"],
+             1000 * (GZa.min() - SCR["z0"]), SCR["z0"]))
+    print("                tex/senor.png's alpha runs to within 12 of its 4096 "
+          "columns and 12 of its 1738 rows, so the texture itself accounts for "
+          "only %.1f mm of that." % (1000 * 12.0 / 1738 * (SCR["z1"] - SCR["z0"])))
+    # THE +95 mm, SETTLED.  rev 14 reported the ink sitting +95 mm below the
+    # panel top and left open whether that was real, a window error, or the
+    # loft.  It is a window error and this is the arithmetic of it: the silver
+    # rule alone cannot see the tarnished top of `Senor`, so the mask's top
+    # row was the top of `Tacombi`.
+    _, GZa_s = projinv(np.nonzero(clean(silver_only, min_blob_gen))[1] + mx0 + 0.5,
+                       np.nonzero(clean(silver_only, min_blob_gen))[0] + my0 + 0.5)
+    print("                with the SILVER RULE ALONE -- rev 14's mask -- the "
+          "ink top reads %+.1f mm below the panel top." % (
+              1000 * (SCR["z1"] - GZa_s.max())))
+    print("                The +95 mm rev 14 left open is that, and nothing "
+          "else: not the loft, not the panel, %.0f mm of missing tarnish."
+          % (1000 * (GZa.max() - GZa_s.max())))
 
     # ------------------------------------------------------- common frame
-    # Both masks are put in ONE frame with ONE mm-per-pixel, so a size or an
-    # aspect error shows up as a mismatch instead of being normalised away.
-    # The common scale is the REFERENCE's, so the reference is not resampled
-    # at all and the render is area-averaged DOWN to it -- no detail is
-    # invented, and the ceiling below is measured at exactly this scale.
-    tw = int(round(G_native.shape[1] * REF_PPM / ppm))
-    th = int(round(G_native.shape[0] * REF_PPM / ppm))
-    Gc = box_resample(G_native.astype(float), (tw, th)) >= 0.5
-    Gc = clean(Gc)
-    crop_c = np.dstack([box_resample(crop[..., k], (tw, th)) for k in range(3)])
-    print("\ncommon frame    %.4f mm/px for both  (reference native, render "
-          "%dx%d -> %dx%d)" % (1000.0 / REF_PPM, G_native.shape[1],
-                               G_native.shape[0], tw, th))
+    PITCH = 1.0 / 210.0                        # m/cell ~ the reference's own
+    pad = 0.10
+    bx0, bx1 = max(RX.max(), GX.max()) + pad, min(RX.min(), GX.min()) - pad
+    bz0, bz1 = min(RZ.min(), GZ.min()) - pad, max(RZ.max(), GZ.max()) + pad
+    Rf = R.astype(np.float32)
+    Gf = G_native.astype(np.float32)
+    Rc = raster(sampler_ref(Rf, ea, eb), bx0, bx1, bz0, bz1, PITCH)
+    Gk = raster(sampler_gen(Gf, proj, mx0, my0, zdat_gen),
+                bx0, bx1, bz0, bz1, PITCH)
+    print("\ncommon frame    %.3f mm/cell, %d x %d cells, x %+.3f..%+.3f  "
+          "z(datum) %+.3f..%+.3f" % (PITCH * 1000, Rc.shape[1], Rc.shape[0],
+                                     bx1, bx0, bz0, bz1))
+    print("                reference %d cells, render %d cells "
+          "(native %d / %d px)" % (Rc.sum(), Gk.sum(), R.sum(), G_native.sum()))
 
-    # place both on one canvas, ink-bbox centres coincident, then search
-    gx0c, gy0c, gx1c, gy1c = bbox(Gc)
-    ch = max(R.shape[0], th) + 4 * SEARCH
-    cw = max(R.shape[1], tw) + 4 * SEARCH
-    Rc = np.zeros((ch, cw), bool)
-    Gk = np.zeros((ch, cw), bool)
-    Ck = np.zeros((ch, cw, 3), float)
-    Rk = np.zeros((ch, cw, 3), float)
-    ay = 2 * SEARCH
-    ax = 2 * SEARCH
-    Rc[ay:ay + R.shape[0], ax:ax + R.shape[1]] = R
-    Rk[ay:ay + R.shape[0], ax:ax + R.shape[1]] = ref_rgb
-    # offset that makes the two ink-bbox centres coincide
-    oy = int(round((ry0 + ry1) / 2 - (gy0c + gy1c) / 2))
-    ox = int(round((rx0 + rx1) / 2 - (gx0c + gx1c) / 2))
-    Gk[ay + oy:ay + oy + th, ax + ox:ax + ox + tw] = Gc
-    Ck[ay + oy:ay + oy + th, ax + ox:ax + ox + tw] = crop_c
-
+    rad = int(round(SEARCH_MM / 1000.0 / PITCH))
     v0 = iou(Rc, Gk)
-    v, dy, dx = best_shift(Rc, Gk)
+    v, dy, dx = best_shift(Rc, Gk, rad)
     Gs = np.roll(np.roll(Gk, dy, 0), dx, 1)
-    Cs = np.roll(np.roll(Ck, dy, 0), dx, 1)
-    print("registration    bbox-centre align gives IoU %.4f; best integer "
-          "shift (%+d, %+d) px = (%+.1f, %+.1f) mm" %
-          (v0, dx, dy, dx * 1000 / REF_PPM, dy * 1000 / REF_PPM))
-    if abs(dx) == SEARCH or abs(dy) == SEARCH:
-        print("                !! the optimum is ON the search boundary "
-              "(+/-%d px) -- widen SEARCH" % SEARCH)
+    # The registration shift is not bookkeeping, it is the decal's PLACEMENT
+    # ERROR against the calibrated reference map, and it is cross-checked
+    # against a completely separate route: SCR's x extents against flank_X()
+    # of the lockup's own columns, printed near the top of this run.
+    print("registration    as-placed IoU %.4f; best integer shift (%+d, %+d) "
+          "cells = (%+.1f mm in x, %+.1f mm in z), search +-%.0f mm"
+          % (v0, dx, dy, -dx * PITCH * 1000, dy * PITCH * 1000, SEARCH_MM))
+    print("                that shift IS a measurement: the render's lockup "
+          "has to move %+.1f mm forward and %+.1f mm down to sit where the"
+          % (-dx * PITCH * 1000, dy * PITCH * 1000))
+    print("                calibrated map puts the photograph's.  Independent "
+          "cross-check, sharing no step with it: SCR's own x extents are")
+    print("                %+.0f / %+.0f mm aft of flank_X(LOCKUP), and the "
+          "cream/red differential puts the ink top %+.1f mm high."
+          % (1000 * (flank_X(CS.LOCKUP[0]) - SCR["x0"]),
+             1000 * (flank_X(CS.LOCKUP[2]) - SCR["x1"]),
+             (-GZ.max() + RZ.max()) * 1000))
+    if abs(dx) == rad or abs(dy) == rad:
+        print("                !! the optimum is ON the search boundary -- "
+              "widen SEARCH_MM; every IoU below is of a mis-registered pair")
 
     # ----------------------------------------------------------- ceiling
-    # Measured, not asserted: what one pixel of registration slop costs the
-    # reference mask against ITSELF.  Nothing can score above this.
-    slop = [iou(Rc, np.roll(np.roll(Rc, sy, 0), sx, 1))
-            for sy, sx in ((0, 1), (0, -1), (1, 0), (-1, 0))]
+    # Measured, not asserted, and measured THROUGH THE SAME WARP: the
+    # reference mask displaced by one of its OWN pixels, carried into the
+    # metric frame by the same sampler, against the unshifted one.  Nothing
+    # can score above this.
+    slop = []
+    for sy, sx in ((0, 1), (0, -1), (1, 0), (-1, 0)):
+        Rs = raster(sampler_ref(np.roll(np.roll(Rf, sy, 0), sx, 1), ea, eb),
+                    bx0, bx1, bz0, bz1, PITCH)
+        slop.append(iou(Rc, Rs))
     ceiling = float(np.mean(slop))
-    print("ceiling         reference against itself at 1 px: "
-          "%.4f %.4f %.4f %.4f -> mean %.4f  (MEASURED this run)"
+    print("ceiling         reference against itself at 1 of ITS OWN px, "
+          "through the same warp: %.4f %.4f %.4f %.4f -> mean %.4f  (MEASURED)"
           % tuple(slop + [ceiling]))
     print("                inherited, AUDIT_rev11: %.2f, or %.2f with 1 px of "
           "registration slop" % (CEILING_INHERITED, CEILING_INHERITED_1PX))
@@ -573,71 +1056,119 @@ def main():
           % (v, v / ceiling, v / CEILING_INHERITED_1PX, CEILING_INHERITED_1PX))
 
     # --------------------------------------------------------- per region
-    # A whole-lockup IoU is dominated by the largest glyph -- which is exactly
-    # how this comparison went blind before (AUDIT_rev11: whole-lockup 0.942
-    # while `Senor` was at 0.454).  The regions are compare_script.BOXES, the
-    # established set, and each one gets its OWN measured ceiling because a
-    # small region loses more of itself to 1 px of slop than a large one.
-    print("\n  %-14s %6s %8s %8s %8s %8s" %
-          ("region", "IoU", "ceiling", "of ceil", "ref px", "render px"))
-    print("  " + "-" * 56)
+    # The regions are compare_script.BOXES, the established set, mapped into
+    # the metric frame through the same reference map, so a box still covers
+    # the glyph it names.  Each gets its OWN measured ceiling because a small
+    # region loses more of itself to 1 px of slop than a large one.
+    def box_cells(bx0_, by0_, bx1_, by1_):
+        u0, u1 = CS.X0 + bx0_, CS.X0 + bx1_
+        v0_, v1_ = CS.CY0 + by0_ + CS.YPAD, CS.CY0 + by1_ + CS.YPAD
+        Xs = [flank_X(u0), flank_X(u1)]
+        Zs = [((ea * u + eb) - vv) / flank_kv(u)
+              for u, vv in ((u0, v0_), (u0, v1_), (u1, v0_), (u1, v1_))]
+        c0 = int((bx0 - max(Xs)) / PITCH)
+        c1 = int((bx0 - min(Xs)) / PITCH)
+        r0 = int((bz1 - max(Zs)) / PITCH)
+        r1 = int((bz1 - min(Zs)) / PITCH)
+        return slice(max(0, r0), r1), slice(max(0, c0), c1)
+
+    # The texture-alpha control (below) is rasterised here so that every
+    # region can be scored against it too: that column separates "the render
+    # got this glyph wrong" from "the panel this glyph is painted on is in
+    # the wrong place", which are different defects with different owners.
+    tex = os.path.join(HERE, "tex", "senor.png")
+    Tk = None
+    if os.path.exists(tex):
+        al = np.asarray(Image.open(tex).convert("RGBA"))[..., 3].astype(np.float32)
+        Tk = raster(sampler_tex((al > 96).astype(np.float32),
+                                SCR["x0"], SCR["x1"], SCR["z0"], SCR["z1"],
+                                zdat_gen), bx0, bx1, bz0, bz1, PITCH)
+        vt, tdy, tdx = best_shift(Rc, Tk, rad)
+        Ts = np.roll(np.roll(Tk, tdy, 0), tdx, 1)
+    else:
+        vt, Ts = float("nan"), None
+
+    print("\n  %-14s %6s %8s %8s %8s %8s %9s" %
+          ("region", "IoU", "ceiling", "of ceil", "ref px", "render px",
+           "tex-only"))
+    print("  " + "-" * 66)
     worst = (1e9, "")
-    for name, bx0, by0, bx1, by1 in CS.BOXES:
-        sl = (slice(ay + by0 + CS.YPAD, ay + by1 + CS.YPAD),
-              slice(ax + bx0, ax + bx1))
+    Rshift = [raster(sampler_ref(np.roll(np.roll(Rf, sy, 0), sx, 1), ea, eb),
+                     bx0, bx1, bz0, bz1, PITCH)
+              for sy, sx in ((0, 1), (0, -1), (1, 0), (-1, 0))]
+    for name, b0, b1, b2, b3 in CS.BOXES:
+        sl = box_cells(b0, b1, b2, b3)
         a, b = Rc[sl], Gs[sl]
         if a.sum() == 0:
             continue
-        cl = float(np.mean([iou(a, np.roll(np.roll(Rc, sy, 0), sx, 1)[sl])
-                            for sy, sx in ((0, 1), (0, -1), (1, 0), (-1, 0))]))
+        cl = float(np.mean([iou(a, Q[sl]) for Q in Rshift]))
         f = iou(a, b) / cl
-        print("  %-14s %6.3f %8.3f %8.3f %8d %8d"
-              % (name, iou(a, b), cl, f, a.sum(), b.sum()))
+        tf = iou(a, Ts[sl]) / cl if Ts is not None else float("nan")
+        print("  %-14s %6.3f %8.3f %8.3f %8d %8d %9.3f"
+              % (name, iou(a, b), cl, f, a.sum(), b.sum(), tf))
         if f < worst[0]:
             worst = (f, name)
-    print("  " + "-" * 56)
+    print("  " + "-" * 66)
     print("  worst region: %s at %.3f of its own ceiling" % (worst[1], worst[0]))
+    print("  `tex-only` is the same column for tex/senor.png's ALPHA laid on "
+          "the SCR rectangle -- no render, no mask rule.  Where it is as low "
+          "as the")
+    print("  render column, the glyph's problem is the PANEL, not the render.")
+
+    # ------------------------------------------------- controls
+    # A number is not a measurement until something that should fail, does --
+    # and until something that should pass, does, through the same machinery.
+    print("\ncontrols")
+
+    # POSITIVE, and it is not tautological: tex/senor.png's ALPHA laid on the
+    # SCR rectangle by conform_panel_true's own UV rule, scored against the
+    # reference in the metric frame.  No render, no threshold rule, no
+    # endmembers -- so it tests the GEOMETRIC chain (SPEC 10.35 map, k_t, the
+    # cream/red datum, the rake removal, the panel placement) on its own.  If
+    # this lands on the ceiling the geometry is sound and any deficit above
+    # belongs to the render or the mask rule; if it does not, the geometry is
+    # what is broken and the four metrics are measuring the wrong thing.
+    if Tk is not None:
+        print("  positive: tex/senor.png alpha on the SCR rectangle, no render "
+              "and no mask rule")
+        print("            IoU %.4f = %.3f of the %.4f ceiling, against the "
+              "render's %.3f." % (vt, vt / ceiling, ceiling, v / ceiling))
+        print("            The render and the whole chromaticity mask rule "
+              "together are therefore worth %+.3f of ceiling;"
+              % (v / ceiling - vt / ceiling))
+        print("            everything else between %.3f and 1.000 is the "
+              "PANEL against the calibrated reference map." % (vt / ceiling))
+    else:
+        print("  positive: tex/senor.png missing -- control not run")
+
+    # NEGATIVE: the SAME render mask, squashed 8 % vertically about its own
+    # centre, through the IDENTICAL sampler.  Half the squash rev 11 found and
+    # above ASPECT_TOL, so the aspect check must fire and the IoU must fall.
+    zc = 0.5 * (GZ.max() + GZ.min())
+    Nk = raster(sampler_gen(Gf, proj, mx0, my0, zdat_gen, zsq=0.92, zc=zc),
+                bx0, bx1, bz0, bz1, PITCH)
+    vn, _, _ = best_shift(Rc, Nk, rad)
+    gan = gw / (gh * 0.92)
+    fires = abs(gan / ra - 1) > ASPECT_TOL
+    print("  negative: the SAME render mask squashed 8 % vertically, same "
+          "sampler")
+    print("            aspect %.4f (%+.2f %% vs reference, bar is %+.0f %%) -- "
+          "the aspect check %s" % (gan, 100 * (gan / ra - 1), 100 * ASPECT_TOL,
+                                   "FIRES, as intended" if fires else
+                                   "DID NOT FIRE -- it is not sensitive here"))
+    print("            IoU %.4f = %.3f of ceiling, against %.3f un-squashed: "
+          "the IoU loses %.3f of ceiling for a known 8 %%"
+          % (vn, vn / ceiling, v / ceiling, v / ceiling - vn / ceiling))
 
     # --------------------------------------------- what the misses are made of
-    # A false negative can mean two different things and they are not the same
-    # defect: nothing is there, or something is there and it does not read as
-    # ink.  This says which, in the render's own pixels.
     fn = Rc & ~Gs
     fp = Gs & ~Rc
     both = Rc & Gs
-    inpanel_c = Cs.sum(2) > 0
-    gnd_c = inpanel_c & ~Rc & ~Gs
-    def _stat(m):
-        if m.sum() < 10:
-            return "n<10"
-        px = Cs[m]
-        rn = (px[:, 0] - 0.5 * (px[:, 1] + px[:, 2])) / np.maximum(px.sum(1), 1e-6)
-        return ("(%5.1f,%5.1f,%5.1f) redness %.4f  n=%d"
-                % (px[:, 0].mean(), px[:, 1].mean(), px[:, 2].mean(),
-                   rn.mean(), m.sum()))
-    print("\nwhat the render has where the two masks disagree "
-          "(render pixels, common frame):")
-    print("   both agree ink   %s" % _stat(both))
-    print("   ref only (miss)  %s" % _stat(fn & inpanel_c))
-    print("   render only      %s" % _stat(fp))
-    print("   bare ground      %s" % _stat(gnd_c))
-    # ... and the same three inside the region that failed hardest, because a
-    # miss means two different things -- nothing is there, or something is
-    # there and it does not read as ink -- and they are not the same defect.
-    for name, bx0, by0, bx1, by1 in CS.BOXES:
-        if name != worst[1]:
-            continue
-        wm = np.zeros_like(Rc)
-        wm[ay + by0 + CS.YPAD:ay + by1 + CS.YPAD, ax + bx0:ax + bx1] = True
-        print("   in `%s`:  missed %s" % (name, _stat(fn & wm & inpanel_c)))
-        print("   %s   ground %s" % (" " * len(name), _stat(gnd_c & wm)))
+    print("\nagreement (metric frame, %d x %d cells):" % Rc.shape)
+    print("   both agree ink   %6d cells   ref only (miss) %6d   render only "
+          "%6d" % (both.sum(), fn.sum(), fp.sum()))
 
     # ------------------------------------------------------- ink colour
-    # The reference silver is NOT flat, and the four measured tarnish zones are
-    # a different endmember, so the whole-mask spread and the untarnished
-    # spread are both quoted -- the published "per-channel sd 16-19, luma
-    # p5-p95 85-135" (SPEC 10.21) is the UNTARNISHED figure and would not be
-    # comparable with a whole-mask number.
     untar = R.copy()
     for tx0, ty0, tx1, ty1, _ in CS.TARNISH:
         untar[max(0, ty0 - CS.CY0):max(0, ty1 - CS.CY0),
@@ -681,31 +1212,52 @@ def main():
     print("=" * 78)
 
     # ================================================== the picture, honestly
-    # Both panels at ONE mm/px, one canvas, registered by the shift printed
-    # above.  Neither is stretched to the other's box.
+    # Both masks in the metric frame, one canvas, registered by the shift
+    # printed above.  Neither is stretched to the other's box.  Plus the render
+    # crop box drawn on the render, because a crop that is not where its author
+    # thinks it is has produced four confident wrong numbers on this project.
     S = 3
-    y0k, y1k = ay - SEARCH, ay + max(R.shape[0], th) + SEARCH
-    x0k, x1k = ax - SEARCH, ax + max(R.shape[1], tw) + SEARCH
-
-    def band(rgbimg):
-        a = rgbimg[y0k:y1k, x0k:x1k]
-        return np.kron(np.clip(a, 0, 255).astype(np.uint8),
-                       np.ones((S, S, 1), np.uint8))
-
-    ov = np.zeros((y1k - y0k, x1k - x0k, 3), np.uint8)
-    ov[..., 0] = Rc[y0k:y1k, x0k:x1k] * 255
-    ov[..., 1] = Gs[y0k:y1k, x0k:x1k] * 255
-    ov[..., 2] = (Rc & Gs)[y0k:y1k, x0k:x1k] * 255
+    ov = np.zeros(Rc.shape + (3,), np.uint8)
+    ov[..., 0] = Rc * 255
+    ov[..., 1] = Gs * 255
+    ov[..., 2] = (Rc & Gs) * 255
     ov = np.kron(ov, np.ones((S, S, 1), np.uint8))
 
-    panels = [("REFERENCE  ref_side.jpg, full measured ink extent, "
-               "%.3f mm/px" % (1000 / REF_PPM), band(Rk)),
-              ("RENDER  %s, panel projected with the rake, area-averaged to "
-               "the same mm/px" % os.path.basename(src), band(Cs)),
-              ("OVERLAY  red = reference only, green = render only, "
-               "white = both.  IoU %.4f / ceiling %.4f" % (v, ceiling), ov)]
+    shot = Image.fromarray(np.clip(A[my0 - 30:my1 + 30, mx0 - 30:mx1 + 30],
+                                   0, 255).astype(np.uint8))
+    d0_ = ImageDraw.Draw(shot)
+    d0_.rectangle([30, 30, 30 + (mx1 - mx0), 30 + (my1 - my0)],
+                  outline=(255, 255, 0))
+    xs_q = np.linspace(SCR["x0"], SCR["x1"], 200)
+    for zk in ("z0", "z1"):
+        pts = proj(xs_q, SCR[zk] - rake_drop(xs_q))
+        d0_.line([(float(a) - mx0 + 30, float(b) - my0 + 30)
+                  for a, b in zip(*pts)], fill=(0, 255, 0))
+    shot = shot.resize((shot.width * 2, shot.height * 2), Image.NEAREST)
+
+    refshot = Image.fromarray(np.clip(ref_rgb_full[CS.CY0 - 20:CS.CY0 + CS.CMH + 20,
+                                                   CS.X0 - 20:CS.X0 + CS.MW + 20],
+                                      0, 255).astype(np.uint8))
+    d1_ = ImageDraw.Draw(refshot)
+    d1_.rectangle([20, 20, 20 + CS.MW - 1, 20 + CS.CMH - 1], outline=(255, 255, 0))
+    d1_.rectangle([lk[0] - CS.X0 + 20, lk[1] - CS.CY0 + 20,
+                   lk[2] - CS.X0 + 20, lk[3] - CS.CY0 + 20], outline=(0, 255, 0))
+    for tx0, ty0, tx1, ty1, _ in CS.TARNISH:
+        d1_.rectangle([tx0 - CS.X0 + 20, ty0 - CS.CY0 + 20,
+                       tx1 - CS.X0 + 20, ty1 - CS.CY0 + 20], outline=(0, 170, 255))
+    refshot = refshot.resize((refshot.width * 3, refshot.height * 3), Image.NEAREST)
+
+    panels = [("REFERENCE  ref_side.jpg -- yellow: the comparison window; "
+               "green: the measured LOCKUP; blue: the four tarnish zones",
+               np.asarray(refshot)),
+              ("RENDER  %s -- yellow: the crop box actually used; green: the "
+               "projected panel quad, column by column, with the rake"
+               % os.path.basename(src), np.asarray(shot)),
+              ("OVERLAY  metric frame, %.2f mm/cell.  red = reference only, "
+               "green = render only, white = both.  IoU %.4f / ceiling %.4f"
+               % (PITCH * 1000, v, ceiling), ov)]
     lab = 20
-    Wc = panels[0][1].shape[1]
+    Wc = max(p[1].shape[1] for p in panels)
     Hc = sum(p[1].shape[0] + lab for p in panels) + 8
     canvas = Image.new("RGB", (Wc, Hc), (26, 26, 28))
     d = ImageDraw.Draw(canvas)

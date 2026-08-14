@@ -316,7 +316,24 @@ A("|---|---|---|---|")
 _COUNTER_PARTS = ("counter", "counter_nosing", "counter_top")
 _bodyish = [o for o in meshes if o.name not in _COUNTER_PARTS]
 _blo2, _bhi2 = vbounds(_bodyish)
-A(_row("overall length (ex counter)", _bhi2.x - _blo2.x, 4.290, 0.025))
+# rev 17.  THIS ROW WAS A RE-TYPED CONSTANT and it disagreed with the guard.
+#
+# rev 16 re-spaced the tail and re-expressed the target in verify.py:47 as
+# SPEC["L"] = 4.290 - (O_OLD - O_NEW), precisely so that re-measuring the
+# overhang could never leave it stale.  It did not make the same change here,
+# so audit.py went on comparing against the bare VW catalogue 4.290 while
+# verify.py compared against 4.055.  STATE.md -- the file this repo declares
+# authoritative over all prose -- therefore reported
+#       overall length  4.0648 vs 4.2900 = -225.2 mm OUT
+# on a quantity verify.py PASSES at +9.8 mm.  Same failure shape as the
+# counter_top row the rev-12 audit found at this exact line, and a direct
+# breach of SPEC's own rule that a constant tuned against another constant
+# must be expressed in terms of it.
+#
+# Imported from verify.py rather than recomputed, so there is now exactly ONE
+# definition of this target in the repo and no third copy can appear.
+import verify as _V
+A(_row("overall length (ex counter)", _bhi2.x - _blo2.x, _V.SPEC["L"], 0.025))
 A("| counter tail overhang past body | %.4f | — | — |" % (_blo2.x - lo.x))
 A(_row("overall width (body)", bhi.y - blo.y, 1.750, 0.025))
 A(_row("overall height (max, any station)", H, 1.960, 0.025))

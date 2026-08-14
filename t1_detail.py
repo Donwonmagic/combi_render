@@ -198,25 +198,132 @@ def hubcap(name="cap"):
 CAP_EMBLEM_D = 0.3170 * CAP_D
 CAP_EMBLEM_WFRAC = 0.2087           # w/R as authored (0.0072 / 0.0345), kept
 
+# The emblem plate: ONE plane, ONE thickness, shared by the ring and the glyph.
+# Named because rev 17 added the ring and the two must never drift apart -- the
+# reference shows every stroke end running INTO the ring band, which is only
+# true if they are coplanar.  Both numbers are inherited from the rev-15 glyph
+# exactly as authored; nothing here re-derives them.
+CAP_EMBLEM_PLANE = 0.0805           # offset of the plate's mid-plane along +n
+CAP_EMBLEM_DEPTH = 0.0060           # plate thickness (prism is centred: +-half)
+
+# rev 17.  THE HUBCAP RING -- rev 15 left it open ("this build has no hubcap
+# ring at all") and it is now measured and built.
+#
+# What "the ring" is: the emblem is a VW inside a closed annulus, the same
+# badge geometry as the nose roundel.  Its OUTER boundary is the emblem's own
+# outer extent, i.e. exactly CAP_EMBLEM_D -- so the ring adds NO new diameter.
+# The one new number is the band's radial width, as a fraction of that D.
+#
+# WHY THE BAND IS NOT MEASURED ON ref_side.jpg.  Measured this revision from an
+# isolated step edge (the red dome / cream rim boundary, 720-ray erf fit):
+#
+#     ref_side.jpg      PSF sigma 1.625 px      emblem outer D  18.1 px
+#     ref_workshop.jpg  PSF sigma 0.689 px      badge  outer D  91.7 px
+#
+# The band is ~0.09 D.  In ref_side that is 1.7 px = 1.05 sigma -- UNRESOLVED,
+# and a half-level crossing there reads 0.18 D, double the truth, because the
+# blurred band never reaches its own plateau.  In ref_workshop the same band on
+# the same badge design is 8.0 px = 11.6 sigma -- RESOLVED.  This is precisely
+# the compression asymmetry the rev-17 work list flagged, and it decides which
+# frame the number comes from.
+#
+# MEASURED, all three ratios dimensionless and taken WITHIN one feature, so no
+# px -> metre scale and no projective correction is involved:
+#
+#   ref_workshop.jpg nose badge, crop box (258,494,352,604)
+#     vertical axis    band  8.021 +/- 0.119 px / outer D 91.729 px = 0.0874
+#     horizontal axis  band  6.240 +/- 1.105 px / outer D 62.705 px = 0.0995
+#   ref_side.jpg hubcap, crop box (700,550,805,660), PSF-forward-modelled
+#     (ideal annulus blurred by sigma 1.625, fitted r = 4..14 px)     = 0.065
+#         profile-likelihood: rms 2.10 at 0.08, 2.85 at 0.18, 3.72 at 0.28
+#
+#     ring band / ring outer D = 0.093 +/- 0.012        adopted
+#
+# The +/- is the vertical-vs-horizontal systematic on the workshop badge (its
+# two sides read 5.24 and 7.34 px -- the badge is proud, so the near side shows
+# its wall) plus the transfer to the hubcap.  CEILING: the statistical floor on
+# the resolved measurement alone is +/- 0.0013; the transfer cannot be tested
+# better than about +/- 0.03 in this photo set, because the hubcap's own band
+# is 1.05 sigma wide in the only frame that shows it face-on.  No sharper
+# number is available without a sharper photograph.
+#
+# The outer diameter was re-derived independently while doing this, with the
+# same PSF forward model: outer R 9.04 +/- 0.15 px against a hubcap dome R of
+# 29.06 px (erf fit) -> 0.311 +/- 0.007 against the locked 0.317 +/- 0.017,
+# i.e. 0.35 sigma.  CAP_EMBLEM_D is confirmed and untouched.
+#
+# CORROBORATION, found after the fact and not used to derive anything: the NOSE
+# roundel's ring, authored years ago in roundel() as the absolute R - 0.028,
+# measures 0.1005 of its own built outer D (0.2802 m).  That is 0.6 sigma from
+# the 0.093 measured here off the photograph.  Two rings authored by different
+# routes agree.
+#
+# NEGATIVE CONTROL for "the ring is visible at all", ref_side.jpg, 720-ray
+# angular-mean creamness annulus detector, radii 5-11 px:
+#     at the emblem centre (748.15,606.00)   peak r 7.50 px, amp +55.0,
+#                                            angular coverage 1.00 (720/720)
+#     six centres displaced 16 px onto blank dome, same detector, same frame:
+#                                            amp -16.3 .. -2.3, coverage
+#                                            0.20 .. 0.51  -- no annulus
+# and in ref_workshop.jpg the OTHER van's front hubcap (crop 610,680,700,770)
+# is a plain cream dome with no roundel at all: the same detector run at
+# ring-scale radii returns amp -13.3 .. -2.8, coverage 0.27 .. 0.32.
+CAP_RING_BANDFRAC = 0.093           # band / ring outer D, measured above
+
+
+def cap_ring(y, side):
+    """the cream annulus the VW sits inside, coplanar with the glyph.
+
+    Expressed ENTIRELY in terms of CAP_EMBLEM_D and the shared plate constants.
+    There is no absolute metre value here on purpose: the glyph merged into an
+    X twice because a size derived from another size was written down as a
+    literal and went stale.  If CAP_EMBLEM_D moves, the ring moves with it and
+    the strokes stay flush with the band, which is what the reference shows.
+    """
+    ro = CAP_EMBLEM_D / 2                       # = the glyph's own fit radius
+    ri = ro * (1.0 - 2.0 * CAP_RING_BANDFRAC)   # band = 0.093 * outer D
+    y0 = y + side * CAP_EMBLEM_PLANE - CAP_EMBLEM_DEPTH / 2
+    y1 = y0 + CAP_EMBLEM_DEPTH
+    return T.revolve([(y0, ri), (y1, ri), (y1, ro), (y0, ro)],
+                     seg=96, axis='Y', name=f"capring{side}")
+
 
 def cap_emblem(y, side):
-    """white VW in the centre of the red dome.
+    """white VW inside its ring, in the centre of the red dome.
 
-    NOT DONE, and reported rather than invented: the reference emblem is a
-    VW inside a RING, exactly like the nose roundel -- the ring is plainly
-    there in the 16x crop and in the threshold mask -- and this build has no
-    hubcap ring at all.  The emblem is 18 px across in the only frame that
-    shows it, which is enough to size it but not enough to author a ring
-    cross-section or a proud height.  The size fix below therefore treats the
-    measured 18 px as the glyph's own extent, which is what the "strokes run
-    flush into the ring" geometry gives; adding the ring later will not move
-    it.
+    RELIEF, reported rather than invented: the ring's proud height is not
+    measurable on the hubcap in any frame.  It is measurable on the nose badge
+    -- the left and right bands of the workshop roundel read 5.24 and 7.34 px
+    at an axis ratio of 0.684, and that asymmetry is the badge's own wall, so
+    h ~ 1.44 px = 0.0157 of its outer D, about 4.4 mm on a 280 mm badge.  The
+    plate this build already uses is 6.0 mm thick and stands 3-5 mm off the
+    dome, which is right for the nose and about 4x too thick scaled to an
+    87 mm hubcap emblem.  That is rev-15's glyph plane, it is not this
+    revision's brief, and the ring MUST share whatever plane the glyph is in --
+    so both now read the same two constants and neither was changed.
+
+    EXPOSED BY BUILDING THE RING, reported not fixed because the cause is
+    t1_core.vw_bars' V_SPINE which this file may not edit: the W's outer arms
+    and legs land flush on the band (rmax 0.043429 = CAP_EMBLEM_D/2 exactly),
+    but the V's arm tips reach only 0.031069, i.e. 0.7154 of the fit radius,
+    while the band's inner edge is at 0.8140.  The V therefore stops 4.28 mm
+    short of the ring -- 4.9 % of the emblem D -- where every reference frame
+    shows both V arms running into the band.  Same defect on the nose roundel
+    with the same spine (V reaches 0.7211 of that ring's outer radius, band
+    inner at 0.7990 -> 10.9 mm short).  To close it, V_SPINE's tips must grow
+    by a factor 0.8140 / 0.7154 = 1.138 about the apex, i.e. (+/-0.400, 0.560)
+    -> (+/-0.455, 0.646), which leaves the arm angle and the W untouched.
     """
-    obs = T.vw_bars(1.0, CAP_EMBLEM_WFRAC, (0.0, y + side * 0.0805, 0.0),
-                    (1, 0, 0), (0, 0, 1), (0, side, 0), 0.0060,
-                    tag=f"capvw{side}")
-    _fit_glyph(obs, CAP_EMBLEM_D / 2, ax=('x', 'z'))
-    return obs
+    glyph = T.vw_bars(1.0, CAP_EMBLEM_WFRAC,
+                      (0.0, y + side * CAP_EMBLEM_PLANE, 0.0),
+                      (1, 0, 0), (0, 0, 1), (0, side, 0), CAP_EMBLEM_DEPTH,
+                      tag=f"capvw{side}")
+    # _fit_glyph reads rmax off the objects it is GIVEN, so the ring must not
+    # be in that list -- the ring is already at CAP_EMBLEM_D/2 and passing it
+    # in would make the unit glyph's rmax the divisor for both and shrink the
+    # ring by ~20x.  Fit first, then prepend.
+    _fit_glyph(glyph, CAP_EMBLEM_D / 2, ax=('x', 'z'))
+    return [cap_ring(y, side)] + glyph
 
 
 def wheel_assembly(x, y, steer=0.0):

@@ -756,10 +756,46 @@ def vw_bars(R, w, origin, u_ax, v_ax, n_ax, depth, tag="vw"):
     rather than hiding it.
 
     Geometry from the skeptic pass: V arm -40.75 deg, W inner -53.04 deg, so
-    12.29 deg apart, with a clear 12.7 mm air gap between the V apex and the W
-    peak at the locked ring diameter of 0.370 m. V above W, always (SPEC 0.2).
+    12.29 deg apart. V above W, always (SPEC 0.2).
+
+    rev 17 -- THE AIR-GAP SENTENCE THAT USED TO SIT HERE WAS FALSE, and it is
+    deleted rather than re-valued.  It claimed "a clear 12.7 mm air gap between
+    the V apex and the W peak at the locked ring diameter of 0.370 m".  Three
+    things were wrong with it and all three are MEASURED on the built nose
+    roundel (ring outer D 0.2802 m), not argued:
+
+      * V apex underside   z = -0.03515      W centre-peak top  z = +0.01686
+        -> the V PENETRATES the W by 52.0 mm.  There is no gap and there never
+           was one.  SPEC 10.25's premise is wrong.
+      * 0.370 is stale.  The locked diameter has been ROUNDEL_D = 0.2800
+        (built 0.2802) since rev 10.
+      * No diameter can open a gap.  The spine separation between the V apex
+        (0, -0.060) and the W peak (0, -0.075) is 0.015 R, while each stroke's
+        mitred half-extension is an order of magnitude larger.  The two fuse
+        BY CONSTRUCTION -- which is why "correcting the diameter" closed the
+        designed gap twice and merged the glyph into an X twice.
+
+    The fusion matches the photographs and must stay.  This docstring is what
+    the standing rule "a claim in prose is not a guard" is about: it survived
+    nine revisions because nobody grepped for the node that does it.
+
+    rev 17 also GREW THE V's ARM TIPS.  Building the hubcap ring exposed that
+    the V reached only 0.7154 of the glyph's fit radius while the ring's inner
+    edge sits at 0.8140 -- the V stopped 4.28 mm short of the band (4.9 % of
+    the emblem D), where every reference frame shows both arms running into
+    it.  Tips scaled by 0.8140/0.7154 = 1.138 about the apex.  The arm ANGLE
+    and the whole W are untouched, and the V's radius stays below the W's, so
+    _fit_glyph's scale does not move.  Written as an expression of the ring
+    fraction so the two can never drift apart again.
     """
-    V_SPINE = [(-0.400, 0.560), (0.000, -0.060), (0.400, 0.560)]
+    _RING_INNER_FRAC = 1.0 - 2.0 * 0.093      # t1_detail.CAP_RING_BANDFRAC
+    _V_TIP_R0        = 0.7154                 # measured on the built glyph
+    _VG              = _RING_INNER_FRAC / _V_TIP_R0        # = 1.138
+    _apex            = (0.000, -0.060)
+    _tip             = (0.400, 0.560)
+    _tx = _apex[0] + (_tip[0] - _apex[0]) * _VG
+    _ty = _apex[1] + (_tip[1] - _apex[1]) * _VG
+    V_SPINE = [(-_tx, _ty), _apex, (_tx, _ty)]
     W_SPINE = [(-0.760, -0.060), (-0.380, -0.700), (0.000, -0.075),
                (0.380, -0.700), (0.760, -0.060)]
     obs = []
