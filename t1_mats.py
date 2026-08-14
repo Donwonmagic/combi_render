@@ -177,8 +177,14 @@ assert v_apex(2.108) <= 0.3960, "V_APEX at the nose above the bumper-occlusion b
 # actually measured against the reference: see the residual table in the
 # handover.  Roughness modulation alone is nearly invisible at Specular IOR
 # Level 0.21 / Roughness 0.42 because the body is diffuse-dominated.
-W_N1_SCALE, W_N1_DETAIL, W_N1_ROUGH = 3.5, 6.0, 0.55
-W_N2_SCALE, W_N2_DETAIL = 22.0, 4.0
+# rev 15, work-list item 2.  These four were fixed literals; they are now
+# overridable because a NEGATIVE CONTROL showed the amplitude lever is inert at
+# 25 mm and the SCALE/persistence levers are the live ones.  See SPEC 10.31.
+W_N1_SCALE = float(os.environ.get("T1_W_N1SC", 3.5))
+W_N1_DETAIL = float(os.environ.get("T1_W_N1DT", 6.0))
+W_N1_ROUGH = float(os.environ.get("T1_W_N1RG", 0.55))
+W_N2_SCALE = float(os.environ.get("T1_W_N2SC", 22.0))
+W_N2_DETAIL = float(os.environ.get("T1_W_N2DT", 4.0))
 W_N1_W, W_N2_W = 0.65, 0.35
 W_ROUGH_SWING = 0.09           # +- about the material's base roughness
 W_ALBEDO = float(os.environ.get("T1_W_ALB", 0.260))
@@ -413,7 +419,14 @@ def counter_tan():
     by name, so calling this early and calling it again from build_all() hands
     back the same datablock rather than a second copy.
     """
-    return simple("countertan", COUNTERTAN, rough=0.42, coat=0.05, spec=0.32)
+    # rev 15: the finish numbers live HERE, not at the build_all() call site --
+    # simple() resolves by name and this function runs first (step 7 vs step 9),
+    # so build_all()'s arguments are dead.  A four-arm coat/spec ablation set at
+    # the LATER site read identical to four decimals, which is what exposed it.
+    return simple("countertan", COUNTERTAN,
+                  rough=float(os.environ.get("T1_CTAN_RG", 0.42)),
+                  coat=float(os.environ.get("T1_CTAN_CT", 0.05)),
+                  spec=float(os.environ.get("T1_CTAN_SP", 0.32)))
 
 
 def _lstar(c):
@@ -1501,8 +1514,15 @@ def build_all():
     # dust solve is anchored on this exact albedo and the two must not drift
     M["countercream"] = simple("countercream", COUNTERCREAM,
                                rough=0.38, coat=0.06, spec=0.35)
+    # rev 15, work-list item 3.  `coat` and `spec` are exposed because the
+    # three-point solve on COUNTERTAN alone FAILED: driving the base colour
+    # moved the measured top/fascia ratio at a gain of only 0.33-0.49, i.e. most
+    # of this surface's rendered radiance is an ACHROMATIC pedestal, not its
+    # albedo.  See SPEC 10.31.
     M["countertan"] = simple("countertan", COUNTERTAN,
-                             rough=0.42, coat=0.05, spec=0.32)
+                             rough=float(os.environ.get("T1_CTAN_RG", 0.42)),
+                             coat=float(os.environ.get("T1_CTAN_CT", 0.05)),
+                             spec=float(os.environ.get("T1_CTAN_SP", 0.32)))
     # chrome wears to NICKEL, so a primer-grey chip is wrong: tarnish instead
     M["chrome"] = tarnished("chrome", (0.860, 0.868, 0.880), 0.14, 0.30)
     M["chrome_d"] = tarnished("chrome_dull", (0.760, 0.768, 0.780), 0.20, 0.38)
