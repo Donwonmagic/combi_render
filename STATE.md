@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-14 14:27:39 UTC |
-| git commit | `667527c` |
-| git subject | rev 17: SPEC 10.38-10.44, handoff, and the rev-18 next-context prompt |
+| generated | 2026-08-14 14:56:27 UTC |
+| git commit | `7ce3d03` |
+| git subject | rev 16: commit the SUB=1 STATE.md and correct the commit count I did not watch print |
 | working tree | clean |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=1 (applied, destructive, before booleans) |
@@ -55,7 +55,7 @@ Shaders read the dropped frame, so `Z_BELT`/`V_APEX` are already AG.
 
 | dimension | measured | SPEC | delta |
 |---|---|---|---|
-| overall length (ex counter) | 4.0648 | 4.0550 | +9.8 mm ok |
+| overall length (ex counter) | 4.0648 | 4.2900 | -225.2 mm **OUT** |
 | counter tail overhang past body | 0.2902 | — | — |
 | overall width (body) | 1.7497 | 1.7500 | -0.3 mm ok |
 | overall height (max, any station) | 3.0169 | 1.9600 | +1056.9 mm **OUT** |
@@ -122,9 +122,9 @@ they grow slightly toward the tail. rev-3's three equal 0.600s are retired.
 
 | | |
 |---|---|
-| mesh objects | 185 |
-| vertices (all meshes) | 143039 |
-| faces (all meshes) | 137779 |
+| mesh objects | 181 |
+| vertices (all meshes) | 141503 |
+| faces (all meshes) | 136243 |
 
 | prefix | n |
 |---|---|
@@ -133,7 +133,6 @@ they grow slightly toward the tail. rev-3's three equal 0.600s are retired.
 | `seal_bay` | 6 |
 | `bracket` | 5 |
 | `cap` | 4 |
-| `capring` | 4 |
 | `gal_bot` | 4 |
 | `gal_botcap` | 4 |
 | `rim-1` | 4 |

@@ -77,6 +77,10 @@ SPEC = dict(L=4.290 - (_T.O_OLD - _T.O_NEW), W=1.750, H=1.941, WB=2.400,
 # carry and this guard tightens automatically, as its own comment promised.
 DOME_DEFICIT = 0.000
 RIDE_DROP_SPEC = 0.065        # rev 6: the bus IS lowered. See SPEC sec.2.
+# rev 18: SPEC 10.9 / t1_core:120 -- the rake, re-derived four ways in rev 13,
+# with 33.0 mm/m rejected at 4.5 sigma.  NOT a new constant: it is the locked
+# value this file previously did not guard at all.
+RAKE_SPEC = 0.01775
 
 BANNED = ("bed", "gate", "canopy", "fascia", "post")   # pickup-era geometry
 
@@ -262,20 +266,62 @@ def _slot_frac(body, outline, side, dzf):
     return n / max(len(outline), 1)
 
 
-def _englid_frac(body, outline, dz):
+def _englid_frac(body, outline, dz, thru_x):
     # engine lid is at a fixed tail station, so a scalar dz is correct here
     """fraction of samples along the tail (y, z) outline that are open slots.
 
-    Cast forward along +X from well behind the tail. The tail skin sits at
-    x ~ -2.09; anything the ray reaches forward of -1.95 means it got through.
+    Cast forward along +X from well behind the tail. A ray that is BLOCKED
+    stops on the tail skin at x = X_TAIL; a ray that gets through the slot
+    carries on far forward.  `thru_x` is the plane that separates the two.
+
+    rev 18 -- THIS ROW WAS DEAD, AT EVERY REVISION, AND IT PRINTED "100 %".
+    The threshold was the literal -1.95 while the docstring said "the tail
+    skin sits at x ~ -2.09".  It never did: at the OLD tail station -2.1080
+    the threshold was already 158 mm INBOARD of the skin, and after rev 16's
+    tail re-space the skin is at -1.8730, so -1.95 sits 77 mm BEHIND THE
+    ENTIRE VEHICLE and every ray that hits the tail at all scored "got
+    through".  Measured: 28/28 open, and 1.0000 returned with the outline
+    moved +350 mm, -300 mm, +600 mm and squeezed to 20 % of its width.
+
+    `t1_shell.engine_lid_gap` cuts at `X_TAIL + ENGLID_CUT_DX` and EXPRESSED
+    it that way.  verify kept a literal.  That is the project's own rule --
+    a constant tuned against another constant must be expressed in terms of
+    it -- broken inside the guard that was supposed to enforce the geometry.
+    The threshold is now that same expression, passed in by the caller.
     """
     ok_n = 0
     for (y, z) in outline:
         hit, loc, _, _ = body.ray_cast(Vector((-3.0, y, z + dz)),
                                        Vector((1, 0, 0)))
-        if (not hit) or loc.x > -1.95:
+        if (not hit) or loc.x > thru_x:
             ok_n += 1
     return ok_n / max(len(outline), 1)
+
+
+def _arch_lip_z(body, x, side, z0, z1, step=0.0005):
+    """Lowest z at station x where the flank skin exists -- i.e. the wheel-arch
+    lip, MEASURED ON THE BUILT MESH.
+
+    rev 18.  There was no such probe.  `verify` row 10's arch-to-tyre gap was
+    `ARCH_R - TIRE_R`, a subtraction of two SOURCE CONSTANTS, so it returned
+    41.0 mm forever no matter what the arch outline did -- and
+    `ARCH_W_REAR`, `_ARCH_PROFILE`, `_arch_drop` and `rear_arch_outline`
+    appear ZERO times in this file and zero times in audit.py.  Rev 16
+    rebuilt the rear arch and nothing measured the result.
+
+    Returns None if the transition is not found inside [z0, z1], so a caller
+    can report "not found" rather than silently publishing an endpoint --
+    the `or -9` failure audit.py's own rev-7 comment warns about.
+    """
+    z = z0
+    prev = _has_metal(body, x, z, side)
+    while z < z1:
+        z += step
+        cur = _has_metal(body, x, z, side)
+        if cur and not prev:
+            return z - step / 2.0
+        prev = cur
+    return None
 
 
 def _check_opaque(obname):
@@ -521,12 +567,58 @@ def run(body, log=print):
     # 10. ride height. rev 4 asserted stock and was WRONG; the measured rear
     # arch-to-tyre gap is 41 mm against a stock 90-120. Guard the real value in
     # BOTH directions so neither a reset-to-stock nor a drift reappears.
-    if abs(_T.RIDE_DROP - RIDE_DROP_SPEC) > 0.005:
-        fails.append(f"RIDE_DROP={_T.RIDE_DROP:.4f}; SPEC rev 6 says "
-                     f"{RIDE_DROP_SPEC:.3f} (the bus is lowered)")
-    gap = _S.ARCH_R - _T.TIRE_R
-    if abs(gap - 0.041) > 0.008:
-        fails.append(f"arch-to-tyre gap {gap*1000:.0f} mm; measured 41 mm")
+    # rev 18 -- THE OLD ROW 10 WAS AN ALGEBRAIC IDENTITY AND COULD NOT FAIL.
+    # t1_core defines X_DROP_REF = (0.0650 - RAKE_Z0)/RAKE_DZDX and then
+    # RIDE_DROP = RAKE_Z0 + RAKE_DZDX*X_DROP_REF, which cancels to the literal
+    # 0.0650 for ANY rake.  Measured residual: exactly 0.000e+00, not "small".
+    # Setting RAKE_Z0 to 0.000 / 0.020 / 0.200 / 0.500 leaves the row green --
+    # i.e. the stance could be reset to stock, the exact rev-4 regression this
+    # row exists to catch, and it would still pass.  The identity is kept as a
+    # cheap self-consistency assert, correctly LABELLED, and the quantities
+    # that actually describe the stance are guarded underneath it.
+    if abs(_T.RIDE_DROP - RIDE_DROP_SPEC) > 1e-9:
+        fails.append(f"RIDE_DROP={_T.RIDE_DROP:.6f} is no longer the identity "
+                     f"{RIDE_DROP_SPEC:.4f}; X_DROP_REF's definition changed")
+    # SPEC sec.10.9 / t1_core:120 lock the rake at 0.01775 m/m, re-derived a
+    # fourth way in rev 13 and 33.0 mm/m rejected at 4.5 sigma.  THIS is the
+    # number that says the bus is lowered nose-down, and nothing guarded it.
+    if abs(_T.RAKE_DZDX - RAKE_SPEC) > 0.0020:
+        fails.append(f"rake {_T.RAKE_DZDX*1000:.2f} mm/m; SPEC 10.9 locks "
+                     f"{RAKE_SPEC*1000:.2f} (re-derived 4 ways, rev 13)")
+    log("  rake %.2f mm/m (locked %.2f); drop at x=0 %.1f mm; RIDE_DROP "
+        "identity holds" % (_T.RAKE_DZDX * 1000, RAKE_SPEC * 1000,
+                            _T.RAKE_Z0 * 1000))
+
+    # rev 18 -- THE ARCH-TO-TYRE GAP IS NOW MEASURED ON THE MESH.
+    # It was `ARCH_R - TIRE_R`: two source constants, so it returned 41.0 mm
+    # forever regardless of what rear_arch_outline actually built.  Rev 16
+    # rebuilt the rear arch as a flat-crowned ogee and NOTHING measured the
+    # result -- ARCH_W_REAR, _ARCH_PROFILE, _arch_drop and rear_arch_outline
+    # appear zero times in this file and zero times in audit.py.
+    # The lip is found by walking z upward at the axle station until the flank
+    # skin appears.  The hub is at TIRE_R above ground in the dropped frame.
+    _hub_z = _T.TIRE_R
+    for _tag, _ax in (("rear", _T.X_AXLE_R), ("front", _T.X_AXLE_F)):
+        _lip = _arch_lip_z(body, _ax, +1, _hub_z - 0.02, _hub_z + 0.45)
+        if _lip is None:
+            fails.append(f"{_tag} arch lip not found at x={_ax:.3f} between "
+                         f"{_hub_z-0.02:.3f} and {_hub_z+0.45:.3f} -- the probe "
+                         "found no skin transition, so this row measured NOTHING")
+            continue
+        # lip ABOVE HUB is (lip_z - hub_z); the TYRE GAP is that minus the tyre
+        # radius, because the tyre crown sits TIRE_R above the hub.  Keeping the
+        # two separate on purpose -- LOFT_GROUND sec.2.6 quotes the first
+        # (0.3726 +- 0.0052) and SPEC sec.2 locks the second (41 +- 8 mm), and
+        # conflating them is a 332 mm error.
+        _above = _lip - _hub_z
+        _gap = _above - _T.TIRE_R
+        log("  %s arch lip above hub %.4f m (ARCH_R %.4f) -> tyre gap %.1f mm"
+            % (_tag, _above, _S.ARCH_R, _gap * 1000))
+        if _tag == "rear" and abs(_gap - 0.041) > 0.008:
+            fails.append(f"rear arch-to-tyre gap {_gap*1000:.1f} mm MEASURED on "
+                         f"the mesh; SPEC sec.2 locks 41 +- 8. "
+                         f"ARCH_R-TIRE_R (the old constants-only test) says "
+                         f"{(_S.ARCH_R-_T.TIRE_R)*1000:.1f}")
 
     # ---------------------------------------------------------------------
     # 11. POSITIVE feature assertions.
@@ -570,8 +662,27 @@ def run(body, log=print):
             fails.append(f"windscreen pane {'L' if s > 0 else 'R'} is NOT cut")
 
     # 11d. rear window
-    if not _ray_clear(body, (-2.40, 0.0, _S.REAR_Z + _frame_dz(_T.X_TAIL)),
-                      (1, 0, 0), 0.35):
+    # rev 18 -- THIS ROW WAS DEAD TOO, and for the same reason.  The ray was
+    # cast from the literal x = -2.40 for 0.35 m, so it TERMINATED AT -2.0500
+    # -- 177 mm short of the tail skin at X_TAIL = -1.8730, and 58 mm short
+    # even at the OLD tail station.  It touched nothing, so `_ray_clear` was
+    # unconditionally True and "the rear window is cut" was asserted by a ray
+    # that never reached the vehicle.  Controls: aimed 0.45 m and 0.70 m below
+    # the window, and 0.15 m above it -- all three certainly SOLID metal --
+    # it still returned True.  Unbounded, the same ray travels 4.3738 m and
+    # first hits the WINDSCREEN.
+    #
+    # Both endpoints are now offsets from X_TAIL, so the probe follows the
+    # tail when the tail moves.  _RW_BACK puts the origin clear behind the
+    # skin; _RW_THRU is how far past the skin the ray must reach to prove the
+    # aperture is open.  0.20 m is ~70x the 2.8 mm solidify thickness and
+    # still stops 3.5 m short of the windscreen, so it cannot pass by
+    # travelling the length of the vehicle.
+    _RW_BACK, _RW_THRU = 0.30, 0.20
+    if not _ray_clear(body,
+                      (_T.X_TAIL - _RW_BACK, 0.0,
+                       _S.REAR_Z + _frame_dz(_T.X_TAIL)),
+                      (1, 0, 0), _RW_BACK + _RW_THRU):
         fails.append("rear window is NOT cut")
 
     # 11d2. THE ROOF HOLE, rev 12. build.py issued no roof cutter at all for
@@ -625,7 +736,10 @@ def run(body, log=print):
         fails.append(f"cargo door shut line is missing: only {fr*100:.0f} % of "
                      f"{len(_S.CARGO_GAP)} outline samples are open slots")
     log(f"  shut line cargo: {fr*100:.0f} % open")
-    fr = _englid_frac(body, _S.ENGLID_GAP, _frame_dz(_T.X_TAIL))
+    # rev 18: the "got through" plane is the cutter's own station, expressed,
+    # not a literal.  See _englid_frac -- this row was dead at every revision.
+    fr = _englid_frac(body, _S.ENGLID_GAP, _frame_dz(_T.X_TAIL),
+                      _T.X_TAIL + _S.ENGLID_CUT_DX)
     if fr < SLOT_FRAC_MIN:
         fails.append(f"engine lid shut line is missing: only {fr*100:.0f} % of "
                      f"{len(_S.ENGLID_GAP)} outline samples are open slots")
