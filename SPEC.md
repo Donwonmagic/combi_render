@@ -1842,11 +1842,74 @@ something tinted, and is C `(986,1024,330,378)`, D `(1030,1074,392,424)` or E
 same-light neutral is what separates paint from illumination here.
 
 
+### 10.56  rev 20 — `COUNTERTAN`'s INTERREFLECTION TEST, RUN AT LAST — AND A RAY-VISIBILITY FLAG IS NOT AN ABLATION
+
+Five revisions on the list. §10.31c's remaining hypothesis was that the counter
+top bounces onto the cream fascia directly below it, so lowering the top's
+albedo lowers the DENOMINATOR too and the ratio barely moves -- which would
+explain a secant gain of only 0.33 / 0.48 / 0.49.
+
+**The instrument's own consistency control passes first:** EV -3 and EV -4 agree
+to **0.03 %** (clipped 1.326 % and 0.086 %). At the default EV the frame is
+**57.96 % clipped**, so every arm below is run at EV -4. All arms, `T1_SUB=1`:
+
+| arm | top linear | fascia linear | ratio top/fascia |
+|---|---|---|---|
+| SHIPPED (control) | 0.12107 0.09953 0.07388 | 0.13403 0.12163 0.10453 | 0.9033 0.8183 0.7068 |
+| top: `visible_diffuse=False` | 0.11730 0.09697 0.07240 | 0.13252 0.12061 0.10393 | 0.8852 0.8040 0.6966 |
+| top: diffuse+glossy+transmission off | 0.11484 0.09509 0.07123 | 0.13157 0.11988 0.10349 | 0.8729 0.7932 0.6883 |
+| fascia: `visible_diffuse=False` | 0.12107 0.09952 0.07388 | 0.13399 0.12165 0.10455 | 0.9035 0.8181 0.7066 |
+| **`COUNTERTAN` -> (0.02,0.02,0.02)** | 0.08518 0.06973 0.05511 | 0.12201 0.11169 0.09825 | 0.6981 0.6243 0.5609 |
+
+**THE TWO METHODS DISAGREED BY 8x, AND THE DISAGREEMENT IS THE FINDING.**
+Killing every outgoing ray path from the top costs the fascia **1.84 / 1.44 /
+1.00 %**. Driving the top's albedo to near-black costs the fascia **8.97 / 8.17 /
+6.01 %**. Both claim to remove the same light.
+
+**The ray-visibility arm is the invalid one.** In Cycles an object that is not
+visible to a ray type does not absorb that ray -- **the ray passes THROUGH it and
+hits whatever is behind**, which here is the lit galley and the cyclorama. So
+`visible_diffuse = False` does not remove the top as a source; it SUBSTITUTES the
+background for it. The flag demonstrably took effect (the top's own radiance fell
+3.1 % / 5.1 % across the two arms), so this is not a flag that failed to apply --
+it is a flag that does not mean what it was being read to mean.
+
+**NEW RULE: A RAY-VISIBILITY FLAG IS NOT AN ABLATION.** To remove a surface's
+contribution, remove its ALBEDO, not its visibility -- or the measurement silently
+becomes "swap this surface for whatever stands behind it". Tenth instance of
+check-what-the-probe-can-physically-see.
+
+**On the substance, taking the valid arm:**
+
+- **Interreflection is REAL but SECONDARY: 9.0 / 8.2 / 6.0 %** of the fascia's
+  radiance comes off the top. §10.31c's hypothesis is confirmed in direction and
+  is far too small in magnitude to explain the gain deficit on its own.
+- **THE DOMINANT EFFECT IS A BASE-INDEPENDENT PEDESTAL ON THE TOP.** Cutting
+  `COUNTERTAN` by **96.6 %** cuts the top's rendered radiance by only **29.6 /
+  29.9 / 25.4 %**. So **~70 % of the counter top's rendered radiance does not
+  come from `COUNTERTAN` at all**, which is what a secant gain of 0.33-0.49 was
+  really reporting. §10.31c already excluded coat and spec (-2.3 / -2.8 / -5.6 %)
+  and this revision excludes interreflection.
+- **The prime remaining suspect is the DUST OVERLAY, and it is named rather than
+  assumed.** `build_all()` calls `apply_weather(M["countertan"], dust=1.4, ...)`
+  -- `countertan` is one of only two materials with dust weighted UP -- and
+  `W_DUST_COL_UP` is a settled-ochre film whose colour is **independent of the
+  base albedo** by construction. A high-coverage dust mix over the albedo
+  produces exactly this signature. **NOT YET MEASURED: the dust lever on
+  `countertan` has no override, so it could not be ablated in this pass. That is
+  the next test, and it is one render once the override exists.**
+
+`COUNTERTAN` is **LEFT UNCHANGED** for the third revision running -- still not
+solved, still not part-tuned toward a target on a lever measured to be the wrong
+one.
+
+
 ## Change log
 
 | Date | Change |
 |---|---|
 | 2026-08-14 | **rev 20 — work item 1 refuted, and §10.52 repaired.** §10.52's two constants-only arch lines now MEASURE the mesh via `verify._arch_lip_z` and the row was FALSIFIED after repair on all three decline paths (§10.53). **The cream map's chroma gain must NOT be raised (§10.54):** the dC\* triple quoted as the shipped arm is the **ABLATION** arm's (shipped is 0.220/0.227/0.231, not 0.240/0.249/0.253 — eighth un-watched figure); switching the map on drives dC\* **down**, not flat; an alias hypothesis was built and refuted by its own no-op control; the lever is real and chroma-pure (`W_FADE_SAT` 0.88→0.40 gives 0.269/0.314/0.335 and dL\* does not move) — **but dC\* rms is an ABSOLUTE statistic and the base levels differ 5.5×** (render C\* **3.89** vs photograph **21.44**; L\* agrees to 2.9 %, which is why dL\* was correctly found close). Normalised, the render is ALREADY at or above the photograph at every scale. The BEAUTY arm is **100 % clipped** and has always reported zeros. **New rule: A TARGET IS A PROBE TOO — print the base level of any absolute statistic.** Live lead is the locked `CREAM` albedo, sat 0.038 / G>R against the bus's 0.255 / R>G, **not changed**, blocked on one owner reading (§10.55). |
+| 2026-08-14 | **rev 20 — `COUNTERTAN`'s interreflection test, run at last (§10.56).** Five revisions on the list. **A ray-visibility flag is NOT an ablation** — killing every outgoing ray path from the top costs the fascia 1.8 %, while driving its albedo to near-black costs 9.0 %; in Cycles a ray that cannot see an object passes THROUGH it and hits what is behind, so the flag substitutes the background rather than removing the source. Taking the valid arm: interreflection is **real but secondary at 9.0 / 8.2 / 6.0 %**, and the dominant effect is that **~70 % of the counter top's rendered radiance does not come from `COUNTERTAN` at all** (a 96.6 % albedo cut moves it 29.6 %). Coat and spec were already excluded at 2.3–5.6 %; the prime remaining suspect is the **dust overlay** (`dust=1.4`, `W_DUST_COL_UP` base-independent by construction), named and **not yet measured** — it has no override to ablate. `COUNTERTAN` left unchanged for the third revision. |
 | 2026-08-14 | **rev 17 — the cream target was measured through an open serving bay (§10.38).** `cream_rms.py`'s 8.890 % is the GALLEY INTERIOR seen through bay 3: its search band overlaps the guarded aperture band and its gate tests "pale", not "cream paint". Proven against two locked image lines. `ref_side.jpg` cannot supply a replacement — 1799 gated body-cream pixels, best 60×20 window **33.8 % pure** — and it is also the **worst frame in the set** at 2.32 bits/px / DC quantiser 4 against 9.28 and 8.87 at DC quantiser 1. **New rule: A CLASS GATE IS A PROBE TOO** — gate on geometry before colour. The codec-floor control was itself wrong by 4× (blur at σ then high-pass at σ does not leave zero); true codec contribution **0.31–0.66 %**, so the structure is real and only the surface was wrong. Re-based on `ref_rear34.jpg` by the owner's choice; character determined by four scale-free discriminators as **chalky sun-fade mottle** (corr(dL\*,dC\*) −0.486, anisotropy 0.918), which finally explains `W_ALBEDO`: **a scalar multiply on albedo cannot change chroma.** The mm axis is NOT established — three routes to px/m all failed and none was invented. Also: `audit.py`'s re-typed 4.290 (§10.39), `vw_bars`' false air-gap docstring and the V's short arms (§10.40), the hubcap ring at 0.093 ± 0.012 with the PSF that chose its frame (§10.41), a real matte with an identity claim that could not honestly be made (§10.42), `flank_compare.py`'s premise refuted and the +95 mm offset found to be **87 mm of missing tarnish in the render mask** (§10.43), and `H_ROOF` delegated but deliberately **not** changed (§10.44). |
 | 2026-08-13 | **rev 13 — the rake falls to 17.75 mm/m and `optics-6` is refuted.** The two divergent lines are merged. The rake is re-derived a fourth way, hub-referenced and scale-free, and 33.0 is rejected at **4.5σ**; §10.9's rake-versus-arch-gap contradiction closes against the built value, and the arch-gap identity is demoted from estimator to bound. A **100 mm origin error** in `REF_MEASUREMENTS` surfaces independently in two dimensions — the bays sat 105 mm aft and §10.7's "99 mm tail" contained it. **The bays are equal at 0.5155 m**; §10.5's taper is perspective. **`optics-6` is refuted**: the catcher was never broken, the diagnosis was measured on a camera that cannot see the ground plane, and the contact profile matches the photograph within ~1σ at every station. **`gal_ceiling` deleted** and the galley lit through the real hole — every bay mean moved toward the photograph and the two flat bays gained real contrast. Bulb pitch 4.7× too coarse, tail lamp amber not ruby. The cream is measured **too clean, not too weathered**. The roof guard is strengthened with a named `DOME_DEFICIT` rather than widened. |
 | 2026-08-10 | **rev 12.** The roof hole is CUT -- one opening, settled with the owner, cut after solidify, guarded two-sided by `verify.py` 11d2; non-manifold still 0 and 0 fail / 1 warn at both levels. The galley is no longer a sealed steel box. The cream lettered panel is a DETACHED SIGN and is off the vehicle (10.28). Counter given a measured tan top and its brass nosing re-measured -- it was 1.6x too DEEP, not thin. Weathering: the dust tide line re-fitted to h 0.424 +/- 0.020 and the upward-facing deposit split from the road film, which had been delivering dC* +0.58 against a target of +5.0. Constant-roughness materials 9 -> 6. `optics-6` measured properly and its obvious fix refuted. |

@@ -385,8 +385,46 @@ def solve_ctan():
     mf = _mask_for(fasc, os.path.join(OUT, "_solve_ctan_mf"), RES, cam_setup)
     mt, mf = erode(mt, 5), erode(mf, 5)
 
+    # rev 20 -- THE INTERREFLECTION ARM (SPEC 10.31c, five revisions on the
+    # list).  10.31c's remaining hypothesis: the top bounces onto the fascia
+    # directly below it, so lowering the top's albedo lowers the DENOMINATOR
+    # too and the ratio barely moves -- which would explain a secant gain of
+    # only 0.33/0.48/0.49.  It is testable in ONE render by taking the top out
+    # of the diffuse bounce and re-reading the FASCIA.
+    #
+    #   T1_CTAN_NOBOUNCE=top     top invisible to diffuse rays
+    #   T1_CTAN_NOBOUNCE=fascia  fascia invisible to diffuse rays  (the reverse
+    #                            coupling, as its own control)
+    #
+    # Unset is the shipped arm and touches nothing, so the default render is
+    # byte-comparable with every previous ctan run.  `visible_diffuse` removes
+    # the object only as a SOURCE of indirect diffuse light; it still renders
+    # and still masks, which is exactly the isolation this test needs.
+    # rev 20: `top` and `fascia` kill the DIFFUSE path only.  `top_all` /
+    # `fascia_all` kill diffuse AND glossy AND transmission, because the
+    # counter top carries a coat and a varnished top can light the fascia by a
+    # GLOSSY bounce that `visible_diffuse` does not touch.  The two are kept
+    # separate on purpose: if they disagree, the difference IS the non-diffuse
+    # path, and that is a measurement rather than a preference.
+    _nb = os.environ.get("T1_CTAN_NOBOUNCE", "")
+    _hidden = []
+    if _nb:
+        _grp = {"top": tops, "fascia": fasc,
+                "top_all": tops, "fascia_all": fasc}.get(_nb, [])
+        for _o in _grp:
+            _o.visible_diffuse = False
+            if _nb.endswith("_all"):
+                _o.visible_glossy = False
+                _o.visible_transmission = False
+                _o.visible_volume_scatter = False
+            _hidden.append(_o.name)
+        if not _hidden:
+            raise SystemExit("FATAL: T1_CTAN_NOBOUNCE=%r matched no object -- "
+                             "refusing to report an arm that changed nothing" % _nb)
+
     cam_setup()
-    a = _render(os.path.join(OUT, "_solve_ctan"), RES, 48)
+    a = _render(os.path.join(OUT, "_solve_ctan" + ("_nb_" + _nb if _nb else "")),
+                RES, 48)
     lin = srgb_to_lin(a[..., :3])
     clipped = float((a[..., :3].max(2) > 0.995).mean())
 
@@ -399,6 +437,9 @@ def solve_ctan():
 
     _report("ctan  T1_CTAN=%s" % os.environ.get("T1_CTAN", "(built-in %.4f,%.4f,%.4f)"
                                                 % TM.COUNTERTAN), [
+        "BOUNCE ARM      %s" % ("SHIPPED (nothing hidden)" if not _nb else
+                                "%s removed from diffuse bounce: %s"
+                                % (_nb, ", ".join(_hidden))),
         "masks           RENDERED from alpha: top %d px, fascia %d px" % (int(mt.sum()), int(mf.sum())),
         "clipped px      %.3f %% of frame at >= 0.995 -- a clipped fascia would "
         "bias the ratio UP" % (100.0 * clipped),

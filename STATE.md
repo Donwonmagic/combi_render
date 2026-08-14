@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-14 22:36:16 UTC |
-| git commit | `1e9805c` |
-| git subject | rev 19: correct the FADEV_MOTTLE content check from 3 to 2 -- a figure I had not watched print, and the count that follows from this commit |
+| generated | 2026-08-14 22:56:34 UTC |
+| git commit | `09677f0` |
+| git subject | rev 20: repair SPEC 10.52's arch phantom, and refute work item 1's target |
 | working tree | **DIRTY** — this state is not committed |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=1 (applied, destructive, before booleans) |
