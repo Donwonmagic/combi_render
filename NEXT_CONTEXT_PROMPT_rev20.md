@@ -175,14 +175,14 @@ git pull --ff-only ../tacombi_rev15_incremental.bundle HEAD      # -> 67
 git pull --ff-only ../tacombi_rev16_incremental.bundle HEAD      # -> 71
 git pull --ff-only ../tacombi_rev17_incremental.bundle HEAD      # -> 75
 git pull --ff-only ../tacombi_rev18_incremental.bundle HEAD      # -> 81
-git pull --ff-only ../tacombi_rev19_incremental.bundle HEAD      # -> 86, clean
+git pull --ff-only ../tacombi_rev19_incremental.bundle HEAD      # -> 87, clean
 ```
 **If a pull says "Need to specify how to reconcile divergent branches", STOP.**
 ```bash
 git status                                             # clean
 grep -c '### 10.52' SPEC.md                            # 1   rev 19
 grep -c '_BODY' cream_rms.py                           # 4   rev 19
-grep -c 'FADEV_MOTTLE' t1_mats.py                      # 3   rev 19
+grep -c 'FADEV_MOTTLE' t1_mats.py                      # 2   rev 19
 grep -c 'FadeRough' t1_mats.py                         # 5   rev 19
 grep -c '### 10.48' SPEC.md                            # 1   ANCESTOR rev 18
 grep -c '_arch_lip_z' verify.py                        # 2   ANCESTOR rev 18
@@ -276,9 +276,17 @@ ground line §10.11 bans.
 8. Camera absolutely last.
 
 ---
-**A NOTE ON THE COMMIT COUNT ABOVE.** It says 86 and it was written *after* the
-commit that regenerates `STATE.md`, knowing this file's own commit lands it at
-86, then re-verified from a fresh clone. This has gone wrong in six consecutive
+**A NOTE ON ONE OF THE CONTENT CHECKS.** `grep -c 'FADEV_MOTTLE'` first said
+**3** in this file. I had not watched it print. The verification run on a fresh
+clone returned **2** — `mot.name` and `mot.label` are set on one line and
+`grep -c` counts LINES, not occurrences. Corrected to 2 before this file
+shipped. **Seventh instance of the same failure, and the first one caught by a
+content check rather than by a commit count.** The rule holds: do not put a
+figure in an acceptance test unless you watched it print.
+
+**A NOTE ON THE COMMIT COUNT ABOVE.** It says 87 and it was written *after* the
+commit that regenerates `STATE.md`, then corrected once when the FADEV_MOTTLE
+fix added a commit, then re-verified from a fresh clone. This has gone wrong in six consecutive
 revisions during handoff assembly. **Read the count off the console after the
 last commit, then re-cut the bundle, then verify again.** It is still only a
 regression catcher — verify by content.
