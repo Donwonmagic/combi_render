@@ -81,8 +81,30 @@ P("ALL   x[%.4f,%.4f] y[%.4f,%.4f] z[%.4f,%.4f]" %
   (lo.x, hi.x, lo.y, hi.y, lo.z, hi.z))
 P("BODY  x[%.4f,%.4f] y[%.4f,%.4f] z[%.4f,%.4f]" %
   (blo.x, bhi.x, blo.y, bhi.y, blo.z, bhi.z))
-H = hi.z
-P("overall  L=%.4f  W(body)=%.4f  H=%.4f" % (hi.x - lo.x, bhi.y - blo.y, H))
+# rev 18 -- `H = hi.z` WAS THE RAISED LID STRUT, and it poisoned five numbers.
+#
+# `hi` is the bound over EVERY mesh in the scene, and the roof lids are modelled
+# OPEN, as they serve.  `lid_strut0` spans z 1.8994..3.0169 and `lid_board`
+# 1.9381..2.9920, so `hi.z` = 3.0169 -- the top of a strut standing 1.06 m above
+# the roof.  STATE.md published that as "overall height ... 3.0169 vs 1.9600 =
+# +1056.9 mm OUT" every run, and the four percentages below were percentages of
+# a strut, low by a factor 1.9600/3.0169 = 0.6497.
+#
+# Same class as the `counter_top` phantom this file already carries a comment
+# about: a bound taken over a set that quietly contains a prop.  The lid parts
+# are all named `lid_*` by t1_shell.roof_lids(), so the exclusion is by
+# construction rather than by an enumerated list that can go stale.
+_LID_PARTS = tuple(o.name for o in meshes if o.name.startswith("lid_"))
+_VEHICLE = [o for o in meshes
+            if not o.name.startswith("lid_") and o.name not in
+            ("counter", "counter_nosing", "counter_top")]
+_vlo, _vhi = vbounds(_VEHICLE)
+H = _vhi.z
+P("excluded from H: %d open-lid parts %s + the counter"
+  % (len(_LID_PARTS), list(_LID_PARTS[:4])))
+P("overall  L=%.4f  W(body)=%.4f  H=%.4f  (H over the VEHICLE, lids and counter"
+  " excluded; all-mesh max z is %.4f and is the open lid strut)"
+  % (hi.x - lo.x, bhi.y - blo.y, H, hi.z))
 P("rocker (body min z)      = %.4f   -> %.1f%% of height" %
   (blo.z, 100 * blo.z / H))
 # rev 7: this printed a HARDCODED 1.2320 - RIDE_DROP for six revisions,
@@ -336,12 +358,25 @@ import verify as _V
 A(_row("overall length (ex counter)", _bhi2.x - _blo2.x, _V.SPEC["L"], 0.025))
 A("| counter tail overhang past body | %.4f | — | — |" % (_blo2.x - lo.x))
 A(_row("overall width (body)", bhi.y - blo.y, 1.750, 0.025))
-A(_row("overall height (max, any station)", H, 1.960, 0.025))
-A("| _(rev 8: a single scalar height is the WRONG test now that the rake is"
-  " modelled — 1.960 is the maximum of a sloping line, taken at its highest"
-  " station. See the three-station roof line below. §2.3's inference that the"
-  " roof-lid frame stands 0.10–0.15 m proud is **refuted** at ~13σ; measured"
-  " proud height is 26 ± 7 mm.)_ | | | |")
+# rev 18 -- this row now measures the VEHICLE, not the raised lid strut, and it
+# has stopped pretending to be a guard.  Two separate defects were stacked here:
+#   (a) H was the max over every mesh, so it read `lid_strut0` at 3.0169 and
+#       published `+1056.9 mm OUT` every single run.  Fixed at H's definition.
+#   (b) even with the right H, "max over ANY station" is not the quantity
+#       H_ROOF = 1.960 names.  1.960 is REF sec.2.3's roof height AT THE REAR
+#       AXLE, and on a raked body the max is at a different station entirely.
+#       rev 8 spotted this and wrote a prose note under the row -- but left the
+#       row emitting OUT.  A prose note is not a guard, and a row that is known
+#       to be the wrong test should not carry a target at all.
+# The real test is verify row 1 (roof crown at the rear axle, a direct mesh
+# probe, currently 1.9835 +- 0.0007) and the three-station roof line below.
+_hstat = max(((mw @ v.co).z, (mw @ v.co).x)
+             for o in _VEHICLE for v in o.data.vertices
+             for mw in (o.matrix_world,))
+A("| overall height (vehicle max, lids excluded) | %.4f | — *(no target: this "
+  "is a max over all stations; H_ROOF 1.960 is a REAR-AXLE figure. Guarded by "
+  "verify row 1 and the roof line below)* | at x = %+.3f |"
+  % (H, _hstat[1]))
 A(_row("wheelbase", T.X_AXLE_F - T.X_AXLE_R, 2.400, 0.005))
 A(_row("track front", T.TRACK_F, 1.369, 0.005))
 A(_row("track rear", T.TRACK_R, 1.359, 0.005))
@@ -363,28 +398,67 @@ A("")
 A("### Roof line — three stations, not one scalar")
 A("")
 A("The model read 1.871 against §2.3's 1.960 for seven revisions. That is not a")
-A("missing roof-lid curb: the residual against the photograph was **+12 mm at")
-A("the front axle, −29 mm mid-wheelbase, −67 mm at the rear axle** — a tilt")
-A("signature. `Z_BELT` is a line too; see `t1_mats.z_belt(x)`.")
+A("missing roof-lid curb but a tilt signature — the residual varied by station,")
+A("which a scalar cannot express. `Z_BELT` is a line too; see")
+A("`t1_mats.z_belt(x)`.")
+A("")
+A("_rev 18: the three residual figures that used to be quoted in this paragraph")
+A("(+12 / −29 / −67 mm) were **hand-authored, and the table below had long since")
+A("overtaken them** — this file's own header says nothing in it is typed by")
+A("hand. The live numbers are in the table; the mid-wheelbase station has no")
+A("roof over it at all because the aperture cuts the crown away there, and this")
+A("file used to publish the rocker seen through that hole as the roof height._")
 A("")
 A("| station | x | roof z | belt z |")
 A("|---|---|---|---|")
 
 
-def _roof_at(xq, tol=0.045):
+# rev 18 -- `_roof_at` READ THE ROCKER THROUGH THE ROOF HOLE.
+#
+# The window is |y| < 0.30, and the roof aperture spans y[-0.5450, +0.5650] over
+# x[-1.0700, 0.9640].  At mid-wheelbase the ENTIRE window is inside the hole, so
+# there is no roof over it -- and `max()` fell through to whatever else was in
+# the x-slab: the rocker.  STATE.md published `roof z at mid wheelbase = 0.3497`,
+# an error of -1612.8 mm, with n = 18 selected vertices so the `if zs else nan`
+# guard never fired.  A non-empty selection of the WRONG surface.
+#
+# That is precisely the failure this file's own rev-7 comment describes for
+# `reach()` -- "`or -9` hid the empty selection behind a plausible number" --
+# reproduced inside the function written to replace it.  A floor is not enough
+# on its own either: the fix is to require the selected vertices to be ROOF,
+# and to report honestly when there are none rather than returning a number.
+#
+# _ROOF_FLOOR is the window head in the dropped frame.  Anything above it at
+# |y| < 0.30 is roof by construction; the rocker at 0.3497 is 1.36 m below it.
+_ROOF_FLOOR = S.Z_HEAD - T.rake_drop(T.X_DROP_REF)
+
+
+def _roof_at(xq, tol=0.045, count=False):
     zs = [(mw @ v.co).z
           for o in meshes if o.name == "T1_body"
           for v in o.data.vertices
           for mw in (o.matrix_world,)
-          if abs((mw @ v.co).x - xq) < tol and abs((mw @ v.co).y) < 0.30]
+          if abs((mw @ v.co).x - xq) < tol and abs((mw @ v.co).y) < 0.30
+          and (mw @ v.co).z > _ROOF_FLOOR]
+    if count:
+        return (max(zs) if zs else float('nan')), len(zs)
     return max(zs) if zs else float('nan')
 
 
 for _lbl, _xq in (("front axle", T.X_AXLE_F),
                   ("mid wheelbase", 0.5 * (T.X_AXLE_F + T.X_AXLE_R)),
                   ("rear axle", T.X_AXLE_R)):
-    A("| %s | %+.3f | %.4f | %.4f |"
-      % (_lbl, _xq, _roof_at(_xq), MT.z_belt(_xq)))
+    _rz, _rn = _roof_at(_xq, count=True)
+    if _rn == 0:
+        # rev 18: say so, do not publish a number.  At mid-wheelbase the crown
+        # does not exist -- the roof opening has cut it away -- and the honest
+        # report is that the station is inside the aperture, not 0.3497 m.
+        A("| %s | %+.3f | — *(inside the roof aperture: no roof above "
+          "%.3f m at \\|y\\|<0.30)* | %.4f |" % (_lbl, _xq, _ROOF_FLOOR,
+                                                MT.z_belt(_xq)))
+    else:
+        A("| %s | %+.3f | %.4f *(n=%d)* | %.4f |"
+          % (_lbl, _xq, _rz, _rn, MT.z_belt(_xq)))
 A("")
 A("| roof line slope (measured off the mesh) | %.1f mm/m |"
   % (1000 * (_roof_at(T.X_AXLE_R) - _roof_at(T.X_AXLE_F))
@@ -414,8 +488,17 @@ A(_apline.strip())
 A(_bayline.strip())
 A("```")
 A("")
-A("SPEC §1.1 measured widths: 0.507 / 0.516 / 0.526 — they are **not** equal;")
-A("they grow slightly toward the tail. rev-3's three equal 0.600s are retired.")
+# rev 18 -- THIS SENTENCE CONTRADICTED THE LINE PRINTED FOUR ROWS ABOVE IT.
+# It asserted 0.507 / 0.516 / 0.526 and "they are **not** equal" while the live
+# bay-width line printed 0.516 0.515 0.516.  rev 13 found the 100 mm origin
+# error that produced the apparent taper and settled the bays as EQUAL at
+# 0.5155; t1_shell.py:131 says in as many words that STATE.md's taper claim is
+# "therefore retired".  It was retired everywhere except in the file this repo
+# declares authoritative over all prose, where it was hand-typed.
+A("SPEC §1.1's taper (0.507 / 0.516 / 0.526) is **RETIRED** — it was the 100 mm")
+A("origin error of rev 13, not a real taper. The bays are EQUAL at 0.5155 m;")
+A("the measured widths are printed live in the block above, not typed here.")
+A("rev-3's three equal 0.600s are retired too, for a different reason.")
 A("")
 A("## Materials")
 A("")

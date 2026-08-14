@@ -8,17 +8,17 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-14 14:56:27 UTC |
-| git commit | `7ce3d03` |
-| git subject | rev 16: commit the SUB=1 STATE.md and correct the commit count I did not watch print |
-| working tree | clean |
+| generated | 2026-08-14 16:49:19 UTC |
+| git commit | `2c51e78` |
+| git subject | rev 18: the adversarial loft audit, and three dead verify rows repaired |
+| working tree | **DIRTY** — this state is not committed |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=1 (applied, destructive, before booleans) |
 | geometry source | procedural, built this run |
 
 ## Guard result
 
-**VERIFY: 0 fail, 1 warn** at T1_SUB=1.
+**VERIFY: 1 fail, 1 warn** at T1_SUB=1.
 
 > A pass here is only a pass *at this subdivision level*. The cab-door gap
 > booleans passed at SUB=1 and collapsed the shell at SUB=2 for six
@@ -31,13 +31,17 @@ rear overhang 0.7730 m = 0.3221 of the wheelbase (measured 0.773 +- 0.022 m)
 measured TRACK_F=1.3713  TRACK_R=1.3613  TYRE_D=0.6650
 open serving apertures on +Y: 3
 roof at tail = 1.988
+rake 17.75 mm/m (locked 17.75); drop at x=0 47.9 mm; RIDE_DROP identity holds
+rear arch lip above hub 0.3527 m (ARCH_R 0.3735) -> tyre gap 20.2 mm
+front arch lip above hub 0.3732 m (ARCH_R 0.3735) -> tyre gap 40.7 mm
 roof aperture: open, and solid fore / aft / both sides
 shut line door+1: 100 % open
 shut line door-1: 100 % open
 shut line cargo: 100 % open
 shut line englid: 100 % open
 band 1.372-1.775 un-dropped (1.307-1.710 AG)  bay widths 0.516 0.515 0.516
-VERIFY: 0 fail, 1 warn
+VERIFY: 1 fail, 1 warn
+FAIL  rear arch-to-tyre gap 20.2 mm MEASURED on the mesh; SPEC sec.2 locks 41 +- 8. ARCH_R-TIRE_R (the old constants-only test) says 41.0
 warn  roof crown @ rear axle (dome-corrected) 1.983 vs spec 1.960 (+23 mm)
 ```
 
@@ -55,11 +59,10 @@ Shaders read the dropped frame, so `Z_BELT`/`V_APEX` are already AG.
 
 | dimension | measured | SPEC | delta |
 |---|---|---|---|
-| overall length (ex counter) | 4.0648 | 4.2900 | -225.2 mm **OUT** |
+| overall length (ex counter) | 4.0648 | 4.0550 | +9.8 mm ok |
 | counter tail overhang past body | 0.2902 | — | — |
 | overall width (body) | 1.7497 | 1.7500 | -0.3 mm ok |
-| overall height (max, any station) | 3.0169 | 1.9600 | +1056.9 mm **OUT** |
-| _(rev 8: a single scalar height is the WRONG test now that the rake is modelled — 1.960 is the maximum of a sloping line, taken at its highest station. See the three-station roof line below. §2.3's inference that the roof-lid frame stands 0.10–0.15 m proud is **refuted** at ~13σ; measured proud height is 26 ± 7 mm.)_ | | | |
+| overall height (vehicle max, lids excluded) | 1.9890 | — *(no target: this is a max over all stations; H_ROOF 1.960 is a REAR-AXLE figure. Guarded by verify row 1 and the roof line below)* | at x = -1.569 |
 | wheelbase | 2.4000 | 2.4000 | +0.0 mm ok |
 | track front | 1.3690 | 1.3690 | +0.0 mm ok |
 | track rear | 1.3590 | 1.3590 | +0.0 mm ok |
@@ -73,15 +76,22 @@ Shaders read the dropped frame, so `Z_BELT`/`V_APEX` are already AG.
 ### Roof line — three stations, not one scalar
 
 The model read 1.871 against §2.3's 1.960 for seven revisions. That is not a
-missing roof-lid curb: the residual against the photograph was **+12 mm at
-the front axle, −29 mm mid-wheelbase, −67 mm at the rear axle** — a tilt
-signature. `Z_BELT` is a line too; see `t1_mats.z_belt(x)`.
+missing roof-lid curb but a tilt signature — the residual varied by station,
+which a scalar cannot express. `Z_BELT` is a line too; see
+`t1_mats.z_belt(x)`.
+
+_rev 18: the three residual figures that used to be quoted in this paragraph
+(+12 / −29 / −67 mm) were **hand-authored, and the table below had long since
+overtaken them** — this file's own header says nothing in it is typed by
+hand. The live numbers are in the table; the mid-wheelbase station has no
+roof over it at all because the aperture cuts the crown away there, and this
+file used to publish the rocker seen through that hole as the roof height._
 
 | station | x | roof z | belt z |
 |---|---|---|---|
-| front axle | +1.300 | 1.9400 | 1.2010 |
-| mid wheelbase | +0.100 | 0.3497 | 1.2223 |
-| rear axle | -1.100 | 1.9835 | 1.2436 |
+| front axle | +1.300 | 1.9400 *(n=44)* | 1.2010 |
+| mid wheelbase | +0.100 | — *(inside the roof aperture: no roof above 1.710 m at \|y\|<0.30)* | 1.2223 |
+| rear axle | -1.100 | 1.9835 *(n=66)* | 1.2436 |
 
 | roof line slope (measured off the mesh) | -18.1 mm/m |
 | rake coefficient applied | 17.8 mm/m (1.02°) |
@@ -102,8 +112,10 @@ open serving apertures on +Y: 3
 band 1.372-1.775 un-dropped (1.307-1.710 AG)  bay widths 0.516 0.515 0.516
 ```
 
-SPEC §1.1 measured widths: 0.507 / 0.516 / 0.526 — they are **not** equal;
-they grow slightly toward the tail. rev-3's three equal 0.600s are retired.
+SPEC §1.1's taper (0.507 / 0.516 / 0.526) is **RETIRED** — it was the 100 mm
+origin error of rev 13, not a real taper. The bays are EQUAL at 0.5155 m;
+the measured widths are printed live in the block above, not typed here.
+rev-3's three equal 0.600s are retired too, for a different reason.
 
 ## Materials
 
