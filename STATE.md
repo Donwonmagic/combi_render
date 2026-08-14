@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-14 23:16:02 UTC |
-| git commit | `64b68b6` |
-| git subject | rev 20: COUNTERTAN's interreflection test, and a ray-visibility flag is not an ablation |
+| generated | 2026-08-14 23:22:23 UTC |
+| git commit | `92427de` |
+| git subject | rev 20: handoff |
 | working tree | **DIRTY** — this state is not committed |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=1 (applied, destructive, before booleans) |
