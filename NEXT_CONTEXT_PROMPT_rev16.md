@@ -147,10 +147,16 @@ rev 15). Never correct this vehicle toward the VW factory catalogue.
 
 ```bash
 git clone tacombi_history_rev9.bundle tacombi && cd tacombi
-git pull ../tacombi_rev14_unified.bundle HEAD
-git pull ../tacombi_rev14b_incremental.bundle HEAD
-git pull ../tacombi_rev15_incremental.bundle HEAD
+git pull --ff-only ../tacombi_rev14_unified.bundle HEAD          # -> 59 commits
+git fetch ../tacombi_rev14b_incremental.bundle HEAD:refs/heads/b14   # FETCH, not pull
+git pull --ff-only ../tacombi_rev15_incremental.bundle HEAD      # -> 66 commits, clean
 ```
+
+**The middle line is a `fetch`, not a `pull`, and that is the whole point of
+10.33.** The rev-14 line is DIVERGENT from the rev-13 tip, so pulling it merges
+or errors; fetching it into a branch makes its commits available, and the rev-15
+bundle carries the merge that reconciles them. Verified end to end from a fresh
+rev9 clone: clean tree, 66 commits, guards 0 fail / 1 warn.
 
 **If a pull says "Need to specify how to reconcile divergent branches", STOP.**
 That is not a config nuisance — it is how rev 15 discovered that the rev-14 line
@@ -163,7 +169,7 @@ Then all of these must be true:
 git status                                       # clean
 grep -c '### 10.33' SPEC.md                      # 1
 grep -c '### 10.30b' SPEC.md                     # 1   <-- ANCESTOR CHECK (rev 14)
-grep -c 'UNTIL THEN BLOOM DEFAULTS OFF' post.py  # 1   <-- ANCESTOR CHECK (rev 13)
+grep -c 'The threshold is not the parameter' post.py  # 1   <-- ANCESTOR CHECK (rev 13)
 grep -c _isTail t1_mats.py                       # non-zero
 grep -c 'BACKDROP = "headroom"' post.py          # 1
 grep -c T1_CTAN_SP t1_mats.py                    # non-zero
