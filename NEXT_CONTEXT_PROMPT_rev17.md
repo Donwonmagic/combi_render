@@ -133,7 +133,7 @@ git clone tacombi_history_rev9.bundle tacombi && cd tacombi
 git pull --ff-only ../tacombi_rev14_unified.bundle HEAD          # -> 59 commits
 git fetch ../tacombi_rev14b_incremental.bundle HEAD:refs/heads/b14   # FETCH, not pull
 git pull --ff-only ../tacombi_rev15_incremental.bundle HEAD      # -> 67 commits
-git pull --ff-only ../tacombi_rev16_incremental.bundle HEAD      # -> 69 commits
+git pull --ff-only ../tacombi_rev16_incremental.bundle HEAD      # -> 71 commits, clean
 ```
 **The rev14b line is a `fetch`, not a `pull`** — it is DIVERGENT from the rev-13
 tip, so pulling it merges or errors; fetching it into a branch makes its commits

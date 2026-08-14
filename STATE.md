@@ -8,17 +8,17 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-14 03:50:26 UTC |
-| git commit | `bc165ff` |
-| git subject | rev 16: the loft -- roof section, rear arch, tail re-space and end-cap grid |
-| working tree | **DIRTY** — this state is not committed |
+| generated | 2026-08-14 03:54:31 UTC |
+| git commit | `3366d5e` |
+| git subject | rev 16: handoff and the rev-17 next-context prompt |
+| working tree | clean |
 | blender | 4.5.3 LTS |
-| subdivision | T1_SUB=2 (applied, destructive, before booleans) |
+| subdivision | T1_SUB=1 (applied, destructive, before booleans) |
 | geometry source | procedural, built this run |
 
 ## Guard result
 
-**VERIFY: 0 fail, 1 warn** at T1_SUB=2.
+**VERIFY: 0 fail, 1 warn** at T1_SUB=1.
 
 > A pass here is only a pass *at this subdivision level*. The cab-door gap
 > booleans passed at SUB=1 and collapsed the shell at SUB=2 for six
@@ -45,7 +45,7 @@ warn  roof crown @ rear axle (dome-corrected) 1.983 vs spec 1.960 (+23 mm)
 |---|---|
 | cutters rolled back | none |
 | non-manifold edges (body) | 0 |
-| body faces | 240338 quad, 1108 tri, 4434 ngon |
+| body faces | 60461 quad, 465 tri, 3107 ngon |
 
 ## Measured dimensions
 
@@ -64,7 +64,7 @@ Shaders read the dropped frame, so `Z_BELT`/`V_APEX` are already AG.
 | track front | 1.3690 | 1.3690 | +0.0 mm ok |
 | track rear | 1.3590 | 1.3590 | +0.0 mm ok |
 | tyre diameter | 0.6650 | 0.6650 | +0.0 mm ok |
-| rocker to ground | 0.3177 | — | — |
+| rocker to ground | 0.3175 | — | — |
 | belt line @ x=0.962 (live) | 1.2070 | 1.2070 | +0.0 mm ok |
 | window sill @ x=0.962 | 1.3070 | 1.3070 | +0.0 mm ok |
 | window head @ x=0.962 | 1.7100 | 1.7100 | +0.0 mm ok |
@@ -79,9 +79,9 @@ signature. `Z_BELT` is a line too; see `t1_mats.z_belt(x)`.
 
 | station | x | roof z | belt z |
 |---|---|---|---|
-| front axle | +1.300 | 1.9399 | 1.2010 |
-| mid wheelbase | +0.100 | 0.3503 | 1.2223 |
-| rear axle | -1.100 | 1.9833 | 1.2436 |
+| front axle | +1.300 | 1.9400 | 1.2010 |
+| mid wheelbase | +0.100 | 0.3497 | 1.2223 |
+| rear axle | -1.100 | 1.9835 | 1.2436 |
 
 | roof line slope (measured off the mesh) | -18.1 mm/m |
 | rake coefficient applied | 17.8 mm/m (1.02°) |
@@ -123,8 +123,8 @@ they grow slightly toward the tail. rev-3's three equal 0.600s are retired.
 | | |
 |---|---|
 | mesh objects | 181 |
-| vertices (all meshes) | 325750 |
-| faces (all meshes) | 318090 |
+| vertices (all meshes) | 141503 |
+| faces (all meshes) | 136243 |
 
 | prefix | n |
 |---|---|
