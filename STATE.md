@@ -8,10 +8,10 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-14 16:54:32 UTC |
-| git commit | `6d81d66` |
-| git subject | rev 18: STATE.md stops publishing three phantoms and two hand-typed falsehoods |
-| working tree | **DIRTY** — this state is not committed |
+| generated | 2026-08-14 16:58:56 UTC |
+| git commit | `efc1268` |
+| git subject | rev 18: the rear arch -- crown double-count, refuted notch, mirrored sign |
+| working tree | clean |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=1 (applied, destructive, before booleans) |
 | geometry source | procedural, built this run |
@@ -133,9 +133,9 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 
 | | |
 |---|---|
-| mesh objects | 181 |
-| vertices (all meshes) | 141467 |
-| faces (all meshes) | 136188 |
+| mesh objects | 185 |
+| vertices (all meshes) | 143003 |
+| faces (all meshes) | 137724 |
 
 | prefix | n |
 |---|---|
@@ -144,6 +144,7 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 | `seal_bay` | 6 |
 | `bracket` | 5 |
 | `cap` | 4 |
+| `capring` | 4 |
 | `gal_bot` | 4 |
 | `gal_botcap` | 4 |
 | `rim-1` | 4 |
