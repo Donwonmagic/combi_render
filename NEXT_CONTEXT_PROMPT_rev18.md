@@ -146,7 +146,7 @@ git pull --ff-only ../tacombi_rev14_unified.bundle HEAD          # -> 59 commits
 git fetch ../tacombi_rev14b_incremental.bundle HEAD:refs/heads/b14   # FETCH, not pull
 git pull --ff-only ../tacombi_rev15_incremental.bundle HEAD      # -> 67 commits
 git pull --ff-only ../tacombi_rev16_incremental.bundle HEAD      # -> 71 commits
-git pull --ff-only ../tacombi_rev17_incremental.bundle HEAD      # -> 73 commits, clean
+git pull --ff-only ../tacombi_rev17_incremental.bundle HEAD      # -> 75 commits, clean
 ```
 **The rev14b line is a `fetch`, not a `pull`** — it is DIVERGENT from the rev-13
 tip, so pulling it merges or errors; fetching it into a branch makes its commits
@@ -261,3 +261,11 @@ scale on `ref_rear34.jpg`. Try the `1963` plate first.
 **`t1_shell.py`'s import-time assertion exists because a shut line crossing an
 arch lip collapsed the shell 205 562 v → 12 v for six revisions.** Respect it.
 If a change trips a guard, do not widen the guard.
+
+---
+**A NOTE ON THE COMMIT COUNT ABOVE.** It says 75 and it was written *after* the
+commit that fixed it, then re-verified from a fresh clone. The first draft of
+this file said 73; the restore printed 74; correcting the file made it 75. That
+is the fifth revision running this has happened, always during handoff assembly.
+**Read the count off the console after the last commit, then re-cut the bundle,
+then verify again.** It is still only a regression catcher — verify by content.
