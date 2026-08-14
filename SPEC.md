@@ -1851,6 +1851,251 @@ below the backdrop); backdrop white point keyed on the (transform, **look**) pai
 codes grey; 16-bit output.
 
 
+### 10.34 rev 16 — THE ROOF SECTION, and why the 63 mm drop was rejected
+
+`LOFT_GROUND_rev15` §1.3 proposed closing the roof by dropping `ZT_ALL` by
+**63 mm** at the rear axle, on a hub-referenced measurement of the drip rail.
+Applying it breaks two things that are independently locked, so it was measured
+a third way before anything was changed — SPEC's own standing rule.
+
+**What it breaks.** The model's drip rail sits 65–69 mm above the serving-
+aperture top (`band 1.372–1.775`, guarded). A 63 mm drop leaves **2 mm** of
+sheet metal between the drip rail and the top of the bays. Separately, the
+windscreen is anchored at absolute `P_TOP = (1.8340, 0, 1.7745)` in `t1_shell`;
+dropping `ZT_ALL` puts the shell's top edge 35–57 mm **below** the screen's own
+top at that station, so the windscreen cutter would open a notch to the sky.
+
+**THE THIRD METHOD — datum-free.** Two features at the same depth on the same
+flank of `ref_side.jpg`, differenced at the same column, so no ground line, no
+origin and no absolute scale enters:
+
+| | measured | built | delta |
+|---|---|---|---|
+| drip-rail groove → **bay 3** aperture top | 6.16 px, 83 cols, sd 0.19 → **28.3 mm** | 68.6 | |
+| → **bay 2** | 6.05 px, 83 cols, sd 0.19 → **27.4 mm** | 68.6 | |
+| → **bay 1** | 6.13 px, 62 cols, sd 0.21 → **27.5 mm** | 68.6 | |
+| **adopted** | **27.7 ± 0.5 mm** | 68.6 | **−41 mm** |
+
+228 columns across three bays agreeing to 0.2 px. A 2 % error in `k_t` moves
+27.7 mm by 0.6 mm, so this is effectively scale-free.
+
+**And the aperture band is NOT the error, which is what makes the split
+unambiguous.** Referenced to the locked belt line (two-tone break, fitted over
+its clean span u[635,733], rms 0.102 px):
+
+```
+  belt -> aperture top    500.9 mm measured   503.0 built   -2.1 mm
+  belt -> drip rail       529.7 mm measured   568.0 built   -38.3 mm
+```
+
+**Why the hub route said 63.** Not a scale error — `k_t = 215.5 px/m` is
+*validated* by belt→aperture agreeing to 0.4 %. It is a **datum** error: the
+hub-referenced chain puts the locked belt at 1.2145 AG against the model's
+1.2436, **29 mm low**. That is the common-mode signature §10.11 bans the ground
+line for, and `LOFT_GROUND` §0.4 half-caught it ("the datum is ~6 px low").
+
+**Two figures in `LOFT_GROUND` §1.2 that could not be reproduced, and one that
+was reproduced exactly.**
+
+* Drip rail — **reproduced**. Independent fit `v = −0.04409·u + 332.301`, n=83
+  over u[746,874], **rms 0.067 px**, giving v = 299.26 at the rear axle against
+  their 299.24 ± 0.6 (their slope −0.0436, rms 0.06–0.12).
+* Roof silhouette — **not reproduced.** Scanning the top edge at 5-px steps it
+  is flat at **252.1–253.6 over u[755,815]** and only then rolls down aft. Their
+  "fixed skin 257.2" is 4.7 px below that; their "proud strip 253.21" is, on
+  this scan, the roof itself. The proud-strip/coaming reading is therefore
+  **withdrawn**, not merely re-valued.
+* `D` survives anyway. Drip rail → roof top = 44.92 px = **0.209 m** against
+  their **0.2116 ± 0.035**. Agreement to 3 mm by a route sharing only `k_t`.
+
+**APPLIED.** The defect is local to the roof/side junction, so it is spent on
+the junction and not on the roof line:
+
+```
+  RT_ALL (roof)   0.054  -> 0.0949     roll start / drip-rail seat
+  CR_ALL (roof)   0.032  -> 0.1179     transverse crown parameter
+  D = RT + CR            -> 0.2128     LOFT_GROUND 0.2116 +- 0.035
+  Yt                        0.7273     crown half-width
+  R = Yt^2/(2 CR)           2.24 m     QUOTE WITH ITS Yt OR NOT AT ALL
+  ZT_ALL, RAKE_DZDX, P_TOP  UNTOUCHED
+  DOME_DEFICIT    0.098  -> 0.000
+```
+
+`R = 2.45 ± 0.15` stays **refuted**: it requires D = 0.172, not 0.213. `R` here
+is a re-expression of `D` and moves with `Yt`; **`D` is the finding.**
+
+**Measured back off the built mesh:** drip-rail lip − aperture top =
+**+27.0 mm** against the photograph's 27.7 ± 0.5.
+
+**Consequence, reported not tuned.** The crown lands at **1.9835 AG**, +23 mm
+against `SPEC H_ROOF = 1.960`, which trips the warn at its 20 mm threshold. The
+uncertainty on `D` is ±35 mm (the depth systematic `LOFT_GROUND` §1.1 names), so
+1.960 sits 0.7σ away — no real disagreement. `H_ROOF` was **NOT** changed to
+clear the warn. Note for whoever does re-open it: REF §1 derived 1.960 from
+`ground = 668.0`, the exact datum §10.11 bans, and the belt-anchored chain here
+puts the crown at 1.981.
+
+**A latent bug this exposed.** `t1_shell.roof_cutters` passed `zlo` as
+`T.solid_prism`'s origin, but `solid_prism` extrudes ±depth/2 **about** its
+origin (`t1_core._frame`). At the old `CR_ALL = 0.032` the crown was shallow
+enough that the half-height prism still cleared the roof by 6 mm and the cut
+worked by luck; at 0.1179 it stops 18 mm short and the aperture centre goes back
+to sealed steel — caught by `verify` 11d2, which is the guard written for
+exactly that. Fixed.
+
+
+### 10.35 rev 16 — THE TAIL, re-spaced and not translated
+
+**Measured dimensionlessly**, from the two hub columns and the tail silhouette
+only. No origin, no metre scale, no ground line, nothing within 800 px of the
+lamppost:
+
+```
+  rear overhang / wheelbase  =  (u_tail - u_rhub)/(u_rhub - u_fhub)
+                             =  0.3412 +- 0.0015        ref_side.jpg
+  built                      =  1.008 / 2.400 = 0.4200
+```
+
+Through the projective flank map of `LOFT_GROUND` §0 that is **0.773 ± 0.022 m**
+against 1.008 built — **the tail is 235 ± 22 mm too long.** §10.7's "99 mm" is
+**refuted at 10σ**; it subtracted two numbers in different origins.
+
+**THIRD METHOD, and it is the one that made this safe to apply.** The 1-D
+projective map was rebuilt here from `LOFT_GROUND` §0's own three constraints
+(u at both hubs, and ρ from the two rim flange ODs — the same physical object at
+two depths). Written out:
+
+```
+  X(u) = 641220.4 / (u + 11140) - 55.0322
+    X(242.84) = +1.3000   X(749.38) = -1.1000     (both locked)
+    rho = 1.0445                                   (measured 1.0445 +- 0.020)
+    X(922.2)  = -1.8727                            the tail
+```
+
+The **same map**, applied to a feature pair that shares no datum with the tail,
+puts the rear arch's aft foot at **X = −1.5615** against the **−1.560** that the
+independently measured arch half-width predicts — **1.5 mm.** The forward foot
+lands at −0.6500 / −0.6565 against −0.640.
+
+**APPLIED AS A RE-SPACE.** `t1_core._aft(x)` carries every aft station and every
+aft LUT knot by its own fraction f of the old overhang:
+
+```
+  f = (x - X_AXLE_R)/(-O_OLD)      X = X_AXLE_R - f * O_NEW
+  O_OLD = 1.008   O_NEW = 0.773    X_TAIL  -2.108 -> -1.873
+```
+
+`ZB`, `ZT_ALL`, `RT_ALL`, `CR_ALL`, `WX`, `RB_ALL` and `STATIONS` all go through
+it, so `LOFT_GROUND` §3.3's tabulated f values are reproduced by construction
+rather than re-typed. **Re-typing 21 metre values against an origin that has
+already moved once is precisely the mistake §10.7 is made of.**
+
+**Everything anchored to the old tail skin had to move with it**, and this is
+the half of the job that is easy to miss: the tail lamps, `plate_1963`,
+`englid_handle`, the fuel filler flap, the louvre block, the counter (as a
+preserved 0.315 m **overhang**, not an absolute station), the counter brackets,
+the drip-rail sweep, the bulb string's aft end, the galley bottles on the
+counter's tail run, the rear-window cutter and glass, and the engine-lid gap.
+Left alone, the tail lamps became the rear-most objects on the vehicle by
+258 mm and `verify` row 1 would have kept **PASSING on a phantom** — the same
+failure shape as the `counter_top` length row the rev-12 audit found at
+`audit.py:308`.
+
+**`SPEC["L"]` IS NO LONGER THE FACTORY FIGURE.** 4.290 is the T1 catalogue
+length; the measurement says the overhang is 235 mm shorter, and the standing
+instruction on this project is never to correct this vehicle toward the VW
+factory catalogue. It is now written as `4.290 − (O_OLD − O_NEW)` — an
+expression, so re-measuring the overhang can never leave it stale. Row 1's
+forward end is `X_NOSE`, which has **never** been measured (the lamppost at
+`ref_side.jpg` cols 62–79 occludes it and has produced three confident wrong
+numbers), so row 1 is a regression catcher and now says so. **A new verify row
+guards the rear overhang itself**, which is the quantity that was observed —
+a guard strengthened rather than widened.
+
+
+### 10.36 rev 16 — THE END-CAP POLES, closed (§10.30b)
+
+`t1_core.loft(cap_first/cap_last)` appended one n-gon per end; `build.py` runs
+SUBSURF first, and Catmull–Clark turns an n-gon into n quads around a face point
+of valence n. That face point was the pole.
+
+**Replaced with a Coons quad grid whose border IS the boundary loop**, so no
+vertex is added to the loop and the loft's own topology is untouched:
+
+```
+  n = NLOOP -> a = n//4, b = n//2 - a       (sides a/b/a/b, 2(a+b) = n)
+  n = 110  -> 27 x 28, corners at 0, 27, 55, 82     NOT mirror-symmetric
+  n = 112  -> 28 x 28, corners at 0, 28, 56, 84     mirror-symmetric
+```
+
+Interior points by bilinear Coons interpolation of the four border curves.
+
+**THE NHALF DECISION WAS MADE ON A GUARD RESULT, NOT ON TIDINESS.** Both arms
+were built at both subdivision levels:
+
+| arm | SUB=1 | SUB=2 |
+|---|---|---|
+| NHALF 56, cap 27×28 | 0 fail | **1 FAIL** — `gap_englid` rejected, "zero-area faces 0 → 2", rolled back |
+| **NHALF 57, cap 28×28** | **0 fail** | **0 fail** |
+
+The engine-lid gap ring is symmetric about y = 0; on a cap grid that is not, its
+two sides land differently on the grid and the exact solver returns two
+degenerate slivers. **Moving the cutter in x does not fix it** — `T1_ENGLID_DX`
+of 0.120, 0.158 and 0.200 all give exactly 2 zero-area faces, which is what
+identifies it as an outline/grid coincidence rather than a tangency. `NHALF` is
+therefore **57**, `NLOOP` **112**, selectable back to 56 with `T1_NHALF57=0`.
+
+**MEASURED, with a negative control in the same frame.** Rear ortho elevation,
+1200×800, 32 samples, high-pass σ = 8 px, red paint only, 3 px erosion:
+
+| patch (x0,y0,x1,y1) | rev 15 | rev 16 |
+|---|---|---|
+| lower-LEFT corner (335,682,432,764) — the fan | **3.015** | **1.609**  (**−47 %**) |
+| lower-RIGHT corner (784,682,878,764) — **NEGATIVE CONTROL**, no visible fan | 1.596 | 1.592  (−0.3 %) |
+
+The residual 1.609 is within 1 % of the control's 1.592: the fan is gone to the
+paint's own noise floor, and the control shows the metric did not simply shift.
+**Do not compare these to rev 14's quoted 15.478** — that was a different render
+and a different crop; this is an internally controlled A/B, not a continuation
+of that number.
+
+Topology, measured on the mesh: **max vertex valence 115 → 6**, vertices with
+valence > 4 **53 → 14**, non-manifold edges **0** at both levels. The 1.4 mm
+forward spike on the flat tail face is gone with it. `plate_1963` and
+`englid_handle`, which were fitted to the **artefact** surface at −2.1066, are
+re-anchored to `X_TAIL − 0.0004`.
+
+
+### 10.37 rev 16 — THE REAR ARCH as a flat-crowned ogee
+
+A circle is refuted overwhelmingly (`LOFT_GROUND` §2.2: circle rms **11.41 mm**,
+superellipse **2.67 mm**). The **exponent is not used** — it is window-dependent
+(3.50 at ±0.249 m, 4.28 at ±0.449 m), so 3.9 ± 0.2 is a property of a choice of
+window, not of the arch. `t1_shell._ARCH_PROFILE` carries the assumption-free
+normalised table instead, and keeps the trace's small left/right difference
+(0.583 forward against 0.593 aft at |Δx/a| = 0.90) rather than averaging it away.
+
+```
+  ARCH_W_REAR   0.747 -> 0.920 m     measured 0.92 +- 0.03
+                                     dimensionless: width / rim flange OD
+                                     = 2.158 +- 0.027
+  ARCH_R        0.3735   HELD        lip height above the hub measures
+                                     0.3726 +- 0.0052 -- the RADIUS is right
+  crown centre  rear axle            confirmed to 0.2 px ~ 1 mm, column-only
+```
+
+**The front arch is left circular, deliberately.** It has never been measured —
+a man stands directly in front of it in `ref_side.jpg` and every attempt to
+trace it has locked onto his red shirt — and widening it would bring the arch
+lip to within 57 mm of the cab-door shut line's bottom run, which is the exact
+geometry that collapsed the shell 205 562 v → 12 v for six revisions
+(`t1_shell.py`'s import-time assert).
+
+Noted and not yet acted on: with the arch at 0.92 m and the tail re-spaced, the
+arch's aft foot is at x = −1.560 and the aft skin at −1.873 — **313 mm apart,
+against 418 mm before**. `LOFT_GROUND` §3.3 predicted this gets worse, not
+better, and it is the thing most likely to constrain a future tail change.
+
 ## 10.10 ABSOLUTE REPLICATION OF ARTWORK — standing requirement
 
 Recorded at Donald's explicit request, 2026-08-10. A **hard bar, not a
@@ -1898,3 +2143,4 @@ what shipped in rev 8 and Donald rejected it by name.
 | 2026-08-10 | **rev 9 addendum — §10.17, §10.18.** Donald restates the acceptance criterion as **per-measurement**: "nearly indistinguishable from the original. Any single measurement off is unacceptable." And flags the front fascia as drifting — six items, four of them audit findings logged and unapplied for several revisions, one new (cab-door folk art far too faint), one unmeasured (bumper depth). The folk-art item contradicts §10.9's near-nose coverage lobes, which were scanned by body x across an OPEN cab door. |
 | 2026-08-13 | **rev 14 — the tail gate, and a starburst nobody had seen.** The flank tile stops printing on the flat tail face: a TAIL selector mirroring the nose one, keyed on the surface normal so the rear quarter keeps its real 43.687 % gold while the flat face goes to **0.05 percentage points measured against a `T1_W_ART=0` negative control** (photograph 0.006 %, pre-fix render 14.30–18.11 %). Rendering a rear elevation for the first time in fourteen revisions exposed a radial starburst that survives ablation of the folk art, the albedo breakup and the specular — **the tail cap is a valence-115 pole and the nose cap a valence-110 pole**, recorded and deliberately left for the phase-5 loft work. Sun fade reaches vertical surfaces through a new per-material `FadeVert` input at the diffuse view factor 0.50, switched on for the cream family only so SPEC 10.12’s locked red albedo saturation is untouched. Glass panes flat-shaded (88.7 % of pane pixels, 9.4× the null). The mural’s neutral lift identified as `img_paint`’s specular pedestal, 0.42 → 0.16, first step not a solve. `W_ALBEDO` 0.130 → 0.260 with the map window exposed, and honestly not solved. **`flank_compare.py` computes a number for the first time and the flank script FAILS 3 of 4** — aspect +16.04 %, dimensionless; the old test could not fail because it had cropped the photograph down to the render’s own error. `post.py` gains the backdrop A/B the owner asked for, default byte-identical. Owner settles the split windscreen. |
 | 2026-08-14 | **rev 15 - four constants refuted, the detail pass lands, and the owner retires the white lock.** The restore DID NOT FAST-FORWARD: the rev-14 line never contained `f3c53f4`, the rev-13 tip, and all seven rev-14 content checks passed anyway because each greps a rev-14 string (10.33). Detail geometry applied with its measurement: cream rim 0.5729 -> 0.6611 against 0.660 +/- 0.008 (10.9 sigma -> 0.13) with the profiles now scaling onto the previously dead `RIM_R`; VW glyph 0.5639 -> 0.7761, the scale read BACK off the built outline so no fraction can go stale; hubcap emblem 0.1897 -> 0.317; T-handle from 240 mm ABOVE the plate to 214 mm below, written as a ratio of `PLATE_OUTER_H`; plate aspect +32.6 % at 14 sigma, solved using the cream rim as a protractor after the vanishing-point method was thrown out at 1.2 sigma; tail lamp OD 0.1030 -> 0.19560. Louvre ends NOT MEASURABLE and not invented. Per-bay galley replaces one 21 W wash with three per-bay boxes -- the lever's sign was backwards, ablating the fill RAISES contrast -- taking bay 2's gap 4.64 -> 0.73 while bay 3 moves TOWARD the photograph. The glass brief is REFUTED: 'rear pane CV 1.22' was a bounding box; on the pane's own hull it reads 0.214 against a photograph at 0.221-0.293. **Four separate solves returned 'the named constant is not the parameter' (10.31)** -- `T1_MURAL_SPEC` solves NEGATIVE in all three channels, `W_ALBEDO` measures identical to its own zero ablation, `COUNTERTAN` has a secant gain of 0.33-0.49 and would demand a non-wood, and rev 13's bloom threshold has no admissible value. A dead-argument bug found: `build_all()`'s rough/coat/spec for `countertan` were never read, exposed by a four-arm ablation identical to four decimals. Hero at **4320x2880**, 18 strips, worst seam z=2.75. Owner retires SPEC sec.6's pure-white lock on the measured A/B (10.32) and re-admits Nolita photographs FOR GEOMETRY ONLY. The loft is grounded but not built: crown R 2.45 +/- 0.15 REFUTED twice, the roof EDGE is 63 +/- 20 mm too high, the tail 235 +/- 22 mm too long. |
+| 2026-08-14 | **rev 16 - THE LOFT: roof section, rear arch, tail and the end-cap poles, in one rebuild.** `LOFT_GROUND`'s 63 mm `ZT_ALL` drop is REJECTED and re-measured at **41 mm** by a datum-free route -- drip-rail groove to serving-aperture top, 28.3 / 27.4 / 27.5 mm across bays 3/2/1 over 228 columns at sd 0.19-0.21 px, against 68.6 mm built -- because the 63 would leave 2 mm of metal above the bays and drop the shell's top edge below the windscreen's own anchor. The belt line shows the aperture band is right to **-2.1 mm**, so the error is the junction, and the hub route's extra 22 mm is the same ~29 mm ground-datum common-mode 10.11 bans. Spent on the junction: `RT_ALL` 0.054 -> 0.0949, `CR_ALL` 0.032 -> 0.1179, **D = 0.2128 against LOFT_GROUND's independently measured 0.2116 +- 0.035**, `ZT_ALL` and the rake untouched, `DOME_DEFICIT` -> 0; built mesh measures back at +27.0 mm against 27.7 +- 0.5. `LOFT_GROUND`'s roof-silhouette 257.2 could NOT be reproduced (the top edge is flat at 252.1-253.6 over u[755,815]) and its proud-strip/coaming reading is withdrawn. Rear arch rebuilt as a flat-crowned ogee from the normalised TABLE, not the window-dependent exponent, 0.747 -> **0.920 m**, `ARCH_R` held, front arch left circular because it has never been measured. Tail **re-spaced, never translated**, overhang 1.008 -> **0.773 m** via `_aft()`, with the projective flank map rebuilt from its own constraints and cross-checked on the arch's aft foot to **1.5 mm**. `SPEC['L']` stops being the VW catalogue 4.290 and becomes an expression of the applied tail correction; a new verify row guards the rear overhang itself. **10.30b closed**: Coons quad-grid caps, max valence **115 -> 6**, and the starburst measures **3.015 -> 1.609 (-47 %)** against a negative control in the same frame reading 1.596 -> 1.592. `NHALF` 56 -> 57 so the cap is mirror-symmetric -- chosen on a guard result, not a preference: the 27x28 arm FAILS at SUB=2 with `gap_englid` rolled back, and moving the cutter does not fix it. Two latent bugs exposed: `roof_cutters` passed `zlo` as `solid_prism`'s CENTRE, and every tail-anchored detail would have left `verify` row 1 passing on a phantom. Guards 0 fail / 1 warn at both levels. |
