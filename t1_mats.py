@@ -451,6 +451,24 @@ if not (os.environ.get("T1_W_DUP") or os.environ.get("T1_W_DLO")):
 # sun fade -- a DESIGN VALUE, not a measurement.  Neither in-service photo is
 # in direct sun (ref_side.jpg open shade, ref_rear34.jpg under a palapa), so
 # fade cannot be separated from exposure.  Kept well under the dust term.
+# ---------------------------------------------------------------- rev 19 --
+# CREAM CHALKY SUN-FADE MOTTLE.  Every one of these is overridable so the map
+# can be ablated and swept without editing source -- the rule that cost three
+# revisions on W_ALBEDO.  MOTTLE_AMP = 0.0 is the ABLATION arm and must render
+# identically to the pre-rev-19 tree.
+#
+# MOTTLE_M is the mottle's characteristic size IN METRES, because the noise is
+# fed OBJECT coordinates: Scale = 1/MOTTLE_M.  Quoting it in metres rather
+# than as a bare Scale is deliberate -- the target spectrum is scale-indexed
+# and a bare Scale cannot be compared with it.
+MOTTLE_M      = float(os.environ.get("T1_MOT_M",     0.024))
+MOTTLE_DETAIL = float(os.environ.get("T1_MOT_DET",   4.0))
+MOTTLE_ROUGH  = float(os.environ.get("T1_MOT_RGH",   0.62))
+MOTTLE_LO     = float(os.environ.get("T1_MOT_LO",    0.34))
+MOTTLE_HI     = float(os.environ.get("T1_MOT_HI",    0.66))
+MOTTLE_AMP    = float(os.environ.get("T1_MOT_AMP",   0.55))
+MOTTLE_RGH_K  = float(os.environ.get("T1_MOT_RGHK",  0.18))
+
 W_FADE_SAT = float(os.environ.get("T1_W_FADESAT", 0.88))
 W_FADE_VAL = float(os.environ.get("T1_W_FADEVAL", 1.04))
 
@@ -662,7 +680,8 @@ def weather_group(name="WEATHER"):
     s = I.new_socket("Base Color", in_out='INPUT', socket_type='NodeSocketColor')
     s.default_value = (*CREAM, 1)
     for nm, dv in (("Roughness", 0.42), ("Dust", 0.0), ("Wear", 0.0),
-                   ("Fade", 0.0), ("Peel", 0.0), ("FadeVert", 0.0)):
+                   ("Fade", 0.0), ("Peel", 0.0), ("FadeVert", 0.0),
+                   ("FadeRough", 0.0)):
         s = I.new_socket(nm, in_out='INPUT', socket_type='NodeSocketFloat')
         s.default_value = dv
         s.min_value, s.max_value = 0.0, 2.0
@@ -677,7 +696,8 @@ def weather_group(name="WEATHER"):
     IN = dict(col=gi.outputs["Base Color"], rgh=gi.outputs["Roughness"],
               dust=gi.outputs["Dust"], wear=gi.outputs["Wear"],
               fade=gi.outputs["Fade"], peel=gi.outputs["Peel"],
-              fadev=gi.outputs["FadeVert"])
+              fadev=gi.outputs["FadeVert"],
+              fadervg=gi.outputs["FadeRough"])
 
     # ---- front end.  Object coordinates, never Generated.
     texco = ng.nodes.new("ShaderNodeTexCoord"); texco.location = (-2600, -600)
@@ -832,10 +852,25 @@ def weather_group(name="WEATHER"):
     r5 = _math(nt, 'MINIMUM', r4, W_ROUGH_CEIL, -60, 700)
     r6 = _math(nt, 'MAXIMUM', r5, 0.030, 100, 700)
 
+    # rev 19: chalk raises roughness where it fades.  SPEC 10.38's mechanism
+    # is "modulate the existing fade path AND drive roughness with it", and
+    # until now FadeVert drove only the HueSaturation on Base Color -- so a
+    # spatial fade map would have produced a colour mottle on a surface of
+    # perfectly uniform gloss, which is not what oxidised paint does.
+    #
+    # `FadeRough` defaults to 0.0, so this branch adds exactly nothing to
+    # every material that existed before this revision -- checked, not
+    # assumed: at FadeRough = 0 the MULTIPLY is 0 and r7 == r6 identically.
+    # It is a NEW input rather than a re-use of `Fade` because the two must
+    # be separable: `script` runs fade = 0.5 and must not gain roughness.
+    r7 = _math(nt, 'MULTIPLY', ffac.outputs[0], IN['fadervg'], 260, 760)
+    r7 = _math(nt, 'ADD', r6, r7, 420, 700)
+    r7 = _math(nt, 'MINIMUM', r7, 1.0, 560, 700)
+
     # index, not name: an output socket may share its name with an input and
     # Blender is free to disambiguate one of them
     ng.links.new(cdust.outputs[2], go.inputs[0])       # Base Color
-    ng.links.new(r6.outputs[0], go.inputs[1])          # Roughness
+    ng.links.new(r7.outputs[0], go.inputs[1])          # Roughness
     ng.links.new(bump.outputs[0], go.inputs[2])        # Normal
     ng.links.new(steel.outputs[0], go.inputs[3])       # Metallic
     return ng
@@ -846,7 +881,7 @@ def _bsdf(m):
 
 
 def apply_weather(m, dust=0.0, wear=0.0, fade=0.0, peel=0.0, normal=True,
-                  fadev=0.0):
+                  fadev=0.0, fadev_from=None, faderough=0.0):
     """Splice the WEATHER group between the material's colour/roughness
     sources and its Principled BSDF."""
     nt = m.node_tree
@@ -890,7 +925,23 @@ def apply_weather(m, dust=0.0, wear=0.0, fade=0.0, peel=0.0, normal=True,
     g.inputs["Wear"].default_value = wear
     g.inputs["Fade"].default_value = fade
     g.inputs["Peel"].default_value = peel
-    g.inputs["FadeVert"].default_value = fadev
+    # rev 19: `fadev_from` names a node ALREADY IN THIS MATERIAL whose first
+    # output is linked into FadeVert instead of a scalar being written.  That
+    # is how the cream mottle map reaches `T1_paint` without touching the red:
+    # the map is multiplied by the material's own two-tone selector before it
+    # gets here, so the red side is 0.0 BY CONSTRUCTION, not by a threshold.
+    # A missing node is a hard error -- a silent fallback to the scalar is how
+    # a map gets shipped switched off.
+    if fadev_from is not None:
+        src = nt.nodes.get(fadev_from)
+        if src is None:
+            raise RuntimeError(
+                "apply_weather(%s): fadev_from=%r not found in this material -- "
+                "refusing to fall back to a scalar" % (m.name, fadev_from))
+        nt.links.new(src.outputs[0], g.inputs["FadeVert"])
+    else:
+        g.inputs["FadeVert"].default_value = fadev
+    g.inputs["FadeRough"].default_value = faderough
 
     nt.links.new(g.outputs[0], b.inputs["Base Color"])
     nt.links.new(g.outputs[1], b.inputs["Roughness"])
@@ -1152,6 +1203,37 @@ def body_paint(name="T1_paint"):
     dz = _math(nt, 'SUBTRACT', sep.outputs["Z"], rake.outputs[0], -20, 340)
     edge = _math(nt, 'DIVIDE', dz, 0.0045, 140, 340)
     edge = _math(nt, 'ADD', edge, 0.5, 300, 340, clamp=True)
+
+    # ------------------------------------------------ rev 19: CREAM MOTTLE --
+    # The CHALKY SUN-FADE MOTTLE map.  SPEC 10.38 supplies the mechanism; the
+    # amplitude is re-grounded in 10.49 on the surface the owner identified.
+    #
+    # WHY IT LIVES HERE AND NOT IN build_all().  `T1_paint` renders cream ABOVE
+    # the break line and red BELOW, in ONE material, and `T1_body` is the only
+    # object carrying the vehicle's flank cream.  rev 14 could not switch
+    # `FadeVert` on for this material because a material-level scalar runs the
+    # flank RED through W_FADE_SAT = 0.88 and takes SPEC 10.12's locked albedo
+    # saturation 0.816 to ~0.77.  So it was switched on for every OTHER cream
+    # and the flank -- the surface 10.30c measured the -55 % on -- got NOTHING.
+    # Probed on the built scene: `T1_paint` FadeVert 0.000, while the material
+    # literally named `cream` carries exactly one object, `vw_disc`.
+    #
+    # Multiplying by `edge` -- the material's OWN two-tone selector, the same
+    # node that decides which pixels are cream -- makes the red side exactly
+    # 0.0 BY CONSTRUCTION.  The lock is not defended by a threshold someone
+    # chose; the fade cannot be non-zero anywhere the paint is not cream.
+    # That is rev 14's own principle: apply the finding so the lock survives.
+    #
+    # OBJECT coordinates, never Generated.  Generated is bbox-normalised, so a
+    # feature size in metres would silently change if any station moved -- and
+    # the tail has moved twice.  In object space, 1/Scale is metres.
+    mtc = nt.nodes.new("ShaderNodeTexCoord"); mtc.location = (-900, 620)
+    mot_n = _noise(nt, mtc.outputs["Object"], 1.0 / max(MOTTLE_M, 1e-9),
+                   MOTTLE_DETAIL, -700, 620, MOTTLE_ROUGH)
+    mot_r = _mr(nt, mot_n.outputs["Fac"], MOTTLE_LO, MOTTLE_HI,
+                0.0, MOTTLE_AMP, -520, 620)
+    mot = _math(nt, 'MULTIPLY', mot_r.outputs[0], edge, -340, 620, clamp=True)
+    mot.name = "FADEV_MOTTLE"; mot.label = "FADEV_MOTTLE"
 
     # gold swirl decal, box-projected in object space
     texco = nt.nodes.new("ShaderNodeTexCoord"); texco.location = (-1600, -420)
@@ -1623,8 +1705,19 @@ def build_all():
     # RED's albedo saturation at 0.816 and W_FADE_SAT = 0.88 would move it.
     # `calidad` stays at 0.0 for the same reason -- it is a red-orange decal
     # whose gradient was measured, not designed.  See weather_group() 2d.
-    FADEV_CREAM = 0.50
-    for k in ("paint", "roundelred", "calidad"):
+    # rev 19: exposed for ABLATION.  The standing rule is to ablate a constant
+    # to zero and re-measure BEFORE scheduling a solve on it -- `W_ALBEDO` cost
+    # three revisions for want of one render.  This is the fade path the cream
+    # mottle map is about to modulate spatially, so its authority over the
+    # rendered cream has to be demonstrated, not assumed.  Default unchanged.
+    FADEV_CREAM = float(os.environ.get("T1_FADEV", 0.50))
+    # rev 19: `paint` alone takes the mottle map, LINKED from the node
+    # `body_paint` built and already multiplied by its own two-tone selector.
+    # `roundelred` and `calidad` keep 0.0 -- they carry no cream at all.
+    apply_weather(M["paint"], dust=1.0, wear=WEAR[M["paint"].name],
+                  fade=1.0, peel=1.0, fadev_from="FADEV_MOTTLE",
+                  faderough=MOTTLE_RGH_K)
+    for k in ("roundelred", "calidad"):
         apply_weather(M[k], dust=1.0, wear=WEAR[M[k].name], fade=1.0, peel=1.0)
     apply_weather(M["bumpercream"], dust=1.0, wear=WEAR[M["bumpercream"].name],
                   fade=1.0, peel=1.0, fadev=FADEV_CREAM)
