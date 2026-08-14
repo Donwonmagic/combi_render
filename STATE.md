@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-14 16:49:19 UTC |
-| git commit | `2c51e78` |
-| git subject | rev 18: the adversarial loft audit, and three dead verify rows repaired |
+| generated | 2026-08-14 16:54:32 UTC |
+| git commit | `6d81d66` |
+| git subject | rev 18: STATE.md stops publishing three phantoms and two hand-typed falsehoods |
 | working tree | **DIRTY** — this state is not committed |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=1 (applied, destructive, before booleans) |
@@ -18,7 +18,7 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 ## Guard result
 
-**VERIFY: 1 fail, 1 warn** at T1_SUB=1.
+**VERIFY: 0 fail, 1 warn** at T1_SUB=1.
 
 > A pass here is only a pass *at this subdivision level*. The cab-door gap
 > booleans passed at SUB=1 and collapsed the shell at SUB=2 for six
@@ -32,7 +32,7 @@ measured TRACK_F=1.3713  TRACK_R=1.3613  TYRE_D=0.6650
 open serving apertures on +Y: 3
 roof at tail = 1.988
 rake 17.75 mm/m (locked 17.75); drop at x=0 47.9 mm; RIDE_DROP identity holds
-rear arch lip above hub 0.3527 m (ARCH_R 0.3735) -> tyre gap 20.2 mm
+rear arch lip above hub 0.3722 m (ARCH_R 0.3735) -> tyre gap 39.7 mm
 front arch lip above hub 0.3732 m (ARCH_R 0.3735) -> tyre gap 40.7 mm
 roof aperture: open, and solid fore / aft / both sides
 shut line door+1: 100 % open
@@ -40,8 +40,7 @@ shut line door-1: 100 % open
 shut line cargo: 100 % open
 shut line englid: 100 % open
 band 1.372-1.775 un-dropped (1.307-1.710 AG)  bay widths 0.516 0.515 0.516
-VERIFY: 1 fail, 1 warn
-FAIL  rear arch-to-tyre gap 20.2 mm MEASURED on the mesh; SPEC sec.2 locks 41 +- 8. ARCH_R-TIRE_R (the old constants-only test) says 41.0
+VERIFY: 0 fail, 1 warn
 warn  roof crown @ rear axle (dome-corrected) 1.983 vs spec 1.960 (+23 mm)
 ```
 
@@ -49,7 +48,7 @@ warn  roof crown @ rear axle (dome-corrected) 1.983 vs spec 1.960 (+23 mm)
 |---|---|
 | cutters rolled back | none |
 | non-manifold edges (body) | 0 |
-| body faces | 60461 quad, 465 tri, 3107 ngon |
+| body faces | 60401 quad, 446 tri, 3131 ngon |
 
 ## Measured dimensions
 
@@ -135,8 +134,8 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 | | |
 |---|---|
 | mesh objects | 181 |
-| vertices (all meshes) | 141503 |
-| faces (all meshes) | 136243 |
+| vertices (all meshes) | 141467 |
+| faces (all meshes) | 136188 |
 
 | prefix | n |
 |---|---|

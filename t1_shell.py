@@ -294,11 +294,55 @@ ARCH_Z = arch_z(T.X_AXLE_R)          # back-compat scalar; prefer arch_z(x)
 # geometry that collapsed the shell 205562 v -> 12 v for six revisions
 # (see the assert below and SPEC sec.10.1).
 ARCH_W_REAR = 0.920                  # LOFT_GROUND sec.2.5, +- 0.03 m
+#
+# rev 18 -- THREE COUPLED CORRECTIONS, APPLIED TOGETHER BECAUSE ANY ONE OF THEM
+# ALONE LANDS THE OTHER TWO WRONG.  See AUDIT_rev18_loft.md sections 3, 4 and 5.
+#
+# (a) THE CROWN WAS DOUBLE-COUNTED.  rear_arch_outline evaluates
+#     z = ARCH_R - h*_arch_drop(t), and the raw table's smallest drop is 0.057,
+#     never 0.  But ARCH_R *is* the measured crown lip height -- SPEC 10.37 and
+#     the comment 14 lines above both say it is HELD, and LOFT_GROUND sec.2.6
+#     instructs "hold the crown height, widen to 0.92 m, and use the sec.2.3
+#     profile".  Subtracting a crown drop from the crown itself put the lip
+#     20.9 mm low at the axle and the tyre gap at 20.1 mm against SPEC sec.2's
+#     locked 41 +- 8.  MEASURED on the built mesh at 20.2 mm, and the FRONT
+#     arch -- untouched, still circular -- reads ARCH_R to 0.3 mm in the same
+#     run as the positive control.  The table is now normalised so its MINIMUM
+#     is zero, which makes the highest point of the built lip exactly ARCH_R.
+#     That is what "hold the crown height" means, expressed rather than asserted.
+#
+# (b) THE (0.10, 0.014) ENTRY IS NOT A MEASUREMENT.  Re-traced in rev 18:
+#     reproducing LOFT_GROUND sec.2.1's own +-7-row half-max method DOES
+#     reproduce a 4.5 px spike, but the raw pixels put the lip edge on row
+#     524->525 at EVERY column across it -- the window straddles a dark
+#     folk-art speck 5 px above the lip and locks onto the band.  Re-anchored
+#     on the edge the lip reads 371.4 / 370.9 / 371.4 / 372.1 / 372.3 /
+#     372.1 mm: FLAT.  And through LOFT_GROUND sec.0's own map, dx/a = +0.10
+#     is u = 759.53 -- inside the band sec.2.1's text says it REJECTED
+#     ("dark folk-art specks at u 657, 758-761, 844-845").  The 9-wide median
+#     filter sec.2.1 announces was never propagated into the sec.2.3 table.
+#     Independent corroboration needing no re-trace: sec.2.4 says the crown is
+#     flat within 1.2 mm over 164 mm, a span containing this station, and
+#     0.046 x h = 16.0 mm is 13x that.  Replaced by the median of its
+#     neighbours, 0.0585, which is what the announced filter would have given.
+#
+# (c) THE SIGN CONVENTION WAS MIRRORED.  SPEC 10.37 and the note below assert
+#     the table is stated forward at -0.90 and aft at +0.90.  rear_arch_outline
+#     emits (t*a, ...) and solid_prism is passed u = (1,0,0), and +x is FORWARD
+#     in t1_core -- so t = +0.90 was landing forward.  Settled empirically, not
+#     by argument: LOFT_GROUND sec.0's map is X(u) = 641220.4/(u+11140) -
+#     55.0322, so increasing u runs AFT, and the anomalous +0.10 station lands
+#     at u 759.5 inside the AFT rejected band.  +dx is aft.  The lookup below
+#     is negated, which keeps the outline's traversal order (and therefore the
+#     prism's winding) untouched while putting each drop on its own side.
+#
+# WHAT THIS DOES NOT DO: it does not touch ARCH_R, ARCH_W_REAR, the front arch,
+# or any station.  Only the profile's normalisation, one outlier, and a sign.
 _ARCH_PROFILE = [                    # (delta-x / half-width, drop / crown-to-foot)
     (-1.00, 1.000), (-0.95, 0.754), (-0.90, 0.583), (-0.80, 0.370),
     (-0.70, 0.246), (-0.60, 0.156), (-0.50, 0.117), (-0.40, 0.090),
     (-0.30, 0.078), (-0.20, 0.074), (-0.10, 0.068), ( 0.00, 0.060),
-    ( 0.10, 0.014), ( 0.20, 0.057), ( 0.30, 0.058), ( 0.40, 0.076),
+    ( 0.10, 0.0585), ( 0.20, 0.057), ( 0.30, 0.058), ( 0.40, 0.076),
     ( 0.50, 0.101), ( 0.60, 0.146), ( 0.70, 0.217), ( 0.80, 0.354),
     ( 0.90, 0.593), ( 0.95, 0.754), ( 1.00, 1.000),
 ]
@@ -307,12 +351,25 @@ _ARCH_PROFILE = [                    # (delta-x / half-width, drop / crown-to-fo
 # left/right difference is kept rather than averaged away.  The -0.95 point is
 # mirrored from +0.95, which the trace reached and the forward side did not.
 _ARCH_T = [p[0] for p in _ARCH_PROFILE]
-_ARCH_D = [p[1] for p in _ARCH_PROFILE]
+_ARCH_D0 = [p[1] for p in _ARCH_PROFILE]
+# (a): re-base so the crown drop is ZERO and the foot is still exactly 1.000.
+# Both end conditions of rear_arch_outline are preserved by construction --
+# t = 0 gives z = ARCH_R, t = +-1 gives z = z_foot -- so this changes the SHAPE
+# between them and neither endpoint.  Written as an expression of the table, not
+# as a second table, so re-tracing the profile cannot leave the re-basing stale.
+_ARCH_DMIN = min(_ARCH_D0)
+_ARCH_D = [(d - _ARCH_DMIN) / (1.0 - _ARCH_DMIN) for d in _ARCH_D0]
+assert abs(min(_ARCH_D)) < 1e-12 and abs(max(_ARCH_D) - 1.0) < 1e-12
 
 
 def _arch_drop(t):
-    """drop as a fraction of crown-to-foot, at delta-x/half-width = t"""
-    return float(np.interp(t, _ARCH_T, _ARCH_D))
+    """drop as a fraction of crown-to-foot, at delta-x/half-width = t
+
+    rev 18 (c): t is NEGATED because the table's +dx is AFT while this
+    module's +x is forward.  See the block above -- established from the
+    projective flank map, not from the convention SPEC 10.37 asserts.
+    """
+    return float(np.interp(-t, _ARCH_T, _ARCH_D))
 
 
 def rear_arch_outline(x_axle, n=96, floor=-0.400):
