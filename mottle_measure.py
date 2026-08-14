@@ -129,6 +129,19 @@ def _lab_img(rgb_lin):
     A = 500 * (f[..., 0] - f[..., 1]); B = 200 * (f[..., 1] - f[..., 2])
     return L, np.sqrt(A * A + B * B)
 Ls, Cs = _lab_img(lin)
+# rev 20: the BASE LEVEL, not just the structure.  dC* rms is an ABSOLUTE Lab
+# statistic, so it scales with the patch's mean C*.  Comparing a render's dC*
+# against a photograph's without also comparing mean C* silently charges a
+# base-chroma error to the mottle map.  10.49 measured the photograph's region
+# 2 at C* 19.91; this is the same quantity on the render's own patch.
+# Photograph side re-measured this revision on `cream_rms._BODY` itself, in
+# these same Lab units and with the same D65 white, rather than quoted from a
+# comment: n = 7968 px, 0.00 % clipped, mean L* 80.89, mean C* 21.44.
+REF_L, REF_C = 80.89, 21.44
+print("  --- BASE LEVEL (photograph _BODY, measured: L* %.2f  C* %.2f) ---"
+      % (REF_L, REF_C))
+print("  render patch mean L* %6.2f   mean C* %6.2f   -> C* ratio %.3f"
+      % (Ls[m].mean(), Cs[m].mean(), Cs[m].mean() / REF_C))
 print("  --- character on the render, same statistics as the photograph ---")
 print("  sigma_mm   corr(dL*,dC*)   dL* rms   dC* rms      [photograph]")
 PHOT = {5.9: (-0.159, 0.377, 0.756), 11.9: (-0.497, 0.531, 1.162),

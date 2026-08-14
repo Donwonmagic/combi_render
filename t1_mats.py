@@ -468,6 +468,21 @@ MOTTLE_LO     = float(os.environ.get("T1_MOT_LO",    0.34))
 MOTTLE_HI     = float(os.environ.get("T1_MOT_HI",    0.66))
 MOTTLE_AMP    = float(os.environ.get("T1_MOT_AMP",   0.55))
 MOTTLE_RGH_K  = float(os.environ.get("T1_MOT_RGHK",  0.18))
+# rev 20: a rigid TRANSLATION of the mottle's sampling point in object space.
+# It changes which part of the noise field the flank sees and NOTHING else --
+# same Scale, same Detail, same Roughness, so the map's own statistics are
+# identical by construction and only its PHASE relative to the other object-
+# space noises moves.  (0,0,0) is therefore an exact no-op and is the control.
+#
+# WHY IT EXISTS.  Every noise in this material is fed the SAME `Object` vector
+# and Blender's noise is one field sampled at different Scales, so two noises
+# whose scales are close alias onto each other.  W_N2 (Scale 22, Detail 4) has
+# octaves at 22 / 44 / 88 / 176; the mottle's base octave is 1/0.024 = 41.67,
+# which sits 5.3 % from W_N2's second octave.  The albedo breakup maps high
+# noise to MORE chroma and the mottle maps high noise to MORE fade, i.e. LESS
+# chroma -- so an aliased pair subtracts.  Measured, not assumed: see SPEC.
+MOTTLE_OFS    = tuple(float(v) for v in
+                      os.environ.get("T1_MOT_OFS", "0,0,0").split(","))
 
 W_FADE_SAT = float(os.environ.get("T1_W_FADESAT", 0.88))
 W_FADE_VAL = float(os.environ.get("T1_W_FADEVAL", 1.04))
@@ -1228,7 +1243,17 @@ def body_paint(name="T1_paint"):
     # feature size in metres would silently change if any station moved -- and
     # the tail has moved twice.  In object space, 1/Scale is metres.
     mtc = nt.nodes.new("ShaderNodeTexCoord"); mtc.location = (-900, 620)
-    mot_n = _noise(nt, mtc.outputs["Object"], 1.0 / max(MOTTLE_M, 1e-9),
+    # rev 20: MOTTLE_OFS translates the sampling point only.  At (0,0,0) the
+    # Mapping node is the identity, so this is a provable no-op control; the
+    # ablation arm must reproduce the pre-rev-20 tree exactly.
+    mot_v = mtc.outputs["Object"]
+    if any(MOTTLE_OFS):
+        mmap = nt.nodes.new("ShaderNodeMapping"); mmap.location = (-820, 620)
+        mmap.vector_type = 'POINT'
+        mmap.inputs["Location"].default_value = MOTTLE_OFS
+        nt.links.new(mot_v, mmap.inputs["Vector"])
+        mot_v = mmap.outputs["Vector"]
+    mot_n = _noise(nt, mot_v, 1.0 / max(MOTTLE_M, 1e-9),
                    MOTTLE_DETAIL, -700, 620, MOTTLE_ROUGH)
     mot_r = _mr(nt, mot_n.outputs["Fac"], MOTTLE_LO, MOTTLE_HI,
                 0.0, MOTTLE_AMP, -520, 620)

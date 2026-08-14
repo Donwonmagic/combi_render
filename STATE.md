@@ -8,10 +8,10 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-14 20:16:21 UTC |
-| git commit | `15ee446` |
-| git subject | rev 19: SPEC 10.49-10.52, the change-log entry and HANDOFF_rev19 |
-| working tree | clean |
+| generated | 2026-08-14 22:36:16 UTC |
+| git commit | `1e9805c` |
+| git subject | rev 19: correct the FADEV_MOTTLE content check from 3 to 2 -- a figure I had not watched print, and the count that follows from this commit |
+| working tree | **DIRTY** — this state is not committed |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=1 (applied, destructive, before booleans) |
 | geometry source | procedural, built this run |
@@ -26,7 +26,7 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 ```
 x range [-1.905, 2.160]   full-Y [-1.064, 1.150]
-dims  L=4.065 W=1.750 roof@rear-axle=1.983 (raw resid +23 mm; dome deficit +0 mm still unmodelled) (bbox top 3.046)
+dims  L=4.065 W=1.750 roof@rear-axle=1.983 (raw resid +23 mm; dome deficit +0 mm still unmodelled) (bbox top 3.017)
 rear overhang 0.7730 m = 0.3221 of the wheelbase (measured 0.773 +- 0.022 m)
 measured TRACK_F=1.3713  TRACK_R=1.3613  TYRE_D=0.6650
 open serving apertures on +Y: 3
@@ -99,7 +99,8 @@ file used to publish the rocker seen through that hole as the roof height._
 |---|---|
 | ride drop @ x=0 | 47.9 mm |
 | ride drop @ front axle / rear axle | 71.0 / 28.4 mm |
-| arch radius − tyre radius | 41.0 mm (measured 41) |
+| rear arch lip → tyre gap (MEASURED on the mesh) | 39.7 mm — SPEC §2 locks 41 ± 8 |
+| front arch → tyre gap (untouched circular control) | 40.7 mm |
 | V_APEX + V_RISE == Z_BELT | 1.2070 == 1.2070 — held |
 
 ### Serving apertures

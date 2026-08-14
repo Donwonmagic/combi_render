@@ -153,8 +153,25 @@ P("ride drop applied  = %.1f mm" % (T.RIDE_DROP * 1000))
 tyres = [o for o in meshes if o.name.startswith("tyre")]
 tl, th = vbounds(tyres)
 P("tyre z range       = [%.4f, %.4f]  (dia %.4f)" % (tl.z, th.z, th.z - tl.z))
-P("arch radius / tyre radius = %.4f / %.4f  -> gap %.1f mm" %
-  (S.ARCH_R, T.TIRE_R, (S.ARCH_R - T.TIRE_R) * 1000))
+# rev 20, SPEC 10.52.  This row was `ARCH_R - TIRE_R` -- a subtraction of two
+# SOURCE CONSTANTS -- so it printed 41.0 mm forever no matter what
+# rear_arch_outline built, and it went on printing it for two revisions AFTER
+# rev 18 repaired the identical defect in verify.py.  Third instance of the
+# shape (`counter_top`'s exclusion, the hardcoded 4.290, this).  Now MEASURED
+# on the built mesh with verify's own probe, which returns None rather than an
+# endpoint, so "not found" can never be published as a number.
+import verify as _VA
+_hubz = T.TIRE_R
+for _atag, _aax in (("rear", T.X_AXLE_R), ("front", T.X_AXLE_F)):
+    _alip = _VA._arch_lip_z(body, _aax, +1, _hubz - 0.02, _hubz + 0.45)
+    if _alip is None:
+        P("%-5s arch lip     = NOT FOUND at x=%.3f -- this row measured NOTHING"
+          % (_atag, _aax))
+    else:
+        P("%-5s arch lip above hub = %.4f m  -> tyre gap %.1f mm   "
+          "[retired constants-only test ARCH_R-TIRE_R would say %.1f]"
+          % (_atag, _alip - _hubz, (_alip - _hubz - T.TIRE_R) * 1000,
+             (S.ARCH_R - T.TIRE_R) * 1000))
 P("rocker-to-ground   = %.4f m" % blo.z)
 P("track F/R %.3f / %.3f ; body half-width %.3f -> wheels sit %+.1f mm "
   "inboard of the flank" % (T.TRACK_F, T.TRACK_R, bhi.y,
@@ -471,8 +488,27 @@ A("|---|---|")
 A("| ride drop @ x=0 | %.1f mm |" % (T.RAKE_Z0 * 1000))
 A("| ride drop @ front axle / rear axle | %.1f / %.1f mm |"
   % (T.rake_drop(T.X_AXLE_F) * 1000, T.rake_drop(T.X_AXLE_R) * 1000))
-A("| arch radius − tyre radius | %.1f mm (measured 41) |"
-  % ((S.ARCH_R - T.TIRE_R) * 1000))
+# rev 20, SPEC 10.52.  This row read `| arch radius - tyre radius | 41.0 mm
+# (measured 41) |` -- two source constants, plus a HAND-TYPED "(measured 41)"
+# asserting a measurement that never happened, in a file whose own header says
+# nothing in it is typed by hand.  It sat 68 lines below the real, mesh-measured
+# 39.7 mm.  Sourced now from the SAME verify line that publishes that number,
+# exactly as `_bayline` is, so there is no second implementation to go stale.
+def _arch_gap_mm(tag):
+    _l = next((l for l in _glines if ("%s arch lip above hub" % tag) in l), "")
+    if "tyre gap" in _l:
+        try:
+            return float(_l.split("tyre gap")[1].split("mm")[0])
+        except ValueError:
+            return None
+    return None
+_rgap, _fgap = _arch_gap_mm("rear"), _arch_gap_mm("front")
+A("| rear arch lip → tyre gap (MEASURED on the mesh) | %s |"
+  % ("%.1f mm — SPEC §2 locks 41 ± 8" % _rgap if _rgap is not None
+     else "**NOT MEASURED — verify's probe returned None**"))
+A("| front arch → tyre gap (untouched circular control) | %s |"
+  % ("%.1f mm" % _fgap if _fgap is not None
+     else "**NOT MEASURED — verify's probe returned None**"))
 A("| V_APEX + V_RISE == Z_BELT | %.4f == %.4f — %s |"
   % (MT.V_APEX + MT.V_RISE, MT.Z_BELT,
      "held" if abs(MT.V_APEX + MT.V_RISE - MT.Z_BELT) < 1e-6 else "**BROKEN**"))

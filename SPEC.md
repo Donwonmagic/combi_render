@@ -1677,10 +1677,176 @@ Found independently twice this revision — by direct reading and by a read-only
 agent. **Not repaired in rev 19: it is a one-line fix but it changes `STATE.md`,
 and it is recorded here so it cannot be lost again.**
 
+### 10.53  rev 20 — §10.52 REPAIRED, AND THE ROW FALSIFIED AFTER REPAIR
+
+`audit.py:156` (console) and `audit.py:474` (the `STATE.md` row) both computed
+`S.ARCH_R - T.TIRE_R` and so published **41.0 mm forever**, two revisions after
+rev 18 repaired the identical defect in `verify.py`.
+
+Both now read the MESH. The console row calls `verify._arch_lip_z` directly --
+the probe that **returns `None` rather than an endpoint** -- and prints "NOT
+FOUND ... this row measured NOTHING" when it declines. The `STATE.md` row is
+sourced from the SAME `verify` line that already publishes the number, exactly
+as `_bayline` is, so there is no second implementation to go stale. The
+hand-typed `(measured 41)` is gone; the row now carries the locked band as
+`SPEC §2 locks 41 ± 8` and the untouched circular FRONT arch is published
+alongside as the positive control.
+
+```
+rear  arch lip above hub = 0.3722 m  -> tyre gap 39.7 mm   [retired constants-only test would say 41.0]
+front arch lip above hub = 0.3732 m  -> tyre gap 40.7 mm   [retired constants-only test would say 41.0]
+
+STATE.md:102  | rear arch lip -> tyre gap (MEASURED on the mesh) | 39.7 mm - SPEC §2 locks 41 ± 8 |
+STATE.md:103  | front arch -> tyre gap (untouched circular control) | 40.7 mm |
+```
+
+**FALSIFIED AFTER REPAIR, not merely re-run.** The row now differs from the
+constant it used to print (39.7 against 41.0), which is itself proof it measures
+something else. The decline path was exercised on all three ways it can fire:
+
+| fed to the parser | published |
+|---|---|
+| the live line as printed | `39.7` |
+| `verify`'s "lip not found ... measured NOTHING" | **declines** |
+| line absent entirely | **declines** |
+| number present but garbled | **declines** |
+
+Guards re-run at BOTH levels after the change: **0 fail / 1 warn**, every figure
+identical -- warn +23 mm, roof hole 68052v / 252123v, 126 objects, bays 0.516
+0.515 0.516.
+
+### 10.54  rev 20 — WORK ITEM 1'S TARGET IS AN ABSOLUTE STATISTIC ACROSS A 5.5x BASE MISMATCH
+
+**Do not raise the mottle's chroma gain.** §10.51 left "give the mottle its own
+chroma gain" as the bounded next step against a target of dC\* rms
+**0.744 / 1.015 / 1.295**. The lever was built and measured; then the target
+failed a check nobody had run.
+
+**(a) The dC\* triple quoted as the shipped render is the ABLATION arm's.** The
+albedo pass is DETERMINISTIC -- two runs of one arm agree to three decimals, so
+the seed-to-seed null is zero and every figure here is exact.
+
+| arm | corr(dL\*,dC\*) 5.9/11.9/23.7 mm | dL\* rms | dC\* rms |
+|---|---|---|---|
+| AMP 0 (ablation) | +0.265 +0.234 +0.259 | 0.337 0.608 0.968 | **0.244 0.250 0.253** |
+| AMP 0.55 (shipped) | +0.216 +0.194 +0.224 | 0.345 0.618 0.981 | **0.220 0.227 0.231** |
+| AMP 2.0 | +0.047 +0.057 +0.127 | 0.374 0.650 1.011 | 0.223 0.233 0.239 |
+| photograph | +0.042 -0.106 -0.294 | 0.385 0.493 0.735 | 0.744 1.015 1.295 |
+
+§10.51, `HANDOFF_rev19` §5 and the rev-20 prompt all quote `0.240 / 0.249 /
+0.253` as the shipped arm. That is **AMP 0**. The endpoints confirm the chain is
+unchanged -- AMP 0 and AMP 2.0 corr both reproduce §10.51 to ~0.02 -- so only the
+middle arm's dC\* was mis-transcribed. **Eighth instance of a figure that was not
+watched print.**
+
+**(b) Switching the map on makes dC\* go DOWN**, 0.244 -> 0.220, not "flat". The
+recorded "AMP 0.55 -> 2.0 moved it 0.240 -> 0.241" describes a dip, not a weak
+lever.
+
+**(c) An alias hypothesis for that dip was built and REFUTED by its own
+control.** The mottle's base octave is 1/0.024 = 41.67 and `W_N2`'s second octave
+is 44 -- 5.3 % apart, the same object-space field, and the two map in opposite
+senses (breakup: high noise -> more chroma; mottle: high noise -> more fade ->
+less chroma). `MOTTLE_OFS` (`T1_MOT_OFS`) was added to test it: a rigid
+translation of the mottle's sampling point, same Scale / Detail / Roughness, so
+only the PHASE moves. **(0,0,0) reproduced the shipped arm to three decimals**
+before the offset arm was believed; (13.7, 5.3, 9.1) moved dC\* only 0.220 ->
+0.217. **Aliasing is not the mechanism.** `W_FADE_VAL` 1.04 -> 1.0 was also
+ablated and drove dC\* further DOWN (0.220 -> 0.211), so the Value term is not
+the canceller either.
+
+**(d) The lever is real and it is chroma-pure.** `W_FADE_SAT` 0.88 -> 0.40 (5x
+the gain) gives dC\* **0.269 / 0.314 / 0.335**, which also starts GROWING with
+scale as the photograph does, while dL\* moves 0.345/0.618/0.981 ->
+0.346/0.620/0.984 -- i.e. not at all.
+
+**(e) AND THE TARGET DOES NOT BIND.** dC\* rms is an ABSOLUTE Lab statistic, so
+it scales with the patch's mean C\*. The base level had never been printed on
+either side. Measured this revision, same Lab units, same D65 white:
+
+```
+                      mean L*    mean C*
+photograph _BODY        80.89      21.44     n = 7968, 0.00 % clipped
+render patch            83.20       3.89     -> C* ratio 0.182
+```
+
+§10.51's "the render's C\* ≈ 12" is wrong by 3x. **The L\* bases agree to
+2.9 %, so the dL\* comparison is valid -- which is exactly why §10.51 correctly
+found dL\* already close. The C\* bases differ 5.5x, so the dC\* comparison is
+not.** Normalised:
+
+| σ | render dC\*/C̄ | photograph dC\*/C̄ |
+|---|---|---|
+| 5.9 mm | **5.66 %** | 3.47 % |
+| 11.9 mm | **5.83 %** | 4.73 % |
+| 23.7 mm | **5.94 %** | 6.04 % |
+
+**The mottle's relative chroma modulation already meets or exceeds the
+photograph's at every scale.** Raising the gain would drive it to 2-6x the real
+vehicle's in order to compensate for a base-chroma difference that lives
+elsewhere. Same shape as "the cream is 26x too uniform": a real statistic against
+an invalid reference.
+
+**(f) The BEAUTY arm has been reporting zeros.** §10.51 kept it "because the
+target is a photograph ... both are reported rather than one being chosen". On
+this patch it is **clipped 100.00 %** -- L\* exactly 100.00, C\* exactly 0.00,
+dL\* and dC\* exactly 0.000, corr `nan`. It has never been able to report
+anything, and the claim that both arms are reported was never true.
+
+**NEW RULE: A TARGET IS A PROBE TOO.** Check the BASE LEVEL of any absolute
+statistic before comparing two frames through it -- print the mean as well as the
+rms. Ninth instance of check-what-the-probe-can-see, and the first where the
+defect was in the statistic's UNITS rather than in a crop, a class gate or a
+surface.
+
+### 10.55  rev 20 — THE LOCKED `CREAM` ALBEDO IS THE LIVE LEAD, AND IT IS NOT SETTLED
+
+`CREAM` is locked at sRGB **(206, 208, 200) -- hue 75.0°, HSV sat 0.038**,
+essentially neutral, with **G > R**. The bus's own cream in `ref_rear34.jpg` --
+`cream_rms._BODY`, the region the owner himself identified in §10.49 -- reads
+**(216, 200, 161) -- hue 41.7°, sat 0.255**, with **R > G**. Opposite channel
+order and 6.7x the saturation.
+
+This file's own provenance note records that rev 3 had R > G and it was
+"corrected" to G > R because "the measurement has G > R". §10.38 and §10.42
+established that `ref_side.jpg` -- the likely source of that measurement --
+**contains no usable body-cream patch at all** (1799 gated pixels, best 60x20
+window 33.8 % pure). That is the §10.49 shape again, one level down.
+
+**NOTHING WAS CHANGED, and it must not be on this evidence.** A photograph is
+lit, and this one is open shade under a palapa in dense green foliage. Every
+route tried has a stated weakness:
+
+- clean tail RED, box `(1015, 1105, 545, 615)`, 0.00 % clipped: hue 11.2°,
+  **HSV sat 0.838 against §10.12's locked 0.816 -- 2.7 %**. But it sits under the
+  counter's shadow, so it is **not the same light** as the cream panel, and §10.21
+  bars exactly this comparison.
+- inverting the illuminant from that red and applying it to the locked `CREAM`
+  predicts sRGB(132, 180, 133), a green, against the measured (216, 200, 161).
+  Suggestive; does not bind, same reason.
+- the napkin dispensers as a white give a cream albedo of hue 51-58° / sat
+  0.107-0.147 against the locked 75° / 0.038 -- same direction, 3-4x -- but the
+  two dispensers disagree with each other by 11 % because they are shaded
+  differently, and dispenser A is 11.6 % clipped.
+
+Useful signal, recorded: in `ref_rear34.jpg` the napkins, the blender collar and
+the two galley trays all read hue **33.1-34.6°** across a 2x brightness range,
+while the cream panel reads **41.7°** -- a consistent neutral axis near 33.5°.
+
+**BLOCKED ON ONE OWNER READING**, asked with every box printed and zoomed insets
+(§10.38's rule, and the crops A-E are MINE and A and B are contaminated -- they
+catch the napkins rather than the steel, and A clips at 11.6 %): are A
+`(792,838,410,458)` and B `(846,876,408,456)` **white paper napkins** or
+something tinted, and is C `(986,1024,330,378)`, D `(1030,1074,392,424)` or E
+`(1096,1180,404,436)` **bare stainless** rather than painted or plastic? A
+same-light neutral is what separates paint from illumination here.
+
+
 ## Change log
 
 | Date | Change |
 |---|---|
+| 2026-08-14 | **rev 20 — work item 1 refuted, and §10.52 repaired.** §10.52's two constants-only arch lines now MEASURE the mesh via `verify._arch_lip_z` and the row was FALSIFIED after repair on all three decline paths (§10.53). **The cream map's chroma gain must NOT be raised (§10.54):** the dC\* triple quoted as the shipped arm is the **ABLATION** arm's (shipped is 0.220/0.227/0.231, not 0.240/0.249/0.253 — eighth un-watched figure); switching the map on drives dC\* **down**, not flat; an alias hypothesis was built and refuted by its own no-op control; the lever is real and chroma-pure (`W_FADE_SAT` 0.88→0.40 gives 0.269/0.314/0.335 and dL\* does not move) — **but dC\* rms is an ABSOLUTE statistic and the base levels differ 5.5×** (render C\* **3.89** vs photograph **21.44**; L\* agrees to 2.9 %, which is why dL\* was correctly found close). Normalised, the render is ALREADY at or above the photograph at every scale. The BEAUTY arm is **100 % clipped** and has always reported zeros. **New rule: A TARGET IS A PROBE TOO — print the base level of any absolute statistic.** Live lead is the locked `CREAM` albedo, sat 0.038 / G>R against the bus's 0.255 / R>G, **not changed**, blocked on one owner reading (§10.55). |
 | 2026-08-14 | **rev 17 — the cream target was measured through an open serving bay (§10.38).** `cream_rms.py`'s 8.890 % is the GALLEY INTERIOR seen through bay 3: its search band overlaps the guarded aperture band and its gate tests "pale", not "cream paint". Proven against two locked image lines. `ref_side.jpg` cannot supply a replacement — 1799 gated body-cream pixels, best 60×20 window **33.8 % pure** — and it is also the **worst frame in the set** at 2.32 bits/px / DC quantiser 4 against 9.28 and 8.87 at DC quantiser 1. **New rule: A CLASS GATE IS A PROBE TOO** — gate on geometry before colour. The codec-floor control was itself wrong by 4× (blur at σ then high-pass at σ does not leave zero); true codec contribution **0.31–0.66 %**, so the structure is real and only the surface was wrong. Re-based on `ref_rear34.jpg` by the owner's choice; character determined by four scale-free discriminators as **chalky sun-fade mottle** (corr(dL\*,dC\*) −0.486, anisotropy 0.918), which finally explains `W_ALBEDO`: **a scalar multiply on albedo cannot change chroma.** The mm axis is NOT established — three routes to px/m all failed and none was invented. Also: `audit.py`'s re-typed 4.290 (§10.39), `vw_bars`' false air-gap docstring and the V's short arms (§10.40), the hubcap ring at 0.093 ± 0.012 with the PSF that chose its frame (§10.41), a real matte with an identity claim that could not honestly be made (§10.42), `flank_compare.py`'s premise refuted and the +95 mm offset found to be **87 mm of missing tarnish in the render mask** (§10.43), and `H_ROOF` delegated but deliberately **not** changed (§10.44). |
 | 2026-08-13 | **rev 13 — the rake falls to 17.75 mm/m and `optics-6` is refuted.** The two divergent lines are merged. The rake is re-derived a fourth way, hub-referenced and scale-free, and 33.0 is rejected at **4.5σ**; §10.9's rake-versus-arch-gap contradiction closes against the built value, and the arch-gap identity is demoted from estimator to bound. A **100 mm origin error** in `REF_MEASUREMENTS` surfaces independently in two dimensions — the bays sat 105 mm aft and §10.7's "99 mm tail" contained it. **The bays are equal at 0.5155 m**; §10.5's taper is perspective. **`optics-6` is refuted**: the catcher was never broken, the diagnosis was measured on a camera that cannot see the ground plane, and the contact profile matches the photograph within ~1σ at every station. **`gal_ceiling` deleted** and the galley lit through the real hole — every bay mean moved toward the photograph and the two flat bays gained real contrast. Bulb pitch 4.7× too coarse, tail lamp amber not ruby. The cream is measured **too clean, not too weathered**. The roof guard is strengthened with a named `DOME_DEFICIT` rather than widened. |
 | 2026-08-10 | **rev 12.** The roof hole is CUT -- one opening, settled with the owner, cut after solidify, guarded two-sided by `verify.py` 11d2; non-manifold still 0 and 0 fail / 1 warn at both levels. The galley is no longer a sealed steel box. The cream lettered panel is a DETACHED SIGN and is off the vehicle (10.28). Counter given a measured tan top and its brass nosing re-measured -- it was 1.6x too DEEP, not thin. Weathering: the dust tide line re-fitted to h 0.424 +/- 0.020 and the upward-facing deposit split from the road film, which had been delivering dC* +0.58 against a target of +5.0. Constant-roughness materials 9 -> 6. `optics-6` measured properly and its obvious fix refuted. |
