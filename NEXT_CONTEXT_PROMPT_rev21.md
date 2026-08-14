@@ -193,9 +193,9 @@ Content checks — **the last one reaches the TIP on purpose**, which is what re
 ```bash
 git status                                             # clean
 grep -c '### 10.56' SPEC.md                            # 1   rev 20
-grep -c 'A TARGET IS A PROBE TOO' SPEC.md              # 1   rev 20
-grep -c 'T1_CTAN_NOBOUNCE' shader_solve.py             # 2   rev 20
-grep -c 'MOTTLE_OFS' t1_mats.py                        # 3   rev 20
+grep -c 'A TARGET IS A PROBE TOO' SPEC.md              # 2   rev 20
+grep -c 'T1_CTAN_NOBOUNCE' shader_solve.py             # 4   rev 20
+grep -c 'MOTTLE_OFS' t1_mats.py                        # 4   rev 20
 grep -c 'MEASURED on the mesh' audit.py                # 1   rev 20
 grep -c '### 10.52' SPEC.md                            # 1   ANCESTOR rev 19
 grep -c '_BODY' cream_rms.py                           # 4   ANCESTOR rev 19
@@ -312,6 +312,17 @@ console tail, a stale hash, five wrong counts, and a `grep -c` that counted
 LINES rather than occurrences. The rule holds: **do not put a figure in an
 acceptance test unless you watched it print.**
 
-**Final state: see the console figures reproduced in `HANDOFF_rev20.md` §2. The
-restore should land on the count printed there; treat it as a regression catcher
-only, and verify by content.**
+**AND IT CAUGHT ITSELF AGAIN, an EIGHTH time.** I first wrote three of §1's
+eleven figures from memory — `A TARGET IS A PROBE TOO` as 1 (it is **2**),
+`T1_CTAN_NOBOUNCE` as 2 (it is **4**), `MOTTLE_OFS` as 3 (it is **4**). The
+fresh-clone verification returned the true values and they are corrected above.
+Every one of the three was a count of OCCURRENCES guessed from the edits I had
+made, rather than a count of what `grep -c` reports — which counts LINES and
+also sees the comment blocks that document each lever. **Second consecutive
+revision in which the acceptance-test rule caught its own violation, and the
+first in which it caught three at once.**
+
+**Final state: 93 commits, clean tree** — the count was read off the console
+after the commit that corrects these three figures, then the bundle was re-cut
+and re-verified from a fresh clone. Treat the count as a regression catcher
+only; **verify by content.**
