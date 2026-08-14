@@ -1514,6 +1514,7 @@ after being re-measured on a real hero, in 10.32.
 
 | Date | Change |
 |---|---|
+| 2026-08-14 | **rev 17 — the cream target was measured through an open serving bay (§10.38).** `cream_rms.py`'s 8.890 % is the GALLEY INTERIOR seen through bay 3: its search band overlaps the guarded aperture band and its gate tests "pale", not "cream paint". Proven against two locked image lines. `ref_side.jpg` cannot supply a replacement — 1799 gated body-cream pixels, best 60×20 window **33.8 % pure** — and it is also the **worst frame in the set** at 2.32 bits/px / DC quantiser 4 against 9.28 and 8.87 at DC quantiser 1. **New rule: A CLASS GATE IS A PROBE TOO** — gate on geometry before colour. The codec-floor control was itself wrong by 4× (blur at σ then high-pass at σ does not leave zero); true codec contribution **0.31–0.66 %**, so the structure is real and only the surface was wrong. Re-based on `ref_rear34.jpg` by the owner's choice; character determined by four scale-free discriminators as **chalky sun-fade mottle** (corr(dL\*,dC\*) −0.486, anisotropy 0.918), which finally explains `W_ALBEDO`: **a scalar multiply on albedo cannot change chroma.** The mm axis is NOT established — three routes to px/m all failed and none was invented. Also: `audit.py`'s re-typed 4.290 (§10.39), `vw_bars`' false air-gap docstring and the V's short arms (§10.40), the hubcap ring at 0.093 ± 0.012 with the PSF that chose its frame (§10.41), a real matte with an identity claim that could not honestly be made (§10.42), `flank_compare.py`'s premise refuted and the +95 mm offset found to be **87 mm of missing tarnish in the render mask** (§10.43), and `H_ROOF` delegated but deliberately **not** changed (§10.44). |
 | 2026-08-13 | **rev 13 — the rake falls to 17.75 mm/m and `optics-6` is refuted.** The two divergent lines are merged. The rake is re-derived a fourth way, hub-referenced and scale-free, and 33.0 is rejected at **4.5σ**; §10.9's rake-versus-arch-gap contradiction closes against the built value, and the arch-gap identity is demoted from estimator to bound. A **100 mm origin error** in `REF_MEASUREMENTS` surfaces independently in two dimensions — the bays sat 105 mm aft and §10.7's "99 mm tail" contained it. **The bays are equal at 0.5155 m**; §10.5's taper is perspective. **`optics-6` is refuted**: the catcher was never broken, the diagnosis was measured on a camera that cannot see the ground plane, and the contact profile matches the photograph within ~1σ at every station. **`gal_ceiling` deleted** and the galley lit through the real hole — every bay mean moved toward the photograph and the two flat bays gained real contrast. Bulb pitch 4.7× too coarse, tail lamp amber not ruby. The cream is measured **too clean, not too weathered**. The roof guard is strengthened with a named `DOME_DEFICIT` rather than widened. |
 | 2026-08-10 | **rev 12.** The roof hole is CUT -- one opening, settled with the owner, cut after solidify, guarded two-sided by `verify.py` 11d2; non-manifold still 0 and 0 fail / 1 warn at both levels. The galley is no longer a sealed steel box. The cream lettered panel is a DETACHED SIGN and is off the vehicle (10.28). Counter given a measured tan top and its brass nosing re-measured -- it was 1.6x too DEEP, not thin. Weathering: the dust tide line re-fitted to h 0.424 +/- 0.020 and the upward-facing deposit split from the road film, which had been delivering dC* +0.58 against a target of +5.0. Constant-roughness materials 9 -> 6. `optics-6` measured properly and its obvious fix refuted. |
 | 2026-08-10 | **rev 11.** Roof topology settled by the owner and 10.19 corrected -- the lids do NOT open forward; the main lid hinges fore-aft and opens to the serving side, corroborated by a vanishing-point fit agreeing with the bulb string to 2 % (10.26). The roof hole is never cut, which is why the galley was black (10.27). Galley dressed and lit: bays 22/33/24 -> 130/160/167 against a measured 137/157/175. Mural un-lifted -- `EXPOSURE = 1.58` was a scalar rev 9 baked into every measured colour; removed, and every palette class now lands within half a point. Flower heads measured at EIGHT petals not twelve; THREE menu strips not four. Folk art recomposed: 84.4 % of the photograph gold sits in three connected masses, rev 10 had 67.9 % in its largest three, rev 11 has 81.0 %. Nose given its own decal -- the flank tile is box-projected and the nose face was sampling the cab door u-band. |
@@ -2095,6 +2096,337 @@ Noted and not yet acted on: with the arch at 0.92 m and the tail re-spaced, the
 arch's aft foot is at x = −1.560 and the aft skin at −1.873 — **313 mm apart,
 against 418 mm before**. `LOFT_GROUND` §3.3 predicted this gets worse, not
 better, and it is the thing most likely to constrain a future tail change.
+
+### 10.38 rev 17 — THE CREAM TARGET WAS MEASURED THROUGH AN OPEN SERVING BAY
+
+`cream_rms.py`'s **8.890 %** — the number the whole "cream is 26× too uniform"
+finding rests on — is the **galley interior seen through serving bay 3**. It is
+not paint, and it never was.
+
+`run()` scans `v 240–320, u 380–780` of `ref_side.jpg` for the best 100 %-class
+window and lands on `u 592–742, v 319–345`. Against the two locked image lines —
+rev 16's drip-rail fit `v = −0.04409u + 332.301` (rms 0.067 px, n = 83) and
+§10.34's `27.7 ± 0.5 mm` drip-to-aperture — the **guarded** aperture band at
+those columns is **v 305.6–399.0**. The patch is **entirely inside it**.
+
+It scores 99.8 % "class purity" because the gate is `sat < 0.30 & lum > 0.20`,
+which is not a test for cream paint. It is a test for *pale*, and a lit galley,
+a cream jacket and a whitewashed wall all pass it. The scan cannot avoid the
+band either: the search window's own v-range overlaps it from v 304 down, and
+the galley is the most uniform pale thing in the frame, so it **wins**.
+
+**NEW STANDING RULE, and it generalises past this file: A CLASS GATE IS A PROBE
+TOO.** Gate on GEOMETRY — which surface of the vehicle — *before* gating on
+colour. This file's own docstring already warned that a high-pass estimator
+measures whatever edges you hand it; rev 15 fixed the FILL and left the SEARCH
+BAND.
+
+**`ref_side.jpg` cannot supply a replacement.** Tight gate — `sat < 0.16`,
+`lum > 0.45`, unclipped, below the drip rail, above the belt, outside the
+aperture band, forward of the tail column:
+
+```
+  body-cream pixels in the whole frame        1799   (0.23 % of frame)
+  best 60 x 20 body-cream window              33.8 % pure
+```
+
+Same shape as §10.29's `COUNTERTAN` conclusion: no admissible same-class
+reference exists in that frame and none can be manufactured.
+
+**AND IT IS THE WORST FRAME THIS PROJECT OWNS.** Measured from the files:
+
+| frame | size | bits/px | JPEG DC quantiser |
+|---|---|---|---|
+| `ref_side.jpg` | 1024×768 | **2.32** | **4** |
+| `ref_rear34.jpg` | 1200×824 | **9.28** | **1** |
+| `ref_workshop.jpg` | 1200×824 | **8.87** | **1** |
+
+DC quantiser 1 is essentially lossless. Everything on this project is measured
+from the most compressed of the three. That is not a reason to distrust past
+work wholesale — but where a feature is visible in more than one frame, prefer
+the others, and **measure the PSF before quoting anything near the limit**
+(rev 17's hubcap work found the ring's band is 1.05 σ in `ref_side.jpg` and
+11.6 σ in `ref_workshop.jpg`; a naive half-level crossing on `ref_side` reads
+exactly double, because a blurred band never reaches its own plateau).
+
+**THE CODEC IS NOT THE EXPLANATION, AND THE OBVIOUS CONTROL FOR IT IS WRONG.**
+"Smooth the frame, re-encode through its own quantisation tables, re-measure"
+charges the codec for the blur's own leak: a Gaussian blur at σ followed by a
+Gaussian high-pass at σ **does not leave zero**. That mistake overstated the
+floor by about 4×. `codec_floor()` now blurs by 4σ, measures the LEAK with no
+codec at all, and subtracts it in quadrature — and prints the leak so it cannot
+go unchecked. True codec contribution: **0.31–0.66 %** at every scale, against
+8.89 %. A CONSTANT field through the same codec gives exactly **0.0000 %**, so
+the estimator has no intrinsic floor. **The structure is real. The surface and
+the frame were wrong.**
+
+**RE-BASED ON `ref_rear34.jpg`, settled by the owner.** The largest clean cream
+in any frame is the **lid underside**, the panel lettered "La Santa",
+`u 588–760, v 40–190`: 25 800 px, **80.8 % class-pure after a 3 px erosion**,
+0.2 % clipped. Caveat that must travel with every number from it: it is an
+**inward-facing** panel, so it is a **LOWER BOUND** on the sun-exposed flank.
+
+```
+  sigma_px   total %    leak %    codec %    REAL %
+     1.0       1.752     0.812     0.313     1.724
+     2.0       2.254     1.226     0.403     2.218
+     4.0       3.608     1.754     0.510     3.572
+     8.0       5.769     2.426     0.547     5.743
+    12.0       6.771     2.829     0.570     6.747
+```
+
+**THE mm AXIS IS NOT ESTABLISHED AND WAS NOT INVENTED.** Three routes to px/m on
+that frame were tried and all three failed: the aperture band is **truncated by
+the counter** (≥ 320 px/m), the tyre OD is **truncated by the frame edge**
+(≥ 397 px/m), and the bulb string — the one locked feature in the lid's own
+plane, `BULB_PITCH = 0.0286 m` — is **NOT DETECTED**, peak/mean 3.6 with
+candidate periods scattering 225–629 px/m. Do not convert the table above to
+millimetres until a scale is locked.
+
+**WHAT KIND OF TEXTURE IT IS — four discriminators, none needing a scale.**
+
+| σ | corr(dL\*, dC\*) | dL\* rms | dC\* rms | anisotropy v/u | skew |
+|---|---|---|---|---|---|
+| 2.0 | −0.123 | 0.860 | 0.715 | 0.885 | −6.69 |
+| 4.0 | −0.315 | 1.410 | 0.967 | 0.894 | +0.02 |
+| 8.0 | **−0.486** | 2.071 | 1.210 | **0.918** | +1.73 |
+
+Luminance and chroma are **anti-correlated**, increasingly so with scale; the
+chroma structure is of the same order as the luminance structure; and the
+anisotropy is ~0.9 at every scale, i.e. **isotropic**. That is **CHALKY
+SUN-FADE MOTTLE** — patches oxidised *lighter and less chromatic*. It is not
+dirt (both would fall together, correlation positive), not brush or roller
+texture (chroma would be flat), and not dents (chroma flat, structure smooth at
+large scale only). It reproduces §10.30c's whole-panel fade signature
+(C\* −55 %, L\* up, hue constant) at the *local* scale.
+
+**CONSEQUENCE FOR THE FIX, and it finally explains `W_ALBEDO`.** A **scalar
+multiply on albedo cannot change chroma**, so no value of `W_ALBEDO` could ever
+have reproduced this — which is exactly what its zero-ablation showed in rev 15
+(`T1_W_ALB=0` → 0.342 %, shipped 0.260 → 0.339 %, identical) and what
+AUDIT_rev11 said in prose before anyone measured it. The map must modulate the
+**existing fade path** — rev 14's `FadeVert`, which fades the cream family
+toward white and is currently *spatially constant* — and drive **roughness**
+with it. **It is not an albedo-breakup map.** `W_ALBEDO` should stay closed.
+
+**NOT BUILT IN rev 17.** The grounding is complete and the mechanism is
+identified, but the map itself is not written, because its amplitude cannot be
+tuned against a target whose mm axis is open. That is the next revision's first
+job and it now has a designed shape rather than a constant to sweep.
+
+
+### 10.39 rev 17 — a re-typed constant rev 16 fixed in one file and missed in the other
+
+`verify.py:47` re-expressed `SPEC["L"] = 4.290 − (O_OLD − O_NEW)` when the tail
+was re-spaced. **`audit.py:319` went on hardcoding `4.290`.** So `STATE.md` —
+the file this repo declares authoritative over all prose — reported
+
+```
+  overall length (ex counter)  4.0648  vs 4.2900  = -225.2 mm **OUT**
+```
+
+on a quantity `verify.py` **PASSES** at **+9.8 mm** against 4.0550. Exactly the
+`counter_top` failure shape the rev-12 audit found at this same line, and a
+direct breach of the rule that *a constant tuned against another constant must
+be expressed in terms of it*.
+
+Fixed by **importing `verify.SPEC["L"]`** rather than recomputing it, so there
+is now exactly one definition in the repo and no third copy can appear.
+
+**STILL OPEN, same table, same shape:** `overall height (max, any station)`
+reports **3.0169 vs 1.9600 = +1056.9 mm OUT** every run. It is measuring the
+**open lid board standing above the roof**, not the vehicle. A prose note under
+the row says the test is wrong; a note is not a guard. It has cried wolf for
+nine revisions and should either exclude the lid objects or be deleted.
+
+
+### 10.40 rev 17 — `vw_bars`' air-gap docstring was false, and the V was short
+
+The docstring claimed "a clear 12.7 mm air gap between the V apex and the W peak
+at the locked ring diameter of 0.370 m". Measured on the **built** nose roundel
+(ring outer D 0.2802 m):
+
+```
+  V apex underside      z = -0.03515
+  W centre-peak top     z = +0.01686
+  -> the V PENETRATES the W by 52.0 mm.  There is no gap.
+```
+
+Three separate errors: there is no gap but a 52 mm interpenetration; `0.370` has
+been stale since rev 10 (`ROUNDEL_D = 0.2800`, built 0.2802); and **no diameter
+can open one** — the spine separation between the V apex `(0, −0.060)` and the W
+peak `(0, −0.075)` is 0.015 R while each stroke's mitred half-extension is an
+order of magnitude larger. The two fuse **by construction**, which is why
+"correcting the diameter" closed the designed gap twice and merged the glyph
+into an X twice. **§10.25's premise is wrong; the fusion is correct against the
+photographs and stays.** The sentence is deleted rather than re-valued.
+
+This is what "a claim in prose is not a guard" is about: it survived nine
+revisions because nobody grepped for the node that does it.
+
+**AND THE V WAS SHORT.** Building the hubcap ring exposed that the V reached
+only **0.7154** of the glyph's fit radius while the ring's inner edge sits at
+**0.8140** — the V stopped **4.28 mm short of the band (4.9 % of the emblem D)**,
+where every reference frame shows both arms running into it. Tips scaled by
+`0.8140 / 0.7154 = 1.1378` about the apex → `(±0.400, 0.560)` becomes
+`(±0.4551, 0.6455)`. **Arm angle unchanged at 57.171°** and the V's radius
+(0.7898) stays below the W's (0.7965), so `_fit_glyph`'s scale does not move.
+Written as an expression of the ring's own band fraction so the two can never
+drift apart again.
+
+
+### 10.41 rev 17 — the hubcap ring, and the PSF that decided which frame to measure it in
+
+`CAP_RING_BANDFRAC = 0.093 ± 0.012`, **band width / ring outer D**, dimensionless
+and derived from `CAP_EMBLEM_D`, never a metre value.
+
+The decisive step was measuring each frame's **PSF** from isolated step edges
+before measuring the feature:
+
+| frame | PSF σ | feature outer D | band at 0.09 D |
+|---|---|---|---|
+| `ref_side.jpg` | 1.625 px | 18.1 px | **1.05 σ — unresolved** |
+| `ref_workshop.jpg` | 0.689 px | 91.7 px | **11.6 σ — resolved** |
+
+A naive half-level crossing on `ref_side.jpg` reads **0.18 D, exactly double**,
+because a blurred band never reaches its own plateau. Two routes on the resolved
+frame give 0.0874 and 0.0995; a PSF forward model on `ref_side` gives 0.065 and
+its profile likelihood **excludes 0.18**.
+
+Ceiling stated honestly: the statistical floor on the one resolved measurement
+is ±0.0013, but the **transfer** between frames cannot be tested better than
+≈±0.03 in this photo set. Corroboration found *after* the fact and not used to
+derive anything: the nose roundel's own ring, authored long ago as the absolute
+`R − 0.028`, measures **0.1005** of its outer D — 0.6 σ away.
+
+Negative control: the workshop van's **plain** hubcap, same detector, in the
+frame with 2.4× better PSF — no ring. `CAP_EMBLEM_D` re-derived independently as
+0.311 ± 0.007 against the locked 0.317 ± 0.017 (**0.35 σ**) and left untouched.
+
+
+### 10.42 rev 17 — the real matte, and an identity claim that could not honestly be made
+
+A `File Output` tap off Render Layers **`Alpha`**, upstream of the AlphaOver —
+the only place the silhouette still exists. Three settings are load-bearing and
+each was measured:
+
+* **`BW`** — `post._mask` does `.convert("L")`, which on an RGBA file takes the
+  RGB luma and throws alpha away. An RGBA matte would hand post.py the beauty.
+* **8-bit** — PIL reads a 16-bit grey PNG as mode `I`, and `.convert("L")`
+  **clips**: a 0→65535 ramp came back with **2 unique values**, not 256.
+  `setup_render` puts the beauty frame at 16-bit; the matte must not follow it.
+* **view transform `Raw`** — otherwise alpha 1.0 writes as ~232 and coverage
+  stops being linear, breaking `backdrop_headroom`'s lerp.
+
+```
+  beauty PNG alpha (defect reproduced)   min 255  max 255   1 unique
+  matte                                  min 0.0000  max 1.0000  256 unique
+  strictly between 0 and 1               26.0042 %
+  subject cover                          26.1475 %   heuristic mask: 30.585 %
+```
+
+Disagreement is one-directional: 0 px subject-in-matte/backdrop-in-heuristic,
+5325 px the reverse — the heuristic's erosion plus the shadow pool, which
+`level >= 250` calls subject. Orientation checked, not assumed: subject IoU
+**0.8549 upright, 0.5542 flipped**. Negative control: subject deleted → cover
+**26.1475 % → 0.0000 %**, mean alpha ×3900 lower.
+
+**BIT-IDENTITY ON THE DEFAULT PATH WAS NOT CLAIMED, BECAUSE IT IS NOT TRUE.**
+Two renders of the same frame with *nothing changed* differ by **max 40 DN over
+12.86 % of pixels** — OIDN plus adaptive sampling. Against that null the tap-on
+arm sits **inside** it (max 41, 12.85 %). So the claim made instead is
+structural: the subgraph reachable backwards from the `Composite` node — node
+types, all input defaults, all incoming links — serialises **EQUAL** before and
+after, and with `T1_MATTE` unset the node is never created. **rev 14's
+"byte-identical, hash-verified" claim for `post.py` should be re-read in this
+light**: it may have been true of that path, but the same words applied to a
+render path cannot be.
+
+Gap recorded, not hidden: under `T1_BORDER` the tap writes a full-size matte with
+content only in the rendered band, and **`hero.py` does not stitch mattes**. A
+matte for a stripped hero must come from a single-pass render until it does.
+
+
+### 10.43 rev 17 — `flank_compare.py`: the brief's premise was refuted and the real defect found
+
+The rev-17 brief said the flank windows must be re-derived because the rev-16
+loft moved the shell. **It did not move any of them**, and that was measured
+rather than assumed: `SCR` lies entirely forward of `X_AXLE_R`, so
+`t1_core._aft()` is the identity on it; the widened arch's forward foot is
+**146 mm** clear of the panel's aft edge; and `RT_ALL`/`CR_ALL` act **810 mm**
+above the panel top.
+
+What *had* moved was the **instrument**: `REF_PPM = 211.2`, one scalar for a
+projective photograph. Local scale runs **205.21 px/m at u 331 to 214.95 at
+u 600** — a 4.7 % gradient, ±6.2 px across the lockup. Retired in favour of the
+§10.35 map.
+
+**THE +95 mm INK OFFSET IS 87 mm OF MISSING TARNISH, IN THE RENDER MASK.** In the
+render `Señor` comes out **tarnished brown (179, 90, 78) against a ground
+endmember of (194, 87, 74)**. The reference mask has five thresholds — silver
+plus four measured tarnish zones — and rev 14's render mask had **one**. So
+`Senor`'s box returned 3.5 % ink against the reference's 33.8 %.
+
+```
+  silver rule alone                          ink top +90.1 mm   (reproduces +95)
+  with the four tarnish windows carried in    ink top  +3.1 mm   (padding is 3.8)
+```
+
+Not the loft, not the panel.
+
+Re-measured through a common metric frame, both masks warped once, nothing
+resampled onto anything:
+
+| metric | value | ceiling / bar | verdict |
+|---|---|---|---|
+| ink area ratio | **0.9364 ± 0.026** | 1.000 ± 0.10 | PASS (was 0.8869) |
+| ink aspect | **+4.86 %** | ±5 %, **±2.3 % instrument floor** | PASS (was +16.04 %) |
+| IoU | **0.7631 = 0.889 of ceiling** | ceiling **0.8585 measured this run** | PASS |
+| worst region | **`Senor` 0.394 = 0.504** | of its own **0.782** ceiling | **FAIL** |
+
+Controls: a **positive** control that is not tautological — the texture's own
+alpha on the `SCR` rectangle, no render and no threshold rule, gives IoU 0.7666
+= 0.893 of ceiling against the render's 0.889, so the render plus the entire
+mask rule are worth **−0.004** and the remaining 0.107 is the panel against the
+map. A **negative** control — the same mask squashed 8 % through the identical
+sampler — fires the aspect test (+13.98 %) and costs 0.133 of IoU. A
+**resolution** control — 900×600 flips the aspect verdict — so the file now
+warns when the render under-resolves the photograph.
+
+**No threshold was changed.** Registration was found to need +76.2 mm forward
+and +61.9 mm down, and rev 14's ±66 mm search had its optimum **on the
+boundary**, so rev 14's IoU was of a mis-registered pair.
+
+Carried forward for other owners: `SCR` is **+80 mm aft** and **12–24 mm short
+in height**; and the projective map and `k_t` disagree by **2.3 %** at the rear
+hub, which is the floor under every height ratio in that file.
+
+
+### 10.44 rev 17 — `H_ROOF` delegated, and deliberately NOT changed
+
+The owner delegated the `SPEC H_ROOF = 1.960` decision ("I trust your
+judgment"). **It is unchanged, and the +23 mm warn stands.**
+
+The case for changing it is real: REF §1 derived 1.960 from `ground = 668.0`,
+the exact datum §10.11 bans, and `HANDOFF_rev16` records that the belt-anchored
+chain puts the crown at **1.981**.
+
+The reason it was not changed is the project's own most-repeated rule. **1.981
+is a parenthetical I could not reproduce.** Composing the belt-anchored chain
+from the numbers in §10.34 — belt at the rear axle 1.2436, belt → drip rail
+529.7 mm measured, drip rail → roof top 209 mm measured — gives **1.9823**,
+which agrees to 1 mm; but the model's own belt → drip rail is **568.0 mm**, not
+529.7, because rev 16 deliberately spent that 38 mm on the junction rather than
+the roof line. So the three terms are not simply additive in the model's
+parametrisation and the agreement may be coincidental. Resolving it needs a
+direct probe of the built mesh, not arithmetic on tabulated differences.
+
+**Changing a locked constant to a number I have not watched print is exactly
+what "do not put a figure in an acceptance test unless you watched it print"
+forbids**, and doing it in the direction that clears a warn is what makes it
+look like tuning. Left for a revision that can probe the mesh. The warn is
+0.7 σ against `D`'s own ±35 mm, so nothing is materially wrong meanwhile.
+
 
 ## 10.10 ABSOLUTE REPLICATION OF ARTWORK — standing requirement
 
