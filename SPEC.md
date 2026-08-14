@@ -1510,6 +1510,173 @@ superset -- `_parse`, the backdrop A/B, `--bloom-thr`, `exclude=`) with
 `f3c53f4`'s measurement preserved verbatim. The remedy itself was applied only
 after being re-measured on a real hero, in 10.32.
 
+### 10.49  THE CREAM WAS MEASURED ON A DETACHED SIGN, NOT ON THE BUS
+
+Every cream number rev 17 and rev 18 recorded came off `cream_rms._LID`,
+`(588, 760, 40, 190)` of `ref_rear34.jpg` — the panel lettered "La Santa".
+`cream_rms.py:241` calls it "the LID UNDERSIDE", and the caveat that travelled
+with every number from it was "an INWARD-FACING panel, so its weathering is a
+LOWER BOUND on the sun-exposed flank's".
+
+Shown a marked crop with the boxes printed, the owner identified it as **A
+DETACHED SIGN, SEPARATE FROM THE BUS** — which is also his own settled reading
+recorded in §10.28 ("I was wrong, I think it is a detached sign"). §10.38
+re-adopted the §10.19/§10.26 identification that §10.28 had superseded, without
+naming it. So "lid underside" is wrong, "inward-facing" is unsupported, and the
+"lower bound on the sun-exposed flank" inference has no basis: a detached sign's
+plane, orientation, exposure history and even substrate are unknown.
+
+**Replacement: `_BODY = (885, 968, 292, 388)`** — the solid cream sheet metal
+aft of the serving apertures, identified by the owner as the bus's own paint.
+His box was (860,270)–(970,390); the trim is measured, not a taste call.
+**10.17 % of that box is CLIPPED** (max channel ≥ 254), all of it in columns
+860–882 — a blown specular sheen — plus a brass strip across rows 270–287. A
+clipped pixel carries no texture, so leaving it in drags a high-pass RMS toward
+zero; the first comparison I ran was contaminated this way and read 3× where
+the truth is 2.1–2.6×. The trim removes every clipped pixel: 83 × 96 = 7968 px,
+**0.00 % clipped**.
+
+**THE GATE IS GEOMETRY ONLY.** §10.38's rule is that a class gate is a probe
+too. Inside a box the owner has identified by eye, a COLOUR gate cannot add
+information — it can only discard pixels for looking unlike whatever surface it
+was tuned on. The old `sat < 0.20` is tuned to the sign (C\* 11.2) and returns
+**2.9 % purity on the bus's own cream** (C\* 19.9). The only rejection now is
+clipping, which is a sensor fact rather than a class judgement.
+
+**The two surfaces are not the same surface**, same frame, same light, hue
+identical at ~90°:
+
+| | sign (region 1) | bus cream (region 2) |
+|---|---|---|
+| C\* | 11.23 | 19.91 |
+| anisotropy @ σ8 | 0.526 (directional) | 1.031 (isotropic) |
+| REAL % σ 1 / 4 / 12 | 1.724 / 3.572 / 6.747 | **0.804 / 1.455 / 3.183** |
+
+### 10.50  THE CHARACTER VERDICT WAS A CONSTANT STRING
+
+`rear34_character` printed `-> CHALKY SUN-FADE MOTTLE` unconditionally. Handed a
+box of pure RED body paint it reported **class purity 0.0 %, every statistic
+`nan`**, and printed that verdict anyway. So §10.38's "the character is SETTLED
+and it was MEASURED, not asked" rested on an instrument that could not fail. On
+the sign the supporting numbers were real; the finding was simply never
+falsifiable. The same hardcoded line calls anisotropy "~0.9 (isotropic)" when it
+measures 0.526.
+
+`character()` replaces it: the verdict is **derived** from the statistics and
+**returns None** when they do not support one — the rev-18 rule that a probe
+which cannot answer must return None rather than an endpoint. Controls, run:
+
+| control | verdict |
+|---|---|
+| clean red body paint | DIRT / SOILING (corr **+0.405**, wrong sign) |
+| foliage | DIRT / SOILING + anisotropy caveat 0.620 |
+| 12 × 12 px patch | **None** — "144 usable px is too few" |
+| bus cream (region 2) | CHALKY SUN-FADE MOTTLE |
+
+**The mechanism SURVIVES re-derivation on the correct surface by the test that
+can now fail**: corr(dL\*,dC\*) **+0.042 → −0.106 → −0.294** across σ 2/4/8,
+dC\* **1.295** against dL\* 0.735, anisotropy **1.031**. What does not survive is
+the amplitude — the sign is **2.1–2.6× more mottled** than the vehicle at every
+scale. Honest limit, recorded: `character()` discriminates fade / dirt / brush.
+It does **not** test "is this paint at all" — foliage gets a paint verdict with a
+caveat. It assumes the surface has been identified.
+
+### 10.51  `FadeVert` NEVER REACHED THE FLANK, AND THE MOTTLE MAP GOES INSIDE `body_paint`
+
+Probed on the built scene:
+
+```
+OBJ T1_body -> ['T1_paint']
+objects on cream -> ['vw_disc']
+T1_paint FadeVert = 0.000    cream/countercream/bumpercream = 0.500
+```
+
+`body_paint()` renders cream ABOVE the break line and red BELOW, in **one**
+material, and `T1_body` is the only object carrying the vehicle's flank cream.
+So rev 14's `FadeVert` — created because "the flank is the largest painted area
+on the vehicle and it was getting none" (§10.30c), switched on "for the CREAM
+family only, the surfaces the −55 % chroma fade was actually measured on" —
+reached the VW roundel disc, the bumpers, the counter, the wheels and the hubcap
+whites, and **did not reach the body shell**. §10.30c measured that −55 % on
+`ref_side.jpg`'s cream corner panel X −1.60…−1.84, which **is** body shell.
+**The fix was applied to every cream surface except the one it was measured on.**
+Same family as the dead `RIM_R`, the dead `countertan` arguments and `_NOSE_SEL`:
+a fix landing on the material whose *name* matched.
+
+The reason it was left off is legitimate and is the constraint: a material-level
+scalar runs the flank RED through `W_FADE_SAT = 0.88` and takes §10.12's locked
+albedo saturation 0.816 to ~0.77.
+
+**The map is therefore built inside `body_paint` and multiplied by `edge`** — the
+material's own two-tone selector, the same node that decides which pixels are
+cream — so the red side is exactly **0.0 by construction**. The lock is not
+defended by a threshold someone chose; the fade cannot be non-zero anywhere the
+paint is not cream. `apply_weather` gains `fadev_from`, which LINKS a named node
+into `FadeVert` and **raises a hard error if the node is absent** rather than
+falling back to a scalar — a silent fallback is how a map ships switched off.
+`FadeRough` is a NEW group input, default 0.0, so no pre-existing material
+changes; chalk raises roughness where it fades, and until now `FadeVert` drove
+only Base Color. Object coordinates, never Generated — `MOTTLE_M` is in **metres**
+because Generated is bbox-normalised and the tail has moved twice.
+
+**THE LUMINANCE HIGH-PASS IS THE WRONG INSTRUMENT FOR THIS LEVER, and the
+ablation is what exposed it.** `MOTTLE_AMP` 0 → 0.55 moved the luminance RMS
+0.500 → 0.515 at 3 mm — the `W_ALBEDO` signature. But the fade path is a
+HueSaturation: it moves **chroma** far more than luminance. On the albedo pass,
+same statistics as the photograph:
+
+| σ mm | corr(dL\*,dC\*) AMP 0 → 0.55 → 2.0 | photograph |
+|---|---|---|
+| 5.9 | +0.261 → +0.174 → **+0.048** | +0.042 |
+| 11.9 | +0.231 → +0.149 → **+0.043** | −0.106 |
+| 23.7 | +0.248 → +0.194 → **+0.108** | −0.294 |
+
+Monotone in the right direction at every scale — the map has real authority.
+
+**Still short, and bounded rather than guessed.** dL\* rms render
+**0.322 / 0.584 / 0.948** against the photograph's **0.385 / 0.493 / 0.735**: the
+luminance structure was ALREADY close, so **"the cream is 26× too uniform" does
+not survive** on the correct surface at matched mm scales. dC\* rms render
+**0.240 / 0.249 / 0.253** — flat — against **0.744 / 1.015 / 1.295**, which grows.
+Raising AMP 0.55 → 2.0 moved dC\* 0.240 → 0.241, because the fade factor clamps
+at 1.0 and the *modulation* collapses past it. The ceiling of this lever is the
+full `W_FADE_SAT` 0.88 swing, ~12 % saturation, which on the render's C\* ≈ 12
+cream cannot produce dC\* rms 1.3. **The mottle is borrowing the uniform fade's
+gain and needs its own.** Nothing was tuned to make a number look better.
+
+**DEPTH CORRECTION, STATED.** Region 2 is on the **flank** plane. **344.1 ± 6.7
+is the PLATE plane** (§10.48) and does not apply to it. rev 15's cream rim at the
+wheel gives **330 px/m**, the plate gives **344.1**, and region 2 lies between
+them in depth: **337 ± 7 px/m (±2.1 %)**. That is a bracket from two
+independently locked features, not a measurement, and every mm figure above
+carries it.
+
+**The ortho transform used for the render side is VERIFIED, not assumed**:
+`X_TAIL` predicts column **1961.9** against the rendered alpha edge at **1961**
+(0.9 px; the wrong sign misses by 103 px), and `mottle_measure.py` refuses to
+measure above a 12 px residual. px/m on an ortho render is exact by
+construction, so all scale uncertainty sits in the stated bracket above.
+
+### 10.52  A FOURTH `STATE.md` PHANTOM — THE ARCH GAP `audit.py` STILL PUBLISHES
+
+§10.45 replaced `verify.py`'s constants-only arch guard with `_arch_lip_z`, and
+`STATE.md` now carries the mesh-measured `rear arch lip above hub 0.3722 →
+tyre gap 39.7 mm`. But **`audit.py:156` and `audit.py:474` were not touched**,
+and both still compute `S.ARCH_R - T.TIRE_R`. So the same generated file
+publishes, 68 lines below the real number:
+
+```
+| arch radius − tyre radius | 41.0 mm (measured 41) |
+```
+
+**41.0 against the mesh's 39.7**, in the file whose header declares it
+authoritative over all prose, with a hand-typed "(measured 41)" asserting a
+measurement that never happened. It cannot fail and never could. Third instance
+of the shape: `counter_top`'s exclusion, `audit.py`'s hardcoded 4.290, this.
+Found independently twice this revision — by direct reading and by a read-only
+agent. **Not repaired in rev 19: it is a one-line fix but it changes `STATE.md`,
+and it is recorded here so it cannot be lost again.**
+
 ## Change log
 
 | Date | Change |
@@ -2670,3 +2837,4 @@ factory catalogue. **Bounded by the wheel control, not measured.**
 | 2026-08-14 | **rev 15 - four constants refuted, the detail pass lands, and the owner retires the white lock.** The restore DID NOT FAST-FORWARD: the rev-14 line never contained `f3c53f4`, the rev-13 tip, and all seven rev-14 content checks passed anyway because each greps a rev-14 string (10.33). Detail geometry applied with its measurement: cream rim 0.5729 -> 0.6611 against 0.660 +/- 0.008 (10.9 sigma -> 0.13) with the profiles now scaling onto the previously dead `RIM_R`; VW glyph 0.5639 -> 0.7761, the scale read BACK off the built outline so no fraction can go stale; hubcap emblem 0.1897 -> 0.317; T-handle from 240 mm ABOVE the plate to 214 mm below, written as a ratio of `PLATE_OUTER_H`; plate aspect +32.6 % at 14 sigma, solved using the cream rim as a protractor after the vanishing-point method was thrown out at 1.2 sigma; tail lamp OD 0.1030 -> 0.19560. Louvre ends NOT MEASURABLE and not invented. Per-bay galley replaces one 21 W wash with three per-bay boxes -- the lever's sign was backwards, ablating the fill RAISES contrast -- taking bay 2's gap 4.64 -> 0.73 while bay 3 moves TOWARD the photograph. The glass brief is REFUTED: 'rear pane CV 1.22' was a bounding box; on the pane's own hull it reads 0.214 against a photograph at 0.221-0.293. **Four separate solves returned 'the named constant is not the parameter' (10.31)** -- `T1_MURAL_SPEC` solves NEGATIVE in all three channels, `W_ALBEDO` measures identical to its own zero ablation, `COUNTERTAN` has a secant gain of 0.33-0.49 and would demand a non-wood, and rev 13's bloom threshold has no admissible value. A dead-argument bug found: `build_all()`'s rough/coat/spec for `countertan` were never read, exposed by a four-arm ablation identical to four decimals. Hero at **4320x2880**, 18 strips, worst seam z=2.75. Owner retires SPEC sec.6's pure-white lock on the measured A/B (10.32) and re-admits Nolita photographs FOR GEOMETRY ONLY. The loft is grounded but not built: crown R 2.45 +/- 0.15 REFUTED twice, the roof EDGE is 63 +/- 20 mm too high, the tail 235 +/- 22 mm too long. |
 | 2026-08-14 | **rev 16 - THE LOFT: roof section, rear arch, tail and the end-cap poles, in one rebuild.** `LOFT_GROUND`'s 63 mm `ZT_ALL` drop is REJECTED and re-measured at **41 mm** by a datum-free route -- drip-rail groove to serving-aperture top, 28.3 / 27.4 / 27.5 mm across bays 3/2/1 over 228 columns at sd 0.19-0.21 px, against 68.6 mm built -- because the 63 would leave 2 mm of metal above the bays and drop the shell's top edge below the windscreen's own anchor. The belt line shows the aperture band is right to **-2.1 mm**, so the error is the junction, and the hub route's extra 22 mm is the same ~29 mm ground-datum common-mode 10.11 bans. Spent on the junction: `RT_ALL` 0.054 -> 0.0949, `CR_ALL` 0.032 -> 0.1179, **D = 0.2128 against LOFT_GROUND's independently measured 0.2116 +- 0.035**, `ZT_ALL` and the rake untouched, `DOME_DEFICIT` -> 0; built mesh measures back at +27.0 mm against 27.7 +- 0.5. `LOFT_GROUND`'s roof-silhouette 257.2 could NOT be reproduced (the top edge is flat at 252.1-253.6 over u[755,815]) and its proud-strip/coaming reading is withdrawn. Rear arch rebuilt as a flat-crowned ogee from the normalised TABLE, not the window-dependent exponent, 0.747 -> **0.920 m**, `ARCH_R` held, front arch left circular because it has never been measured. Tail **re-spaced, never translated**, overhang 1.008 -> **0.773 m** via `_aft()`, with the projective flank map rebuilt from its own constraints and cross-checked on the arch's aft foot to **1.5 mm**. `SPEC['L']` stops being the VW catalogue 4.290 and becomes an expression of the applied tail correction; a new verify row guards the rear overhang itself. **10.30b closed**: Coons quad-grid caps, max valence **115 -> 6**, and the starburst measures **3.015 -> 1.609 (-47 %)** against a negative control in the same frame reading 1.596 -> 1.592. `NHALF` 56 -> 57 so the cap is mirror-symmetric -- chosen on a guard result, not a preference: the 27x28 arm FAILS at SUB=2 with `gap_englid` rolled back, and moving the cutter does not fix it. Two latent bugs exposed: `roof_cutters` passed `zlo` as `solid_prism`'s CENTRE, and every tail-anchored detail would have left `verify` row 1 passing on a phantom. Guards 0 fail / 1 warn at both levels. |
 | 2026-08-14 | **rev 18 - THE FIRST ADVERSARIAL AUDIT OF THE LOFT, and three guards that could not fail.** Four agents on disjoint files, all read-only, each told to refute; two refuted their own briefs and two refuted each other's headline statistics. **The loft's geometry is largely sound and its measurement infrastructure is not** (§10.45): the engine-lid row's threshold sat **77 mm behind the entire vehicle** and never worked at any revision; the rear-window ray **terminated 177 mm short of the tail** and returned True aimed at three certainly-solid places; row 10's `RIDE_DROP` test is an **algebraic identity with residual exactly 0.000e+00**; and the arch guard subtracted two source constants, so `ARCH_W_REAR`, `_ARCH_PROFILE`, `_arch_drop` and `rear_arch_outline` appeared **zero times** in either guard file. All four repaired and each falsified after repair. **The rear arch double-counted its own crown** (§10.46) - `ARCH_R` *is* the crown lip height and the profile subtracted a crown drop from it, putting the tyre gap at **20.2 mm against a locked 41 +- 8**; the `(0.10, 0.014)` trace point is **refuted by re-trace** (the lip is flat at 371-372 mm; the station is u 759.5, inside the band §2.1 says it rejected, and the 9-wide median it announces was never propagated into the table); and the Dx sign was **mirrored**. Fixed together: gap **20.2 -> 39.7 mm**, with the untouched front arch reading `ARCH_R` to **0.3 mm** as the positive control in the same run. The guard was not widened. **`STATE.md` stopped publishing three phantoms** (§10.47), one previously unknown - its mid-wheelbase roof height was **the rocker seen through the roof hole**, off by **-1612.8 mm** with n=18 so the empty-selection guard never fired - plus four percentages that were percentages of a lid strut, and two hand-authored paragraphs in a file whose header says nothing is typed by hand. **px/m on `ref_rear34.jpg` is LOCKED at 344.1 +- 6.7** off the plate frame the owner identified as empty (§10.48), refuting rev 15's own gradient for that feature on a third method - but **`PLATE_W = 0.3300` has no provenance anywhere in the repo** and every scale built on it inherits that. Guards **0 fail / 1 warn at both levels**. |
+| 2026-08-14 | **rev 19 — the cream was measured on a detached sign, and `FadeVert` never reached the flank.** Shown a marked crop with the boxes printed, the owner identified `cream_rms._LID` — the source of every rev-17/18 cream number — as **a DETACHED SIGN, separate from the bus**, re-confirming §10.28 which §10.38 had silently reverted (§10.49). Re-based on the surface he identified as the bus's own paint, trimmed for a measured reason: **10.17 % of it is CLIPPED** and a clipped pixel carries no texture. Gate is now **geometry only** — the old `sat < 0.20` is tuned to the sign's C\* 11.2 and returns **2.9 % purity on the vehicle's own cream**. **The character verdict was a constant string** (§10.50): handed pure red paint at 0.0 % purity with every statistic `nan`, it still printed CHALKY SUN-FADE MOTTLE. The replacement derives the verdict and returns **None**; controls now separate red paint and foliage as DIRT/SOILING and refuse a 12×12 patch. The mechanism **survives** re-derivation on the correct surface; the amplitude does not — the sign is **2.1–2.6× more mottled** than the bus. **`FadeVert` has never reached the flank** (§10.51): `T1_body` carries `T1_paint`, which renders cream and red in one material and was left at **0.000**, while the material named `cream` carries exactly one object, `vw_disc` — rev 14's fix landed on every cream surface except the one it was measured on. The map now lives inside `body_paint`, multiplied by the material's own two-tone selector so the red is **0.0 by construction**, with `fadev_from` raising a hard error rather than falling back to a scalar. **The ablation exposed that a luminance high-pass is the wrong instrument for this lever** — on the albedo pass the map moves corr(dL\*,dC\*) **+0.261 → +0.048** monotonically toward the photograph's +0.042 — and **"the cream is 26× too uniform" does not survive**: dL\* rms was already 0.322/0.584/0.948 against 0.385/0.493/0.735. What is short is **chroma**, 0.24 flat against 0.74–1.30 growing, and the lever is bounded: the fade factor clamps at 1.0 so the modulation collapses past AMP 1. Depth correction **stated**: region 2 is the **flank** plane at **337 ± 7 px/m**, not the plate's 344.1. A **fourth `STATE.md` phantom** recorded (§10.52) — `audit.py` still publishes the constants-only arch gap as "41.0 mm (measured 41)" against the mesh's 39.7. Guards **0 fail / 1 warn at both levels**, geometry unchanged. |
