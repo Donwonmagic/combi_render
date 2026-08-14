@@ -1307,6 +1307,209 @@ One line, its own A/B.
   disallowed) and the brand film on YouTube (rate-limited over six attempts).
 
 
+### 10.31 rev 15 -- four constants asked to close gaps they do not control
+
+**THE SHAPE OF THIS REVISION.** Four separate work items were written as "solve
+constant X onto target T". Four times the answer was the same: X has almost no
+authority over T, and the honest result is a refutation with a number rather
+than a part-applied tune. They are recorded together because the SHAPE is now
+recognisable and should be tested for FIRST in future work, before a solve is
+scheduled at all:
+
+| item | constant | target | what the solve returned |
+|---|---|---|---|
+| rev 13 `f3c53f4` | `bloom` threshold | un-clipped vignette | no threshold below 1.0 works at all |
+| 10.31a | `T1_MURAL_SPEC` | (126,60,24) | **negative in all three channels** |
+| 10.31b | `W_ALBEDO` | 4.22-7.37 % RMS | **inert: 0 and 0.260 measure the same** |
+| 10.31c | `COUNTERTAN` | ratio +/- 0.02 | secant gain 0.33-0.49, demands a non-wood |
+
+**THE DIAGNOSTIC THAT SHOULD RUN FIRST, and it is cheap:** ablate the constant
+to zero and re-measure. If the ablated arm and the shipped arm agree, the
+constant is not the parameter and no amount of solving will make it one. That
+one render would have saved three revisions of speculation on `W_ALBEDO`.
+
+#### 10.31a `T1_MURAL_SPEC` -- the target is unreachable, and the crop is why
+
+The denoising-albedo pass responds EXACTLY linearly to Specular IOR Level;
+three points confirm it to better than 0.01 %:
+
+| `T1_MURAL_SPEC` | albedo pass, linear |
+|---|---|
+| 0.00 | (0.25579, 0.08449, 0.01017) |
+| 0.16 (shipped) | (0.26397, 0.09455, 0.02095) |
+| 0.42 (rev 13) | (0.27722, 0.11078, 0.03855) |
+
+Solving each channel onto the (126,60,24) target gives **spec = -0.854 R,
+-0.651 G, -0.024 B**. All three negative; there is no admissible value.
+
+**THE INSTRUMENT IS VALIDATED, which is what makes a negative answer usable.**
+At spec = 0 the pass reproduces the texture's own area mean over the same
+region -- the B channel to 0.5 % of itself -- so the R/G gap is a REGION
+difference and not a shader defect. Measured on `tex/lidmural.png` directly:
+
+| region | sRGB |
+|---|---|
+| full image | (142.2, 91.1, 26.6) |
+| central 70 % | (135.6, 70.5, 25.9) |
+| the probe at spec = 0 | **(138.4, 82.1, 25.7)** -- between them, as it must be |
+| the crop 10.30 quotes | (127, 59, 23) |
+
+So **(126,60,24) is a tighter interior crop with less gold in it than the
+board's painted face**, and a material constant was never going to close the
+difference between two different regions. The B channel -- the one a neutral
+pedestal moves most, and the one 10.30's mechanism argument rests on -- is
+already within 2.7 sRGB codes at spec = 0, which CONFIRMS 10.30's mechanism
+while refuting its remedy.
+
+`spec` stays at 0.16. It is now known not to close the target, and the target
+itself is now known to be a different region.
+
+**A CONTROL CAUGHT A PROBE ERROR THAT WOULD HAVE BEEN QUOTED.** The first run
+read (208, 210, 203) -- near white. The albedo was rendered with the whole
+scene visible while the MASK was board-only, so an ortho camera 6 m along -Y
+measured the cream lid skin *through* the board. Same family as rev 14's
+bounding-box pane and rev 14's 120-px-off crop. **Isolate the object in the
+measured render, not only in the mask.**
+
+#### 10.31b The cream breakup is 26x too uniform, and `W_ALBEDO` is inert
+
+**THE FIRST ESTIMATOR REPRODUCED NEITHER NUMBER ON RECORD** -- it read 19.8 %
+for `ref_side.jpg` against 7.37 %, and 18.2 % for the render against 1.24 %.
+The cause is worth keeping: the crop straddled the serving apertures, and
+filling the gated-out pixels with the patch mean planted synthetic STEP EDGES
+straight into the high-pass. **A high-pass estimator measures whatever edges
+you hand it, including the ones you made yourself.**
+
+`cream_rms.py` rebuilds it: patches are SCANNED for class purity rather than
+assumed, the purity actually achieved is printed, and every patch is eroded by
+3 sigma so no boundary can enter the statistic. It then reproduces the
+photograph.
+
+| | 25 mm high-pass RMS |
+|---|---|
+| `ref_side.jpg` (u 592-742, v 319-345), 99.8 % cream | **8.890 %** |
+| the same on record | 7.37 % |
+| render, as shipped | **0.339 %** |
+
+**So the flank cream is 26x too uniform, not 6x** -- the 1.24 % on record was
+inflated by structure inside its own crop, in the same way the first estimator
+was.
+
+The controls, and they close the item:
+
+| arm | RMS |
+|---|---|
+| `T1_W_ALB=0.000` -- **negative control** | **0.342 %** |
+| `T1_W_ALB=0.260` -- shipped | **0.339 %** |
+| `T1_W_ALB=0.700` | 0.693 % |
+| map window 0.42-0.58 | 0.388 % |
+| `T1_W_N2SC=45`, `T1_W_ALB=0.70` -- best of the whole space | **0.810 %** |
+| **denoiser OFF, 384 samples** | **0.320 %** |
+
+Zero and shipped are the same number. The best reachable point in the entire
+exposed parameter space is 0.810 %, still **11x short** of 8.89 %. And the
+denoiser-off arm at 384 samples rules out the two obvious excuses: the floor is
+neither render noise nor OpenImageDenoise. **The material genuinely carries no
+25 mm structure, and this node cannot give it any.**
+
+`W_N1_SCALE`, `W_N1_DETAIL`, `W_N1_ROUGH`, `W_N2_SCALE`, `W_N2_DETAIL` are now
+overridable (`T1_W_N1SC`, `T1_W_N1DT`, `T1_W_N1RG`, `T1_W_N2SC`, `T1_W_N2DT`)
+so the next pass can sweep them without editing the file. All values LEFT AT
+THE SHIPPED SETTING: raising amplitude buys 0.5 points of an 8.6-point gap and
+makes the coarse blotches -- the owner's own standing complaint -- worse.
+
+**What to try next, and it is not this node.** 8.89 % RMS at 25 mm on a chalky
+painted flank is chalking, run-down streaking and dirt held in the paint's own
+tooth. That is a texture at the 10-40 mm scale with real spatial structure, not
+a Perlin field: a triplanar detail map, or a fine noise whose octaves are not
+damped by a 0.55 persistence, driven into the albedo AND the roughness
+together. Measure with `cream_rms.py`, which is now calibrated against the
+photograph.
+
+#### 10.31c `COUNTERTAN` -- a dead-argument bug, then still 6.8 sigma short
+
+**THE FIRST RUN CLIPPED 60.9 % OF THE FRAME at >= 0.995.** Both the plywood top
+and the cream fascia sat pinned near 1.0, so the probe could not see the
+quantity it was measuring. It was caught by the clipped-fraction line
+`shader_solve.py` prints, not by eye. Exposure divides out of a ratio exactly,
+so it was pulled down; **EV -3 and EV -4 now agree to 0.03 %**, which is the
+instrument's own consistency control.
+
+| | R | G | B |
+|---|---|---|---|
+| shipped top/fascia ratio | 0.9311 | 0.8505 | 0.7366 |
+| target (10.29) | 0.7960 | 0.8100 | 0.6330 |
+| residual, in units of the +/- 0.02 band | **6.8 sigma** | 2.0 sigma | **5.2 sigma** |
+
+A second point at `T1_CTAN=0.5018,0.4695,0.2630` gives a secant gain with
+respect to `COUNTERTAN` of only **0.33 / 0.48 / 0.49**. Closing the ratio on
+albedo alone therefore demands `COUNTERTAN` -> **(0.177, 0.408, 0.094)**, which
+is not plywood and is not any wood -- its red channel would be darker than its
+green.
+
+**THE BUG, and it is the same family as the dead `RIM_R` and the VW glyph.**
+`counter_tan()` runs at `build.py` step 7 and `build_all()` at step 9, and
+`simple()` resolves materials BY NAME -- so `build_all()`'s `rough`, `coat` and
+`spec` arguments for `countertan` were **DEAD**. Nothing read them. It was
+exposed by a four-arm coat/spec ablation that read **identical to four decimal
+places including the both-off arm** -- a result that is impossible unless the
+knob is disconnected. The finish numbers now live at the site that actually
+runs, and are overridable as `T1_CTAN_RG` / `T1_CTAN_CT` / `T1_CTAN_SP`.
+
+With them live, ablating coat AND spec entirely moves the ratio only
+**-2.3 / -2.8 / -5.6 %**, so the pedestal is not the balance either. The
+likeliest remainder is INTERREFLECTION: the top bounces onto the fascia
+directly below it, so lowering the top's albedo lowers the denominator too and
+the ratio barely moves. That is testable in one render by hiding the fascia
+from the top's diffuse bounce, and it is the first thing the next pass should
+do. `COUNTERTAN` is LEFT UNCHANGED -- not solved, and not part-tuned toward a
+target on a lever measured to be the wrong one.
+
+### 10.32 rev 15 -- the owner retires the pure-white backdrop lock
+
+SPEC sec.6 locked the backdrop to PURE WHITE. rev 14 built the A/B he asked for;
+rev 15 rendered it on a real hero rather than a synthetic, at 4320x2880, and put
+the numbers to him. All three arms are this file's own output on one stitch:
+
+| arm | corners | frame exactly (255,255,255) | grain sd |
+|---|---|---|---|
+| raw, no post at all | 255.000 | 63.43 % | 0.0000 |
+| `--backdrop white`, bloom ON (rev 14 default) | 255.000 | **68.10 %** | 0.0000 |
+| `--backdrop white`, bloom OFF | 248.997 | 0.92 % | 0.4718 |
+| `--backdrop headroom` | **246.043** | 0.66 % | **0.9415** |
+
+**HE CHOSE HEADROOM.** So sec.6's pure-white lock is SUPERSEDED for the hero
+path, `BACKDROP` defaults to `headroom`, and the designed vignette falloff and
+the designed grain are rendered instead of clipped away. `--backdrop white`
+still delivers the old behaviour byte-for-byte for anyone who needs a keyable
+255 backdrop.
+
+**AND THE BLOOM DEFAULT FLIPS 1.0 -> 0.0, which is not a taste call.** Note the
+second row: the bloom arm RAISES the exactly-white fraction from 63.43 % to
+68.10 %. It is erasing information, not adding glare. That is `f3c53f4`'s rev-13
+finding reproduced on a real hero, and it is the same measurement rev 14 took
+and shipped as its baseline. `exclude=` remains the structural fix and is still
+wired ONLY into `--backdrop headroom`; until it reaches the default arm as well,
+bloom on the stitched path has no admissible threshold.
+
+### 10.33 rev 15 -- the restore did not fast-forward, and no check could see it
+
+`git pull` of the rev14b bundle onto the unified line fails with "Need to
+specify how to reconcile divergent branches". That is the symptom, not a config
+nuisance: **the rev-14 line branched from `258730a` and never contained
+`f3c53f4`, the true tip of the rev-13 line.** `f3c53f4` touches one file.
+
+**ALL SEVEN of the rev-14 handoff's content checks passed while a whole rev-13
+commit was missing**, because every one of them greps for a string rev 14
+added. **NEW STANDING RULE: a restore check that only asserts THIS revision's
+strings cannot detect a lost ANCESTOR. Every handoff's check list must also
+assert something the PREVIOUS line added.** The rev-16 list below does.
+
+Merged as restoration rather than as a change: rev 14's `post.py` (a strict
+superset -- `_parse`, the backdrop A/B, `--bloom-thr`, `exclude=`) with
+`f3c53f4`'s measurement preserved verbatim. The remedy itself was applied only
+after being re-measured on a real hero, in 10.32.
+
 ## Change log
 
 | Date | Change |
@@ -1694,3 +1897,4 @@ what shipped in rev 8 and Donald rejected it by name.
 | 2026-08-10 | **rev 9 addendum — §10.15.** Donald identifies `ref_rear34.jpg` as showing the FRONT of the vehicle with the roof opening forward, not a rear three-quarter. Every crop attributed to that file is now suspect, including the flank paisley that §10.10 marked done. He also restates the governing standard for rev 10: *"we are recreating a photo realistic version of that exact bus."* |
 | 2026-08-10 | **rev 9 addendum — §10.17, §10.18.** Donald restates the acceptance criterion as **per-measurement**: "nearly indistinguishable from the original. Any single measurement off is unacceptable." And flags the front fascia as drifting — six items, four of them audit findings logged and unapplied for several revisions, one new (cab-door folk art far too faint), one unmeasured (bumper depth). The folk-art item contradicts §10.9's near-nose coverage lobes, which were scanned by body x across an OPEN cab door. |
 | 2026-08-13 | **rev 14 — the tail gate, and a starburst nobody had seen.** The flank tile stops printing on the flat tail face: a TAIL selector mirroring the nose one, keyed on the surface normal so the rear quarter keeps its real 43.687 % gold while the flat face goes to **0.05 percentage points measured against a `T1_W_ART=0` negative control** (photograph 0.006 %, pre-fix render 14.30–18.11 %). Rendering a rear elevation for the first time in fourteen revisions exposed a radial starburst that survives ablation of the folk art, the albedo breakup and the specular — **the tail cap is a valence-115 pole and the nose cap a valence-110 pole**, recorded and deliberately left for the phase-5 loft work. Sun fade reaches vertical surfaces through a new per-material `FadeVert` input at the diffuse view factor 0.50, switched on for the cream family only so SPEC 10.12’s locked red albedo saturation is untouched. Glass panes flat-shaded (88.7 % of pane pixels, 9.4× the null). The mural’s neutral lift identified as `img_paint`’s specular pedestal, 0.42 → 0.16, first step not a solve. `W_ALBEDO` 0.130 → 0.260 with the map window exposed, and honestly not solved. **`flank_compare.py` computes a number for the first time and the flank script FAILS 3 of 4** — aspect +16.04 %, dimensionless; the old test could not fail because it had cropped the photograph down to the render’s own error. `post.py` gains the backdrop A/B the owner asked for, default byte-identical. Owner settles the split windscreen. |
+| 2026-08-14 | **rev 15 - four constants refuted, the detail pass lands, and the owner retires the white lock.** The restore DID NOT FAST-FORWARD: the rev-14 line never contained `f3c53f4`, the rev-13 tip, and all seven rev-14 content checks passed anyway because each greps a rev-14 string (10.33). Detail geometry applied with its measurement: cream rim 0.5729 -> 0.6611 against 0.660 +/- 0.008 (10.9 sigma -> 0.13) with the profiles now scaling onto the previously dead `RIM_R`; VW glyph 0.5639 -> 0.7761, the scale read BACK off the built outline so no fraction can go stale; hubcap emblem 0.1897 -> 0.317; T-handle from 240 mm ABOVE the plate to 214 mm below, written as a ratio of `PLATE_OUTER_H`; plate aspect +32.6 % at 14 sigma, solved using the cream rim as a protractor after the vanishing-point method was thrown out at 1.2 sigma; tail lamp OD 0.1030 -> 0.19560. Louvre ends NOT MEASURABLE and not invented. Per-bay galley replaces one 21 W wash with three per-bay boxes -- the lever's sign was backwards, ablating the fill RAISES contrast -- taking bay 2's gap 4.64 -> 0.73 while bay 3 moves TOWARD the photograph. The glass brief is REFUTED: 'rear pane CV 1.22' was a bounding box; on the pane's own hull it reads 0.214 against a photograph at 0.221-0.293. **Four separate solves returned 'the named constant is not the parameter' (10.31)** -- `T1_MURAL_SPEC` solves NEGATIVE in all three channels, `W_ALBEDO` measures identical to its own zero ablation, `COUNTERTAN` has a secant gain of 0.33-0.49 and would demand a non-wood, and rev 13's bloom threshold has no admissible value. A dead-argument bug found: `build_all()`'s rough/coat/spec for `countertan` were never read, exposed by a four-arm ablation identical to four decimals. Hero at **4320x2880**, 18 strips, worst seam z=2.75. Owner retires SPEC sec.6's pure-white lock on the measured A/B (10.32) and re-admits Nolita photographs FOR GEOMETRY ONLY. The loft is grounded but not built: crown R 2.45 +/- 0.15 REFUTED twice, the roof EDGE is 63 +/- 20 mm too high, the tail 235 +/- 22 mm too long. |

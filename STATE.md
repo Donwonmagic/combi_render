@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-13 23:36:51 UTC |
-| git commit | `27cb813` |
-| git subject | rev 15: merge the rev-13 tip that the rev-14 line never saw |
+| generated | 2026-08-14 02:26:17 UTC |
+| git commit | `18ee2af` |
+| git subject | rev 15: the three shader solves -- all three refuted, with the numbers |
 | working tree | **DIRTY** — this state is not committed |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=1 (applied, destructive, before booleans) |

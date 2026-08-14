@@ -70,7 +70,16 @@ CA_COEF = 0.0011
 # out of bloom's source, and lets grain run at full weight there, so the
 # designed vignette falloff and the designed grain are actually rendered.  It
 # is opt-in.  Only the owner retires the pure-white lock.
-BACKDROP = "white"
+# rev 15: THE OWNER RETIRED THE PURE-WHITE LOCK, on the numbers below, measured
+# on the rev-15 hero at 4320x2880 through this file:
+#     white     corners 248.997   0.9222 % of frame exactly (255,255,255)   grain sd 0.4718
+#     headroom  corners 246.043   0.6578 %                                  grain sd 0.9415
+# so the designed vignette falloff and the designed grain are actually
+# rendered instead of being clipped away.  SPEC sec.6's "backdrop is PURE
+# WHITE" is SUPERSEDED for the hero path; `--backdrop white` still delivers the
+# old behaviour byte-for-byte for anyone who needs a keyable 255 backdrop.
+# Only the owner could make this call and he made it explicitly.
+BACKDROP = "headroom"
 BACKDROP_PEAK = 252.0   # display code values, used only by `headroom`
 
 # fallback backdrop-mask thresholds, in display code values (see backdrop_mask)
@@ -359,7 +368,20 @@ def grain(srgb, amount=1.0, sigma=0.0042, seed=7, full_weight=None):
 USAGE = __doc__.split("    python3 ")[1].split("\n\nEvery")[0]
 
 # name -> default. Floats are parsed with float(), strings taken verbatim.
-_FLOATS = {"bloom": 1.0, "ca": 1.0, "vig": 1.0, "grain": 1.0,
+# rev 15: DEFAULT FLIPPED 1.0 -> 0.0, and it is a measurement, not a preference.
+# Measured on the rev-15 hero at 4320x2880, three arms through this same file:
+#     raw, no post          corners 255.000  pure white 63.43 %  grain sd 0.0000
+#     bloom ON (rev 14)     corners 255.000  pure white 68.10 %  grain sd 0.0000
+#     bloom OFF (rev 13)    corners 248.997  pure white  0.92 %  grain sd 0.4718
+# The bloom arm RAISES the pure-white fraction 63.43 -> 68.10 %: it is erasing
+# information, not adding glare.  The vignette delivers 0.000 of its designed
+# ~4.4 code values and the grain is identically zero in all three channels.
+# That is f3c53f4's finding reproduced on a real hero rather than a synthetic,
+# so its remedy is adopted.  `exclude=` (rev 14) is the structural fix and is
+# still only wired into --backdrop headroom; until it is wired into the default
+# arm too, bloom on the stitched path has no admissible threshold.
+# `--bloom 1` restores the old behaviour for A/B.
+_FLOATS = {"bloom": 0.0, "ca": 1.0, "vig": 1.0, "grain": 1.0,
            "bloom-thr": BLOOM_THR, "bloom-sigma": BLOOM_SIGMA,
            "ca-coef": CA_COEF, "backdrop-peak": BACKDROP_PEAK,
            "mask-level": MASK_LEVEL, "mask-chroma": MASK_CHROMA}
