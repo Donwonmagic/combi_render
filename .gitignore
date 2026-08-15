@@ -6,3 +6,4 @@ out/
 tex/prev_*.png
 *.log
 *.bundle
+rev*_hero*.png
