@@ -348,7 +348,7 @@ W_ROUGH_CEIL = 0.85
 #   The two are different paints, so the raw delta is inadmissible.  Both
 #   albedos are LOCKED constants in this file, so the difference between them
 #   is known and can be removed: fit a von-Kries gain from the side patch and
-#   this file's CREAM (0.9676, 0.7784, 0.4976), push COUNTERCREAM through the
+#   this file's CREAM, push COUNTERCREAM through the
 #   same gain, and the clean counter top would render L* 80.35 C* 23.87
 #   h 85.73.  Against the observed dirty L* 71.96 C* 27.58 h 80.53 that is
 #       dL* -8.39   dC* +3.71   dhue -5.20 deg   C*/(L*+16) x1.266
@@ -376,6 +376,30 @@ W_DUST_FAC_UP = float(os.environ.get("T1_W_DUP", 0.7313))  # settled, up-faces
 # the two locked albedos the solve above consumed, and its answer
 COUNTERCREAM = (0.7350, 0.7150, 0.6600)
 _UP_MEASURED = (0.6104, 0.5300, 0.4265)   # dirty counter top, de-illuminated
+# rev 27, SPEC 10.76 -- TWO CORRECTIONS TO THE PARAGRAPH ABOVE, both verified:
+#  (a) "(0.9676, 0.7784, 0.4976)" used to sit beside the words "this file's
+#      CREAM".  It is NOT CREAM.  CREAM is (0.6172, 0.6308, 0.5776) at line 96.
+#      That triple is the VON-KRIES GAIN ITSELF -- lin(203,186,146)/CREAM
+#      reproduces it to 4.7e-5.  The arithmetic of the solve was right; only
+#      the label was wrong.  Parenthetical moved out of the CREAM phrase.
+#  (b) NEITHER source patch has coordinates anywhere in this repo.  They were
+#      recovered forensically in rev 27 by searching ref_rear34.jpg for the box
+#      whose middle-80%-of-L* median IS the recorded triple:
+#          flank  u 914-983  v 298-337  (69x39 = 2691 px, trimmed n = 2153)
+#                 -- EXACT, and unique; but its right ~12 columns run past the
+#                    panel edge, 15 past _BODY's own u1 = 968.  Median-robust:
+#                    clipping it back moves the answer by ONE code value.
+#          top    u 556-656  v 397-424  (100x27 = 2700 px, trimmed n = 2160)
+#                 -- exact, but NOT unique; several boxes reproduce it.
+#      What IS box-independent: the counter top is a diagonal band 15-25 px
+#      deep, and the largest axis-aligned rectangle lying entirely on it is
+#      1060-1512 px across a swept class gate.  The patch needs 2700.  So the
+#      founding patch STRADDLED whichever box was used -- 66-82 % tan, 8-19 %
+#      cream, 6-9 % brass nosing, 2-4 % a tin can standing on the counter.
+#      The straddle is real and is NOT the explanation: on a clean
+#      band-following sample the disagreement gets WORSE, not better.
+#      See probe_dust_anchor.py, which asserts all of this rather than
+#      claiming it.
 
 # ---------------------------------------------------------- counter top, tan
 # rev 12.  The OWNER was shown marked crops of the counter and ruled: "tan top,
@@ -447,6 +471,66 @@ if not (os.environ.get("T1_W_DUP") or os.environ.get("T1_W_DLO")):
         "the upward-facing deposit no longer reproduces the measured counter "
         "top of ref_rear34.jpg: predicted %s vs measured %s"
         % (tuple(round(v, 4) for v in _pred), _UP_MEASURED))
+
+    # ---- rev 27, SPEC 10.76.  ARMING THE COUPLING THE ASSERT ABOVE CANNOT SEE.
+    #
+    # READ THIS BEFORE TOUCHING THE NUMBER BELOW.  It is a LABELLED REGRESSION
+    # CATCHER, exactly like verify.py's H_ROOF_REGRESSION and the off-flank
+    # crossing baseline.  It says "this disagreement HAS NOT MOVED".  It does
+    # NOT say the disagreement is acceptable, and driving it to zero would mean
+    # inventing an albedo.  DO NOT TIGHTEN IT AND DO NOT TUNE TO IT.
+    #
+    # The assert above solves the up-face dust coverage against COUNTERCREAM.
+    # The counter top carries COUNTERTAN, and has since rev 12 -- both halves
+    # entered in the SAME commit, 00d3819.  The assert cannot see that, because
+    # it never reads COUNTERTAN.  So it would keep passing however far
+    # COUNTERTAN moved.  SPEC 10.71.
+    #
+    # Two further things rev 27 measured, and they make the item sharper than
+    # "the coverage is wrong":
+    #   * The agreement above is a TAUTOLOGY, not a check.  W_DUST_COL_UP was
+    #     solved collinear with COUNTERCREAM and _UP_MEASURED, so the three
+    #     channels MUST agree -- measured spread 5.2e-05.  It is the solve
+    #     restated.
+    #   * Against COUNTERTAN there is no coverage error, because THERE IS NO
+    #     COVERAGE.  _UP_MEASURED lies OUTSIDE the segment [COUNTERTAN,
+    #     W_DUST_COL_UP] in all three channels; solving anyway gives
+    #     f = (-0.295, -0.320, -1.674), three negative values disagreeing by
+    #     5.7x.  On a clean band-following sample, gate and erosion swept over
+    #     12 arms, every arm is more negative still.
+    #
+    # NOT decided here, deliberately: whether COUNTERTAN or _UP_MEASURED's
+    # label is wrong.  The de-illuminated top is PROPORTIONAL to CREAM
+    # channel-wise, and CREAM is this project's largest open constant; and the
+    # pair is up-facing top vs vertical flank, the same orientation mismatch
+    # SPEC 10.60 ruled INADMISSIBLE when it struck COUNTERTAN's cab-roof arm.
+    # The baseline is the THREE-CHANNEL residual, not its max.  rev 27's first
+    # cut asserted only the max; falsifying it exposed that the max lives in B,
+    # so displacing COUNTERTAN's R by +0.020 left the guard silent.  A guard
+    # that is right for the wrong reason is not a guard (SPEC 10.67) -- the
+    # CAUSE was fixed, the band was not widened.  Every figure below was
+    # watched print.
+    if not os.environ.get("T1_CTAN"):
+        _pred_tan = tuple(c + _f_up * (d - c)
+                          for c, d in zip(COUNTERTAN, W_DUST_COL_UP))
+        _resid_tan = tuple(p - m for p, m in zip(_pred_tan, _UP_MEASURED))
+        _RESID_BASELINE = (-0.066877, -0.100324, -0.159974)
+        assert max(abs(r - b) for r, b in
+                   zip(_resid_tan, _RESID_BASELINE)) < 2e-3, (
+            "SPEC 10.76 regression catcher: the COUNTERTAN-vs-_UP_MEASURED "
+            "residual has MOVED, %s against the rev-26 baseline %s. Something "
+            "in {COUNTERTAN, W_DUST_COL_UP, W_DUST_FAC_UP, W_DUST_UP_W, "
+            "W_DUST_MOT_MEAN, _UP_MEASURED} changed. This is NOT a failure to "
+            "fix by widening the band -- re-run probe_dust_anchor.py and "
+            "re-ground SPEC 10.71."
+            % (tuple(round(v, 6) for v in _resid_tan), _RESID_BASELINE))
+        # And the sign statement, which is the finding itself: no physical
+        # coverage reaches _UP_MEASURED from COUNTERTAN.  If this ever stops
+        # holding, SPEC 10.71 has been resolved by something and must be re-read.
+        assert all(r < 0 for r in _resid_tan), (
+            "SPEC 10.76: _UP_MEASURED used to lie OUTSIDE the segment "
+            "[COUNTERTAN, W_DUST_COL_UP] in all three channels. It no longer "
+            "does: residual %s" % (tuple(round(v, 6) for v in _resid_tan),))
 
 # sun fade -- a DESIGN VALUE, not a measurement.  Neither in-service photo is
 # in direct sun (ref_side.jpg open shade, ref_rear34.jpg under a palapa), so
