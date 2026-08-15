@@ -68,9 +68,27 @@ DOOR_MAIN = [
     (1.5720, 1.4300), (1.5720, 1.7640), (1.5480, 1.7900), (1.1000, 1.7960),
     (1.0100, 1.7880), (0.9940, 1.7560),
 ]
+# rev 23.  VENT_TOP_DROP -- the vent's top edge was 20.7 mm ABOVE the cab
+# door's own top shut line, so the vent hole broke the door's boundary and the
+# door could not open.  That is a TOPOLOGICAL defect, not a livery one: an
+# aperture cut in a panel cannot extend past that panel's own outline, and
+# establishing it needs no photograph and no scale.  See SPEC sec.10.62.
+#
+# WHICH MEMBER MOVED, and why:  the owner confirmed from ref_workshop.jpg that
+# the door glass IS divided into a vent plus a main pane, so the vent stays.
+# He could NOT resolve whether its top edge reaches the door's top rail, so the
+# door's top-front corner -- which IS legible in that frame -- was left alone
+# and the vent's top edge was dropped instead.  The DROP IS AUTHORED, not
+# measured: it is the smallest value that satisfies the invariant with the
+# stated clearance.  The vent's true top edge is OPEN and UNMEASURED.
+# T1_VENTDROP defaults to the shipped value (a proven no-op) and exists so the
+# assert can be FALSIFIED: setting it to 0 restores the rev-22 geometry exactly
+# and the show-flank assert must fire on door_vent.
+VENT_TOP_DROP = float(os.environ.get("T1_VENTDROP", "0.0280"))
 DOOR_VENT = [
-    (1.6060, 1.4300), (1.7420, 1.4180), (1.7560, 1.4460), (1.7160, 1.7700),
-    (1.6900, 1.7880), (1.6060, 1.7860),
+    (1.6060, 1.4300), (1.7420, 1.4180), (1.7560, 1.4460),
+    (1.7160, 1.7700 - VENT_TOP_DROP),
+    (1.6900, 1.7880 - VENT_TOP_DROP), (1.6060, 1.7860 - VENT_TOP_DROP),
 ]
 
 
@@ -433,11 +451,44 @@ GAPW = 0.0055
 # revisions. The bottom run is therefore lifted 20 mm to 0.8000-0.8160
 # (clearance 14.6-30.6 mm). 0.80 is one of the values tested clean at SUB=2.
 # The assert below makes this structural rather than a comment.
+# rev 23.  THE B-PILLAR HAD NEGATIVE WIDTH.  The cab door's REAR shut line ran
+# 5.2 mm INSIDE serving bay 0's forward edge, so bay 0 straddled the door's own
+# boundary: part of the aperture was in the door and part in the body, and the
+# door could not open.  Topological, provable without any photograph, and
+# nothing in the repo had ever looked (SPEC sec.10.62).
+#
+# WHICH MEMBER MOVED:  bay 0's edges are LOCKED -- the three bays are equal at
+# 0.5155 m (sec.10.29) and the band Z_SILL..Z_HEAD is guarded every revision.
+# The door's rear-run x carries NO provenance anywhere in the repo.  So the
+# DOOR moves, and it moves as a whole so the door's rear edge stays a single
+# straight lean rather than gaining a jog inside the window band.
+#
+# DOOR_REAR_DX is EXPRESSED IN TERMS OF THE LOCKED BAY, never as a bare number,
+# so re-measuring the bays can never leave this outline asserting a stale
+# clearance (sec.10.25's rule -- the rule that merged the VW glyph into an X
+# twice when it was ignored).
+#
+# B_PILLAR IS AUTHORED, NOT MEASURED.  It is the minimum clearance that makes
+# the topology valid.  ref_workshop.jpg shows the pillar between the cab door
+# and the first side window is visibly WIDER than the pillars between the three
+# side windows, but that frame is a three-quarter view with a projective flank
+# map and no admissible px/m on the door plane, so no number was taken from it.
+# THE B-PILLAR'S TRUE WIDTH IS OPEN AND UNMEASURED.
+#
+# T1_BPILLAR exists so the assert below can be FALSIFIED by anyone, not just
+# asserted to work.  It defaults to the shipped value and that default is a
+# proven no-op (rev 20's pattern).  Setting it negative re-creates the exact
+# rev-22 defect and the show-flank assert must fire.
+B_PILLAR = float(os.environ.get("T1_BPILLAR", "0.0120"))
+_DOOR_REAR_X0 = 0.9245                      # smoothed rear run's min x, rev 22
+DOOR_REAR_DX = (BAYS[0][1] + B_PILLAR) - _DOOR_REAR_X0
 DOOR_GAP = [
     (1.8171, 0.8120), (1.8080, 1.1200), (1.7960, 1.4000),
     (1.7600, 1.6280), (1.7220, 1.7620), (1.7020, 1.8020),
-    (1.5200, 1.8130), (1.2800, 1.8150), (1.0800, 1.8130), (0.9680, 1.8060),
-    (0.9380, 1.7000), (0.9240, 1.4000), (0.9120, 1.0000), (0.9084, 0.8160),
+    (1.5200, 1.8130), (1.2800, 1.8150), (1.0800, 1.8130),
+    (0.9680 + DOOR_REAR_DX, 1.8060),
+    (0.9380 + DOOR_REAR_DX, 1.7000), (0.9240 + DOOR_REAR_DX, 1.4000),
+    (0.9120 + DOOR_REAR_DX, 1.0000), (0.9084 + DOOR_REAR_DX, 0.8160),
     (1.1000, 0.8040), (1.4000, 0.8000), (1.6500, 0.8040),
 ]
 DOOR_GAP_S = _smooth(_resample(DOOR_GAP, 76), 2)
@@ -463,11 +514,166 @@ def door_gaps():
 
 # off-side cargo doors, (x, z); tail engine lid, (y, z).  Module level so
 # verify.py can assert positively that the shut lines exist in the geometry.
-CARGO_GAP = [(u + 0.2000, v + 1.1380)
-             for (u, v) in T.rrect(1.3600, 1.4100, 0.045, seg=6)]
+def _seg_samples(pts, step=0.040):
+    """Insert samples along any segment longer than `step`, closed outline.
+
+    rev 23.  T.rrect(seg=6) emits 4*(seg+1) = 28 points and EVERY ONE of them
+    is on a corner arc -- the four straight runs get only their two tangent
+    endpoints.  SPEC sec.10.45 recorded that as "28 samples, all on the corner
+    arcs = 5.2 % of the outline"; sec.10.61 sharpened it to "71.4 % of the
+    samples are spent on 5.2 % of the length, leaving 94.8 % of the length with
+    8 samples".  verify's shut-line row samples THIS list, so 94.8 % of the
+    cargo door's shut line was never probed at all.
+
+    This does not change the OUTLINE -- the inserted points are collinear with
+    the segment they subdivide, so the cut geometry is identical.  It changes
+    only how densely the guard can see it.  The no-op is asserted below.
+    """
+    out = []
+    n = len(pts)
+    for i in range(n):
+        x0, z0 = pts[i]
+        x1, z1 = pts[(i + 1) % n]
+        out.append((x0, z0))
+        d = math.hypot(x1 - x0, z1 - z0)
+        if d > step:
+            k = int(d // step)
+            for j in range(1, k + 1):
+                f = j / (k + 1.0)
+                out.append((x0 + (x1 - x0) * f, z0 + (z1 - z0) * f))
+    return out
+
+
+_CARGO_RAW = [(u + 0.2000, v + 1.1380)
+              for (u, v) in T.rrect(1.3600, 1.4100, 0.045, seg=6)]
+CARGO_GAP = _seg_samples(_CARGO_RAW)
+# The densification must be a pure no-op on the SHAPE.  Signed area is the
+# statistic that would move if an inserted point were off the segment, so it is
+# the one checked -- a control, not a comment (SPEC sec.10.50).
+assert abs(T.signed_area(CARGO_GAP) - T.signed_area(_CARGO_RAW)) < 1e-9, (
+    "CARGO_GAP densification changed the outline's area: %.12f vs %.12f"
+    % (T.signed_area(CARGO_GAP), T.signed_area(_CARGO_RAW)))
 ENGLID_CUT_DX = float(os.environ.get("T1_ENGLID_DX", "0.158"))
 ENGLID_GAP = [(u, v + 0.8700)
               for (u, v) in T.rrect(0.9400, 0.5000, 0.055, seg=6)]
+
+
+# =================================== SHUT LINE x APERTURE -- rev 23, SPEC 10.62
+# THE INVARIANT, and it is NOT the one the arch assert above enforces.
+#
+# The arch assert exists for one stated reason: a shut line crossing an ARCH LIP
+# collapsed the shell 205562 v -> 12 v at SUB=2.  That rationale does NOT
+# transfer here and was deliberately not inherited -- all six crossings rev 22
+# measured were live at SUB=2 with ZERO non-manifold edges, so they do not
+# threaten the boolean at all.
+#
+# The rationale here is TOPOLOGICAL and needs no photograph, no scale and no
+# datum: an aperture cut in a panel cannot extend past that panel's own
+# boundary.  If it does, part of the hole is in the door and part is in the
+# body, and the door cannot open.  That is true of any vehicle ever built, so
+# it does not depend on which one this is -- which matters, because 87.7 % of
+# rev 22's measured crossings were on the -Y flank, and SPEC's own source table
+# grades that whole flank "E (never photographed)".
+#
+# WHAT THIS GUARD WILL AND WILL NOT ASSERT:
+#   SHOW flank (+Y):  both members are photographed geometry, graded S/M.  The
+#     invariant is asserted at ZERO.  rev 23 fixed the two crossings that were
+#     live here (sec.10.62) rather than widening anything.
+#   OFF flank (-Y):  the cargo doors AND the three off-side windows are BOTH
+#     graded E and they contradict each other -- the windows are a mirror of the
+#     show side (side_cutters loops s in (1,-1)) and the cargo door was placed
+#     independently.  No photograph adjudicates: asked directly what the frame
+#     shows through the near openings, the owner answered "cannot tell from this
+#     crop".  So this half is a LABELLED REGRESSION CATCHER at a watched
+#     baseline, exactly as rev 22 did for H_ROOF, and it is NOT evidence the
+#     off flank is right.  DO NOT tighten it to zero by moving geometry nobody
+#     has ever seen; the fix is a photograph, not a number.
+OFF_CROSS_BASELINE = 0.8049       # m, WATCHED PRINT rev 23, both SUB levels
+OFF_CROSS_BAND = 0.0100           # m.  Never widen -- see above.
+
+
+def _pt_in_poly(pt, poly):
+    x, z = pt
+    n = len(poly)
+    c = False
+    j = n - 1
+    for i in range(n):
+        xi, zi = poly[i]
+        xj, zj = poly[j]
+        if ((zi > z) != (zj > z)) and \
+           (x < (xj - xi) * (z - zi) / ((zj - zi) or 1e-30) + xi):
+            c = not c
+        j = i
+    return c
+
+
+def _arc_inside(line, poly, step=0.001):
+    """Metres of the closed outline `line` lying strictly inside `poly`."""
+    tot = 0.0
+    n = len(line)
+    for i in range(n):
+        x0, z0 = line[i]
+        x1, z1 = line[(i + 1) % n]
+        seg = math.hypot(x1 - x0, z1 - z0)
+        k = max(1, int(math.ceil(seg / step)))
+        w = seg / k
+        for t in range(k):
+            f = t / k
+            if _pt_in_poly((x0 + (x1 - x0) * f, z0 + (z1 - z0) * f), poly):
+                tot += w
+    return tot
+
+
+def shutline_aperture_crossings():
+    """Every shut line x aperture crossing, per flank, in metres.
+
+    Returns a list of (line_name, aperture_name, side, arc_m, graded_E).
+    ENGLID_GAP is in the (y, z) TAIL frame and shares no surface with a flank
+    aperture, so it is NOT looped in -- doing so would manufacture crossings
+    out of a coordinate mismatch.  It is reported separately by verify.
+    """
+    aps = [("door_main", DOOR_MAIN_S), ("door_vent", DOOR_VENT_S)]
+    for i in range(len(BAYS)):
+        cx, cz = bay_centre(i)
+        aps.append(("bay%d" % i, [(u + cx, v + cz) for (u, v) in
+                                  bay_outline(i)]))
+    lines = [("gap_door+1", DOOR_GAP_S, +1), ("gap_door-1", DOOR_GAP_S, -1),
+             ("gap_cargo", CARGO_GAP, -1)]
+    out = []
+    for lname, line, side in lines:
+        for aname, poly in aps:
+            L = _arc_inside(line, poly)
+            if L > 1e-9:
+                # graded E: anything on the flank no photograph covers.
+                out.append((lname, aname, side, L, side != SHOW_SIDE))
+    return out
+
+
+# The SHOW-flank half is asserted at import, like the arch guard, so a change
+# to a bay or to the door outline can never silently re-open it.  A control
+# runs first: the test must be able to SEE a crossing, or a clean result below
+# means nothing (SPEC sec.10.50 -- a verdict that cannot fail is not a test).
+#
+# NOTE ON THE NEGATIVE CONTROL, because the first one I wrote was WRONG and the
+# failure was MINE, not the geometry's (SPEC sec.10.55's rule, second instance
+# this revision).  The first draft asserted "an outline is not inside ITSELF".
+# That is ill-posed: every sample then lies exactly ON the boundary, where a
+# ray-crossing test is undefined and returns whatever the rounding decides.  It
+# fired immediately.  The control below is a DISJOINT box instead, where the
+# answer is unambiguous -- which is what a negative control has to be.
+_ctrl_far = [(9.0, 9.0), (9.1, 9.0), (9.1, 9.1), (9.0, 9.1)]
+assert _arc_inside(DOOR_GAP_S, _ctrl_far) == 0.0, \
+    "crossing control: a disjoint box must contain 0.0 m of the outline"
+_ctrl_box = [(0.6, 1.45), (1.4, 1.45), (1.4, 1.60), (0.6, 1.60)]
+assert _arc_inside(DOOR_GAP_S, _ctrl_box) > 0.01, \
+    "crossing control FAILED: the probe cannot see a crossing it is straddling"
+_show_cross = [c for c in shutline_aperture_crossings() if c[2] == SHOW_SIDE]
+assert not _show_cross, (
+    "SHOW-flank aperture straddles a shut line: %s. Part of the hole is in the "
+    "panel and part in the body, so the panel cannot open. Both members here "
+    "are PHOTOGRAPHED geometry -- fix the outline, never this assert."
+    % ", ".join("%s x %s = %.1f mm" % (c[0], c[1], c[3] * 1000)
+                for c in _show_cross))
 
 
 def cargo_door_gaps():

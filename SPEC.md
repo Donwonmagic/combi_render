@@ -1980,10 +1980,15 @@ dark objects and not neutrals. Dropped before use.
 
 - **A — napkin as a same-light neutral.** Implies cream hue **48.2°, sat 0.163,
   R>G** (N3); 44.5° / 0.203 (N2). **Robust to clipping, and that is a control:**
-  N1/N2/N3 clip at 22.4 / 12.1 / 0.00 % and agree (sat 0.169 / 0.203 / 0.163).
+  **N2/N3** clip at **12.1 / 0.00 %** and agree (sat **0.203 / 0.163**).
   Clipping compresses channels toward neutral, so if clipping drove the warmth
-  the 22 %-clipped arm would read *less* saturated; it reads a hair *more*. This
+  the more-clipped arm would read *less* saturated; it reads a hair *more*. This
   is the route that would refute the locked constant, and it is clean.
+  **rev 23: N1 REMOVED from this control.** It was used here as the 22.4 %
+  arm — nineteen lines after §10.57 DROPPED it for straddling a napkin face and
+  the dispenser body, which is the defect the owner himself caught. The
+  conclusion is unchanged and survives on N2/N3 alone (rev 22 verified that
+  before this edit); only the contaminated third arm is gone.
 - **B — M1 as a neutral. INADMISSIBLE BY §10.21**, not by preference: metal
   against a diffuse dielectric is not the same class, which is precisely the
   silver-leaf trap §10.21 was written for. It also disagrees with A — hue 63.7°,
@@ -2252,11 +2257,198 @@ it should fail on six pairs; fixing that is geometry work, not a threshold
 change. The grounding is done so rev 23 arms it against numbers somebody
 watched print.
 
+### 10.62  rev 23 — ITEM 4 ARMED: the B-pillar had NEGATIVE width, and the brief was half wrong
+
+§10.61 measured six crossings and 1065.1 mm and left the assert unarmed with the
+instruction "expect it to FAIL; fix the geometry, not the threshold". **A brief
+is a probe too** (§10.43, §10.54). Before moving any geometry, `probe_cross_
+anatomy.py` (READ-ONLY) asked the three questions §10.61 never asked: WHICH
+member of each pair is at fault, HOW DEEP the penetration is, and WHICH FLANK
+each is on. All three change the answer.
+
+**THE SIX CROSSINGS ARE THREE DEFECTS, NOT ONE, AND ARC LENGTH OVERSTATES THEM
+BY UP TO 23×.**
+
+| pair | arc | penetration | flank |
+|---|---|---|---|
+| `gap_door × bay0` | 118.8 mm | **5.2 mm** in x | show + off |
+| `gap_door × door_vent` | 11.8 mm | **20.7 mm** in z | show + off |
+| `gap_cargo × bay0` | 402.0 mm | 49.7 mm | off only |
+| `gap_cargo × bay2` | 402.0 mm | 139.8 mm | off only |
+
+**SHOW flank 130.6 mm; OFF flank 934.6 mm = 87.7 % of the total.** Arming on
+arc length would have chased a number 23× the actual error on the pair that
+matters most.
+
+**THE RATIONALE IS NEW AND WAS DELIBERATELY NOT INHERITED.** `t1_shell`'s arch
+assert exists for one stated reason — a shut line crossing an ARCH LIP collapsed
+the shell 205562 v → 12 v at SUB=2. **That does not transfer:** all six
+crossings were live at SUB=2 with **zero non-manifold edges**. The invariant
+armed instead is TOPOLOGICAL — *an aperture cut in a panel cannot extend past
+that panel's own boundary*, or part of the hole is in the door and part in the
+body and the door cannot open. It needs no photograph, no scale and no datum,
+which is precisely what makes it safe to assert on a vehicle this project has
+only three photographs of.
+
+**FIXED, both on the show flank, geometry not threshold:**
+- **The B-pillar had NEGATIVE width.** `DOOR_GAP`'s rear run sat 5.2 mm inside
+  `BAYS[0][1]`. Bay 0's edges are LOCKED (equal bays, §10.29; band guarded every
+  revision) and the door's rear-run x carries **no provenance anywhere in the
+  repo**, so the DOOR moved, as a whole, so its rear edge keeps a single
+  straight lean. `DOOR_REAR_DX` is **expressed in terms of `BAYS[0][1]`**, never
+  as a bare number (§10.25's rule). **`B_PILLAR = 0.0120` is AUTHORED, not
+  measured** — the minimum clearance that makes the topology valid.
+  `ref_workshop.jpg` shows this pillar is visibly wider than the pillars between
+  the three side windows, but that frame is a three-quarter view with no
+  admissible px/m on the door plane, so **no number was taken from it. THE
+  B-PILLAR'S TRUE WIDTH IS OPEN AND UNMEASURED.**
+- **The vent wing broke the door's top edge by 20.7 mm.** Asked what the
+  photograph shows, the owner confirmed the door glass **is divided into a vent
+  plus a main pane**, so the vent stays; he could **not** resolve whether its top
+  reaches the door's top rail, so the door's top-front corner — which IS legible
+  in that frame — was left alone and the vent's top edge dropped instead.
+  **`VENT_TOP_DROP = 0.0280` is AUTHORED. The vent's true top edge is OPEN.**
+
+**Crossings 6 → 2. Show flank 130.6 → 0.0 mm.**
+
+**FALSIFIED FOUR WAYS**, each through an env lever whose default is a proven
+no-op: `T1_BPILLAR=-0.010` → FIRES at 223.5 mm; `T1_BPILLAR=0.0` (exact
+tangency) → passes, the correct boundary behaviour; `T1_VENTDROP=0` → FIRES at
+16.7 mm; both, at `DOOR_REAR_DX = 0` → FIRES at 12.7 and 120.8 mm. **That last
+arm reproduces rev 22's geometry exactly and lands within 1–2 mm of its 11.8 /
+118.8** — the sampling step. An earlier arm looked like a 2.6× disagreement
+between two implementations and was NOT one: `DOOR_REAR_DX` is *derived*, so
+`B_PILLAR = -0.0173` moved the door 12 mm further aft than rev 22. **The value
+that reproduces rev 22 is `B_PILLAR = -0.0053` — the negative pillar width
+itself**, an independent confirmation of the 5.2 mm defect.
+
+**MY OWN NEGATIVE CONTROL FAILED FIRST, and the failure was MINE** (§10.55's
+rule, second instance this revision). The first draft asserted "an outline is
+not inside ITSELF" — ill-posed, because every sample then lies exactly ON the
+boundary where a ray-crossing test is undefined. Replaced with a disjoint box.
+
+**THE OFF FLANK IS NOT ARMED AT ZERO, AND THAT IS THE RESULT.** 804.9 mm across
+`gap_cargo × bay0/bay2`. **SPEC's own source table grades that entire flank "E
+(never photographed)"** — and the two colliding features are BOTH E and
+CONTRADICT each other: the off-side windows are a mirror of the show side
+(`side_cutters` loops `s in (1,-1)`) while the cargo door was placed
+independently. Shown the workshop frame's sightlines through the near openings
+with every box printed, the owner answered **"cannot tell from this crop"**. So
+this half is a **LABELLED REGRESSION CATCHER** at a watched baseline
+(**804.9 mm, band ±10 mm**), exactly as rev 22 did for `H_ROOF`: a pass means
+"the off flank has not moved", **NOT** "the off flank is right". Tightening it to
+zero would mean moving geometry nobody has ever seen, to satisfy a guard.
+
+**`CARGO_GAP` DENSIFIED, 28 → 154 samples**, straight runs **8 → 134**. The
+outline is unchanged: the inserted points are collinear, and **signed area is
+asserted equal** — a control, not a comment (§10.50).
+
+**THREE CITATION DEFECTS FOUND, all SPEC hygiene, none load-bearing.** §10.61
+attributes to §10.45 a "five crossings, 1209 mm" figure and a "28 samples / 5.2
+%" figure that **§10.45's body does not contain** — both strings live in
+`HANDOFF_rev18.md:208/211` and `AUDIT_rev18_loft.md:275`. §10.59 credits §10.48
+with withdrawing 1.960's last support; **§10.48 is entirely about plate px/m**
+and never mentions 1.9621 (`verify.py:66` repeats it). And §10.45 cites the rake
+lock to **§10.9, whose own table locks the RETIRED 0.0330** — the lock is
+§10.29's. *A carried-forward figure is a claim too* now extends to the CITATION:
+rev 22 corrected a number SPEC never carried, and cited the wrong section doing
+it.
+
+**ALSO REFUTED, from the rev-23 prompt's own §2:** "§10.45–48 RETIRE claims in
+§10.34" — they do not. §10.46 corrects §10.37 three times; the only §10.34
+reference in §10.45–48 is `SPEC.md:3267`, a **guard tally**, which criticises
+coverage and retires nothing. And "§10.29 carries two corrections that touch
+every REF number" — it carries **one** (`:899`, the 100 mm origin error, found
+by two routes). The other REF-wide corrections are §10.11's and §10.34's.
+
+
+### 10.63  rev 23 — `folk_gen.py`'s bake frame was built on four retired numbers
+
+`folk_gen.py` re-typed four `t1_core` / `t1_mats` constants rather than
+importing them — legitimately, because it is a standalone texture generator and
+cannot `import bpy`. **All four had gone stale, and the drift was measured, not
+assumed:**
+
+| constant | re-typed literal | live | drift |
+|---|---|---|---|
+| `X_TAIL` | −2.108 | **−1.8730** | **+235 mm** |
+| `RAKE_DZDX` | 0.0330 | **0.017750** | **−15.25 mm/m** |
+| `RAKE_Z0` | 0.0365 | **0.047925** | +11.4 mm |
+| `Z_BELT0` | 1.2355 | **1.224075** | −11.4 mm |
+
+Same failure family as the dead `RIM_R`, the dead `countertan` arguments,
+`_NOSE_SEL` and `audit.py`'s hardcoded 4.290 — **a constant tuned against
+another constant and not expressed in terms of it** (§10.25). §10.10 makes
+artwork replication a HARD BAR, and the frame the artwork is baked into was
+built on numbers three revisions of geometry work had already retired.
+
+**FIXED STRUCTURALLY, not by re-typing the new values.** The constants are now
+parsed out of the sibling modules with `ast`, which is the pattern rev 14 set
+for `SCR` in `build.py`, and the parse **raises rather than falling back** — a
+silent fallback to a stale literal is exactly how this drifted for ten
+revisions. `X_TAIL` is reconstructed from its DEFINITION (`X_AXLE_R − O_NEW`)
+because it is derived in `t1_core` and is not a literal there at all.
+
+**THE BANNED FLAT px/m at `folk_gen.py:1884` IS GONE — and it was harmless
+where it stood, which is worth stating precisely rather than claiming a fix
+that did not happen.** `mm = 1000.0 / 211.21` used the px/m §10.43 retired. But
+it set only the SAMPLING INTERVAL of a coverage scan whose x values are already
+body-frame metres — it never converted a position. Renamed `STEP_M` and
+commented as sampling-only, so it is lethal only if copied and cannot be
+copied by name any more.
+
+**NOT RE-BAKED, deliberately.** `build.py` never calls `folk_gen`; `tex/*.png`
+are committed pre-baked artefacts, so none of this changes the current build.
+A re-bake moves every painted element and §10.10 makes that a MEASURED
+operation against the photographs, not a side effect of a constants fix.
+**CARRIED FORWARD: the committed artwork was baked in the stale frame.**
+
+**ONE STALENESS LEFT OPEN AND NAMED**: `folk_gen.DOOR_X0` is now 17.3 mm stale
+because §10.62 moved the cab door's rear run. It is not parsed like the other
+four — `t1_shell.DOOR_GAP`'s rear points are EXPRESSIONS and `B_PILLAR` is an
+`os.environ` lookup, so `literal_eval` cannot reach them. Evaluating
+`t1_shell`'s constant graph is real work and was not attempted blind at the end
+of a revision.
+
+### 10.64  rev 23 — SPEC hygiene: four retired values were still published as "locked"
+
+Each found by a read-only agent and **verified by hand before being acted on**
+(§10.58). None is load-bearing on the build; all four are traps for the next
+context, and three of them had a *live code value that already disagreed*.
+
+- **§10.3's table published the RETIRED red `(196,106,36)` as `RED` locked**, in
+  the section headed "the canonical constants (supersedes any value above)",
+  while `t1_mats.py:67` has carried the live `(196,49,36)` since rev 9 (§10.12).
+  Struck through; the live row added beside it.
+- **§10.3 also published `W_ART = 0.30` as "Locked"** — retired in **rev 10**
+  because it made the measured ×2.048 gold-to-red contrast arithmetically
+  unreachable, which was the arithmetic cause of the owner's "far too faint and
+  sparse". Live value is 1.00: the table was **3.3× off for thirteen
+  revisions**.
+- **§10.9's table published the RETIRED rake** (`RAKE_DZDX` 0.0330,
+  `RAKE_Z0` 0.0365, `X_DROP_REF` +0.8636) under the word "Locked:", 1600 lines
+  from §10.29 which rejected it at 4.5 σ, with no link between them — plus
+  `Z_BELT0`/`V_APEX0` derived from it and now ~11.4 mm stale. Struck through
+  with the live values beside them.
+- **`SPEC.md:1983` used N1** — the crop the owner refuted for straddling a
+  napkin face and the dispenser body — as the 22.4 %-clipped arm of route A's
+  clipping control, **nineteen lines after §10.57 dropped it**. Removed. The
+  conclusion is unchanged and stands on N2/N3 alone, which rev 22 had already
+  verified.
+
+**Structural cause, and it is worth fixing properly one day:** `verify.py`
+auto-arms its retired-material guard **from §0.2** — a genuinely good design —
+but **§0.2 has gained no entry since rev 4/rev 8**. None of §10's retirements
+is listed there, so the one self-arming mechanism in the repo covers none of
+them.
+
 
 ## Change log
 
 | Date | Change |
 |---|---|
+| 2026-08-15 | **rev 23 — item 4 ARMED, and the B-pillar had NEGATIVE width.** §10.61's brief said "expect it to FAIL; fix the geometry". *A brief is a probe too*: a read-only anatomy probe asked which member of each pair is at fault, how deep the penetration is, and which flank it is on, and **all three change the answer** (§10.62). The six crossings are **three defects**, and **arc length overstates them by up to 23×** — `gap_door × bay0` reports 118.8 mm of arc for a **5.2 mm** overlap. **SHOW flank 130.6 mm; OFF flank 934.6 mm = 87.7 %.** The arch assert's rationale (a shut line crossing an arch lip collapsed the shell 205562 v → 12 v) **does not transfer and was not inherited** — all six crossings were live at SUB=2 with **zero non-manifold edges**. The invariant armed instead is TOPOLOGICAL and needs no photograph, scale or datum: *an aperture cannot extend past the boundary of the panel it is cut in.* **Two show-flank defects fixed, geometry not threshold**: the cab door's rear shut line sat **5.2 mm INSIDE bay 0**, so bay 0 straddled the door's own boundary and the door could not open — the door moved (bay edges are locked; the door's rear x had **no provenance anywhere in the repo**) with `DOOR_REAR_DX` **expressed in terms of `BAYS[0][1]`**, never a bare number; and the vent wing broke the door's top edge by **20.7 mm** — the owner confirmed from `ref_workshop.jpg` that the glass **is** divided into a vent plus a main pane but **could not** resolve whether its top reaches the top rail, so the legible door corner was left alone and the vent dropped. **`B_PILLAR` and `VENT_TOP_DROP` are AUTHORED, not measured, and both true values are OPEN.** Crossings **6 → 2**, show flank **130.6 → 0.0 mm**. **FALSIFIED FOUR WAYS** through levers defaulting to proven no-ops; the arm reproducing rev 22's geometry lands within **1–2 mm** of its 11.8 / 118.8. **My own negative control failed first and the failure was MINE** — "an outline is not inside itself" is ill-posed, every sample lies ON the boundary. **The OFF flank is NOT armed at zero, and that is the result**: SPEC's own table grades that flank **"E (never photographed)"**, its two colliding features are BOTH E and contradict each other, and shown the sightlines with every box printed the owner answered **"cannot tell from this crop"** — so it is a **LABELLED regression catcher** at a watched baseline (**804.9 mm, ±10 mm**), meaning "it has not moved", NOT "it is right". `CARGO_GAP` densified **28 → 154** samples (straight runs **8 → 134**) with **signed area asserted equal** as a control. Guards **0 fail / 0 warn at both levels**, non-manifold **0**; **roof-hole vertex count re-baselined 68052 → 68564 / 252123 → 252749**, flagged not hidden. |
+| 2026-08-15 | **rev 23 — the bake frame was built on four retired numbers, and four retired values were still published as "locked".** `folk_gen.py` re-typed `X_TAIL` (**235 mm stale**), `RAKE_DZDX` (**15.25 mm/m**), `RAKE_Z0` and `Z_BELT0` (**11.4 mm** each) — the dead-`RIM_R` family again, under §10.10's hard bar on artwork replication (§10.63). Now **parsed with `ast`** in rev 14's `SCR` pattern, **raising rather than falling back**, with `X_TAIL` reconstructed from its definition because it is derived and not a literal. The banned flat px/m at `:1884` is gone — and **it was harmless where it stood**, setting a sampling interval rather than converting a position, which is stated precisely rather than claimed as a bigger fix than it was. **NOT re-baked**: `build.py` never calls `folk_gen`, the textures are committed artefacts, and a re-bake is a measured operation under §10.10 — **carried forward that the committed artwork was baked in the stale frame**, along with `DOOR_X0`, now 17.3 mm stale and named rather than quietly fixed. **SPEC hygiene (§10.64):** §10.3 published the RETIRED red **and** `W_ART = 0.30` (**3.3× off the live value for thirteen revisions**) as "locked"; §10.9 published the RETIRED rake and the `Z_BELT0`/`V_APEX0` derived from it; and `SPEC.md:1983` used **N1**, the crop the owner refuted, as an arm of route A's clipping control **nineteen lines after §10.57 dropped it** — conclusion unchanged, it stands on N2/N3. **Three CITATION defects found**: §10.61 corrects a "five crossings / 1209 mm" figure **§10.45's body never contained** (it is `HANDOFF_rev18.md:208`), §10.59 credits §10.48 with a withdrawal it never made, and §10.45 cites the rake lock to §10.9 **whose own table locks the retired value** — *a carried-forward figure is a claim too*, now extended to the citation. Also refuted from rev 23's own brief: §10.45–48 retire **no** §10.34 claim, and §10.29 carries **one** REF-wide correction, not two. |
 | 2026-08-14 | **rev 20 — work item 1 refuted, and §10.52 repaired.** §10.52's two constants-only arch lines now MEASURE the mesh via `verify._arch_lip_z` and the row was FALSIFIED after repair on all three decline paths (§10.53). **The cream map's chroma gain must NOT be raised (§10.54):** the dC\* triple quoted as the shipped arm is the **ABLATION** arm's (shipped is 0.220/0.227/0.231, not 0.240/0.249/0.253 — eighth un-watched figure); switching the map on drives dC\* **down**, not flat; an alias hypothesis was built and refuted by its own no-op control; the lever is real and chroma-pure (`W_FADE_SAT` 0.88→0.40 gives 0.269/0.314/0.335 and dL\* does not move) — **but dC\* rms is an ABSOLUTE statistic and the base levels differ 5.5×** (render C\* **3.89** vs photograph **21.44**; L\* agrees to 2.9 %, which is why dL\* was correctly found close). Normalised, the render is ALREADY at or above the photograph at every scale. The BEAUTY arm is **100 % clipped** and has always reported zeros. **New rule: A TARGET IS A PROBE TOO — print the base level of any absolute statistic.** Live lead is the locked `CREAM` albedo, sat 0.038 / G>R against the bus's 0.255 / R>G, **not changed**, blocked on one owner reading (§10.55). |
 | 2026-08-14 | **rev 20 — `COUNTERTAN`'s interreflection test, run at last (§10.56).** Five revisions on the list. **A ray-visibility flag is NOT an ablation** — killing every outgoing ray path from the top costs the fascia 1.8 %, while driving its albedo to near-black costs 9.0 %; in Cycles a ray that cannot see an object passes THROUGH it and hits what is behind, so the flag substitutes the background rather than removing the source. Taking the valid arm: interreflection is **real but secondary at 9.0 / 8.2 / 6.0 %**, and the dominant effect is that **~70 % of the counter top's rendered radiance does not come from `COUNTERTAN` at all** (a 96.6 % albedo cut moves it 29.6 %). Coat and spec were already excluded at 2.3–5.6 %; the prime remaining suspect is the **dust overlay** (`dust=1.4`, `W_DUST_COL_UP` base-independent by construction), named and **not yet measured** — it has no override to ablate. `COUNTERTAN` left unchanged for the third revision. |
 | 2026-08-14 | **rev 17 — the cream target was measured through an open serving bay (§10.38).** `cream_rms.py`'s 8.890 % is the GALLEY INTERIOR seen through bay 3: its search band overlaps the guarded aperture band and its gate tests "pale", not "cream paint". Proven against two locked image lines. `ref_side.jpg` cannot supply a replacement — 1799 gated body-cream pixels, best 60×20 window **33.8 % pure** — and it is also the **worst frame in the set** at 2.32 bits/px / DC quantiser 4 against 9.28 and 8.87 at DC quantiser 1. **New rule: A CLASS GATE IS A PROBE TOO** — gate on geometry before colour. The codec-floor control was itself wrong by 4× (blur at σ then high-pass at σ does not leave zero); true codec contribution **0.31–0.66 %**, so the structure is real and only the surface was wrong. Re-based on `ref_rear34.jpg` by the owner's choice; character determined by four scale-free discriminators as **chalky sun-fade mottle** (corr(dL\*,dC\*) −0.486, anisotropy 0.918), which finally explains `W_ALBEDO`: **a scalar multiply on albedo cannot change chroma.** The mm axis is NOT established — three routes to px/m all failed and none was invented. Also: `audit.py`'s re-typed 4.290 (§10.39), `vw_bars`' false air-gap docstring and the V's short arms (§10.40), the hubcap ring at 0.093 ± 0.012 with the PSF that chose its frame (§10.41), a real matte with an identity claim that could not honestly be made (§10.42), `flank_compare.py`'s premise refuted and the +95 mm offset found to be **87 mm of missing tarnish in the render mask** (§10.43), and `H_ROOF` delegated but deliberately **not** changed (§10.44). |
@@ -2331,7 +2523,8 @@ register to **0.0 mm**.
 
 | | linear albedo | = sRGB | hue | sat |
 |---|---|---|---|---|
-| `RED` **locked** | **(0.5520, 0.1441, 0.0176)** | (196, 106, 36) | 26.3° | 0.816 |
+| `RED` ~~locked~~ **RETIRED by §10.12** | ~~(0.5520, 0.1441, 0.0176)~~ | ~~(196, 106, 36)~~ | ~~26.3°~~ | 0.816 |
+| `RED` **LOCKED (live, §10.12)** | **(0.5520, 0.0294, 0.0176)** | **(196, 49, 36)** | **5.0°** | **0.816** |
 | `RED` rev-3 shipped | (0.5250, 0.0395, 0.0072) | (192, 56, 20) | 12.5° | 0.894 |
 | `CREAM` **locked** | **(0.6172, 0.6308, 0.5776)** | (206, 208, 200) | 75.0° | 0.038 |
 | `CREAM` rev-3 shipped | (0.7900, 0.7700, 0.7150) | (230, 227, 220) | 44.2° | 0.043 |
@@ -2344,8 +2537,12 @@ measurement has G > R.
 
 **Folk art is a graded bouquet, not wallpaper.** The density mask ran at the
 tile's own alpha in its dense regions, covering the red almost completely and
-dragging the measured flank from sat 0.816 to **0.27**. Locked: opacity ceiling
-`W_ART = 0.30`.
+dragging the measured flank from sat 0.816 to **0.27**. ~~Locked: opacity
+ceiling `W_ART = 0.30`.~~ **RETIRED in rev 10** — the 0.30 ceiling made the
+measured ×2.048 gold-to-red contrast arithmetically unreachable and was the
+cause of the owner's "far too faint and sparse". Live value is
+`t1_mats.W_ART = 1.00` (`T1_W_ART`). Marked here in rev 23; it had sat in this
+table as "locked" at 3.3× off the shipped value for thirteen revisions.
 
 ### 10.4 Weathering — measured targets, not adjectives
 
@@ -2455,9 +2652,15 @@ The cause is the unmodelled nose-down rake. Locked:
 
 | constant | value |
 |---|---|
-| `RAKE_Z0` | **0.0365** m — ride drop at x = 0 |
-| `RAKE_DZDX` | **0.0330** m/m ± 0.0040 — nose-down, 1.89° |
-| `X_DROP_REF` | +0.8636 — the station where `rake_drop(x)` equals the old scalar 0.0650 |
+> **EVERY VALUE IN THIS TABLE IS RETIRED — §10.29 rejected the rake at 4.5 σ.**
+> Marked in rev 23; it had read "Locked:" for ten revisions, 1600 lines from the
+> section that retired it, with no link between them. Follow §10.29, not this.
+
+| constant | ~~rev-8 value, RETIRED~~ | live value (`t1_core`) |
+|---|---|---|
+| `RAKE_Z0` | ~~**0.0365** m~~ | **0.047925** (§10.29 re-anchored) |
+| `RAKE_DZDX` | ~~**0.0330** m/m ± 0.0040, 1.89°~~ | **0.017750** m/m, 1.02° |
+| `X_DROP_REF` | ~~+0.8636~~ | **DERIVED** (0.96197), holds `RIDE_DROP` at 0.0650 |
 
 `drop(x) = RAKE_Z0 + RAKE_DZDX·x`. **Shear, never rotation** — every reference
 number is a height-versus-X and a 1.9° rotation also shifts x by 63 mm at roof
@@ -2467,7 +2670,10 @@ conversion. Use `t1_core.rake_drop(x)`.
 Consequences, all implemented:
 
 - **`Z_BELT` is a line.** `t1_mats.z_belt(x) = Z_BELT0 − RAKE_DZDX·x`, with
-  `Z_BELT0 = 1.2355` and `V_APEX0 = 0.3685` (above ground at x = 0). The rake is
+  ~~`Z_BELT0 = 1.2355` and `V_APEX0 = 0.3685`~~ — **BOTH RETIRED with the rake
+  above (rev 23 marking).** They were literals derived from `RAKE_Z0 = 0.0365`;
+  §10.29 made them DERIVED and they now compute to **1.224075 / 0.357075**, so
+  the figures below are ~11.4 mm stale. (above ground at x = 0). The rake is
   subtracted **once, after** the flank/nose mix, so `V_APEX0 + V_RISE == Z_BELT0`
   holds at every station and the swage arms stay on the belt.
 - **`verify.py`'s frame offset is a function of x.** A 5.5 mm shut line probed

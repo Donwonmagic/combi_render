@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-15 04:27:39 UTC |
-| git commit | `5c008c0` |
-| git subject | rev 21: correct the content checks from the fresh-clone console, and record the ninth catch |
+| generated | 2026-08-15 14:20:27 UTC |
+| git commit | `aff2059` |
+| git subject | rev 22: correct the H_ROOF_REGRESSION content check 6 -> 7, watched print |
 | working tree | **DIRTY** — this state is not committed |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=1 (applied, destructive, before booleans) |
@@ -40,6 +40,9 @@ shut line door+1: 100 % open
 shut line door-1: 100 % open
 shut line cargo: 100 % open
 shut line englid: 100 % open
+shut line x aperture: show flank 0.0 mm (invariant, asserted at import); off flank 804.9 mm over 2 pairs (baseline 804.9, -0.0 mm) -- off flank is graded E, NOT a correctness claim
+gap_englid is in the (y,z) TAIL frame at x=-1.7150; no flank aperture shares that surface, so a flank crossing test is NOT APPLICABLE (stated, not silently skipped)
+CARGO_GAP outline samples 154 (rev 22: 28, of which 20 on the corner arcs = 5.2 % of the length)
 band 1.372-1.775 un-dropped (1.307-1.710 AG)  bay widths 0.516 0.515 0.516
 VERIFY: 0 fail, 0 warn
 ```
@@ -48,7 +51,7 @@ VERIFY: 0 fail, 0 warn
 |---|---|
 | cutters rolled back | none |
 | non-manifold edges (body) | 0 |
-| body faces | 60401 quad, 446 tri, 3131 ngon |
+| body faces | 60154 quad, 443 tri, 3635 ngon |
 
 ## Measured dimensions
 
@@ -135,8 +138,8 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 | | |
 |---|---|
 | mesh objects | 185 |
-| vertices (all meshes) | 143003 |
-| faces (all meshes) | 137724 |
+| vertices (all meshes) | 143511 |
+| faces (all meshes) | 137976 |
 
 | prefix | n |
 |---|---|

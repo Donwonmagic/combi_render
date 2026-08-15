@@ -813,6 +813,50 @@ def run(body, log=print):
                      f"{len(_S.ENGLID_GAP)} outline samples are open slots")
     log(f"  shut line englid: {fr*100:.0f} % open")
 
+    # 11e2. SHUT LINE x APERTURE CROSSINGS -- rev 23, SPEC sec.10.62.
+    #
+    # The SHOW-flank half of this invariant is asserted at IMPORT in t1_shell,
+    # so by the time this row runs it has already passed -- the row logs it so
+    # the number is visible rather than merely un-failed, which is the whole
+    # complaint sec.10.45 made about the four decorative rows.
+    #
+    # The OFF-flank half is a LABELLED REGRESSION CATCHER, not an accuracy
+    # test, for the same reason H_ROOF's row is: BOTH colliding features are
+    # graded "E (never photographed)" in SPEC's own source table, they
+    # contradict each other, and asked what the frame shows the owner answered
+    # "cannot tell from this crop".  A pass here means "the off flank has not
+    # moved", NOT "the off flank is right".  Re-baseline deliberately and state
+    # it; never widen the band to make a change fit.
+    _cross = _S.shutline_aperture_crossings()
+    _show = [c for c in _cross if c[2] == _S.SHOW_SIDE]
+    _off = [c for c in _cross if c[2] != _S.SHOW_SIDE]
+    _offtot = sum(c[3] for c in _off)
+    if _show:
+        # Unreachable while the import assert stands; kept so that removing
+        # that assert cannot silently drop the coverage.
+        fails.append(
+            "SHOW-flank aperture straddles a shut line: "
+            + ", ".join(f"{c[0]}x{c[1]} {c[3]*1000:.1f} mm" for c in _show))
+    _od = _offtot - _S.OFF_CROSS_BASELINE
+    if abs(_od) > _S.OFF_CROSS_BAND:
+        fails.append(
+            f"off-flank shut line x aperture crossing MOVED {_od*1000:+.1f} mm "
+            f"vs the rev-23 baseline {_S.OFF_CROSS_BASELINE*1000:.1f} mm "
+            f"(band +-{_S.OFF_CROSS_BAND*1000:.0f} mm) -- REGRESSION CATCHER, "
+            f"not an accuracy test; both members are graded E (never "
+            f"photographed), so re-baseline deliberately, never widen")
+    log(f"  shut line x aperture: show flank {sum(c[3] for c in _show)*1000:.1f}"
+        f" mm (invariant, asserted at import); off flank "
+        f"{_offtot*1000:.1f} mm over {len(_off)} pairs "
+        f"(baseline {_S.OFF_CROSS_BASELINE*1000:.1f}, {_od*1000:+.1f} mm) "
+        f"-- off flank is graded E, NOT a correctness claim")
+    log(f"  gap_englid is in the (y,z) TAIL frame at x="
+        f"{_T.X_TAIL + _S.ENGLID_CUT_DX:.4f}; no flank aperture shares that "
+        f"surface, so a flank crossing test is NOT APPLICABLE (stated, not "
+        f"silently skipped)")
+    log(f"  CARGO_GAP outline samples {len(_S.CARGO_GAP)} "
+        f"(rev 22: 28, of which 20 on the corner arcs = 5.2 % of the length)")
+
     # 11f. the shut lines and the bays must not be see-through. SPEC sec.6:
     # the hatches read as depth, not as holes. Both door gaps are collinear
     # slots and the bays are cut on both flanks, so without an inner skin a

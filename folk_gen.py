@@ -222,11 +222,79 @@ def check_mapping_contract():
 #     (importing them needs bpy).  Object-space z == height above ground:
 #     step 8b shears the shell by rake_drop(x) = RAKE_Z0 + RAKE_DZDX * x.
 # ===========================================================================
-RAKE_Z0, RAKE_DZDX = 0.0365, 0.0330          # t1_core.py:56-57
-Z_BELT0 = 1.2355                             # t1_mats.py:130
-X_NOSE, X_TAIL = 2.108, -2.108               # t1_core.py:26-27
+# rev 23, SPEC 10.63.  THESE WERE RE-TYPED LITERALS AND ALL FOUR HAD GONE
+# STALE -- X_TAIL by 235 mm (rev 16 re-spaced the tail), RAKE_DZDX by
+# 15.25 mm/m and RAKE_Z0 / Z_BELT0 by 11.4 mm each (rev 13 re-derived the
+# rake).  This is the exact failure family as the dead RIM_R, the dead
+# countertan args, _NOSE_SEL and audit.py's hardcoded 4.290: a constant tuned
+# against another constant that was not expressed in terms of it (SPEC 10.25).
+#
+# folk_gen cannot `import t1_core` -- that needs bpy and this is a standalone
+# texture generator.  So the values are PARSED OUT with `ast`, which is the
+# pattern rev 14 already established for SCR in build.py, and the parse is a
+# HARD ERROR rather than a fallback: a silent fallback to a stale literal is
+# precisely how this drifted for ten revisions.
+def _from_module(fname, names):
+    """Read top-level literal assignments out of a sibling module, by AST."""
+    import ast as _ast
+    src = open(os.path.join(HERE, fname)).read()
+    tree = _ast.parse(src)
+    found = {}
+    for node in tree.body:
+        if not isinstance(node, _ast.Assign):
+            continue
+        tgts = []
+        for t in node.targets:
+            if isinstance(t, _ast.Name):
+                tgts.append((t.id, node.value))
+            elif isinstance(t, _ast.Tuple) and isinstance(node.value,
+                                                          _ast.Tuple):
+                for tt, vv in zip(t.elts, node.value.elts):
+                    if isinstance(tt, _ast.Name):
+                        tgts.append((tt.id, vv))
+        for nm, val in tgts:
+            if nm in names:
+                try:
+                    found[nm] = float(_ast.literal_eval(val))
+                except (ValueError, TypeError):
+                    pass
+    missing = [n for n in names if n not in found]
+    if missing:
+        raise RuntimeError(
+            "folk_gen could not parse %s out of %s. It must NOT fall back to a "
+            "re-typed literal -- that is how the bake frame went 235 mm stale "
+            "(SPEC 10.63). Fix the parse." % (missing, fname))
+    return found
+
+
+_C = _from_module("t1_core.py", ("RAKE_Z0", "RAKE_DZDX", "X_NOSE",
+                                 "X_AXLE_R", "O_NEW"))
+RAKE_Z0, RAKE_DZDX = _C["RAKE_Z0"], _C["RAKE_DZDX"]
+X_NOSE = _C["X_NOSE"]
+# X_TAIL is DERIVED in t1_core (`_aft(X_TAIL_OLD)`) and is not a literal there,
+# so it is reconstructed from its DEFINITION -- the rear axle less the measured
+# overhang -- rather than re-typed.  Cross-checked against the live mesh at
+# -1.8730 when this was written.
+X_TAIL = _C["X_AXLE_R"] - _C["O_NEW"]
+# Z_BELT0 is the ABOVE-GROUND belt at x = 0: the authored (un-dropped) belt
+# less the ride drop at x = 0.  t1_mats derives it exactly this way.
+_M = _from_module("t1_mats.py", ("Z_BELT_AUTH",))
+Z_BELT0 = _M["Z_BELT_AUTH"] - RAKE_Z0
 
 # cab-door shut line, t1_shell.DOOR_GAP (authored z, un-sheared)
+#
+# rev 23, STALE AND NAMED AS SUCH RATHER THAN QUIETLY FIXED.  rev 23 moved the
+# cab door's rear run forward by DOOR_REAR_DX = 17.3 mm to give the B-pillar a
+# non-negative width (SPEC 10.62), so DOOR_X0 below is now 17.3 mm stale.  It
+# is NOT parsed like the four constants above because t1_shell.DOOR_GAP's rear
+# points are EXPRESSIONS (`0.9084 + DOOR_REAR_DX`), which `ast.literal_eval`
+# cannot evaluate, and B_PILLAR is an os.environ lookup.  Parsing it properly
+# means evaluating t1_shell's constant graph, which is real work and was not
+# done blind at the end of a revision.
+#
+# IT CHANGES NOTHING TODAY: build.py never calls folk_gen -- tex/*.png are
+# committed, pre-baked artefacts.  This bites only on the next re-bake, which
+# 10.10 makes a measured operation anyway.  CARRIED FORWARD, see SPEC 10.63.
 DOOR_X0, DOOR_X1 = 0.9084, 1.8171            # latch (aft) .. hinge (fwd)
 DOOR_W = DOOR_X1 - DOOR_X0                   # 0.9087 m  (measured 0.94)
 _DOOR_BOT_AUTH = [(0.9084, 0.8160), (1.1000, 0.8040), (1.4000, 0.8000),
@@ -1881,8 +1949,20 @@ def composition(res, x0=0.872, x1=-2.007):
     if ndimage is None:
         return None
     lab, pen = res["lab"], Pen(res["side"])
-    mm = 1000.0 / 211.21
-    xs = np.arange(x0, x1, -mm / 1000.0)
+    # rev 23, SPEC 10.63.  `mm = 1000.0 / 211.21` stood here: the BANNED flat
+    # px/m.  SPEC 10.43 RETIRED `REF_PPM = 211.2` (4.7 % wrong across the
+    # lockup) and 10.29/10.36 established the flank map is PROJECTIVE --
+    # X(u) = 641220.4/(u + 11140) - 55.0322, 211.2 px/m mid-body against 226.9
+    # at the tail.  A single linear px->metre scale does not hold along this
+    # flank; that is one of this project's oldest hard-won rules.
+    #
+    # WHAT IT IS USED FOR, which is why it is a STEP and not a SCALE: this
+    # function walks body stations to count gold coverage, so 211.21 only sets
+    # the SAMPLING INTERVAL, never a position -- every x below is a body-frame
+    # metre already.  The value is therefore harmless HERE and lethal if copied.
+    # It is renamed to say so, and the banned name is not reintroduced.
+    STEP_M = 1.0 / 211.21   # SAMPLING STEP ONLY -- never a px<->m conversion
+    xs = np.arange(x0, x1, -STEP_M)
     nz = 40
     fz = (np.arange(nz) + 0.5) / nz
     X, F = np.meshgrid(xs, fz)
