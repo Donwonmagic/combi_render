@@ -453,7 +453,21 @@ _DOOR_BOT_AUTH = sorted([p for p in _GAP if p[1] <= _zbot + 0.020])
 # authored 1.8140, DOOR_H stays bit-identical, and the 4.2 mm discrepancy is
 # carried forward as an open item rather than absorbed into an unrelated fix.
 # One lever at a time.
-_DOOR_TOP_AUTH = 1.8140                      # authored; see SPEC 10.68
+#
+# rev 26, SPEC 10.73 -- THE 4.2 mm WAS AN ARTEFACT AND THE PRE-PRINT COMMENT WAS
+# RIGHT.  1.80980 is the MEAN of a five-knot run whose two end knots are corner
+# roll-offs (the rail rises 13 mm off the hinge corner and falls 9 mm into the
+# latch corner).  This constant is a HEIGHT AT A STATION, and the DOOR_H line
+# below proves it by subtracting rake_drop(1.36) from it.  Compared like for
+# like at x = 1.36 on DOOR_GAP_S -- the smoothed outline that actually CUTS the
+# geometry -- the outline reads 1.814315 against this 1.8140: 0.315 mm, not 4.2.
+# (Raw DOOR_GAP at the same station 1.814333, +0.333 mm; run max 1.814670.)
+# The value therefore STAYS, the hold is now for a measured reason rather than a
+# cautious one, and NO RE-BAKE IS OWED.  What remains genuinely open is that
+# BOTH numbers are authored and the door's true top edge is UNMEASURED -- and
+# unmeasurable on the admissible set, since no supplied frame carries both a
+# closed cab door and an admissible px/m on the door plane.
+_DOOR_TOP_AUTH = 1.8140                      # authored; see SPEC 10.68, 10.73
 # rocker / sill bottom -- PARSED from t1_core.ZB's own knots and re-spaced by
 # the SAME `_aft()` t1_core applies inside `aft_lut()`.
 #
@@ -500,7 +514,9 @@ def door_bot_z(x):
     return _lut(_DOOR_BOT_AUTH, x) - rake_drop(x)
 
 
-DOOR_H = ((_DOOR_TOP_AUTH - rake_drop(1.36)) - door_bot_z(1.36))   # ~1.017 m
+DOOR_H = ((_DOOR_TOP_AUTH - rake_drop(1.36)) - door_bot_z(1.36))   # 1.013467 m
+# rev 26: this comment read "~1.017 m"; the line computes 1.013467. Another
+# figure in a comment that was never watched print.  Corrected, SPEC 10.73.
 
 
 # --- rev 11: two things the flank band was getting wrong ------------------

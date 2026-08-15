@@ -2818,7 +2818,9 @@ R2 **+0.58 → −0.14**. **One went the other way and is stated, not hidden:** 
 gold **29.09 → 28.90** against a 29.08 target — 0.18 off where the committed arm
 was 0.01, inside the **28.96–29.19** round-to-round spread watched printing
 across seven solver rounds, but not an improvement. `tex/nose.png` UNCHANGED
-(md5 `b31ea156`). New: `swirl.png` `4ee4e09e`, `swirl_b.png` `d2015971`.
+(md5 `b31ea156`). New: `swirl.png` `4ee4e09e`, `swirl_b.png` `d201597e`.
+_(rev 26: this line read `d2015971` — wrong in its eighth character. The FILE
+was always correct; only the record was wrong. See §10.74.)_
 
 **NO GEOMETRY MOVED.** Guards 0 fail / 0 warn at both levels, every figure
 identical.
@@ -2891,10 +2893,281 @@ And, per §10.67's own lesson, **the §0.2 bullet count was WATCHED PRINT: 29
 counted, 29 in `_RETIRED_BULLETS_REVIEWED`**, with the parse line-anchored.
 
 
+### 10.70  rev 26 — `COUNTERTAN`'s pedestal is the SETTLED-DUST FILM, and rev 20 measured the wrong derivative
+
+Six revisions on the work list, "UNIDENTIFIED" since §10.56. It is identified,
+and the constant that produces it has been in plain text in `t1_mats.py` the
+whole time.
+
+**MEASURED.** Four arms — two albedo points (`COUNTERTAN` built-in and
+`T1_CTAN=0.02,0.02,0.02`) × dust shipped / dust off — through rev 24's
+index-clean mask, at ONE purged light rig (§10.65's stacking defect), EV −4,
+0.001–0.002 % clipped in every arm. `R = kA + P` fitted per channel:
+
+| arm | pedestal `P/R` (R / G / B) | `k` (R / G / B) |
+|---|---|---|
+| shipped (dust 1.4, wear 0.7, spec 0.32, coat 0.05) | **60.8 / 58.2 / 59.5 %** | 0.03677 / 0.03623 / 0.03719 |
+| `T1_CTAN_WEAR=0` | 55.3 / 52.5 / 53.4 % | 0.04461 / 0.04396 / 0.04509 |
+| **`T1_CTAN_DUST=0`** | **25.1 / 25.0 / 31.9 %** | 0.07310 / 0.07165 / 0.07399 |
+| `T1_CTAN_DUST=0` **and** `T1_CTAN_SP=0 T1_CTAN_CT=0` | **6.6 / 6.6 / 8.5 %** | 0.08713 / 0.08604 / 0.08891 |
+
+Share of the shipped pedestal removed: **wear 3.2 / 3.7 / 5.1 %**;
+**dust 57.1 / 52.6 / 36.6 %**; **dust + spec + coat together
+89.3 / 87.9 / 84.8 %.** What survives all three is **6.6 / 6.6 / 8.5 %**, i.e.
+**10.7 / 12.1 / 15.2 % of the original pedestal** — small enough to be the
+ordinary interreflection floor, and NOT claimed as identified.
+
+**HARNESS CONTROL — the part that makes this readable.** The dust-shipped arm
+reproduces §10.65's published clean pedestal — **60.8 / 58.2 / 59.5 %** — to
+three significant figures in all three channels, on a tree restored
+independently from the bundles. Same chain. Null control passed **exact** (IoU
+1.0000, 0 disagreeing px) in every arm; region-mean noise floor **0.211 %**
+against an effect of ~35 percentage points.
+
+**WHY FIVE REVISIONS MISSED IT — this project's own rule, running backwards.**
+§10.56 ablated dust, measured the top's radiance RISE at +4.1 / +8.6 / +13.3 %,
+and concluded *"the dust hypothesis is REFUTED — and it was HELPING."*
+**That does not follow.** For a mix of coverage `f` and base-independent colour
+`D` over base `A`, removing the term changes radiance by `f·(A − D)` while it
+contributes `f·D` to the pedestal. `W_DUST_COL_UP = (0.5077, 0.3775, 0.2340)`
+is **within 13.5 % of `COUNTERTAN` in R**, so `f·(A − D)` is small *precisely
+because* the deposit is nearly the colour of the wood — and `f·D` is large at
+the same time. **Both observations are true simultaneously.** §10.56 measured
+`dR/d(dust)` at the shipped albedo and drew a conclusion about `P`.
+
+This is §10.68's rule inverted, and it should be written down that way: **a
+SMALL magnitude does not mean a small contribution, when the derivative you
+measured is not the one your conclusion is about.** The same logical defect was
+applied to `wear` and `fade` and happened to reach the *right* answer there,
+because `W_PRIMER` is ~4.5× darker than the base — **conclusion-safe,
+method-unsafe**. The wear arm above confirms it at 3.2 / 3.7 / 5.1 %.
+
+**THE COVERAGE WAS NEVER HIDDEN.** `t1_mats.py:366` states in prose
+*"`W_DUST_FAC_UP` 0.7313, i.e. mean coverage 0.548 on the counter top"*, and a
+**live assert** at `t1_mats.py:441` recomputes
+`W_DUST_UP_W × W_DUST_MOT_MEAN × W_DUST_FAC_UP × 1.4 = 0.548256` on every
+build. A base-independent colour at **54.8 % coverage IS a pedestal by
+construction.**
+
+**INDEPENDENT CROSS-CHECK, from an unrelated route.** A base-independent mix at
+coverage `f` dilutes the base by `(1 − f)`, so removing it must raise `k` by
+`1/(1 − f) = 2.214×`. **Measured `k_off/k_on` = 1.988 / 1.978 / 1.989.** Right
+direction, right magnitude, ~10 % apart — the residual is chain non-linearity
+(the fade `HueSaturation` is not linear in saturation) plus interreflection
+across a 29× albedo secant. **Agreement is claimed to ~10 %, not better.**
+
+**THE LEVER WAS CHECKED BEFORE IT WAS BELIEVED**, per §10.56's own rule that a
+ray-visibility flag is not an ablation. The WEATHER group's `Dust` input reaches
+`dfac → cdust → Base Color` (`t1_mats.py:855, 862, 887`) and **nothing else**:
+Roughness comes from the fade path (`r7`), Metallic from the wear path
+(`steel`). `T1_CTAN_DUST=0` removes the **ALBEDO**. `T1_CTAN_WEAR=0` also drops
+Metallic, so that arm is **two levers, stated rather than presented as pure.**
+
+**WHAT THIS DOES NOT MEAN.** It is **not** an error and nothing is tuned on it.
+The dust film is a modelled, measured feature; a 59 % pedestal simply means the
+counter top's appearance is dominated by settled deposit and a grazing specular
+lobe rather than by the wood albedo. What it *does* settle is **why
+`COUNTERTAN` has never been solvable**: `k = 0.0368` in the shipped
+configuration against **0.0871** for a clean surface — the albedo lever is
+**2.37× weaker than the surface itself allows**, by construction. rev 15's
+"closing on albedo demands (0.177, 0.408, 0.094), not any wood" is explained,
+not overturned. **`COUNTERTAN` UNCHANGED at (0.5870, 0.4930, 0.3060), sixth
+revision running.**
+
+**Also corrected here:** §10.56's `T1_CTAN_SP=0 T1_CTAN_CT=0` arm reads −3.1 /
+−3.7 / −7.1 % of the top's *radiance* and was filed as "excluded". As a share
+of the **pedestal** the same lever is worth **32 / 35 / 48 points** — the third
+instance of the identical non-sequitur inside one section.
+
+
+### 10.71  rev 26 — `W_DUST_FAC_UP` is solved against the WRONG MATERIAL, and both halves are in one commit
+
+Found while verifying §10.70; **RECORDED, NOT APPLIED**, because it moves the
+shipped build.
+
+`t1_mats.py:441-448` is a live assert:
+
+```
+_f_up = W_DUST_UP_W * W_DUST_MOT_MEAN * W_DUST_FAC_UP * 1.4     # = 0.548256
+_pred = tuple(c + _f_up * (d - c) for c, d in zip(COUNTERCREAM, W_DUST_COL_UP))
+assert max(abs(p - m) for p, m in zip(_pred, _UP_MEASURED)) < 2e-3
+```
+
+`_UP_MEASURED = (0.6104, 0.5300, 0.4265)` is commented **"dirty counter top,
+de-illuminated"**. The assert predicts it from **`COUNTERCREAM`**. But the
+counter top carries **`COUNTERTAN`**, and has since rev 12.
+
+| base used | predicted dusty top | vs `_UP_MEASURED` | |
+|---|---|---|---|
+| `COUNTERCREAM` (what the assert uses) | (0.6104, 0.5300, 0.4264) | max err **0.0001** | PASSES |
+| `COUNTERTAN` (what the surface is) | (0.5435, 0.4297, 0.2665) | max err **0.1600** | **FAILS by 80× its own tolerance** |
+
+**Both halves were introduced in the SAME COMMIT** — `00d3819`
+*"rev 12: cut the roof hole; signboard is not a lid; **tan counter top**;
+weathering + roughness"*. In one commit rev 12 made the top tan and solved the
+up-face dust coverage against the cream, using a patch labelled "dirty counter
+top". `git log -S '_UP_MEASURED'` returns that commit and no other.
+
+**They cannot both be right.** Either `_UP_MEASURED` is not the counter top —
+in which case its comment is a phantom and the constant needs a correct label —
+or it is, in which case **`W_DUST_FAC_UP = 0.7313` is unsupported for the
+surface whose appearance §10.70 has just shown it dominates.** The assert
+cannot see the difference: it would keep passing however far `COUNTERTAN`
+moved, because it never reads `COUNTERTAN`.
+
+Same family as the dead `RIM_R`, the dead `countertan` shader arguments,
+`_NOSE_SEL` and `FadeVert`: **a constant landed on the material whose NAME
+matched, not on the surface it describes.** Fifth instance.
+
+This is rev 27's item 1 and it is now a *named, localised* question rather
+than "UNIDENTIFIED".
+
+
+### 10.72  rev 26 — the ±2.145 / ±2.140 bumper question is MALFORMED: both numbers are the factory catalogue, halved
+
+rev 25 carried this as *"a real 5 mm drift — establish which is right, retire
+one."* There is nothing to pick between.
+
+- **`2.145 = 4.290 / 2` exactly; `2.140 = 4.280 / 2` exactly.** Both rows change
+  in the **same diff hunk** of `27f6ee6`, *"SPEC rev 4: evidence audit against
+  reference **+ factory sources**"* — `Overall length over bumpers 4.280 →
+  4.290` on one line and `Bumper faces ±2.140 → ±2.145` on the next. **The 5 mm
+  is exactly half of a catalogue revision.** Nothing was re-measured.
+- `verify.py:33` already records *"4.290 came from the 1950-67 T1 catalogue"*
+  and `verify.py:37` invokes the standing instruction — *never correct this
+  vehicle toward the VW factory catalogue* — to make the measurement win for
+  `L`. **§2's bumper row never received that treatment.** §2's own header grades
+  the table **S (1963 factory brochure) unless noted**, and this row carries no
+  note. Two of the other three items in that same rev-4 sentence were later
+  refuted (the 6.40-15 tyre by rev 6, the stock ride height by rev 5).
+- **`X_BUMP_F` and `X_BUMP_R` are DEAD.** `grep -rn X_BUMP --include=*.py`
+  returns exactly two lines: `t1_core.py:73` and `:74`, their own definitions.
+  Zero read sites. Already noted in `AUDIT_rev18_loft.md:589` and never acted on.
+- **The mesh cannot arbitrate, because it was fitted to the constant.**
+  `t1_detail.py:382` reads `BUMP_OFF = 0.0075  # standoff so the outer face
+  lands on x = +/-2.140`. Circular.
+- **The rear face does not exist.** `build.py:325` has `bumper(False, …)`
+  commented out per §2.4, so `±` asserts a rear bumper face **fourteen lines
+  below §2.4's own "model it absent"**.
+- **CITATION DEFECT, born stale in its own commit.** §10.69, `HANDOFF_rev25.md`
+  and the rev-26 prompt all cite the row as `SPEC.md:191`. At HEAD it is
+  **`:201`** — `:191` is the Track row. The row moved in `208e92f`, **the same
+  commit that wrote the citation.**
+
+**VERDICT: neither value is measured and neither is supported.** The rev-25
+instruction *"do NOT add a `_RETIRED_VALUES` row for the ±2.145 bumper faces"*
+**still stands and for a stronger reason than it was given** — a row would
+assert that one of them is live, and neither is. The correct action is to strike
+both as catalogue-derived and re-open the front bumper face as **UNMEASURED**.
+**No geometry moved on this finding and none should until it is measured.**
+
+**Why it has never been measured, and the one opening:** in `ref_side.jpg` the
+front bumper face is occluded by the lamppost at columns 62–79 — the feature
+`verify.py:43` names as the source of three confident wrong numbers, and
+§10.24's standoff finding was withdrawn for exactly that reason.
+**`ref_workshop.jpg` has no lamppost and the bumper is completely clear.** A
+question was put to the owner with printed crop boxes (A the upper tube, B the
+lower blade, C the vertical post between them) asking which members belong to
+the vehicle — because the model builds only a blade plus two 62 × 30 mm
+brackets (`bumper_irons`) and **has no member for the tube at all**. Answer
+pending at time of writing. **The boxes were stated to him as POINTERS, not
+sampling windows**, and the first draft was thrown away — box A sat on the green
+body above the tube and box B straddled the blade and a foreground trolley rail.
+**Fifteenth instance of check-what-the-probe-can-see; second caught before it
+reached him.**
+
+
+### 10.73  rev 26 — work item 2 is an ARTEFACT: `_DOOR_TOP_AUTH`'s "4.2 mm" is a mean compared with a station value
+
+rev 25 held `_DOOR_TOP_AUTH` at the authored **1.8140** against the door
+outline's top-run mean **1.80980**, carried the 4.2 mm forward as an open item,
+and recorded the process lesson *"a claim in prose is not a guard — including a
+comment you are writing right now; 'within 1 mm' was refuted at 4.2 mm in the
+same minute."*
+
+**The comment was right. The print computed a different quantity.**
+
+`_DOOR_TOP_AUTH` has exactly one use, `folk_gen.py:503`:
+
+```
+DOOR_H = ((_DOOR_TOP_AUTH - rake_drop(1.36)) - door_bot_z(1.36))
+```
+
+`rake_drop(1.36)` is subtracted from it, which is only meaningful if it is an
+**un-dropped z at station x = 1.36** — and the bottom term is evaluated at that
+same single station. So `_DOOR_TOP_AUTH` is a **height at a station**, by the
+construction of the line that consumes it. `1.80980` is a **run mean** over a
+crowned run whose two end knots are corner roll-offs:
+`t1_shell.py:487-489` gives z = 1.8020, 1.8130, **1.8150**, 1.8130, 1.8060 —
+the rail rises 13 mm off the hinge corner and falls 9 mm into the latch corner,
+and averaging the corners into it drags the mean down.
+
+Compared like for like at x = 1.36, re-implementing `_resample`/`_smooth`
+(`t1_shell.py:95-110`) as pure arithmetic:
+
+| quantity | value | vs authored 1.8140 |
+|---|---|---|
+| 5-knot top-run **mean** (the figure rev 25 quoted) | 1.809800 | **−4.200 mm** |
+| raw `DOOR_GAP` top edge **at x = 1.36** | 1.814333 | **+0.333 mm** |
+| **`DOOR_GAP_S`** top edge at x = 1.36 — *the outline that actually cuts the geometry* | **1.814315** | **+0.315 mm** |
+| `DOOR_GAP_S` top-run maximum | 1.814670 | +0.670 mm |
+
+Chain cross-check in the same computation: `DOOR_REAR_DX` comes out
+**0.017250 m = 17.250 mm**, reproducing §10.68's independently derived figure
+exactly, which is what shows the re-implementation is the repo's own arithmetic.
+
+**`_DOOR_TOP_AUTH = 1.8140` agrees with `t1_shell`'s own door outline to
+0.315 mm at the station where it is used.** rev 25's instruction *"do not change
+it to 1.8098 without a measurement"* **stands, and for a better reason than the
+one given**: adopting 1.8098 would move `DOOR_H` by −4.200 mm (−0.41 % on every
+v of the door art) on the strength of a mis-specified statistic. **No re-bake is
+owed. `DOOR_H` = 1.013467 unchanged.**
+
+**What IS open is smaller and harder, and it is not what the item said.** Both
+numbers are authored: `1.8140` has no provenance anywhere in the repo (six
+occurrences, all itself or prose about itself), and `1.80980` is the mean of
+five equally unprovenanced literals. **The cab door's true top-edge height is
+UNMEASURED and, on the admissible set, unmeasurable**: `ref_side.jpg` has the
+door OPEN (§10.11's frame, and the worst in the set at 2.32 bits/px);
+`ref_workshop.jpg` has it closed but is a three-quarter view with **no
+admissible px/m on the door plane** (`t1_shell.py:471-476` says so); and
+`ref_rear34.jpg`'s 344.1 ± 6.7 is the **plate plane only** (§10.48) at the far
+end of the vehicle. Nothing on this project measures anything to 0.32 mm — the
+best longitudinal measurement in the repo carries ±22 mm.
+
+**Incidental, same line:** `folk_gen.py:503`'s trailing comment reads
+`# ~1.017 m` where the line computes **1.013467** — 3.5 mm, another figure in a
+comment that was never watched print. Corrected.
+
+
+### 10.74  rev 26 — two defects in rev 25's own record, caught on the way in
+
+Neither changes the model; both would have cost the next context real time.
+
+- **`swirl_b.png`'s md5 is wrong in its eighth character.** `SPEC.md:2821` and
+  `NEXT_CONTEXT_PROMPT_rev26.md:147` record `d2015971`; the committed file is
+  **`d201597e`**`1c867b6e1fbedd2c0f8ab306`. The FILE is correct — the working
+  tree and `HEAD` agree byte-for-byte and it is what `9ad9a3b` wrote — only the
+  record is wrong. `swirl.png` `4ee4e09e` and `nose.png` `b31ea156` both check
+  out. Corrected here and in §10.68.
+- **`NEXT_CONTEXT_PROMPT_rev26.md:283`'s content check cannot pass on a fresh
+  clone.** It asks for `ls HANDOFF_rev25.md rev25_hero34f.png`, but
+  `.gitignore:9` is `rev*_hero*.png` and commit `091ff2e` is titled *"keep the
+  hero OUT of the repo, as every prior revision did"* — which §7 of the same
+  prompt explains at length. **§1 and §7 of one document contradict each other**,
+  and a context following §1 literally would have reported a lost commit.
+  The hero is on the owner's disk at 15 516 379 bytes, which is where every
+  prior revision's hero lives. **The check is DELETED, not loosened** — the
+  rev-21 `STRADDLING` precedent, not the rev-22 `H_ROOF_REGRESSION` one, because
+  this string can never match a clean tree rather than merely having the wrong
+  count.
+
+
 ## Change log
 
 | Date | Change |
 |---|---|
+| 2026-08-15 | **rev 26 — `COUNTERTAN`'s pedestal is IDENTIFIED after six revisions, and it is the settled-dust film (§10.70).** Four arms — two albedo points × dust on/off — through rev 24's index-clean mask at ONE purged rig: pedestal **60.8/58.2/59.5 % → 25.1/25.0/31.9 %** with `T1_CTAN_DUST=0`, and **→ 6.6/6.6/8.5 %** once spec and coat go too. **Dust carries 57.1/52.6/36.6 % of it; dust + spec + coat carry 89.3/87.9/84.8 %.** The dust-shipped arm **reproduces §10.65's published clean pedestal to three significant figures in all three channels** on an independently restored tree — that harness control is what makes the rest readable; null control exact in every arm, noise floor 0.211 % against a 35-point effect. **WHY FIVE REVISIONS MISSED IT:** §10.56 ablated dust, saw the top's radiance rise only +4.1/+8.6/+13.3 %, and concluded "REFUTED — and it was HELPING". **That does not follow.** Removing a mix of coverage `f` and base-independent colour `D` changes radiance by `f·(A−D)` — small *precisely because* `W_DUST_COL_UP` is within **13.5 %** of `COUNTERTAN` in R — while contributing `f·D` to the pedestal, which is large. Both true at once; §10.56 measured the wrong derivative. **§10.68's rule inverted: a SMALL magnitude does not mean a small contribution.** The coverage was never hidden — `t1_mats.py:366` says "mean coverage 0.548 on the counter top" in prose and a **live assert** recomputes 0.548256 on every build. **Independent cross-check from an unrelated route:** removing a mix at coverage `f` must raise `k` by `1/(1−f) = 2.214×`; measured **1.988/1.978/1.989**, agreement claimed to ~10 % and no better. The lever was checked before it was believed — `Dust` reaches Base Color and nothing else, so it removes the ALBEDO per §10.56's own rule; `T1_CTAN_WEAR=0` also drops Metallic and is stated as two levers. **Nothing tuned: `COUNTERTAN` UNCHANGED, sixth revision.** What this settles is *why* it was never solvable — `k` is **2.37× weaker** in the shipped configuration than the bare surface allows, by construction. **§10.71, found while verifying that and RECORDED NOT APPLIED:** `W_DUST_FAC_UP = 0.7313` is pinned by a live assert that predicts `_UP_MEASURED` ("dirty counter top") from **`COUNTERCREAM`**, while the top carries **`COUNTERTAN`** — re-anchored to the right base the assert **fails by 0.1600, eighty times its own 2e-3 tolerance** — and **both halves entered in ONE commit**, `00d3819` "…tan counter top…". The name-matched-material family again, fifth instance. **§10.72 — work item 3 is MALFORMED:** `2.145 = 4.290/2` and `2.140 = 4.280/2`, both changed in the **same diff hunk** of `27f6ee6` "…against factory sources", so the 5 mm is exactly half a catalogue revision; `verify.py:33` already records 4.290's catalogue origin and `:37` invokes the standing instruction for `L` while §2's bumper row never got it; `X_BUMP_F/R` have **zero read sites**; `BUMP_OFF`'s own comment shows the mesh was **fitted to the constant**; the rear face is commented out at `build.py:325`; and the `:191` citation is stale (`:201`), **born stale in the commit that wrote it**. Neither value is measured — strike both, re-open as UNMEASURED. **§10.73 — work item 2 is an ARTEFACT:** `_DOOR_TOP_AUTH`'s "4.2 mm" compares a five-knot **run mean** with a **station value**; at x = 1.36 on `DOOR_GAP_S`, the outline that actually cuts, the disagreement is **0.315 mm**. rev 25's pre-print comment was right and its print measured a different quantity. Value HELD, **no re-bake owed**, `DOOR_H` 1.013467 unchanged. **§10.74 — two defects in rev 25's own record**, caught on arrival: `swirl_b.png`'s md5 wrong in its eighth character (`d2015971` → **`d201597e`**; the file was always right), and §1's `ls rev25_hero34f.png` check **cannot pass on a fresh clone** because §7 of the same document explains the hero was deliberately filtered out — check deleted, not loosened. **NO GEOMETRY MOVED, NO ARTWORK MOVED**; guards 0 fail / 0 warn at both levels throughout, textures byte-identical. |
 | 2026-08-15 | **rev 25 — the bake frame is PARSED, the artwork is RE-BAKED for the first time since rev 11, and the hero photographs it.** Work item 2's own brief REFUTED: `_ZB_AUTH`'s claimed **76 mm at the tail is CONFIRMED exactly** (76.222 mm at `x = X_TAIL`) and **refuted as a defect** — the bake paints NOTHING aft of x = −1.40, so ink-weighted the missing `_aft()` re-space is **0.0023 mm**, not "larger than `DOOR_X0`" but ~7 500× smaller. Two controls isolate it (re-space 75.540, dropped knots 20.925). **The real `_ZB_AUTH` defect was never named — five DROPPED KNOTS**, worst at **+2.085 on the NOSE**, 19.477 mm peak over **3.53 %** of the ink. **`DOOR_X0` dominates and is worse than rev 23 recorded**: `DOOR_REAR_DX = 17.250 mm`, and the uncomputed consequence is **`DOOR_W` 1.935 % too wide** — it divides every u of the door art, displacing **82.5 % of door ink > 2 mm**, ink-weighted **6.290 mm**, with **3 411 px past the true rear shut line** (1.44× the whole B-pillar). **THE CONTROL FAILED AND THAT WAS THE FINDING**: re-baking UNCHANGED does not reproduce the committed art (**4.029 % / 4.261 %**, max Δ 255). Determinism was checked BEFORE interpreting it (two processes, identical md5), then a bisect holding the tree at rev 24 and swapping in ONLY pre-rev-23 `folk_gen.py` reproduced the committed files **BYTE-IDENTICALLY** — **the model was wearing artwork fourteen revisions old**, and rev 23's "nothing in the current build changed" is true of the BUILD while leaving a 4 % divergence from its own corrected source (§10.68). Fixed **structurally**, the work rev 23 declined to do blind: a deliberately tiny `_ceval` reads `t1_shell`'s constant GRAPH (`DOOR_GAP`'s expressions, `BAYS`' comprehension, `B_PILLAR`'s environ default) and `t1_core`'s `ZB` knots, so `DOOR_X0` is EXPRESSED IN TERMS OF `BAYS[0][1]` and `T1_BPILLAR` moves the ART frame with the geometry; three more re-typed literals removed, **all three still AGREEING — exposure, not damage**. **Falsified in four arms, and the fourth cross-confirms from an unrelated route: the B-pillar width reproducing the retired `DOOR_X0 = 0.9084` is −0.005250 m, against §10.62's independently derived −0.0053 for the broken GEOMETRY — 0.050 mm apart.** The door art had been drawn to a door that could not open. `_DOOR_TOP_AUTH` **deliberately NOT parsed**: "within 1 mm" was written into a comment before being watched print and the print refuted it at **4.2 mm**, so it is HELD at 1.8140, `DOOR_H` bit-identical, discrepancy carried forward not absorbed. After the bake: door ink past the shut line **3 411 → 0**, sill error **76.222 → 0.000000 mm**, §10.10 targets held or improved (flank density rms 3.59→3.58 and 3.98→3.96; zone R1 −0.44→+0.29, R2 +0.58→−0.14) — **and door gold 29.09 → 28.90 against 29.08 went the WRONG way, stated rather than hidden**, inside the 28.96–29.19 spread watched printing. **HERO at 4800×3200, 20 strips, worst seam z = 1.91**, `post.py` once, `bloom=0.00`, `backdrop=headroom` — the first frame ever to photograph artwork matching the model's own source; a strip killed by the shell limit was adjudicated by the **seam check** rather than by its file opening cleanly. **`_RETIRED_VALUES` 5 → 15 rows (§10.69)**: of a subagent's "~12", **nine confirmed against three things each and four refuted or mislocated**; guard fired at all 12 predicted lines with **no false positives**, then 0, falsified in four arms with the §0.2 bullet count **watched print at 29/29**. Two are structural — **§1.1's rows defeat the guard BY RE-EXPRESSION** (the retired taper survives as edge pairs, plus the 100 mm origin shift), now stated as the guard's real ceiling; and **§9 row 10 published the INVERSE of the guard that runs**, contradicting §2 inside the same frozen front matter and failing every current build as written. **NO GEOMETRY MOVED**; guards 0 fail / 0 warn at both levels throughout. |
 
 | 2026-08-15 | **rev 24 — `solve_ctan` was measuring the whole scene, and the guard that was supposed to be self-arming never was.** **Item 1 (§10.65):** the occlusion hypothesis, carried four revisions unrun, is **CONFIRMED and quantified** by a new read-only object-index probe — chosen over a visibility flag by §10.56's own rule. **33.06 % of the eroded TOP mask and 57.31 % of the FASCIA mask are foreign surfaces**; the largest occluder is **`gal_warmer`**, never previously named; **`counter_top` is 21.76 % of the fascia mask** and **97.84 % of the top mask lies inside it**, so the solve divided a region by a **superset of itself**. Null control **IoU 1.0000 / 0 disagreeing px**, positive control names the occluders. Re-measuring **both albedo arms** through the clean mask takes the pedestal **68.5/68.0/72.1 % → 60.8/58.2/59.5 %** and raises the albedo sensitivity **k by 40 % in all three channels** — that is what "secant gain 0.33–0.49" was really reporting, and the residual **flips sign in all three channels**. **The arithmetic correction was NOT reported**: it assumes occluders are albedo-invariant and they sit on the top catching its bounce; measurement, not inference. **A ~59 % pedestal SURVIVES and is still UNIDENTIFIED; `COUNTERTAN` UNCHANGED, fifth revision.** Two instrument defects found by controls, both mine: **`ST.lighting()` STACKS** (8/16/24 lights — every absolute figure in §10.56 is a **3-rig** number) and exposure must go through the environment (first run **70.54 % clipped**, radiance shares collapsing onto pixel shares). **Item 3 (§10.66):** rev 23's `STEP_M` rename **broke `folk_gen.composition()`** — `mm` had ZERO Store sites and ONE Load site, so the census a re-bake depends on raised `NameError` on every call. §10.63 verified that rename **by reading**; nobody ran it. Repaired value-preserving (53.2645 mm² both ways). **Item 2 (§10.67) — THE BRIEF IS REFUTED.** §0.2's guard is **not self-arming**: it compares **material datablock names**, and of ~100 §10 retirements exactly **one** was ever a material. **The false claim was inside the guard's own comment**, which is why the brief said it. New **`_retired_value_drift()`** FAILs on a retired literal republished unstruck in the FROZEN front matter — **it fired on its first run and caught three defects §10.64 missed**, all in FROZEN sections: §1.1's bay taper, §1.1's retired aperture band, and §3's retired `RED` with grade **M**. Plus `SPEC.md:2701`, the retired rake still deriving a consequence **forty lines below the table rev 23 struck**, under a heading reading "OPEN, unresolved" that §10.29 had closed. **The guard was wrong twice before it was right and both are recorded** — its first cut swept the change log (**4 of 8 FAILs were its own false positives**, because §10.11–10.33 are interleaved with the front matter) and a sub-heading reset its exemption so it found `:2701` **by accident**. **§0.2b added, bullets 16 → 29 — and adding it SILENTLY DEFEATED the drift guard**, whose substring split matched `### 0.2b`, sending it back to reading 16 while the section held 29. Caught by watching the count print; parse now line-anchored. Falsified in four arms. Guards **0 fail / 0 warn at BOTH levels**; **no geometry moved this revision.** |
