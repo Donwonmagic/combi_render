@@ -2192,6 +2192,67 @@ the level stays bracketed exactly as instructed.
 **`COUNTERTAN` = (0.5870, 0.4930, 0.3060) UNCHANGED, fourth revision running.**
 
 
+### 10.61  rev 22 — ITEM 4 GROUNDED: the crossings MEASURED, and two carried figures corrected
+
+Item 4 asked for the `t1_shell:451` assert to be generalised to all four shut
+lines, both arches and all five apertures, with the expectation that it would
+FAIL when first armed. **The grounding was done first** (`probe_shutlines.py`,
+READ-ONLY, changes nothing) because §10.45's crossing count has been carried
+forward as a CLAIM through four revisions without being reproduced.
+
+**IT DOES NOT REPRODUCE. Measured, per pair, at ~1 mm sampling:**
+
+| shut line | aperture | side | arc INSIDE | aperture state |
+|---|---|---|---|---|
+| `gap_door+1` | `door_vent` | +1 | **11.8 mm** | OPEN |
+| `gap_door+1` | `bay0` | +1 | **118.8 mm** | OPEN — show flank |
+| `gap_door-1` | `door_vent` | −1 | **11.8 mm** | OPEN |
+| `gap_door-1` | `bay0` | −1 | **118.8 mm** | glazed |
+| `gap_cargo` | `bay0` | −1 | **402.0 mm** | glazed |
+| `gap_cargo` | `bay2` | −1 | **402.0 mm** | glazed |
+
+**SIX crossings, 1065.1 mm total** — against the carried **five crossings,
+1209 mm**. Both the count and the total are corrected. **TWO are on the show
+flank**, not one: `bay0` at 118.8 mm (the crossing §10.45 describes) *and*
+`door_vent` at 11.8 mm, which no prior revision named.
+
+**THE PROBE VALIDATES ITSELF against an independent arithmetic check.** The two
+`gap_cargo` rows are byte-identical at 402.0 mm, which is exactly the kind of
+coincidence that usually means a bug. It is not one: both cargo verticals cross
+a bay over the **full aperture height**, and `Z_HEAD − Z_SILL = 403.0 mm`. The
+1 mm shortfall is the sampling step. A suspicious number was checked rather
+than accepted.
+
+**THE ARCH HALF OF ITEM 4 IS LARGELY NOT APPLICABLE, and that is a result.**
+Of the six shut-line × arch pairs, **four cannot be tested at all** — the
+outline does not span the arch station, and the probe returns *None* rather
+than an endpoint (§10.45's rule). The two testable pairs are the cab-door line
+against the FRONT arch, at **+23.6 mm CLEAR** — which is precisely the single
+pair the existing assert already covers. **Generalising the arch assert adds
+no coverage**, because no other shut line reaches an arch. The gap in
+`t1_shell:451` is the APERTURES, not the arches.
+
+`gap_englid` is in the **(y, z) TAIL frame**, cut at `X_TAIL + ENGLID_CUT_DX =
+−1.7150`. No flank aperture shares that surface, so a flank crossing test is
+**NOT APPLICABLE** — reported explicitly rather than silently skipped, because
+looping it in with the flank lines would manufacture crossings out of a
+coordinate mismatch.
+
+**`CARGO_GAP`'s SAMPLING — both carried numbers are true and they are DIFFERENT
+STATISTICS.** §10.45 records "28 samples ALL on the four corner arcs = 5.2 % of
+the outline". Measured: **20 of 28 points (71.4 %) lie on the corner arcs, and
+the corner arcs are 5.2 % of the outline BY LENGTH** — reproducing the 5.2 %
+exactly. So "ALL" is the imprecise word, and the sharper statement is that
+**71.4 % of the samples are spent on 5.2 % of the outline, leaving the straight
+runs — 94.8 % of the length — with 8 samples.** The defect is real and is now
+stated in a form that can be guarded.
+
+**NOT ARMED THIS REVISION, and named as such.** The assert is the next step and
+it should fail on six pairs; fixing that is geometry work, not a threshold
+change. The grounding is done so rev 23 arms it against numbers somebody
+watched print.
+
+
 ## Change log
 
 | Date | Change |
