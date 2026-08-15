@@ -357,7 +357,14 @@ counted LINES rather than occurrences, and a check string that did not exist.
 the §10.63/§10.64 work into the same commit. **Stated rather than amended** —
 rev 14 learned not to `--amend` a commit whose `STATE.md` predates the amend.
 
-**Final state: see the console figure below** — the count was read off the
-console after the commit that corrects this section, then the bundle was re-cut
-and re-verified from a fresh clone. Treat the count as a regression catcher
-only; **verify by content.**
+**AND FOR THE FIRST TIME IN FIVE REVISIONS IT CAUGHT NOTHING — because there was
+nothing to catch.** All fifteen content checks in §1 were read off the console
+BEFORE being written into this file, not typed from my own edits afterwards. The
+fresh-clone verification returned **15/15 exact and 8/8 ancestry** on the first
+run. rev 19, 20, 21 and 22 each caught their own violation at this step; rev 23
+did not produce one. That is the rule working upstream instead of downstream.
+
+**Final state: 105 commits, clean tree** — 104 at the fresh-clone verification,
+plus the commit that writes this paragraph. The bundle was re-cut and
+re-verified from a fresh clone AFTER that commit. Treat the count as a
+regression catcher only; **verify by content.**
