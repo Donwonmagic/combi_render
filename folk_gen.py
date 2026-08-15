@@ -1973,7 +1973,16 @@ def composition(res, x0=0.872, x1=-2.007):
     gold = (v == GOLD) | (v == GOLDS)
     dark = v == DARK
     cream = v == CREAM
-    cell = mm * 1000.0 * float((T - B).mean()) / nz
+    # rev 24, SPEC 10.66 -- REGRESSION INTRODUCED BY REV 23, caught by AST.
+    # rev 23 renamed the definition `mm = 1000.0/211.21` to `STEP_M = 1.0/211.21`
+    # (above) and did not update this use site.  `mm` then had ZERO Store sites
+    # and ONE Load site in the whole module, so `composition()` -- the function
+    # whose own docstring calls it "the measurement this rev exists for" -- could
+    # not complete, and the connected-component census it produces (COMP_TOP,
+    # COMP_HIST, FLANK_MASSES) could not run at all.  Line 1976 is a top-level
+    # statement of the function body, so it is reached unconditionally.
+    # STEP_M is in metres, so the mm conversion moves to the use site.
+    cell = STEP_M * 1000.0 * 1000.0 * float((T - B).mean()) / nz
     M = ndimage.binary_closing(gold, np.ones((3, 3)))
     L, n = ndimage.label(M, structure=np.ones((3, 3)))
     fa = ndimage.sum(M, L, range(1, n + 1)) * cell if n else np.zeros(0)

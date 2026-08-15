@@ -74,6 +74,52 @@ Rows marked ⚠ were **locked incorrectly in rev 3** and corrected in rev 4.
 - ⚠ **clean restoration gloss** — the subject is **weathered**; see §3.9
 - chrome hubcaps — they are **red domes with a light VW**
 
+### 0.2b Retired since rev 4 — added rev 24, and READ WHAT THIS DOES
+
+> **This list does NOT arm `verify`'s material guard, and rev 24's own brief
+> said it would.** `verify._retired_material_tokens()` returns the hand-written
+> `_RETIRED_MAT` dict, not anything parsed from this section;
+> `_retired_section_drift()` reads §0.2 only to COUNT bullets and never reads a
+> bullet's content. The ban it feeds compares **material datablock names**.
+> Every entry below is a VALUE, a METHOD, a CROP or a withdrawn TEST — **not one
+> is a material name**, so not one is reachable by that mechanism. Of ~100
+> retirements in §10, exactly one was ever a material (the canvas ragtop, above,
+> already covered).
+>
+> What this section buys is the **forced review**: adding to it changes the
+> bullet count, which trips `_retired_section_drift()` until a human re-reads
+> the map. That is real and it is all it is. The mechanism that catches a
+> retired *value* republished as locked is **`verify._retired_value_drift()`**,
+> added in rev 24 — it FAILS on any retired literal appearing unstruck in the
+> FROZEN front matter, and it caught §1.1 and §3 on its first run.
+
+- ⚠ **`RED` (196, 106, 36), hue 26** — off the 246×197 thumbnail, contaminated
+  by the gold folk art. Live **(196, 49, 36), hue 5.0**, saturation 0.816 (§10.12)
+- ⚠ **aperture band sill 1.402 / head 1.798** — live **1.372 / 1.775** (§10.2)
+- ⚠ **bay taper 0.507 / 0.516 / 0.526** — the rev-13 100 mm ORIGIN ERROR; the
+  bays are **EQUAL at 0.5155** (§10.29, §10.47)
+- ⚠ **`RAKE_DZDX = 0.0330`** — rejected at 4.5 σ; live **0.017750** (§10.29)
+- ⚠ **`W_ART = 0.30`** — a 30 % opacity ceiling on hand-painted signwriting;
+  live **1.00**, and the table published 0.30 for thirteen revisions (§10.64)
+- ⚠ **`H_ROOF = 1.960` as an accuracy target** — retired by the owner in rev 22;
+  the probe is a LABELLED regression catcher at 1.9835 ± 5 mm and **the absolute
+  roof height is OPEN**. Do not re-add it as a target (§10.59)
+- ⚠ **the GROUND-LINE datum** (~70 mm common-mode) **and the HUB-referenced
+  chain** (~29 mm) as vertical placement sources (§10.11, §10.34)
+- ⚠ **`REF_PPM = 211.2`, a single flat px/m across the flank** — the map is
+  projective, and a scale measured on one plane is not the scale on another (§10.43)
+- ⚠ **`ref_side.jpg` as a body-cream source** — it contains no usable
+  body-cream patch at all (§10.38); and **the "La Santa" panel** as a cream
+  reference — it is a **DETACHED SIGN**, not the bus (§10.49)
+- ⚠ **crop N1** as a napkin reference — it straddles a napkin and the dispenser
+  body; route A stands on N2/N3 (§10.57)
+- ⚠ **the pure-white backdrop lock** — retired by the owner in rev 15;
+  `BACKDROP` defaults to `headroom` (§10.32)
+- ⚠ **a ray-visibility flag as an ablation** — in Cycles the ray passes through
+  and substitutes the background. Remove the ALBEDO (§10.56)
+- ⚠ **arc length as a crossing metric** — it overstates penetration by up to
+  23× (§10.62)
+
 ---
 
 ## 1. Body configuration — FROZEN
@@ -102,11 +148,19 @@ corner glass was deleted from Aug 1963 anyway).
 | 3 | **−0.435** | **−0.960** | open serving hatch |
 | — | **−0.960** | **−2.007** | **SOLID sheet metal**, 1.046 m wide. "100% Calidad" sunburst + pink star applied here |
 
-Measured from `ref_side.jpg` (§8.6). Widths 0.507 / 0.516 / 0.526 — they are
-**not** identical; they grow slightly toward the tail. rev-3's "three evenly
-sized, evenly spaced" was an approximation.
+~~Measured from `ref_side.jpg` (§8.6). Widths 0.507 / 0.516 / 0.526 — they are
+**not** identical; they grow slightly toward the tail.~~ **RETIRED by §10.29
+and §10.47** — that taper was the 100 mm ORIGIN ERROR of rev 13, not a real
+taper, and §10.47 removed the same sentence from `STATE.md` as hand-authored.
+**The bays are EQUAL at `BAY_W = 0.5155`**, centres +0.672 / +0.047 / −0.598
+(`t1_shell.py:150-152`); the live widths are printed by `verify` every run
+(0.516 / 0.515 / 0.516) and are never typed here. rev-3's "three evenly sized,
+evenly spaced" was retired for a different reason and stays retired.
 
-Band: sill **z = 1.402**, head **z = 1.798**, corner radius 0.055, pillars 0.11.
+~~Band: sill **z = 1.402**, head **z = 1.798**~~ — **RETIRED by §10.2.** Live
+`Z_SILL = 1.372`, `Z_HEAD = 1.775` (+27 / +25 mm); `verify.py:193` already
+called 1.402/1.798 "the retired band" while this line still published it.
+Corner radius 0.055, pillars 0.11.
 **Bay 4 is deleted.** Any object named `glass_bay3_*` or a fourth aperture
 cutter is a regression.
 
@@ -202,7 +256,7 @@ independent re-derivation before it enters the build:
 | Element | Specification | Grade |
 |---|---|---|
 | Upper body + roof | sun-bleached off-white, near-neutral. Measured (206, 208, 200) sRGB in full sun | **M** |
-| Lower body | faded **orange-red / vermillion**, measured (196, 106, 36) sRGB in full sun — hue ≈ 26°. **Not** a deep crimson | **M** |
+| Lower body | faded **orange-red / vermillion**. ~~measured (196, 106, 36) sRGB in full sun — hue ≈ 26°~~ **RETIRED by §10.12** — it came off the 246×197 thumbnail, where the flank is ~100 px wide and the value is contaminated by the GOLD folk art. Live `RED` = **(196, 49, 36), hue 5.0**, saturation 0.816 LOCKED (`t1_mats.py:67`). **Not** a deep crimson | **M** |
 | Break | belt line, sweeping down across the nose into the T1 **V-swage**: apex low **on the centreline**, arms **rising** to the belt at the corners. The light colour forms a **downward wedge** down the nose centre; the **red occupies the two outboard lower zones and contains both headlamps** | **M** + **S** |
 | Folk art | **gold + yellow + white + dark-red** Mexican folk-art florals over the **red only**. **Density graded** — dense bouquet on the nose flanks and rear quarter, trailing vine along the belt, sparse under the script | **M** |
 | Side script | **"Señor Tacombi"**, **SILVER** with a dark keyline and drop shadow, two-line lockup (small "Señor" raised over large "Tacombi"), capital **T an ornate swash**; decorative spirals inside the counters of a/c/o/m/b | **R** (text/colour also **S**) |
@@ -2442,11 +2496,202 @@ but **§0.2 has gained no entry since rev 4/rev 8**. None of §10's retirements
 is listed there, so the one self-arming mechanism in the repo covers none of
 them.
 
+### 10.65  rev 24 — `solve_ctan` measured the whole scene through a top-only mask
+
+**A third of the mask is not the counter top.** SPEC §10.56 left the pedestal
+**UNIDENTIFIED** after excluding dust, wear, fade, coat+spec and interreflection.
+The remaining hypothesis was rev 15's, carried **four revisions unrun**: masks
+are rendered in isolation (`shader_solve.py:175`, via `_only`) but `solve_ctan`'s
+**measured frame is rendered with the whole scene present** (`:425-427`) — there
+is no `_only` on that path. `solve_mural` has carried the fix since rev 15
+(`:234`) and the rule was never propagated.
+
+rev 20 tried this per-pixel at 48 samples and **discarded the probe, not the
+hypothesis** — seed noise is 21.7 % per pixel, larger than the effect. That was
+**the wrong statistic**: region means over ~10⁴ px put the same noise at 0.21 %.
+
+`probe_ctan_index.py` (NEW, read-only) settles it with an **object-index pass**.
+Chosen over a visibility flag precisely because of §10.56's own rule — IndexOB
+suppresses nothing, it labels the surface each camera ray terminated on.
+
+**Three controls, because an ill-posed control has been the bug twice running:**
+
+| control | result |
+|---|---|
+| **NULL** — IndexOB under `_only(tops)`; must be exact | **IoU 1.0000, 0 disagreeing px, 0 foreign px** |
+| **POSITIVE** — must NAME a foreign surface | names `gal_warmer`, `gal_caddy0/1`, `T1_body` |
+| **HARNESS** — reproduce §10.56's chain | ratio reproduces; **clipping guard tripped twice** |
+
+**MEASURED** (eroded masks, n = 15 728 / 51 938 px):
+
+| mask | target | foreign |
+|---|---|---|
+| TOP | 66.94 % px, 75.4/71.8/64.5 % radiance | **33.06 % px** |
+| FASCIA | 42.69 % px | **57.31 % px** |
+
+The largest occluder is **`gal_warmer`**, which no revision had ever named.
+**`counter_top` is 21.76 % of the FASCIA mask**, and **97.84 % of the top mask
+lies inside the fascia mask** — the un-isolated solve divides a region by a
+**superset of itself**.
+
+**The pedestal, re-measured through BOTH albedo arms with the clean mask:**
+
+| | R | G | B |
+|---|---|---|---|
+| contaminated (reproduces §10.56's chain at 1 rig) | 68.5 | 68.0 | 72.1 % |
+| **clean, index-masked** | **60.8** | **58.2** | **59.5 %** |
+| albedo sensitivity `k` | **+40.3** | **+40.3** | **+40.0 %** |
+
+**The counter top's true response to its own albedo is 40 % stronger than
+`solve_ctan` measured.** That is what "secant gain 0.33–0.49" was really
+reporting. The residual against the target **flips sign in all three channels**
+once the masks are clean, so the shipped ratio's near-agreement in G was two
+large opposing contaminations.
+
+**THE INFERENCE WAS NOT REPORTED — THE MEASUREMENT WAS.** Correcting by
+arithmetic assumes occluder radiance is albedo-invariant; the occluders sit ON
+the top and catch its bounce, so it is not. The arithmetic gives 58.3/55.5/56.8 %,
+the two-arm measurement **60.8/58.2/59.5 %**. Both are printed.
+
+**A ~59 % pedestal SURVIVES and is STILL UNIDENTIFIED. `COUNTERTAN` is
+UNCHANGED at (0.5870, 0.4930, 0.3060), fifth revision running.**
+
+**TWO INSTRUMENT DEFECTS FOUND ON THE WAY, both mine, both caught by controls:**
+
+1. **`ST.lighting()` STACKS.** `studio._softbox` calls `bpy.data.lights.new` on
+   every invocation and nothing removes a light — measured **8 / 16 / 24** over
+   three calls. `solve_ctan` calls `cam_setup()` three times, so **its measured
+   frame is lit by THREE stacked rigs** and every absolute linear figure in
+   §10.56, `0.12107` included, is a 3-rig number. The ratio survives a
+   near-uniform multiplier; the level and the clipped fraction do not. Purged.
+2. **Exposure must go through the ENVIRONMENT.** Setting
+   `scene.view_settings.exposure` is overwritten by `_plain_view` inside every
+   `_render`. My first run came back **70.54 % clipped** against §10.56's
+   0.086 %, and the radiance shares **collapsed onto the pixel shares** — which
+   is §10.54's "CLIPPING DESTROYS TEXTURE" reproducing exactly. **My own guard
+   then tripped a second time and I fixed the cause rather than widening it**,
+   which is how the stacked rig was found.
+
+**Fixed in `shader_solve.py`**, with `T1_CTAN_NOISOLATE=1` reproducing the old
+contaminated arm so every §10.56 figure stays reproducible.
+
+**Ceiling, stated:** IndexOB reports the surface a ray TERMINATES on, so a
+transmissive surface in front would be mis-reported. The probe asserts no
+`glass_*` appears in either mask and **declines** if one ever does.
+
+### 10.66  rev 24 — rev 23 broke `folk_gen.composition()` and nobody ran it
+
+**`composition()` could not complete.** rev 23 renamed `mm = 1000.0/211.21` to
+`STEP_M = 1.0/211.21` (§10.63) and **did not update the use site**. AST census:
+`mm` had **ZERO Store sites and ONE Load site** module-wide, at `:1976` — a
+**top-level statement of the function body**, so it is reached unconditionally.
+
+The function whose own docstring calls it *"the measurement this rev exists
+for"* raised `NameError` on every call, so the connected-component census
+(`COMP_TOP`, `COMP_HIST`, `FLANK_MASSES`) **could not run at all** — and any
+re-bake attempt would abort there.
+
+**This is what "a claim in prose is not a guard" looks like from the inside.**
+§10.63 verified the rename **by reading**, and stated it "precisely rather than
+claiming a bigger fix than it was" — while the rename had broken the function.
+**Nobody executed it.** `build.py` never calls `folk_gen`, so no guard covers it.
+
+Repaired as `STEP_M * 1000.0 * 1000.0`, and the repair is **value-preserving**:
+53.2645 mm² both ways, i.e. exactly rev 22's behaviour restored.
+
+**My own first dynamic probe of this was ill-posed** — I passed two arrays where
+`composition(res, …)` takes a dict, so it raised `IndexError` inside `look()`
+and never reached `:1976`. It proved nothing and is recorded rather than
+quietly replaced by the AST proof that did.
+
+### 10.67  rev 24 — the §0.2 guard is NOT self-arming, and its own comment said it was
+
+**WORK ITEM 2'S BRIEF IS REFUTED.** It read: *"add §10's retirements to §0.2 so
+`verify`'s self-arming guard covers them."* It does not, and cannot.
+
+- `_retired_material_tokens()` returns `set(_RETIRED_MAT)` — a **hand-written
+  dict**, not anything parsed from §0.2.
+- `_retired_section_drift()` reads §0.2 **only to count `- ` bullets**; it never
+  reads a bullet's content.
+- The ban compares **material datablock names**. Of ~100 retirements in §10,
+  **exactly one was ever a material** (the canvas ragtop, already covered).
+  Every other is a VALUE, METHOD, CROP or withdrawn TEST — **unreachable**.
+
+**And the false claim was INSIDE THE GUARD.** The comment above the ban read
+*"The list is now DERIVED from §0.2 itself, so retiring a reading in the spec
+arms the guard automatically and this class of miss is closed."* That sentence
+is why the brief said what it said. **A CLAIM IN PROSE IS NOT A GUARD —
+INCLUDING WHEN THE PROSE IS INSIDE THE GUARD.** Corrected in place.
+
+**`_retired_value_drift()` is the mechanism that can see §10.64's class**: a
+retired literal appearing **unstruck** in the FROZEN front matter is a FAIL, not
+a warn — that is how `W_ART = 0.30` stood 3.3× wrong for thirteen revisions.
+
+**IT FIRED ON ITS FIRST RUN AND CAUGHT THREE LIVE DEFECTS §10.64 MISSED**, all
+in sections headed **FROZEN**:
+
+| line | published as authoritative | live | retired by |
+|---|---|---|---|
+| §1.1 | bay taper `0.507 / 0.516 / 0.526`, "they are **not** identical" | EQUAL at **0.5155** | §10.29, §10.47 |
+| §1.1 | band `sill z = 1.402, head z = 1.798` | **1.372 / 1.775** | §10.2 |
+| §3 | `RED` measured **(196, 106, 36)**, hue 26, grade **M** | **(196, 49, 36)**, hue 5.0 | §10.12 |
+
+§10.47 had already removed the taper sentence from `STATE.md` as hand-authored
+and `verify.py:193` already called 1.402/1.798 "the retired band" — **while §1.1
+went on publishing both.** All three struck, with the live value beside them.
+
+**THE GUARD WAS WRONG TWICE BEFORE IT WAS RIGHT, and both are recorded:**
+
+1. **First cut swept the change log: 8 FAILs of which 4 were its own false
+   positives.** It cut the file at the first `## 10.` heading — but §10.11–§10.33
+   are `### 10.xx` headings **interleaved with the front matter** at lines
+   ~321–2400, while `## 10.` sits at 2473. So it swept §10.12's and §10.29's own
+   bodies, i.e. lines that exist to say *"was 0.0330, is 0.017750"*. **CHECK WHAT
+   A GUARD CAN PHYSICALLY SEE — INCLUDING WHICH SECTION.** Section-aware now.
+2. **A sub-heading reset the exemption.** `### OPEN, unresolved: rake versus the
+   arch gap` (a subsection of `## 10.9`) made the guard fire on `:2701`. That
+   line **is** stale — but the guard found it **by accident**, and a guard that
+   is right for the wrong reason is not a guard. Heading **depth** is tracked
+   now, and `:2701` was fixed by hand instead.
+
+**`SPEC.md:2701` — the defect rev 23 missed forty lines below the table it
+struck.** rev 23 struck §10.9's table and inserted "every value in this table is
+retired", then left an arithmetic line deriving a 79 mm consequence from the
+retired `0.0330`, under a heading still reading **"OPEN, unresolved"** — a
+subsection §10.29 had **CLOSED**. Struck, the heading corrected, and what
+actually holds recorded: at the live rake the term is **42.6 mm**, and the mesh
+measures **39.7 mm** rear with the circular front arch at **40.7 mm** as a
+positive control.
+
+**§0.2b added** — 13 entries, bullets **16 → 29**, `_RETIRED_BULLETS_REVIEWED`
+bumped in the same commit. It is described in the file as **what it actually
+buys**: a forced review, not detection.
+
+**AND ADDING IT SILENTLY DEFEATED THE DRIFT GUARD.** `_retired_section_drift`
+split on the **substring** `"## 0.2"`, and `"### 0.2b"[1:7] == "## 0.2"`, so the
+new heading became a second split point and the guard went back to reading the
+original 16 bullets **while the section had grown to 29** — printing a
+reassuring `16`. **Caught by watching the count print**, per this repo's own
+acceptance-test rule. Parse is **line-anchored** now, and declines (never passes
+silently) if the heading is absent.
+
+**FALSIFIED IN FOUR ARMS:** clean tree **0 fail**; an unmarked retired value
+inserted into FROZEN §3 → **1 FAIL at the exact line**; the same value marked
+retired → **0 fail** (correct boundary behaviour); a 30th §0.2 bullet →
+**1 warn**.
+
+**Ceiling, stated:** by construction `_retired_value_drift` does **not** scan
+inside a §10 body or §0.2 — those sections exist to name retired values. It
+catches a retirement republished in the FROZEN front matter. It does **not**
+catch a §10 entry that contradicts itself; `:2701` was found by an adversarial
+read, not by this guard, and nothing here should be read as covering that.
+
 
 ## Change log
 
 | Date | Change |
 |---|---|
+| 2026-08-15 | **rev 24 — `solve_ctan` was measuring the whole scene, and the guard that was supposed to be self-arming never was.** **Item 1 (§10.65):** the occlusion hypothesis, carried four revisions unrun, is **CONFIRMED and quantified** by a new read-only object-index probe — chosen over a visibility flag by §10.56's own rule. **33.06 % of the eroded TOP mask and 57.31 % of the FASCIA mask are foreign surfaces**; the largest occluder is **`gal_warmer`**, never previously named; **`counter_top` is 21.76 % of the fascia mask** and **97.84 % of the top mask lies inside it**, so the solve divided a region by a **superset of itself**. Null control **IoU 1.0000 / 0 disagreeing px**, positive control names the occluders. Re-measuring **both albedo arms** through the clean mask takes the pedestal **68.5/68.0/72.1 % → 60.8/58.2/59.5 %** and raises the albedo sensitivity **k by 40 % in all three channels** — that is what "secant gain 0.33–0.49" was really reporting, and the residual **flips sign in all three channels**. **The arithmetic correction was NOT reported**: it assumes occluders are albedo-invariant and they sit on the top catching its bounce; measurement, not inference. **A ~59 % pedestal SURVIVES and is still UNIDENTIFIED; `COUNTERTAN` UNCHANGED, fifth revision.** Two instrument defects found by controls, both mine: **`ST.lighting()` STACKS** (8/16/24 lights — every absolute figure in §10.56 is a **3-rig** number) and exposure must go through the environment (first run **70.54 % clipped**, radiance shares collapsing onto pixel shares). **Item 3 (§10.66):** rev 23's `STEP_M` rename **broke `folk_gen.composition()`** — `mm` had ZERO Store sites and ONE Load site, so the census a re-bake depends on raised `NameError` on every call. §10.63 verified that rename **by reading**; nobody ran it. Repaired value-preserving (53.2645 mm² both ways). **Item 2 (§10.67) — THE BRIEF IS REFUTED.** §0.2's guard is **not self-arming**: it compares **material datablock names**, and of ~100 §10 retirements exactly **one** was ever a material. **The false claim was inside the guard's own comment**, which is why the brief said it. New **`_retired_value_drift()`** FAILs on a retired literal republished unstruck in the FROZEN front matter — **it fired on its first run and caught three defects §10.64 missed**, all in FROZEN sections: §1.1's bay taper, §1.1's retired aperture band, and §3's retired `RED` with grade **M**. Plus `SPEC.md:2701`, the retired rake still deriving a consequence **forty lines below the table rev 23 struck**, under a heading reading "OPEN, unresolved" that §10.29 had closed. **The guard was wrong twice before it was right and both are recorded** — its first cut swept the change log (**4 of 8 FAILs were its own false positives**, because §10.11–10.33 are interleaved with the front matter) and a sub-heading reset its exemption so it found `:2701` **by accident**. **§0.2b added, bullets 16 → 29 — and adding it SILENTLY DEFEATED the drift guard**, whose substring split matched `### 0.2b`, sending it back to reading 16 while the section held 29. Caught by watching the count print; parse now line-anchored. Falsified in four arms. Guards **0 fail / 0 warn at BOTH levels**; **no geometry moved this revision.** |
 | 2026-08-15 | **rev 23 — item 4 ARMED, and the B-pillar had NEGATIVE width.** §10.61's brief said "expect it to FAIL; fix the geometry". *A brief is a probe too*: a read-only anatomy probe asked which member of each pair is at fault, how deep the penetration is, and which flank it is on, and **all three change the answer** (§10.62). The six crossings are **three defects**, and **arc length overstates them by up to 23×** — `gap_door × bay0` reports 118.8 mm of arc for a **5.2 mm** overlap. **SHOW flank 130.6 mm; OFF flank 934.6 mm = 87.7 %.** The arch assert's rationale (a shut line crossing an arch lip collapsed the shell 205562 v → 12 v) **does not transfer and was not inherited** — all six crossings were live at SUB=2 with **zero non-manifold edges**. The invariant armed instead is TOPOLOGICAL and needs no photograph, scale or datum: *an aperture cannot extend past the boundary of the panel it is cut in.* **Two show-flank defects fixed, geometry not threshold**: the cab door's rear shut line sat **5.2 mm INSIDE bay 0**, so bay 0 straddled the door's own boundary and the door could not open — the door moved (bay edges are locked; the door's rear x had **no provenance anywhere in the repo**) with `DOOR_REAR_DX` **expressed in terms of `BAYS[0][1]`**, never a bare number; and the vent wing broke the door's top edge by **20.7 mm** — the owner confirmed from `ref_workshop.jpg` that the glass **is** divided into a vent plus a main pane but **could not** resolve whether its top reaches the top rail, so the legible door corner was left alone and the vent dropped. **`B_PILLAR` and `VENT_TOP_DROP` are AUTHORED, not measured, and both true values are OPEN.** Crossings **6 → 2**, show flank **130.6 → 0.0 mm**. **FALSIFIED FOUR WAYS** through levers defaulting to proven no-ops; the arm reproducing rev 22's geometry lands within **1–2 mm** of its 11.8 / 118.8. **My own negative control failed first and the failure was MINE** — "an outline is not inside itself" is ill-posed, every sample lies ON the boundary. **The OFF flank is NOT armed at zero, and that is the result**: SPEC's own table grades that flank **"E (never photographed)"**, its two colliding features are BOTH E and contradict each other, and shown the sightlines with every box printed the owner answered **"cannot tell from this crop"** — so it is a **LABELLED regression catcher** at a watched baseline (**804.9 mm, ±10 mm**), meaning "it has not moved", NOT "it is right". `CARGO_GAP` densified **28 → 154** samples (straight runs **8 → 134**) with **signed area asserted equal** as a control. Guards **0 fail / 0 warn at both levels**, non-manifold **0**; **roof-hole vertex count re-baselined 68052 → 68564 / 252123 → 252749**, flagged not hidden. |
 | 2026-08-15 | **rev 23 — the bake frame was built on four retired numbers, and four retired values were still published as "locked".** `folk_gen.py` re-typed `X_TAIL` (**235 mm stale**), `RAKE_DZDX` (**15.25 mm/m**), `RAKE_Z0` and `Z_BELT0` (**11.4 mm** each) — the dead-`RIM_R` family again, under §10.10's hard bar on artwork replication (§10.63). Now **parsed with `ast`** in rev 14's `SCR` pattern, **raising rather than falling back**, with `X_TAIL` reconstructed from its definition because it is derived and not a literal. The banned flat px/m at `:1884` is gone — and **it was harmless where it stood**, setting a sampling interval rather than converting a position, which is stated precisely rather than claimed as a bigger fix than it was. **NOT re-baked**: `build.py` never calls `folk_gen`, the textures are committed artefacts, and a re-bake is a measured operation under §10.10 — **carried forward that the committed artwork was baked in the stale frame**, along with `DOOR_X0`, now 17.3 mm stale and named rather than quietly fixed. **SPEC hygiene (§10.64):** §10.3 published the RETIRED red **and** `W_ART = 0.30` (**3.3× off the live value for thirteen revisions**) as "locked"; §10.9 published the RETIRED rake and the `Z_BELT0`/`V_APEX0` derived from it; and `SPEC.md:1983` used **N1**, the crop the owner refuted, as an arm of route A's clipping control **nineteen lines after §10.57 dropped it** — conclusion unchanged, it stands on N2/N3. **Three CITATION defects found**: §10.61 corrects a "five crossings / 1209 mm" figure **§10.45's body never contained** (it is `HANDOFF_rev18.md:208`), §10.59 credits §10.48 with a withdrawal it never made, and §10.45 cites the rake lock to §10.9 **whose own table locks the retired value** — *a carried-forward figure is a claim too*, now extended to the citation. Also refuted from rev 23's own brief: §10.45–48 retire **no** §10.34 claim, and §10.29 carries **one** REF-wide correction, not two. |
 | 2026-08-14 | **rev 20 — work item 1 refuted, and §10.52 repaired.** §10.52's two constants-only arch lines now MEASURE the mesh via `verify._arch_lip_z` and the row was FALSIFIED after repair on all three decline paths (§10.53). **The cream map's chroma gain must NOT be raised (§10.54):** the dC\* triple quoted as the shipped arm is the **ABLATION** arm's (shipped is 0.220/0.227/0.231, not 0.240/0.249/0.253 — eighth un-watched figure); switching the map on drives dC\* **down**, not flat; an alias hypothesis was built and refuted by its own no-op control; the lever is real and chroma-pure (`W_FADE_SAT` 0.88→0.40 gives 0.269/0.314/0.335 and dL\* does not move) — **but dC\* rms is an ABSOLUTE statistic and the base levels differ 5.5×** (render C\* **3.89** vs photograph **21.44**; L\* agrees to 2.9 %, which is why dL\* was correctly found close). Normalised, the render is ALREADY at or above the photograph at every scale. The BEAUTY arm is **100 % clipped** and has always reported zeros. **New rule: A TARGET IS A PROBE TOO — print the base level of any absolute statistic.** Live lead is the locked `CREAM` albedo, sat 0.038 / G>R against the bus's 0.255 / R>G, **not changed**, blocked on one owner reading (§10.55). |
@@ -2696,9 +2941,23 @@ Result: roof at the rear-axle station **1.871 → 1.923** against §2.3's measur
 1.960. **Residual −37 mm, logged not hidden** — 1.2σ on §2.3's own ±30 mm band.
 The guard carries that band explicitly and warns rather than failing.
 
-### OPEN, unresolved: rake versus the arch gap
+### ~~OPEN, unresolved~~ CLOSED by §10.29: rake versus the arch gap
 
-`RAKE_DZDX × wheelbase = 0.0330 × 2.400 = 79 mm`. So the front arch gap must be
+> **rev 24, §10.67.** This subsection is **CLOSED**, and everything below it is
+> **RETIRED**. §10.29 closed the contradiction against the built value: 0.0330
+> was rejected at **4.5 σ** and the rake is **0.017750**, and §10.29 re-measured
+> the rear gap to **41.0 ± 3.5 mm**, not the ≈30 mm quoted below. rev 23 struck
+> this section's *table* and inserted a blockquote saying every value in it is
+> retired — and missed this arithmetic **forty lines below**, which then went on
+> deriving a 79 mm consequence from the retired number inside a heading still
+> reading "OPEN, unresolved". Kept, struck, rather than deleted, because the
+> reasoning is the record of how the contradiction was found.
+>
+> **The retired-VALUE guard could not catch this**: by construction it does not
+> scan inside a §10 body (`verify._retired_value_drift`). Found by an
+> adversarial read, verified by hand.
+
+~~`RAKE_DZDX × wheelbase = 0.0330 × 2.400 = 79 mm`. So the front arch gap must be
 79 mm **less** than the rear. But the rear gap measures **≈30 mm** off
 `ref_side.jpg` (arch lip y 524 ± 2 against a tyre top computed at 532.3 from a
 rim circle fit at 211.5 px/m) and §2 locks it at 41 mm. Either way
@@ -2709,7 +2968,17 @@ Held: the arches follow their own wheel (`t1_shell.arch_z(x)`), which keeps both
 measured numbers and produces no impossible geometry. Resolving it needs a
 photograph with an **unoccluded front wheel** — in `ref_side.jpg` a man stands
 directly in front of it, and every attempt to measure the front arch locked onto
-his red shirt.
+his red shirt.~~
+
+**What actually holds (rev 24):** at the live rake **0.017750** the term is
+`0.017750 × 2.400 = 42.6 mm`, not 79 mm, and the geometry is not impossible.
+The mesh measures **rear arch → tyre gap 39.7 mm** with the untouched circular
+**front arch at 40.7 mm** as a positive control, both identical at SUB=1 and
+SUB=2 and both printed by `verify` every run. The "unoccluded front wheel"
+photograph is still the only route to an independent front-arch number, and
+the lamppost warning of §10.29 applies to any attempt: `ref_side.jpg` columns
+62–79 have produced four confident wrong numbers about the front of this
+vehicle.
 
 ### The flank saturation target was never a comparable quantity
 

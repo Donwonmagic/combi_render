@@ -145,7 +145,7 @@ _RETIRED_MAT = {
 
 # Number of bullets in SPEC sec.0.2 that _RETIRED_MAT has been reviewed against.
 # Bump this ONLY together with a review of the map above.
-_RETIRED_BULLETS_REVIEWED = 16
+_RETIRED_BULLETS_REVIEWED = 29     # rev 24: 16 -> 29, §0.2b added. WATCHED PRINT.
 
 
 def _retired_material_tokens():
@@ -170,11 +170,33 @@ def _retired_section_drift():
     """
     import os as _os
     spec = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "SPEC.md")
+    # rev 24, SPEC 10.67 -- THIS PARSE WAS SUBSTRING-BASED AND I DEFEATED IT BY
+    # ACCIDENT.  It read `txt.split("## 0.2")[1].split("\n## ")[0]`.  Adding a
+    # subsection headed `### 0.2b` put the substring "## 0.2" into the file a
+    # SECOND time (`### 0.2b`[1:7] == "## 0.2"), so `[1]` became the text
+    # between the two headings and the guard silently went back to reading only
+    # the original 16 bullets while the section had grown to 30.  It printed a
+    # reassuring "16" -- exactly the shape of a guard that cannot fail.  Caught
+    # by watching the count print, per this repo's own acceptance-test rule.
+    # Line-anchored now: find the heading LINE, read to the next `## ` LINE.
     try:
-        txt = open(spec, encoding="utf-8").read()
-        sec = txt.split("## 0.2")[1].split("\n## ")[0]
+        lines = open(spec, encoding="utf-8").read().splitlines()
     except Exception:
         return None
+    start = None
+    for i, ln in enumerate(lines):
+        if ln.startswith("## 0.2"):
+            start = i + 1
+            break
+    if start is None:
+        return ("SPEC 0.2 heading not found -- the retired-reading drift guard "
+                "could not run. It declines rather than passing silently.")
+    end = len(lines)
+    for j in range(start, len(lines)):
+        if lines[j].startswith("## ") and not lines[j].startswith("## 0.2"):
+            end = j
+            break
+    sec = "\n".join(lines[start:end])
     n = sum(1 for ln in sec.splitlines() if ln.strip().startswith("- "))
     if n != _RETIRED_BULLETS_REVIEWED:
         return (f"SPEC 0.2 now has {n} retired readings, last reviewed at "
@@ -183,6 +205,102 @@ def _retired_section_drift():
                 "_RETIRED_BULLETS_REVIEWED. This is how 'canvas' shipped for "
                 "three revisions after the spec retired it.")
     return None
+# rev 24, SPEC 10.67 -- THE GUARD THE sec.0.2 MECHANISM CANNOT BE.
+#
+# sec.10.64 found four RETIRED values still published in SPEC as "locked", one
+# of them (`W_ART = 0.30`) 3.3x off the live value for thirteen revisions.  The
+# structural cause was recorded as "sec.0.2 has gained no entry since rev 4",
+# and rev 24's work item 2 was to add sec.10's retirements there.  THAT BRIEF IS
+# REFUTED (see the comment at the material loop): sec.0.2's guard reads material
+# NAMES, and a retired NUMBER is not a material name.  Adding bullets buys a
+# forced review, not detection.
+#
+# What detects it is this: a retired literal must not appear in SPEC.md except
+# in a context that MARKS it retired.  Every entry below was confirmed by hand
+# against the live module before being added -- a citation is a claim too.
+#
+# Each row: (retired literal as it appears in SPEC, live value, live symbol,
+#            the section that retired it).
+_RETIRED_VALUES = (
+    ("196, 106, 36", "(196,49,36)", "t1_mats.RED",        "10.12/10.3"),
+    ("z = 1.402",    "1.372",       "t1_shell.Z_SILL",    "10.2"),
+    ("z = 1.798",    "1.775",       "t1_shell.Z_HEAD",    "10.2"),
+    ("0.507 / 0.516 / 0.526", "equal 0.5155", "t1_shell.BAY_W", "10.29/10.47"),
+    ("0.0330",       "0.017750",    "t1_core.RAKE_DZDX",  "10.29"),
+)
+
+# A literal is EXEMPT where the line itself says it is retired.  Matching on the
+# LINE, not the file, is deliberate: a file-wide "the word RETIRED appears
+# somewhere" test would pass on every one of the four defects sec.10.64 found.
+_RETIRED_OK = ("RETIRED", "retired", "~~", "superseded", "SUPERSEDED",
+               "REFUTED", "refuted", "withdrawn", "WITHDRAWN", "stale")
+
+
+def _retired_value_drift():
+    """Is a RETIRED value still published in SPEC.md as if it were live?
+
+    Returns a list of (literal, line_no, live, symbol, sec) for every
+    unstruck occurrence.  Empty list means clean.  Returns None -- never an
+    empty list -- if SPEC.md cannot be read, because a probe that cannot
+    answer must not answer (SPEC 10.47).
+    """
+    import os as _os
+    spec = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "SPEC.md")
+    try:
+        lines = open(spec, encoding="utf-8").read().splitlines()
+    except Exception:
+        return None
+    # A sec.10 entry QUOTES a retired value in order to retire it, so scanning
+    # those sections reports the retirement itself as the defect.
+    #
+    # MY FIRST VERSION OF THIS CUT THE FILE AT THE FIRST `## 10.` HEADING AND
+    # SCANNED EVERYTHING ABOVE IT.  That is wrong, and it fired 8 FAILs of
+    # which 4 WERE ITS OWN FALSE POSITIVES: sec.10.11 through sec.10.33 are
+    # `### 10.xx` headings INTERLEAVED WITH THE FRONT MATTER at lines ~321-2400,
+    # while `## 10.` sits at 2473.  So the cut swept sec.10.12's and sec.10.29's
+    # own bodies -- lines that exist precisely to say "was 0.0330, is 0.017750".
+    # CHECK WHAT A GUARD CAN PHYSICALLY SEE, including which SECTION.
+    #
+    # Section-aware instead: skip any section whose heading is a sec.10 entry or
+    # the change log, wherever in the file it happens to sit.
+    def _is_log(h):
+        h = h.lstrip("#").strip()
+        # sec.0.2 IS the retirement list -- it exists to name retired values, so
+        # scanning it reports every entry as the defect it is recording.  Same
+        # reason sec.10 bodies and the change log are exempt.  Found when the
+        # guard fired on sec.0.2b's own bullets on its first run after they were
+        # added: the guard was right about the strings and wrong about the
+        # section, which is the same class of error as its first section cut.
+        return h.startswith("10.") or h.startswith("10 ") or \
+            h.startswith("0.2") or h.lower().startswith("change log")
+    # HEADING DEPTH IS LOAD-BEARING.  A sub-heading inside a sec.10 entry must
+    # INHERIT its parent's exemption.  Without this, `### OPEN, unresolved:
+    # rake versus the arch gap` at SPEC.md:2699 -- a subsection of `## 10.9` --
+    # reset the skip and the guard fired on 2701, a line inside a sec.10 body.
+    # That line IS stale (rev 23 struck 10.9's table and missed the arithmetic
+    # forty lines below it), but the guard found it BY ACCIDENT, and a guard
+    # that is right for the wrong reason is not a guard.  Fixed by hand instead.
+    #
+    # STATED CEILING: by construction this guard cannot see inside a sec.10
+    # body.  It catches a retired value republished in the FROZEN front matter,
+    # which is sec.10.64's defect class; it does NOT catch a sec.10 entry that
+    # contradicts itself.  Nothing here should be read as covering that.
+    out, skip, depth = [], False, 0
+    for i, ln in enumerate(lines, start=1):
+        if ln.startswith("#"):
+            lvl = len(ln) - len(ln.lstrip("#"))
+            if skip and lvl > depth:
+                continue                      # sub-heading: inherit the skip
+            skip, depth = _is_log(ln), lvl
+            continue
+        if skip or any(tok in ln for tok in _RETIRED_OK):
+            continue
+        for lit, live, sym, sec in _RETIRED_VALUES:
+            if lit in ln:
+                out.append((lit, i, live, sym, sec))
+    return out
+
+
 NEED_MATS = ("T1_paint", "cream", "chrome", "glass", "wheelcream",
              "bumpercream", "roundelred", "countercream", "script", "calidad")
 
@@ -588,8 +706,27 @@ def run(body, log=print):
     # "timber") -- the retired materials somebody remembered to type. `canvas`
     # was never added, so a folding CANVAS ragtop that SPEC sec.0.2 retired in
     # rev 4 shipped green through three revisions and every guard passed over
-    # it. The list is now DERIVED from sec.0.2 itself, so retiring a reading in
-    # the spec arms the guard automatically and this class of miss is closed.
+    # it.
+    #
+    # rev 24, SPEC 10.67 -- THE SENTENCE THAT STOOD HERE WAS FALSE, and it is
+    # the reason rev 24's work item 2 was briefed the way it was.  It read:
+    # "The list is now DERIVED from sec.0.2 itself, so retiring a reading in
+    # the spec arms the guard automatically and this class of miss is closed."
+    # It is NOT derived from sec.0.2.  `_retired_material_tokens()` returns
+    # `set(_RETIRED_MAT)` -- the hand-written dict fifteen lines above -- and
+    # `_retired_section_drift()` reads sec.0.2 only to COUNT its bullets; it
+    # never reads a bullet's CONTENT.  So adding a reading to sec.0.2 does NOT
+    # arm this guard.  It bumps a count and forces a human review, which is
+    # real but is a different thing.
+    #
+    # And the loop below can only ever see a MATERIAL DATABLOCK NAME.  Of the
+    # ~100 retirements in SPEC sec.10, exactly ONE is a material (the canvas
+    # ragtop, already covered).  Every other one is a VALUE, a METHOD, a CROP
+    # or a withdrawn TEST, and none of those is reachable from here.  That is
+    # why sec.10.64's four stale "locked" rows were not caught: no mechanism
+    # existed that could see them.  `_retired_value_drift()` below is the one
+    # that can.  A CLAIM IN PROSE IS NOT A GUARD -- including when the prose
+    # is inside the guard.
     for banned_mat in _retired_material_tokens():
         if banned_mat in bpy.data.materials:
             uses = [o.name for o in bpy.data.objects if o.type == 'MESH'
@@ -601,6 +738,18 @@ def run(body, log=print):
     _drift = _retired_section_drift()
     if _drift:
         warns.append(_drift)
+    # rev 24, SPEC 10.67 -- the retired-VALUE guard.  This is the one that can
+    # see sec.10.64's defect class.  It FAILS rather than warns: a retired
+    # number published as locked in a FROZEN section is how `W_ART = 0.30`
+    # stood 3.3x wrong for thirteen revisions.
+    _vd = _retired_value_drift()
+    if _vd is None:
+        warns.append("could not read SPEC.md -- retired-VALUE guard did not "
+                     "run. It declines rather than passing silently.")
+    else:
+        for lit, ln, live, sym, sec in _vd:
+            fails.append(f"SPEC.md:{ln} publishes the RETIRED '{lit}' unstruck "
+                         f"({sym} is {live}; retired by SPEC {sec})")
     # ...and the geometry that carried them
     for ob in bpy.data.objects:
         if ob.type == 'MESH' and ob.name.split('.')[0] in ("rag", "ragframe"):

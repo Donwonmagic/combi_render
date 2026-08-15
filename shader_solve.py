@@ -375,6 +375,15 @@ def solve_ctan():
     V = ST.views()["counter"]
 
     def cam_setup():
+        # rev 24, SPEC 10.65 -- `studio._softbox` calls bpy.data.lights.new on
+        # every invocation and studio.py never removes a light, so ST.lighting()
+        # STACKS.  Measured live: 8 / 16 / 24 lights over three calls.  This
+        # function is called THREE times (two masks + the measured frame), so
+        # every absolute linear figure in SPEC 10.56 -- 0.12107 included -- was
+        # read under THREE stacked rigs.  The ratio survives a near-uniform
+        # multiplier; the LEVEL and the clipped fraction do not.  Purge first.
+        for _l in [o for o in bpy.data.objects if o.type == 'LIGHT']:
+            bpy.data.objects.remove(_l, do_unlink=True)
         ST.lighting(1.0)
         cam = ST.camera()
         ST.aim(cam, V["loc"], V["tgt"], lens=V.get("lens"))
@@ -422,9 +431,31 @@ def solve_ctan():
             raise SystemExit("FATAL: T1_CTAN_NOBOUNCE=%r matched no object -- "
                              "refusing to report an arm that changed nothing" % _nb)
 
+    # rev 24, SPEC 10.65 -- ISOLATE THE MEASURED FRAME, not only the mask.
+    # This is rev 15's own rule (see solve_mural above, and this file's header),
+    # never applied here, and it cost four revisions of COUNTERTAN work.  The
+    # masks are rendered with `_only` (:175); this frame was rendered with the
+    # WHOLE SCENE, so the mask covered pixels with something in FRONT of them
+    # and their radiance was attributed to COUNTERTAN.
+    #
+    # MEASURED with an object-index pass (probe_ctan_index.py, null control
+    # IoU 1.0000 / 0 disagreeing px): 33.06 % of the eroded TOP mask and
+    # 57.31 % of the FASCIA mask are foreign surfaces -- the largest is
+    # `gal_warmer`, and 21.76 % of the fascia mask is `counter_top` itself.
+    # 97.84 % of the top mask lies INSIDE the fascia mask, so the un-isolated
+    # solve divided a region by a superset of itself.  Correcting it raises the
+    # albedo sensitivity k by 40 % in all three channels.
+    #
+    # T1_CTAN_NOISOLATE=1 reproduces the old contaminated arm, because every
+    # figure in SPEC 10.56 was measured that way and must stay reproducible.
+    _iso = None
+    if os.environ.get("T1_CTAN_NOISOLATE") != "1":
+        _iso = _only(list(tops) + list(fasc))
     cam_setup()
     a = _render(os.path.join(OUT, "_solve_ctan" + ("_nb_" + _nb if _nb else "")),
                 RES, 48)
+    if _iso:
+        _iso()
     lin = srgb_to_lin(a[..., :3])
     clipped = float((a[..., :3].max(2) > 0.995).mean())
 
