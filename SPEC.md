@@ -1944,6 +1944,124 @@ read. The occlusion hypothesis is therefore **OPEN and untested**, and the test
 needs either a much higher sample count or an object-index pass.
 
 
+
+### 10.57  rev 21 — FIVE ROUTES TO DE-ILLUMINATING THE CREAM, ALL FIVE REFUTED
+
+The owner answered §10.55's question. It did **not** unblock `CREAM`, and the
+reason is structural rather than a matter of precision. **`CREAM` is UNCHANGED
+at sRGB (206,208,200).**
+
+**HIS READING, and it refuted my crop a second time.** rev 20's boxes A
+`(792,838,410,458)` and B `(846,876,408,456)` are worse than rev 20 recorded:
+each straddles **two materials** — a white napkin face AND the grey dispenser
+body between them. That, not differential shading, is why B read 34 code values
+darker than A; rev 20's "the two dispensers disagree with each other by 11 %
+because they are shaded differently" is **withdrawn**. Redrawn on single
+materials and put to him again, he identified:
+
+- **N2 `(816,836,422,450)` and N3 `(868,890,426,452)` are white paper napkins.**
+- **N1 `(784,798,420,448)` is STILL straddling** a napkin and the dispenser side
+  — my redrawn box was still wrong. **DROPPED.** Twelfth instance of
+  check-what-the-probe-can-physically-see, and the second in one revision where
+  the defect was a crop I drew.
+- **M1 `(844,860,418,452)` is bare / brushed stainless.**
+
+`N3` is the clean reference: **0.00 % clipped, n = 572**, sRGB (236,225,211),
+hue 33.2°, sat 0.104.
+
+**C / D / E ARE DEAD AS NEUTRALS, and it is measured, not argued.** rev 20's
+three candidates are inside the galley opening. Luminance ÷ the cream panel's:
+napkins **1.13 / 1.54 / 1.37**, C/D/E **0.32 / 0.23 / 0.22**. A neutral cannot
+be 3–4× *darker* than the cream it shares light with — either they are in the
+galley's own dimmer light, in which case the division does not bind, or they are
+dark objects and not neutrals. Dropped before use.
+
+**THE FIVE ROUTES.**
+
+- **A — napkin as a same-light neutral.** Implies cream hue **48.2°, sat 0.163,
+  R>G** (N3); 44.5° / 0.203 (N2). **Robust to clipping, and that is a control:**
+  N1/N2/N3 clip at 22.4 / 12.1 / 0.00 % and agree (sat 0.169 / 0.203 / 0.163).
+  Clipping compresses channels toward neutral, so if clipping drove the warmth
+  the 22 %-clipped arm would read *less* saturated; it reads a hair *more*. This
+  is the route that would refute the locked constant, and it is clean.
+- **B — M1 as a neutral. INADMISSIBLE BY §10.21**, not by preference: metal
+  against a diffuse dielectric is not the same class, which is precisely the
+  silver-leaf trap §10.21 was written for. It also disagrees with A — hue 63.7°,
+  sat 0.086, **G>R** — and that disagreement is the tell, not a tiebreak.
+- **C — THE THIRD METHOD: does the napkin illuminant recover the independently
+  locked `RED`? NO.** Five clean red patches de-illuminated by N3 read hue
+  **13.1–13.8°**, sat 0.804–0.873, against locked `RED` hue **5.0°**, sat 0.816.
+  **Saturation lands; hue misses by 8.5°, consistently.** Shading does not
+  explain it: across **30** clean red patches spanning a **4.27× luminance
+  range**, corr(luminance, hue) = **+0.733** but the whole hue swing is only
+  **1.7°** — one fifth of the gap.
+- **§10.12's OWN INVARIANT SETTLES WHY.** The ratio (G−B)/(R−B) is invariant
+  under a neutral additive. Locked `RED` → **0.0813**; `ref_side`'s deep-shade
+  red, §10.12's own figure → 0.067; **`ref_rear34`'s red → 0.2225 ± 0.0045
+  (n = 6) → +31 sd.** `ref_rear34` is **not related to the locked albedo by any
+  neutral transform.** No same-light neutral can remove that, which is exactly
+  why route A leaves a residual however clean the napkin is.
+- **D — use the locked `RED` as the illuminant reference instead. REFUTED BY ITS
+  OWN CONSISTENCY CHECK**: it implies the white paper napkin has albedo hue
+  **260–300°, sat 0.30–0.43 — a saturated purple** — and the cream comes out
+  magenta (hue 273–352°). **NEW RULE: AN ILLUMINANT REFERENCE MUST CARRY
+  SUBSTANTIAL ALBEDO IN ALL THREE CHANNELS.** `RED` is (0.5520, **0.0294,
+  0.0176**); dividing an observation by a near-zero channel amplifies the
+  additive term without bound. This is also why the observed red reads hue 13
+  rather than 5.
+- **E — solve §10.9's actual model, `obs_c = albedo_c · E_c + A`,** with the
+  locked red plus the napkin as a neutral of unknown albedo `k`: 6 equations,
+  5 unknowns (E×3, A, k), over-determined by one. **NO PHYSICAL SOLUTION
+  EXISTS** — `A_R − A_B` never crosses zero for any `k` from 0.05 to 0.95.
+  Concrete diagnosis rather than a shrug: the red reads **95 % of the napkin's R
+  channel**, where an albedo of 0.552 against white paper should put it near
+  **65 %**. **The red and the napkin are not under the same light**, so no
+  two-surface solve using both is admissible.
+
+**CONCLUSION.** `CREAM` stays at (206,208,200) — not because the evidence is
+thin but because the frame demonstrably violates the assumption every route
+needs, and a locked constant must not move onto a number whose own validation
+failed at 31 sd. What would settle it: a same-light, **same-class**,
+three-channel reference; or an established neutral transform between
+`ref_rear34` and the frame the locked constants came from. Neither exists in the
+three photographs.
+
+### 10.58  rev 21 — `audit.py`'s FOUR LIVERY ROWS: A SUBAGENT CLAIM, TESTED AND HALF REFUTED
+
+A read-only agent reported that `audit.py`'s belt / window-sill / window-head /
+V-swage-apex rows are **algebraic identities that cannot fail** — the §10.45
+shape. It was tested rather than repeated, and it is **half right**.
+
+- **CONFIRMED — invariant to the rake.** Perturbing `RAKE_DZDX` 17.75 → 21.00
+  mm/m moved the ride drops (71.0 / 28.4 → 75.2 / 24.8 mm) and the reporting
+  station (x 0.962 → 0.813), and all four rows still printed **1.2070 / 1.3070 /
+  1.7100 / 0.3400** with `+0.0 mm ok`. rev 18's rake guard **fired (1 fail)** —
+  that guard works.
+- **BUT THE INVARIANCE IS DELIBERATE AND DOCUMENTED** at `t1_core.py:165-171`:
+  `X_DROP_REF` is *derived* so `RIDE_DROP` stays exactly 0.0650, precisely so
+  `Z_BELT` and `V_APEX` do **not** move for a rake change. That is §10.25's rule
+  applied correctly. It is not a defect.
+- **AND THEY ARE NOT IDENTITIES.** Displacing `Z_BELT_AUTH` by +50 mm made the
+  row print **`+50.0 mm OUT`**; displacing the band `Z_SILL`/`Z_HEAD` by −100 mm
+  made `verify` throw **2 FAILs**. The rows are real locks on the authored
+  constants and they discriminate.
+
+**Residual real findings, both modest and both recorded rather than fixed:**
+`V_APEX`'s tolerance is **±0.060 m**, so a 50 mm error passes as "ok"; and
+`STATE.md`'s table is headed *Measured dimensions* with a column headed
+*measured* for rows that are authored constants checked against REF targets —
+the same labelling family as the hand-typed "(measured 41)" §10.53 removed. A
+mislabel, not a phantom. Separately: the aperture-existence probe **is** a real
+ray-test (`_has_metal` against the body mesh), but `_bay_probe_z` is the
+midpoint of `Z_SILL`/`Z_HEAD` — the constants under test — so its station
+follows them; `verify:803-804`'s constant-lock is what actually catches a
+displaced band.
+
+**NEW RULE: A SUBAGENT'S FINDING IS A CLAIM, NOT A MEASUREMENT.** One of three
+agent headlines this revision was half wrong, and the source file's own comment
+said so.
+
+
 ## Change log
 
 | Date | Change |
@@ -3107,3 +3225,4 @@ factory catalogue. **Bounded by the wheel control, not measured.**
 | 2026-08-14 | **rev 16 - THE LOFT: roof section, rear arch, tail and the end-cap poles, in one rebuild.** `LOFT_GROUND`'s 63 mm `ZT_ALL` drop is REJECTED and re-measured at **41 mm** by a datum-free route -- drip-rail groove to serving-aperture top, 28.3 / 27.4 / 27.5 mm across bays 3/2/1 over 228 columns at sd 0.19-0.21 px, against 68.6 mm built -- because the 63 would leave 2 mm of metal above the bays and drop the shell's top edge below the windscreen's own anchor. The belt line shows the aperture band is right to **-2.1 mm**, so the error is the junction, and the hub route's extra 22 mm is the same ~29 mm ground-datum common-mode 10.11 bans. Spent on the junction: `RT_ALL` 0.054 -> 0.0949, `CR_ALL` 0.032 -> 0.1179, **D = 0.2128 against LOFT_GROUND's independently measured 0.2116 +- 0.035**, `ZT_ALL` and the rake untouched, `DOME_DEFICIT` -> 0; built mesh measures back at +27.0 mm against 27.7 +- 0.5. `LOFT_GROUND`'s roof-silhouette 257.2 could NOT be reproduced (the top edge is flat at 252.1-253.6 over u[755,815]) and its proud-strip/coaming reading is withdrawn. Rear arch rebuilt as a flat-crowned ogee from the normalised TABLE, not the window-dependent exponent, 0.747 -> **0.920 m**, `ARCH_R` held, front arch left circular because it has never been measured. Tail **re-spaced, never translated**, overhang 1.008 -> **0.773 m** via `_aft()`, with the projective flank map rebuilt from its own constraints and cross-checked on the arch's aft foot to **1.5 mm**. `SPEC['L']` stops being the VW catalogue 4.290 and becomes an expression of the applied tail correction; a new verify row guards the rear overhang itself. **10.30b closed**: Coons quad-grid caps, max valence **115 -> 6**, and the starburst measures **3.015 -> 1.609 (-47 %)** against a negative control in the same frame reading 1.596 -> 1.592. `NHALF` 56 -> 57 so the cap is mirror-symmetric -- chosen on a guard result, not a preference: the 27x28 arm FAILS at SUB=2 with `gap_englid` rolled back, and moving the cutter does not fix it. Two latent bugs exposed: `roof_cutters` passed `zlo` as `solid_prism`'s CENTRE, and every tail-anchored detail would have left `verify` row 1 passing on a phantom. Guards 0 fail / 1 warn at both levels. |
 | 2026-08-14 | **rev 18 - THE FIRST ADVERSARIAL AUDIT OF THE LOFT, and three guards that could not fail.** Four agents on disjoint files, all read-only, each told to refute; two refuted their own briefs and two refuted each other's headline statistics. **The loft's geometry is largely sound and its measurement infrastructure is not** (§10.45): the engine-lid row's threshold sat **77 mm behind the entire vehicle** and never worked at any revision; the rear-window ray **terminated 177 mm short of the tail** and returned True aimed at three certainly-solid places; row 10's `RIDE_DROP` test is an **algebraic identity with residual exactly 0.000e+00**; and the arch guard subtracted two source constants, so `ARCH_W_REAR`, `_ARCH_PROFILE`, `_arch_drop` and `rear_arch_outline` appeared **zero times** in either guard file. All four repaired and each falsified after repair. **The rear arch double-counted its own crown** (§10.46) - `ARCH_R` *is* the crown lip height and the profile subtracted a crown drop from it, putting the tyre gap at **20.2 mm against a locked 41 +- 8**; the `(0.10, 0.014)` trace point is **refuted by re-trace** (the lip is flat at 371-372 mm; the station is u 759.5, inside the band §2.1 says it rejected, and the 9-wide median it announces was never propagated into the table); and the Dx sign was **mirrored**. Fixed together: gap **20.2 -> 39.7 mm**, with the untouched front arch reading `ARCH_R` to **0.3 mm** as the positive control in the same run. The guard was not widened. **`STATE.md` stopped publishing three phantoms** (§10.47), one previously unknown - its mid-wheelbase roof height was **the rocker seen through the roof hole**, off by **-1612.8 mm** with n=18 so the empty-selection guard never fired - plus four percentages that were percentages of a lid strut, and two hand-authored paragraphs in a file whose header says nothing is typed by hand. **px/m on `ref_rear34.jpg` is LOCKED at 344.1 +- 6.7** off the plate frame the owner identified as empty (§10.48), refuting rev 15's own gradient for that feature on a third method - but **`PLATE_W = 0.3300` has no provenance anywhere in the repo** and every scale built on it inherits that. Guards **0 fail / 1 warn at both levels**. |
 | 2026-08-14 | **rev 19 — the cream was measured on a detached sign, and `FadeVert` never reached the flank.** Shown a marked crop with the boxes printed, the owner identified `cream_rms._LID` — the source of every rev-17/18 cream number — as **a DETACHED SIGN, separate from the bus**, re-confirming §10.28 which §10.38 had silently reverted (§10.49). Re-based on the surface he identified as the bus's own paint, trimmed for a measured reason: **10.17 % of it is CLIPPED** and a clipped pixel carries no texture. Gate is now **geometry only** — the old `sat < 0.20` is tuned to the sign's C\* 11.2 and returns **2.9 % purity on the vehicle's own cream**. **The character verdict was a constant string** (§10.50): handed pure red paint at 0.0 % purity with every statistic `nan`, it still printed CHALKY SUN-FADE MOTTLE. The replacement derives the verdict and returns **None**; controls now separate red paint and foliage as DIRT/SOILING and refuse a 12×12 patch. The mechanism **survives** re-derivation on the correct surface; the amplitude does not — the sign is **2.1–2.6× more mottled** than the bus. **`FadeVert` has never reached the flank** (§10.51): `T1_body` carries `T1_paint`, which renders cream and red in one material and was left at **0.000**, while the material named `cream` carries exactly one object, `vw_disc` — rev 14's fix landed on every cream surface except the one it was measured on. The map now lives inside `body_paint`, multiplied by the material's own two-tone selector so the red is **0.0 by construction**, with `fadev_from` raising a hard error rather than falling back to a scalar. **The ablation exposed that a luminance high-pass is the wrong instrument for this lever** — on the albedo pass the map moves corr(dL\*,dC\*) **+0.261 → +0.048** monotonically toward the photograph's +0.042 — and **"the cream is 26× too uniform" does not survive**: dL\* rms was already 0.322/0.584/0.948 against 0.385/0.493/0.735. What is short is **chroma**, 0.24 flat against 0.74–1.30 growing, and the lever is bounded: the fade factor clamps at 1.0 so the modulation collapses past AMP 1. Depth correction **stated**: region 2 is the **flank** plane at **337 ± 7 px/m**, not the plate's 344.1. A **fourth `STATE.md` phantom** recorded (§10.52) — `audit.py` still publishes the constants-only arch gap as "41.0 mm (measured 41)" against the mesh's 39.7. Guards **0 fail / 1 warn at both levels**, geometry unchanged. |
+| 2026-08-15 | **rev 21 - the owner's napkin reading obtained, and five routes to the cream albedo all refuted by their own controls.** He identified N2/N3 as white paper napkins and M1 as bare stainless - and refuted a second crop of mine in the process: rev 20's boxes A and B each straddle a napkin face AND the dispenser body, which is the real reason they disagreed, not shading (10.57). rev 20's C/D/E are dropped on a measurement, not an argument: they sit inside the galley opening at 0.22-0.32x the cream's luminance, and a neutral cannot be 3-4x darker than the surface it shares light with. **Route A, the napkin as a same-light neutral, is clean and robust** - three faces clipping at 22/12/0 % agree on hue 44.5-48.2 and sat 0.163-0.203, R>G, and because clipping compresses toward neutral the agreement is itself the control. **It still must not be applied.** The third method fails: de-illuminated by the napkin the flank red reads hue 13.1-13.8 against the independently locked RED's 5.0, and shading explains only 1.7 of the 8.5 degree gap across 30 patches spanning a 4.27x luminance range. **10.12's own invariant says why** - the ratio (G-B)/(R-B) is 0.2225 +- 0.0045 in `ref_rear34` against 0.0813 for the locked albedo, **+31 sd**, so that frame is not related to the locked constants by ANY neutral transform. Inverting the reference refutes itself: using the locked RED as the illuminant makes the white napkin come out a saturated purple, giving **a new rule - an illuminant reference must carry substantial albedo in all three channels**, and RED's are (0.552, 0.029, 0.018). Solving 10.9's full affine model with both surfaces has **no physical solution** for any napkin albedo, and the diagnosis is concrete: the red reads 95 % of the napkin's R channel where 0.552 against white paper should read 65 %, so the two are not under the same light. **`CREAM` UNCHANGED at (206,208,200).** Separately, a subagent's claim that four `audit.py` livery rows are identities that cannot fail was **tested and half refuted** (10.58) - they are invariant to the rake, which `t1_core.py:165-171` shows is deliberate, but displacing the authored constants makes them print OUT and throw FAILs. Guards **0 fail / 1 warn at both levels**, every figure identical to rev 18/19/20; geometry untouched. |
