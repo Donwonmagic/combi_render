@@ -45,11 +45,57 @@ import t1_core as _T
 # so this row is a REGRESSION CATCHER, not a measurement.  The measurement is
 # the new overhang row below, which is the quantity that was actually observed.
 SPEC = dict(L=4.290 - (_T.O_OLD - _T.O_NEW), W=1.750, H=1.941, WB=2.400,
-            TRACK_F=1.369, TRACK_R=1.359, TYRE_D=0.665,
-            # rev 8: REF_MEASUREMENTS sec.2.3 measures 1.960 on the fixed roof
-            # aft of the lid opening, at the rear-axle station. That is the
-            # number the rake was tuned to reproduce.
-            H_ROOF=1.960)
+            TRACK_F=1.369, TRACK_R=1.359, TYRE_D=0.665)
+
+# ---------------------------------------------------------------------------
+# H_ROOF -- RETIRED AS AN ACCURACY TARGET by the owner, rev 22.  READ THIS
+# BEFORE RE-ADDING IT TO SPEC.
+#
+# rev 8 put H_ROOF = 1.960 in the accuracy dict: REF_MEASUREMENTS sec.2.3
+# measures 1.960 on the fixed roof aft of the lid opening at the rear-axle
+# station, and the rake was tuned to reproduce it.  It produced the standing
+# "+23 mm" warn from rev 16 onward.
+#
+# WHY IT WAS RETIRED, and this is a chain of withdrawals, not a preference:
+#   (a) REF sec.1 derived 1.960 from the GROUND LINE, which SPEC sec.10.11
+#       BANS -- three features placed from that datum land low by the same sign
+#       and magnitude, a ~70 mm common-mode error.  rev 16 additionally found
+#       the HUB-referenced chain carries the same disease at ~29 mm, so the
+#       obvious substitute datum is not clean either.
+#   (b) 1.960's ONLY ground-line-free confirmation was LOFT_GROUND sec.1.2's
+#       1.9621.  SPEC sec.10.34 WITHDREW that reading's interpretation -- the
+#       "proud strip 253.21" IS the roof -- without noting that it was 1.960's
+#       only escape from the banned datum.  rev 18 (sec.10.48) found that.
+#   (c) So the target has no admissible derivation left.  A guard whose target
+#       is underived cannot report accuracy; it can only report disagreement
+#       between the model and a number of unknown provenance.
+#
+# WHAT WAS DELIBERATELY *NOT* DONE: H_ROOF was NOT re-valued to the mesh probe.
+# The owner rejected that explicitly and he was right -- a guard set to the
+# model's own current reading compares the model to itself and can never fail,
+# and it would clear a standing warn by tuning.  Both are forbidden here.
+#
+# STATE THIS PLAINLY WHEREVER THE WARN'S DISAPPEARANCE IS REPORTED:
+#   THE WARN IS GONE BECAUSE THE TEST WAS WITHDRAWN, NOT BECAUSE THE MODEL
+#   IMPROVED.  The mesh did not move.  Guards were 0 fail / 1 warn before this
+#   change and 0 fail / 0 warn after it, with every other figure identical.
+#
+# The absolute roof height of the real vehicle is now an OPEN, UNMEASURED
+# quantity.  Closing it needs a head-on rear or front elevation from roof
+# height or above -- the same photograph that would close CREAM.
+H_ROOF_RETIRED = 1.960
+
+# The probe survives as a REGRESSION CATCHER, exactly as rev 18 did for
+# STATE.md's height row.  It asserts NOTHING about the real vehicle.  It
+# asserts only that the modelled roof crown at the rear axle has not MOVED.
+#
+# Baseline WATCHED PRINT on a clean rev-22 tree, both levels, before it was
+# written here:  SUB=1 -> 1.9835,  SUB=2 -> 1.9833  (0.2 mm apart).
+# Band +-5 mm, which both levels clear by ~4.8 mm.  If a future change trips
+# this row, THAT IS THE GUARD WORKING: move the geometry back, or re-baseline
+# deliberately and say so -- never widen the band.
+H_ROOF_REGRESSION = 1.9835
+H_ROOF_REGRESSION_BAND = 0.005
 # rev 13.  The rake came down from 33.0 to 17.75 mm/m on a scale-free
 # hub-referenced measurement (t1_core), which drops the rear axle 28 mm and
 # takes the crown from 1.923 to 1.894 -- so the raw residual against REF 2.3's
@@ -394,18 +440,40 @@ def run(body, log=print):
     # on top of the model tolerance -- it is a photograph measurement, not a
     # factory figure. rev 8 residual: -37 mm (was -89 mm before the rake).
     for nm, got, want, tol in (("length", L, SPEC["L"], TOL),
-                               ("width", W, SPEC["W"], TOL),
-                               ("roof crown @ rear axle (dome-corrected)",
-                                Hroof + DOME_DEFICIT, SPEC["H_ROOF"], 0.040)):
+                               ("width", W, SPEC["W"], TOL)):
         d = got - want
         (fails if abs(d) > tol else warns if abs(d) > tol * 0.5
          else []).append(f"{nm} {got:.3f} vs spec {want:.3f} ({d*1000:+.0f} mm)")
+
+    # 1a. ROOF CROWN AT THE REAR AXLE -- REGRESSION CATCHER, NOT AN ACCURACY
+    # TEST.  See the H_ROOF block at the top of this file.  The comparand is
+    # the MODEL'S OWN baseline, so a pass here means "the roof has not moved",
+    # NOT "the roof is right".  It is a FAIL past the band, not a warn: an
+    # unintended geometry change should stop the build, and a deliberate one
+    # should be re-baselined by hand and stated.
+    _hreg = Hroof + DOME_DEFICIT
+    _hd = _hreg - H_ROOF_REGRESSION
+    if abs(_hd) > H_ROOF_REGRESSION_BAND:
+        fails.append(
+            f"roof crown @ rear axle MOVED {_hd*1000:+.1f} mm vs the rev-22 "
+            f"regression baseline {H_ROOF_REGRESSION:.4f} "
+            f"(band +-{H_ROOF_REGRESSION_BAND*1000:.0f} mm) -- this row is a "
+            f"REGRESSION CATCHER, not an accuracy test; re-baseline "
+            f"deliberately or move the geometry back, never widen the band")
     # The RAW number is logged unconditionally so the un-modelled dome can never
-    # go quiet behind the correction that lets the guard pass.
-    log(f"  dims  L={L:.3f} W={W:.3f} roof@rear-axle={Hroof:.3f} "
-        f"(raw resid {(Hroof - SPEC['H_ROOF'])*1000:+.0f} mm; "
+    # go quiet behind the correction that lets the guard pass, and the retired
+    # target is printed alongside it so its withdrawal can never look like an
+    # improvement in the model.
+    log(f"  dims  L={L:.3f} W={W:.3f} roof@rear-axle={Hroof:.4f} "
+        f"(regression baseline {H_ROOF_REGRESSION:.4f}, {_hd*1000:+.1f} mm; "
         f"dome deficit {DOME_DEFICIT*1000:+.0f} mm still unmodelled) "
         f"(bbox top {H:.3f})")
+    log(f"  H_ROOF {H_ROOF_RETIRED:.3f} is RETIRED as an accuracy target "
+        f"(rev 22, owner's call): its only ground-line-free support was "
+        f"withdrawn by SPEC 10.34. The model reads {_hreg:.4f}; the real "
+        f"vehicle's absolute roof height is OPEN and UNMEASURED. The +23 mm "
+        f"warn is gone because THE TEST WAS WITHDRAWN, not because the model "
+        f"improved -- the mesh did not move.")
 
     # 1b. THE REAR OVERHANG, rev 16.  This is the row that carries the actual
     # measurement; row 1's L cannot, because its forward end is X_NOSE and

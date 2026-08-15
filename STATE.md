@@ -8,17 +8,17 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-15 01:35:17 UTC |
-| git commit | `4f3d015` |
-| git subject | rev 21: five routes to the cream albedo, all five refuted by their own controls |
-| working tree | clean |
+| generated | 2026-08-15 04:27:39 UTC |
+| git commit | `5c008c0` |
+| git subject | rev 21: correct the content checks from the fresh-clone console, and record the ninth catch |
+| working tree | **DIRTY** — this state is not committed |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=1 (applied, destructive, before booleans) |
 | geometry source | procedural, built this run |
 
 ## Guard result
 
-**VERIFY: 0 fail, 1 warn** at T1_SUB=1.
+**VERIFY: 0 fail, 0 warn** at T1_SUB=1.
 
 > A pass here is only a pass *at this subdivision level*. The cab-door gap
 > booleans passed at SUB=1 and collapsed the shell at SUB=2 for six
@@ -26,7 +26,8 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 ```
 x range [-1.905, 2.160]   full-Y [-1.064, 1.150]
-dims  L=4.065 W=1.750 roof@rear-axle=1.983 (raw resid +23 mm; dome deficit +0 mm still unmodelled) (bbox top 3.017)
+dims  L=4.065 W=1.750 roof@rear-axle=1.9835 (regression baseline 1.9835, -0.0 mm; dome deficit +0 mm still unmodelled) (bbox top 3.017)
+H_ROOF 1.960 is RETIRED as an accuracy target (rev 22, owner's call): its only ground-line-free support was withdrawn by SPEC 10.34. The model reads 1.9835; the real vehicle's absolute roof height is OPEN and UNMEASURED. The +23 mm warn is gone because THE TEST WAS WITHDRAWN, not because the model improved -- the mesh did not move.
 rear overhang 0.7730 m = 0.3221 of the wheelbase (measured 0.773 +- 0.022 m)
 measured TRACK_F=1.3713  TRACK_R=1.3613  TYRE_D=0.6650
 open serving apertures on +Y: 3
@@ -40,8 +41,7 @@ shut line door-1: 100 % open
 shut line cargo: 100 % open
 shut line englid: 100 % open
 band 1.372-1.775 un-dropped (1.307-1.710 AG)  bay widths 0.516 0.515 0.516
-VERIFY: 0 fail, 1 warn
-warn  roof crown @ rear axle (dome-corrected) 1.983 vs spec 1.960 (+23 mm)
+VERIFY: 0 fail, 0 warn
 ```
 
 | | |
@@ -61,7 +61,7 @@ Shaders read the dropped frame, so `Z_BELT`/`V_APEX` are already AG.
 | overall length (ex counter) | 4.0648 | 4.0550 | +9.8 mm ok |
 | counter tail overhang past body | 0.2902 | — | — |
 | overall width (body) | 1.7497 | 1.7500 | -0.3 mm ok |
-| overall height (vehicle max, lids excluded) | 1.9890 | — *(no target: this is a max over all stations; H_ROOF 1.960 is a REAR-AXLE figure. Guarded by verify row 1 and the roof line below)* | at x = -1.569 |
+| overall height (vehicle max, lids excluded) | 1.9890 | — *(no target: this is a max over all stations, and since rev 22 there is no roof-height target at all — H_ROOF 1.960 is RETIRED, see verify.py. Regression-caught by verify row 1a and the roof line below)* | at x = -1.569 |
 | wheelbase | 2.4000 | 2.4000 | +0.0 mm ok |
 | track front | 1.3690 | 1.3690 | +0.0 mm ok |
 | track rear | 1.3590 | 1.3590 | +0.0 mm ok |

@@ -380,19 +380,26 @@ A(_row("overall width (body)", bhi.y - blo.y, 1.750, 0.025))
 #   (a) H was the max over every mesh, so it read `lid_strut0` at 3.0169 and
 #       published `+1056.9 mm OUT` every single run.  Fixed at H's definition.
 #   (b) even with the right H, "max over ANY station" is not the quantity
-#       H_ROOF = 1.960 names.  1.960 is REF sec.2.3's roof height AT THE REAR
+#       H_ROOF = 1.960 named.  1.960 was REF sec.2.3's roof height AT THE REAR
 #       AXLE, and on a raked body the max is at a different station entirely.
 #       rev 8 spotted this and wrote a prose note under the row -- but left the
 #       row emitting OUT.  A prose note is not a guard, and a row that is known
 #       to be the wrong test should not carry a target at all.
-# The real test is verify row 1 (roof crown at the rear axle, a direct mesh
-# probe, currently 1.9835 +- 0.0007) and the three-station roof line below.
+# rev 22 -- H_ROOF = 1.960 IS NOW RETIRED as an accuracy target (owner's call);
+# see the H_ROOF block at the top of verify.py for the chain of withdrawals.
+# So there is no longer any roof-height TARGET anywhere in this project, and
+# this row's "no target" is now the same kind of statement verify row 1a makes.
+# verify row 1a keeps the direct mesh probe as a REGRESSION CATCHER against the
+# model's own baseline (1.9835, band +-5 mm) -- it reports that the roof has
+# not MOVED, never that it is RIGHT.  The real vehicle's absolute roof height
+# is OPEN and UNMEASURED and needs the head-on elevation nobody has.
 _hstat = max(((mw @ v.co).z, (mw @ v.co).x)
              for o in _VEHICLE for v in o.data.vertices
              for mw in (o.matrix_world,))
 A("| overall height (vehicle max, lids excluded) | %.4f | — *(no target: this "
-  "is a max over all stations; H_ROOF 1.960 is a REAR-AXLE figure. Guarded by "
-  "verify row 1 and the roof line below)* | at x = %+.3f |"
+  "is a max over all stations, and since rev 22 there is no roof-height target "
+  "at all — H_ROOF 1.960 is RETIRED, see verify.py. Regression-caught by "
+  "verify row 1a and the roof line below)* | at x = %+.3f |"
   % (H, _hstat[1]))
 A(_row("wheelbase", T.X_AXLE_F - T.X_AXLE_R, 2.400, 0.005))
 A(_row("track front", T.TRACK_F, 1.369, 0.005))
