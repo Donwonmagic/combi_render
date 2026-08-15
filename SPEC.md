@@ -2062,6 +2062,136 @@ agent headlines this revision was half wrong, and the source file's own comment
 said so.
 
 
+### 10.59  rev 22 — `H_ROOF` RETIRED BY THE OWNER, and the probe kept as a labelled regression catcher
+
+**THE OWNER'S DECISION, taken in rev 22 after five revisions of being owed it:**
+retire `H_ROOF = 1.960` as an accuracy target; keep the direct mesh probe as a
+**LABELLED REGRESSION CATCHER with a ±5 mm band**, exactly as §10.47 did for
+`STATE.md`'s height row.
+
+**THE CHAIN OF WITHDRAWALS that left it unsupported** — this is not a
+preference, it is the absence of an admissible derivation:
+
+1. `REF_MEASUREMENTS` §1 derived 1.960 **from the ground line**, the datum
+   §10.11 BANS: three features placed from it land low by the same sign and
+   magnitude, a ~70 mm common-mode error. §10.34 then found the **HUB**-
+   referenced chain carries the same disease at ~29 mm, so the obvious
+   substitute datum is not clean either.
+2. 1.960's **only ground-line-free confirmation** was `LOFT_GROUND` §1.2's
+   1.9621. §10.34 **withdrew that reading's interpretation** — the "proud strip
+   253.21" IS the roof — *without noting that it was 1.960's only escape from
+   the banned datum*. §10.48 found that.
+3. A guard whose target has no admissible derivation cannot report accuracy. It
+   can only report disagreement with a number of unknown provenance.
+
+**WHAT WAS DELIBERATELY NOT DONE.** `H_ROOF` was **NOT** re-valued to the mesh
+probe's 1.9835. The owner rejected that explicitly and was right on this
+project's own rules: a guard set to the model's own current reading compares the
+model to itself and **can never fail**, and it clears a standing warn **by
+tuning**. Both are forbidden here.
+
+**STATE THIS WHEREVER THE WARN'S DISAPPEARANCE IS REPORTED:**
+**THE +23 mm WARN IS GONE BECAUSE THE TEST WAS WITHDRAWN, NOT BECAUSE THE MODEL
+IMPROVED. THE MESH DID NOT MOVE.** Guards went 0 fail / 1 warn → **0 fail /
+0 warn at both levels** with roof hole 68052v / 252123v, 126 objects, 185
+meshes, arch 39.7 / 40.7 mm, rake 17.75, overhang 0.7730, bays 0.516 0.515
+0.516 — every other figure identical.
+
+**THE BASELINE WAS WATCHED PRINT AT BOTH LEVELS BEFORE IT WAS WRITTEN INTO THE
+FILE:** SUB=1 → **1.9835**, SUB=2 → **1.9833**, 0.2 mm apart, both clearing the
+±5 mm band by ~4.8 mm.
+
+**FALSIFIED AFTER REPAIR, TWO ARMS, not merely re-run:**
+
+| arm | perturbation | result |
+|---|---|---|
+| 1 | regression baseline displaced −10 mm | **FAIL** `MOVED +10.0 mm` — exact |
+| 2 | `CR_ALL` crown raised **+8.0 mm IN THE GEOMETRY** | **FAIL** `MOVED +7.9 mm` |
+
+**Arm 2 is the one that matters**: it proves the row reads the **MESH**, not two
+constants — precisely what the old arch guard (`ARCH_R − TIRE_R`, which returned
+41.0 forever, §10.45/§10.52) never had. The 0.1 mm shortfall is loft resampling
+and is stated rather than rounded away. The row **FAILS** past the band rather
+than warning: an unintended geometry change should stop the build, a deliberate
+one should be re-baselined by hand and said out loud, and **the band must never
+be widened**. `audit.py`'s prose was corrected in the same commit so it cannot
+contradict the build.
+
+**WHAT IS NOW OPEN, and it is larger than what closed:** the real vehicle's
+**absolute roof height is UNMEASURED**. Nothing replaced 1.960. Closing it needs
+a head-on rear or front elevation from roof height or above — the same
+photograph that would close `CREAM`.
+
+
+### 10.60  rev 22 — `COUNTERTAN`'s HUE: THE TARGET IS AN OBSERVED PIXEL, NOT AN ALBEDO. REFUTED.
+
+The rev-22 work list carried "`COUNTERTAN`'s hue onto its own cited
+measurement — built h 42.3° / sat 0.254 against an independent 1266-px read of
+**28.4° / 0.333**". That finding came from a subagent, so under §10.58's rule it
+was **tested before being acted on. It is refuted, and `COUNTERTAN` is
+UNCHANGED.**
+
+**THE ERROR IS A CATEGORY ERROR — the §10.21 trap that cost rev 10 one wrong
+silver.** `COUNTERTAN` is an **ALBEDO**, defined by its own docstring as a ratio
+against a same-class reference. **28.4° is an OBSERVED PIXEL.** Re-measured here
+on a clean single-material crop of the counter top (cols 700–780, rows 413–414,
+**n = 162, 0.00 % clipped**) the observed pixel reads **h 32.3°, sat 0.364** —
+the same quantity the agent reported. Comparing it to an albedo is not a
+comparison.
+
+**De-illuminated through the docstring's own documented method:**
+
+| quantity | hue | sat |
+|---|---|---|
+| OBSERVED tan-top pixel | **32.3°** | 0.364 |
+| ALBEDO via the fascia arm (× `COUNTERCREAM`) | **39.3°** | 0.225 |
+| ALBEDO via the cab-roof arm (× `CREAM`) | **41.7°** | 0.289 |
+| **BUILT `COUNTERTAN`** | **42.3°** | **0.254** |
+
+The built constant sits **0.6° above the nearer arm and 3.0° above the further
+one**, and its saturation **0.254 falls inside the arms' 0.225–0.289**. The
+claimed error was ~14°; the real disagreement is **at most ~3°** and the
+saturation is already bracketed. The illuminant is warm — observed r/g **1.506**
+against the albedo's **1.166** — and dividing it out is exactly what carries the
+hue from 32° to ~40°. **Nothing is moved on a ~3° residual while the LEVEL is
+unresolved** (§10.56's ~69 % pedestal): tuning hue against an unidentified
+pedestal is tuning against an unknown.
+
+**TWO NEW FINDINGS, both from controls that had never been run.**
+
+**(a) `COUNTERTAN`'s FOUNDING CROP STRADDLES TWO MATERIALS — thirteenth instance
+of check-what-the-probe-can-physically-see, and this one is in SPEC's own
+founding measurement.** A row scan of cols 700–780 shows the counter top is only
+~3 px tall in `ref_side.jpg` (the camera is at roof height, so the top is nearly
+edge-on — §10.28's own method note). The docstring's crop is rows **411–415**:
+row 411 is the shadowed transition, **54 code values darker** than row 413; row
+415 is already running into the **brass nosing**, which occupies rows 416–419 at
+**sat 0.669, r/g 2.356** — a completely different material and class. The clean
+tan top is rows **412–414**, and rows 413–414 are cleanest. Same defect family as
+rev 20's boxes A/B and rev 21's N1.
+
+**(b) THE CAB-ROOF ARM IS NOT UNDER THE SAME LIGHT AS THE FASCIA ARM, and it is
+now measured rather than asserted.** The docstring records that the two
+references "bracket rather than agree" and calls the disagreement "real and
+structural" — but never diagnosed it. A positive control does: if two reference
+surfaces share a light, their observed ratio must equal their albedo ratio.
+
+    observed  cab-roof / fascia   = (0.5873, 0.6345, 0.7464)
+    expected  CREAM / COUNTERCREAM = (0.8397, 0.8822, 0.8752)   albedo only
+    residual illuminant            = (0.6994, 0.7192, 0.8529)   B/R = 1.219
+
+**The cab roof sits in light 22 % bluer in B/R than the fascia.** It is out from
+under the lid in open sky-light; the fascia is under the counter in warm bounced
+light. §10.21 requires the same light, so **the cab-roof arm is inadmissible for
+the ratio** — which means the LEVEL bracket's upper end (G 0.569) rests on an
+inadmissible arm. That is a direct input to the §10.56 pedestal work and is
+recorded, **not applied**: the fascia arm has its own stated weakness (vertical,
+wrong orientation, takes red bounce off the body), so neither arm is clean and
+the level stays bracketed exactly as instructed.
+
+**`COUNTERTAN` = (0.5870, 0.4930, 0.3060) UNCHANGED, fourth revision running.**
+
+
 ## Change log
 
 | Date | Change |
@@ -3226,3 +3356,4 @@ factory catalogue. **Bounded by the wheel control, not measured.**
 | 2026-08-14 | **rev 18 - THE FIRST ADVERSARIAL AUDIT OF THE LOFT, and three guards that could not fail.** Four agents on disjoint files, all read-only, each told to refute; two refuted their own briefs and two refuted each other's headline statistics. **The loft's geometry is largely sound and its measurement infrastructure is not** (§10.45): the engine-lid row's threshold sat **77 mm behind the entire vehicle** and never worked at any revision; the rear-window ray **terminated 177 mm short of the tail** and returned True aimed at three certainly-solid places; row 10's `RIDE_DROP` test is an **algebraic identity with residual exactly 0.000e+00**; and the arch guard subtracted two source constants, so `ARCH_W_REAR`, `_ARCH_PROFILE`, `_arch_drop` and `rear_arch_outline` appeared **zero times** in either guard file. All four repaired and each falsified after repair. **The rear arch double-counted its own crown** (§10.46) - `ARCH_R` *is* the crown lip height and the profile subtracted a crown drop from it, putting the tyre gap at **20.2 mm against a locked 41 +- 8**; the `(0.10, 0.014)` trace point is **refuted by re-trace** (the lip is flat at 371-372 mm; the station is u 759.5, inside the band §2.1 says it rejected, and the 9-wide median it announces was never propagated into the table); and the Dx sign was **mirrored**. Fixed together: gap **20.2 -> 39.7 mm**, with the untouched front arch reading `ARCH_R` to **0.3 mm** as the positive control in the same run. The guard was not widened. **`STATE.md` stopped publishing three phantoms** (§10.47), one previously unknown - its mid-wheelbase roof height was **the rocker seen through the roof hole**, off by **-1612.8 mm** with n=18 so the empty-selection guard never fired - plus four percentages that were percentages of a lid strut, and two hand-authored paragraphs in a file whose header says nothing is typed by hand. **px/m on `ref_rear34.jpg` is LOCKED at 344.1 +- 6.7** off the plate frame the owner identified as empty (§10.48), refuting rev 15's own gradient for that feature on a third method - but **`PLATE_W = 0.3300` has no provenance anywhere in the repo** and every scale built on it inherits that. Guards **0 fail / 1 warn at both levels**. |
 | 2026-08-14 | **rev 19 — the cream was measured on a detached sign, and `FadeVert` never reached the flank.** Shown a marked crop with the boxes printed, the owner identified `cream_rms._LID` — the source of every rev-17/18 cream number — as **a DETACHED SIGN, separate from the bus**, re-confirming §10.28 which §10.38 had silently reverted (§10.49). Re-based on the surface he identified as the bus's own paint, trimmed for a measured reason: **10.17 % of it is CLIPPED** and a clipped pixel carries no texture. Gate is now **geometry only** — the old `sat < 0.20` is tuned to the sign's C\* 11.2 and returns **2.9 % purity on the vehicle's own cream**. **The character verdict was a constant string** (§10.50): handed pure red paint at 0.0 % purity with every statistic `nan`, it still printed CHALKY SUN-FADE MOTTLE. The replacement derives the verdict and returns **None**; controls now separate red paint and foliage as DIRT/SOILING and refuse a 12×12 patch. The mechanism **survives** re-derivation on the correct surface; the amplitude does not — the sign is **2.1–2.6× more mottled** than the bus. **`FadeVert` has never reached the flank** (§10.51): `T1_body` carries `T1_paint`, which renders cream and red in one material and was left at **0.000**, while the material named `cream` carries exactly one object, `vw_disc` — rev 14's fix landed on every cream surface except the one it was measured on. The map now lives inside `body_paint`, multiplied by the material's own two-tone selector so the red is **0.0 by construction**, with `fadev_from` raising a hard error rather than falling back to a scalar. **The ablation exposed that a luminance high-pass is the wrong instrument for this lever** — on the albedo pass the map moves corr(dL\*,dC\*) **+0.261 → +0.048** monotonically toward the photograph's +0.042 — and **"the cream is 26× too uniform" does not survive**: dL\* rms was already 0.322/0.584/0.948 against 0.385/0.493/0.735. What is short is **chroma**, 0.24 flat against 0.74–1.30 growing, and the lever is bounded: the fade factor clamps at 1.0 so the modulation collapses past AMP 1. Depth correction **stated**: region 2 is the **flank** plane at **337 ± 7 px/m**, not the plate's 344.1. A **fourth `STATE.md` phantom** recorded (§10.52) — `audit.py` still publishes the constants-only arch gap as "41.0 mm (measured 41)" against the mesh's 39.7. Guards **0 fail / 1 warn at both levels**, geometry unchanged. |
 | 2026-08-15 | **rev 21 - the owner's napkin reading obtained, and five routes to the cream albedo all refuted by their own controls.** He identified N2/N3 as white paper napkins and M1 as bare stainless - and refuted a second crop of mine in the process: rev 20's boxes A and B each straddle a napkin face AND the dispenser body, which is the real reason they disagreed, not shading (10.57). rev 20's C/D/E are dropped on a measurement, not an argument: they sit inside the galley opening at 0.22-0.32x the cream's luminance, and a neutral cannot be 3-4x darker than the surface it shares light with. **Route A, the napkin as a same-light neutral, is clean and robust** - three faces clipping at 22/12/0 % agree on hue 44.5-48.2 and sat 0.163-0.203, R>G, and because clipping compresses toward neutral the agreement is itself the control. **It still must not be applied.** The third method fails: de-illuminated by the napkin the flank red reads hue 13.1-13.8 against the independently locked RED's 5.0, and shading explains only 1.7 of the 8.5 degree gap across 30 patches spanning a 4.27x luminance range. **10.12's own invariant says why** - the ratio (G-B)/(R-B) is 0.2225 +- 0.0045 in `ref_rear34` against 0.0813 for the locked albedo, **+31 sd**, so that frame is not related to the locked constants by ANY neutral transform. Inverting the reference refutes itself: using the locked RED as the illuminant makes the white napkin come out a saturated purple, giving **a new rule - an illuminant reference must carry substantial albedo in all three channels**, and RED's are (0.552, 0.029, 0.018). Solving 10.9's full affine model with both surfaces has **no physical solution** for any napkin albedo, and the diagnosis is concrete: the red reads 95 % of the napkin's R channel where 0.552 against white paper should read 65 %, so the two are not under the same light. **`CREAM` UNCHANGED at (206,208,200).** Separately, a subagent's claim that four `audit.py` livery rows are identities that cannot fail was **tested and half refuted** (10.58) - they are invariant to the rake, which `t1_core.py:165-171` shows is deliberate, but displacing the authored constants makes them print OUT and throw FAILs. Guards **0 fail / 1 warn at both levels**, every figure identical to rev 18/19/20; geometry untouched. |
+| 2026-08-15 | **rev 22 - the hero is shot at last, `H_ROOF` is retired by the owner, and item 3's target is refuted as a category error.** First hero since rev 16: **4800x3200, SUB=2, 56 samples, 20 strips, worst seam z = 1.91** against a threshold of 4 (rev 16 shipped 1.89), `post.py` run **once** on the stitched frame - the first photograph of the rev-18 arch fix, rev 17's hubcap rings and rev 19's cream mottle. **`H_ROOF` = 1.960 RETIRED as an accuracy target on the owner's call (10.59)**, after a chain of withdrawals left it with no admissible derivation: REF sec.1 derived it from the ground line 10.11 bans, and its only ground-line-free support - `LOFT_GROUND` sec.1.2's 1.9621 - was withdrawn by 10.34 without noting it was the last one. It was **NOT re-valued to the mesh probe**, which the owner rejected and which would make the guard compare the model to itself and clear a warn by tuning. The probe survives as a **labelled regression catcher, baseline 1.9835 WATCHED PRINT at both levels (SUB=2 reads 1.9833), band +-5 mm**, and was **falsified two ways**: displacing the baseline -10 mm gives `MOVED +10.0 mm`, and raising `CR_ALL`'s crown **+8.0 mm in the GEOMETRY** gives `MOVED +7.9 mm` - the second arm proving it reads the MESH, which the old arch guard never did. Guards **0 fail / 1 warn -> 0 fail / 0 warn at both levels**, and **the warn is gone because THE TEST WAS WITHDRAWN, not because the model improved; the mesh did not move**, every other figure identical. The absolute roof height is now OPEN and UNMEASURED. **`COUNTERTAN`'s hue target REFUTED (10.60)**: the cited 28.4 deg / 0.333 is an **OBSERVED PIXEL** and `COUNTERTAN` is an **ALBEDO** - the 10.21 trap. Re-measured clean (n=162, 0.00 % clipped) the observed top reads 32.3 deg / 0.364, while de-illuminated through the docstring's own arms it reads **39.3 and 41.7 deg against the built 42.3**, with sat 0.254 inside the arms' 0.225-0.289: the claimed ~14 deg error is **at most ~3 deg**, and nothing moves on that while the LEVEL is unresolved. Two new findings from controls never previously run: **the founding crop straddles two materials** (rows 411-415 include the shadowed transition, 54 codes darker, and run into the brass nosing at sat 0.669 / r/g 2.36 - thirteenth instance, and in SPEC's own founding measurement), and **the cab-roof reference is NOT under the same light as the fascia** - after removing the albedo ratio the residual illuminant is B/R **1.219, 22 % bluer** - so that arm is inadmissible under 10.21 and the LEVEL bracket's upper end rests on it. `COUNTERTAN` UNCHANGED, fourth revision running. |
