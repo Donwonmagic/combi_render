@@ -201,7 +201,7 @@ git status                                             # clean
 grep -c '### 10.59' SPEC.md                            # 1   rev 22
 grep -c '### 10.60' SPEC.md                            # 1   rev 22
 grep -c '### 10.61' SPEC.md                            # 1   rev 22
-grep -c 'H_ROOF_REGRESSION' verify.py                  # 6   rev 22
+grep -c 'H_ROOF_REGRESSION' verify.py                  # 7   rev 22
 ls probe_shutlines.py HANDOFF_rev22.md                 #     rev 22
 grep -c '### 10.57' SPEC.md                            # 1   ANCESTOR rev 21
 grep -c 'ALL THREE CHANNELS' SPEC.md                   # 1   ANCESTOR rev 21
@@ -291,10 +291,20 @@ the absolute roof height.
 ## 7. THE COMMIT COUNT AND THE CONTENT FIGURES
 This section is written LAST, after the final commit, and every figure in §1 was
 read off a fresh-clone verification run rather than typed from memory. **This has
-gone wrong in NINE consecutive revisions during handoff assembly** — a truncated
+gone wrong in TEN consecutive revisions during handoff assembly** — a truncated
 console tail, a stale hash, five wrong counts, a `grep -c` that counted LINES
-rather than occurrences, and a check string that did not exist.
-**Final state: 100 commits, clean tree** — the count was read off the console
+rather than occurrences, a check string that did not exist, and **rev 22's own,
+below**.
+**AND IT CAUGHT ITSELF AGAIN, a TENTH time — this revision, in this file.** I
+wrote `grep -c 'H_ROOF_REGRESSION' verify.py  # 6`, typed from my own edits
+rather than watched. The fresh-clone verification returned **7** — `grep -c`
+counts LINES and the constant appears on seven of them, including the comment
+block that documents the band. **The expected value was CORRECTED to 7 from the
+verification console, not loosened and not deleted** (unlike rev 21's
+`STRADDLING` check, which was genuinely unmatchable and was removed). **Fourth
+consecutive revision in which the acceptance-test rule caught its own
+violation.**
+**Final state: 101 commits, clean tree** — the count was read off the console
 after the commit that corrects this section, then the bundle was re-cut and
 re-verified from a fresh clone. Treat the count as a regression catcher only;
 **verify by content.**
