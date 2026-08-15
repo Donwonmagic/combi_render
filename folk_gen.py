@@ -267,8 +267,128 @@ def _from_module(fname, names):
     return found
 
 
+# rev 25, SPEC 10.68.  `_from_module` above can only read a name whose value is
+# a bare literal.  The three things this generator STILL re-typed -- the door's
+# rear station, the rocker LUT and the arch/tyre radii -- are not bare literals
+# in their home modules: `DOOR_GAP`'s rear points are EXPRESSIONS, `BAYS` is a
+# comprehension, `B_PILLAR` is an os.environ lookup and `ZB` is wrapped in a
+# call.  rev 23 named that as the reason it left them re-typed and said the
+# proper parse "is real work and was not done blind at the end of a revision".
+#
+# This is that work.  `_ceval` is a DELIBERATELY TINY evaluator over the node
+# types those definitions actually use -- no attribute access, no imports, no
+# arbitrary calls -- so it can read a constant GRAPH without executing the
+# module (which would need bpy).  Anything it does not recognise RAISES; a
+# silent fallback to a re-typed literal is precisely how this drifted for
+# fourteen revisions (SPEC 10.63).
+def _ceval(node, ns):
+    import ast as _a
+    if isinstance(node, _a.Constant):
+        return node.value
+    if isinstance(node, _a.Name):
+        if node.id not in ns:
+            raise RuntimeError("folk_gen._ceval: unbound name %r" % node.id)
+        return ns[node.id]
+    if isinstance(node, _a.Tuple):
+        return tuple(_ceval(e, ns) for e in node.elts)
+    if isinstance(node, _a.List):
+        return [_ceval(e, ns) for e in node.elts]
+    if isinstance(node, _a.UnaryOp) and isinstance(node.op, _a.USub):
+        return -_ceval(node.operand, ns)
+    if isinstance(node, _a.BinOp):
+        a, b = _ceval(node.left, ns), _ceval(node.right, ns)
+        for op, fn in ((_a.Add, lambda p, q: p + q), (_a.Sub, lambda p, q: p - q),
+                       (_a.Mult, lambda p, q: p * q), (_a.Div, lambda p, q: p / q)):
+            if isinstance(node.op, op):
+                return fn(a, b)
+        raise RuntimeError("folk_gen._ceval: unsupported operator")
+    if isinstance(node, _a.Subscript):
+        return _ceval(node.value, ns)[_ceval(node.slice, ns)]
+    if isinstance(node, _a.ListComp):
+        if len(node.generators) != 1 or node.generators[0].ifs:
+            raise RuntimeError("folk_gen._ceval: only a simple 1-for comp")
+        gen = node.generators[0]
+        if not isinstance(gen.target, _a.Name):
+            raise RuntimeError("folk_gen._ceval: comp target must be a Name")
+        out = []
+        for v in _ceval(gen.iter, ns):
+            sub = dict(ns)
+            sub[gen.target.id] = v
+            out.append(_ceval(node.elt, sub))
+        return out
+    if isinstance(node, _a.Call):
+        f = node.func
+        # float(x) -> x
+        if isinstance(f, _a.Name) and f.id == "float":
+            return float(_ceval(node.args[0], ns))
+        # os.environ.get(VAR, DEFAULT) -> honour the SAME env var t1_shell reads,
+        # so a falsification run (T1_BPILLAR=...) moves the art frame with the
+        # geometry instead of silently baking against the default.
+        if (isinstance(f, _a.Attribute) and f.attr == "get"
+                and isinstance(f.value, _a.Attribute) and f.value.attr == "environ"):
+            var = _ceval(node.args[0], ns)
+            dfl = _ceval(node.args[1], ns)
+            return os.environ.get(var, dfl)
+        raise RuntimeError("folk_gen._ceval: unsupported call")
+    raise RuntimeError("folk_gen._ceval: unsupported node %s"
+                       % type(node).__name__)
+
+
+def _graph_from_module(fname, names, seed=None):
+    """Evaluate a module's top-level constant GRAPH for the named values.
+
+    Walks top-level assignments in source order, evaluating each one it can and
+    SKIPPING the ones it cannot, so an unrelated definition using bpy or a
+    function call never blocks the ones we want.  Raises if any requested name
+    is still missing at the end -- never falls back.
+    """
+    import ast as _a
+    src = open(os.path.join(HERE, fname)).read()
+    ns = dict(seed or {})
+    for node in _a.parse(src).body:
+        if not isinstance(node, _a.Assign) or len(node.targets) != 1:
+            continue
+        tgt = node.targets[0]
+        if not isinstance(tgt, _a.Name):
+            continue
+        try:
+            ns[tgt.id] = _ceval(node.value, ns)
+        except Exception:
+            continue                      # not constant-evaluable; not our concern
+    missing = [n for n in names if n not in ns]
+    if missing:
+        raise RuntimeError(
+            "folk_gen could not evaluate %s out of %s. It must NOT fall back to "
+            "a re-typed literal -- that is how the door frame went 17.25 mm and "
+            "the rocker LUT 76 mm stale (SPEC 10.68). Fix the parse."
+            % (missing, fname))
+    return {n: ns[n] for n in names}
+
+
+def _call_arg_from_module(fname, name, fnames):
+    """Return the first argument of `name = <fname>( ... )`, literal-evaluated.
+
+    Used for `ZB = aft_lut([...])` in t1_core: the KNOTS are what this generator
+    needs, and they are the call's argument, not the name's value.
+    """
+    import ast as _a
+    src = open(os.path.join(HERE, fname)).read()
+    for node in _a.parse(src).body:
+        if (isinstance(node, _a.Assign) and len(node.targets) == 1
+                and isinstance(node.targets[0], _a.Name)
+                and node.targets[0].id == name
+                and isinstance(node.value, _a.Call)
+                and isinstance(node.value.func, _a.Name)
+                and node.value.func.id in fnames):
+            return _a.literal_eval(node.value.args[0]), node.value.func.id
+    raise RuntimeError(
+        "folk_gen could not find `%s = <%s>(...)` in %s. It must NOT fall back "
+        "to a re-typed table (SPEC 10.68)." % (name, "|".join(fnames), fname))
+
+
 _C = _from_module("t1_core.py", ("RAKE_Z0", "RAKE_DZDX", "X_NOSE",
-                                 "X_AXLE_R", "O_NEW"))
+                                 "X_AXLE_R", "O_NEW", "X_TAIL_OLD",
+                                 "TIRE_R"))
 RAKE_Z0, RAKE_DZDX = _C["RAKE_Z0"], _C["RAKE_DZDX"]
 X_NOSE = _C["X_NOSE"]
 # X_TAIL is DERIVED in t1_core (`_aft(X_TAIL_OLD)`) and is not a literal there,
@@ -276,34 +396,79 @@ X_NOSE = _C["X_NOSE"]
 # overhang -- rather than re-typed.  Cross-checked against the live mesh at
 # -1.8730 when this was written.
 X_TAIL = _C["X_AXLE_R"] - _C["O_NEW"]
+X_AXLE_R = _C["X_AXLE_R"]
+TIRE_R = _C["TIRE_R"]
+_O_OLD = _C["X_AXLE_R"] - _C["X_TAIL_OLD"]
+
+
+def _aft(x):
+    """t1_core._aft, re-derived from the SAME parsed constants.
+
+    rev 16 re-spaced every aft LUT knot by its fraction of the rear overhang.
+    t1_core applies this inside `aft_lut()`; this generator read the AUTHORED
+    knots and never applied it, which is SPEC 10.68's rocker defect.
+    """
+    if x >= X_AXLE_R:
+        return x
+    return X_AXLE_R - ((x - X_AXLE_R) / (-_O_OLD)) * _C["O_NEW"]
 # Z_BELT0 is the ABOVE-GROUND belt at x = 0: the authored (un-dropped) belt
 # less the ride drop at x = 0.  t1_mats derives it exactly this way.
 _M = _from_module("t1_mats.py", ("Z_BELT_AUTH",))
 Z_BELT0 = _M["Z_BELT_AUTH"] - RAKE_Z0
 
-# cab-door shut line, t1_shell.DOOR_GAP (authored z, un-sheared)
+# cab-door shut line -- PARSED out of t1_shell.DOOR_GAP (authored z, un-sheared)
 #
-# rev 23, STALE AND NAMED AS SUCH RATHER THAN QUIETLY FIXED.  rev 23 moved the
-# cab door's rear run forward by DOOR_REAR_DX = 17.3 mm to give the B-pillar a
-# non-negative width (SPEC 10.62), so DOOR_X0 below is now 17.3 mm stale.  It
-# is NOT parsed like the four constants above because t1_shell.DOOR_GAP's rear
-# points are EXPRESSIONS (`0.9084 + DOOR_REAR_DX`), which `ast.literal_eval`
-# cannot evaluate, and B_PILLAR is an os.environ lookup.  Parsing it properly
-# means evaluating t1_shell's constant graph, which is real work and was not
-# done blind at the end of a revision.
+# rev 25, SPEC 10.68.  This was re-typed as `DOOR_X0 = 0.9084` and rev 23
+# recorded it as "17.3 mm stale, carried forward".  MEASURED this revision, the
+# staleness is 17.250 mm on the rear control point -- but the number that
+# matters is the WIDTH: the re-typed DOOR_W was 0.908700 against a true
+# 0.891450, i.e. 1.935 % too wide, and DOOR_W is the divisor for every
+# u-coordinate of the door art.  That displaced 82.5 % of the door ink by more
+# than 2 mm and put 3411 px past the true rear shut line.
 #
-# IT CHANGES NOTHING TODAY: build.py never calls folk_gen -- tex/*.png are
-# committed, pre-baked artefacts.  This bites only on the next re-bake, which
-# 10.10 makes a measured operation anyway.  CARRIED FORWARD, see SPEC 10.63.
-DOOR_X0, DOOR_X1 = 0.9084, 1.8171            # latch (aft) .. hinge (fwd)
-DOOR_W = DOOR_X1 - DOOR_X0                   # 0.9087 m  (measured 0.94)
-_DOOR_BOT_AUTH = [(0.9084, 0.8160), (1.1000, 0.8040), (1.4000, 0.8000),
-                  (1.6500, 0.8040), (1.8171, 0.8120)]
-_DOOR_TOP_AUTH = 1.8140                      # top rail of the shut line
-# rocker / sill bottom, t1_core.ZB (authored z)
-_ZB_AUTH = [(-2.108, 0.468), (-2.000, 0.394), (-1.600, 0.387), (-0.400, 0.385),
-            (0.400, 0.385), (1.000, 0.387), (1.500, 0.391), (1.800, 0.397),
-            (1.960, 0.408), (2.040, 0.430), (2.108, 0.520)]
+# The whole outline now comes from t1_shell through `_graph_from_module`, so
+# DOOR_X0 is EXPRESSED IN TERMS OF `BAYS[0][1]` exactly as t1_shell expresses
+# it, and the B-pillar env override moves the art with the geometry.
+_S = _graph_from_module("t1_shell.py",
+                        ("BAY_W", "BAY_CX", "BAYS", "B_PILLAR",
+                         "_DOOR_REAR_X0", "DOOR_REAR_DX", "DOOR_GAP"))
+B_PILLAR = float(_S["B_PILLAR"])
+DOOR_REAR_DX = _S["DOOR_REAR_DX"]
+_GAP = [(float(x), float(z)) for (x, z) in _S["DOOR_GAP"]]
+DOOR_X0 = min(x for x, _ in _GAP)            # latch (aft)
+DOOR_X1 = max(x for x, _ in _GAP)            # hinge (fwd)
+DOOR_W = DOOR_X1 - DOOR_X0                   # 0.8915 m  (measured 0.94)
+# the bottom run is the tail of t1_shell's outline: every point at or below the
+# lowest z plus 20 mm, in increasing x.  Read, not re-typed.
+_zbot = min(z for _, z in _GAP)
+_DOOR_BOT_AUTH = sorted([p for p in _GAP if p[1] <= _zbot + 0.020])
+# top rail of the shut line: an AUTHORED scalar, DELIBERATELY NOT PARSED.
+#
+# rev 25.  I first derived this as the mean z of t1_shell's top run and wrote
+# "within 1 mm of the historical 1.8140" in this comment BEFORE watching it
+# print.  The print refuted me: the run (1.8020, 1.8130, 1.8150, 1.8130, 1.8060)
+# means 1.80980, which is 4.2 mm LOWER, and it would move DOOR_H and with it
+# every v-coordinate of the door art.  That is a SECOND lever in the same bake
+# and nothing measured says 1.8098 is the better value -- so it is HELD at the
+# authored 1.8140, DOOR_H stays bit-identical, and the 4.2 mm discrepancy is
+# carried forward as an open item rather than absorbed into an unrelated fix.
+# One lever at a time.
+_DOOR_TOP_AUTH = 1.8140                      # authored; see SPEC 10.68
+# rocker / sill bottom -- PARSED from t1_core.ZB's own knots and re-spaced by
+# the SAME `_aft()` t1_core applies inside `aft_lut()`.
+#
+# rev 25, SPEC 10.68.  The re-typed table did two things wrong and only one of
+# them mattered.  (a) It never applied `_aft()`, giving 76.222 mm of z error at
+# x = X_TAIL -- CONFIRMED exactly, and REFUTED as a defect, because no art is
+# painted anywhere aft of x = -1.40: ink-weighted that mechanism is 0.0023 mm.
+# (b) It DROPPED FIVE KNOTS (-2.086, -2.050, -1.900, -1.200, +2.085).  The one
+# at +2.085 is at the NOSE, where there IS ink: 19.477 mm peak, touching 3.53 %
+# of the primary-copy ink, and it is essentially the whole 0.7818 mm
+# ink-weighted error.  Parsing the table kills both at once.
+_ZB_KNOTS, _ZB_WRAP = _call_arg_from_module("t1_core.py", "ZB",
+                                            ("aft_lut", "lut"))
+_ZB_AUTH = ([(_aft(x), z) for (x, z) in _ZB_KNOTS] if _ZB_WRAP == "aft_lut"
+            else [(x, z) for (x, z) in _ZB_KNOTS])
 # the flank proper: outside this the body wraps to the +/-X faces of the box
 # projection and a (x, z) authored motif is not what gets sampled.
 FLANK_X0, FLANK_X1 = -2.000, 2.030
@@ -367,8 +532,14 @@ DOOR_H = ((_DOOR_TOP_AUTH - rake_drop(1.36)) - door_bot_z(1.36))   # ~1.017 m
 #     model's own circle is used, because the art has to be visible on the
 #     body that is actually rendered.
 CNT_DROP = 0.1248
-TIRE_R, ARCH_R = 0.3325, 0.3735              # t1_core.py:35, t1_shell.py:203
-X_AXLE_R = -1.100                            # t1_core.py:25
+# rev 25, SPEC 10.68.  These were three MORE re-typed literals -- the same
+# family as the four rev 23 converted, 100 lines below the parse that already
+# reads X_AXLE_R into _C and then shadowed it with a bare literal.  All three
+# happened to still AGREE when checked, so this is exposure removed, not damage
+# repaired, and it is stated that way.  Their provenance comment was also wrong:
+# TIRE_R is t1_core.py:80 and ARCH_R is t1_shell.py:254, not :35 / :203.
+ARCH_R = _graph_from_module("t1_shell.py", ("ARCH_R",))["ARCH_R"]
+# TIRE_R and X_AXLE_R are parsed into _C at the top of section 2.
 
 
 def arch_top(x):
