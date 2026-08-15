@@ -227,6 +227,24 @@ _RETIRED_VALUES = (
     ("z = 1.798",    "1.775",       "t1_shell.Z_HEAD",    "10.2"),
     ("0.507 / 0.516 / 0.526", "equal 0.5155", "t1_shell.BAY_W", "10.29/10.47"),
     ("0.0330",       "0.017750",    "t1_core.RAKE_DZDX",  "10.29"),
+    # ---- rev 25, SPEC 10.69.  Nine more.  Each was verified by hand against
+    # THREE things before its row was written: the SPEC line, the LIVE value
+    # read out of the CODE (never out of other prose), and the sec.10 sentence
+    # that retires it.  A read-only subagent proposed "~12"; four of its
+    # candidates were refuted or mislocated and are recorded in 10.69 rather
+    # than added here -- a subagent's finding is a claim, not a measurement.
+    ("⌀ ≈ 0.370",   "0.2800",      "build.ROUNDEL_D",    "10.22"),
+    ("centre z ≈ 1.130", "1.0170 AG", "build.ROUNDEL_Z_AG", "10.22"),
+    ("x = +2.108 / −2.108", "+2.108 / −1.8730", "t1_core.X_TAIL", "10.35"),
+    ("Not modelled yet", "modelled since rev 8", "t1_core.rake_drop", "10.9"),
+    ("**+0.820**",   "BAYS[0] +0.41425..+0.92975", "t1_shell.BAYS", "10.29/10.47"),
+    ("1.046 m wide", "1.0175",      "t1_shell.BAYS/X_TAIL", "10.29/10.35"),
+    ("composited to **pure white**", "headroom", "post.BACKDROP", "10.32"),
+    ("fish-eye",     "bullet pod",  "t1_detail.bullet_indicator", "10.22"),
+    ("Overall height measures **1.960**", "RETIRED as a target",
+     "verify.H_ROOF_RETIRED", "10.59"),
+    ("`RIDE_DROP` ≠ 0 → FAIL", "== 0.0650 exactly",
+     "verify.RIDE_DROP_SPEC", "rev 5 log"),
 )
 
 # A literal is EXEMPT where the line itself says it is retired.  Matching on the

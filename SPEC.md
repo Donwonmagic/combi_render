@@ -143,10 +143,20 @@ corner glass was deleted from Aug 1963 anyway).
 ### 1.1 Serving-bay layout (show side, x in metres) — **THREE bays only**
 | Bay | Front edge | Rear edge | Treatment |
 |---|---|---|---|
-| 1 | **+0.820** | **+0.313** | open serving hatch |
-| 2 | **+0.195** | **−0.321** | open serving hatch |
-| 3 | **−0.435** | **−0.960** | open serving hatch |
-| — | **−0.960** | **−2.007** | **SOLID sheet metal**, 1.046 m wide. "100% Calidad" sunburst + pink star applied here |
+| 1 | ~~**+0.820**~~ | ~~**+0.313**~~ | open serving hatch |
+| 2 | ~~**+0.195**~~ | ~~**−0.321**~~ | open serving hatch |
+| 3 | ~~**−0.435**~~ | ~~**−0.960**~~ | open serving hatch |
+| — | ~~**−0.960**~~ | ~~**−2.007**~~ | **SOLID sheet metal**, ~~1.046 m wide~~. "100% Calidad" sunburst + pink star applied here |
+
+**THE FOUR ROWS ABOVE ARE RETIRED — §10.69, rev 25.** They carry the same two
+retired errors as the struck sentence below, RE-EXPRESSED AS EDGE PAIRS and so
+invisible to a guard keyed on the width form. Differenced, the published edges
+give **0.507 / 0.516 / 0.525** — bit-for-bit the retired taper — and their
+midpoints sit **105.5 / 110.0 / 99.5 mm AFT** of the live centres, which is
+§10.29's 100 mm ORIGIN ERROR. **LIVE:** `t1_shell.BAY_W = 0.5155`, equal, with
+`BAYS = (+0.41425…+0.92975), (−0.21075…+0.30475), (−0.85575…−0.34025)`. The
+solid panel runs `BAYS[2][0] = −0.85575` to `X_TAIL = −1.8730` and is therefore
+**1.0175 m** wide, not 1.046 — the 1.046 inherits the refuted `−2.007` tail.
 
 ~~Measured from `ref_side.jpg` (§8.6). Widths 0.507 / 0.516 / 0.526 — they are
 **not** identical; they grow slightly toward the tail.~~ **RETIRED by §10.29
@@ -184,10 +194,10 @@ All values **S** (1963 factory brochure) unless noted.
 | Hubcap | dia **0.280**, depth ≈ 0.080 | — |
 | Body max half-width | **0.875** | 0.860 |
 | **Ride height** | **LOWERED.** Rear arch-to-tyre gap **41 mm** (rev 5 said 71; corrected in the verification pass) against a stock 90–120. Front bumper top 0.348 against a stock ≈0.47. Donald's original rev-3.1 reading was right; rev 4 wrongly zeroed it on absence-of-evidence from a thumbnail. **Set `RIDE_DROP = 0.065` and `ARCH_R = TIRE_R + 0.041`** | rev4 said stock — WRONG |
-| **Stance rake** | body sits **nose-down ~1.7°** relative to the axle line (72 mm over the wheelbase). Every height falls ≈28 mm per metre forward. Not modelled yet | — |
+| **Stance rake** | ~~body sits **nose-down ~1.7°** relative to the axle line (72 mm over the wheelbase). Every height falls ≈28 mm per metre forward. Not modelled yet~~ **RETIRED, §10.69.** It IS modelled — `t1_core.rake_drop()`, applied at `build.py:537` step 8b and asserted at `:551` — and the magnitude is **`RAKE_DZDX = 0.017750` = 17.75 mm/m, 1.02°**, 42.6 mm over the 2.400 m wheelbase. The status was closed by §10.9 ("Consequences, all implemented"); the magnitude went 28 → 33.0 → 17.75, the last step by §10.29 at 4.5σ. **Provenance stated honestly: no §10 sentence retires the literals "1.7°" / "≈28 mm per metre" / "72 mm" BY NAME — they are superseded by that chain. "Not modelled yet" is retired explicitly.** | — |
 | Roof edge / crown | 1.8935 / +0.032 | same |
 | Belt line (two-tone break) | ~~z = 1.386~~ **superseded by §10** | same |
-| Front / rear sheet metal | x = +2.108 / −2.108. **Note §10.7: the tail measures −2.007 on the vehicle and the factory overhang gives −2.009, so the model is ~99 mm long at the tail. Unresolved.** | same |
+| Front / rear sheet metal | ~~x = +2.108 / −2.108. **Note §10.7: the tail measures −2.007 on the vehicle and the factory overhang gives −2.009, so the model is ~99 mm long at the tail. Unresolved.**~~ **RETIRED, §10.69.** The NOSE half survives — `t1_core.X_NOSE = 2.108`. The TAIL is **`X_TAIL = −1.8730`** since rev 16 re-spaced the overhang `O_OLD 1.008 → O_NEW 0.773` (§10.35), and §10.7's "~99 mm" is **REFUTED at 10σ** — it subtracted two numbers in different origins (`SPEC.md` §10.35). Nothing here is unresolved. | same |
 | Bumper faces | x = ±2.145 | ±2.140 |
 | Bumper centreline | **stock height, z ≈ 0.480** — *not* straddling the wheel centre | "low" |
 
@@ -215,10 +225,14 @@ would sit at 0.35–0.48 m. **Model it absent.** Rear overhang is factory at
 0.809 ± 0.02.
 
 ### 2.5 Settled by the verification pass
-- **Front indicator: fish-eye / teardrop, correct for a 1963.** Fitted lamp
+- ~~**Front indicator: fish-eye / teardrop, correct for a 1963.** Fitted lamp
   measures 71 mm base × 78 mm protrusion, ratio 1.05; a bullet pod is ≈45 mm
   base at ratio ≈2. It only *reads* as a bullet in side elevation. Workshop
-  aperture is a round 74 ± 6 mm hole.
+  aperture is a round 74 ± 6 mm hole.~~ **RETIRED, §10.69.** §10.22 REFUTED the
+  flat-oval proposal by measurement — *"the existing bullet is closer to the
+  photograph"* — and kept the type while moving the lamp outboard. **LIVE:**
+  `build.py:354` calls `t1_detail.bullet_indicator()`. This section is headed
+  *"Settled by the verification pass"*, which is what made it dangerous.
 - **VW nose roundel is RED in the red livery.** Emblem strokes measure
   R/G = 1.590 against a cream nose at 1.047, with no neutral specular anywhere;
   the workshop chrome reads R/G = 0.974.
@@ -243,11 +257,19 @@ independent re-derivation before it enters the build:
 ### 2.3 Confirmed additions
 - A **rear serving opening** exists in the tail, and the **counter wraps the
   tail** with a 0.313 m overhang and ≈0.30 m outboard projection.
-- Overall height measures **1.960** with the lids closed — *above* stock 1.93
-  despite the lowering, implying the roof-lid frame stands proud by 0.10–0.15.
+- ~~Overall height measures **1.960** with the lids closed — *above* stock 1.93
+  despite the lowering, implying the roof-lid frame stands proud by 0.10–0.15.~~
+  **RETIRED, §10.69, and BOTH halves separately.** `H_ROOF = 1.960` was retired
+  as an accuracy target by the OWNER in rev 22 (§10.59) — it came from the
+  ground line §10.11 bans and lost its only ground-line-free support; the direct
+  mesh probe reads **1.9835** and is a LABELLED regression catcher, not a
+  target, and **the real vehicle's absolute roof height is OPEN and UNMEASURED**.
+  The proud-frame half is separately **refuted at ~13σ** by §10.9: measured
+  proud height is **26 ± 7 mm**, not 100–150.
 - Front indicator aperture in `ref_workshop.jpg` is a plain **round ≈75 mm
-  hole**. Lens type remains **U** — neither bullet base nor fish-eye oval
-  confirmed.
+  hole**. ~~Lens type remains **U** — neither bullet base nor fish-eye oval
+  confirmed.~~ **RETIRED, §10.69** — §10.22 resolved the type: flat-oval
+  REFUTED, bullet kept and built (`build.py:354`).
 
 ---
 
@@ -261,11 +283,11 @@ independent re-derivation before it enters the build:
 | Folk art | **gold + yellow + white + dark-red** Mexican folk-art florals over the **red only**. **Density graded** — dense bouquet on the nose flanks and rear quarter, trailing vine along the belt, sparse under the script | **M** |
 | Side script | **"Señor Tacombi"**, **SILVER** with a dark keyline and drop shadow, two-line lockup (small "Señor" raised over large "Tacombi"), capital **T an ornate swash**; decorative spirals inside the counters of a/c/o/m/b | **R** (text/colour also **S**) |
 | Rear-corner decal | **"100% Calidad"** — white slanted type on a **red-to-orange spiky sunburst**, on **solid cream sheet metal** aft of bay 3, with a small pink star to its left | **M** (position) + **R** (content) |
-| VW nose roundel | painted **RED on the cream nose**, **V above W**, pressed relief not chrome. ⌀ ≈ 0.370, centre z ≈ 1.130 | **M** + **E** |
+| VW nose roundel | painted **RED on the cream nose**, **V above W**, pressed relief not chrome. ~~⌀ ≈ 0.370, centre z ≈ 1.130~~ **RETIRED, §10.69** — §10.22 measured **0.280 ± 0.030 m** by a relation needing no camera pose and found the centre **0.149 ± 0.030 m BELOW the belt**, i.e. the build's 0.370 was **32 % over** and **113 mm high**. **LIVE:** `build.ROUNDEL_D = 0.2800`, `build.ROUNDEL_Z_AG = 1.0170`. The stale 0.370 also fused the VW glyph into an X twice (§10.25). | **M** + **E** |
 | Wheels | **BLACKWALL** tyres; **cream/off-white painted steel rims**; **red domed hubcaps** with a **light VW** in the centre | **M** |
 | Bumpers | **painted cream**, front and rear, stock blade section, **two vertical overriders each** | **M** + **S** |
 | Bright work | headlamp bezels read **warm/brass**, not bright chrome. Drip rail, handles, mirror: dulled | **R** |
-| Indicators | **flat oval "fish-eye"** lenses in a rim, above and slightly outboard of each headlamp, standing proud. **Bullet pods are period-wrong for 1963** | **S** |
+| Indicators | ~~**flat oval "fish-eye"** lenses in a rim, above and slightly outboard of each headlamp, standing proud. **Bullet pods are period-wrong for 1963**~~ **RETIRED, §10.69** — §10.22 REFUTED the flat-oval by measurement and kept the BULLET, moving it **0.130 ± 0.035 m outboard** (the position finding was confirmed but 7× understated). **LIVE:** `t1_detail.bullet_indicator`, `build.py:354`. Note §10.24 left the lens *depth* open at 1.2σ — that is a different quantity and is NOT retired. | **S** |
 | Finish | **WEATHERED** — chalky, sun-faded, uneven, chipped edges, dusty lower body. Locked by user decision 2026-08-08 | user |
 
 ---
@@ -299,7 +321,13 @@ underside of the raised roof lid painted with flowers and menu strips
 ## 6. Render — FROZEN
 
 Cycles CPU + OpenImageDenoise. White seamless studio, shadow-catcher
-composited to **pure white** with a soft contact shadow. Large soft sources
+~~composited to **pure white**~~ **RETIRED, §10.69 — THE OWNER'S DECISION, rev
+15 (§10.32).** Shown the A/B on a real hero he chose the **headroom** arm:
+corners 246.043 against 248.997, exactly-white fraction 0.66 % against 0.92 %,
+grain sd 0.9415 against 0.4718. **LIVE:** `post.BACKDROP = "headroom"`,
+`BACKDROP_PEAK = 252.0`; `--backdrop white` still gives the old behaviour for a
+keyable 255 backdrop. The pure-white lock erased the designed vignette and grain
+rather than adding anything — with a soft contact shadow. Large soft sources
 only. Interior fill required so the serving hatches read as depth, not holes.
 **Hero stills, not turntables.** Final ≥ **2400 × 1600**.
 
@@ -368,7 +396,15 @@ coolairvw.co.uk splitscreen production changes · type2.com tyre FAQ.
 7. Body top below 1.90 anywhere aft of x = −1.60 → FAIL
 8. Non-manifold body shell → **FAIL** (was a warning; SPEC always said FAIL)
 9. Any cutter in `FAILED_CUTS` → FAIL
-10. `RIDE_DROP` ≠ 0 → FAIL
+10. ~~`RIDE_DROP` ≠ 0 → FAIL~~ **RETIRED, §10.69, and it published the INVERSE
+    of the guard that runs.** This is rev 4's "stock ride height" position,
+    reversed by rev 5 on Donald's own reading (change log 2026-08-08) and by §2's
+    own **Ride height** row in this same frozen front matter. **LIVE:**
+    `verify.py:125` `RIDE_DROP_SPEC = 0.065` and `verify.py:796` FAILs unless
+    `RIDE_DROP` equals it to 1e-9 — so the published rule would fail every
+    current build, and §2 and §9 contradicted each other inside the front matter.
+    §10.45 additionally labels the row an algebraic identity (residual exactly
+    0.000e+00) and it is kept as a LABELLED lock on the authored constants.
 
 ---
 
@@ -2685,6 +2721,174 @@ inside a §10 body or §0.2 — those sections exist to name retired values. It
 catches a retirement republished in the FROZEN front matter. It does **not**
 catch a §10 entry that contradicts itself; `:2701` was found by an adversarial
 read, not by this guard, and nothing here should be read as covering that.
+
+
+### 10.68  rev 25 — the bake frame PARSED, and the artwork re-baked for the first time since rev 11
+
+rev 24 carried an UNVERIFIED claim forward: that `folk_gen._ZB_AUTH` sits in the
+pre-rev-16 tail frame, worth **up to 76 mm** of z error at the tail, "**larger
+than `DOOR_X0`**", and that it would therefore **dominate** the re-bake decision.
+It was verified this revision. **The magnitude is exact and the conclusion is
+REFUTED.**
+
+**(a) The 76 mm is real and carries ZERO INK.** `_ZB_AUTH` did copy `t1_core.ZB`'s
+authored knots without `aft_lut`'s `_aft()` re-space. Measured against the live
+mesh LUT: **max |dz| = 76.222 mm at x = −1.8730**, exactly `X_TAIL`, exactly the
+claimed figure. **But the bake paints nothing there.** Binning the baked ink
+against x:
+
+| x band | ink | mean \|sill err\| |
+|---|---|---|
+| −1.873 … −1.400 (the whole 76 mm region) | **0 px** | — |
+| −1.400 … +1.900 | 439 185 px | 0.01 mm |
+| +2.050 … +2.070 | 21 133 px | 8.44 mm |
+| **+2.070 … +2.090** | 12 584 px | **16.39 mm** |
+
+Two controls isolate the mechanisms: re-space alone **75.540 mm**, dropped knots
+alone **20.925 mm**; ink-weighted over the live body, total **0.7818 mm** of which
+**the re-space contributes 0.0023 mm — two microns.** So where it touches paint
+the claimed mechanism is not larger than `DOOR_X0`; it is ~7 500× smaller.
+
+**(b) A DIFFERENT `_ZB_AUTH` defect is real and was never named.** The re-typed
+table **omitted five knots** — `−2.086, −2.050, −1.900, −1.200, +2.085`. The one
+that reaches ink is **+2.085, at the NOSE**: **19.477 mm** peak, touching
+**3.53 %** of the primary-copy ink, and it is essentially the whole ink-weighted
+error.
+
+**(c) `DOOR_X0` DOMINATES, and worse than rev 23 recorded.** Verified by hand off
+`t1_shell`'s constant graph: `BAYS[0][1] = 0.929750`, `B_PILLAR` default
+`0.0120`, `_DOOR_REAR_X0 = 0.9245` → **`DOOR_REAR_DX = 17.250 mm`**. The
+consequence nobody had computed is the WIDTH: `folk_gen.DOOR_W` was **0.908700**
+against a true **0.891450**, **1.935 % too wide**, and `DOOR_W` is the divisor for
+every u-coordinate of the door art. Over the door ink: displacement ink-weighted
+**6.290 mm**, max **17.247 mm**, **82.5 % displaced > 2 mm**, 57.9 % > 5 mm, and
+**3 411 px past the true rear shut line** — an overhang of **1.44× the entire
+B-pillar width**.
+
+**THE CONTROL FAILED, AND THAT WAS THE FINDING.** Re-baking with the constants
+**unchanged** does not reproduce the committed artefacts: `swirl.png` **4.029 %**
+of pixels differ, `swirl_b.png` **4.261 %**, max Δ **255**; `nose.png` is
+byte-identical. The control's own premise was checked before it was interpreted —
+two bakes in **separate processes** give identical md5s, so the bake is
+**deterministic** and this is not seed noise. A bisect then closed it with no
+inference in it: holding the whole tree at rev 24 and swapping in **only** the
+pre-rev-23 `folk_gen.py` reproduces the committed files **BYTE-IDENTICALLY**
+(`1e1c2bd5…`, `f8ed6e71…`). `git log -- tex/swirl.png` last writes it at
+`9a227cd`, **rev 11**. **The model was wearing artwork fourteen revisions old**,
+and rev 23's "NOT RE-BAKED — nothing in the current build changed" is true of the
+BUILD (no guard figure moved) while leaving a 4 % divergence from its own
+corrected source. Under §10.10 that settles the re-bake.
+
+**THE FIX IS STRUCTURAL — the work rev 23 named and declined to do blind.** A
+deliberately tiny bounded evaluator `_ceval` (no attribute access, no imports, no
+arbitrary calls) reads `t1_shell`'s constant GRAPH — `DOOR_GAP`'s expressions,
+`BAYS`' comprehension, `B_PILLAR`'s `os.environ` default — and `t1_core`'s `ZB`
+knots, so `DOOR_X0` is **expressed in terms of `BAYS[0][1]`** exactly as
+`t1_shell` expresses it, `_ZB_AUTH` is the real table re-spaced by the real
+`_aft()`, and **`T1_BPILLAR` now moves the ART frame with the geometry**. Three
+further re-typed literals removed (`TIRE_R`, `ARCH_R`, `X_AXLE_R`) — **all three
+still AGREED, so that is exposure removed, not damage repaired**, and their
+provenance comment was wrong (`t1_core.py:80` / `t1_shell.py:254`, not `:35` /
+`:203`). Every parse **RAISES** rather than falling back.
+
+**FALSIFIED IN FOUR ARMS**, and the fourth is a cross-confirmation. The parse
+raises on every missing name; `T1_BPILLAR=0.0300` moves `DOOR_X0` to `0.943650`;
+and **the B-pillar width that reproduces the retired `DOOR_X0 = 0.9084` exactly
+is −0.005250 m** — the NEGATIVE pillar width §10.62 found in the GEOMETRY, whose
+independently derived reproducing value was **−0.0053**. **They agree to
+0.050 mm, from two unrelated routes** (§10.62's shut-line crossing probe and this
+revision's texture frame). The door art had been drawn to a door that could not
+open.
+
+**`_DOOR_TOP_AUTH` DELIBERATELY NOT PARSED, and the reason is a mistake of
+mine.** I derived it as the mean of the outline's top run and wrote "within 1 mm
+of the historical 1.8140" into my own comment **before watching it print**. The
+print refuted me at **4.2 mm** (the run means 1.80980). It is HELD at the
+authored **1.8140** so `DOOR_H` stays bit-identical and only one lever moves in
+this bake; the 4.2 mm is carried forward as an open item rather than absorbed
+into an unrelated fix. *Do not put a figure in prose unless you watched it
+print — including in a comment you are writing at that moment.*
+
+**RE-MEASURED AFTER THE BAKE:** door ink past the true rear shut line
+**3 411 → 0 px**; sill LUT max error over the body **76.222 → 0.000000 mm**;
+ink-weighted **0.7818 → 0.000000 mm**; ink where |err| > 10 mm **21 057 → 0**.
+**§10.10's own targets held or improved:** flank density rms **3.59 → 3.58**
+(show) and **3.98 → 3.96** (off); zone residuals show R1 **−0.44 → +0.29** and
+R2 **+0.58 → −0.14**. **One went the other way and is stated, not hidden:** door
+gold **29.09 → 28.90** against a 29.08 target — 0.18 off where the committed arm
+was 0.01, inside the **28.96–29.19** round-to-round spread watched printing
+across seven solver rounds, but not an improvement. `tex/nose.png` UNCHANGED
+(md5 `b31ea156`). New: `swirl.png` `4ee4e09e`, `swirl_b.png` `d2015971`.
+
+**NO GEOMETRY MOVED.** Guards 0 fail / 0 warn at both levels, every figure
+identical.
+
+
+### 10.69  rev 25 — nine more §10.64-class defects, each verified against three things
+
+Extending `verify._RETIRED_VALUES` from **5 rows to 15**. A read-only subagent
+proposed "**~12 further defects** in §1, §2, §3, §6, §10.5, §10.7". **A
+SUBAGENT'S FINDING IS A CLAIM**: every candidate was verified by hand against
+**three** things before a row was written — the SPEC line, the LIVE value read
+out of the **CODE** (never out of other prose), and the §10 sentence that retires
+it. **Nine survived. Four were refuted or mislocated.**
+
+**CONFIRMED and struck** (guard fired at each of these 12 lines, then 0):
+
+| § | line | retired literal | live value, from code |
+|---|---|---|---|
+| 1.1 | 146–149 | the four bay/panel rows | `BAY_W = 0.5155` equal; panel **1.0175 m** |
+| 2 | 187 | "nose-down ~1.7°… **Not modelled yet**" | `RAKE_DZDX = 0.017750`, modelled at `build.py:537` |
+| 2 | 190 | `x = +2.108 / −2.108`, "~99 mm… Unresolved" | `X_TAIL = −1.8730`; 99 mm **refuted at 10σ** |
+| 2.5 | 227 | "fish-eye / teardrop, correct for a 1963" | `bullet_indicator`, `build.py:354` |
+| 2.3 | 246 | "Overall height measures **1.960**" + proud 0.10–0.15 | `H_ROOF` RETIRED (§10.59); proud **26 ± 7 mm** (§10.9) |
+| 2.3 | 249 | "Lens type remains **U**" | resolved by §10.22 |
+| 3 | 264 | `⌀ ≈ 0.370`, `centre z ≈ 1.130` | `ROUNDEL_D = 0.2800`, `ROUNDEL_Z_AG = 1.0170` |
+| 3 | 268 | "flat oval **fish-eye**… bullet pods period-wrong" | bullet kept, flat-oval **REFUTED** (§10.22) |
+| 6 | 302 | "composited to **pure white**" | `post.BACKDROP = "headroom"` (§10.32, owner's call) |
+| 9 | 371 | `` `RIDE_DROP` ≠ 0 → FAIL `` | `RIDE_DROP_SPEC = 0.065`, FAIL unless EQUAL |
+
+**TWO OF THESE ARE SHARPER THAN THE REST.**
+
+**§1.1's rows defeat the guard's own matching by RE-EXPRESSION.** Row 4 of the
+original table keys on the literal `"0.507 / 0.516 / 0.526"` — which now exists
+**only inside the strike that retires it**, three lines below. The identical
+retired taper survives unstruck **as edge pairs**: differenced they give
+**0.507 / 0.516 / 0.525**, and their midpoints sit **105.5 / 110.0 / 99.5 mm
+AFT**, i.e. §10.29's 100 mm origin error, carried in the same rows. **A retired
+value re-expressed in another form — edges for widths, mm/m for m/m, degrees for
+slope — is invisible to a substring guard. That is this guard's real ceiling and
+it is now stated rather than discovered later.**
+
+**§9 row 10 published the INVERSE of the guard that runs**, and contradicted §2
+inside the same frozen front matter: §9 said any non-zero `RIDE_DROP` is a
+failure while `verify.py:796` fails unless it equals `0.065` exactly, and §2's
+own **Ride height** row orders `RIDE_DROP = 0.065`. Rev 4 zeroed it, rev 5
+reinstated it on Donald's own reading, and §9 was never updated. As published,
+the rule would fail every current build.
+
+**REFUTED from the subagent's list, recorded so nobody re-adds them:**
+
+- **"§0.2 bullet 13's refuted fish-eye."** The substance is right, the *location*
+  is wrong: `SPEC.md:71-72` is inside §0.2, which `_is_log` exempts **by design**
+  (§0.2 exists to name retired readings). The real front-matter republications
+  are `:227` and `:268`, which the brief did not name.
+- **"§10.5 and §10.7 are defect sites."** They are not. Both sit under
+  `## 10. rev 7 — the canonical constants` and are **skipped**. A change log
+  recording "rev 7 locked X, we now use Y" is CORRECT, not a defect — §10.67
+  already states this ceiling.
+- **"~12 defects."** Nine. The brief's own enumerated list was five, of which
+  four are real and one is mislocated.
+- **Bumper faces `±2.145` (`:191`) vs `X_BUMP_F/R = ±2.140`.** Real 5 mm drift,
+  but **no §10 entry retires either value in either direction** — so it is
+  DIFFERENT, not RETIRED, and adding a row would assert a retirement that does
+  not exist. **Carried forward as an open item, not as a guard row.**
+
+**FALSIFIED IN FOUR ARMS:** clean tree **0 fail**; an unmarked `⌀ ≈ 0.370`
+injected into FROZEN §3 → **1 FAIL at the exact line**; the same value marked
+retired on its own line → **0 fail** (correct boundary); restored → **0 fail**.
+And, per §10.67's own lesson, **the §0.2 bullet count was WATCHED PRINT: 29
+counted, 29 in `_RETIRED_BULLETS_REVIEWED`**, with the parse line-anchored.
 
 
 ## Change log
