@@ -269,13 +269,17 @@ git pull --ff-only ../tacombi_rev25_incremental.bundle HEAD      # -> see §7
 Content checks — **the first eight reach the TIP on purpose**:
 ```bash
 git status                                              # clean
-grep -c '### 10.68' SPEC.md                             # PLACEHOLDER  rev 25
-grep -c '### 10.69' SPEC.md                             # PLACEHOLDER  rev 25
-grep -c '_ceval' folk_gen.py                            # PLACEHOLDER  rev 25
-grep -c '_graph_from_module' folk_gen.py                # PLACEHOLDER  rev 25
-grep -c '_call_arg_from_module' folk_gen.py             # PLACEHOLDER  rev 25
-grep -c 'RIDE_DROP` ≠ 0 → FAIL' SPEC.md                 # PLACEHOLDER  rev 25
-grep -c 'bullet pod' verify.py                          # PLACEHOLDER  rev 25
+grep -c '### 10.68' SPEC.md                             # 1   rev 25
+grep -c '### 10.69' SPEC.md                             # 1   rev 25
+grep -c '_ceval' folk_gen.py                            # 19  rev 25
+grep -c '_graph_from_module' folk_gen.py                # 4   rev 25
+grep -c '_call_arg_from_module' folk_gen.py             # 2   rev 25
+grep -c 'RIDE_DROP` ≠ 0 → FAIL' SPEC.md                 # 2   rev 25  <- TWO: the struck
+                                                        #     line in §9 AND §10.69's table.
+                                                        #     I read this off the console; a
+                                                        #     guessed `1` would have sent the
+                                                        #     next context hunting a phantom.
+grep -c 'bullet pod' verify.py                          # 1   rev 25
 ls HANDOFF_rev25.md rev25_hero34f.png                   #              rev 25
 grep -c '### 10.65' SPEC.md                             # 1   ANCESTOR rev 24
 grep -c '_retired_value_drift' verify.py                # 3+  ANCESTOR rev 24
@@ -291,8 +295,7 @@ grep -c 'matte_tap' studio.py                           # 6   ANCESTOR rev 17
 grep -c '_coons_cap' t1_core.py                         # 3   ANCESTOR rev 16
 grep -c 'The threshold is not the parameter' post.py    # 1   ANCESTOR rev 13
 ```
-**EVERY PLACEHOLDER ABOVE IS REPLACED IN §7 WITH THE VALUE READ OFF A
-FRESH-CLONE VERIFICATION RUN.** Never type one from memory — `grep -c` counts
+**EVERY VALUE ABOVE WAS READ OFF A FRESH-CLONE VERIFICATION RUN.** Never type one from memory — `grep -c` counts
 LINES, not occurrences, and that has produced a wrong figure in five revisions.
 
 Ancestry:
@@ -394,7 +397,20 @@ tail, a stale hash, five wrong counts, a `grep -c` that counted LINES rather tha
 occurrences, and a check string that did not exist. rev 23, rev 24 and rev 25
 were clean runs.
 
-**FINAL COUNT AND THE EIGHT REV-25 GREP VALUES: SEE BELOW** — read off the
-fresh-clone verification, plus the commit that writes this paragraph. The bundle
-was re-cut and re-verified from a fresh clone AFTER that commit. Treat the count
-as a regression catcher only; **verify by content.**
+Every rev-25 grep value in §1 was read off the fresh-clone console before being
+written, not typed from memory afterwards. **One of them caught a would-be
+violation on the spot:** `grep -c 'RIDE_DROP` ≠ 0 → FAIL' SPEC.md` returns **2**,
+not the 1 that would have been natural to assume — the struck line in §9 and
+§10.69's own table both match. A guessed `1` would have sent the next context
+hunting a phantom lost commit.
+
+**A NOTE ON THE BUNDLE SIZE.** The hero was briefly committed and that took the
+incremental bundle from ~300 KB to **15.8 MB**. No prior revision tracks a hero
+PNG — they live in the gitignored `out/` and are delivered to his disk directly.
+The blob was removed from the index, gitignored, and then filtered out of the
+rev-25 commit range with `git filter-branch --index-filter` **restricted to
+`d51ffcc..HEAD`**, so no ancestor hash changed — the eight-commit ancestry loop
+still passes 8/8 and every previously shipped bundle still applies. Bundle back
+to **306 KB**. The hero itself is delivered as a deliverable, not as a commit.
+
+**FINAL COUNT: 115 commits, clean tree.**
