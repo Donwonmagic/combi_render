@@ -302,7 +302,7 @@ git pull --ff-only ../tacombi_rev22_incremental.bundle HEAD      # -> 101
 git pull --ff-only ../tacombi_rev23_incremental.bundle HEAD      # -> 105
 git pull --ff-only ../tacombi_rev24_incremental.bundle HEAD      # -> 107
 git pull --ff-only ../tacombi_rev25_incremental.bundle HEAD      # -> 115
-git pull --ff-only ../tacombi_rev26_incremental.bundle HEAD      # -> 119
+git pull --ff-only ../tacombi_rev26_incremental.bundle HEAD      # -> 120
 ```
 **If a pull says "Need to specify how to reconcile divergent branches", STOP.**
 
@@ -318,7 +318,7 @@ grep -c 'PUBLISHED_CLEAN' probe_ctan_pedestal.py        # 3   rev 26
 grep -c 'SPEC 10.73' folk_gen.py                        # 2   rev 26
 grep -c 'd201597e' SPEC.md                              # 3   rev 26
 grep -c '### 10.75' SPEC.md                             # 1   rev 26
-grep -c 'over-rider' SPEC.md                            # __  rev 26
+grep -c 'over-rider' SPEC.md                            # 3   rev 26
 ls HANDOFF_rev26.md probe_ctan_pedestal.py              #     rev 26
 grep -c '### 10.68' SPEC.md                             # 1   ANCESTOR rev 25
 grep -c '_ceval' folk_gen.py                            # 19  ANCESTOR rev 25
@@ -458,4 +458,4 @@ read off a fresh-clone verification run rather than typed from memory. **This ha
 gone wrong in ELEVEN revisions during handoff assembly.** rev 23, rev 24 and
 rev 25 were clean runs.
 
-**FINAL COUNT: 119 commits, clean tree.**
+**FINAL COUNT: 120 commits, clean tree.**
