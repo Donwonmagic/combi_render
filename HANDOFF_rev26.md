@@ -232,11 +232,17 @@ rev 20's §4, rev 19's §4 and rev 18's §4 **all still stand in full.** Adding:
   plus the grazing lobe at ~83° off normal, where `T1_CTAN_SP=0` may leave
   F90 = 1 and therefore may not be a complete specular ablation. **UNVERIFIED —
   test before use.**
-- **The front bumper face is UNMEASURED** (§10.72). A photograph question is
-  outstanding with the owner on `ref_workshop.jpg` — the one frame where the
-  bumper is not occluded by the lamppost — asking whether the upper tube and the
-  vertical post belong to the vehicle. **The model has no member for the tube at
-  all**; it builds a blade plus two 62 × 30 mm brackets.
+- **§10.75 — THE FRONT BUMPER CARRIES AN OVER-RIDER BAR THE MODEL DOES NOT
+  BUILD. ANSWERED BY THE OWNER.** Shown the photograph beside a render of the
+  current build, he ruled **A (the upper tube) and C (the vertical post) are
+  BOTH ON THE BUS** — an over-rider bar and its post — and chose **model them,
+  tagged workshop-stage**. The model builds one blade plus two 62 × 30 mm
+  brackets and **has no member for either**. Measurement NOT done: the first
+  pass failed its own consistency check (trolley occlusion, 4.7× spread), the
+  swept threshold brackets the tube at **7.9–11.7 px (±19 % systematic)**, and
+  **my PSF control was invalid** — it crossed the two-tone break diagonally and
+  returned 52 px. A valid PSF and a scale on the nose/bumper plane come first.
+- **The front bumper face is UNMEASURED** (§10.72), separately from the above.
 - **`CREAM`** — needs a same-light, same-CLASS, three-channel reference. Does
   not exist in the three photographs. Unchanged at (206,208,200).
 - **THE ABSOLUTE ROOF HEIGHT** — 1.960 retired, nothing replaced it.
@@ -256,16 +262,22 @@ rev 20's §4, rev 19's §4 and rev 18's §4 **all still stand in full.** Adding:
 2. **The residual 6.6 / 6.6 / 8.5 % pedestal** — `T1_WORLD=0`, `T1_CYCALB=0`,
    `T1_GAL_LUM=0`, one render each, overrides already exist. **Test the F90
    question first** — it is free and it decides whether arm 4 was complete.
-3. **The front bumper**, once the owner's reading lands — and strike ±2.145 /
-   ±2.140 from §2 as catalogue-derived either way.
+3. **THE FRONT OVER-RIDER (§10.75)** — the owner's reading has landed and the
+   model is missing a whole assembly. Order: measure a **valid PSF** on
+   `ref_workshop.jpg`; establish a scale on the nose/bumper plane or prove none
+   is admissible; only then size and build the bar and post, **every number
+   tagged workshop-stage**. Strike ±2.145 / ±2.140 from §2 as catalogue-derived
+   either way (§10.72). **Building this moves geometry and invalidates
+   `rev25_hero34f.png`** — re-shoot after, never before.
 4. Tail-lamp material slot; `Senor`'s letterforms; `SCR`'s +80 mm.
-5. A hero **only** if geometry or artwork moves. `rev25_hero34f.png` still
+5. A hero **only** if geometry or artwork moves — **and item 3 will move it if
+   it lands.** `rev25_hero34f.png` still
    photographs the current mesh AND the current artwork — **verified this
    revision by three byte-identical re-bakes**, not assumed.
 6. Camera absolutely last.
 
-**ONE QUESTION IS OUTSTANDING WITH THE OWNER**: the `ref_workshop.jpg` bumper
-reading (tube / blade / post). The one photograph that would move most still
+**NO QUESTION IS OUTSTANDING WITH THE OWNER** — the `ref_workshop.jpg` bumper
+reading came back and is recorded as §10.75. The one photograph that would move most still
 closes THREE things: a head-on rear or front elevation from roof height closes
 `CREAM` and the absolute roof height; a clear off-flank view closes 804.9 mm of
 unadjudicated crossing.

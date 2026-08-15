@@ -62,7 +62,8 @@ fourteen-revision-old artwork. §10.69 takes `_RETIRED_VALUES` 5 → 15 rows.
 the WRONG MATERIAL; §10.72 finds work item 3 MALFORMED — both bumper numbers are
 the factory catalogue halved; §10.73 finds work item 2 an ARTEFACT — a run mean
 compared with a station value; §10.74 records two defects in rev 25's own
-record.**
+record; §10.75 is an OWNER READING — the front bumper carries an OVER-RIDER BAR
+and a POST that the model does not build at all.**
 
 ## Step 5 — ASK ME WHAT THE PHOTOGRAPHS SHOW before you measure from them
 This has now paid off fifteen times. **My answers are not infallible — ask me
@@ -415,12 +416,11 @@ See `HANDOFF_rev26.md` §5 for the full list. The ones that matter:
   `X_NOSE`/`X_TAIL` parsed in `folk_gen`, never LOADED.
 
 ## 5. FIRST QUESTION FOR THE OWNER
-**ONE QUESTION IS OUTSTANDING**, sent in rev 26 with printed crop boxes on
-`ref_workshop.jpg` — the one frame where the front bumper is not occluded by the
-lamppost. **A: the upper tube. B: the lower blade. C: the vertical post between
-them.** Which belong to the vehicle rather than to shop hardware? **The model
-has no member for A at all** — it builds a blade plus two 62 × 30 mm brackets.
-If it went unanswered, re-ask it; §10.72 is blocked on it.
+**NO DECISION IS OUTSTANDING.** rev 26's question was asked with printed crop
+boxes on `ref_workshop.jpg` and **ANSWERED**: the upper tube **A** and the
+vertical post **C** are **BOTH ON THE BUS** — a bumper over-rider bar and its
+post — and he chose **model them, tagged workshop-stage** (§10.75). That is now
+work item 3, not a question.
 
 What would still move the most is one photograph: **a head-on rear (or front)
 elevation from roof height or above, with the counter and the lids clear of the
@@ -435,10 +435,19 @@ close 804.9 mm of unadjudicated crossing.
 2. **The residual 6.6/6.6/8.5 % pedestal** — `T1_WORLD=0`, `T1_CYCALB=0`,
    `T1_GAL_LUM=0`, one render each, overrides already exist. **Test the F90
    question FIRST** — it is free and decides whether rev 26's arm 4 was complete.
-3. **The front bumper**, once the owner's reading lands — and strike ±2.145 /
-   ±2.140 from §2 either way.
+3. **THE FRONT OVER-RIDER (§10.75)** — the owner has ruled the upper tube and
+   the vertical post are BOTH ON THE BUS, and chose **model them tagged
+   workshop-stage**. The model has NO member for either. Order: a **VALID PSF**
+   on `ref_workshop.jpg` first (mine was invalid — it crossed the two-tone break
+   diagonally and read 52 px); then a scale on the nose/bumper plane, or a proof
+   that none is admissible; then size and build, **every number tagged
+   workshop-stage** as Nolita numbers are. The tube is bracketed at
+   **7.9–11.7 px, ±19 % from the threshold choice** — that systematic, not the
+   0.4–0.8 px scatter, is what binds. **This moves geometry and invalidates
+   `rev25_hero34f.png`.** Strike ±2.145 / ±2.140 from §2 either way (§10.72).
 4. Tail-lamp material slot; `Senor`'s letterforms; `SCR`'s +80 mm.
-5. A hero ONLY if geometry or artwork moves. `rev25_hero34f.png` photographs both.
+5. A hero ONLY if geometry or artwork moves — **item 3 WILL move it.**
+   `rev25_hero34f.png` photographs the current mesh and artwork until then.
 6. Camera absolutely last.
 
 ## 7. THE COMMIT COUNT AND THE CONTENT FIGURES

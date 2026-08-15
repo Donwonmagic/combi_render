@@ -3163,10 +3163,91 @@ Neither changes the model; both would have cost the next context real time.
   count.
 
 
+### 10.75  rev 26 — THE FRONT BUMPER CARRIES AN OVER-RIDER BAR THE MODEL DOES NOT BUILD
+
+**SETTLED BY THE OWNER**, from a marked figure on `ref_workshop.jpg` — the one
+frame in the set where the front bumper is **not occluded by the lamppost**
+(`ref_side.jpg` columns 62–79, the feature `verify.py:43` names as the source of
+three confident wrong numbers, and the reason §10.72 leaves the bumper face
+UNMEASURED).
+
+Shown the photograph beside a render of the model's own front end, with three
+pointer boxes printed in original-frame coordinates, he ruled:
+
+| box | region | reading |
+|---|---|---|
+| **A** `(260,664)-(286,673)` | the upper tube across the nose | **ON THE BUS — a bumper OVER-RIDER BAR** |
+| **B** `(230,697)-(266,723)` | the lower pale blade | the bumper blade — the model does build this |
+| **C** `(357,681)-(374,697)` | the vertical post between them | **ON THE BUS — an over-rider joining A to B** |
+
+**THE MODEL HAS NO MEMBER FOR EITHER A OR C.** `build.py:322` builds one blade
+(`D.bumper(True)`) and `build.py:326` builds `bumper_irons(True)` — two
+`62 × 30 mm` rounded-rect prisms 150 mm long at `x = 2.045, y = ±0.470`
+(`t1_detail.py:~370`). Neither is a transverse tube, and neither is the vertical
+post at the vehicle's centreline that the photograph shows. Confirmed against a
+render of the current build made this revision: **one plain cream blade, nothing
+above it.**
+
+**SCOPE, also settled by him: MODEL THEM, TAGGED WORKSHOP-STAGE.** This matters
+because `ref_workshop.jpg` is the CONVERSION stage and §2.4 records that the
+**rear** bumper was removed between that stage and service — so front hardware
+present in the workshop is not automatically present in service, and no
+in-service frame shows the front. Every number derived from this reading is to
+be tagged workshop-derived in SPEC, the same treatment Nolita geometry gets
+(§10.32), so it can be pulled back out if an in-service frame ever contradicts
+it.
+
+**THE MEASUREMENT IS NOT DONE, AND THE FIRST PASS FAILED ITS OWN CONSISTENCY
+CHECK.** Recorded rather than tidied away:
+
+- A naive two-run column scan over rows 628–762 returned "blade height" of
+  **30, 42, 41, 36, 34, 12, 9, 11 px** across eight columns — a 4.7× spread. The
+  cause is that the **foreground trolley rail occludes the blade's lower edge**
+  over most columns, and the scan window truncated the tube at its top row. The
+  derived ratio came out **0.574 ± 0.507**, i.e. an uncertainty almost as large
+  as the value. **It is not quoted anywhere and must not be resurrected.**
+- Restricted to columns 248–272, the only run where the blade's lower edge is
+  clear, and **sweeping the threshold rather than picking one** (§10.41's rule),
+  the tube's diameter reads:
+
+| lum threshold | 110 | 120 | 130 | 140 | 150 | 160 | 170 |
+|---|---|---|---|---|---|---|---|
+| tube dia (px) | 11.7 | 11.4 | 11.0 | 9.9 | 9.1 | 8.6 | 7.9 |
+| sd over 7 columns | 0.5 | 0.5 | 0.8 | 0.4 | 0.4 | 0.5 | 0.4 |
+
+  So the tube is **7.9–11.7 px**: tight *within* any one threshold (sd ≤ 0.8)
+  and **±19 % across the threshold choice**. That systematic, not the scatter,
+  is the binding uncertainty.
+
+- **MY PSF CONTROL WAS INVALID AND IS RECORDED AS SUCH.** I fitted a 10–90 edge
+  rise on the nose two-tone break and got **52.0 px**, which would make a 10 px
+  feature unmeasurable. That number is wrong: the window I chose crosses the
+  two-tone boundary **diagonally**, so it measured the boundary's slope across
+  the window, not the point spread. §10.38's lesson — *check the control itself,
+  not only the number* — applying to a control written in the same session.
+  **A real PSF on this frame is still owed and no width claim should rest on the
+  52 px figure in either direction.**
+
+**NO METRE FIGURE IS AVAILABLE AND NONE IS INVENTED.** There is no admissible
+px/m on the bumper plane in this frame: `ref_workshop.jpg` is a three-quarter
+view with a projective flank map nobody has built (`t1_shell.py:471-476` says so
+for the door plane), §10.48's **344.1 ± 6.7 is the PLATE plane of a different
+photograph**, and §10.72 has just established that the bumper face's own station
+is unmeasured. The headlamp is the nearest locked candidate ruler and sits on a
+different depth and a curved surface.
+
+**WHAT REV 27 INHERITS**, well-posed rather than half-done: the reading is
+settled; the gap in the model is confirmed against a render; the tube is
+bracketed at 7.9–11.7 px with the threshold systematic identified as the binding
+term; a valid PSF and a scale on the nose/bumper plane are the two things that
+must come first. **No geometry was changed on this finding in rev 26.**
+
+
 ## Change log
 
 | Date | Change |
 |---|---|
+| 2026-08-15 | **rev 26 — the front bumper carries an OVER-RIDER BAR the model does not build (§10.75).** Shown `ref_workshop.jpg` — the ONE frame where the front bumper is not occluded by the lamppost — beside a render of the current build, with three pointer boxes printed in original-frame coordinates, the owner ruled **A (the upper tube) and C (the vertical post) are BOTH ON THE BUS**: a bumper over-rider bar and its post. **The model has no member for either** — `build.py:322` builds one blade and `:326` two 62 × 30 mm brackets. Confirmed against a render made this revision. **Scope also settled by him: model them, TAGGED WORKSHOP-STAGE**, because `ref_workshop.jpg` is the conversion stage and §2.4 records the REAR bumper was removed between that stage and service — so front hardware present in the workshop is not automatically present in service, and no in-service frame shows the front. Tagged the way Nolita geometry is (§10.32), so it can be pulled back out. **THE MEASUREMENT IS NOT DONE AND THE FIRST PASS FAILED ITS OWN CONSISTENCY CHECK, recorded rather than tidied away**: a naive column scan returned blade heights of 30/42/41/36/34/12/9/11 px — a 4.7× spread caused by the foreground trolley occluding the blade's lower edge — giving 0.574 ± 0.507, which is not quoted anywhere. Restricted to the seven clean columns and **sweeping the threshold rather than picking one**, the tube reads **11.7 → 7.9 px across thresholds 110 → 170 with sd ≤ 0.8 within each**: tight per threshold, **±19 % across the choice**, and that systematic is what binds. **MY OWN PSF CONTROL WAS INVALID AND IS RECORDED AS SUCH** — the 10–90 rise I fitted crossed the nose two-tone break DIAGONALLY, so its 52.0 px measured the boundary's slope, not the point spread; §10.38's *check the control itself* applying to a control written in the same session. **No metre figure is available and none is invented**: there is no admissible px/m on the bumper plane in this three-quarter frame, §10.48's 344.1 is the plate plane of a different photograph, and §10.72 has just established the bumper face's own station is unmeasured. **NO GEOMETRY WAS CHANGED on this finding.** rev 27 inherits it well-posed: valid PSF first, then a plane scale or a proof none is admissible, then build. |
 | 2026-08-15 | **rev 26 — `COUNTERTAN`'s pedestal is IDENTIFIED after six revisions, and it is the settled-dust film (§10.70).** Four arms — two albedo points × dust on/off — through rev 24's index-clean mask at ONE purged rig: pedestal **60.8/58.2/59.5 % → 25.1/25.0/31.9 %** with `T1_CTAN_DUST=0`, and **→ 6.6/6.6/8.5 %** once spec and coat go too. **Dust carries 57.1/52.6/36.6 % of it; dust + spec + coat carry 89.3/87.9/84.8 %.** The dust-shipped arm **reproduces §10.65's published clean pedestal to three significant figures in all three channels** on an independently restored tree — that harness control is what makes the rest readable; null control exact in every arm, noise floor 0.211 % against a 35-point effect. **WHY FIVE REVISIONS MISSED IT:** §10.56 ablated dust, saw the top's radiance rise only +4.1/+8.6/+13.3 %, and concluded "REFUTED — and it was HELPING". **That does not follow.** Removing a mix of coverage `f` and base-independent colour `D` changes radiance by `f·(A−D)` — small *precisely because* `W_DUST_COL_UP` is within **13.5 %** of `COUNTERTAN` in R — while contributing `f·D` to the pedestal, which is large. Both true at once; §10.56 measured the wrong derivative. **§10.68's rule inverted: a SMALL magnitude does not mean a small contribution.** The coverage was never hidden — `t1_mats.py:366` says "mean coverage 0.548 on the counter top" in prose and a **live assert** recomputes 0.548256 on every build. **Independent cross-check from an unrelated route:** removing a mix at coverage `f` must raise `k` by `1/(1−f) = 2.214×`; measured **1.988/1.978/1.989**, agreement claimed to ~10 % and no better. The lever was checked before it was believed — `Dust` reaches Base Color and nothing else, so it removes the ALBEDO per §10.56's own rule; `T1_CTAN_WEAR=0` also drops Metallic and is stated as two levers. **Nothing tuned: `COUNTERTAN` UNCHANGED, sixth revision.** What this settles is *why* it was never solvable — `k` is **2.37× weaker** in the shipped configuration than the bare surface allows, by construction. **§10.71, found while verifying that and RECORDED NOT APPLIED:** `W_DUST_FAC_UP = 0.7313` is pinned by a live assert that predicts `_UP_MEASURED` ("dirty counter top") from **`COUNTERCREAM`**, while the top carries **`COUNTERTAN`** — re-anchored to the right base the assert **fails by 0.1600, eighty times its own 2e-3 tolerance** — and **both halves entered in ONE commit**, `00d3819` "…tan counter top…". The name-matched-material family again, fifth instance. **§10.72 — work item 3 is MALFORMED:** `2.145 = 4.290/2` and `2.140 = 4.280/2`, both changed in the **same diff hunk** of `27f6ee6` "…against factory sources", so the 5 mm is exactly half a catalogue revision; `verify.py:33` already records 4.290's catalogue origin and `:37` invokes the standing instruction for `L` while §2's bumper row never got it; `X_BUMP_F/R` have **zero read sites**; `BUMP_OFF`'s own comment shows the mesh was **fitted to the constant**; the rear face is commented out at `build.py:325`; and the `:191` citation is stale (`:201`), **born stale in the commit that wrote it**. Neither value is measured — strike both, re-open as UNMEASURED. **§10.73 — work item 2 is an ARTEFACT:** `_DOOR_TOP_AUTH`'s "4.2 mm" compares a five-knot **run mean** with a **station value**; at x = 1.36 on `DOOR_GAP_S`, the outline that actually cuts, the disagreement is **0.315 mm**. rev 25's pre-print comment was right and its print measured a different quantity. Value HELD, **no re-bake owed**, `DOOR_H` 1.013467 unchanged. **§10.74 — two defects in rev 25's own record**, caught on arrival: `swirl_b.png`'s md5 wrong in its eighth character (`d2015971` → **`d201597e`**; the file was always right), and §1's `ls rev25_hero34f.png` check **cannot pass on a fresh clone** because §7 of the same document explains the hero was deliberately filtered out — check deleted, not loosened. **NO GEOMETRY MOVED, NO ARTWORK MOVED**; guards 0 fail / 0 warn at both levels throughout, textures byte-identical. |
 | 2026-08-15 | **rev 25 — the bake frame is PARSED, the artwork is RE-BAKED for the first time since rev 11, and the hero photographs it.** Work item 2's own brief REFUTED: `_ZB_AUTH`'s claimed **76 mm at the tail is CONFIRMED exactly** (76.222 mm at `x = X_TAIL`) and **refuted as a defect** — the bake paints NOTHING aft of x = −1.40, so ink-weighted the missing `_aft()` re-space is **0.0023 mm**, not "larger than `DOOR_X0`" but ~7 500× smaller. Two controls isolate it (re-space 75.540, dropped knots 20.925). **The real `_ZB_AUTH` defect was never named — five DROPPED KNOTS**, worst at **+2.085 on the NOSE**, 19.477 mm peak over **3.53 %** of the ink. **`DOOR_X0` dominates and is worse than rev 23 recorded**: `DOOR_REAR_DX = 17.250 mm`, and the uncomputed consequence is **`DOOR_W` 1.935 % too wide** — it divides every u of the door art, displacing **82.5 % of door ink > 2 mm**, ink-weighted **6.290 mm**, with **3 411 px past the true rear shut line** (1.44× the whole B-pillar). **THE CONTROL FAILED AND THAT WAS THE FINDING**: re-baking UNCHANGED does not reproduce the committed art (**4.029 % / 4.261 %**, max Δ 255). Determinism was checked BEFORE interpreting it (two processes, identical md5), then a bisect holding the tree at rev 24 and swapping in ONLY pre-rev-23 `folk_gen.py` reproduced the committed files **BYTE-IDENTICALLY** — **the model was wearing artwork fourteen revisions old**, and rev 23's "nothing in the current build changed" is true of the BUILD while leaving a 4 % divergence from its own corrected source (§10.68). Fixed **structurally**, the work rev 23 declined to do blind: a deliberately tiny `_ceval` reads `t1_shell`'s constant GRAPH (`DOOR_GAP`'s expressions, `BAYS`' comprehension, `B_PILLAR`'s environ default) and `t1_core`'s `ZB` knots, so `DOOR_X0` is EXPRESSED IN TERMS OF `BAYS[0][1]` and `T1_BPILLAR` moves the ART frame with the geometry; three more re-typed literals removed, **all three still AGREEING — exposure, not damage**. **Falsified in four arms, and the fourth cross-confirms from an unrelated route: the B-pillar width reproducing the retired `DOOR_X0 = 0.9084` is −0.005250 m, against §10.62's independently derived −0.0053 for the broken GEOMETRY — 0.050 mm apart.** The door art had been drawn to a door that could not open. `_DOOR_TOP_AUTH` **deliberately NOT parsed**: "within 1 mm" was written into a comment before being watched print and the print refuted it at **4.2 mm**, so it is HELD at 1.8140, `DOOR_H` bit-identical, discrepancy carried forward not absorbed. After the bake: door ink past the shut line **3 411 → 0**, sill error **76.222 → 0.000000 mm**, §10.10 targets held or improved (flank density rms 3.59→3.58 and 3.98→3.96; zone R1 −0.44→+0.29, R2 +0.58→−0.14) — **and door gold 29.09 → 28.90 against 29.08 went the WRONG way, stated rather than hidden**, inside the 28.96–29.19 spread watched printing. **HERO at 4800×3200, 20 strips, worst seam z = 1.91**, `post.py` once, `bloom=0.00`, `backdrop=headroom` — the first frame ever to photograph artwork matching the model's own source; a strip killed by the shell limit was adjudicated by the **seam check** rather than by its file opening cleanly. **`_RETIRED_VALUES` 5 → 15 rows (§10.69)**: of a subagent's "~12", **nine confirmed against three things each and four refuted or mislocated**; guard fired at all 12 predicted lines with **no false positives**, then 0, falsified in four arms with the §0.2 bullet count **watched print at 29/29**. Two are structural — **§1.1's rows defeat the guard BY RE-EXPRESSION** (the retired taper survives as edge pairs, plus the 100 mm origin shift), now stated as the guard's real ceiling; and **§9 row 10 published the INVERSE of the guard that runs**, contradicting §2 inside the same frozen front matter and failing every current build as written. **NO GEOMETRY MOVED**; guards 0 fail / 0 warn at both levels throughout. |
 
