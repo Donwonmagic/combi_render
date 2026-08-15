@@ -177,10 +177,10 @@ git pull --ff-only ../tacombi_rev21_incremental.bundle HEAD      # -> see §7
 Content checks — **the first four reach the TIP on purpose**:
 ```bash
 git status                                             # clean
+grep -c '### 10.57' SPEC.md                            # 1   rev 21
 grep -c '### 10.58' SPEC.md                            # 1   rev 21
-grep -c 'ALL THREE CHANNELS' SPEC.md                   # ?   rev 21 - watch it print
-grep -c 'STRADDLING' SPEC.md                           # ?   rev 21 - watch it print
-ls HANDOFF_rev21.md                                    #     rev 21
+grep -c 'ALL THREE CHANNELS' SPEC.md                   # 1   rev 21
+ls HANDOFF_rev21.md NEXT_CONTEXT_PROMPT_rev22.md       #     rev 21
 grep -c '### 10.56' SPEC.md                            # 1   ANCESTOR rev 20
 grep -c 'T1_CTAN_NOBOUNCE' shader_solve.py             # 4   ANCESTOR rev 20
 grep -c '_BODY' cream_rms.py                           # 4   ANCESTOR rev 19
@@ -189,10 +189,10 @@ grep -c 'matte_tap' studio.py                          # 6   ANCESTOR rev 17
 grep -c '_coons_cap' t1_core.py                        # 3   ANCESTOR rev 16
 grep -c 'The threshold is not the parameter' post.py   # 1   ANCESTOR rev 13
 ```
-**THE TWO FIGURES MARKED `?` ARE DELIBERATE.** They are filled in from the
-fresh-clone verification console in §7, never typed from memory — that failure
-has now happened in EIGHT consecutive revisions and been caught twice by this
-very rule. See §7.
+**ALL FOUR rev-21 CHECKS WERE READ OFF A FRESH-CLONE VERIFICATION RUN.** A
+fifth was drafted (`grep -c 'STRADDLING'`) and **the verification returned 0** —
+SPEC says "STILL straddling", not "STRADDLING", so that check would have failed
+on a perfectly good tree. It was removed rather than adjusted. See §7.
 Ancestry:
 ```bash
 for c in f3c53f4 87aeaa6 d519fc6 5087b84 7ce3d03 f3cde44 efc1268 456b201; do
@@ -276,4 +276,18 @@ gone wrong in EIGHT consecutive revisions during handoff assembly** — a trunca
 console tail, a stale hash, five wrong counts, and a `grep -c` that counted
 LINES rather than occurrences. The rule holds: **do not put a figure in an
 acceptance test unless you watched it print.**
-**FILL IN FROM THE VERIFICATION CONSOLE — see §1's two `?` entries.**
+**AND IT CAUGHT ITSELF AGAIN, a NINTH time — this revision, in this file.** I
+drafted a fifth rev-21 content check, `grep -c 'STRADDLING' SPEC.md`, and wrote
+no expected value precisely because of this rule. The fresh-clone run returned
+**0**: SPEC.md reads "is **STILL straddling**", so a grep for the single word in
+caps matches nothing. Had I typed a plausible `# 1` beside it, the next context
+would have seen a failing content check on a correct tree and gone hunting for a
+lost commit. **The check was DELETED, not loosened**, and the four that remain
+were each watched print: `### 10.57` → 1, `### 10.58` → 1, `ALL THREE CHANNELS`
+→ 1, and `HANDOFF_rev21.md` present. **Third consecutive revision in which the
+acceptance-test rule caught its own violation.**
+
+**Final state: 96 commits, clean tree** — the count was read off the console
+after the commit that corrects this section, then the bundle was re-cut and
+re-verified from a fresh clone. Treat the count as a regression catcher only;
+**verify by content.**
