@@ -301,7 +301,7 @@ git pull --ff-only ../tacombi_rev22_incremental.bundle HEAD      # -> 101
 git pull --ff-only ../tacombi_rev23_incremental.bundle HEAD      # -> 105
 git pull --ff-only ../tacombi_rev24_incremental.bundle HEAD      # -> 107
 git pull --ff-only ../tacombi_rev25_incremental.bundle HEAD      # -> 115
-git pull --ff-only ../tacombi_rev26_incremental.bundle HEAD      # -> see §7
+git pull --ff-only ../tacombi_rev26_incremental.bundle HEAD      # -> 117
 ```
 **If a pull says "Need to specify how to reconcile divergent branches", STOP.**
 
@@ -310,27 +310,27 @@ Content checks — **the first eight reach the TIP on purpose.** Note there is n
 rev 25's prompt asked a fresh clone for one. §10.74.
 ```bash
 git status                                              # clean
-grep -c '### 10.70' SPEC.md                             # __  rev 26
-grep -c '### 10.73' SPEC.md                             # __  rev 26
-grep -c '### 10.74' SPEC.md                             # __  rev 26
-grep -c 'PUBLISHED_CLEAN' probe_ctan_pedestal.py        # __  rev 26
-grep -c 'SPEC 10.73' folk_gen.py                        # __  rev 26
-grep -c 'd201597e' SPEC.md                              # __  rev 26
+grep -c '### 10.70' SPEC.md                             # 1   rev 26
+grep -c '### 10.73' SPEC.md                             # 1   rev 26
+grep -c '### 10.74' SPEC.md                             # 1   rev 26
+grep -c 'PUBLISHED_CLEAN' probe_ctan_pedestal.py        # 3   rev 26
+grep -c 'SPEC 10.73' folk_gen.py                        # 2   rev 26
+grep -c 'd201597e' SPEC.md                              # 3   rev 26
 ls HANDOFF_rev26.md probe_ctan_pedestal.py              #     rev 26
-grep -c '### 10.68' SPEC.md                             # __  ANCESTOR rev 25
-grep -c '_ceval' folk_gen.py                            # __  ANCESTOR rev 25
-grep -c '### 10.65' SPEC.md                             # __  ANCESTOR rev 24
-grep -c '_retired_value_drift' verify.py                # __  ANCESTOR rev 24
-grep -c '### 10.62' SPEC.md                             # __  ANCESTOR rev 23
-grep -c 'OFF_CROSS_BASELINE' t1_shell.py                # __  ANCESTOR rev 23
-grep -c 'H_ROOF_REGRESSION' verify.py                   # __  ANCESTOR rev 22
-grep -c '### 10.57' SPEC.md                             # __  ANCESTOR rev 21
-grep -c 'T1_CTAN_NOBOUNCE' shader_solve.py              # __  ANCESTOR rev 20
-grep -c '_BODY' cream_rms.py                            # __  ANCESTOR rev 19
-grep -c '_arch_lip_z' verify.py                         # __  ANCESTOR rev 18
-grep -c 'matte_tap' studio.py                           # __  ANCESTOR rev 17
-grep -c '_coons_cap' t1_core.py                         # __  ANCESTOR rev 16
-grep -c 'The threshold is not the parameter' post.py    # __  ANCESTOR rev 13
+grep -c '### 10.68' SPEC.md                             # 1   ANCESTOR rev 25
+grep -c '_ceval' folk_gen.py                            # 19  ANCESTOR rev 25
+grep -c '### 10.65' SPEC.md                             # 1   ANCESTOR rev 24
+grep -c '_retired_value_drift' verify.py                # 3   ANCESTOR rev 24
+grep -c '### 10.62' SPEC.md                             # 1   ANCESTOR rev 23
+grep -c 'OFF_CROSS_BASELINE' t1_shell.py                # 1   ANCESTOR rev 23
+grep -c 'H_ROOF_REGRESSION' verify.py                   # 7   ANCESTOR rev 22
+grep -c '### 10.57' SPEC.md                             # 1   ANCESTOR rev 21
+grep -c 'T1_CTAN_NOBOUNCE' shader_solve.py              # 4   ANCESTOR rev 20
+grep -c '_BODY' cream_rms.py                            # 4   ANCESTOR rev 19
+grep -c '_arch_lip_z' verify.py                         # 2   ANCESTOR rev 18
+grep -c 'matte_tap' studio.py                           # 6   ANCESTOR rev 17
+grep -c '_coons_cap' t1_core.py                         # 3   ANCESTOR rev 16
+grep -c 'The threshold is not the parameter' post.py    # 1   ANCESTOR rev 13
 ```
 **EVERY VALUE ABOVE IS FILLED FROM A FRESH-CLONE VERIFICATION RUN.** Never type
 one from memory — `grep -c` counts LINES, not occurrences, and that has produced
@@ -447,4 +447,4 @@ read off a fresh-clone verification run rather than typed from memory. **This ha
 gone wrong in ELEVEN revisions during handoff assembly.** rev 23, rev 24 and
 rev 25 were clean runs.
 
-**FINAL COUNT: __ commits, clean tree.**
+**FINAL COUNT: 117 commits, clean tree.**
