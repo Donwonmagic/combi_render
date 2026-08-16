@@ -5450,3 +5450,90 @@ reading, not only by my failure to establish a sign.
 are a SYMMETRIC PAIR; that the middle post is itself triangular in the same way;
 that the near hoop has no brace hidden behind the corner. The naive midpoint of
 the two bar ends is not the projective one and no midpoint is computed here.
+
+---
+
+### 10.85  rev 31b — REF §9's "two-tone V apex" IS NOT THE APEX: it is the V's RIGHT ARM disappearing behind the over-rider bar, and the anchor is 22.7 px off
+
+**THE OWNER CAUGHT THIS FROM THE FIGURE.** Shown `rev31_q_post.png` he said the
+apex marking did not look right. He is correct, and the defect is in
+**REF_MEASUREMENTS §9**, not in the figure's drawing code — which means it is
+upstream of §10.83, §10.84 and everything else anchored on that point.
+
+REF §9 publishes:
+
+```
+two-tone V apex (centreline)    (311.5, 669)     ± 4 px
+```
+
+**At ×8 the V's two arms have NOT converged at `v = 669`** — the cream wedge is
+still ~30 px wide there — **and the over-rider bar's top edge sits at
+`v = 672.5`**, three pixels lower, occluding everything beneath. The published
+point is where the V's **RIGHT ARM** goes behind the bar.
+
+#### The construction — projective, parameter-free
+
+Both arms are cleanly visible ABOVE the bar. `probe_v_apex.py` (NEW, read-only)
+traces each as a cream→green boundary over **42 rows**, fits each as a line, and
+intersects them. **Two straight lines meeting at a point in 3D project to two
+straight lines meeting at the image of that point**, so the crossing IS the
+vertex's image — no scale, no calibration, no depth.
+
+| | value |
+|---|---|
+| LEFT arm | 42 rows, `du/dv` **+0.2502**, **rms 0.112 px** |
+| RIGHT arm | 42 rows, `du/dv` **−0.5841**, **rms 0.806 px** |
+| arms cross at | **(288.8, 701.1)** |
+| bar top edge, u 280–340 | **v = 672.5** (n = 60) — the crossing is **28.6 px BELOW it** |
+| **COLUMN SHIFT vs REF §9** | **−22.7 px** |
+
+#### C3, the null, is what proves the diagnosis rather than merely asserting it
+
+REF §9's point is **3.98 px** from the RIGHT arm and **30.75 px** from the LEFT.
+**A vertex is equidistant from both arms — zero from each.** A point 4 px from
+one and 31 px from the other is a point ON THAT ARM. The published "apex" is the
+right arm's occlusion point, and its own ±4 px band is exactly the distance it
+sits from the line it lies on.
+
+#### THE BAND IS SET BY C5, AND THE BOOTSTRAP'S ±0.2 px IS A FALSE PRECISION
+
+The crossing lies **38 rows below the deepest traced row — an extrapolation
+0.93× the length of the traced span** — and is valid only while the arms stay
+straight. A bootstrap over the traced samples returns **±0.2 px**; *that number
+prices scatter and not the straightness assumption, and publishing it would be
+a false precision.* **C5 splits the band and re-crosses:**
+
+| | crossing u |
+|---|---|
+| upper half, far from the tip | 287.4 |
+| lower half, near the tip | 290.3 |
+| **half-to-half disagreement** | **3.0 px** |
+
+**PUBLISHED: `u = 288.8 ± 3 px`, SYSTEMATIC**, the band set by C5. The RIGHT arm
+carries a real quadratic term (`+0.00450 px/row²`, lin rms 0.806 → quad 0.548);
+if it continues through the extrapolation the worst case is **~7 px**. The
+−22.7 px shift is far outside every one of those bands **and outside REF §9's
+own ±4 px**.
+
+#### WHAT THIS DOES AND DOES NOT DO TO §10.84
+
+The post's offset against the corrected anchor is **+76.7 px**, not the +54.0 px
+§10.84 priced. **THAT MAKES §10.83's REFUTATION LOOK STRONGER ON THE RAW NUMBER,
+AND IT CHANGES NOTHING.** §10.84's objection was never about the size of the
+offset — it was that **the two terms are at different depths**, the apex on the
+nose skin and the post in the bumper plane, across a standoff graded "A CHOICE,
+not a reading". Correcting one term's column does not make the two commensurable.
+**§10.83's centreline claim stays UNDECIDED.**
+
+**Only the COLUMN is published.** The T1's two-tone V is radiused at the tip, so
+the straight-line crossing sits BELOW the real rounded vertex; its ROW is not a
+measurement and is not published.
+
+#### THE RULE THIS EARNS
+
+**A FEATURE NAMED IN A REFERENCE FILE IS A PROBE TOO — CHECK THAT THE NAMED
+POINT IS THE THING THE NAME SAYS.** REF §9's point carried the word "apex" and a
+±4 px band through nine revisions and into two SPEC sections, and it was a point
+on an arm. **AND: AN OCCLUDER ADDED TO THE MODEL LATER CAN INVALIDATE A READING
+TAKEN BEFORE IT** — the bar that hides this vertex was measured and built in
+rev 30, from the same frame, without anyone noticing it lands on the anchor.

@@ -184,3 +184,52 @@ rev 18's §4, all still stand in full.**
   804.9 mm. `COUNTERTAN` 34.0 % short in B.
 - `GAL_SKY` dead lever. `PLATE_W = 0.3300` no provenance. `probe_rev16.py:90`
   prints `xa` vs `xa`.
+
+---
+
+## 8. rev 31b — HE CAUGHT A WRONG ANCHOR IN THE FIGURE, AND IT IS UPSTREAM OF EVERYTHING
+
+Shown `rev31_q_post.png` he said the apex marking did not look right. **He is
+correct, and the defect is in `REF_MEASUREMENTS.md` §9, not in the figure.**
+
+REF §9 publishes the two-tone V apex at `(311.5, 669) ± 4 px` and uses it as
+THE CENTRELINE. **It is not the apex.** At ×8 the V's arms have not converged at
+`v = 669` — the cream wedge is still ~30 px wide — and **the over-rider bar's
+top edge is at `v = 672.5`**, occluding the vertex. The published point is where
+the V's RIGHT ARM disappears behind the bar.
+
+`probe_v_apex.py` (NEW, read-only) traces both arms above the bar and intersects
+them — projective and parameter-free, since two lines meeting in 3D project to
+two lines meeting at that point's image:
+
+| | |
+|---|---|
+| LEFT arm | 42 rows, rms **0.112 px** |
+| RIGHT arm | 42 rows, rms **0.806 px** |
+| arms cross | **(288.8, 701.1)**, i.e. **28.6 px below the bar's top edge** |
+| **shift vs REF §9** | **−22.7 px** |
+
+**C3 is what proves it rather than asserting it:** REF's point is **3.98 px**
+from the right arm and **30.75 px** from the left. **A vertex is equidistant
+from both arms.** Its own ±4 px band is the distance it sits from the line it
+lies on.
+
+**THE BAND IS SET BY C5, NOT BY THE BOOTSTRAP.** The crossing is a 0.93×
+extrapolation beyond the traced span. A bootstrap returns **±0.2 px** — that
+prices scatter, not the straightness assumption, and publishing it would be a
+false precision. Splitting the band and re-crossing gives **3.0 px**, so the
+published figure is **u = 288.8 ± 3 px SYSTEMATIC**, worst case ~7 px if the
+right arm's quadratic term continues.
+
+**WHAT IT DOES TO §10.84: NOTHING.** The post's offset against the corrected
+anchor is **+76.7 px** rather than +54.0. That makes §10.83's refutation look
+stronger on the raw number and changes nothing, because §10.84's objection was
+never the offset's SIZE — it was that **the two terms are at different depths**.
+Correcting one term's column does not make them commensurable. **§10.83's
+centreline claim stays UNDECIDED.**
+
+**RULES EARNED:** *a feature named in a reference file is a probe too — check
+that the named point is the thing the name says*; and *an occluder added to the
+model later can invalidate a reading taken before it* — the bar that hides this
+vertex was measured and built in rev 30, from this same frame, without anyone
+noticing it lands on the anchor.

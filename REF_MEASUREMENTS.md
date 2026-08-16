@@ -473,7 +473,16 @@ are solid; absolute heights are anchored to features whose absolute height I kno
 
 ```
 VW roundel emblem centre        (306, 546)     D = 65 px
-two-tone V apex (centreline)    (311.5, 669)   ± 4 px   -> 104 px below the emblem centre,
+two-tone V apex (centreline)    (311.5, 669)   ± 4 px    <-- WRONG, see SPEC 10.85 (rev 31b)
+        [CORRECTED, rev 31b: this is NOT the apex.  The V's arms have not converged at
+         v=669 and the over-rider bar's top edge is at v=672.5, occluding the vertex.
+         This point lies 3.98 px from the RIGHT arm and 30.75 px from the LEFT -- it is
+         the RIGHT ARM'S OCCLUSION POINT AT THE BAR.  A vertex is equidistant from both.
+         The arms, traced 42 rows each (rms 0.112 / 0.806 px) and intersected, cross at
+         u = 288.8 +- 3 px SYSTEMATIC (band from a half-band split; a bootstrap's +-0.2
+         is a false precision).  COLUMN SHIFT -22.7 px.  Only the COLUMN is published:
+         the V is radiused at the tip so the crossing's ROW is not a measurement.
+         Everything in this file that used 311.5 as the centreline inherits this.]   -> 104 px below the emblem centre,
                                                            i.e. 1.60 x emblem diameter
 V near arm, at the headlamp x   (419, 524)
 V arm at the body corner        (~520, 500), merging into the flank belt line at (590-690, 487-495)
