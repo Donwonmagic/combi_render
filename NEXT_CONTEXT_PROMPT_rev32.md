@@ -67,6 +67,15 @@ IS A RENDER OF THE REV-30 BUILD** and rev 31 proved it by content. Read §10.84.
 that section's refutation of "post at the vehicle's centreline" is **DOWNGRADED
 FROM REFUTED TO UNDECIDED**, because its two terms are at DIFFERENT DEPTHS.
 
+**§10.85 IS REV 31b's AND IT IS UPSTREAM OF BOTH.** He looked at the rev-31
+figure and said the apex marking did not look right. **He was right.**
+REF §9's "two-tone V apex (centreline) (311.5, 669) ± 4 px" **IS NOT THE APEX**
+— the V's arms have not converged there, the over-rider bar's top edge is at
+`v = 672.5` and occludes the vertex, and the published point is the V's **RIGHT
+ARM's occlusion point at the bar**. The arms, traced and intersected, cross at
+**u = 288.8 ± 3 px**: a **−22.7 px** shift. `REF_MEASUREMENTS.md` is corrected in
+place. **Everything anchored on 311.5 inherits this.**
+
 ## Step 5 — ASK ME WHAT THE PHOTOGRAPHS SHOW before you measure from them
 
 This has now paid off twenty-one times. Show me a crop, mark the regions, give
@@ -151,6 +160,17 @@ The far end is a **superposition of three members inside a ~29 px blob**
 bar's two ends therefore DO bracket the post, and that ~29 px is the precision
 bound on any construction that uses them.
 
+**REF §9's V-APEX ANCHOR IS CORRECTED: `u = 288.8 ± 3 px`, NOT 311.5.** The
+published point was the V's right arm disappearing behind the over-rider bar —
+it lies **3.98 px** from that arm and **30.75 px** from the other, and *a vertex
+is equidistant from both*. The band is **SYSTEMATIC, from a half-band split**; a
+bootstrap returns ±0.2 px and **that is a false precision**, pricing scatter
+rather than the 0.93× extrapolation's straightness assumption. Only the COLUMN
+is published — the V is radiused at the tip, so the crossing's ROW is not a
+measurement. **The post's offset becomes +76.7 px, not +54.0 — AND THAT CHANGES
+NOTHING FOR §10.84**, whose objection was the DEPTH mismatch, not the offset's
+size. **§10.83's centreline claim stays UNDECIDED.**
+
 **THE VEHICLE HAS NO RECOVERABLE FORE-AFT VANISHING POINT.** Three long edges
 pass an rms gate (two at **rms 0.091 and 0.096 px**) and their pairwise
 intersections are **u = +1529, +1284, −5843** — they do not converge and they
@@ -177,6 +197,16 @@ Every rule in the rev-31 prompt still stands. **NEW in rev 31:**
 * **A SETTLED-LIST ENTRY IS A PROBE TOO.** rev 31's most useful finding was that
   something already banked as settled could not carry its own weight.
 * **MY ANSWER MAY NOT BE ONE OF YOUR OPTIONS.**
+* **A FEATURE NAMED IN A REFERENCE FILE IS A PROBE TOO — CHECK THAT THE NAMED
+  POINT IS THE THING THE NAME SAYS.** REF §9's "apex" carried that word and a
+  ±4 px band through nine revisions and into two SPEC sections, and it was a
+  point on an arm.
+* **AN OCCLUDER ADDED TO THE MODEL LATER CAN INVALIDATE A READING TAKEN BEFORE
+  IT.** The bar that hides this vertex was measured and built in rev 30, from
+  this same frame, without anyone noticing it lands on the anchor.
+* **A BOOTSTRAP PRICES SCATTER, NOT YOUR MODEL ASSUMPTION.** When the answer is
+  an extrapolation, the band comes from splitting the data, not from resampling
+  it.
 
 ---
 
@@ -307,8 +337,10 @@ IDENTICAL TO REV 23's EXCEPT THE COUNTS.**
 - **`verify.py`** — the `_RETIRED_VALUES` row for "post at the vehicle's
   centreline" is **KEPT**, only its stated reason corrected. **Watched FIRE**
   after the commit: 1 fail against the clean tree's 0.
-- **`probe_orb_post.py`**, **`mark_rev31_q.py`**, **`rev31_q_post.png`** — all
-  NEW, all READ-ONLY.
+- **`probe_orb_post.py`**, **`mark_rev31_q.py`**, **`rev31_q_post.png`**,
+  **`probe_v_apex.py`**, **`rev31b_q_apex.png`** — all NEW, all READ-ONLY.
+- **`REF_MEASUREMENTS.md`** — §9's V-apex line **corrected in place** (§10.85).
+- **`SPEC.md`** — also NEW §10.85.
 - **NO GEOMETRY. NO SHADER. NO ARTWORK.** `CREAM`, `COUNTERTAN`,
   `COUNTERCREAM`, `RED`, the rake, the roof, the over-rider bar and all three
   textures UNCHANGED.
@@ -324,6 +356,9 @@ through rev 18's §4 all still stand in full.
   projective midpoint needs the transverse VP or an argument that bounds it, and
   **the naive midpoint is NOT the projective one — do not take it.**
 - **§10.83's centreline claim is UNDECIDED.** Neither position is settled.
+- **EVERYTHING ELSE IN REF §9 THAT USED 311.5 AS THE CENTRELINE.** §10.85 fixed
+  the anchor; it did NOT sweep the file for consumers of the old value. **Do
+  that.** REF §9's absolute-height block derives from centreline scale.
 - **A HERO IS NO LONGER OWED.**
 - **§10.70's percentages must be RE-RUN** before being quoted again.
 - **§10.82's unasked surfaces** — bumper top, rim barrels, hub caps. **The
@@ -347,18 +382,20 @@ problem entirely.**
 
 ## 6. Ordered work list for rev 32
 
-1. **THE OVER-RIDER POST, by the bar's own two ends.** Bound or construct the
+1. **SWEEP REF §9 AND SPEC FOR CONSUMERS OF THE OLD 311.5 ANCHOR.** §10.85
+   corrected the anchor in place but did not chase what fed on it.
+2. **THE OVER-RIDER POST, by the bar's own two ends.** Bound or construct the
    transverse VP; express the post as a **FRACTION of the bar's half-width**, so
    it inherits `BAR_HALF_Y`'s grade E instead of adding a new lateral choice.
    Carry the far end's ~29 px as the stated precision, and **say before you
    start whether it will close.**
-2. **§10.82's unasked surfaces** — bumper top, rim barrels, hub caps. The
+3. **§10.82's unasked surfaces** — bumper top, rim barrels, hub caps. The
    workshop frame shows all three. **Ask.**
-3. **Re-run §10.70's arms** on the post-retirement build before quoting any of
+4. **Re-run §10.70's arms** on the post-retirement build before quoting any of
    its percentages, then the scene→top bounce. The harness has **no cyclorama**
    (§10.78) — state that, do not silently fix it.
-4. Tail-lamp material slot; `Senor`'s letterforms; `SCR`'s +80 mm.
-5. Camera absolutely last.
+5. Tail-lamp material slot; `Senor`'s letterforms; `SCR`'s +80 mm.
+6. Camera absolutely last.
 
 ## 7. THE COMMIT COUNT AND THE CONTENT FIGURES
 
