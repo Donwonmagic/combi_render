@@ -304,14 +304,14 @@ grep -c '^#### 10.88' SPEC.md                                # 6   rev 34
 grep -c '10.88' SPEC.md                                      # 7   rev 34
 grep -c 'A TOLERANCE STATED IN THE UNITS OF THE MEASUREMENT' SPEC.md   # 1   rev 34
 grep -c 'A DETECTOR WHOSE ERRORS CANCEL' SPEC.md             # 1   rev 34
-grep -c 'DEGENERATED TO THREE' SPEC.md                       # 2   rev 34
-grep -c 'ORDER BROKEN' probe_rev34_ruling.py                 # 3   rev 34
+grep -c 'DEGENERATED TO THREE' SPEC.md                       # 1   rev 34
+grep -c 'ORDER BROKEN' probe_rev34_ruling.py                 # 2   rev 34
 grep -c 'REFUSING TO PRINT A RULING' probe_rev34_ruling.py   # 1   rev 34
 grep -c 'REFUSING TO PRINT A RULING' probe_rev34_levels.py   # 1   rev 34
 grep -c 'ORDERING WALL' mark_rev34_strutb.py                 # 4   rev 34
 grep -c 'REFUSING TO WRITE' mark_rev34_strut.py              # 1   rev 34
-grep -c 'CANDIDATE LINES' mark_rev34_strut.py                # 4   rev 34
-grep -c 'SYN_' probe_rev34_levels.py                         # 19  rev 34
+grep -c 'CANDIDATE LINES' mark_rev34_strut.py                # 8   rev 34
+grep -c 'SYN_' probe_rev34_levels.py                         # 8   rev 34
 ls HANDOFF_rev34.md STATE_rev34.md probe_rev34_levels.py probe_rev34_ruling.py
 ls mark_rev34_strut.py mark_rev34_strutb.py rev34_q_strut.png rev34_q_strutb.png
 grep -c 'UNDECIDED' SPEC.md                                  # 10  MOVED BY 10.88
@@ -479,9 +479,19 @@ This section is written LAST, after the final commit, and every figure in §1
 was read off a fresh-clone verification run rather than typed from memory.
 **This has gone wrong in ELEVEN revisions during handoff assembly.**
 
-**FINAL COUNT: 181 commits, clean tree.** *(Verified: this line lands in commit
-181 itself, which is what makes it true — the count lands in its own commit,
+**FINAL COUNT: 182 commits, clean tree.** *(Verified: this line lands in commit
+182 itself, which is what makes it true — the count lands in its own commit,
 rev 29's pattern, kept since.)*
+
+**THE GREP TRAP FIRED AGAIN, FOUR TIMES, AND THE FRESH-CLONE RUN CAUGHT ALL
+FOUR.** I typed four rev-34 counts from estimate rather than reading them off a
+run: `DEGENERATED TO THREE` in SPEC (wrote 2, is **1**), `ORDER BROKEN` in
+`probe_rev34_ruling.py` (wrote 3, is **2**), `CANDIDATE LINES` in
+`mark_rev34_strut.py` (wrote 4, is **8**), and `SYN_` in
+`probe_rev34_levels.py` (wrote 19, is **8** — I counted OCCURRENCES; `grep -c`
+counts LINES). **Twelfth revision this has happened in, and the fresh-clone
+verification is the only thing that has ever caught it.** All four corrected
+above from the console.
 
 **THE GREP TRAP.** rev 33 found a SUBSTRING collision inside a single grep
 (`### 10.87` matching `#### 10.87.1`). **rev 34's own `UNDECIDED` count moved
