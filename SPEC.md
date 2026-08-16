@@ -3255,6 +3255,7 @@ must come first. **No geometry was changed on this finding in rev 26.**
 | 2026-08-15 | **rev 27 — the F90 question ANSWERED (§10.77).** `probe_ctan_pedestal.py:170`'s UNVERIFIED worry — that `Specular IOR Level = 0` leaves **F90 = 1**, making `T1_CTAN_SP=0` only a partial specular ablation and part of the surviving 6.6/6.6/8.5 % pedestal specular — is **REFUTED BY MEASUREMENT**. New read-only `probe_f90.py` builds a purpose-made minimal scene (one plane, live `COUNTERTAN`, one light, ortho camera) so it cannot be contaminated by §10.65's occluders or stacked rigs, and renders four arms at normal and at **83° grazing**. **SP0 == TRUE-OFF (spec 0 AND ior 1) == bare DIFFUSE to six decimal places at BOTH angles**; the whole specular is 15.834 % of the true-off arm at grazing and the fraction `T1_CTAN_SP=0` fails to remove is **0.00 %**. **rev 26's arm 4 was COMPLETE and the residual pedestal is NOT specular** — one hypothesis removed from §10.70's never-ablated list; `T1_WORLD`, `T1_CYCALB`, `T1_GAL_LUM` and the scene→top bounce remain live. **THE CONTROL WAS THE DEFECT AGAIN, third time this session:** the first positive control asserted *shipped > diffuse* and FAILED at (0.990,1.025,1.158) because the Principled BSDF **conserves energy** — the specular takes from the diffuse lobe. Premise wrong, finding intact; replaced by *differs at grazing* (15.83 %) and *differs MORE at grazing than normal* (15.83 vs 2.02 %, **7.9×**), which is what shows the rig can see a grazing lobe. Null control 0.000 %. **Nothing tuned; no geometry and no artwork moved.** |
 | 2026-08-15 | **rev 27 — the residual pedestal's named candidates run (§10.78).** Two harness controls **exact to six decimals** first — the shipped arm and §10.70's arms 7/8 both reproduce on an independently restored tree; null IoU 1.0000 and 0 foreign px in every arm. On the SHIPPED config `T1_WORLD=0` moves the pedestal **−0.01/−0.05/−0.04 points** and `T1_GAL_LUM=0` **−0.00/−0.02/−0.01**. Re-run on the RESIDUAL config rather than assumed to transfer (§10.65's rule): baseline **(6.56, 6.60, 8.51) %** reproducing §10.70's published 6.6/6.6/8.5, and with both levers off **(6.55, 6.58, 8.48) %** — the two together carry **2.64/2.78/2.91 %** of the residual. **REFUTED; ~97 % survives.** **`T1_CYCALB=0` IS A VACUOUS ARM** — it reproduced the shipped arm to six decimals in both albedo points, which looks like a refutation and is not: `ST.cyclorama()` sits at `build.py:600` and the probe's `_build()` truncates `build.py` at line **586**, so no `cyc` object and no `cyc_white` material exist in the probe scene — verified **empirically, not by reading**. The cyclorama is excluded by **ABSENCE, not ablation**, and rev 15's inert-ablation rule extends: an inert arm can also mean the thing you are ablating **is not in the scene**. **`T1_GAL_SKY` IS A DEAD LEVER** — AST census **Store 1, Load 0**, seventeen lines of "SOLVED, not chosen" commentary and **zero read sites**; sixth instance after `RIM_R`, the `countertan` args, `_NOSE_SEL`, `FadeVert` and `X_BUMP_F/R`. Named, not quietly fixed. **The scene→top bounce is now the ONLY named candidate left** and it has no lever — last hypothesis standing is not the same as the answer. **Nothing tuned; `COUNTERTAN` UNCHANGED, seventh revision; no geometry and no artwork moved.** |
 | 2026-08-15 | **rev 27 — a VALIDATED PSF estimator, which then DECLINES (§10.79).** §10.75's first over-rider step. Standard slanted-edge construction — fitted edge line, then **RAW pixels binned by perpendicular distance**, threshold pair SWEPT — **validated against a known answer: σ 0.70 → 0.680 (2.9 %), 1.20 → 1.249 (4.1 %), 1.80 → 1.743 (3.2 %)**. **MY FIRST CUT WAS WRONG AND THE CONTROL CAUGHT IT:** it resampled BILINEARLY, which is a triangular filter, so it added its own blur in quadrature and read 0.70 as **1.068 px (+52 %)**, 1.20 as 1.605, 1.80 as 2.113 — the shrinking relative error of a fixed blur in quadrature. **A probe that measures the optics must not add optics of its own.** **MY FIRST THREE ROIs WERE ALSO WRONG** — the trolley frame is the right KIND of edge (a true occlusion step) but it is a **BAR**, so any window holding its step also holds its other edge: contrast fine in 40/40 columns, gradient spread over the isolation limit in **21–40 of 40**. **The isolation test working**, and loosening it would have been the exact failure the probe exists to prevent. A global hunt returns **five** straight isolated candidates (best fit rms **0.055 px**, tilt −0.193), boxes PRINTED — **but the estimator cannot tell an OCCLUSION step from a PAINT BOUNDARY, and that distinction IS rev 26's error.** The first three appear to sit on the cream/green two-tone break; **offered as my reading, NOT relied on**, and put to the owner. Pooling them gives σ 1.736/1.087/0.986 px across the three threshold pairs — a **76 % spread**, itself evidence the pool mixes classes. **NO σ IS PUBLISHED for ref_workshop.jpg**; the probe declines and prints why. If all five are paint boundaries the PSF is **UNMEASURABLE on the admissible set in this frame** — a result, not a gap. **No geometry moved; no metre scale invented.** |
+| 2026-08-16 | **rev 28 — the PSF is MEASURED at last, and §10.79's own reading is what was wrong (§10.80).** rev 27 declined to publish a σ for `ref_workshop.jpg` — correctly, because an estimator cannot tell an OCCLUSION STEP from a PAINT BOUNDARY — and offered, without relying on, the reading that the candidates sit on the cream/green two-tone break so the frame is unmeasurable. **The owner refuted it: D1, D2, D3, D4, D6, D7, D8 and D9 are PHYSICAL STEPS; only D5 is not.** He could only answer because the question was rebuilt: rev 27 sent five 60×60 boxes and **every box contains more than one edge**, so `probe_psf_lines.py` (NEW, read-only) re-runs the **shipped** `find_edges`, recovers the fitted line each candidate actually used, and **draws that line** — a question that cannot be answered unambiguously is the asker's defect. **Three defects in `EDGE_NOTES`, a hardcoded string printed while the run reports 35 candidates:** E1/E2/E3 **are one edge**, colinear to ~0.1 px (E1's line predicts 489.8 at u 850; E3 measures 489.7); **two of the five published rms figures — 0.069 and 0.129 — exist nowhere among the 35** (real values 0.073/0.072 and 0.067/0.046), the **eleventh** unwatched figure and inside a probe whose docstring invokes the rule; and **"best fit first" is wrong**, the frame's best candidate being rms **0.025** at a ROI not in the list. Clustered by a stated infinite-line rule with three asserted controls, the 35 candidates are **14 DISTINCT EDGES**; rev 27 named three. **THE FINDING: §10.79's 76 % threshold spread is NOT mixed edge classes.** With the classes settled the pooled spread went **UP to 86 %** — refuted — and the real cause reproduces **on one edge**: across D2's nine independent windows of identical data the 10–90 arm scatters **3.77×** (0.584–2.203 px) while 20–80 spans 4.4 % and 25–75 spans 8.1 %. The 10–90 rise reaches into the ESF **tails**; on a clean synthetic it still recovers a known σ to 10.7 %, so the arm is **tail-sensitive on real windows, not broken**, and the sweep was doing its job. **RESULT: σ = 0.5594 ± 0.0280 px, FWHM 1.317 px**, core arms only, n = 32, over **four independent confirmed steps agreeing to 12.4 %** (D2 0.5806, D3 0.5301, D6 0.5405, D7 0.5136). **D9 excluded and PRICED at +0.176 px / 32 %** for a stated reason that is not disagreement — it is the only candidate whose edge **carries the bulb string**, so the far side of its step is not a uniform surface, and it is n=1. **D1/D4/D8 unmeasurable and NAMED**, D1 missing the monotone threshold by 0.0002. **The owner's own negative control failed, then passed, and the premise was the defect:** on the pooled arms D5 read **sharper** than the steps (0.660 vs 0.736) and the control FAILED; on the core arms it reads **18.0 % SOFTER** (0.6603 ± 0.0167 vs 0.5594) with scatter far below the effect — **the 10–90 contamination was in the control too. Premise fixed, band not widened.** Fourth instance of the control's own premise being the defect. rev 26's fixed-axis method still reads **1.59× larger**, so that correction is intact. **NOT CLAIMED:** any metre scale on the nose/bumper plane (§10.72 struck both bumper-face constants), that the tube's 7.9–11.7 px bracket is closed, or that D5 *is* a paint boundary. **No geometry and no artwork moved; nothing tuned.** |
 | 2026-08-15 | **rev 24 — `solve_ctan` was measuring the whole scene, and the guard that was supposed to be self-arming never was.** **Item 1 (§10.65):** the occlusion hypothesis, carried four revisions unrun, is **CONFIRMED and quantified** by a new read-only object-index probe — chosen over a visibility flag by §10.56's own rule. **33.06 % of the eroded TOP mask and 57.31 % of the FASCIA mask are foreign surfaces**; the largest occluder is **`gal_warmer`**, never previously named; **`counter_top` is 21.76 % of the fascia mask** and **97.84 % of the top mask lies inside it**, so the solve divided a region by a **superset of itself**. Null control **IoU 1.0000 / 0 disagreeing px**, positive control names the occluders. Re-measuring **both albedo arms** through the clean mask takes the pedestal **68.5/68.0/72.1 % → 60.8/58.2/59.5 %** and raises the albedo sensitivity **k by 40 % in all three channels** — that is what "secant gain 0.33–0.49" was really reporting, and the residual **flips sign in all three channels**. **The arithmetic correction was NOT reported**: it assumes occluders are albedo-invariant and they sit on the top catching its bounce; measurement, not inference. **A ~59 % pedestal SURVIVES and is still UNIDENTIFIED; `COUNTERTAN` UNCHANGED, fifth revision.** Two instrument defects found by controls, both mine: **`ST.lighting()` STACKS** (8/16/24 lights — every absolute figure in §10.56 is a **3-rig** number) and exposure must go through the environment (first run **70.54 % clipped**, radiance shares collapsing onto pixel shares). **Item 3 (§10.66):** rev 23's `STEP_M` rename **broke `folk_gen.composition()`** — `mm` had ZERO Store sites and ONE Load site, so the census a re-bake depends on raised `NameError` on every call. §10.63 verified that rename **by reading**; nobody ran it. Repaired value-preserving (53.2645 mm² both ways). **Item 2 (§10.67) — THE BRIEF IS REFUTED.** §0.2's guard is **not self-arming**: it compares **material datablock names**, and of ~100 §10 retirements exactly **one** was ever a material. **The false claim was inside the guard's own comment**, which is why the brief said it. New **`_retired_value_drift()`** FAILs on a retired literal republished unstruck in the FROZEN front matter — **it fired on its first run and caught three defects §10.64 missed**, all in FROZEN sections: §1.1's bay taper, §1.1's retired aperture band, and §3's retired `RED` with grade **M**. Plus `SPEC.md:2701`, the retired rake still deriving a consequence **forty lines below the table rev 23 struck**, under a heading reading "OPEN, unresolved" that §10.29 had closed. **The guard was wrong twice before it was right and both are recorded** — its first cut swept the change log (**4 of 8 FAILs were its own false positives**, because §10.11–10.33 are interleaved with the front matter) and a sub-heading reset its exemption so it found `:2701` **by accident**. **§0.2b added, bullets 16 → 29 — and adding it SILENTLY DEFEATED the drift guard**, whose substring split matched `### 0.2b`, sending it back to reading 16 while the section held 29. Caught by watching the count print; parse now line-anchored. Falsified in four arms. Guards **0 fail / 0 warn at BOTH levels**; **no geometry moved this revision.** |
 | 2026-08-15 | **rev 23 — item 4 ARMED, and the B-pillar had NEGATIVE width.** §10.61's brief said "expect it to FAIL; fix the geometry". *A brief is a probe too*: a read-only anatomy probe asked which member of each pair is at fault, how deep the penetration is, and which flank it is on, and **all three change the answer** (§10.62). The six crossings are **three defects**, and **arc length overstates them by up to 23×** — `gap_door × bay0` reports 118.8 mm of arc for a **5.2 mm** overlap. **SHOW flank 130.6 mm; OFF flank 934.6 mm = 87.7 %.** The arch assert's rationale (a shut line crossing an arch lip collapsed the shell 205562 v → 12 v) **does not transfer and was not inherited** — all six crossings were live at SUB=2 with **zero non-manifold edges**. The invariant armed instead is TOPOLOGICAL and needs no photograph, scale or datum: *an aperture cannot extend past the boundary of the panel it is cut in.* **Two show-flank defects fixed, geometry not threshold**: the cab door's rear shut line sat **5.2 mm INSIDE bay 0**, so bay 0 straddled the door's own boundary and the door could not open — the door moved (bay edges are locked; the door's rear x had **no provenance anywhere in the repo**) with `DOOR_REAR_DX` **expressed in terms of `BAYS[0][1]`**, never a bare number; and the vent wing broke the door's top edge by **20.7 mm** — the owner confirmed from `ref_workshop.jpg` that the glass **is** divided into a vent plus a main pane but **could not** resolve whether its top reaches the top rail, so the legible door corner was left alone and the vent dropped. **`B_PILLAR` and `VENT_TOP_DROP` are AUTHORED, not measured, and both true values are OPEN.** Crossings **6 → 2**, show flank **130.6 → 0.0 mm**. **FALSIFIED FOUR WAYS** through levers defaulting to proven no-ops; the arm reproducing rev 22's geometry lands within **1–2 mm** of its 11.8 / 118.8. **My own negative control failed first and the failure was MINE** — "an outline is not inside itself" is ill-posed, every sample lies ON the boundary. **The OFF flank is NOT armed at zero, and that is the result**: SPEC's own table grades that flank **"E (never photographed)"**, its two colliding features are BOTH E and contradict each other, and shown the sightlines with every box printed the owner answered **"cannot tell from this crop"** — so it is a **LABELLED regression catcher** at a watched baseline (**804.9 mm, ±10 mm**), meaning "it has not moved", NOT "it is right". `CARGO_GAP` densified **28 → 154** samples (straight runs **8 → 134**) with **signed area asserted equal** as a control. Guards **0 fail / 0 warn at both levels**, non-manifold **0**; **roof-hole vertex count re-baselined 68052 → 68564 / 252123 → 252749**, flagged not hidden. |
 | 2026-08-15 | **rev 23 — the bake frame was built on four retired numbers, and four retired values were still published as "locked".** `folk_gen.py` re-typed `X_TAIL` (**235 mm stale**), `RAKE_DZDX` (**15.25 mm/m**), `RAKE_Z0` and `Z_BELT0` (**11.4 mm** each) — the dead-`RIM_R` family again, under §10.10's hard bar on artwork replication (§10.63). Now **parsed with `ast`** in rev 14's `SCR` pattern, **raising rather than falling back**, with `X_TAIL` reconstructed from its definition because it is derived and not a literal. The banned flat px/m at `:1884` is gone — and **it was harmless where it stood**, setting a sampling interval rather than converting a position, which is stated precisely rather than claimed as a bigger fix than it was. **NOT re-baked**: `build.py` never calls `folk_gen`, the textures are committed artefacts, and a re-bake is a measured operation under §10.10 — **carried forward that the committed artwork was baked in the stale frame**, along with `DOOR_X0`, now 17.3 mm stale and named rather than quietly fixed. **SPEC hygiene (§10.64):** §10.3 published the RETIRED red **and** `W_ART = 0.30` (**3.3× off the live value for thirteen revisions**) as "locked"; §10.9 published the RETIRED rake and the `Z_BELT0`/`V_APEX0` derived from it; and `SPEC.md:1983` used **N1**, the crop the owner refuted, as an arm of route A's clipping control **nineteen lines after §10.57 dropped it** — conclusion unchanged, it stands on N2/N3. **Three CITATION defects found**: §10.61 corrects a "five crossings / 1209 mm" figure **§10.45's body never contained** (it is `HANDOFF_rev18.md:208`), §10.59 credits §10.48 with a withdrawal it never made, and §10.45 cites the rake lock to §10.9 **whose own table locks the retired value** — *a carried-forward figure is a claim too*, now extended to the citation. Also refuted from rev 23's own brief: §10.45–48 retire **no** §10.34 claim, and §10.29 carries **one** REF-wide correction, not two. |
@@ -3575,6 +3576,118 @@ systematic.
 both bumper-face constants so the nose/bumper plane has no admissible px/m; that
 the tube's width is resolved; and any cross-frame comparison — the two frames'
 candidate sets are different features, not a matched pair, and the probe says so.
+
+### 10.80  rev 28 — the PSF is MEASURED: §10.79's "unmeasurable" reading REFUTED by the owner, and its 76 % spread was the 10–90 arm, not mixed edge classes
+
+§10.79 built a validated slanted-edge estimator for `ref_workshop.jpg` and then
+**correctly declined**, because an estimator cannot tell an OCCLUSION STEP from
+a PAINT BOUNDARY and that is an owner reading. It offered its own reading — the
+first three candidates "sit on the cream/green two-tone break", so the frame is
+probably unmeasurable — and **explicitly did not rely on it**. Right to offer
+it, and right not to rely on it: **it is wrong.**
+
+**THE BOXES WERE NOT AN ANSWERABLE QUESTION, AND THAT WAS A PROBE DEFECT.**
+rev 27 sent five 60×60 ROIs. **Every one of them contains more than one edge**,
+so the owner was being asked to guess which edge the estimator had locked onto.
+`probe_psf_lines.py` (NEW, read-only) re-runs the **shipped** `find_edges`,
+recovers the fitted line each candidate actually used
+(`roi`/`axis`/`lo`/`hi`/`slope`/`inter` → image coordinates) and **draws that
+line**. A question that cannot be answered unambiguously is the asker's defect.
+
+**THREE DEFECTS IN `EDGE_NOTES`, WHICH IS A HARDCODED STRING** printed verbatim
+by `probe_psf_workshop.main()` while the run itself reports "candidates 35,
+accepted 29". **A CLAIM IN PROSE IS NOT A GUARD, INCLUDING WHEN THE PROSE IS
+INSIDE THE PROBE** — §10.67 found the identical shape inside `verify.py`'s own
+comment.
+
+1. **E1, E2 and E3 ARE ONE EDGE.** Colinear to ~0.1 px: E1's line at u 880 gives
+   v 484.0 and predicts 489.8 at u 850; E3 measures **489.7**. They are three
+   overlapping windows on one physical edge. "Five candidates" was never five.
+2. **TWO OF THE FIVE PUBLISHED rms FIGURES DO NOT EXIST.** No candidate anywhere
+   in the 35 has rms **0.069** (E4) or **0.129** (E5); the real values at those
+   ROIs are 0.073/0.072 and 0.067/0.046. **Eleventh instance** of a figure
+   written without being watched print — inside a probe whose own docstring
+   invokes the rule.
+3. **"BEST FIT FIRST" IS WRONG.** The frame's best-fitting candidate is rms
+   **0.025** at roi (880,250) and is **not in the list at all**.
+
+Clustered by a stated rule (directions within 0.030 rad; each midpoint within
+1.50 px of the other's infinite line — both properties of the INFINITE line, so
+an edge seen through two offset windows merges while two parallel edges do not),
+the 35 candidates are **14 DISTINCT EDGES**. rev 27 named three of them.
+Controls asserted: rev 27's nine E1/E2/E3 candidates land in ONE cluster; that
+cluster does NOT absorb the (700/730,460) edge 20–30 px away; no two surviving
+clusters are mutually mergeable.
+
+#### The owner's reading, taken against the drawn lines
+
+> [stated] **D1, D2, D3, D4, D6, D7, D8 and D9 are PHYSICAL STEPS. D5 is not.**
+
+Eight of nine. **The PSF is measurable in this frame**, and D2 — rev 27's
+E1/E2/E3 — is a step, not the paint break it was read as. **He excluded exactly
+one edge, which hands the probe a NEGATIVE CONTROL that is his, not mine.**
+
+#### The finding: the spread was the 10–90 arm all along
+
+Measured on the confirmed steps, the pooled spread came out at **86 %** — WORSE
+than rev 27's 76 %. **So §10.79's attribution of that spread to mixed edge
+classes is REFUTED: settling the classes did not tighten the pool.**
+
+The cause is reproducible **on a single edge**. On D2's **nine independent
+member windows — the identical data**:
+
+| arm | range on D2 | spread |
+|---|---|---|
+| 10–90 | 0.584 – 2.203 px | **3.77×** |
+| 20–80 | 0.569 – 0.595 px | 4.4 % |
+| 25–75 | 0.561 – 0.608 px | 8.1 % |
+
+The 10–90 rise reaches into the ESF **tails**, where the profile is contaminated
+by whatever else lies in the window. **On a clean synthetic the 10–90 arm
+recovers a known σ to 10.7 %** — so the arm is not broken, it is
+**tail-sensitive on real windows**, and the threshold SWEEP is doing exactly its
+job by reporting that one arm is unreliable here.
+
+#### THE MEASUREMENT
+
+**σ = 0.5594 ± 0.0280 px, FWHM 1.317 px**, on the CORE arms (20–80, 25–75),
+n = 32, over **four independent owner-confirmed steps agreeing to 12.4 %**:
+
+| edge | n | σ (core arms) |
+|---|---|---|
+| D2 | 18 | 0.5806 ± 0.0113 |
+| D3 | 6 | 0.5301 ± 0.0121 |
+| D6 | 6 | 0.5405 ± 0.0202 |
+| D7 | 2 | 0.5136 ± 0.0016 |
+
+**D9 IS EXCLUDED AND THE EXCLUSION IS PRICED.** It reads σ ≈ 3.56 px, 6× every
+other confirmed step. The reason is not "it disagrees": **it is the only
+candidate whose edge carries periodic hardware** — the bulb string, three red
+domes sitting on the rail — so the far side of its step is not a uniform
+surface, which is the one thing an ESF requires. It is also n = 1. **Cost,
+printed every run: +0.176 px, 32 %.** **D1, D4 and D8 could not be measured at
+all** (too few ESF bins, or the monotone test rejected them) and are **named,
+not silently dropped** — D1 is the frame's best-fitting edge and misses the
+monotone threshold by 0.0002.
+
+#### The negative control failed, then passed, and the premise was the defect
+
+On the POOLED arms D5 read **0.660 against the steps' 0.736 — sharper**, and the
+control FAILED. On the CORE arms it reads **0.6603 ± 0.0167 against 0.5594,
+18.0 % SOFTER** — the direction his identification predicts — with an internal
+scatter of only ±0.017 px, so the 18 % is far outside noise. **The 10–90
+contamination was in the control too. Premise fixed, band not widened.** Fourth
+time this project has found the control's own premise to be the defect.
+
+`N2`, rev 26's fixed-axis method on the same edges, still reads **1.59× larger**
+— that correction is intact.
+
+**NOT CLAIMED:** any metre scale — a PSF is in **pixels**, and §10.72 struck
+both bumper-face constants, so the nose/bumper plane still has no admissible
+px/m; that the over-rider tube's **7.9–11.7 px** bracket is closed; that D5 **is**
+a paint boundary — that is his identification, and this entry tests CONSISTENCY
+with it, which is weaker; and any depth-resolved PSF — four edges agree to
+12.4 % and that is reported as the spread, not explained.
 
 ## 10. rev 7 — the canonical constants (supersedes any value above)
 
