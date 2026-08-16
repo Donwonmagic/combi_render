@@ -154,7 +154,7 @@ git pull --ff-only ../tacombi_rev26_incremental.bundle HEAD      # -> 120
 git pull --ff-only ../tacombi_rev27_incremental.bundle HEAD      # -> 126
 git pull --ff-only ../tacombi_rev28_incremental.bundle HEAD      # -> 130
 git pull --ff-only ../tacombi_rev29_incremental.bundle HEAD      # -> 135
-git pull --ff-only ../tacombi_rev30_incremental.bundle HEAD      # -> 146
+git pull --ff-only ../tacombi_rev30_incremental.bundle HEAD      # -> 148
 ```
 **If a pull says "Need to specify how to reconcile divergent branches", STOP.**
 Content checks — **the first eleven reach the TIP on purpose.** The hero is
@@ -285,7 +285,7 @@ read off a fresh-clone verification run rather than typed from memory. **This ha
 gone wrong in ELEVEN revisions during handoff assembly.** rev 23 through rev 30
 were clean runs.
 
-**FINAL COUNT: 146 commits, clean tree.**
+**FINAL COUNT: 148 commits, clean tree.** *(Written into the commit that makes it true — the count lands in its own commit, rev 29's pattern. It was 144 and then 146 in two earlier drafts of this file and BOTH were stale the moment they were committed; that is the twelfth instance of this trap and the reason this line is the last edit of the revision.)*
 
 **A COUNT TRAP CAUGHT AND NAMED, rev 30.** `STATE_rev29.md` records commit
 `b08e424`, and I took that for the rev-29 TIP. It is not: rev 29 committed three
