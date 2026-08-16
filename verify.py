@@ -1065,19 +1065,45 @@ def run(body, log=print):
                          "puts their outer faces coplanar has been broken")
         else:
             import t1_detail as _D30
+            # THE REFERENCE IS FROZEN HERE, NOT READ FROM t1_detail.
+            #
+            # My first cut compared the mesh with _D30.BAR_RISE and MY OWN
+            # FALSIFICATION ARM CAUGHT IT: adding 3 mm to BAR_RISE in source
+            # moved the mesh AND the reference together, so the row read 0
+            # fail.  It was a TAUTOLOGY -- SPEC 10.81's second one, and rev
+            # 24's "the false claim was inside the guard itself", now a third
+            # time.  A guard whose reference is the thing it guards can only
+            # ever catch the object going missing.
+            #
+            # Fixed by freezing the DERIVED figures as literals below and
+            # asserting the source against them as well as the mesh.  Two
+            # separate arms, both able to fail on their own.
+            ORB_RISE_SPEC = 0.0979640      # 38.7 / 71.1109 x 0.1800
+            ORB_DIA_SPEC = 0.0249660       # 0.1387 x 0.1800
+            ORB_BAND = 1.5e-3
             _rise = _zb - _zm
-            _d = _rise - _D30.BAR_RISE
-            if abs(_d) > 1.5e-3:
+            _d = _rise - ORB_RISE_SPEC
+            if abs(_d) > ORB_BAND:
                 fails.append(
                     f"SPEC 10.83: over-rider bar top sits {_rise*1000:.2f} mm "
                     f"above the bumper blade top, {_d*1000:+.2f} mm off the "
-                    f"measured {_D30.BAR_RISE*1000:.2f} mm (band +-1.5 mm). "
+                    f"frozen {ORB_RISE_SPEC*1000:.2f} mm (band +-1.5 mm). "
                     f"That figure is 38.7/71.11 of the CATALOGUE 0.180 m "
                     f"aperture -- if the anchor moved, re-derive it, do NOT "
                     f"widen this band")
+            if abs(_D30.BAR_RISE - ORB_RISE_SPEC) > 1e-6:
+                fails.append(
+                    f"SPEC 10.83: t1_detail.BAR_RISE = {_D30.BAR_RISE:.6f} "
+                    f"but the frozen derivation is {ORB_RISE_SPEC:.6f}. The "
+                    f"constant was changed without re-deriving it from the "
+                    f"ratio and the anchor")
+            if abs(_D30.BAR_DIA - ORB_DIA_SPEC) > 1e-6:
+                fails.append(
+                    f"SPEC 10.83: t1_detail.BAR_DIA = {_D30.BAR_DIA:.6f} but "
+                    f"the frozen derivation is {ORB_DIA_SPEC:.6f}")
             log(f"  over-rider bar (SPEC 10.83, WORKSHOP-STAGE): top "
                 f"{_rise*1000:.2f} mm above the blade top (measured "
-                f"{_D30.BAR_RISE*1000:.2f}), dia {_D30.BAR_DIA*1000:.2f} mm "
+                f"{ORB_RISE_SPEC*1000:.2f}), dia {_D30.BAR_DIA*1000:.2f} mm "
                 f"= {_D30.BAR_RATIO:.4f} x a CATALOGUE 0.180 m aperture; "
                 f"model-free upper bound on the ratio is "
                 f"{_D30.BAR_RATIO_MAX:.4f}. Lateral extent is graded E.")
