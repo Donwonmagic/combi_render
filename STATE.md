@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-16 01:18:03 UTC |
-| git commit | `445362c` |
-| git subject | rev 28: SPEC 10.81 -- the owner reads the counter top as CLEAN, and a SECOND tautology surfaces in the same chain |
+| generated | 2026-08-16 02:52:12 UTC |
+| git commit | `b08e424` |
+| git subject | rev 29: SPEC 10.82 + two _RETIRED_VALUES rows, both falsified |
 | working tree | clean |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=1 (applied, destructive, before booleans) |
