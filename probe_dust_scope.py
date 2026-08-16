@@ -315,10 +315,23 @@ P("  the Python literal the assert uses                : %.17f" % 1.4)
 P("  coverage the SHADER actually evaluates            : %.17f"
   % mean_coverage(ct))
 P("  coverage the ASSERT publishes                     : %.17f" % _assert)
-P("  delta %.3e  (%.2e relative) -- physically irrelevant, but it is a"
-  % (mean_coverage(ct) - _assert,
-     abs(mean_coverage(ct) - _assert) / _assert))
-P("  figure nobody has watched, and the band was NOT widened to hide it.")
+# rev 29: this line divided by `_assert`, which is EXACTLY ZERO in the shipped
+# build now that SPEC 10.82 retired the film -- so the probe crashed on the
+# very tree it ships with.  Caught on the FRESH-CLONE run, which is the run
+# that matters.  A probe that cannot describe the shipped build is not a probe.
+# The relative figure is REPORTED WHEN IT EXISTS and DECLINED when it does not
+# (SPEC 10.47: a probe that cannot answer must not answer).
+_d = mean_coverage(ct) - _assert
+if _assert != 0.0:
+    P("  delta %.3e  (%.2e relative) -- physically irrelevant, but it is a"
+      % (_d, abs(_d) / _assert))
+    P("  figure nobody has watched, and the band was NOT widened to hide it.")
+else:
+    P("  delta %.3e  (relative: N/A -- the assert is exactly 0 since SPEC"
+      % _d)
+    P("  10.82 retired the film; declined rather than divided by zero).")
+    P("  The float32 gap above is retained because it is the figure that")
+    P("  WOULD apply if T1_W_DUP restored the retired arm.")
 
 P("\n--- C2  POSITIVE, geometric: counter_top must read as up-facing ---")
 ct_up = [(a, o) for a, o, m in obj_up if o == "counter_top"]
