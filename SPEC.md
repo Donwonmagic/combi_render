@@ -5849,8 +5849,11 @@ file still names commit `6f87977`, subject "rev 31b". **The diff against
 published figure is wrong — consistent with no geometry having moved. But the
 handoff instruction "STATE.md is machine-written; if it and any prose disagree,
 it is right" points at a file that self-identifies as a rev-31b artifact.
-**Recorded, not silently regenerated:** regenerating it here would erase the
-evidence of the gap.
+**RECORDED FIRST, THEN REGENERATED — in that order and deliberately.** The
+finding is written here, into prose that survives, BEFORE `STATE.md` is
+regenerated on the rev-33 tree; regenerating it first would have erased the
+only evidence the gap ever existed. `STATE_rev33.md` is written alongside, as
+every revision since rev 8 has done.
 
 #### 10.87.4  rev 32's Q1 FIGURE QUOTED A PLANTED SYNTHETIC VALUE AS A MEASUREMENT
 
