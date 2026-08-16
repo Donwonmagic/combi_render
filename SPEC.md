@@ -3184,7 +3184,7 @@ pointer boxes printed in original-frame coordinates, he ruled:
 (`D.bumper(True)`) and `build.py:326` builds `bumper_irons(True)` — two
 `62 × 30 mm` rounded-rect prisms 150 mm long at `x = 2.045, y = ±0.470`
 (`t1_detail.py:~370`). Neither is a transverse tube, and neither is the vertical
-post at the vehicle's centreline that the photograph shows. Confirmed against a
+post at the vehicle's centreline that the photograph shows. **[REFUTED, rev 30, SPEC 10.83 — the centreline is the two-tone V apex at u = 311.5 (REF §9) and the post's own columns are 357–374, so it is NOT on the centreline; its lateral position is UNMEASURED and the post is deliberately NOT built.]** Confirmed against a
 render of the current build made this revision: **one plain cream blade, nothing
 above it.**
 
@@ -5109,3 +5109,151 @@ factory catalogue. **Bounded by the wheel control, not measured.**
 | 2026-08-14 | **rev 19 — the cream was measured on a detached sign, and `FadeVert` never reached the flank.** Shown a marked crop with the boxes printed, the owner identified `cream_rms._LID` — the source of every rev-17/18 cream number — as **a DETACHED SIGN, separate from the bus**, re-confirming §10.28 which §10.38 had silently reverted (§10.49). Re-based on the surface he identified as the bus's own paint, trimmed for a measured reason: **10.17 % of it is CLIPPED** and a clipped pixel carries no texture. Gate is now **geometry only** — the old `sat < 0.20` is tuned to the sign's C\* 11.2 and returns **2.9 % purity on the vehicle's own cream**. **The character verdict was a constant string** (§10.50): handed pure red paint at 0.0 % purity with every statistic `nan`, it still printed CHALKY SUN-FADE MOTTLE. The replacement derives the verdict and returns **None**; controls now separate red paint and foliage as DIRT/SOILING and refuse a 12×12 patch. The mechanism **survives** re-derivation on the correct surface; the amplitude does not — the sign is **2.1–2.6× more mottled** than the bus. **`FadeVert` has never reached the flank** (§10.51): `T1_body` carries `T1_paint`, which renders cream and red in one material and was left at **0.000**, while the material named `cream` carries exactly one object, `vw_disc` — rev 14's fix landed on every cream surface except the one it was measured on. The map now lives inside `body_paint`, multiplied by the material's own two-tone selector so the red is **0.0 by construction**, with `fadev_from` raising a hard error rather than falling back to a scalar. **The ablation exposed that a luminance high-pass is the wrong instrument for this lever** — on the albedo pass the map moves corr(dL\*,dC\*) **+0.261 → +0.048** monotonically toward the photograph's +0.042 — and **"the cream is 26× too uniform" does not survive**: dL\* rms was already 0.322/0.584/0.948 against 0.385/0.493/0.735. What is short is **chroma**, 0.24 flat against 0.74–1.30 growing, and the lever is bounded: the fade factor clamps at 1.0 so the modulation collapses past AMP 1. Depth correction **stated**: region 2 is the **flank** plane at **337 ± 7 px/m**, not the plate's 344.1. A **fourth `STATE.md` phantom** recorded (§10.52) — `audit.py` still publishes the constants-only arch gap as "41.0 mm (measured 41)" against the mesh's 39.7. Guards **0 fail / 1 warn at both levels**, geometry unchanged. |
 | 2026-08-15 | **rev 21 - the owner's napkin reading obtained, and five routes to the cream albedo all refuted by their own controls.** He identified N2/N3 as white paper napkins and M1 as bare stainless - and refuted a second crop of mine in the process: rev 20's boxes A and B each straddle a napkin face AND the dispenser body, which is the real reason they disagreed, not shading (10.57). rev 20's C/D/E are dropped on a measurement, not an argument: they sit inside the galley opening at 0.22-0.32x the cream's luminance, and a neutral cannot be 3-4x darker than the surface it shares light with. **Route A, the napkin as a same-light neutral, is clean and robust** - three faces clipping at 22/12/0 % agree on hue 44.5-48.2 and sat 0.163-0.203, R>G, and because clipping compresses toward neutral the agreement is itself the control. **It still must not be applied.** The third method fails: de-illuminated by the napkin the flank red reads hue 13.1-13.8 against the independently locked RED's 5.0, and shading explains only 1.7 of the 8.5 degree gap across 30 patches spanning a 4.27x luminance range. **10.12's own invariant says why** - the ratio (G-B)/(R-B) is 0.2225 +- 0.0045 in `ref_rear34` against 0.0813 for the locked albedo, **+31 sd**, so that frame is not related to the locked constants by ANY neutral transform. Inverting the reference refutes itself: using the locked RED as the illuminant makes the white napkin come out a saturated purple, giving **a new rule - an illuminant reference must carry substantial albedo in all three channels**, and RED's are (0.552, 0.029, 0.018). Solving 10.9's full affine model with both surfaces has **no physical solution** for any napkin albedo, and the diagnosis is concrete: the red reads 95 % of the napkin's R channel where 0.552 against white paper should read 65 %, so the two are not under the same light. **`CREAM` UNCHANGED at (206,208,200).** Separately, a subagent's claim that four `audit.py` livery rows are identities that cannot fail was **tested and half refuted** (10.58) - they are invariant to the rake, which `t1_core.py:165-171` shows is deliberate, but displacing the authored constants makes them print OUT and throw FAILs. Guards **0 fail / 1 warn at both levels**, every figure identical to rev 18/19/20; geometry untouched. |
 | 2026-08-15 | **rev 22 - the hero is shot at last, `H_ROOF` is retired by the owner, and item 3's target is refuted as a category error.** First hero since rev 16: **4800x3200, SUB=2, 56 samples, 20 strips, worst seam z = 1.91** against a threshold of 4 (rev 16 shipped 1.89), `post.py` run **once** on the stitched frame - the first photograph of the rev-18 arch fix, rev 17's hubcap rings and rev 19's cream mottle. **`H_ROOF` = 1.960 RETIRED as an accuracy target on the owner's call (10.59)**, after a chain of withdrawals left it with no admissible derivation: REF sec.1 derived it from the ground line 10.11 bans, and its only ground-line-free support - `LOFT_GROUND` sec.1.2's 1.9621 - was withdrawn by 10.34 without noting it was the last one. It was **NOT re-valued to the mesh probe**, which the owner rejected and which would make the guard compare the model to itself and clear a warn by tuning. The probe survives as a **labelled regression catcher, baseline 1.9835 WATCHED PRINT at both levels (SUB=2 reads 1.9833), band +-5 mm**, and was **falsified two ways**: displacing the baseline -10 mm gives `MOVED +10.0 mm`, and raising `CR_ALL`'s crown **+8.0 mm in the GEOMETRY** gives `MOVED +7.9 mm` - the second arm proving it reads the MESH, which the old arch guard never did. Guards **0 fail / 1 warn -> 0 fail / 0 warn at both levels**, and **the warn is gone because THE TEST WAS WITHDRAWN, not because the model improved; the mesh did not move**, every other figure identical. The absolute roof height is now OPEN and UNMEASURED. **`COUNTERTAN`'s hue target REFUTED (10.60)**: the cited 28.4 deg / 0.333 is an **OBSERVED PIXEL** and `COUNTERTAN` is an **ALBEDO** - the 10.21 trap. Re-measured clean (n=162, 0.00 % clipped) the observed top reads 32.3 deg / 0.364, while de-illuminated through the docstring's own arms it reads **39.3 and 41.7 deg against the built 42.3**, with sat 0.254 inside the arms' 0.225-0.289: the claimed ~14 deg error is **at most ~3 deg**, and nothing moves on that while the LEVEL is unresolved. Two new findings from controls never previously run: **the founding crop straddles two materials** (rows 411-415 include the shadowed transition, 54 codes darker, and run into the brass nosing at sat 0.669 / r/g 2.36 - thirteenth instance, and in SPEC's own founding measurement), and **the cab-roof reference is NOT under the same light as the fascia** - after removing the albedo ratio the residual illuminant is B/R **1.219, 22 % bluer** - so that arm is inadmissible under 10.21 and the LEVEL bracket's upper end rests on it. `COUNTERTAN` UNCHANGED, fourth revision running. |
+
+### 10.83  rev 30 — THE FRONT OVER-RIDER IS MEASURED AND BUILT: a scale on the nose/bumper plane at last, and rev 29's proposed route refuted on the way
+
+**§10.75's item, open since rev 26 and NOT ATTEMPTED in rev 28 or rev 29, is
+closed for the BAR.** It is closed by measuring somewhere nobody had looked,
+not by loosening anything. **Geometry moves this revision** — the first time
+since rev 23.
+
+#### What rev 30 REFUTED before it measured anything
+
+- **THE OCCLUSION FRAMING IS WRONG.** §10.75 recorded the foreground trolley
+  occluding the bumper blade's lower edge "in 5 of 8 columns", and the rev-30
+  brief made asking which columns are clean the first task.
+  `probe_orb_blade.py` (NEW, read-only) settles it **BY GEOMETRY instead**: the
+  rail's top edge fits a straight line to **rms 0.289 px over 65 columns**
+  (`v = −0.3053 u + 817.675`) and lies **6.6–61.3 px BELOW** the blade's lower
+  boundary in **every** clean column of the tube's own run. It does not occlude
+  them. rev 26's figure was measured on a WIDER set running past `u ≈ 285`,
+  where the rail genuinely does cross. **The owner was not asked a question
+  measurement had already answered.**
+- **rev 29's SCALE-FREE RATIO IS REFUTED AS A FIX.** Swept over seven luma
+  thresholds the tube/blade ratio reads **±12.8 %**, *between* the tube's
+  ±16.8 % and the blade's ±9.0 %. The systematic does not cancel. **C5 FAIL,
+  reported as a FAIL and not widened.**
+- **THE REASON is in the edge widths**, priced against the frame's own
+  yardstick — the trolley rail's edge at **1.76 px, 1.23× the ideal step
+  predicted by §10.80's σ = 0.5594.** That is an **independent corroboration of
+  rev 28's PSF from a different edge class**, and it was not sought; it fell
+  out of the control.
+
+| boundary | 10–90 width | × rail |
+|---|---|---|
+| blade TOP (green→cream) | 1.86 px | **1.06 — a real edge** |
+| tube TOP (green→cream) | 2.26 px | **1.28 — a real edge** |
+| tube BOT | 4.33 px | 2.46 — a rolloff |
+| blade BOT (cream→ground) | 5.27 px | 3.00 — a rolloff |
+
+#### THE MEASUREMENT: a different station, not a different method
+
+The tube runs the **whole way across the nose**, and at `u 385–460` it passes
+**directly beneath the headlamp aperture** — the one locked ruler in the frame.
+Same station, measured vertically, so **REF §9's "lateral scale varies by more
+than 2:1" does not bite**: that warning is about LATERAL scale on a curved
+panel. rev 26 measured at `u 248–272` only because that is where box A had been
+drawn.
+
+There the tube is isolated against green above and below, its top edge is a
+real edge, and its apparent thickness holds to **±5.5 % over 76 columns**
+against rev 26's ±19 %.
+
+#### THE OWNER'S TWO ANSWERS, and what each did
+
+Asked with every crop box printed, every fitted line drawn, the photograph
+shown beside a render of the shipped build, and **both boxes stated to be
+SAMPLING WINDOWS rather than pointers — different from rev 28 and rev 29 and
+said so on the figure** (`mark_rev30_q.py`, `rev30_q_overrider.png`):
+
+| | question | answer |
+|---|---|---|
+| **Q1** | where does the tube END — at the cast-shadow line, or does the dark band belong to it? | **[stated] CAN'T TELL** |
+| **Q2** | where is the headlamp aperture's LOWER RIM — the ruler? | **[stated] the THIN DARK LINE → vertical extent 71.11 px** |
+
+**Q1's "can't tell" barred taking my own lean**, which was arm 1, and it is
+recorded that it barred it. The bracket was 9.86 px to 14.98 px — a factor of
+1.52, which changes the part and not a decimal.
+
+#### HOW Q1 WAS CLOSED WITHOUT AN ANSWER: a bound, not an estimate
+
+`probe_orb_hoop.py` (NEW, read-only). The tube **turns down and back in a
+rounded hoop end at `u ≈ 468–490`, which SPEC has never recorded.** Through the
+bend a horizontal chord crosses the tube and **both ends of that chord are
+LATERAL silhouettes** — neither is the underside the owner could not read.
+
+For a tube of diameter D whose image axis has **any** slope s,
+`W_h = D·√(1+s²) ≥ D`. **Every** horizontal chord on the bend is therefore an
+upper bound on D, and the smallest is the tightest. **No fit, no derivative, no
+slope model and no free parameter enters this.**
+
+- smallest chord over 15 rows: **10.38 px → D ≤ 10.38 px**
+- arm 1, **9.86 px — ADMISSIBLE**, 0.52 px under the bound
+- arm 2, **14.98 px — EXCLUDED**, 44 % over it
+
+**The question is closed from the other side: by refuting one arm, not by
+choosing between them.** **NOT CLAIMED:** that the dark band IS a cast shadow.
+That is still open, and it does not matter for the diameter.
+
+#### FOUR DEFECTS OF MY OWN, every one caught by a control and recorded
+
+- **TWO ESTIMATORS DIED IN `probe_orb_hoop.py` AND NEITHER IS PUBLISHED.** A
+  slope-corrected chord removed only **14 %** of the slope dependence and
+  **over-corrected**; a parameter-free min-distance construction between the
+  two fitted silhouettes failed C1 and C2 as well (D drifts 8.4 → 10.6 px
+  across the bend). Diagnosis stated rather than tuned: through a bend the two
+  curves stop being the two sides of one tube, and **the quadratic's derivative
+  at the ends of its own range is the weakest quantity in the construction.** A
+  third estimator was not attempted. **The bound needs none.**
+- **TWO NULL PATCHES WERE WRONG BEFORE ONE WAS RIGHT.** The first clipped the
+  two-tone V (sd 45.9). The second clipped it too (sd 37.6) — and I had
+  **PRINTED its flatness without GATING on it**. *A flatness figure you do not
+  test is not a control.* The third is gated: sd 2.83, 0 of 50 rows.
+- **MY OWN GUARD WAS A TAUTOLOGY AND MY OWN FALSIFICATION ARM CAUGHT IT.** The
+  first `verify.py` row compared the MESH against `t1_detail.BAR_RISE` — the
+  very constant that builds the mesh. Adding 3 mm to it moved both together and
+  the row read **0 fail**. §10.81's second tautology, and rev 24's "the false
+  claim was inside the guard itself", now a **third** time. Fixed by **freezing
+  the derivation as literals in `verify.py`** and asserting the source against
+  them as a separate arm.
+- **THE 10.83 ROW FIRED ON ITS FIRST RUN AND THE ROW WAS RIGHT.** Its sampling
+  window was `x > 2.132`, which keeps only the blade's outer face —
+  `BUMP_PROFILE` reaches its greatest OUTWARD extent at `up = +0.0210` and its
+  **topmost** point at outward 0.000, so that window read 0.5230 where the
+  blade tops out at 0.5360. **WINDOW FIXED, BAND UNTOUCHED.**
+
+#### WHAT IS BUILT, and at what grade — every number carries its provenance
+
+| quantity | value | grade |
+|---|---|---|
+| tube / aperture-vertical | **0.1387**, ±5.5 %, 76 columns | MEASURED, scale-free |
+| upper bound on that ratio | **0.1460** | BOUNDED, model-free |
+| tube top above blade top | **38.7 / 71.11** of the aperture | MEASURED, scale-free |
+| headlamp aperture | **0.1800 m** | **CATALOGUE — SPEC 10.72's STRUCK CLASS. TAGGED.** |
+| `BAR_DIA` | 24.97 mm | CONSEQUENCE of the anchor |
+| `BAR_RISE` | 97.96 mm | CONSEQUENCE of the anchor |
+| standoff in x | outer faces coplanar at 2.1403 | **A CHOICE, not a reading** |
+| lateral extent, hoop radius | `BAR_HALF_Y = 0.600` | **E — shape from the photograph, dimension NOT** |
+
+`BAR_DIA` and `BAR_RISE` are written in the source **as the ratio times the
+anchor, never as bare numbers**, so that replacing the anchor moves them
+proportionally and fires the guard. Falsified in **five arms**: `BAR_RISE`
++3 mm FIRES (2 fails), the bar deleted from `build.py` FIRES, `BAR_RATIO` →
+the model-free bound FIRES (2 fails), `APERTURE_M` → 0.190 FIRES (3 fails),
+control 0 fail / 0 warn.
+
+#### NOT BUILT, deliberately — and §10.75 IS CORRECTED
+
+**§10.75 describes the vertical post (its box C) as "the vertical post at the
+vehicle's centreline". THAT IS REFUTED.** The centreline is the two-tone V apex
+at **`u = 311.5`** (REF §9); the post's own columns are **357–374**. It is not
+on the centreline and it never was. Its lateral position can be bracketed only
+between the centreline and the near headlamp, which is **not a measurement**,
+and REF §9 bars any lateral metre figure on this panel. **Building it at a
+refuted position would be worse than leaving the gap named**, so the post is
+NOT built and is carried as the item's remainder.
+
+**Also still open and named:** the depth standoff biases the ratio HIGH by an
+amount whose SIGN is known and whose SIZE is not; and no in-service frame shows
+the nose, so this whole entry is **WORKSHOP-STAGE** under §10.75's scope ruling
+and is deleted by one line in `build.py` if one ever appears.

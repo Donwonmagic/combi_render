@@ -253,6 +253,15 @@ _RETIRED_VALUES = (
     # re-expressed value is ANOTHER ROW, never a looser rule.
     ("0.7313",       "0.0 (RETIRED)", "t1_mats.W_DUST_FAC_UP", "10.82"),
     ("mean coverage 0.548", "no up-face film", "t1_mats._f_up", "10.82"),
+    # ---- rev 30, SPEC 10.83.  Two rows.  The first is the arm of the owner's
+    # own declined question that the hoop bound EXCLUDED; the second is SPEC
+    # 10.75's description of the post's position, refuted by the V apex.  Both
+    # are values that would otherwise be free to be re-quoted as live, and rev
+    # 25's rule is that a retired value re-expressed in another form needs
+    # ANOTHER ROW, never a looser rule.
+    ("14.98", "9.86 (REFUTED: D <= 10.38 px)", "probe_orb_hoop bound", "10.83"),
+    ("post at the vehicle's centreline", "u 357-374 vs V apex u 311.5",
+     "t1_detail.overrider_bar", "10.83"),
 )
 
 # A literal is EXEMPT where the line itself says it is retired.  Matching on the
