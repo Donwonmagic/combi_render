@@ -44,7 +44,7 @@ import numpy as np
 from PIL import Image
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-BLENDER = os.environ.get("T1_BLENDER", "/tmp/blender/blender")
+BLENDER = "/tmp/blender/blender"
 
 
 def sh(cmd, env, label):
