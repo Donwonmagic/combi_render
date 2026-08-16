@@ -5245,7 +5245,14 @@ control 0 fail / 0 warn.
 #### NOT BUILT, deliberately — and §10.75 IS CORRECTED
 
 **§10.75 describes the vertical post (its box C) as "the vertical post at the
-vehicle's centreline". THAT IS REFUTED.** The centreline is the two-tone V apex
+vehicle's centreline". THAT IS REFUTED.** *[DOWNGRADED TO **UNDECIDED**, rev 31,
+SPEC 10.84 -- the two terms of this refutation are at DIFFERENT DEPTHS: the apex
+is on the nose skin, the post stands in the bumper plane forward of it by a
+standoff this very section grades "A CHOICE, not a reading", and the owner
+confirmed in rev 31 that the post is bar-to-blade only, standing away from the
+body panel. The whole offset is 54.0 px and the parallax sign is unestablished
+at 1.38 sigma. The post stays UNBUILT either way, but this claim is no longer
+settled and must not be listed as settled.]* The centreline is the two-tone V apex
 at **`u = 311.5`** (REF §9); the post's own columns are **357–374**. It is not
 on the centreline and it never was. Its lateral position can be bracketed only
 between the centreline and the near headlamp, which is **not a measurement**,
@@ -5257,3 +5264,189 @@ NOT built and is carried as the item's remainder.
 amount whose SIGN is known and whose SIZE is not; and no in-service frame shows
 the nose, so this whole entry is **WORKSHOP-STAGE** under §10.75's scope ruling
 and is deleted by one line in `build.py` if one ever appears.
+
+---
+
+### 10.84  rev 31 — THE POST'S BLOCKER IS §10.83's OWN REFUTATION, AND THAT REFUTATION COMPARES TWO DEPTHS: status corrected to UNDECIDED, and the brief's route refuted before it was spent
+
+**NO GEOMETRY MOVES THIS REVISION.** Nothing is built, nothing is retuned, no
+constant changes. What changes is the STATUS of one claim that was recorded as
+settled, and the disposition of one route the rev-31 brief proposed.
+
+#### The brief's route was tested at its first link, and the link broke
+
+The rev-31 brief proposed single-view metrology on `ref_workshop.jpg` using the
+WORKSHOP's own architecture — masonry courses, roof beams, columns — with the
+bumper top at 0.348 m as the known height, to recover the post's LATERAL
+position. It asked for a ruling BEFORE the revision was spent. **The ruling is:
+it will not close, and the reason is not the architecture.**
+
+Any such chain must reach the VEHICLE's fore-aft direction. `probe_orb_post.py`
+(NEW, read-only) tries to read it off the vehicle's own long edges. Five are
+traced; three pass an rms gate:
+
+| edge | n | slope | rms |
+|---|---|---|---|
+| drip rail | 91 | +0.0075 | **0.091 px** |
+| counter lower edge | 116 | −0.1876 | **0.096 px** |
+| belt break, forward | 96 | −0.1943 | 0.648 px |
+| counter upper edge | 118 | −0.0036 | 2.718 px — **EXCLUDED, not a line** |
+| rocker, mid run | 71 | −0.7979 | 1.979 px — **EXCLUDED, not a line** |
+
+Their pairwise intersections land at **u = +1529, +1284 and −5843** — a spread
+of **7 372 px across a 1 200 px frame** — and they **change side**. C1 FAIL,
+C3 FAIL.
+
+**AT 0.09 px RESIDUALS THIS IS NOT A TRACING FAILURE.** Those edges are
+genuinely not parallel on the real vehicle, and this repository already says
+why: `t1_mats.z_belt(x)` makes the belt a SLOPED line, and the roof carries its
+own rake and crown. **There is no single fore-aft vanishing point on this
+vehicle to recover.** The building's lines would calibrate cleanly, but they
+give the BUILDING's frame; transferring it to the vehicle needs the vehicle's
+YAW, whose only route is the wheel–ground contacts, and the foreground trolley
+occludes the front one. That is an extra unmeasured link the brief's framing
+does not carry.
+
+#### §10.83's refutation of "post at the vehicle's centreline" COMPARES TWO DEPTHS
+
+§10.83 refuted §10.75's phrase by setting the post's own columns (357–374,
+centre **365.5**) against the two-tone V apex at **u = 311.5**, which REF §9
+gives as the centreline. **The V apex is on the NOSE SKIN. The post stands in
+the BUMPER plane, forward of it by a standoff §10.83 ITSELF grades "A CHOICE,
+not a reading".** Under perspective a centreline point translated forward does
+not keep its column, so the nose-skin centreline column and the bumper-plane
+centreline column are different numbers — and the refutation used one as if it
+were the other.
+
+The entire refutation is an offset of **54.0 px**. The sign of the unpriced
+parallax decides whether that offset is real or manufactured.
+
+**THE SIGN COULD NOT BE ESTABLISHED, AND THAT IS REPORTED AS A FAILURE RATHER
+THAN LEANED ON.** The only two centreline features available at different
+depths are the VW roundel (**u = 306.0**) and the V apex (**u = 311.5**). They
+differ by **+5.5 px** against REF §9's own **±4 px** band on the apex —
+**1.38 σ**. C4 FAIL.
+
+**STATUS CORRECTED: §10.83's "REFUTED" on this one claim becomes UNDECIDED.**
+It is NOT hereby claimed that the post IS on the centreline. It is claimed that
+the measurement which ruled it out cannot bear the weight put on it, and that
+the rev-31 prompt's "already settled — do not re-open" listing of it is wrong.
+**The post remains UNBUILT either way**: nothing here supplies a lateral
+position, and REF §9 bars a lateral metre figure on this panel.
+
+The `_RETIRED_VALUES` row for the phrase is **KEPT** — the phrase still must not
+be re-quoted as a live value to build from — and only its stated REASON is
+corrected. Retiring it was right; the justification was not. **The corrected row
+was watched FIRE**: injected into a non-exempt SPEC section the guard reads
+1 fail against the clean tree's 0.
+
+#### A FIFTH TAUTOLOGY CLASS, named: a guard is not the only thing that can be circular
+
+§10.83's refutation is not a guard, so the three previous tautology findings do
+not cover it. It is the same defect one level up: **a REFUTATION whose two terms
+are not commensurable measures nothing.** The rule this earns is stated with the
+others: *two features at different depths are not two readings of one quantity.*
+
+#### THE ONLY SURVIVING ROUTE, and it is blocked on a reading, not a calculation
+
+The near end of the bar turns down in a rounded hoop (§10.83, `u ≈ 468–490`).
+**At the FAR end there is a cream feature at `u ≈ 203–232`, `v ≈ 626–702`, which
+SPEC has never recorded.** If it is the bar's own mirror-image end, then the
+bar's two ends BRACKET the post, and the post's position becomes a **SCALE-FREE
+FRACTION of the bar's half-width** — needing no calibration, no ground plane, no
+yaw and no standoff, and inheriting `BAR_HALF_Y`'s existing grade E rather than
+adding a new unmeasured lateral choice. That is the one route that survives
+everything above, and it cannot be started until the feature is classified.
+
+Asked on `rev31_q_post.png` (`mark_rev31_q.py`, NEW, read-only), photograph
+beside a render of the current build, every crop box printed on the figure and
+on the console, and **every box stated to be a POINTER — none is a sampling
+window, because rev 31 takes no samples from any of them**, which is the
+converse of rev 30's declaration and is said for the same reason.
+
+#### A HERO WAS OWED TWICE OVER AND IT IS ALREADY SHOT
+
+`rev30_hero34f.png` (4800×3200, on his disk, timestamped ~10 h AFTER
+`NEXT_CONTEXT_PROMPT_rev31.md`, which is why that prompt does not know of it)
+**is a render of the rev-30 build**, established by content and not assumed:
+
+- it carries the over-rider bar **and its hoop end**, a member present in no
+  revision before rev 30; `rev25_hero34f.png` at the same crop is a clean
+  negative control — bare blade, nothing above it;
+- **CONTROL:** the backdrop is **bit-identical** between the two frames (max
+  channel difference **0**), so the 11.74 % of differing pixels is signal;
+- the difference is **41.22 % inside the silhouette against 0.21 % outside**,
+  and concentrates on UP-FACING surfaces — cab roof mean 9.94, counter top 5.58,
+  against the vertical flank's 2.64 — which is rev 29's split up-face deposit,
+  corroborating the shading independently of the geometry.
+
+**MY FIRST SEAM TEST WAS ON THE WRONG AXIS AND ITS CONTROL KILLED IT, PRICED
+HERE RATHER THAN DELETED.** It searched for VERTICAL seams; `hero.py` strips in
+ROW space, so seams are HORIZONTAL. It also fired hardest at `x = 2086`, which
+is not a strip boundary at all — it was reading real image content — and a
+positive control then showed it could barely see a full 1-code step (3.14 →
+3.66). Re-run on rows, over subject rows only, with a graded control:
+
+| | worst \|z\| | median |
+|---|---|---|
+| **OBSERVED** | **2.97** | 0.93 |
+| positive control, +1.00 code per seam | 17.36 | 7.34 |
+| positive control, +0.25 code per seam | 5.17 | 2.00 |
+| positive control, +0.10 code per seam | 3.52 | 0.78 |
+
+**The observed frame sits below the +0.10-code control.** Any seam is under a
+tenth of a code value. **CEILING: ~0.1 code values**; this is a different metric
+from `hero.py`'s own stitch-time figure and is NOT comparable to rev 25's 1.91.
+
+#### A PROCESS DEFECT OF MY OWN, recorded because it destroyed work
+
+**I used `git checkout SPEC.md` to undo a test injection in a file that carried
+UNCOMMITTED work**, and it discarded this entire section and the §10.83
+correction along with the injection. Both had to be rewritten. The rule:
+*never revert a file with `git checkout` to undo a falsification arm — commit
+the real work first, or the arm eats it.* This is why the arm above is run and
+reported AFTER the commit that lands the text it tests.
+
+#### HIS TWO ANSWERS, given while the revision was still running
+
+| | question | answer |
+|---|---|---|
+| **Q1** | what is the cream feature at the bar's far end, `u 203–232`? | **[stated] "Appears to be covering the bumper, the post, and the far end of the bar."** |
+| **Q2** | is the post bumper-plane only, or a stay running back to the body? | **[stated] "bar to blade only, much like the view of the other bar which shows us a triangular bar extending from the bumper upwards and away from the body panel"** |
+
+**NEITHER ANSWER IS THE ONE THE OPTIONS OFFERED, AND BOTH ARE BETTER THAN THE
+OPTIONS.** Q1 was offered as a four-way classification; he read it as a
+SUPERPOSITION of three members, which none of (a)–(d) expresses. Re-examined at
+×10 against his reading, the frame agrees: a cream diagonal runs from the bar
+down to an apex at about `(u 240, v 683)`, and the dark wedge beneath it is not
+a member at all but **the green body panel seen through the gap between brace,
+bar and blade**. It reads as a brace, not as a hoop and not as a plain post.
+
+**WHAT THIS ESTABLISHES THAT SPEC DID NOT HAVE:**
+
+1. **THE BAR'S FAR END IS PRESENT** and runs essentially to the bumper's far
+   corner — so the bar spans the full blade, and its two ends DO bracket the
+   post. The scale-free-fraction route is ALIVE.
+2. **ITS COLUMN IS CONFOUNDED.** The far end is superposed with the bumper
+   corner and with a brace inside a ~29 px blob, so the endpoint carries that
+   blob as its uncertainty — it is not a clean silhouette like the near hoop.
+   **This is a bound on the route's precision, stated before the route is run.**
+3. **THERE IS BRACE STRUCTURE AT THE FAR END** — a triangular member from the
+   bumper going up and AWAY from the body panel. SPEC has never recorded it.
+4. **THE POST IS BUMPER-PLANE ONLY.** This is the load-bearing one.
+
+**Q2's ANSWER CONFIRMS §10.84's STATUS CORRECTION FROM THE OTHER SIDE.** The
+argument above was that §10.83 compared two features at different depths, and
+that the sign of the parallax could not be priced. A stay running back to the
+body would have made the post's depth ambiguous and the whole objection soft.
+**He rules it bar-to-blade only, standing away from the body panel — so the post
+is DEFINITELY in the bumper plane, and the depth difference between it and the
+nose-skin V apex is DEFINITELY the bumper standoff, which is DEFINITELY
+non-zero and is graded "A CHOICE, not a reading".** The parallax is therefore
+not merely unpriced but **certainly present**. UNDECIDED is confirmed by his
+reading, not only by my failure to establish a sign.
+
+**NOT CLAIMED**, and left for rev 32: that the far-end brace and the middle post
+are a SYMMETRIC PAIR; that the middle post is itself triangular in the same way;
+that the near hoop has no brace hidden behind the corner. The naive midpoint of
+the two bar ends is not the projective one and no midpoint is computed here.

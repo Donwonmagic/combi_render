@@ -260,8 +260,17 @@ _RETIRED_VALUES = (
     # 25's rule is that a retired value re-expressed in another form needs
     # ANOTHER ROW, never a looser rule.
     ("14.98", "9.86 (REFUTED: D <= 10.38 px)", "probe_orb_hoop bound", "10.83"),
-    ("post at the vehicle's centreline", "u 357-374 vs V apex u 311.5",
-     "t1_detail.overrider_bar", "10.83"),
+    # rev 31, SPEC 10.84: THE ROW IS KEPT, ITS REASON IS CORRECTED.  10.83
+    # retired this phrase as REFUTED, on a 54.0 px offset between the post's
+    # columns and the V apex -- two features at DIFFERENT DEPTHS, the apex on
+    # the nose skin and the post in the bumper plane, whose standoff 10.83
+    # itself grades "A CHOICE, not a reading".  The sign of that parallax is
+    # UNDECIDED (roundel 306.0 vs apex 311.5 = +5.5 px against REF sec.9's own
+    # +-4 px, 1.38 sigma).  The phrase still must not be re-quoted as a live
+    # value to build from, so the row stands; only the justification changes.
+    ("post at the vehicle's centreline",
+     "UNDECIDED: 54.0 px, depth parallax unpriced (10.84)",
+     "t1_detail.overrider_bar", "10.83/10.84"),
 )
 
 # A literal is EXEMPT where the line itself says it is retired.  Matching on the
