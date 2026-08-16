@@ -8,10 +8,10 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-16 02:52:12 UTC |
-| git commit | `b08e424` |
-| git subject | rev 29: SPEC 10.82 + two _RETIRED_VALUES rows, both falsified |
-| working tree | clean |
+| generated | 2026-08-16 04:39:46 UTC |
+| git commit | `bc90cf6` |
+| git subject | rev 30: SPEC 10.83, 10.75 corrected, two _RETIRED_VALUES rows |
+| working tree | **DIRTY** — this state is not committed |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=1 (applied, destructive, before booleans) |
 | geometry source | procedural, built this run |
@@ -41,6 +41,7 @@ shut line door-1: 100 % open
 shut line cargo: 100 % open
 shut line englid: 100 % open
 shut line x aperture: show flank 0.0 mm (invariant, asserted at import); off flank 804.9 mm over 2 pairs (baseline 804.9, -0.0 mm) -- off flank is graded E, NOT a correctness claim
+over-rider bar (SPEC 10.83, WORKSHOP-STAGE): top 97.51 mm above the blade top (measured 97.96), dia 24.97 mm = 0.1387 x a CATALOGUE 0.180 m aperture; model-free upper bound on the ratio is 0.1460. Lateral extent is graded E.
 gap_englid is in the (y,z) TAIL frame at x=-1.7150; no flank aperture shares that surface, so a flank crossing test is NOT APPLICABLE (stated, not silently skipped)
 CARGO_GAP outline samples 154 (rev 22: 28, of which 20 on the corner arcs = 5.2 % of the length)
 band 1.372-1.775 un-dropped (1.307-1.710 AG)  bay widths 0.516 0.515 0.516
@@ -137,9 +138,9 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 
 | | |
 |---|---|
-| mesh objects | 185 |
-| vertices (all meshes) | 143511 |
-| faces (all meshes) | 137976 |
+| mesh objects | 186 |
+| vertices (all meshes) | 144603 |
+| faces (all meshes) | 139042 |
 
 | prefix | n |
 |---|---|
@@ -236,6 +237,7 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 | `lid_board` | 1 |
 | `lid_main` | 1 |
 | `lid_strut` | 1 |
+| `orb_bar` | 1 |
 | `plancha` | 1 |
 | `plate` | 1 |
 | `plate_digits` | 1 |
