@@ -1078,8 +1078,8 @@ def run(body, log=print):
             # Fixed by freezing the DERIVED figures as literals below and
             # asserting the source against them as well as the mesh.  Two
             # separate arms, both able to fail on their own.
-            ORB_RISE_SPEC = 0.0979640      # 38.7 / 71.1109 x 0.1800
-            ORB_DIA_SPEC = 0.0249660       # 0.1387 x 0.1800
+            ORB_RISE_SPEC = 0.09795967      # 38.7 / 71.1109 x 0.1800
+            ORB_DIA_SPEC = 0.024966        # 0.1387 x 0.1800
             ORB_BAND = 1.5e-3
             _rise = _zb - _zm
             _d = _rise - ORB_RISE_SPEC
