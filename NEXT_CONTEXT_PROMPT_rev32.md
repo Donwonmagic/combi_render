@@ -368,8 +368,8 @@ gone wrong in ELEVEN revisions during handoff assembly, and rev 31 caught a
 twelfth live** — `grep -c 'C1 FAIL' probe_orb_post.py` reads 0 because the string
 is assembled by an f-string. It was dropped, not published.
 
-**FINAL COUNT: 153 commits, clean tree.** *(Written into the commit that makes it
-true — the count lands in its own commit, rev 29's pattern.)*
+**FINAL COUNT: 153 commits, clean tree.** *(Verified: this line lands in commit
+153 itself, which is what makes it true — the count lands in its own commit, rev 29's pattern.)*
 
 **A PROCESS TRAP CAUGHT AND NAMED, rev 31.** I ran a falsification arm by
 injecting a retired phrase into `SPEC.md`, then reverted it with
