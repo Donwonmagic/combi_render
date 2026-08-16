@@ -15,12 +15,19 @@ those three outcomes** — call it, and say plainly what came back.
 TIMES.** `device_stage_files` times out on files above ~3 MB. **Only TWO files
 need splitting:** the 19.5 MB base bundle (7 parts) and the 8.5 MB
 `rev14_unified` (3 parts). **Everything rev15–rev32 is under 3 MB and crosses
-whole** — `tacombi_rev32_incremental.bundle` is **2 376 375 bytes**, md5
-`4bc11cec5d4ed536983524d0515bf974`, despite carrying two question PNGs.
-*(An earlier draft of this file said rev 32's bundle was over the ceiling. It
+whole** — `tacombi_rev32_incremental.bundle` is about **2.4 MB**, despite
+carrying two question PNGs.
+*(TWO CORRECTIONS WERE MADE TO THIS PARAGRAPH BEFORE SHIPPING AND BOTH ARE
+WORTH THE SPACE. First: a draft said rev 32's bundle was OVER the ceiling. It
 had been cut from the rev-30 tip by mistake, so it carried rev 31's commits too
-and measured 3.63 MB. Corrected before shipping: A BUNDLE'S SIZE IS A
-MEASUREMENT TOO, and it depends on the base you cut it from.)*
+and measured 3.63 MB. **A BUNDLE'S SIZE IS A MEASUREMENT TOO, AND IT DEPENDS ON
+THE BASE YOU CUT IT FROM.** Second: this paragraph carried the bundle's exact
+byte count and md5, and **THOSE TWO FIGURES CANNOT BE CORRECT INSIDE THE FILE
+THEY DESCRIBE** — committing the file changes the bundle, which changes both.
+They were removed rather than shipped stale. The exact size and md5 are in the
+delivery message instead, where they can be true. **A SELF-REFERENTIAL FIGURE IS
+A PROBE TOO: ask whether the act of writing it invalidates it.** The commit
+COUNT survives this only because it is written to be true of its own commit.)*
 Split with `device_bash`, stage 1–2 per call, `cat`
 back, **check md5 on both sides** — it matched in rev 30, rev 31 and rev 32.
 
@@ -258,7 +265,7 @@ git pull --ff-only ../tacombi_rev28_incremental.bundle HEAD      # -> 130
 git pull --ff-only ../tacombi_rev29_incremental.bundle HEAD      # -> 135
 git pull --ff-only ../tacombi_rev30_incremental.bundle HEAD      # -> 148
 git pull --ff-only ../tacombi_rev31_incremental.bundle HEAD      # -> 158
-git pull --ff-only ../tacombi_rev32_incremental.bundle HEAD      # -> 165
+git pull --ff-only ../tacombi_rev32_incremental.bundle HEAD      # -> 166
 ```
 
 **If a pull says "Need to specify how to reconcile divergent branches", STOP.**
@@ -454,8 +461,8 @@ This section is written LAST, after the final commit, and every figure in §1 wa
 read off a fresh-clone verification run rather than typed from memory. **This has
 gone wrong in ELEVEN revisions during handoff assembly.**
 
-**FINAL COUNT: 165 commits, clean tree.** *(Verified: this line lands in commit
-165 itself, which is what makes it true — the count lands in its own commit,
+**FINAL COUNT: 166 commits, clean tree.** *(Verified: this line lands in commit
+166 itself, which is what makes it true — the count lands in its own commit,
 rev 29's pattern, kept since.)*
 
 **THE GREP TRAP FIRED AGAIN AND IT FIRED ACROSS REVISIONS THIS TIME.** rev 31b
@@ -471,7 +478,7 @@ REASON.** The first draft of Step 0 said rev 32's bundle was over the bridge's
 throughput ceiling. It was — but only because I had cut it from the rev-30 tip
 by mistake, so it carried rev 31's commits as well. Cut correctly from `6f87977`
 it is **2.38 MB and crosses whole**. Corrected, which cost one commit, which is
-why the count is 165 and not 163 -- the correction itself needed a second
+why the count is 166 and not 163 -- the correction itself needed a second
 pass, because the first one left the words 'Three files' above a list of two. **A BUNDLE'S SIZE IS A MEASUREMENT TOO, AND IT
 DEPENDS ON THE BASE YOU CUT IT FROM.**
 
