@@ -359,6 +359,25 @@ def main():
           % (tot_best, live4, need_px if need_px else 0.0))
 
     # ---------------- ruling ---------------------------------------------
+    # REFUSE TO PRINT THE RULING IF A POSITIVE CONTROL FAILED.  The ruling
+    # below states its own controls' outcomes in prose.  Arms 4 and 5 showed
+    # that prose surviving a failed positive control -- SPEC 10.87.2's
+    # degenerate narration, in a probe written the same day.  A ruling whose
+    # foundation did not hold is not a ruling.
+    _pos = ["N1 the live estimator reproduces", "N2 the synthetic map reproduces"]
+    if any(p in " | ".join(FAIL) for p in _pos):
+        P("\n" + "=" * 74)
+        P("REFUSING TO PRINT A RULING -- a POSITIVE control FAILED.")
+        P("=" * 74)
+        P("  The ruling below narrates its own controls' outcomes.  With a")
+        P("  positive control down, that narration would assert a result the")
+        P("  run did not produce.  Nothing is ruled.")
+        P("")
+        P("CONTROLS: %d FAILED" % len(FAIL))
+        for _f in FAIL:
+            P("   FAILED: %s" % _f)
+        return 1
+
     P("\n" + "=" * 74)
     P("RULING")
     P("=" * 74)
