@@ -3771,6 +3771,166 @@ sharpens what is needed: the deadlock is no longer "is the coverage right" but
 Closing it needs a `CREAM` reference or a same-class, differing-orientation
 pair — still the head-on rear/front elevation from roof height.
 
+### 10.82  rev 29 — `W_DUST_FAC_UP` is a GLOBAL lever, not a counter-top constant; a second owner reading RETIRES it
+
+> [stated] **The ROOF in `ref_rear34.jpg` is CLEAN.**
+
+SPEC 10.81 recorded the owner reading the COUNTER TOP as clean varnished
+plywood, and **barred a blind `f = 0`** — correctly, on the evidence it had.
+Its reason was that the reading is LOCAL to one surface. This entry removes
+that objection by measuring what the lever actually reaches.
+
+#### THE SCOPE, established BY EXECUTION and not by reading
+
+`t1_mats.py:366` says *"i.e. mean coverage 0.548 on the counter top"* and the
+live assert hardcodes `* 1.4`, which is `countertan`'s own `dust` input. Both
+read as a counter-top quantity. **They are a global lever with the counter's
+input substituted into it.** `probe_dust_scope.py` (NEW, read-only, 8 asserted
+controls):
+
+* **`W_DUST_FAC_UP` is ONE MULTIPLY node** at `t1_mats.py:937`, inside the
+  file's **ONE** `WEATHER` node-tree — structure, not inference.
+* It reaches **ELEVEN materials**: `T1_paint`, `cream`, `bumpercream`,
+  `countercream`, `countertan`, `wheelcream`, `capwhite`, `capred`,
+  `roundelred`, `calidad`, `script`. Mean coverage **0.3916** at `dust = 1.0`,
+  **0.5483** at `dust = 1.4`.
+* **FALSIFICATION ARM:** `T1_W_DUP=0` takes **all eleven** rows to 0.0000, not
+  just `countertan`. The lever is global, measured.
+* Up-facing area filmed, Newell-exact in world space: **6.3354 m² total**, of
+  which `countertan` is **0.8645 m² = 13.6 %**. The largest single surface is
+  **`T1_body` under `T1_paint`, 12.3697 m² of up-facing area** — the ROOF.
+  **86.4 % of what this constant films is not the counter.**
+
+This is rev 26's `CHECK THE LEVER REACHES ONLY WHAT YOU THINK`, earned on
+`T1_CTAN_WEAR`, applied for the first time to this constant.
+
+#### TWO DEFECTS IN THAT PROBE, BOTH MINE, BOTH FOUND BY THIS PROJECT'S OWN RULES
+
+1. **C1 failed at 9.34e-09 and the premise was mine** (sixth instance). The
+   probe fed itself the `dust` value read back off the node socket, which
+   Blender stores as **float32**: the graph's dust is `1.3999999761581421`, so
+   the shipped coverage the shader evaluates is **0.54825560066326251** against
+   the assert's **0.54825560999999989**. Physically irrelevant at 1.7e-08
+   relative; recorded because **it is a figure nobody has watched**. Cause
+   fixed, band NOT widened.
+2. **The first area estimator was wrong**, and *"when two rows agree exactly,
+   suspect a bug"* is what caught it: `counter` and `counter_top` both reported
+   **7.2332 m²** on a 1.750 m wide body. `counter_top` is a single n-gon
+   tracing a **U-shaped plan wrapping the tail** (`CNT_Y_OUT 1.1660`,
+   `CNT_Y_IN 0.8450`, 321 mm plan depth), so a fan of `|cross|` sums
+   overlapping triangles. Now Newell. **The control that would have caught it
+   was ADDED, and the retired method is PRICED: +50.0 % on a synthetic
+   concave U-gon of analytic area 6.**
+
+#### THE POINTER, AND THREE THRESHOLDS OF MINE THAT WERE WRONG
+
+`probe_updust_pointer.py` (NEW, read-only, 6 asserted controls) validated the
+roof pointer before it was sent — rev 28's rule that an unanswerable question
+is the asker's defect.
+
+* **Correction 1: a PLANE is the wrong model for a CROWN.** A curved panel's
+  shading is quadratic, so a planar fit charges curvature to "straddle". The
+  fit is now quadratic and the positive control was re-run under it — the
+  proven straddler still reads **53.2 %** (planar 55.1 %). The model of
+  "gradient" changed; the band was not widened to let the box through.
+* **Correction 2: my first threshold would have REJECTED rev 28's own accepted
+  pointer.** Under this file's statistic rev 28's box `(640,680,420,435)` reads
+  **5.4 %**, and rev 28 published 0.0 %/0.6 % — **a different statistic**.
+  Comparing across the two is the carried-forward-figure trap.
+* **Correction 3: the second threshold was also wrong**, rejecting that same
+  answered box at 3.08 × its floor.
+* **The band now has NO FREE PARAMETER.** Both anchors are measured in the same
+  run with the same statistic: the PROVEN straddler at **14.14 ×** its floor
+  and an **ANSWERED** box at **3.08 ×**, separated by 4.6 ×. A box is accepted
+  when it is closer in log-ratio to the answered anchor. The roof pointer
+  `u 860–930, v 234–246` reads **3.30 ×** — **20.6 × closer to a box he
+  answered than to a proven straddle** — median sRGB **(212, 186, 139)**,
+  **0.00 % clipped**.
+
+The question was sent as **multiple choice with the photograph BESIDE a render
+of the current build**, with the up-face film ON and OFF — rev 26's method, and
+the answered counter-top box drawn alongside in a different colour as the
+owner's own scale.
+
+#### THE RETIREMENT
+
+`W_DUST_FAC_UP` **0.7313 → 0.0**, and this is a RETIREMENT OF A DERIVATION, not
+a tune. The paragraph that solved it assumes a dirty counter top; `_UP_MEASURED`
+is commented *"dirty counter top, de-illuminated"*. **Two owner readings a
+revision apart, on two different surfaces, withdraw that premise.**
+
+* **The old derivation assert is RETIRED, NOT WIDENED.** At `f = 0` it misses by
+  **0.2335**, a hundredfold — it compares a clean top with a measurement of a
+  dirty one, and a band admitting both tests nothing. SPEC 10.59's shape: the
+  owner withdrew the target, the probe stays as a labelled catcher.
+* **Replaced by a narrower assert that CAN fail** — `_f_up` must be exactly 0 —
+  plus a road-film-untouched assert. **FALSIFIED IN SEVEN ARMS, all watched:**
+  restoring 0.7313 in source FIRES; `T1_W_DUP=0.7313` still renders the retired
+  arm cleanly; `COUNTERTAN` R **+0.020** FIRES; `COUNTERTAN` B **−0.020** FIRES
+  (a max-guard would have been blind — rev 27's lesson held); `W_DUST_FAC_TOP`
+  0.35 → 0.40 FIRES; and both new `_RETIRED_VALUES` rows FIRE as FAILs when
+  their literal is republished unstruck in the frozen front matter.
+* **The SPEC 10.76 catcher is DELIBERATELY RE-BASELINED** to
+  **(−0.023400, −0.037000, −0.120500)**, band UNCHANGED at 2e-3. rev 23's
+  roof-hole precedent. At `f = 0` the prediction IS `COUNTERTAN`, so the
+  residual is exactly `COUNTERTAN − _UP_MEASURED`: **the catcher is now
+  STRONGER**, watching those two constants with no dust term between them. The
+  sign assert still holds in all three channels.
+* **Two `_RETIRED_VALUES` rows**, not one: `0.7313` and `mean coverage 0.548`.
+  rev 25's rule — a retired value re-expressed in another form is invisible to
+  a substring guard, and the answer is another ROW.
+* **The road film is untouched.** `fup` enters only through `MAXIMUM(flow, fup)`
+  and through `dsel`, so at 0 both collapse to the road branch. The tide line,
+  the rocker and the tyres do not move.
+
+#### WHAT THIS DOES NOT CLAIM
+
+* **It does NOT fix `COUNTERTAN`.** SPEC 10.81's arithmetic stands: a clean top
+  is still **34.0 % short in B**. Removing the film was **necessary and is not
+  sufficient**. The residual is still a `COUNTERTAN`/`CREAM` problem and `CREAM`
+  is still this project's largest open constant.
+* **It asserts more than two readings strictly support** — that NO up-facing
+  surface carries settled dust. The **front bumper top, the rim barrels and the
+  hub caps** are filmed by the same node and **nobody has been asked about
+  them**. Named, not hidden. A per-material constant would be AUTHORED; this is
+  the minimal change consistent with both readings.
+* **SPEC 10.70's measurement stands; its status changes.** The 57.1/52.6/36.6 %
+  of the `COUNTERTAN` pedestal that film carried was correctly measured. What is
+  withdrawn is the claim that it belongs on the vehicle. Any future
+  `COUNTERTAN` solve must re-derive `k` — **never carry the old secant gain**.
+* **THE SHADING HAS MOVED, so `rev25_hero34f.png` NO LONGER PHOTOGRAPHS THE
+  CURRENT BUILD.** Geometry and artwork are untouched and every guard figure is
+  identical, but the up-face film is gone from eleven materials. **A hero
+  re-shoot is OWED and was NOT done in rev 29.** Stated rather than left to be
+  discovered.
+* Observed and deliberately NOT converted into a claim: with the film removed
+  the model's roof reads **cooler**, and the photograph's roof is warm cream.
+  The two are under **different lights** (studio rig vs a palapa), so SPEC
+  10.21 bars the comparison. What can be said is directional: **an unsupported
+  warm film was partly concealing the open `CREAM` / `T1_paint` question, and
+  removing it makes that question more visible rather than less.**
+
+#### PROCESS — a new rule, and I broke it TWICE in the hour I wrote it
+
+* **A `git checkout <file>` used to undo a falsification arm destroyed
+  unrelated uncommitted work in the same file — TWICE.** First it wiped three
+  edits to `t1_mats.py`; then, twenty minutes after this rule was written into
+  this very entry, it wiped this entry itself out of `SPEC.md`. Both recovered
+  in full, both recorded rather than quietly redone.
+  **NEW RULE: COMMIT BEFORE FALSIFYING.** A falsification arm edits the tree,
+  and the undo must be narrower than the change you are protecting. Prefer a
+  targeted `sed` reversal, or commit first and let `git checkout` be safe.
+  Writing a rule down is not the same as having it.
+* **MY FIRST FALSIFICATION OF THE TWO NEW `_RETIRED_VALUES` ROWS DID NOT FIRE,
+  AND THE GUARD WAS RIGHT.** I appended the stray literals to the END of
+  `SPEC.md`, which sits inside a `### 10.xx` body — a region
+  `_retired_value_drift` **deliberately and correctly** does not scan, and says
+  so in its own stated ceiling. **The control's premise was mine, seventh
+  instance.** Re-run in the frozen front matter, both rows fire as FAILs.
+* **A THRESHOLD IS A PROBE TOO** — three of mine were wrong before one was
+  right, and the one that is right has no free parameter because it is
+  calibrated against a box the owner had already successfully answered.
+
 ## 10. rev 7 — the canonical constants (supersedes any value above)
 
 Everything in this section was re-derived from the high-resolution photographs

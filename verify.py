@@ -245,6 +245,14 @@ _RETIRED_VALUES = (
      "verify.H_ROOF_RETIRED", "10.59"),
     ("`RIDE_DROP` ≠ 0 → FAIL", "== 0.0650 exactly",
      "verify.RIDE_DROP_SPEC", "rev 5 log"),
+    # ---- rev 29, SPEC 10.82.  The up-face settled-dust film is RETIRED on two
+    # owner readings (counter top rev 28, roof rev 29).  BOTH literals get a
+    # row, because rev 25's lesson is that a retired value re-expressed in
+    # another form is invisible to a substring guard -- 0.7313 is the constant
+    # and 0.548 is the same retirement written as a coverage.  The answer to a
+    # re-expressed value is ANOTHER ROW, never a looser rule.
+    ("0.7313",       "0.0 (RETIRED)", "t1_mats.W_DUST_FAC_UP", "10.82"),
+    ("mean coverage 0.548", "no up-face film", "t1_mats._f_up", "10.82"),
 )
 
 # A literal is EXEMPT where the line itself says it is retired.  Matching on the
