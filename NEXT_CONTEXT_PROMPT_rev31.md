@@ -193,8 +193,8 @@ grep -c 'The threshold is not the parameter' post.py    # 1   ANCESTOR rev 13
 **EVERY VALUE ABOVE WAS FILLED FROM A FRESH-CLONE VERIFICATION RUN.** Never
 type one from memory — `grep -c` counts LINES, not occurrences, and that has
 produced a wrong figure in eleven revisions.
-Ancestry — **rev 30 adds `b08e424`, the rev-29 tip, so the loop's newest entry
-is no longer a rev-19 commit:**
+Ancestry — **rev 30 adds `b08e424`, a rev-29 commit (NOT its tip — see §7),
+so the loop's newest entry is no longer a rev-19 commit:**
 ```bash
 for c in f3c53f4 87aeaa6 d519fc6 5087b84 7ce3d03 f3cde44 efc1268 456b201 b08e424; do
   git merge-base --is-ancestor $c HEAD && echo "$c ok" || echo "$c LOST"; done
@@ -287,11 +287,12 @@ were clean runs.
 
 **FINAL COUNT: 146 commits, clean tree.**
 
-**A COUNT TRAP CAUGHT AND NAMED, rev 30.**  records commit
-, and I took that for the rev-29 TIP. It is not — rev 29 committed
-three more times after  wrote that file, so  counts 132 and
-the real rev-29 tip is  at 135. The bundle spans ,
-which is harmless (the extra three are already in your history and the pull
-still fast-forwards) but the ARITHMETIC was wrong for twenty minutes.
+**A COUNT TRAP CAUGHT AND NAMED, rev 30.** `STATE_rev29.md` records commit
+`b08e424`, and I took that for the rev-29 TIP. It is not: rev 29 committed three
+more times after `audit.py` wrote that file, so `b08e424` counts **132** and the
+real rev-29 tip is **`82504fd`** at **135**. The rev-30 bundle spans
+`b08e424..HEAD`, which is harmless — the extra three commits are already in your
+history and the pull still fast-forwards — but the ARITHMETIC was wrong until it
+was checked against a clone.
 **A PROVENANCE HASH IN A MACHINE-WRITTEN FILE IS THE COMMIT THAT WROTE IT, NOT
 THE TIP OF ITS REVISION.**
