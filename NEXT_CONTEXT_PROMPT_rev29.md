@@ -4,8 +4,8 @@ Please act as my expert. Continue the Señor Tacombi combi build. **Twenty-eight
 revisions sit behind this.** You are picking up mid-stream, not starting.
 
 ## Step 0 — CHECK A FOLDER IS CONNECTED BEFORE YOU PLAN ANYTHING
-**NEW, and rev 28 lost real time to it.** If no folder is connected, the fifteen
-bundles and all three reference photographs are unreachable and every item in §6
+**NEW, and rev 28 lost real time to it.** If no folder is connected, the seventeen
+bundle files and all three reference photographs are unreachable and every item in §6
 is blocked. Call `get_device_info`; if `connectedFolders` is empty, request
 `~/Desktop/tacombi_bus_render` immediately and say so plainly. **The dialog can
 time out** — rev 28's first request went unanswered and had to be re-sent.
@@ -326,7 +326,7 @@ git pull --ff-only ../tacombi_rev24_incremental.bundle HEAD      # -> 107
 git pull --ff-only ../tacombi_rev25_incremental.bundle HEAD      # -> 115
 git pull --ff-only ../tacombi_rev26_incremental.bundle HEAD      # -> 120
 git pull --ff-only ../tacombi_rev27_incremental.bundle HEAD      # -> 126
-git pull --ff-only ../tacombi_rev28_incremental.bundle HEAD      # -> 129
+git pull --ff-only ../tacombi_rev28_incremental.bundle HEAD      # -> 130
 ```
 **If a pull says "Need to specify how to reconcile divergent branches", STOP.**
 Content checks — **the first eight reach the TIP on purpose.** There is no `ls`
@@ -458,4 +458,4 @@ This section is written LAST, after the final commit, and every figure in §1 wa
 read off a fresh-clone verification run rather than typed from memory. **This has
 gone wrong in ELEVEN revisions during handoff assembly.** rev 23, 24, 25, 26 and
 27 were clean runs.
-**FINAL COUNT: 129 commits, clean tree.**
+**FINAL COUNT: 130 commits, clean tree.**
