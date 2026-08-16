@@ -240,7 +240,7 @@ git pull --ff-only ../tacombi_rev27_incremental.bundle HEAD      # -> 126
 git pull --ff-only ../tacombi_rev28_incremental.bundle HEAD      # -> 130
 git pull --ff-only ../tacombi_rev29_incremental.bundle HEAD      # -> 135
 git pull --ff-only ../tacombi_rev30_incremental.bundle HEAD      # -> 148
-git pull --ff-only ../tacombi_rev31_incremental.bundle HEAD      # -> 153
+git pull --ff-only ../tacombi_rev31_incremental.bundle HEAD      # -> 157
 ```
 
 **If a pull says "Need to specify how to reconcile divergent branches", STOP.**
@@ -250,6 +250,17 @@ gitignored and lives only on my disk.
 
 ```bash
 git status                                              # clean
+grep -c '### 10.85' SPEC.md                             # 1   rev 31b
+grep -c 'occlusion point' SPEC.md                       # 1   rev 31b
+grep -c 'equidistant' SPEC.md                           # 1   rev 31b
+grep -c '76.7' SPEC.md                                  # 1   rev 31b
+grep -c '288.8' SPEC.md                                 # 2   rev 31b
+grep -c 'SPEC 10.85' REF_MEASUREMENTS.md                # 1   rev 31b
+grep -c 'OCCLUSION POINT' REF_MEASUREMENTS.md           # 1   rev 31b
+grep -c '288.8' REF_MEASUREMENTS.md                     # 1   rev 31b
+grep -c 'FALSE PRECISION' probe_v_apex.py               # 2   rev 31b
+grep -c 'CURVATURE' probe_v_apex.py                     # 2   rev 31b
+grep -c 'REF_TOL' probe_v_apex.py                       # 3   rev 31b
 grep -c '### 10.84' SPEC.md                             # 1   rev 31
 grep -c 'DOWNGRADED TO' SPEC.md                         # 1   rev 31
 grep -c 'HIS TWO ANSWERS' SPEC.md                       # 1   rev 31
@@ -264,6 +275,7 @@ grep -c 'different depths' probe_orb_post.py            # 3   rev 31
 grep -c 'POINTER' mark_rev31_q.py                       # 5   rev 31
 grep -c 'SAMPLING WINDOW' mark_rev31_q.py               # 3   rev 31
 ls HANDOFF_rev31.md STATE_rev31.md probe_orb_post.py mark_rev31_q.py rev31_q_post.png
+ls probe_v_apex.py rev31b_q_apex.png
 grep -c '### 10.83' SPEC.md                             # 1   ANCESTOR rev 30
 grep -c 'ORB_RISE_SPEC' verify.py                       # 6   ANCESTOR rev 30
 grep -c 'BAR_RATIO' t1_detail.py                        # 3   ANCESTOR rev 30
@@ -405,8 +417,14 @@ gone wrong in ELEVEN revisions during handoff assembly, and rev 31 caught a
 twelfth live** — `grep -c 'C1 FAIL' probe_orb_post.py` reads 0 because the string
 is assembled by an f-string. It was dropped, not published.
 
-**FINAL COUNT: 153 commits, clean tree.** *(Verified: this line lands in commit
-153 itself, which is what makes it true — the count lands in its own commit, rev 29's pattern.)*
+**FINAL COUNT: 157 commits, clean tree.** *(Verified: this line lands in commit
+157 itself, which is what makes it true — the count lands in its own commit, rev 29's pattern.)*
+
+**AND A SECOND GREP TRAP CAUGHT LIVE, rev 31b.** `grep -c 'equidistant'` and
+`grep -c 'false precision'` on `probe_v_apex.py` both read **0** — the words live
+in SPEC and the probe spells it `FALSE PRECISION` in caps. Read off the console,
+corrected, and not published wrong. That is the second and third grep miss caught
+this revision by running them rather than typing them.
 
 **A PROCESS TRAP CAUGHT AND NAMED, rev 31.** I ran a falsification arm by
 injecting a retired phrase into `SPEC.md`, then reverted it with
