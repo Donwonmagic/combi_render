@@ -364,14 +364,62 @@ W_ROUGH_CEIL = 0.85
 # as the road film, so it keeps W_DUST_COL's L*, and the coverage falls out.
 #   -> W_DUST_COL_UP  L* 69.10 (== W_DUST_COL), C* 20.29, hue 79.61
 #   -> W_DUST_FAC_UP  0.7313, i.e. mean coverage 0.548 on the counter top
+#      ^^^^^^^^^^^^^^^^^^^^^^ RETIRED in rev 29, SPEC 10.82.  See below.
 # The 0.35 that used to sit here is NOT deleted: it was doing two jobs, and
 # its tide-line job (thinning the road film where the tide line runs out)
 # survives verbatim as W_DUST_FAC_TOP, so this change moves the flank not at
 # all.  Verified below by assert, not by inspection.
+#
+# ============================ rev 29, SPEC 10.82 ============================
+# W_DUST_FAC_UP IS RETIRED TO 0.0.  THIS IS A RETIREMENT OF A DERIVATION, NOT
+# A TUNE.  Read this before restoring 0.7313.
+#
+# WHAT THE PARAGRAPH ABOVE ASSUMED.  Every line of that solve assumes the
+# counter top in ref_rear34.jpg carries a settled-dust film.  _UP_MEASURED is
+# even commented "dirty counter top, de-illuminated".  The coverage was solved
+# to reproduce that dirty top.
+#
+# WHY THE ASSUMPTION IS GONE.  Two owner readings of the ONLY frame that shows
+# these surfaces, taken a revision apart, on two DIFFERENT surfaces:
+#   [stated, rev 28, SPEC 10.81] the COUNTER TOP is CLEAN VARNISHED PLYWOOD.
+#   [stated, rev 29, SPEC 10.82] the ROOF is CLEAN.
+# Both were asked with the crop box printed, as POINTERS with no number taken
+# from them, and both pointers were validated before they were sent against a
+# PROVEN straddler and an answered anchor (probe_updust_pointer.py, 6 controls).
+#
+# WHY THE SECOND READING IS THE ONE THAT SETTLES IT.  SPEC 10.81 barred a blind
+# f = 0 because the counter reading is LOCAL and this constant is not.
+# probe_dust_scope.py established BY EXECUTION -- not by reading -- that
+# W_DUST_FAC_UP is ONE MULTIPLY node inside the file's ONE shared WEATHER
+# node-tree, reaching ELEVEN materials, and that T1_W_DUP=0 takes ALL ELEVEN to
+# zero.  The largest surface it films is not the counter at all: it is
+# T1_body under T1_paint, 12.3697 m^2 of up-facing area at mean coverage
+# 0.3916, against the counter top's 1.5768 m^2.  So the roof reading
+# contradicts the film on 86.4 % of the area it paints.  That is what a LOCAL
+# reading could not do and this one does.
+#
+# WHAT THIS DOES NOT CLAIM, stated rather than left to be discovered:
+#   * It does NOT fix COUNTERTAN.  SPEC 10.81 measured that a clean counter top
+#     is still 34.0 % short in B.  Removing the film was NECESSARY AND IS NOT
+#     SUFFICIENT, and the residual is still a COUNTERTAN/CREAM problem.
+#   * It DOES retire SPEC 10.70's 57.1/52.6/36.6 % of the COUNTERTAN pedestal
+#     as a MODELLED FEATURE.  10.70's measurement of what that film contributed
+#     stands; what is withdrawn is the claim that it belongs on the vehicle.
+#   * It asserts more than two readings strictly support -- that NO up-facing
+#     surface on this vehicle carries settled dust.  The bumper top, the rim
+#     barrels and the hub caps are filmed by the same node and NOBODY HAS BEEN
+#     ASKED about them.  Named, not hidden.  A per-material constant would be
+#     AUTHORED; this is the minimal change consistent with both readings.
+#   * The ROAD film is untouched.  With fup = 0 the graph's MAXIMUM at :938
+#     collapses to `flow`, and `dsel` -> 0 so `dcol` -> W_DUST_COL.  The tide
+#     line, the rocker and the tyres are bit-identical.  Asserted, not assumed.
+# ============================================================================
 W_DUST_COL_UP = (0.5077, 0.3775, 0.2340)     # settled ochre, sRGB(189,165,133)
 W_DUST_FAC_TOP = 0.35        # road film where the tide line fades out
 W_DUST_FAC_LOW = float(os.environ.get("T1_W_DLO", 0.50))   # road film, rocker
-W_DUST_FAC_UP = float(os.environ.get("T1_W_DUP", 0.7313))  # settled, up-faces
+# rev 29: 0.7313 RETIRED (SPEC 10.82).  The override is kept so the retired
+# arm can still be rendered for comparison -- T1_W_DUP=0.7313 restores it.
+W_DUST_FAC_UP = float(os.environ.get("T1_W_DUP", 0.0))     # RETIRED, rev 29
 
 # the two locked albedos the solve above consumed, and its answer
 COUNTERCREAM = (0.7350, 0.7150, 0.6600)
@@ -465,12 +513,44 @@ assert abs(_lstar(W_DUST_COL_UP) - _lstar(W_DUST_COL)) < 0.05, (
     "L*; re-solve W_DUST_COL_UP if W_DUST_COL moves")
 if not (os.environ.get("T1_W_DUP") or os.environ.get("T1_W_DLO")):
     _f_up = W_DUST_UP_W * W_DUST_MOT_MEAN * W_DUST_FAC_UP * 1.4   # counter dust
-    _pred = tuple(c + _f_up * (d - c)
-                  for c, d in zip(COUNTERCREAM, W_DUST_COL_UP))
-    assert max(abs(p - m) for p, m in zip(_pred, _UP_MEASURED)) < 2e-3, (
-        "the upward-facing deposit no longer reproduces the measured counter "
-        "top of ref_rear34.jpg: predicted %s vs measured %s"
-        % (tuple(round(v, 4) for v in _pred), _UP_MEASURED))
+    # ---- rev 29, SPEC 10.82.  THE DERIVATION ASSERT IS RETIRED, NOT WIDENED.
+    #
+    # What used to stand here asserted that the up-face deposit reproduces
+    # _UP_MEASURED to 2e-3 -- i.e. that the model's counter top matches a
+    # DIRTY counter top.  Two owner readings of the only frame that shows
+    # these surfaces have withdrawn that target:
+    #   [stated, rev 28] the counter top is CLEAN VARNISHED PLYWOOD
+    #   [stated, rev 29] the roof is CLEAN
+    # and probe_dust_scope.py showed the constant films the ROOF over 86.4 %
+    # of the area it reaches, so the second reading is not a second opinion
+    # about the counter -- it is a reading of the surface that dominates the
+    # lever.  The assert did not start failing because a number drifted.  Its
+    # PREMISE was withdrawn.  This is SPEC 10.59's shape exactly: the owner
+    # retired H_ROOF as a target and the probe was kept as a LABELLED
+    # regression catcher rather than deleted or re-valued to the model.
+    #
+    # WIDENING THE OLD BAND WOULD HAVE BEEN THE WRONG REPAIR and is barred:
+    # at f = 0 the old assert misses by 0.2335, a hundredfold, because it is
+    # comparing a clean top with a measurement of a dirty one.  A band that
+    # admits both is a band that tests nothing.
+    #
+    # What replaces it is narrower and can actually fail: the shipped up-face
+    # coverage must be EXACTLY zero.  If anyone restores 0.7313 in source --
+    # as opposed to rendering the retired arm through T1_W_DUP, which is
+    # deliberately still supported -- this fires.  WATCHED FIRE, rev 29.
+    assert _f_up == 0.0, (
+        "SPEC 10.82: W_DUST_FAC_UP is RETIRED to 0.0 on two owner readings "
+        "(counter top rev 28, roof rev 29). The shipped up-face coverage is "
+        "%.6f, not 0. Restoring the film needs a photograph, not an edit; to "
+        "render the retired arm use T1_W_DUP=0.7313, which skips this block."
+        % _f_up)
+    # And the road film must be untouched by the retirement.  fup enters the
+    # graph only through MAXIMUM(flow, fup) at :938 and through dsel at :944,
+    # so at fup = 0 both collapse to the road branch exactly.  Stated here and
+    # MEASURED in probe_dust_scope.py rather than asserted by inspection.
+    assert W_DUST_FAC_TOP == 0.35 and abs(W_DUST_FAC_LOW - 0.50) < 1e-12, (
+        "SPEC 10.82 retired the UP-FACE deposit only. The road film's own "
+        "constants moved, which the retirement does not license.")
 
     # ---- rev 27, SPEC 10.76.  ARMING THE COUPLING THE ASSERT ABOVE CANNOT SEE.
     #
@@ -514,7 +594,21 @@ if not (os.environ.get("T1_W_DUP") or os.environ.get("T1_W_DLO")):
         _pred_tan = tuple(c + _f_up * (d - c)
                           for c, d in zip(COUNTERTAN, W_DUST_COL_UP))
         _resid_tan = tuple(p - m for p, m in zip(_pred_tan, _UP_MEASURED))
-        _RESID_BASELINE = (-0.066877, -0.100324, -0.159974)
+        # rev 29, SPEC 10.82: RE-BASELINED, and the reason is stated because a
+        # re-baseline is the one move that can quietly turn a guard off.  The
+        # rev-26 baseline (-0.066877, -0.100324, -0.159974) was the residual
+        # WITH the up-face film at f_up = 0.548256.  That film is retired, so
+        # the old figure is unreachable by construction, not merely stale --
+        # this is rev 23's roof-hole precedent (68052 -> 68564 after the door
+        # outlines moved), a DELIBERATE re-baseline after a deliberate change,
+        # never a widening.  The band is UNCHANGED at 2e-3.
+        #
+        # The new baseline is STRONGER than the old one: at f_up = 0 the
+        # prediction IS COUNTERTAN, so the residual is exactly
+        # COUNTERTAN - _UP_MEASURED and this catcher now watches those two
+        # constants directly, with no dust term standing between them.
+        # Every digit below was watched print, not typed from memory.
+        _RESID_BASELINE = (-0.023400, -0.037000, -0.120500)
         assert max(abs(r - b) for r, b in
                    zip(_resid_tan, _RESID_BASELINE)) < 2e-3, (
             "SPEC 10.76 regression catcher: the COUNTERTAN-vs-_UP_MEASURED "
