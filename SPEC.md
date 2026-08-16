@@ -5962,3 +5962,190 @@ revision running. REF §9's V-swage absolute height remains a **bracket,
 ≈0.40–0.49 m**. The transverse-VP-by-harmonic-conjugate route remains
 **UNPUBLISHED, not refuted**. `422 px/m` is consumed nowhere. The hero
 `rev30_hero34f.png` is proved by content and is not re-shot.
+
+### 10.88  rev 34 — THE STRUT IS MEASURED AT LAST, AND IT RETIRES THE CROSS-RATIO ROUTE ON A PRECONDITION, NOT ON PRECISION
+
+**NO GEOMETRY MOVED.** The last geometry change is still rev 30's. Guards
+**0 fail / 0 warn at both subdivision levels**, every figure identical to
+rev 30/31/32/33's. This section does five things: it grades the instrument
+BEFORE spending a question on the owner, it corrects a live-against-synthetic
+comparison inherited from §10.87, it names a general rule about tolerances
+stated in the wrong units, it consumes two owner answers, and it **retires the
+cross-ratio route** — the one §10.86 opened and §10.87 could not close.
+
+#### 10.88.1  THE INSTRUMENT WAS GRADED BEFORE THE QUESTION WAS ASKED
+
+`probe_rev34_levels.py` (NEW, read-only). **8 controls, 4 FAILED.**
+
+`probe_rev33_barend.py` gates its controls **in two different units inside one
+file**. A3 gates in PIXELS (`check(... dU <= CLOSE_AT ...)`, `CLOSE_AT = 4`).
+A7 gates in PER CENT (`check(sw4 <= interp_error(4))` → 6.2 %). And
+`interp_error` reads the frozen dict `P1B`, whose own comment in that file
+says *"P1b's published conditioning levels, on the SYNTHETIC map (planted
+f 0.626)"*.
+
+So A7 asks a fair question — *does 4 px on the STRUT cost more than 4 px on
+the FAR END costs?* — but prices the strut on the **live** columns and the far
+end on a **fabricated** map. **THIS IS §10.87.3's DEFECT, ONE REVISION LATER,
+INSIDE THE PROBE WRITTEN TO RECORD THE CORRECTION.**
+
+The map's four columns beside the live four, printed rather than asserted:
+
+| point | synthetic | live | diff |
+|---|---|---|---|
+| far end (t=−1) | 208.9 | 205.0 | −3.9 px |
+| far strut (t=−f) | 224.6 | 228.0 | +3.4 px |
+| near post (t=+f) | 356.6 | 365.5 | **+8.9 px** |
+| near end (t=+1) | 487.2 | 485.0 | −2.2 px |
+
+**The map is wrong by up to 8.9 px about the configuration whose 4 px errors
+it is used to price.**
+
+- **K1 FAILS.** P1b's curve **UNDER-PRICES the live configuration by 1.39× at
+  4 px and 1.28× at 8 px.** The published **6.2 % closing level is 8.6 %
+  live**; the published **14.3 % failing level is 18.3 % live**. Every per-cent
+  figure ever read off that curve and spent on the live columns is that much
+  too small.
+- **K3 PASSES, and that is a real result.** The strut IS the more sensitive
+  column even when both are graded live. **§10.87's A6/A7 conclusion survives.**
+  Only its published margin was inflated: **1.79× reported, 1.28× like for
+  like — a 39 % overstatement.**
+- **K2 FAILS.** On §10.87's own residual the two units **disagree across the
+  decision boundary**. Its justifying sentence — *"3.5 px on the stronger
+  reading → 5.4 %, INSIDE the published closing level of dU ≤ 4 px"* —
+  converts px to per cent and then compares against a px band. The conversion
+  is **unnecessary** under the px reading and **wrong** under the per-cent one:
+  live it is **7.5 %**, not 5.4 %. **THE VERDICT IS RIGHT AND THE ARITHMETIC
+  PRINTED UNDER IT IS NOT** — which is precisely what §10.87 said about its own
+  pre-commitment, one quantity over.
+- **K4 FAILS, and it is the general one.** The same 4 px costs **8.6 % on the
+  far end and 11.1 % on the strut** — a **constant 1.28× at every
+  perturbation**, so it is structural, not a scale artefact.
+
+> **NEW RULE: A TOLERANCE STATED IN THE UNITS OF THE MEASUREMENT, NOT OF THE
+> QUANTITY, DOES NOT TRANSFER BETWEEN COLUMNS.** Every use of "dU ≤ 4 px" on a
+> new column silently assumes a shared px → f map. This is the mechanism
+> underneath §10.87's A7, which found the effect and published it as a number
+> instead of a principle.
+
+#### 10.88.2  THE PRE-COMMITMENT, MADE BEFORE THE QUESTION WENT OUT
+
+**K5 FAILED BEFORE THE OWNER WAS ASKED ANYTHING.** Taking the *generous*
+tolerance — 4 px on the far end is what the project accepted, live 8.6 % — the
+far end already spends **7.5 %** at its answered ±3.5 px, leaving **4.27 %** in
+quadrature. That needs the strut pinned to **≈ ±1.5 px**. A 7 px candidate set
+returns ±3.5 px (9.6 % alone, **12.2 % total**); halving to 4 px lines returns
+±1.8 px (**8.9 % total**) — still over. **Stated on the question figure itself:
+NO ANSWER TO THIS CLOSES THE POST.** What it was asked for instead is stated
+too: to convert the last hard-coded column into a measured value.
+
+#### 10.88.3  THE OWNER'S TWO ANSWERS
+
+- **Q1** *[stated, rev 34]*: the far strut is at **S1 or S2 — LEFT of the
+  hard-coded 228.**
+- **Q1b** *[stated, rev 34]*: it is at **B1 or left of it — u 205 to 208.**
+
+Both are the leftmost option of their set, so §10.87's endpoint rule applied
+twice. **Q1's left side was already bounded, and NOT by a set boundary chosen
+by me:** the cross-ratio requires `far_end < strut`, so with the far end at
+u 205 every column at or left of 205 is forbidden by the estimator's own order
+(`u 204` and `u 205` both return ORDER BROKEN). **S1 sat 7 px from a hard
+wall.** In §10.87's Q1 the leftmost option had unbounded reach and 20 px of it
+moved `f` by 17.8 %; here there was nowhere for the answer to run to. The Q1b
+figure draws that wall **as a wall and labels it as not a candidate**.
+
+**THE INTERVAL IS CLOSED ON BOTH SIDES: u ∈ (205, 208].**
+
+#### 10.88.4  THE RULING — THE ROUTE IS RETIRED ON A PRECONDITION
+
+`probe_rev34_ruling.py` (NEW, read-only). **6 controls, 4 FAILED.**
+
+**WHAT THE ANSWERS BOUGHT, said first.** The far strut was hard-coded at
+u 228 on no support of any kind, its own print calling it `(blob)`. **It now
+has an owner reading closed on both sides.** And **the hard-coded value was
+outside that interval entirely** — 20 to 23 px away, `f` 0.5897 against
+0.835–0.950. **Every C5 row published since rev 32 was computed at a column
+the owner does not put the feature anywhere near. NOT A REFINEMENT — A
+REPLACEMENT.**
+
+**R3 FAILS.** The answered strut sits **1.5 px** from the bar's far end. The
+far end's own published residual is **±3.5 px — 2.3× the gap it must stay left
+of.** The two points are **not separable at the precision of the readings that
+define them.**
+
+**R4 FAILS, and this is what ends it.** Sweeping the far end across its own
+stated interval 201.5–208.5 with the strut held at 206.5: `f` 0.7947 at 201.5,
+0.8246 at 203.0, 0.8809 at 205.0, 0.9292 at 206.0, then **ORDER BROKEN at
+206.5, 207.5 and 208.5**. **29 % of the far end's own error bar puts it at or
+right of the strut, which the four-point construction forbids outright.**
+
+> **THE FOUR-POINT CROSS-RATIO HAS DEGENERATED TO THREE. That is a failure of
+> its PRECONDITION, not of its precision.** No further measurement on those two
+> columns repairs it, because what broke is that they are the same place to
+> within their own error bars.
+
+**R5 FAILS** in corroboration: at ±1 px the answered regime costs **9.5 %**
+against **2.7 %** where the levels were graded — **3.6× worse** — and at
+±1.5 px it returns nothing, the low sample being at the wall. **R6 FAILS**:
+13.6 % total against an 8.6 % tolerance.
+
+**EVERY PRIOR REVISION ASSUMED A 23 px SEPARATION** — C5, P1b, A6, A7, and
+both of rev 34's own probes. The owner's reading makes it 1.5 px. **Nobody
+could have found this by measuring harder; it took asking.**
+
+**NOT CLAIMED:** that the assembly is asymmetric (a large far-side overhang in
+3D can project to a small one, and the cross-ratio accounts for that exactly —
+that is why it was chosen); that the owner's interval is wrong; that u 228 was
+a lie (**u 228 was never a measurement, which is the whole complaint**); or
+that the algebra failed (R1 passes, P1's 3.55e-15 stands).
+
+**THE POST STAYS UNBUILT. NO `f` IS PUBLISHED AS A BUILD VALUE.** What closes
+it is now the **only** remaining route: **a square-on frame of the FRONT.**
+Everything else on this panel has been spent.
+
+#### 10.88.5  DEFECTS OF MY OWN, EVERY ONE RECORDED
+
+- **MY OWN `swing()` SILENTLY DROPPED AN `ORDER BROKEN` SAMPLE** and computed
+  the spread over the survivors, so R5's ±1.5 px cell printed **5.5 %** — a
+  *smaller* number — for a regime that had actually broken, while the prose
+  three lines below said it returned nothing at all. **A NARRATION
+  CONTRADICTING ITS OWN TABLE: §10.87.2's family, in a probe written the same
+  day as the rule was read.** Fixed by making `swing()` return `None` if ANY
+  sample is unreachable, and by computing that sentence from the table.
+  **A silently dropped sample is not a smaller error, it is a missing one.**
+- **AN ARM THAT COULD NOT HAVE FIRED.** Arm A refit P1b's synthetic map to
+  reproduce all four live columns exactly (verified: the fourth point falls out
+  at 365.500, so the cross-ratio is preserved). **K1 did not move** — because
+  K1's synthetic side reads a **frozen literal**, not the map. **REFITTING A
+  MAP CANNOT MOVE A CONTROL THAT READS A HARD-CODED DICT.** Arm B replaced the
+  dict with the live curve; K1 and K2 both flipped to PASS and N2 correctly
+  failed. Arm C moved the strut 228 → 260; K4 went 1.29× → 1.98×.
+- **ARM B CAUGHT A DEFECT IN MY OWN PROBE.** With K2 passing, its detail
+  string still narrated *"THE TWO READINGS DISAGREE ACROSS THE DECISION
+  BOUNDARY"* — asserted, not computed. Fixed; the verdict word is derived.
+- **TWO FIGURE-RENDERING DEFECTS, both caught by cropping the PNG and looking
+  at it.** The Q1 figure clipped its header because the canvas was sized off
+  one text block while three were drawn — now every drawn string is measured.
+  The Q1b figure's wall label landed first across the B1–B4 tags and then
+  across the candidate lines; it is now drawn last.
+- **THE `bpy` MEMBERSHIP IN THE REV-34 BRIEF IS RIGHT FOR THE WRONG REASON.**
+  Six probes need Blender, and the count is correct — but a `grep` for `bpy`
+  returns **two false positives** (`probe_clean_top.py`, `probe_dust_anchor.py`
+  mention it only in a comment explaining why they parse `t1_mats` with `ast`
+  instead) and **two false negatives** (`probe_cross_anatomy.py`,
+  `probe_shutlines.py` import it transitively, with the token appearing nowhere
+  in the file). **The errors cancel exactly: 4 − 2 + 2 = 6.**
+  > **NEW RULE: A DETECTOR WHOSE ERRORS CANCEL IN THE AGGREGATE IT IS QUOTED BY
+  > IS INDISTINGUISHABLE FROM A CORRECT ONE, UNTIL SOMEONE NEEDS THE MEMBERS
+  > AND NOT THE COUNT.**
+
+#### 10.88.6  CARRIED FORWARD, UNCHANGED
+
+§10.83's "post at the vehicle's centreline" remains **UNDECIDED**, fifth
+revision running. REF §9's V-swage absolute height remains a **bracket,
+≈0.40–0.49 m**. The transverse-VP-by-harmonic-conjugate route remains
+**UNPUBLISHED, not refuted** — and with the cross-ratio retired it is now the
+only unspent construction on this panel. `422 px/m` is consumed nowhere. The
+hero `rev30_hero34f.png` is proved by content and is not re-shot.
+`probe_clean_top.py` and `probe_dust_anchor.py` are **still deliberately
+failing** and still need rewriting, not fixing.
