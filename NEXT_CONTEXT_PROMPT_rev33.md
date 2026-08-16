@@ -13,10 +13,15 @@ those three outcomes** — call it, and say plainly what came back.
 
 **THE BRIDGE HAS A THROUGHPUT CEILING, NOT JUST A SIZE ONE — CONFIRMED THREE
 TIMES.** `device_stage_files` times out on files above ~3 MB. **Three files now
-need splitting:** the 19.5 MB base bundle (7 parts), the 8.5 MB `rev14_unified`
-(3 parts), **and — NEW — `tacombi_rev32_incremental.bundle`, which is over 3 MB
-because the two question PNGs are in the tree.** Everything rev15–rev31 is under
-3 MB and crosses whole. Split with `device_bash`, stage 1–2 per call, `cat`
+need splitting:** the 19.5 MB base bundle (7 parts) and the 8.5 MB
+`rev14_unified` (3 parts). **Everything rev15–rev32 is under 3 MB and crosses
+whole** — `tacombi_rev32_incremental.bundle` is **2 376 375 bytes**, md5
+`4bc11cec5d4ed536983524d0515bf974`, despite carrying two question PNGs.
+*(An earlier draft of this file said rev 32's bundle was over the ceiling. It
+had been cut from the rev-30 tip by mistake, so it carried rev 31's commits too
+and measured 3.63 MB. Corrected before shipping: A BUNDLE'S SIZE IS A
+MEASUREMENT TOO, and it depends on the base you cut it from.)*
+Split with `device_bash`, stage 1–2 per call, `cat`
 back, **check md5 on both sides** — it matched in rev 30, rev 31 and rev 32.
 
 **TRANSIENT FAILURES ARE NOT DROPS.** In rev 32 two files inside one 19-file
@@ -253,7 +258,7 @@ git pull --ff-only ../tacombi_rev28_incremental.bundle HEAD      # -> 130
 git pull --ff-only ../tacombi_rev29_incremental.bundle HEAD      # -> 135
 git pull --ff-only ../tacombi_rev30_incremental.bundle HEAD      # -> 148
 git pull --ff-only ../tacombi_rev31_incremental.bundle HEAD      # -> 158
-git pull --ff-only ../tacombi_rev32_incremental.bundle HEAD      # -> 163
+git pull --ff-only ../tacombi_rev32_incremental.bundle HEAD      # -> 164
 ```
 
 **If a pull says "Need to specify how to reconcile divergent branches", STOP.**
@@ -449,8 +454,8 @@ This section is written LAST, after the final commit, and every figure in §1 wa
 read off a fresh-clone verification run rather than typed from memory. **This has
 gone wrong in ELEVEN revisions during handoff assembly.**
 
-**FINAL COUNT: 163 commits, clean tree.** *(Verified: this line lands in commit
-163 itself, which is what makes it true — the count lands in its own commit,
+**FINAL COUNT: 164 commits, clean tree.** *(Verified: this line lands in commit
+164 itself, which is what makes it true — the count lands in its own commit,
 rev 29's pattern, kept since.)*
 
 **THE GREP TRAP FIRED AGAIN AND IT FIRED ACROSS REVISIONS THIS TIME.** rev 31b
@@ -460,6 +465,14 @@ wrong**, because rev 32 edited the files they count. Nothing was wrong when
 written. **A grep count is invalidated by any later edit to the file it counts —
 including a later revision's — so every one of them has to be re-read, not
 inherited.** All seven are marked "MOVED BY 10.86" in §1.
+
+**AND THE COUNT MOVED ONCE WHILE THIS FILE WAS BEING WRITTEN, FOR A GOOD
+REASON.** The first draft of Step 0 said rev 32's bundle was over the bridge's
+throughput ceiling. It was — but only because I had cut it from the rev-30 tip
+by mistake, so it carried rev 31's commits as well. Cut correctly from `6f87977`
+it is **2.38 MB and crosses whole**. Corrected, which cost one commit, which is
+why the count is 164 and not 163. **A BUNDLE'S SIZE IS A MEASUREMENT TOO, AND IT
+DEPENDS ON THE BASE YOU CUT IT FROM.**
 
 **A NEW TRAP, AND IT IS THE MOST DANGEROUS ONE THIS PROJECT HAS FOUND.**
 **THREE OF REV 32's FALSIFICATION ARMS DID NOTHING AT ALL** — two `sed` patterns
