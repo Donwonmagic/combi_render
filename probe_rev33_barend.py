@@ -21,6 +21,14 @@ CONTROLS
       interval is ONE-SIDED -- test whether the set bracketed it  KILL
   A5  a left-unbounded interval is not a measurement: grade how
       far f moves for plausible columns LEFT of the offered set   KILL
+  A6  did the grading ever cover every column the estimator
+      consumes?  The FAR STRUT was never measured or graded       KILL
+  A7  grade the FAR STRUT with the far end held at the answer     KILL
+
+A4 AND A5 STILL FAIL BY DESIGN.  They record what the Q1 answer ALONE
+established.  Q1b then BOUNDED that side -- [stated] the end is AT line 1,
+not left of it -- and the ruling scores both answers together.  The failures
+are kept rather than silenced because they are the reason Q1b was asked.
 
 WHY A4 AND A5 EXIST.  He picked LINE 1, the leftmost option.  When a
 respondent selects the endpoint of an offered range, the range may simply not
@@ -54,6 +62,10 @@ P1B = {0: 0.0, 1: 1.4, 2: 2.9, 4: 6.2, 8: 14.3, 15: 44.0}
 CLOSE_AT, FAIL_AT = 4, 8
 
 ANSWER_U = 205.0        # [stated] the owner's Q1 answer, rev 33
+# [stated, rev 33] Q1b: the end is AT line 1, NOT left of it.  This CLOSES the
+# left side that A4/A5 opened.  Recorded here so the ruling below is scored
+# against BOTH answers, not just the first.
+Q1B_LEFT_BOUNDED = True
 CAND = [205, 212, 219, 228, 240]
 SPACING = 7.0           # the offered lines' spacing, in original-frame px
 
@@ -182,51 +194,117 @@ def main():
           "f swings %.1f %% over 20 px of reach that the answer does not "
           "exclude" % swing_left)
 
+    # ---- A6/A7: THE THIRD COLUMN, added after the owner answered Q1b ----
+    P("\n--- A6  KILL: WHAT DID THE GRADING ACTUALLY COVER? ---------------")
+    P("    P1b perturbs THE FAR END ONLY.  The cross-ratio needs FOUR")
+    P("    collinear points and C3 measured only TWO of them (post 365.5,")
+    P("    hoop 485.0).  The third, the FAR STRUT, is carried in C5 as a")
+    P("    hard-coded strut_u = %.1f whose own print labels it '(blob)'."
+      % STRUT_U)
+    P("    u %.0f is ALSO rev 32's candidate line 4 -- the strut column sits"
+      % STRUT_U)
+    P("    INSIDE the same u 203-232 superposition as the far end.  No")
+    P("    revision has asked about it and no revision has graded it.")
+    strut_is_measured = False       # C3 measured two columns; this is not one
+    check(strut_is_measured,
+          "A6 every column the estimator consumes has been graded",
+          "the far strut at u %.0f is hard-coded, self-labelled '(blob)', "
+          "and lies inside the same superposition as the far end" % STRUT_U)
+
+    P("\n--- A7  KILL: grade the FAR STRUT, far end held at the answer ----")
+    P("    %8s %10s %12s" % ("strut u", "f", "err % vs base"))
+    for s in (220.0, 224.0, 228.0, 232.0, 236.0):
+        X = xratio(ANSWER_U, s, POST_U, HOOP_U)
+        fs = f_from_X(X)
+        P("    %8.1f %10.4f %11.1f %%" % (s, fs, 100.0 * (fs - f0) / f0))
+
+    def f_strut(s):
+        return f_from_X(xratio(ANSWER_U, s, POST_U, HOOP_U))
+
+    v4 = [f_strut(s) for s in (224.0, 228.0, 232.0)]
+    v8 = [f_strut(s) for s in (220.0, 228.0, 236.0)]
+    sw4 = 100.0 * (max(v4) - min(v4)) / min(v4)
+    sw8 = 100.0 * (max(v8) - min(v8)) / min(v8)
+    P("    +-4 px on the STRUT ALONE swings f by %.1f %%" % sw4)
+    P("    +-8 px on the STRUT ALONE swings f by %.1f %%" % sw8)
+    P("    the FAR END's published levels are %.1f %% at 4 px, %.1f %% at 8 px"
+      % (interp_error(4), interp_error(8)))
+    P("    -- SO THE UNGRADED COLUMN IS THE MORE SENSITIVE OF THE TWO.")
+    check(sw4 <= interp_error(4),
+          "A7 the strut is no more sensitive than the graded far end",
+          "strut +-4 px -> %.1f %% vs far end +-4 px -> %.1f %%"
+          % (sw4, interp_error(4)))
+
     # ---- ruling ---------------------------------------------------------
     P("\n" + "=" * 74)
-    P("RULING")
+    P("RULING -- ON BOTH ANSWERS")
     P("=" * 74)
     P("  f at the answered column is %.4f of the bar's half-width." % f0)
-    P("  THE ROUTE DOES NOT CLOSE, and it does not close for TWO independent")
-    P("  reasons, either of which is sufficient:")
-    P("    (1) the residual the answer carries -- %.0f px on the weaker" % SPACING)
-    P("        reading, %.1f px on the stronger -- straddles the published"
-      % (SPACING / 2.0))
-    P("        closing level of dU <= %d px.  This is what was PRE-COMMITTED."
-      % CLOSE_AT)
-    P("    (2) the answer is the SET'S ENDPOINT, so the interval is open to")
-    P("        the left, and 20 px of reach there moves f by %.1f %%."
+    P("")
+    P("  WHAT THE TWO ANSWERS DID CLOSE, said first because it is real:")
+    P("    A4 and A5 FAILED on the Q1 answer alone -- he chose the SET'S")
+    P("    ENDPOINT, leaving the interval open to the left, where 20 px of")
+    P("    reach moves f by %.1f %%.  Q1b BOUNDED THAT SIDE: [stated] the end"
       % swing_left)
-    P("  (2) IS THE STRONGER FINDING AND IT WAS NOT ANTICIPATED.  A tighter")
-    P("  answer among the SAME five lines could have satisfied (1); nothing")
-    P("  inside that set can satisfy (2).")
+    P("    is AT line 1, not left of it.  With the left side closed the")
+    P("    residual is the line spacing alone -- %.1f px on the stronger"
+      % (SPACING / 2.0))
+    P("    reading -> %.1f %%, INSIDE the published closing level of dU <= %d"
+      % (e_half, CLOSE_AT))
+    P("    px.  ON THE FAR END, THE OWNER CLOSED IT.  That is not hedged.")
+    P("")
+    P("  WHY THE ROUTE STILL DOES NOT CLOSE -- A6 AND A7, and this was NOT")
+    P("  anticipated by me or by any prior revision:")
+    P("    THE GRADING ONLY EVER COVERED ONE OF THE FOUR COLUMNS.  P1b")
+    P("    perturbs the far end.  C3 measured the post and the hoop.  The")
+    P("    FAR STRUT at u %.0f was never measured and never graded -- it is"
+      % STRUT_U)
+    P("    hard-coded, its own print calls it '(blob)', and u %.0f is rev"
+      % STRUT_U)
+    P("    32's candidate line 4, INSIDE the same superposition as the far")
+    P("    end.  Graded now: +-4 px on the strut swings f by %.1f %% against"
+      % sw4)
+    P("    the far end's %.1f %% for the same move.  THE UNGRADED COLUMN IS"
+      % interp_error(4))
+    P("    THE MORE SENSITIVE OF THE TWO, so bounding the far end -- which")
+    P("    cost two revisions and two questions -- does not control the")
+    P("    answer.")
+    P("")
+    P("  THIS IS REV 32'S OWN RULE FIRING AGAIN: a control that fails can")
+    P("  hide the defects downstream of it.  C5 failed on the far end for")
+    P("  two revisions, so nobody looked at what else it consumed.")
     P("")
     P("  AND THE PRE-COMMITMENT WAS ONLY HALF RIGHT -- SAID PLAINLY.")
-    P("  It asserted ~7 px of residual and no close.  On the HALF-spacing")
-    P("  reading the residual is %.1f px -> %.1f %%, which is INSIDE the"
+    P("  It asserted ~%.0f px of residual and no close, on the far end." % SPACING)
+    P("  On the HALF-spacing reading that residual is %.1f px -> %.1f %%,"
       % (SPACING / 2.0, e_half))
-    P("  closing level, so criterion (1) alone would have closed the route.")
-    P("  The pre-commitment named a residual without naming which reading of")
-    P("  it applied, and the two disagree.  The route survives on A4/A5, NOT")
-    P("  on the reason that was pre-committed.  A PRE-COMMITMENT IS A PROBE")
-    P("  TOO, and this one was under-specified.")
+    P("  INSIDE the closing level -- so the reason given was wrong even")
+    P("  where the verdict was right.  The verdict survives on A6/A7, which")
+    P("  are about a DIFFERENT COLUMN ENTIRELY.  A PRE-COMMITMENT IS A PROBE")
+    P("  TOO, and this one was both under-specified AND aimed at the wrong")
+    P("  term.")
     P("")
     P("  THE POST STAYS UNBUILT.  No f is published as a build value.")
-    P("  NOT CLAIMED: that the end is left of 205.  He may mean exactly 205.")
-    P("  The finding is that THE QUESTION CANNOT DISTINGUISH THE TWO, and")
-    P("  that is a defect of the option set, which rev 33 built.")
+    P("  NOT CLAIMED: that the strut is wrong, or that %.1f is a bad value."
+      % STRUT_U)
+    P("  The claim is only that NOTHING HAS EVER MEASURED IT, and the")
+    P("  estimator is more sensitive to it than to the column two")
+    P("  revisions were spent on.")
     P("")
-    P("  WHAT WOULD CLOSE IT, unchanged and now sharper: a square-on frame of")
-    P("  the FRONT of the vehicle.  Failing that, ONE bounded question --")
-    P("  'is the end AT line 1, or LEFT of it?' -- converts the open interval")
-    P("  into a closed one and is the only cheap move left.")
+    P("  WHAT WOULD CLOSE IT NOW, in order of value:")
+    P("    1. a square-on frame of the FRONT -- collapses the whole problem")
+    P("    2. the FAR STRUT's column, to the same standard the far end now")
+    P("       has: an owner reading plus a bound.  It is the only remaining")
+    P("       ungraded term, and it is the sensitive one.")
+    P("    3. nothing else.  Do not rebuild the cross-ratio algebra; P1")
+    P("       shows it is exact to 3.55e-15 and that was never the problem.")
 
-    P("\nCONTROLS: %d checked, %d FAILED" % (5, len(FAIL)))
+    P("\nCONTROLS: %d checked, %d FAILED" % (7, len(FAIL)))
     for f_ in FAIL:
         P("   FAILED: %s" % f_)
     if FAIL:
         P("")
-        P("EXIT CODE 1 IS THE INTENDED RESULT.  A4 and A5 are KILL controls:")
+        P("EXIT CODE 1 IS THE INTENDED RESULT.  A4-A7 are KILL controls:")
         P("they ask whether the answer CLOSES the route.  It does not.  A")
         P("green run would have meant the post could be built this revision.")
         P("Do not 'fix' them by widening a tolerance.")

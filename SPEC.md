@@ -5766,3 +5766,196 @@ allowed to drift cannot do that job. **A CONTROL NOBODY RUNS IS NOT A CONTROL.**
 - **WHEN A ROUTE'S ALGEBRA IS EXACT, GRADE ITS CONDITIONING AND PUBLISH THE
   LEVEL AT WHICH THE POSITIVE CONTROL FAILS.** "dU = 8 px" is a usable number;
   "it is ill-conditioned" is not.
+
+### 10.87  rev 33 — THE OWNER ANSWERS BOTH OUTSTANDING QUESTIONS: §10.82's NAMED GAP CLOSES, and the post's route fails on a column NOBODY EVER MEASURED
+
+**NO GEOMETRY MOVED. NO SHADER. NO ARTWORK.** The last geometry change is
+still rev 30's. `CREAM`, `COUNTERTAN`, `COUNTERCREAM`, `RED`, the rake, the
+roof, the over-rider bar and all three textures are UNCHANGED.
+
+#### 10.87.1  Q2 — ALL THREE SURFACES ARE CLEAN. §10.82's NAMED GAP CLOSES.
+
+**[stated, rev 33]** The bumper top, the wheel rim face and the hub cap
+**carry no settled-dust film.** Asked on `rev32_q2_surfaces.png` with three
+POINTERS, declared as such, validated before sending (`probe_rev32_pointer.py`
+B1 1.96x, B2 1.81x, B3 2.78x against an ANSWERED box's 3.14x and a PROVEN
+straddler's 13.54x, 10 controls 0 failed), and shown beside the current build
+with the film OFF and ON.
+
+**WHAT THIS SETTLES.** §10.82 retired the dust film's DERIVATION and left a
+named gap: the global zeroing had owner support on the ROOF (rev 29) and on
+the COUNTER TOP (rev 28) but none on the three surfaces the same node films
+at the front of every hero — 0.751 m² of up-face area, ~6 % of `T1_body`'s
+12.294. **That gap is now closed from the owner's own reading.** The global
+`f = 0` gains three further surfaces of support and **the film does NOT need
+to become LOCAL** (per-material `dust` input). The one-lever treatment stands.
+
+**WHAT IS NOT CLAIMED, and the ceiling is the same one rev 32 stated.** Two
+of the three pointers are on `ref_side.jpg`, and **there is no answered
+calibration anchor on `ref_side.jpg` at all** — rev 29's anchors are on
+`ref_rear34.jpg`. The validation transferred a band across frames and said so.
+This answer therefore closes the NAMED GAP; it does not upgrade the pointers
+into measurements, and **no number is taken from any of the three boxes.**
+
+**NOTHING WAS TUNED.** §10.82 retired a DERIVATION, not a constant. No lever
+was moved in either direction on the strength of this answer.
+
+#### 10.87.2  TWO INHERITED PROBES HAVE BEEN DEGENERATE SINCE THE RETIREMENT, and one of them prints a TAUTOLOGY as a COMPARISON
+
+Running every probe in the tree rather than only the ones this revision wrote
+— rev 32's rule, `A CONTROL NOBODY RUNS IS NOT A CONTROL` — found two more:
+
+- **`probe_clean_top.py` fails H1, H2 and H3.**
+- **`probe_dust_anchor.py` fails two C3 arms.**
+
+**MECHANISM CONFIRMED, NOT GUESSED.** `probe_clean_top.py` prints
+`live coverage f = 0.000000`. Both probes were written in rev 27/28 against
+the PRE-retirement chain and their controls reconstruct `_UP_MEASURED` through
+a coverage term that is now zero. The failures are a CONSEQUENCE of §10.82,
+not a regression, and **no tolerance was widened to silence them.**
+
+**AND ONE IS WORSE THAN A FAILING CONTROL.** `probe_clean_top.py`'s headline
+table now prints
+
+```
+    dusty COUNTERTAN   (SHIPPED)   (0.9511, 0.7815, 0.5298)  -10.0 % -11.6 % -34.0 %
+    CLEAN COUNTERTAN   (f = 0)     (0.9511, 0.7815, 0.5298)  -10.0 % -11.6 % -34.0 %
+      worst channel |err|: dusty 34.0 % -> clean 34.0 %
+```
+
+**Its A-versus-B comparison has silently become A-versus-A**, while its prose
+still argues "removing the dust is NECESSARY". The `42.5 % -> 34.0 %`
+improvement that rev 28 quoted as "real corroboration from an independent
+direction" **cannot be reproduced by the probe that produced it**, because the
+lever it differenced no longer exists.
+
+> **NEW RULE. A PROBE OUTLIVES THE WORLD IT WAS WRITTEN IN. When a lever is
+> retired, every probe that DIFFERENCES that lever silently becomes a
+> comparison of a value against itself — and it keeps printing, keeps
+> formatting, and keeps narrating. A degenerate comparison is more dangerous
+> than a failing control, because nothing about it is red.**
+
+This is why §10.70's percentages must be RE-RUN before being quoted again
+(carried since rev 29): **they are of the same family**, and the mechanism is
+now named rather than merely suspected.
+
+#### 10.87.3  `STATE.md` IS ONE REVISION STALE IN THE COMMITTED TREE
+
+`STATE.md` is **byte-identical to `STATE_rev31.md`** (both md5
+`a74f534c866e8870c197d1e0dbf03da9`). rev 32 regenerated `STATE_rev32.md` and
+committed it, but never re-committed `STATE.md`, so the tree's machine-written
+file still names commit `6f87977`, subject "rev 31b". **The diff against
+`STATE_rev32.md` is the three provenance lines and nothing else**, so no
+published figure is wrong — consistent with no geometry having moved. But the
+handoff instruction "STATE.md is machine-written; if it and any prose disagree,
+it is right" points at a file that self-identifies as a rev-31b artifact.
+**Recorded, not silently regenerated:** regenerating it here would erase the
+evidence of the gap.
+
+#### 10.87.4  rev 32's Q1 FIGURE QUOTED A PLANTED SYNTHETIC VALUE AS A MEASUREMENT
+
+Before re-asking Q1, the figure was checked — `A QUESTION YOU ARE ABOUT TO ASK
+IS A PROBE TOO`. `rev32_q1_barend.png` carried three defects in the block that
+tells the owner why the column matters:
+
+1. **"at u = 209 the post lands at 0.626."** `0.626` is `f_true` in
+   `probe_orb_xratio.py`'s **P1b** — a value **PLANTED on a SYNTHETIC
+   projective map** to grade conditioning. It is not a reading of this
+   vehicle. The live value at u = 209, from C5's own columns, is **0.6160**.
+2. **"at u = 224 it lands at 0.820."** C5's machinery gives **0.7943**.
+   `0.820` is produced by neither the synthetic map nor the live columns. The
+   swing of record is **C5's 28 % over u 203–221**, not 31 %.
+3. **Candidate lines 4 (u 228) and 5 (u 240) sit at or beyond C5's
+   `strut_u = 228.0`**, where C5 declares ORDER BROKEN. **Two of five options
+   could not be consumed by the route the question existed to feed.** They
+   were KEPT and LABELLED, not removed — they are legitimate readings of the
+   photograph, and choosing one is a decision to close the route.
+
+Rebuilt as `rev33_q1_barend.png` by `mark_rev33_q1.py`, which **hard-codes no
+`f`**: every number is recomputed from C5's constants at draw time behind a
+positive control that re-derives four of C5's printed rows (worst deviation
+**4.24e-05**) and **refuses to write the figure if that control fails.**
+
+> **A NUMBER WRITTEN INTO A QUESTION IS A NUMBER NOBODY RE-READS.** Make the
+> figure recompute it, and make the figure refuse to draw if it cannot.
+
+#### 10.87.5  Q1 AND Q1b — THE OWNER CLOSES THE FAR END, AND THE ROUTE STILL FAILS
+
+**[stated, rev 33]** The over-rider bar's far termination is at **candidate
+line 1, u = 205**, and **[stated, rev 33]** it is **AT line 1, not left of
+it**. `f` at that column is **0.5897** of the bar's half-width.
+
+**THE PRE-COMMITMENT, MADE ON THE FIGURE BEFORE THE ANSWER ARRIVED** (§6 of
+the rev-33 brief requires it): *"naming ONE line still leaves ~7 px of
+residual and the route does NOT close."*
+
+**A4/A5 — the Q1 answer alone did not bracket.** He chose the **LEFTMOST**
+member of the offered set. An endpoint answer leaves the interval OPEN on that
+side; the set's left boundary at 205 was rev 32's choice, not the
+photograph's, and C5's own sweep started at 203 for the same arbitrary reason.
+**20 px of reach to the left moves `f` by 17.8 %.**
+
+**Q1b CLOSED THAT SIDE, and it is worth saying without hedging.** Asked on
+`rev33_q1b_leftbound.png` with the crop **widened left to u = 170** and four
+new CANDIDATE LINES at u = 185/190/195/200 — marks on the side the first set
+never reached. With the left side bounded, the residual is the line spacing
+alone: **3.5 px → 5.4 %, INSIDE the published closing level of dU ≤ 4 px
+(6.2 %). ON THE FAR END, THE OWNER CLOSED IT.**
+
+**AND THE ROUTE STILL DOES NOT CLOSE — A6 AND A7, ON A COLUMN NOBODY EVER
+MEASURED.** The four-point cross-ratio consumes FOUR columns. C3 measured
+**two** (post 365.5, hoop outer 485.0). P1b graded **one** (the far end). The
+fourth — **the FAR STRUT** — is carried in C5 as a hard-coded
+`strut_u = 228.0` **whose own print labels it "(blob)"**, and **u 228 is rev
+32's candidate line 4**: the strut column sits INSIDE the same u 203–232
+three-member superposition as the far end. Graded here for the first time,
+with the far end held at the owner's 205:
+
+| far strut moves | `f` swings |
+|---|---|
+| ± 4 px | **11.1 %** |
+| ± 8 px | **23.7 %** |
+
+**THE UNGRADED COLUMN IS THE MORE SENSITIVE OF THE TWO** — 11.1 % against the
+far end's 6.2 % for the same ± 4 px. Bounding the far end, which cost two
+revisions and three questions, **does not control the answer.**
+
+**THE POST STAYS UNBUILT. NO `f` IS PUBLISHED AS A BUILD VALUE.**
+**NOT CLAIMED:** that the strut is wrong, or that 228.0 is a bad value. The
+claim is only that **nothing has ever measured it**, and the estimator is more
+sensitive to it than to the column two revisions were spent on.
+
+**THE PRE-COMMITMENT WAS ONLY HALF RIGHT AND IS SCORED AS SUCH.** It asserted
+~7 px of residual and no close. On the half-spacing reading that residual is
+3.5 px → 5.4 %, **inside** the closing level — so **criterion (1) alone would
+have CLOSED the route** and the stated reason was wrong even where the verdict
+was right. The verdict survives on A6/A7, which concern **a different column
+entirely**.
+
+> **A PRE-COMMITMENT IS A PROBE TOO.** This one was under-specified — it named
+> a residual without naming which reading of it applied, and the two readings
+> disagree across the decision boundary — **and it was aimed at the wrong
+> term.** State which quantity the pre-commitment binds, and check that it is
+> the quantity the estimator is most sensitive to.
+
+> **AND THIS IS §10.86's OWN RULE FIRING AGAIN: A CONTROL THAT FAILS CAN HIDE
+> THE DEFECTS DOWNSTREAM OF IT.** C5 failed on the far end for two revisions,
+> so no revision ever asked what ELSE C5 consumed. The strut has been
+> hard-coded and ungraded since rev 32 wrote the probe.
+
+**WHAT WOULD CLOSE IT NOW, in order of value.**
+1. **A square-on frame of the FRONT of the vehicle** — collapses the lateral
+   scale problem entirely. Unchanged, and still worth more than any answer.
+2. **The FAR STRUT's column**, to the same standard the far end now has: an
+   owner reading PLUS a bound. It is the only remaining ungraded term and it
+   is the sensitive one.
+3. **Nothing else.** Do not rebuild the cross-ratio algebra — P1 shows it
+   exact to **3.55e-15** and the algebra was never the problem.
+
+#### 10.87.6  CARRIED FORWARD, UNCHANGED
+
+§10.83's "post at the vehicle's centreline" remains **UNDECIDED**, fourth
+revision running. REF §9's V-swage absolute height remains a **bracket,
+≈0.40–0.49 m**. The transverse-VP-by-harmonic-conjugate route remains
+**UNPUBLISHED, not refuted**. `422 px/m` is consumed nowhere. The hero
+`rev30_hero34f.png` is proved by content and is not re-shot.
