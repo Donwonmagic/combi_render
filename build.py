@@ -324,6 +324,13 @@ A(D.bumper(True, name="bumper_f"), "bumpercream")
 # absent from both in-service photographs. Do not re-add it.
 # A(D.bumper(False, name="bumper_r"), "bumpercream")
 A(D.bumper_irons(True), "bumpercream")
+# SPEC 10.83, rev 30: the front over-rider bar.  WORKSHOP-STAGE -- it appears
+# in ref_workshop.jpg, which is the CONVERSION stage, and SPEC 10.75's scope
+# ruling (the owner's) is MODEL IT, TAGGED.  The rear bumper was removed
+# between that stage and service, so front hardware present in the workshop is
+# not automatically present in service; if an in-service frame ever shows the
+# nose and contradicts this, delete this one line.
+A(D.overrider_bar(), "bumpercream")
 A(D.gutter(), "paint")
 A(D.mirrors(), "chrome")
 A(D.wipers(), "chrome_d")

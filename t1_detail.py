@@ -436,6 +436,94 @@ def bumper_irons(front=True):
     return obs
 
 
+# ---------------------------------------------------------------------------
+# SPEC 10.83, rev 30.  THE FRONT OVER-RIDER BAR.  WORKSHOP-STAGE.
+#
+# The owner ruled in rev 26 (SPEC 10.75) that the transverse tube across the
+# nose of `ref_workshop.jpg` is ON THE BUS, and chose MODEL IT, TAGGED
+# WORKSHOP-STAGE.  Nothing was built for four revisions because there was no
+# scale on the nose/bumper plane.  rev 30 measured one.
+#
+# EVERY NUMBER BELOW CARRIES ITS PROVENANCE.  Three different grades:
+#
+#   MEASURED, scale-free, on ref_workshop.jpg (probe_orb_blade.py):
+#     tube / headlamp-aperture-vertical  = 0.1387, over 76 columns, +-5.5 %
+#     tube top -> bumper blade top       = 38.7 px at the same station
+#     Both are ratios to ONE ruler, the headlamp aperture, whose lower rim the
+#     OWNER placed on the thin dark line in rev 30 -> vertical extent 71.11 px.
+#
+#   BOUNDED, model-free (probe_orb_hoop.py):
+#     D <= 10.38 px.  The smallest horizontal chord anywhere on the hoop bend
+#     is an upper bound on the diameter for ANY axis slope, because
+#     W_h = D sqrt(1+s^2) >= D.  This is what EXCLUDED the second arm of the
+#     question the owner answered CAN'T TELL (14.98 px, 44 % over the bound).
+#
+#   CATALOGUE-ANCHORED, therefore SPEC 10.72's struck class, and tagged as such
+#   wherever it appears:
+#     the aperture is taken as 0.180 m.  That is a STOCK T1 figure, NOT a
+#     measurement of this vehicle.  It is the ONLY step between the measured
+#     ratios and metres, and if it moves, BAR_DIA and BAR_RISE move with it
+#     PROPORTIONALLY -- which is why they are written as the ratio times the
+#     anchor, not as bare numbers.
+#
+#   UNMEASURED, and named rather than implied:
+#     the bar's STANDOFF in x.  A depth cannot be recovered from this frame.
+#     The convention adopted is that the bar's outer face lands in the SAME
+#     plane as the bumper blade's, x = 2.1403, which is a CHOICE, not a
+#     reading.
+#     the bar's lateral EXTENT and the hoop ends' radius.  REF section 9 warns
+#     that lateral scale varies by more than 2:1 across this panel and that a
+#     fitted projection model did not close, so no lateral metre figure is
+#     admissible.  BAR_HALF_Y is set to span the nose the way the photograph
+#     shows and is tagged E -- shape from the photograph, dimension not.
+#
+# NOT BUILT, deliberately: the vertical POST (SPEC 10.75's box C).  rev 30
+# REFUTES 10.75's description of it as being "at the vehicle's centreline":
+# the centreline is the two-tone V apex at u = 311.5 (REF section 9) and the
+# post's own columns are 357-374.  Its lateral position is bracketed only
+# between the centreline and the near headlamp, which is not a measurement.
+# Building it at a refuted position would be worse than leaving the gap named.
+APERTURE_M = 0.1800        # CATALOGUE, stock T1.  SPEC 10.72's class.  TAGGED.
+BAR_RATIO = 0.1387         # MEASURED, scale-free, 76 columns, +-5.5 %
+BAR_RATIO_MAX = 0.1460     # BOUNDED, model-free, from the hoop chord
+BAR_RISE_RATIO = 38.7 / 71.1109    # MEASURED: tube top above blade top
+BAR_DIA = BAR_RATIO * APERTURE_M           # 0.02497 m
+BAR_RISE = BAR_RISE_RATIO * APERTURE_M     # 0.09797 m
+BLADE_TOP_Z = 0.4800 + 0.0560              # bumper() z + BUMP_PROFILE max
+BAR_Z = BLADE_TOP_Z + BAR_RISE - BAR_DIA / 2.0
+BAR_X = 2.1403 - BAR_DIA / 2.0             # outer faces coplanar -- a CHOICE
+BAR_HALF_Y = 0.6000        # E: spans the nose as photographed, NOT measured
+BAR_END_DROP = 2.6 * BAR_DIA               # E: the hoop end turns down
+BAR_END_BACK = 1.6 * BAR_DIA               # E: and back
+
+
+def overrider_bar(name="orb_bar"):
+    """The transverse over-rider tube across the nose, with the rounded hoop
+    ends the photograph shows and SPEC has never recorded.  Workshop-stage."""
+    path = []
+    n = 24
+    for i in range(n + 1):
+        y = -BAR_HALF_Y + 2 * BAR_HALF_Y * i / n
+        path.append((BAR_X, y, BAR_Z))
+    # hoop ends: a quarter turn down and back at each end.  The turn is kept
+    # off vertical on purpose -- sweep()'s frame is built from t x UP and
+    # degenerates as the tangent approaches UP.
+    for s, at in ((-1, 0), (1, len(path))):
+        arc = []
+        m = 7
+        for k in range(1, m + 1):
+            a = (math.pi / 2) * k / m * 0.62      # <= 56 deg from horizontal
+            arc.append((BAR_X - BAR_END_BACK * (1 - math.cos(a)),
+                        s * (BAR_HALF_Y + 0.55 * BAR_END_DROP * math.sin(a)),
+                        BAR_Z - BAR_END_DROP * math.sin(a)))
+        if at == 0:
+            path = list(reversed(arc)) + path
+        else:
+            path = path + arc
+    prof = T.rrect(BAR_DIA, BAR_DIA, BAR_DIA / 2.0, seg=6)
+    return T.sweep(path, prof, up=(0, 0, 1), name=name)
+
+
 # =================================================================== LAMPS
 def headlamp(x_off=0.0):
     """returns (chrome ring, lens, bowl) for one side; y positive"""

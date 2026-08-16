@@ -1025,6 +1025,63 @@ def run(body, log=print):
         f"{_offtot*1000:.1f} mm over {len(_off)} pairs "
         f"(baseline {_S.OFF_CROSS_BASELINE*1000:.1f}, {_od*1000:+.1f} mm) "
         f"-- off flank is graded E, NOT a correctness claim")
+    # 11e-bis.  SPEC 10.83, rev 30 -- THE FRONT OVER-RIDER BAR.
+    #
+    # This row exists because BAR_RISE and BAR_DIA are the FIRST numbers in the
+    # model derived through a CATALOGUE anchor (the 0.180 m headlamp aperture,
+    # SPEC 10.72's struck class).  Everything upstream of that anchor is a
+    # measured RATIO; everything downstream is a consequence.  If the anchor is
+    # ever replaced, this row must FAIL -- that is the point of it.
+    #
+    # It is measured on the MESH, after step 8b's ride drop, and it compares
+    # the bar with the bumper blade AT THE SAME STATION (x > 2.100) so the
+    # rake shear cancels: the two objects' tops are 12 mm apart in x, and at
+    # the locked 17.75 mm/m rake that is 0.22 mm -- an eighth of the band.  A
+    # bare absolute z would have measured the rake instead.
+    #
+    # THIS ROW FIRED ON ITS FIRST RUN AND THE ROW WAS RIGHT.  The window was
+    # x > 2.132 and it read +11.41 mm.  The cause was MINE and it is a datum
+    # error, not a tolerance: BUMP_PROFILE reaches its greatest OUTWARD extent
+    # (0.0248) at up = +0.0210, and its topmost point (+0.0560) at outward
+    # 0.000 -- so a window that keeps only the outer face never sees the
+    # blade's top at all, and read 0.5230 where the blade tops out at 0.5360.
+    # The photograph's "blade top edge" is the topmost silhouette of the
+    # section, which is the 0.0560 point.  WINDOW FIXED, BAND UNTOUCHED.
+    _orb = bpy.data.objects.get("orb_bar")
+    _bmp = bpy.data.objects.get("bumper_f")
+    if _orb is None or _bmp is None:
+        fails.append("SPEC 10.83: orb_bar or bumper_f is MISSING from the "
+                     "scene -- the over-rider is built by build.py and must "
+                     "not be dropped silently")
+    else:
+        def _top_at_nose(ob):
+            zs = [(ob.matrix_world @ v.co).z for v in ob.data.vertices
+                  if (ob.matrix_world @ v.co).x > 2.100]
+            return max(zs) if zs else None
+        _zb, _zm = _top_at_nose(_orb), _top_at_nose(_bmp)
+        if _zb is None or _zm is None:
+            fails.append("SPEC 10.83: no vertices forward of x=2.100 on "
+                         "orb_bar or bumper_f -- the standoff CHOICE that "
+                         "puts their outer faces coplanar has been broken")
+        else:
+            import t1_detail as _D30
+            _rise = _zb - _zm
+            _d = _rise - _D30.BAR_RISE
+            if abs(_d) > 1.5e-3:
+                fails.append(
+                    f"SPEC 10.83: over-rider bar top sits {_rise*1000:.2f} mm "
+                    f"above the bumper blade top, {_d*1000:+.2f} mm off the "
+                    f"measured {_D30.BAR_RISE*1000:.2f} mm (band +-1.5 mm). "
+                    f"That figure is 38.7/71.11 of the CATALOGUE 0.180 m "
+                    f"aperture -- if the anchor moved, re-derive it, do NOT "
+                    f"widen this band")
+            log(f"  over-rider bar (SPEC 10.83, WORKSHOP-STAGE): top "
+                f"{_rise*1000:.2f} mm above the blade top (measured "
+                f"{_D30.BAR_RISE*1000:.2f}), dia {_D30.BAR_DIA*1000:.2f} mm "
+                f"= {_D30.BAR_RATIO:.4f} x a CATALOGUE 0.180 m aperture; "
+                f"model-free upper bound on the ratio is "
+                f"{_D30.BAR_RATIO_MAX:.4f}. Lateral extent is graded E.")
+
     log(f"  gap_englid is in the (y,z) TAIL frame at x="
         f"{_T.X_TAIL + _S.ENGLID_CUT_DX:.4f}; no flank aperture shares that "
         f"surface, so a flank crossing test is NOT APPLICABLE (stated, not "
