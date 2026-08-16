@@ -12,7 +12,7 @@ was granted on the first request in rev 30 and rev 31. **Do not assume any of
 those three outcomes** — call it, and say plainly what came back.
 
 **THE BRIDGE HAS A THROUGHPUT CEILING, NOT JUST A SIZE ONE — CONFIRMED THREE
-TIMES.** `device_stage_files` times out on files above ~3 MB. **Three files now
+TIMES.** `device_stage_files` times out on files above ~3 MB. **Only TWO files
 need splitting:** the 19.5 MB base bundle (7 parts) and the 8.5 MB
 `rev14_unified` (3 parts). **Everything rev15–rev32 is under 3 MB and crosses
 whole** — `tacombi_rev32_incremental.bundle` is **2 376 375 bytes**, md5
@@ -258,7 +258,7 @@ git pull --ff-only ../tacombi_rev28_incremental.bundle HEAD      # -> 130
 git pull --ff-only ../tacombi_rev29_incremental.bundle HEAD      # -> 135
 git pull --ff-only ../tacombi_rev30_incremental.bundle HEAD      # -> 148
 git pull --ff-only ../tacombi_rev31_incremental.bundle HEAD      # -> 158
-git pull --ff-only ../tacombi_rev32_incremental.bundle HEAD      # -> 164
+git pull --ff-only ../tacombi_rev32_incremental.bundle HEAD      # -> 165
 ```
 
 **If a pull says "Need to specify how to reconcile divergent branches", STOP.**
@@ -454,8 +454,8 @@ This section is written LAST, after the final commit, and every figure in §1 wa
 read off a fresh-clone verification run rather than typed from memory. **This has
 gone wrong in ELEVEN revisions during handoff assembly.**
 
-**FINAL COUNT: 164 commits, clean tree.** *(Verified: this line lands in commit
-164 itself, which is what makes it true — the count lands in its own commit,
+**FINAL COUNT: 165 commits, clean tree.** *(Verified: this line lands in commit
+165 itself, which is what makes it true — the count lands in its own commit,
 rev 29's pattern, kept since.)*
 
 **THE GREP TRAP FIRED AGAIN AND IT FIRED ACROSS REVISIONS THIS TIME.** rev 31b
@@ -471,7 +471,8 @@ REASON.** The first draft of Step 0 said rev 32's bundle was over the bridge's
 throughput ceiling. It was — but only because I had cut it from the rev-30 tip
 by mistake, so it carried rev 31's commits as well. Cut correctly from `6f87977`
 it is **2.38 MB and crosses whole**. Corrected, which cost one commit, which is
-why the count is 164 and not 163. **A BUNDLE'S SIZE IS A MEASUREMENT TOO, AND IT
+why the count is 165 and not 163 -- the correction itself needed a second
+pass, because the first one left the words 'Three files' above a list of two. **A BUNDLE'S SIZE IS A MEASUREMENT TOO, AND IT
 DEPENDS ON THE BASE YOU CUT IT FROM.**
 
 **A NEW TRAP, AND IT IS THE MOST DANGEROUS ONE THIS PROJECT HAS FOUND.**
