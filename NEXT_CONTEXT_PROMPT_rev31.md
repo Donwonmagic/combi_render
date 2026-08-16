@@ -154,7 +154,7 @@ git pull --ff-only ../tacombi_rev26_incremental.bundle HEAD      # -> 120
 git pull --ff-only ../tacombi_rev27_incremental.bundle HEAD      # -> 126
 git pull --ff-only ../tacombi_rev28_incremental.bundle HEAD      # -> 130
 git pull --ff-only ../tacombi_rev29_incremental.bundle HEAD      # -> 135
-git pull --ff-only ../tacombi_rev30_incremental.bundle HEAD      # -> 144
+git pull --ff-only ../tacombi_rev30_incremental.bundle HEAD      # -> 146
 ```
 **If a pull says "Need to specify how to reconcile divergent branches", STOP.**
 Content checks — **the first eleven reach the TIP on purpose.** The hero is
@@ -285,4 +285,13 @@ read off a fresh-clone verification run rather than typed from memory. **This ha
 gone wrong in ELEVEN revisions during handoff assembly.** rev 23 through rev 30
 were clean runs.
 
-**FINAL COUNT: 144 commits, clean tree.**
+**FINAL COUNT: 146 commits, clean tree.**
+
+**A COUNT TRAP CAUGHT AND NAMED, rev 30.**  records commit
+, and I took that for the rev-29 TIP. It is not — rev 29 committed
+three more times after  wrote that file, so  counts 132 and
+the real rev-29 tip is  at 135. The bundle spans ,
+which is harmless (the extra three are already in your history and the pull
+still fast-forwards) but the ARITHMETIC was wrong for twenty minutes.
+**A PROVENANCE HASH IN A MACHINE-WRITTEN FILE IS THE COMMIT THAT WROTE IT, NOT
+THE TIP OF ITS REVISION.**
