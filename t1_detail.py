@@ -483,6 +483,22 @@ def bumper_irons(front=True):
 # post's own columns are 357-374.  Its lateral position is bracketed only
 # between the centreline and the near headlamp, which is not a measurement.
 # Building it at a refuted position would be worse than leaving the gap named.
+#
+# CORRECTED TWICE SINCE, AND THE FIVE LINES ABOVE ARE KEPT ONLY AS THE RECORD
+# OF WHAT REV 30 BELIEVED (SPEC 10.86, rev 32):
+#   * "REFUTES" is wrong.  SPEC 10.84 (rev 31) downgraded it to UNDECIDED --
+#     the two terms are at DIFFERENT DEPTHS, the apex on the nose skin and the
+#     post in the bumper plane, separated by a standoff this file itself calls
+#     "a CHOICE, not a reading" twenty lines up.
+#   * "u = 311.5" is wrong.  SPEC 10.85 (rev 31b): that point is the V's RIGHT
+#     ARM's occlusion point at the over-rider bar THIS FILE BUILDS, not the
+#     apex.  The apex is at u = 288.8 +- 3 px.
+#   * "357-374" is a POINTER box that rev 30 took a number from.  rev 32
+#     re-measured it properly at u 355-377 (cream-run scan, rows 676-700), so
+#     the number survives to within 2 px; the process defect stands.
+# WHAT IS UNCHANGED: the post is NOT BUILT, and neither position is settled.
+# rev 32 measured two routes to its lateral position and published both as
+# NOT CLOSING on this frame -- see SPEC 10.86.
 APERTURE_M = 0.1800        # CATALOGUE, stock T1.  SPEC 10.72's class.  TAGGED.
 BAR_RATIO = 0.1387         # MEASURED, scale-free, 76 columns, +-5.5 %
 BAR_RATIO_MAX = 0.1460     # BOUNDED, model-free, from the hoop chord

@@ -59,6 +59,14 @@ V_APEX_U, V_APEX_TOL = 311.5, 4.0      # REF Sec 9, with its own stated band
 ROUNDEL_U = 306.0                      # REF Sec 9, centre of the VW emblem
 POST_U0, POST_U1 = 357.0, 374.0        # SPEC 10.75 box C
 POST_U = 0.5 * (POST_U0 + POST_U1)
+
+# rev 32, SPEC 10.86.  THE CONSTANT ABOVE IS DELIBERATELY LEFT AT 311.5 so that
+# this file keeps REPRODUCING WHAT REV 31 PUBLISHED.  Overwriting it would have
+# made rev 31's reported "1.38 sigma, C4 FAIL" unreachable, and a probe that
+# cannot reproduce its own published result is not a record.  The corrected
+# anchor is added BESIDE it and ARM 2 is re-run on both.
+V_APEX_U_R32, V_APEX_TOL_R32 = 288.8, 3.0     # SPEC 10.85, SYSTEMATIC band
+V_APEX_TOL_R32_WORST = 7.0                    # SPEC 10.85's stated worst case
 RMS_GATE = 1.5                         # px: an edge worse than this is not a line
 
 # (name, v_lo, v_hi, u_lo, u_hi, polarity)
@@ -173,6 +181,31 @@ def main():
     ok = abs(d) > 2.0 * V_APEX_TOL
     print(f"  C4 {'PASS' if ok else 'FAIL'}: the sign is "
           f"{'established' if ok else 'NOT ESTABLISHED'} by this arm")
+
+    print("\n=== ARM 2, RE-RUN ON SPEC 10.85's CORRECTED ANCHOR  (rev 32) ===")
+    d32 = V_APEX_U_R32 - ROUNDEL_U
+    ok32 = abs(d32) > 2.0 * V_APEX_TOL_R32
+    okw = abs(d32) > 2.0 * V_APEX_TOL_R32_WORST
+    print(f"  V apex {V_APEX_U_R32} - roundel {ROUNDEL_U} = {d32:+.1f} px"
+          f"   (rev 31 read {d:+.1f} px on the wrong anchor)")
+    print(f"  SPEC 10.85's SYSTEMATIC band is +-{V_APEX_TOL_R32:.0f} px "
+          f"-> {abs(d32) / V_APEX_TOL_R32:.2f} sigma")
+    print(f"  C4' {'PASS' if ok32 else 'FAIL'} on the systematic band, "
+          f"{'PASS' if okw else 'FAIL'} on 10.85's worst case "
+          f"(+-{V_APEX_TOL_R32_WORST:.0f} px)")
+    print("  AND THE SIGN FLIPS: the apex was RIGHT of the roundel on the old")
+    print("  anchor and is LEFT of it on the corrected one.")
+    print("\n  THIS IS NOT LEANED ON, AND THE REASON IS A DEFECT IN THE ARM:")
+    print("    * NO DEPTH-ORDERING TERM.  A column difference is a MAGNITUDE.")
+    print("      Which of the roundel and the apex is nearer the camera is")
+    print("      never established here, and without it there is no direction.")
+    print("    * NO HEIGHT TERM.  The two features are ~150 px apart in v.  A")
+    print("      centreline point's column depends on its HEIGHT as well as its")
+    print("      depth unless the camera is level and unrolled, and nothing in")
+    print("      this repository establishes that it is.")
+    print("  Both defects were present in rev 31 and neither was visible then,")
+    print("  because C4 failed and nothing downstream of it ever ran.")
+    print("  A CONTROL THAT FAILS CAN HIDE THE DEFECTS DOWNSTREAM OF IT.")
 
     print("\n=== VERDICT ===")
     print("  The SIGN of the nose-skin-to-bumper-plane parallax is UNDECIDED.")

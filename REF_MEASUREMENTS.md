@@ -501,6 +501,32 @@ the headlamp aperture taken as 0.180 m -> 422 px/m.
 V-SWAGE APEX, on the centreline      ~ 0.49 m above ground
       (49 px above the bumper top at the same image x, hence the same depth;
        centreline scale ~355 px/m -> 0.138 m above the bumper top)
+      <-- WITHDRAWN AS A READING, see SPEC 10.86 (rev 32).  THIS IS THE ONLY
+      ENTRY IN THIS BLOCK THAT CONSUMED THE 311.5 ANCHOR, and it consumed BOTH
+      of that point's coordinates.  It is now a BRACKET, not a number:
+        * THE ROW.  The 49 px is (bumper top 718) - (669), and 669 is the row of
+          the point SPEC 10.85 showed is NOT the apex.  The arms have not
+          converged at 669, so the true apex is BELOW it; their straight-line
+          crossing is at v = 701.1, and because the V is RADIUSED at the tip the
+          painted apex sits ABOVE that crossing.  So 669 < v_apex < 701.1, i.e.
+          the apex stands 16.9-49 px above the bumper top, i.e. ~0.048-0.138 m
+          at this block's own 355 px/m -> ~0.40-0.49 m above ground.
+          THE PUBLISHED 0.49 m IS THE TOP OF THAT BRACKET, NOT ITS CENTRE.
+        * THE COLUMN, and this is the worse of the two.  "at the same image x,
+          hence the same depth" pairs the apex reading with the bumper-top
+          reading BECAUSE THEY SHARE A COLUMN.  They shared 311.5.  The apex is
+          at 288.8, so the premise of the pairing is gone: the bumper top would
+          have to be re-read at u = 288.8 for the depth argument to hold.
+        NO REPLACEMENT NUMBER IS PUBLISHED HERE.  rev 32 swept the consumers and
+        marked this one; re-deriving it needs the blade's top boundary read at
+        u = 288.8, and the blade and the V-swage are BOTH CREAM, so a cream-run
+        scan cannot find that boundary.  Naming the gap, not filling it.
+      SWEEP RESULT, rev 32: the other three entries in this block do NOT consume
+      311.5.  The V-arm/body-corner entry is anchored on the flank belt line;
+      HEADLAMP CENTRE is anchored on the V ARM at the headlamp's own x (419,524)
+      and INDICATOR CENTRE is derived from the headlamp.  Those three inherit
+      the 422 px/m near-side scale and its stated >2:1 warning, which is a
+      SEPARATE and older caveat -- they do not inherit SPEC 10.85.
 V ARMS WHERE THEY MEET THE BODY CORNERS  ~ 1.05-1.08 m above ground
       (the arms run into and become the flank belt line at 1.207 m at the rear-axle station;
        at the front of the body the rake has dropped that line to ~1.13 m, and the corner

@@ -268,9 +268,23 @@ _RETIRED_VALUES = (
     # UNDECIDED (roundel 306.0 vs apex 311.5 = +5.5 px against REF sec.9's own
     # +-4 px, 1.38 sigma).  The phrase still must not be re-quoted as a live
     # value to build from, so the row stands; only the justification changes.
+    #
+    # rev 32, SPEC 10.86: THE ROW IS KEPT AGAIN AND ITS REASON IS CORRECTED
+    # AGAIN.  The "1.38 sigma" above was computed with the apex at 311.5, and
+    # SPEC 10.85 (rev 31b) then moved the apex to 288.8 +- 3.  On the corrected
+    # anchor the same two terms read 306.0 - 288.8 = -17.2 px at 5.7 sigma --
+    # THE SIGN ALSO FLIPS -- so 10.84's ARM 2 would now PASS its own C4 gate.
+    # IT IS STILL NOT LEANED ON, and the reason is a defect in the arm rather
+    # than in the numbers: ARM 2 has NO DEPTH-ORDERING TERM (a column
+    # difference is a magnitude, not a direction, until you know which feature
+    # is nearer) and NO HEIGHT TERM (the two features are ~150 px apart
+    # vertically and nothing establishes a level, unrolled camera).  A CONTROL
+    # THAT FAILS CAN HIDE THE DEFECTS DOWNSTREAM OF IT, and this one did for a
+    # whole revision.  The offset itself is 76.7 px on the corrected anchor,
+    # not 54.0 (SPEC 10.85).  STATUS UNCHANGED: UNDECIDED.
     ("post at the vehicle's centreline",
-     "UNDECIDED: 54.0 px, depth parallax unpriced (10.84)",
-     "t1_detail.overrider_bar", "10.83/10.84"),
+     "UNDECIDED: 76.7 px, depth parallax unpriced (10.84/10.86)",
+     "t1_detail.overrider_bar", "10.83/10.84/10.86"),
 )
 
 # A literal is EXEMPT where the line itself says it is retired.  Matching on the

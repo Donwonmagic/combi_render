@@ -246,8 +246,16 @@ for ob in bpy.data.objects:
 
 P("\n--- meshes measured ---")
 nm = sum(1 for o in bpy.data.objects if o.type == 'MESH')
-P("  %d mesh objects (audit.py publishes 185)" % nm)
-check(nm == 185, "mesh count matches audit.py's published 185",
+# rev 32, SPEC 10.86: 185 -> 186.  THIS CONTROL HAD BEEN FAILING SINCE REV 30.
+# rev 30 added `orb_bar` (SPEC 10.83), taking audit.py's published mesh count
+# 185 -> 186, and this literal was not swept.  Neither rev 30 nor rev 31 ran
+# this file, so nothing reported it; rev 32 found it while validating an owner
+# question.  The literal is corrected rather than the check loosened -- the
+# check's whole job is to prove the truncated exec built the WHOLE vehicle, and
+# a count that is allowed to drift cannot do that job.
+# A CONTROL NOBODY RUNS IS NOT A CONTROL.
+P("  %d mesh objects (audit.py publishes 186)" % nm)
+check(nm == 186, "mesh count matches audit.py's published 186",
       "the truncated exec built the whole vehicle")
 
 AT = sum(area_tot.values())

@@ -3184,7 +3184,7 @@ pointer boxes printed in original-frame coordinates, he ruled:
 (`D.bumper(True)`) and `build.py:326` builds `bumper_irons(True)` — two
 `62 × 30 mm` rounded-rect prisms 150 mm long at `x = 2.045, y = ±0.470`
 (`t1_detail.py:~370`). Neither is a transverse tube, and neither is the vertical
-post at the vehicle's centreline that the photograph shows. **[REFUTED, rev 30, SPEC 10.83 — the centreline is the two-tone V apex at u = 311.5 (REF §9) and the post's own columns are 357–374, so it is NOT on the centreline; its lateral position is UNMEASURED and the post is deliberately NOT built.]** Confirmed against a
+post at the vehicle's centreline that the photograph shows. **[REFUTED, rev 30, SPEC 10.83 — the centreline is the two-tone V apex at u = 311.5 (REF §9) and the post's own columns are 357–374, so it is NOT on the centreline; its lateral position is UNMEASURED and the post is deliberately NOT built.]** *[THE ANNOTATION IMMEDIATELY ABOVE IS WRONG ON BOTH OF ITS TERMS — SPEC 10.86, rev 32. (a) STATUS: SPEC 10.84 (rev 31) downgraded this refutation from REFUTED to UNDECIDED because its two terms sit at different DEPTHS. That downgrade was written into 10.83 and was NOT swept back to here, so this line has read "REFUTED" for a whole revision after the claim stopped being refuted. (b) ANCHOR: SPEC 10.85 (rev 31b) established that u = 311.5 is NOT the V apex — it is the V's RIGHT ARM's occlusion point at the over-rider bar — and published the apex at u = 288.8 +- 3 px. Neither position for the post is settled. The post remains UNBUILT, which is the only part of the annotation that still holds.]* Confirmed against a
 render of the current build made this revision: **one plain cream blade, nothing
 above it.**
 
@@ -5253,7 +5253,16 @@ confirmed in rev 31 that the post is bar-to-blade only, standing away from the
 body panel. The whole offset is 54.0 px and the parallax sign is unestablished
 at 1.38 sigma. The post stays UNBUILT either way, but this claim is no longer
 settled and must not be listed as settled.]* The centreline is the two-tone V apex
-at **`u = 311.5`** (REF §9); the post's own columns are **357–374**. It is not
+at **`u = 311.5`** (REF §9) *[THE ANCHOR IS CORRECTED: SPEC 10.85 (rev 31b) shows
+311.5 is the V's RIGHT ARM's occlusion point at the bar, not the apex; the apex
+is at `u = 288.8 ± 3 px`. SPEC 10.86 (rev 32) then re-ran §10.84's ARM 2 on the
+corrected anchor and found the control it reported as a clean FAILURE would now
+PASS — see 10.86, which also names the two terms that arm never priced. The
+claim stays UNDECIDED.]*; the post's own columns are **357–374** *[RE-MEASURED,
+rev 32: `u 355–377` by cream-run scan over rows 676–700, centre 366. §10.75
+printed 357–374 as a POINTER and its own text says no number was to be taken
+from it; rev 30 took one anyway. The pointer is VINDICATED to within 2 px — the
+defect was the process, not the number.]*. It is not
 on the centreline and it never was. Its lateral position can be bracketed only
 between the centreline and the near headlamp, which is **not a measurement**,
 and REF §9 bars any lateral metre figure on this panel. **Building it at a
@@ -5537,3 +5546,223 @@ POINT IS THE THING THE NAME SAYS.** REF §9's point carried the word "apex" and 
 on an arm. **AND: AN OCCLUDER ADDED TO THE MODEL LATER CAN INVALIDATE A READING
 TAKEN BEFORE IT** — the bar that hides this vertex was measured and built in
 rev 30, from the same frame, without anyone noticing it lands on the anchor.
+
+---
+
+### 10.86  rev 32 — THE SWEEP OF §10.85's ANCHOR, AND THE POST'S CROSS-RATIO ROUTE RULED OUT BEFORE IT WAS SPENT
+
+**NO GEOMETRY MOVES THIS REVISION.** Nothing is built, nothing is retuned, no
+constant changes, no artwork changes. What moves is the STATUS of three stale
+carriers of a corrected anchor, one stale control literal, and one route.
+
+#### The sweep §10.85 did not do
+
+§10.85 corrected REF §9's V-apex anchor in place from `u = 311.5` to
+`u = 288.8 ± 3 px` and wrote in REF that *"everything in this file that used
+311.5 as the centreline inherits this."* It did not chase the consumers. rev 32
+grepped the whole tree. **FIVE carriers, of which FOUR were live:**
+
+| where | defect | disposition |
+|---|---|---|
+| `REF_MEASUREMENTS.md` §9 line | the anchor itself | already corrected by 10.85 |
+| `REF_MEASUREMENTS.md` §9 absolute-height block | **`V-SWAGE APEX ~0.49 m` consumes BOTH of 311.5's coordinates** | WITHDRAWN as a reading, replaced by a BRACKET, no new number published |
+| `SPEC.md` §10.75's in-place annotation | **still read "REFUTED" a whole revision after §10.84 downgraded it, AND on the wrong anchor** | corrected in place |
+| `t1_detail.py` above `overrider_bar()` | same two defects, in shipped source | corrected in place, original kept as the record of what rev 30 believed |
+| `probe_orb_post.py:58` | `V_APEX_U = 311.5` | **deliberately KEPT**, corrected anchor added beside it — see below |
+
+**THE ABSOLUTE-HEIGHT CONSUMER IS THE SUBSTANTIVE ONE.** REF §9 publishes
+*"V-SWAGE APEX, on the centreline ~ 0.49 m above ground (49 px above the bumper
+top **at the same image x, hence the same depth**; centreline scale ~355 px/m)"*.
+It consumes 311.5 **twice**:
+
+- **The ROW.** The 49 px is `718 − 669`, and 669 is the row of the point §10.85
+  showed is not the apex. The arms have not converged at 669, so the true apex
+  lies BELOW it; their straight-line crossing is at `v = 701.1`, and because the
+  V is RADIUSED at the tip the painted apex lies ABOVE that crossing. So
+  `669 < v_apex < 701.1` — **16.9 to 49 px above the bumper top, ≈0.40–0.49 m
+  above ground. THE PUBLISHED 0.49 m IS THE TOP OF A BRACKET, NOT ITS CENTRE.**
+- **The COLUMN, and this is worse.** *"at the same image x, hence the same
+  depth"* pairs the apex with the bumper-top reading **because they share a
+  column**. They shared 311.5. The apex is at 288.8, so the premise of the
+  pairing is gone.
+
+**NO REPLACEMENT NUMBER IS PUBLISHED.** Re-deriving it needs the blade's top
+boundary read at `u = 288.8`, and **the blade and the V-swage are BOTH CREAM**,
+so a cream-run scan cannot find that boundary. The gap is named, not filled.
+
+**SWEEP RESULT, NEGATIVE AND WORTH RECORDING:** the other three entries in REF
+§9's absolute-height block do NOT consume 311.5. The V-arm/body-corner entry is
+anchored on the flank belt line; HEADLAMP CENTRE is anchored on the V ARM at the
+headlamp's own x `(419, 524)`; INDICATOR CENTRE derives from the headlamp. Those
+three inherit the 422 px/m near-side scale and its >2:1 warning, which is a
+SEPARATE and older caveat. **They do not inherit §10.85.** And `422 px/m` itself
+is CONSUMED NOWHERE in the tree — it is named once, in rev 29's carry-forward,
+and only to warn against it.
+
+#### §10.84's ARM 2 would now PASS, and that is a defect finding, not a result
+
+§10.84 tried to price the nose-skin-to-bumper-plane parallax SIGN from the only
+two centreline features at different depths, and reported a clean failure:
+roundel `306.0` vs apex `311.5` = `+5.5 px` against REF §9's `±4 px` — **1.38 σ,
+C4 FAIL**. On §10.85's corrected anchor the same two terms read
+
+    288.8 − 306.0 = −17.2 px  →  5.73 σ on the ±3 px SYSTEMATIC band,
+                                 and it still clears 10.85's ±7 px worst case.
+    AND THE SIGN FLIPS: the apex was RIGHT of the roundel, and is now LEFT.
+
+**IT IS STILL NOT LEANED ON, AND THE REASON IS A DEFECT IN THE ARM ITSELF.**
+Re-reading ARM 2 now that its gate might pass shows two terms it never had:
+
+1. **NO DEPTH-ORDERING TERM.** It prints a column difference and calls that a
+   sign. Which of the roundel and the apex is nearer the camera is never
+   established, and without it a significant column difference is a MAGNITUDE,
+   not a DIRECTION.
+2. **NO HEIGHT TERM.** The two features are ~150 px apart in `v`. A centreline
+   point's image column depends on its HEIGHT as well as its depth unless the
+   camera is level and unrolled, and nothing in this repository establishes that
+   it is.
+
+**A CONTROL THAT FAILS CAN HIDE THE DEFECTS DOWNSTREAM OF IT.** Both defects
+were present in rev 31 and neither was visible then, because C4 failed and
+nothing downstream of it ever ran. That is a new rule and it is the reason
+§10.85's *"it changes nothing for 10.84"* was true about the OFFSET and wrong
+about the ARM.
+
+`probe_orb_post.py`'s `V_APEX_U = 311.5` is **deliberately left in place** so
+the file keeps reproducing what rev 31 published; **a probe that cannot
+reproduce its own published result is not a record.** The corrected anchor is
+added beside it and ARM 2 is re-run on both, in one output.
+
+**STATUS UNCHANGED: §10.83's centreline claim stays UNDECIDED.** Nothing here
+supplies a lateral position. The `_RETIRED_VALUES` row is KEPT for the third
+time and only its stated reason is corrected — the offset is **76.7 px**, not
+54.0.
+
+#### The post: the CROSS-RATIO route, and the ruling the brief asked for
+
+The rev-32 brief asked for the post as a **FRACTION of the bar's half-width**,
+for the transverse VP to be bounded or constructed, and for a ruling on whether
+it would close **before** the revision was spent. `probe_orb_xratio.py` (NEW,
+read-only) is that ruling.
+
+**THE CONSTRUCTION IS THE RIGHT SHAPE, AND IT REPAIRS §10.84 AT THE ROOT.** Four
+points lie on ONE line in the BUMPER PLANE — bar far end, far strut, near post,
+bar near end. Four collinear points carry a projective invariant, so this needs
+**no vanishing point, no scale, no depth and no camera model**, and every one of
+the four is in the SAME plane. rev 31's owner reading is what guarantees that:
+*[stated]* the post is "bar to blade only … extending from the bumper upwards
+and away from the body panel." **There is no cross-depth term left to price.**
+Under symmetry (`ends ±1`, `struts ±f`) the invariant is `(1+f)²/4f`: one
+equation, one unknown.
+
+**RULING: IT WILL NOT CLOSE, AND IT FAILS ON EXACTLY ONE TERM.**
+
+- **P1 — the estimator is exact.** Five planted values recovered through a
+  synthetic projective map to a worst error of **3.55e-15**. The algebra is not
+  the problem.
+- **P1b — the positive control was GRADED UNTIL IT FAILED, and the level is
+  published.** Injecting error into the far end alone, on the synthetic map
+  where truth is known: **1 px → 1.4 %, 4 px → 6.2 %, 8 px → 14.3 %, 15 px →
+  44.0 %, 29 px → NO REAL ROOT AT ALL.** `(1+f)²/4f` has a MINIMUM of 1 at
+  `f = 1`, so near the measured `X ≈ 1.06` the map back to `f` is nearly
+  vertical. **10 % error is reached at dU = 8 px.**
+- **C3 — the two good columns are solid.** Over a five-threshold sweep the post
+  reads `u 355.0–376.0` (centre **365.5**), right edge moving **0.5 px**; the
+  hoop's outer column reads **485.0**, moving **0.0 px**.
+- **C4 — the near/far assignment comes from the vehicle, not an assumption.**
+  The visible flank recedes to high `u` and the front panel lies to low `u` of
+  the body corner at `u ≈ 490`, so the bar's near end is the high-`u` end. REF
+  §9 independently calls the headlamp at `u = 419` "the near side".
+- **C5 — KILL. It fires.** Sweeping the far bar end across rev 31's own stated
+  blob: `203 → f 0.578`, `209 → 0.616`, `215 → 0.666`, `221 → 0.739`, and at
+  `228+` **the ordering breaks entirely** — the far end would be inboard of the
+  far strut. **f swings 28 % across ~29 px. THE ROUTE DOES NOT CLOSE.**
+
+**THE ~29 px IS NOT "THE STATED PRECISION" ON THIS ROUTE; IT IS FATAL TO IT.**
+Reported as a dead route rather than widened into an answer.
+
+**A SECOND ROUTE WAS MEASURED AND ALSO RULED OUT.** The transverse VP by
+harmonic conjugate — a symmetric pair plus the centreline on one lateral line
+fixes that line's vanishing point, and **the transverse VP is shared by every
+lateral line on the vehicle regardless of height, so it transfers into the
+bumper plane without needing the vehicle's YAW** (which is what killed rev 31's
+ARM 1). Both headlamp apertures are visible, near centre `u ≈ 419`, far
+`u ≈ 236`, and with the corrected apex that gives a VP at `u ≈ 111` and a
+bumper-plane centreline near `u ≈ 266`. **It is not published**, for three
+reasons stated rather than buried: the far headlamp's dark region runs into the
+nose's far silhouette and the shadow behind it, and ±5 px there alone moves `f`
+by 9 %; four row-wise VP estimates off the V arms scatter over **154 px**,
+because every construction available reduces to a difference of two nearly equal
+near/far half-widths; and the whole thing assumes the bar is symmetric about the
+vehicle centreline, which is an ASSUMPTION whose only check — mirroring the far
+strut through the same map — **disagrees at 17 %**, inside the blob's own
+confounding and therefore neither a refutation nor a corroboration.
+
+**THE POST STAYS UNBUILT. NO VALUE OF `f` IS PUBLISHED.** It is blocked on ONE
+COLUMN, and it is a column measurement cannot reach: rev 31 established from the
+owner's own reading that the far end is a **three-member superposition**, and a
+superposition is not resolvable by thresholding it. **That is why rev 32 spends
+a QUESTION on it and not a third estimator** — rev 30's rule, *measure somewhere
+else before you build a third estimator*, and there is nowhere else on this
+frame to measure.
+
+#### §10.75's POINTER, taken from and now vindicated
+
+§10.75 drew box C `(357,681)-(374,697)` and its own text says the boxes were
+*"stated to him as POINTERS, not sampling windows — no number taken from them."*
+**rev 30 took `357–374` as a measurement anyway and rev 31 computed `365.5` from
+it.** rev 32 re-measured it properly: `u 355.0–376.0`, centre **365.5**, stable
+to 0.5 px over five thresholds. **THE POINTER IS VINDICATED TO WITHIN 2 px.**
+The number survives; the process defect stands and is recorded, because the next
+pointer taken from may not be right.
+
+#### §10.82's three surfaces — asked, and the item's own description corrected
+
+`probe_rev32_pointer.py` (NEW, read-only) validated the question before sending.
+**THE WORK LIST'S OWN DESCRIPTION IS WRONG:** rev 29, rev 30, rev 31 and the
+rev-32 brief all say *"the workshop frame shows all three"*. **It does not.** In
+`ref_workshop.jpg` **both road wheels are BARE PAINTED RIMS WITH NO HUB CAP** —
+the vehicle is at conversion stage. The red VW-logo caps exist only in
+`ref_side.jpg`. **A FEATURE NAMED IN A WORK LIST IS A PROBE TOO**, one level out
+from §10.85's rule about reference files.
+
+The question was also checked for worth before being asked: the retired lever
+reaches **0.4500 m²** of rim barrel, **0.2100 m²** of hub cap and **0.0909 m²**
+of `bumper_f` — 0.751 m² against `T1_body`'s 12.294 m², about 6 %, on three
+surfaces at the front of every hero frame. **A QUESTION YOU ARE ABOUT TO ASK IS
+A PROBE TOO.**
+
+**MY OWN FIRST POINTER FAILED AND WAS MOVED, NOT EXCUSED.** Reusing rev 29's
+statistic and rev 29's two calibration anchors with **the band unchanged**, my
+first hub-cap box read **8.77×** — closer to a PROVEN straddler (13.54×) than to
+a box the owner had already answered (3.14×). It sat on the specular highlight.
+**Seven of eight cap boxes fail**, and that is a fact about the cap, not about
+my aim: it is a dome with the wheel-arch shadow's EDGE across its lower half,
+and a quadratic absorbs a gradient but not an edge. All eight are printed in the
+probe. Final: **B1 1.96×, B2 1.81×, B3 2.78×, 10 controls, 0 failed.** CEILING,
+stated: rev 29's anchors both live on `ref_rear34.jpg`, two of these boxes do
+not, and **there is no answered anchor on `ref_side.jpg` at all** — which is not
+load-bearing only because these are pointers and no number is taken from them.
+
+#### An unsought defect: a control that had been failing since rev 30
+
+`probe_dust_scope.py:249` hard-coded *"audit.py publishes 185"*. rev 30 added
+`orb_bar` and took the published mesh count to **186**, and this literal was not
+swept. **The probe has been failing one of its own eight controls since rev 30,
+and neither rev 30 nor rev 31 ran it.** Found while validating an owner
+question. The literal is corrected rather than the check loosened — the check's
+whole job is to prove the truncated exec built the WHOLE vehicle, and a count
+allowed to drift cannot do that job. **A CONTROL NOBODY RUNS IS NOT A CONTROL.**
+
+#### Rules earned this revision
+
+- **A CONTROL THAT FAILS CAN HIDE THE DEFECTS DOWNSTREAM OF IT.** Correct the
+  input to a failed control and re-read the whole arm, not just its verdict.
+- **A FEATURE NAMED IN A WORK LIST IS A PROBE TOO.**
+- **A CONTROL NOBODY RUNS IS NOT A CONTROL.** Run the probes a revision
+  inherits, not only the ones it writes.
+- **CORRECTING AN ANCHOR IS NOT SWEEPING IT.** §10.85 corrected in place and
+  said so; the consumers still had to be chased one revision later.
+- **WHEN A ROUTE'S ALGEBRA IS EXACT, GRADE ITS CONDITIONING AND PUBLISH THE
+  LEVEL AT WHICH THE POSITIVE CONTROL FAILS.** "dU = 8 px" is a usable number;
+  "it is ill-conditioned" is not.
