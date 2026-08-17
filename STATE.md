@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-17 19:57:46 UTC |
-| git commit | `d0db75a` |
-| git subject | rev 37: SPEC 10.93 -- WITHDRAW the whole over-rider assembly on the owner's decision; the front returns to a plain blade |
+| generated | 2026-08-17 20:13:23 UTC |
+| git commit | `ce29c49` |
+| git subject | rev 37: NEXT_CONTEXT_PROMPT_rev38.md -- carries all EIGHT of his defect reports as sec.6, and the three instructions of his still outstanding as sec.7 |
 | working tree | clean |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=1 (applied, destructive, before booleans) |
