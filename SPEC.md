@@ -6149,3 +6149,178 @@ only unspent construction on this panel. `422 px/m` is consumed nowhere. The
 hero `rev30_hero34f.png` is proved by content and is not re-shot.
 `probe_clean_top.py` and `probe_dust_anchor.py` are **still deliberately
 failing** and still need rewriting, not fixing.
+
+### 10.89  rev 35 — THE HARMONIC-CONJUGATE ROUTE IS RETIRED ON A MISSING FEATURE, AND MY OWN REPLACEMENT WAS REFUTED BY MY OWN AUDIT IN THE SAME REVISION
+
+**NO GEOMETRY MOVED.** The last geometry change is still rev 30's. `verify.py`,
+`t1_detail.py`, `t1_mats.py`, `build.py`, `t1_shell.py`, `t1_core.py` and every
+other build file are BYTE-UNCHANGED from rev 34.
+
+#### 10.89.1  THE ROUTE WAS GRADED BEFORE A QUESTION WAS SPENT — AND EVERY COLUMN IT CONSUMES, NOT THE ONE UNDER ARGUMENT
+
+`probe_rev35_harmonic.py` (NEW, read-only). **18 controls, 6 FAILED.**
+
+**H1 and H2 PASS.** The harmonic algebra is exact (**3.75e-12 px**) and the
+transfer claim holds: the transverse VP really is shared by lateral lines at
+the bar, the belt and the roof (**worst 4.89e-12 px**). *As with the
+cross-ratio, the algebra was never the problem.*
+
+**H3 KILL — THE ROUTE'S THIRD INPUT IS NOT OBSERVED.** The harmonic conjugate
+needs THREE columns on the headlamp line: the two lamps **and their midpoint**.
+Only two exist. **There is no feature at the centre of the headlamp line, so
+there is no image of the midpoint anywhere in the frame.** §10.86 supplies the
+third from the V-swage apex, a centreline point **0.625 m below that line**
+(z 0.4050 against `t1_detail.py:346`'s 1.0300), at a depth recorded nowhere, on
+a panel REF §9 itself calls not planar. Sweeping the VP across its entire
+admissible range (VP < the bar's far end, by §10.86 C4) leaves the lamp
+midpoint **free over 67.8 px, [259.7, 327.5]**, and `t` **free over 0.8483 bar
+half-widths — 17× the 0.05 level**.
+
+> **288.8 IS ONE CHOICE INSIDE THAT INTERVAL, NOT A READING OF IT.** This is a
+> PRECONDITION failure of §10.88.4's class, not a precision shortfall. **No
+> further measurement on this frame repairs it, because what is missing is not
+> accuracy but a FEATURE.**
+
+**H5 FAILS — `u_lamp_far = 236` HAS NO RECORDED DERIVATION ANYWHERE IN THE
+TREE.** It appears in exactly two places, §10.86's prose and
+`HANDOFF_rev32.md`, and in **neither `REF_MEASUREMENTS.md` nor any probe**. No
+band, no threshold sweep, never asked about. **Same class as §10.88.4's
+`u 228`, found the same way and one revision later.**
+
+**H4 PASSES, AND ITS PASSING IS THE DEFECT OF THE REVISION — see §10.89.3.**
+
+**G1..G6, graded LIVE and in the units of the QUANTITY.** Dominant columns are
+`u_lamp_far` (**±band moves t by 0.1928**) and `u_apex` (**0.0710**); the four
+owner-answered or C3-solid columns move it by 0.0015 to 0.0134. **K4 fires
+again on new columns: ±1 px buys 0.0240 half-widths on the far lamp and 0.0039
+on the near one — 6.08× for the same pixel move.**
+
+**A NEGATIVE RESULT WORTH CARRYING: NO QUESTION WAS ASKED, AND THE REASON IS
+ARITHMETIC.** A reading of the far lamp closes nothing — it does not enter the
+surviving result at all, and the route is dead independently of its value.
+**Asking would have bought a column, not an answer.** §10.88's discipline
+requires saying what a question can close *before* asking; here the answer was
+*nothing*, so nothing was asked.
+
+**AND THE ROUTE'S ONE PUBLISHED OUTPUT IS STALE.** §10.86's bumper-plane
+centreline `≈266` was computed with the far bar end at `u ≈ 209`, which rev 33's
+and rev 34's owner answers have since REPLACED with `u ∈ (205, 208]`. At u 205
+the same construction gives **261.2**.
+
+#### 10.89.2  WHAT WAS PUT IN ITS PLACE, AND WHAT SURVIVES OF IT
+
+The route being dead does not leave `t` unknown. The post's column **365.5**
+lies **+20.5 px right of the bar's mid-column 345.0**, and under perspective the
+image of the bar's 3-D MIDPOINT lies at or LEFT of that arithmetic mean, because
+the far end recedes (§10.86 C4). **The post is therefore on the NEAR side of the
+bar's 3-D midpoint.**
+
+**THE SIGN IS WHAT SURVIVES. THE MAGNITUDES ARE WITHDRAWN.** rev 35 first
+published **t ≥ 0.1464** (nominal) and **t ≥ 0.0595** (worst corner of every
+band, post read at its left edge 355.0) as holding *"for every admissible
+camera"*, *"consuming no vanishing point, no camera model and no symmetry
+assumption."* **Its own adversarial audit refuted that, and both figures are
+STRUCK rather than quietly re-scoped.**
+
+#### 10.89.3  MY OWN AUDIT REFUTED MY OWN CLAIM, AND THE DEFECT IS THE ONE I HAD JUST CREDITED §10.88 WITH FINDING
+
+**WHAT SURVIVED THE ATTACK, and was checked rather than assumed:** the
+monotonicity of `t` in the VP (**10⁶ samples, worst decrease 0.000e+00**; the
+infimum is the closed form `(2P−A−B)/(B−A) = 41/280`); the VP's admissibility
+(**200 000 random pinholes × random segments, 0 cases with VP ≥ u_far**); and
+the cross-ratio formula itself (**50 000 random cameras × planted t, worst
+recovery error 1.96e-10**).
+
+**B2 KILL — THE COLLINEARITY PRECONDITION IS VIOLATED BY THE BUILD'S OWN
+CONSTANTS.** A cross-ratio requires its four points COLLINEAR in 3-D. **They are
+not.** `u 485` is the **HOOP's** outer column, and `t1_detail.py`'s own arc
+
+    x = BAR_X − BACK(1−cos a),  y = HALF_Y + 0.55·DROP·sin a,  z = BAR_Z − DROP·sin a
+
+carries the generating point up to −39.9 mm in x, +35.7 mm in y and −64.9 mm in
+z off the straight axis end; the audited generating point sits at **−17.5 /
++29.5 / −53.7 mm**, inside that range on all three axes. **Re-derived from the
+arc formula here, not taken on the auditor's word.** Separately, the post's
+column was read on rows **676–700** while the bar's top edge is at **v 672.5** —
+a different lateral line. **FOUR POINTS, THREE LINES.**
+
+**B3 KILL — THE BOUND IS NOT CAMERA-FREE, WHICH IS EXACTLY WHAT IT CLAIMED TO
+BE.** It assumes **zero camera roll** (the magnitude degrades ≈0.00045
+half-widths per degree over the pose grid and fails 0.1464 beyond |roll| ≈ 7°)
+and **zero post standoff** from the bar's plane (238 px per metre; 60 mm
+rearward breaks 0.1464 at the plausible pose). `t1_detail.py` calls that standoff
+**"a CHOICE, not a reading"**, and §10.86 says of the roll, one section earlier
+and about a different arm, that *"nothing in this repository establishes that"*
+the camera is level and unrolled. **The probe relied on exactly that unestablished
+property one section later.**
+
+**NOT CLAIMED, and the distinction is load-bearing:** at the plausible pose
+(az 48°, el 17°, d 6.2 m) roll *raises* `t` — 0.2606 at 0°, 0.2837 at 30°, my own
+run. The auditor's degradation comes from admitting poses this photograph
+excludes. **That is not used to rescue the claim.** The zero-roll margins are
+**20.50 px of post column at nominal and 8.32 px at the worst corner**, against
+a post whose own published extent is 21 px wide. **The SIGN survives to
+|roll| ≈ 26° and ≈139 mm of rearward standoff, both excluded on this frame.**
+
+> **THE RULE THIS EARNS: CHECKING THE PRECONDITION YOU WERE WARNED ABOUT IS NOT
+> CHECKING THE PRECONDITIONS.** §10.88.4 retired the cross-ratio on its
+> **ORDERING** precondition, so rev 35's H4 checked ordering — and PASSED, and
+> printed *"no consumed column sits against a precondition wall."* The
+> cross-ratio has **another** precondition, collinearity, and rev 35 did not
+> check it until an adversarial audit did. **Inheriting one precondition from a
+> previous revision's failure tells you nothing about the others. Enumerate what
+> the construction REQUIRES, not what the last revision found.**
+
+**AN UNSOUGHT CORROBORATION.** Normalising the bar's silhouette to 205/485 and
+projecting the build's own headlamp centres `(2.1015, ±0.5450, 1.0300)` gives
+**225 / 466** against the published **236 / 419** — a **47 px** misfit on the near
+lamp, best-in-grid **45 px** over 3344 poses at zero roll; the modelled lamp/bar
+span ratio is 0.86 against 0.654 observed. **This reproduces REF §9's own "I
+fitted a projection model and it did not close" FROM THE MODEL SIDE**, and its
+consequence is that the roll loophole **cannot be closed by measurement on this
+frame at all.**
+
+#### 10.89.4  FURTHER DEFECTS OF MY OWN, EVERY ONE RECORDED
+
+- **A FALSIFICATION ARM THAT DID NOTHING, CAUGHT BY PRINTING THE CHANGED LINE.**
+  ARM 5 was aimed at `swing()`'s unreachable path and returned a finite
+  **0.9474** instead, because the band chosen missed the singularity by 0.002 px.
+  Re-armed on an exact binary coincidence (`365.5 + 119.5 == 485.0`) it prints
+  **`n/a` / UNREACHABLE**, so §10.88.5's fix is genuinely in. **§10.86's rule
+  fires for the fourth revision running: an arm that does not apply is
+  indistinguishable from a guard that does not fire.**
+- **MY FIRST INSTRUMENT WAS GRADED ON A SCENE THAT DID NOT MATCH THE LIVE ONE.**
+  The first `probe_rev35_harmonic.py` fitted a synthetic camera and used it for
+  H3 and the grading. **The fit hit its bounds at a 178 px residual** and the
+  synthetic far lamp landed at u 440 against the live 236. **That is §10.88.1's
+  K1 defect — grading on a configuration the live one does not match — committed
+  in the probe written to apply K1.** Discarded and rebuilt so that no control
+  depends on a fitted pose.
+- **THE FIRST ISSUE OF `rev35_bound.png` PRINTED THE WITHDRAWN MAGNITUDES** and
+  was sent to the owner. Re-issued with them struck and the two unchecked
+  preconditions named on the figure. **The superseded issue is named on the
+  replacement.**
+- **A NARRATION CONTRADICTING ITS OWN TABLE, CAUGHT ON RE-READING.** After the
+  magnitudes were withdrawn in the ruling, B5's scope paragraph still read *"by
+  at least 0.0595 of the bar's half-width."* **§10.87.2's family, in the same
+  file as the withdrawal.** Fixed; the scope sentence now claims the sign alone.
+- **THE INHERITED BRIEF'S §1 IS OFF BY ONE.** Its restore block annotates rev 34
+  as `-> 181`; the bundle gives **182**, and the brief's own §7 says 182 and
+  explains why (the count lands in its own commit). The inline comment predates
+  the final commit. Recorded, not silently corrected.
+- **THE PREVIEW TIMING IN THE BRIEF IS 71 s; THE OBSERVED FIGURE IS 79.3 s** for
+  900×600 `T1_SUB=1 T1_PREVIEW=hero34f T1_SAMP=24`. Reported rather than rounded
+  to the inherited number.
+
+#### 10.89.5  CARRIED FORWARD, UNCHANGED
+
+§10.83's "post at the vehicle's centreline" moves from **UNDECIDED** to **SIGN
+ESTABLISHED, MAGNITUDE NOT** — and only under the bar's symmetry about the
+centreline, whose only check §10.86 records **disagreeing at 17 %**, with
+`BAR_HALF_Y` graded E. **THE POST STAYS UNBUILT.** REF §9's V-swage absolute
+height remains a bracket, ≈0.40–0.49 m. `422 px/m` is consumed nowhere. The hero
+`rev30_hero34f.png` is proved by content and is not re-shot.
+`probe_clean_top.py` and `probe_dust_anchor.py` are **still deliberately failing
+and still need rewriting, not fixing** — rev 35 did not reach them.
+**A SQUARE-ON FRAME OF THE FRONT REMAINS THE ONLY THING THAT CLOSES THE POST**,
+and after §10.89.3 it is also the only thing that could bound the camera's roll.

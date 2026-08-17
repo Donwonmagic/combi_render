@@ -38,9 +38,28 @@ CONTROLS
                  whole complaint."
   G1..G6  LIVE per-column grading of the ROUTE, reported in the units of the
           QUANTITY (bar half-widths), NEVER in px.  SPEC 10.88's K4.
-  B1..B3  THE CAMERA-FREE BOUND.  What survives WITHOUT the route: a bound on
-          t that holds for EVERY admissible camera and consumes no VP at all.
+  B1..B5  WHAT SURVIVES WITHOUT THE ROUTE -- and, since rev 35's own
+          adversarial audit, WHAT DOES NOT.
+          B1  the SIGN of t, which is the substantive claim
+          B2  KILL: the cross-ratio's COLLINEARITY precondition, which the
+              build's own hoop constants VIOLATE.  This is why B1's magnitudes
+              are WITHDRAWN.
+          B3  KILL: the bound is NOT camera-free.  It assumes zero roll and
+              zero post standoff, and rev 35 published it as consuming
+              "no camera model".  That was wrong.
+          B4  the margins, printed in px of post column, so the reader can see
+              how little they are
+          B5  scope: what the sign does and does not say
   N1, N2  NEGATIVE arms; the answer must move.
+
+  THE RULE REV 35 EARNED BY GETTING THIS WRONG:
+    CHECKING THE PRECONDITION YOU WERE WARNED ABOUT IS NOT CHECKING THE
+    PRECONDITIONS.  SPEC 10.88.4 retired the cross-ratio on its ORDERING
+    precondition, so H4 below checks ordering.  The cross-ratio has ANOTHER
+    precondition -- collinearity -- and rev 35 did not check it until an
+    adversarial audit did.  Inheriting one precondition from a previous
+    revision's failure tells you nothing about the others.  Enumerate what
+    the construction REQUIRES, not what last revision found.
 
 THIS FILE REFUSES TO PRINT A RULING IF A POSITIVE CONTROL IS DOWN.
 SPEC 10.88.5's rule; both rev-34 probes do the same.
@@ -413,15 +432,21 @@ def main():
         return lo
 
     b_nom = t_bound(base["u_bar_far"], base["u_bar_near"], base["u_post"])
-    print("    B1  at the published columns, inf over every admissible VP:")
-    print("        t >= %.4f half-widths." % b_nom)
+    print("    B1  THE SIGN.  At the published columns, the infimum over every")
+    print("        admissible VP is t = %.4f > 0." % b_nom)
     print("        The orthographic limit (VP -> -infinity) is the infimum,")
     print("        and it is just the arithmetic statement that the post's")
     print("        column %.1f lies RIGHT of the bar's mid-column %.1f."
           % (base["u_post"], 0.5 * (base["u_bar_far"] + base["u_bar_near"])))
+    print()
+    print("        *** THE MAGNITUDE IS WITHDRAWN.  SEE B2 AND B3.  Only the")
+    print("        *** SIGN of t is claimed.  rev 35 first published %.4f as"
+          % b_nom)
+    print("        *** a bound holding for EVERY admissible camera.  It does")
+    print("        *** not, and its own probe now says so.")
     rec("B1", b_nom is not None and b_nom > 0.0,
-        "t >= %.4f > 0 for every admissible camera at nominal columns"
-        % b_nom)
+        "SIGN ONLY: t > 0 at nominal columns (infimum %.4f, magnitude "
+        "WITHDRAWN)" % b_nom)
 
     worst = None
     combo = None
@@ -437,19 +462,80 @@ def main():
                 if worst is None or bb < worst:
                     worst, combo = bb, (df, dn, up)
     print()
-    print("    B2  worst corner of every consumed band, INCLUDING the post's")
+    print("        worst corner of every consumed band, INCLUDING the post's")
     print("        full column extent %.1f-%.1f rather than its centre:"
           % (POST_LEFT, POST_RIGHT))
-    print("        far end %+.1f, near end %+.1f, post at %.1f -> t >= %.4f"
+    print("        far end %+.1f, near end %+.1f, post at %.1f -> t = %.4f"
           % (combo[0], combo[1], combo[2], worst))
-    rec("B2", worst is not None and worst > 0.0,
-        "t >= %.4f > 0 in the worst corner of every band" % worst)
+
+    # ------------------------------------------------------------------ B2
+    print()
+    print("    B2  KILL -- THE COLLINEARITY PRECONDITION IS VIOLATED BY THE")
+    print("        BUILD'S OWN CONSTANTS.  A cross-ratio requires its four")
+    print("        points to be COLLINEAR in 3-D.  They are not.")
+    dia = 0.024966
+    drop, back = 2.6 * dia, 1.6 * dia
+    print("        u %.1f is the HOOP's outer column.  t1_detail.py's arc,"
+          % base["u_bar_near"])
+    print("          x = BAR_X - BACK*(1-cos a),  z = BAR_Z - DROP*sin a,")
+    print("          y = HALF_Y + 0.55*DROP*sin a,   BACK %.4f  DROP %.4f m,"
+          % (back, drop))
+    print("        carries the generating point up to %+.1f mm in x, %+.1f mm"
+          % (-back * 1000, -drop * 1000))
+    print("        in z and %+.1f mm in y off the straight axis end."
+          % (0.55 * drop * 1000))
+    print("        The audited generating point sits at -17.5 / -53.7 / +29.5 mm,")
+    print("        INSIDE that range on all three axes.")
+    print("        AND the post's column was read on rows 676-700 while the")
+    print("        bar's top edge is at v 672.5 -- a DIFFERENT lateral line.")
+    print("        FOUR POINTS, THREE LINES.")
+    rec("B2", False,
+        "collinearity VIOLATED: the audited generating point is 53.7 mm below "
+        "and 17.5 mm behind the far reading's line (the arc reaches %.1f / "
+        "%.1f mm)" % (drop * 1000, back * 1000))
+
+    # ------------------------------------------------------------------ B3
+    print()
+    print("    B3  KILL -- THE BOUND IS NOT CAMERA-FREE, AND rev 35 PUBLISHED")
+    print("        IT AS CONSUMING 'no camera model'.  Two hidden assumptions:")
+    print("          (a) ZERO CAMERA ROLL.  The magnitude degrades at about")
+    print("              0.00045 half-widths per degree over the pose grid and")
+    print("              fails the first published figure beyond |roll| ~ 7 deg.")
+    print("              Nothing in this repository establishes the roll --")
+    print("              SPEC 10.86 says so itself, one section earlier, about")
+    print("              a different arm: 'nothing in this repository")
+    print("              establishes that' the camera is level and unrolled.")
+    print("          (b) ZERO POST STANDOFF from the bar's plane.  Sensitivity")
+    print("              238 px per metre; 60 mm rearward breaks the first")
+    print("              published figure at the plausible pose.  t1_detail.py")
+    print("              calls the standoff 'a CHOICE, not a reading'.")
+    print("        THE SIGN survives to |roll| ~ 26 deg and ~139 mm of rearward")
+    print("        standoff, both excluded on this frame.  THE MAGNITUDES DO NOT.")
+    rec("B3", False,
+        "the bound assumes zero roll and zero post standoff; only the SIGN "
+        "survives")
+
+    # ------------------------------------------------------------------ B4
+    print()
+    print("    B4  THE MARGINS, IN px OF POST COLUMN, so their size is visible.")
+    du = 1.0
+    dt = swing(lambda c: t_bound(c["u_bar_far"], c["u_bar_near"], c["u_post"]),
+               base, "u_post", (-du, 0.0, +du))
+    per_px = dt / (2 * du) if dt else float("nan")
+    print("        d(t)/d(post column) = %.5f half-widths per px." % per_px)
+    print("        nominal margin %.4f -> %.2f px of post column"
+          % (b_nom, b_nom / per_px))
+    print("        worst-corner    %.4f -> %.2f px of post column"
+          % (worst, worst / per_px))
+    print("        THAT IS NOT A BOUND, IT IS A COINCIDENCE WITH A NUMBER ON IT.")
+    rec("B4", True, "margins printed in the units a reader can check")
 
     print()
-    print("    B3  WHAT THE BOUND DOES AND DOES NOT SAY.")
+    print("    B5  WHAT THE SIGN DOES AND DOES NOT SAY.")
     print("        SAYS: the post is on the NEAR side of the bar's 3-D")
-    print("        MIDPOINT, by at least %.4f of the bar's half-width, for" % worst)
-    print("        every camera consistent with C4's near/far assignment.")
+    print("        MIDPOINT -- THE SIGN OF t AND NOTHING ELSE -- for every")
+    print("        UNROLLED camera consistent with C4's near/far assignment")
+    print("        and with the post standing in the bar's own plane.")
     print("        DOES NOT SAY: where the vehicle's centreline is.  'Post at")
     print("        the bar's midpoint' and 'post at the vehicle's centreline'")
     print("        are the same statement ONLY IF the bar is symmetric about")
@@ -457,7 +543,8 @@ def main():
     print("        only check DISAGREEING AT 17 %.  The bar's own half-width")
     print("        constant BAR_HALF_Y is graded E, 'spans the nose as")
     print("        photographed, NOT measured'.")
-    rec("B3", True, "the bound's scope is stated, not implied")
+    print("        AND, since the audit: it says NOTHING about the MAGNITUDE.")
+    rec("B5", True, "the sign's scope is stated, not implied")
 
     # ------------------------------------------------------------- N1, N2
     print()
@@ -476,10 +563,10 @@ def main():
     b_flip = t_bound(base["u_bar_far"], base["u_bar_near"], 300.0)
     print("    N2  post moved to u 300.0 (LEFT of the bar's mid-column %.1f):"
           % (0.5 * (base["u_bar_far"] + base["u_bar_near"])))
-    print("        camera-free bound becomes t >= %.4f" % b_flip)
+    print("        the sign estimate becomes t = %.4f" % b_flip)
     rec("N2", b_flip is not None and b_flip < 0.0,
-        "the camera-free bound CHANGES SIGN when the post moves across the "
-        "bar's mid-column -- it is reading the data, not asserting a sign")
+        "the SIGN CHANGES when the post moves across the bar's mid-column -- "
+        "it is reading the data, not asserting a sign")
 
     # ================================================================ RULING
     print()
@@ -525,12 +612,18 @@ def main():
               % ", ".join(m.upper() for m in missing))
         print("     -- same class as SPEC 10.88.4's u 228, found the same way.")
     print()
-    print("  4. WHAT SURVIVES, AND IT IS NOT NOTHING.")
-    print("     t >= %.4f half-widths at nominal and t >= %.4f in the worst"
+    print("  4. WHAT SURVIVES -- THE SIGN, AND ONLY THE SIGN.")
+    print("     THE POST IS ON THE NEAR SIDE OF THE BAR'S 3-D MIDPOINT.")
+    print("     It consumes no VP and no symmetry assumption, but B2 and B3")
+    print("     show it DOES consume a collinearity that the build's own hoop")
+    print("     constants violate, an UNROLLED camera, and a post standing in")
+    print("     the bar's plane.  The sign survives all three to |roll| ~ 26")
+    print("     deg and ~139 mm of standoff; the MAGNITUDES DO NOT SURVIVE AT")
+    print("     ALL and are WITHDRAWN.  rev 35 published %.4f and %.4f as"
           % (b_nom, worst))
-    print("     corner of every band, FOR EVERY ADMISSIBLE CAMERA, consuming")
-    print("     no VP, no camera model and no symmetry assumption.")
-    print("     THE POST IS NOT AT THE BAR'S 3-D MIDPOINT.")
+    print("     holding 'for every admissible camera'.  That was wrong, it was")
+    print("     found by an adversarial audit of rev 35's own probe, and the")
+    print("     figures are struck rather than quietly re-scoped.")
     print("     Whether that refutes SPEC 10.83 depends on the bar being")
     print("     symmetric about the vehicle's centreline, which is ASSUMED")
     print("     and whose only check disagrees at 17 %.  Stated, not buried.")

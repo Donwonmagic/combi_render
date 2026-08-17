@@ -109,10 +109,11 @@ def main():
 
     f_hd, f_bd, f_sm = font(26), font(17), font(14)
 
-    head = ("rev 35 -- THE CAMERA-FREE BOUND ON THE OVER-RIDER POST. "
+    head = ("rev 35 -- THE SIGN OF THE OVER-RIDER POST'S OFFSET. "
             "NOT A QUESTION.")
     sub = ("Marks are MEASURED COLUMNS plus ONE DERIVED MEAN. Nothing here is "
-           "a candidate, a pointer, a sampling window or a wall.")
+           "a candidate, a pointer, a sampling window or a wall.  "
+           "SUPERSEDES the first issue of this figure.")
     body = [
         "photograph  ref_workshop.jpg   CROP BOX (u0,v0,u1,v1) = %s   zoom x%d NEAREST"
         % (str(CROP), Z),
@@ -131,11 +132,16 @@ def main():
         % (U_POST, u_mid, U_POST - u_mid),
         "  Under perspective the image of the bar's 3-D MIDPOINT lies at or LEFT of M (it equals M only in the",
         "  orthographic limit), because the far end recedes -- SPEC 10.86 C4 fixes the near end as the high-u end.",
-        "  Therefore the post is on the NEAR side of the bar's 3-D midpoint FOR EVERY ADMISSIBLE CAMERA:",
-        "      t >= 0.1464 bar half-widths at these columns, and t >= 0.0595 in the worst corner of every band",
-        "      (far end +3.0 px, near end +0.5 px, post read at its LEFT edge %.1f rather than its centre)."
-        % POST_LO,
-        "  This consumes NO vanishing point, NO camera model and NO symmetry assumption.",
+        "  Therefore the post is on the NEAR side of the bar's 3-D midpoint.  THE SIGN, AND ONLY THE SIGN.",
+        "",
+        "MAGNITUDES WITHDRAWN.  rev 35 first published t >= 0.1464 (nominal) and t >= 0.0595 (worst corner) as",
+        "holding 'for every admissible camera'.  ITS OWN ADVERSARIAL AUDIT REFUTED THAT, and the figures are",
+        "STRUCK rather than quietly re-scoped.  Two preconditions the cross-ratio needs were never checked:",
+        "  (a) COLLINEARITY.  u 485 is the HOOP's outer column; t1_detail.py's arc puts the point that generates",
+        "      it 53.7 mm below and 17.5 mm behind the far reading's line.  The post's column was read on rows",
+        "      676-700 while the bar's top edge is v 672.5.  FOUR POINTS, THREE LINES.",
+        "  (b) ZERO CAMERA ROLL and ZERO POST STANDOFF -- neither established anywhere in the repository.",
+        "The SIGN survives to |roll| ~ 26 deg and ~139 mm of rearward standoff, both excluded on this frame.",
         "",
         "WHAT IT DOES NOT SAY:  where the vehicle's CENTRELINE is.  'At the bar's midpoint' and 'at the vehicle's",
         "centreline' are the same statement only if the bar is symmetric about the centreline -- SPEC 10.86 records",
