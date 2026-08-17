@@ -6905,3 +6905,54 @@ published non-arm. **The `BANNED` repair is live regardless.**
 
 **DO NOT RE-PROPOSE THE OVER-RIDER** without a square-on frame of the front, or
 his say-so. It is answered, not open.
+
+
+### 10.94  rev 37 — THE OWNER'S FOUR DEFECT REPORTS OFF THE REV-37 HERO, AND THREE OF THEM CORROBORATE FINDINGS THIS PROJECT MEASURED AND NEVER APPLIED
+
+Shown `rev37_hero34f.png`, he reported, verbatim:
+
+> *"I see a few things, the front nose is shaped inaccurately, it looks more like
+> the front of an amtrak train than a vw bus, also we need to fix the vw logo,
+> also the paint job and the headlights are not alligned"*
+
+**THIS IS THE STRONGEST CORROBORATION EVENT IN THE PROJECT'S HISTORY.** Three of
+the four land on findings that were **measured, then refuted on a third method,
+then reverted, and left open** — in one case for twenty-seven revisions. Each
+mapping below was **verified by grep against SPEC and the build files**, not
+taken from memory: this revision's own §10.91.2 rule.
+
+| his report | the existing finding | status before he spoke |
+|---|---|---|
+| *"the paint job and the headlights are not alligned"* | **§10.24 item 3.** Headlamp centre = belt − 0.339 ± 0.025 m photographed against the build's **belt − 0.242**, a **97 mm discrepancy at ~3.9 σ** | **OPEN since rev 10**, "NOT applied... deserves a second derivation first" |
+| *"we need to fix the vw logo"* | **§10.25's PREMISE IS FALSE.** There was never a 12.7 mm air gap between the V's apex and the W's peak — SPEC's own later entry records **"no gap but a 52 mm interpenetration"** | the rev-10 coupling fix made the glyph SMALLER, hiding the fusion without removing it |
+| *"the front nose is shaped inaccurately... more like the front of an amtrak train"* | **`V_POW` locked at 0.60** (§10.2, `t1_shell.py:1070`). The rev-11 audit measured the V-swage arm rising **~2× too fast** — lamp station to body edge **0.111 ± 0.015 m photographed against 0.208 built** — implying **`V_POW` ≈ 0.30–0.48** | measured, never applied |
+
+**THE SECOND DERIVATION §10.24 ASKED FOR EXISTS AND WAS NEVER SWEPT BACK INTO
+IT.** The rev-11 audit confirmed the headlamp position **twice**: at **83 ± 19 mm,
+4.4 σ**, by a pure ratio needing no px/m, no belt and no ground line
+(roundel-to-lamp separation 0.628 ± 0.066 roundel diameters); and **by a test
+needing no scale at all — in the photograph the indicator aperture lies BELOW the
+two-tone break, and in the build it lies ABOVE it.** That last sentence *is* the
+owner's report, arrived at independently. **§10.24's stated blocker was
+discharged and the entry never learned of it** — the same carrier failure as
+§10.91.1, inside SPEC rather than between contexts.
+
+**THE TRAP, RECORDED BEFORE ANYONE ACTS: DO NOT MOVE THE ROUNDEL WITH THE
+LAMPS.** The roundel's own height is supported by **both** chains. §10.24's three
+findings were applied together once and reverted together once; the lesson from
+that revert is that they are **not one change**.
+
+**REPORT 3 IS ONE REPORT ABOUT A RELATIONSHIP, NOT TWO.** He said the paint and
+the headlamps are not aligned **with each other**. Splitting it into "the paint"
+and "the headlamps" as independent items would lose the only thing it constrains
+— and the scale-free test above is a test of exactly that relationship, which is
+why it needs no px/m.
+
+**NOTHING WAS BUILT ON THIS IN REV 37.** Four geometry and shader changes at the
+end of a shipped revision is how this project has been burned before (§10.89's
+rule, written when the bar's ends were left to rev 36). **They are rev 38's item
+1, with the numbers already in hand and the trap already named.**
+
+**AND THE HERO IS WHAT SURFACED THEM.** `rev37_hero34f.png` is an honest
+photograph of a build with three known defects in its face. That is what a hero
+is for, and it is the argument against deferring one again.
