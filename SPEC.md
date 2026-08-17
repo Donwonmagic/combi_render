@@ -6846,3 +6846,62 @@ STRUCTURAL INFERENCE and never a measurement (§10.91.4); §10.72 still admits n
 px/m on the bumper plane. **A member the reference cannot place is a member the
 owner is entitled to decline**, and declining it costs the model nothing that was
 ever measured.
+
+
+### 10.93  rev 37 — THE WHOLE OVER-RIDER ASSEMBLY IS WITHDRAWN ON THE OWNER'S DECISION: THE FRONT RETURNS TO A PLAIN BLADE
+
+Having chosen the post as rev 37's work and then reversed that, he was asked how
+far back *"the original bumper"* reached — deliberately, because the bar (rev 30)
+and its hoop ends (rev 36) are older work and one of them came from his own
+defect report. Given three scopes, he chose the widest: **remove the over-rider
+bar entirely, leaving a plain bumper blade.**
+
+**THIS IS CONSISTENT WITH THE PROJECT'S OWN PRECEDENT, NOT CONTRARY TO IT**, and
+that is worth stating because it looks at first like it overturns his rev-26
+ruling. It does not. §10.75 records the scope *he* set — **WORKSHOP-STAGE,
+TAGGED** — and the reason he set it: `ref_workshop.jpg` is the **conversion**
+stage, §2.4 records that the **rear** bumper was removed between that stage and
+service, and **no in-service frame shows the nose.** Workshop-stage hardware is
+not automatically in-service hardware. **The tag existed precisely so this could
+be pulled back out, and it has been.** `build.py` already carries the rear
+bumper commented out on the identical argument, a few lines above.
+
+**His rev-26 reading that the tube and post are ON THE BUS is NOT overturned** —
+it was a reading of a workshop photograph and it stands as one. What changed is
+the scope decision layered on top of it, and that was always his to make.
+
+**WHAT IS IN THE MODEL NOW:** the front bumper is the cream blade plus its two
+irons. **126 objects, 185 meshes, 0 non-manifold, 42 materials, guards 0 fail /
+0 warn at both levels.** Every body figure — roof crown, rake, both arch lips,
+bay widths, `CARGO_GAP`, shut lines, dimensions — is **identical to rev 30–36's.**
+
+**COMMENTED, NOT DELETED, AND THE GUARDS ARE KEPT ARMED.** `overrider_bar()` and
+`overrider_posts()` both stay defined; two `build.py` lines are commented. With
+the assembly absent, §§10.83 / 10.90 / 10.91 log **NOT APPLICABLE — stated, not
+silently skipped**, the treatment `gap_englid` already gets. **A WITHDRAWN
+FEATURE WHOSE GUARD WAS DELETED COMES BACK UNGUARDED**, so nothing was removed,
+and the claim that the guards are merely dormant was **PROVEN BY TWO ARMS**, not
+asserted:
+
+| arm | result |
+|---|---|
+| re-enable the bar | §10.83's and §10.90's rows **come back alive**, 127 objects |
+| re-enable it with `BAR_LEG_LEN` × 0.8 | §10.90 **FAILS**: *"floats 12.36 mm above the bumper"*, both ends |
+
+**Re-enabling is one line and requires no edit to `verify.py`.**
+
+**WHAT THIS COSTS THE MODEL: nothing that was ever measured.** The bar's scale
+was anchored to a **CATALOGUE** 0.180 m aperture — §10.72's struck class — its
+standoff in x was a **CHOICE**, its lateral extent was graded **E**, and the
+posts' lateral station was a **STRUCTURAL INFERENCE** (§10.91.4). §10.72 still
+admits no px/m on the bumper plane. **A MEMBER THE REFERENCE CANNOT PLACE IS A
+MEMBER THE OWNER IS ENTITLED TO DECLINE.**
+
+**WHAT SURVIVES AND IS NOW THE REVISION'S YIELD:** everything in §10.91.8's list,
+none of which depends on a post or a bar existing — four recovered instructions,
+a phantom memory entry, the 2.9× width disagreement priced, the mis-scoped
+`BANNED` substring repaired with its own control, four detector defects and a
+published non-arm. **The `BANNED` repair is live regardless.**
+
+**DO NOT RE-PROPOSE THE OVER-RIDER** without a square-on frame of the front, or
+his say-so. It is answered, not open.

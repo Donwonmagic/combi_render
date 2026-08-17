@@ -330,7 +330,20 @@ A(D.bumper_irons(True), "bumpercream")
 # between that stage and service, so front hardware present in the workshop is
 # not automatically present in service; if an in-service frame ever shows the
 # nose and contradicts this, delete this one line.
-A(D.overrider_bar(), "bumpercream")
+# WITHDRAWN BY THE OWNER, rev 37 -- SPEC 10.93.  He asked for the front to go
+# back to "the original bumper": a plain cream blade plus its two irons, with no
+# over-rider assembly at all.  THIS IS CONSISTENT WITH SPEC 2.4's OWN PRECEDENT
+# a few lines above, not contrary to it -- `ref_workshop.jpg` is the CONVERSION
+# stage, 10.75 already records that the REAR bumper was removed between that
+# stage and service, and NO IN-SERVICE FRAME SHOWS THE NOSE.  Workshop-stage
+# hardware is not automatically in-service hardware, which is precisely what the
+# WORKSHOP-STAGE tag existed to allow.
+# COMMENTED, NOT DELETED; overrider_bar() stays defined.  Re-enabling is this one
+# line, and verify.py's 10.83 / 10.90 / 10.91 guards are ALL KEPT ARMED for the
+# built case -- proven by two arms in rev 37, one re-enabling the bar (both rows
+# came back alive) and one re-enabling it with a broken hoop end (10.90 failed at
+# 12.36 mm).  So re-enabling restores full coverage with no edit to verify.py.
+# A(D.overrider_bar(), "bumpercream")
 # SPEC 10.91, rev 37: the two over-rider POSTS -- BUILT, THEN WITHDRAWN BY THE
 # OWNER IN THE SAME REVISION.  SPEC 10.91.8 has his decision.  He asked for them
 # ("build the post -- the half of 'model them' still unbuilt"), the build and its

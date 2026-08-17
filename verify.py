@@ -1124,10 +1124,23 @@ def run(body, log=print):
     # section, which is the 0.0560 point.  WINDOW FIXED, BAND UNTOUCHED.
     _orb = bpy.data.objects.get("orb_bar")
     _bmp = bpy.data.objects.get("bumper_f")
-    if _orb is None or _bmp is None:
-        fails.append("SPEC 10.83: orb_bar or bumper_f is MISSING from the "
-                     "scene -- the over-rider is built by build.py and must "
-                     "not be dropped silently")
+    if _bmp is None:
+        fails.append("SPEC 10.83: bumper_f is MISSING from the scene -- the "
+                     "front bumper blade is not optional")
+    elif _orb is None:
+        # STATED, NOT SILENTLY SKIPPED.  SPEC 10.93: the owner withdrew the
+        # WHOLE over-rider assembly in rev 37 -- bar and posts -- returning the
+        # front to a plain blade.  Zero over-rider is therefore the INTENDED
+        # state and must not read as a failure.  Both this row and SPEC 10.90's
+        # hoop-end guard below are KEPT ARMED for the built case, so re-enabling
+        # build.py's one commented line restores full coverage with no edit
+        # here.  A WITHDRAWN FEATURE WHOSE GUARD WAS DELETED COMES BACK
+        # UNGUARDED, which is why neither guard was removed.
+        log("  over-rider assembly (SPEC 10.83 + 10.90 + 10.91): NOT APPLICABLE "
+            "-- bar AND posts WITHDRAWN BY THE OWNER in rev 37 (SPEC 10.93); "
+            "the front is a plain cream blade plus its two irons. build.py's "
+            "calls are COMMENTED, NOT DELETED, and these guards stay armed for "
+            "the built case. Stated, not silently skipped.")
     else:
         def _top_at_nose(ob):
             zs = [(ob.matrix_world @ v.co).z for v in ob.data.vertices
