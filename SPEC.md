@@ -6569,3 +6569,238 @@ and worse, because it would have looked like diligence.**
 THING** — the bar tube read as the bumper's edge, the search anchored on its own
 boundary, the post detector keyed on background colour, and this. Every one was
 caught by a control or by a cross-check, none by inspection.
+
+
+### 10.91  rev 37 — THE OVER-RIDER POSTS ARE BUILT: THE HALF OF THE OWNER'S "MODEL THEM" THAT WENT UNBUILT FOR ELEVEN REVISIONS, RECOVERED FROM MEMORY RATHER THAN FROM ANY CARRIER, AND BUILT WITH NO NEW CONSTANT
+
+#### 10.91.1  THE INSTRUCTION HAD BEEN LOST — AND IT WAS ONE OF FOUR
+
+rev 26 (§10.75) put three marked boxes on `ref_workshop.jpg` to the owner. He
+ruled box **A** (the transverse tube) and box **C** (the vertical post between
+tube and blade) **BOTH ON THE BUS**, and set the scope himself: **"MODEL THEM,
+TAGGED WORKSHOP-STAGE."**
+
+**THE BAR WAS BUILT IN REV 30. THE POST WAS NEVER BUILT.** By rev 37 the
+instruction survived in **no document that crosses between contexts** — not in
+SPEC's own open-items list, not in `HANDOFF_rev36.md`, not anywhere in
+`NEXT_CONTEXT_PROMPT_rev37.md`, whose §6 work list did not name it and whose §5
+declared *"NO QUESTION IS OUTSTANDING WITH ME."* **It survived only in memory.**
+
+This is **§10.90's headline failure repeating at four times the scale.** Checking
+the inherited brief against memory before opening the code — which §10.90 exists
+to mandate — recovered **four** owner instructions, each verified against the
+tree rather than taken on memory's word:
+
+| # | his instruction | revision | verified how | state |
+|---|---|---|---|---|
+| 1 | "model them" — the bar **and the post** | rev 26 | `grep` finds no post member in `t1_detail.py` or `build.py` | **BUILT THIS REVISION** |
+| 2 | Nolita photographs **re-admitted FOR GEOMETRY ONLY** | rev 15, §10.32 | `grep -ic nolita`: **8 in SPEC, 0 in REF_MEASUREMENTS** | **UNUSED, 21 revisions** |
+| 3 | execute the **GitHub migration** on completion | rev 31c | absent from the rev-37 prompt; and see 10.91.2 | **UNFULFILLED** |
+| 4 | region 3 was **not** selected as the bus's cream | rev 19 | contradicts rev 12's settled reading | **RE-PUT, §10.92** |
+
+Item 2 matters beyond its own line: the brief lists `CREAM`, the absolute roof
+height and the off flank's 804.9 mm as **photograph-blocked**, while an
+**authorised source class for exactly those items has sat unused since rev 15.**
+
+#### 10.91.2  A MEMORY ENTRY IS A CLAIM TOO, AND THIS ONE FAILED ITS CHECK
+
+Memory recorded that the migration procedure was written as
+`MIGRATION_APPENDIX_rev32.md` at **commit 159**. Both halves are false.
+`git rev-list --all` walked, `git ls-tree` on every commit: **the file has never
+existed in this repository**, and commit 159 is `afbf101`, SPEC 10.86.
+
+So the owner's request is unfulfilled **and its supposed artefact is a phantom.**
+**THE RULE: A MEMORY ENTRY IS A CLAIM AND MUST BE GREPPED LIKE ONE.** Memory
+recovered four real instructions this revision and invented one artefact; the
+recovery is only trustworthy *because* each item was checked against the tree.
+The same discipline SPEC 10.62 applies to a citation applies here.
+
+#### 10.91.3  WHY THIS ADDS NO NEW CONSTANT — the point of the entry
+
+§10.90 **retired** two grade-E constants (`BAR_END_DROP`, `BAR_END_BACK`).
+Re-adding a member with two fresh grade-E constants would be a **net provenance
+loss on the same assembly one revision later.** It is not necessary:
+
+| quantity | value | provenance |
+|---|---|---|
+| `POST_Y` | `IRON_Y` = 0.470 | the **EXISTING** bumper-iron station (rev 16), hoisted to a name so the post cannot be left behind if the iron moves (§10.25) |
+| `POST_DIA` | `BAR_DIA` = 24.97 mm | the tube it joins. Inside the measured bracket below |
+| `POST_LEN` | 75.29 mm | **DERIVED.** Zero freedom — the span between two established surfaces |
+
+**THE SECTION IS BRACKETED, AND THE BRACKET IS OPERATOR-MISMATCHED, WHICH IS
+STATED.** Two detectors in this tree measure the near post's width and disagree
+by **2.9×**: rev 32's cream-run scan gives u 355–377 (**23 px**), §10.90.7's
+capped-bridge gives u 359–366 (**8 px**). A threshold sweep resolves which is
+which — the width jumps discontinuously **37 → 24 px between T=160 and T=170**,
+the signature of a **merge separating**, so rev 32's figure is the post merged
+with adjacent cream and the capped bridge is the separated core. §10.90 priced
+the *centre* sensitivity of these two readings; **nobody had priced the WIDTH
+disagreement, and the width is what a section needs.**
+
+Against rev 26's threshold-swept tube (7.9–11.7 px) the post/tube ratio brackets
+**0.68 – 1.52**. Ratio **1.00 sits inside it**, so `BAR_DIA` is *not excluded* —
+and it is the only value that introduces nothing. **The two widths come from
+different detectors and the bracket is therefore operator-mismatched; it is a
+containment argument, not a measurement of the ratio.**
+
+**MY OWN FIRST ATTEMPT AT THE SECTION FAILED, IN THE FAMILY §10.90 NAMED.** A
+row-scan over cols 340–395 returned post/tube of **3.00–4.11, drifting, with a
+discontinuity at T=170** — because the window merged the post with the nose's
+cream V-swage. That is **§10.90's own post-detector defect reproduced**, and it
+is why the capped bridge exists. Recorded rather than tidied away.
+
+#### 10.91.4  TWO PREDICTIONS THE STATION MAKES, NEITHER USED TO CHOOSE IT
+
+The bracket station is a **STRUCTURAL INFERENCE** — a post is carried by the
+bumper's own bracket — **NOT a reading of the frame**, and it is graded as such.
+It is falsifiable, and it survives two independent tests it was not fitted to:
+
+1. **The owner's own sentence.** rev 36: *"both continue past the post."*
+   `IRON_Y` 0.470 against the **DERIVED** `BAR_HALF_Y` 0.574387 is **0.8183** of
+   the half-span, so the bar continues **104.4 mm outboard** before it begins to
+   turn and **159.5 mm** to the frozen tip. **HIS SENTENCE IS SATISFIED, NOT
+   ASSUMED.**
+2. **A ± pair straddling the centreline**, which is independently what §10.90.7
+   found at 41:1. That finding is **SUGGESTIVE, NOT ESTABLISHED** and is **NOT
+   promoted here** — this is a consistency check, not a derivation from it.
+
+**WHAT IS STILL NOT MEASURED, NAMED RATHER THAN IMPLIED:** the posts' true
+lateral station in metres. §10.72 admits no px/m on the bumper plane; §10.88 and
+§10.89 each retired a route on a precondition; §10.90.8 enumerated a third and
+abandoned it before building it. **NO METRE SCALE IS INVENTED HERE.** A square-on
+frame of the front closes it, and the WORKSHOP-STAGE tag is what lets the post
+move when it arrives.
+
+#### 10.91.5  A SUBSTRING BAN FIRED ON A MEMBER THE OWNER ASKED FOR
+
+`verify.py`'s `BANNED` contains `"post"` — a **prophylactic** ban on pickup-era
+geometry. It entered at the baseline commit with no history behind it, and
+`git grep` across every commit in every ref shows **no object has ever been built
+in this tree whose name contains "post"**: until rev 37 it had **never fired on
+anything at all.** Then it fired on `orb_postP` / `orb_postM`.
+
+**BOTH OBVIOUS REPAIRS ARE WRONG.** Renaming the object dodges the guard rather
+than answering it, and leaves the next legitimate "post" failing identically.
+Dropping `"post"` from `BANNED` deletes real coverage to fix a **scope** error,
+against §10.41's rule that a guard tripping means the guard is working.
+
+**THE REPAIR IS TO MAKE THE BAN SAY WHAT IT MEANS.** `BANNED_EXEMPT` matches the
+**WHOLE lowercase name, never a substring**, and carries **its own two-sided
+control**, run every time: four planted near-misses (`orb_postp_spare`,
+`bedpost`, `post_l`, `xorb_postm`) must still be caught, and every exempt name
+must be one `BANNED` actually matches. **A NAMED EXEMPTION IS A HOLE IN A GUARD,
+SO PROVE THE HOLE IS THE SIZE IT CLAIMS.**
+
+#### 10.91.6  THE GUARD, AND FOUR DETECTOR DEFECTS OF MY OWN INSIDE IT
+
+SPEC 10.91's guard is **two-sided at BOTH ends** — floating and driven-in, at the
+blade and at the bar — because "joins A to B" bounded on one side only is
+satisfied by driving the post through the bumper. It **ray-casts**, because
+§10.90's first attempt at this same measurement compared un-dropped constants
+against the dropped mesh and was wrong by 81.7 mm.
+
+**FOUR DEFECTS, EVERY ONE CAUGHT BY THE GUARD OR BY AN ARM'S OUTPUT, NONE BY
+INSPECTION:**
+
+1. **THE LANDING DATUM WAS THE CROWN — §10.90's OWN DATUM ERROR, REPRODUCED.**
+   The first version took `max(_blade_top_at(lo), _blade_top_at(hi))` over the
+   footprint, reasoning that the highest point cannot penetrate. **It returned
+   `BLADE_TOP_Z`.** The mechanism is worth its own line: `_POST_OUT_HI` exceeds
+   `_PROF_MAX_OUT` by **two microns**, so `_blade_top_at()` matched no bracket
+   and returned its **final-point fallback, 35 mm low**. **A FUNCTION THAT
+   ANSWERS ANYWAY OUTSIDE ITS DOMAIN SUPPLIED A DATUM** — §10.36's rule that a
+   probe which cannot answer must return None rather than an endpoint, applied
+   to a geometry helper. Sampling is now clamped to the profile's domain and
+   asserted.
+2. **"FOOTPRINT SAMPLING" THAT SAMPLED ONE VERTEX.** Selecting the cap by
+   `abs(v.z - zlo) < 1e-6` collapses to a single vertex, because **step 8b
+   shears the mesh** and a cap is not planar in z. So the fix for the
+   single-vertex defect **was** the single-vertex defect. **It was caught only
+   because the numbers did not move.** Caps are now clustered by a sorted split,
+   with the separation-versus-spread precondition asserted.
+3. **AN "OVERLAP" THAT WAS THE MEMBER'S OWN THICKNESS.** Casting in the
+   direction of travel from a face that starts *inside* the target measures the
+   distance to where the ray **left** it: it reported **108.24 mm**
+   (`BUMP_PROFILE`'s full height) and **24.97 mm** (`BAR_DIA` exactly). Those two
+   round numbers are the tell. **A PENETRATION DEPTH IS NOT A DISTANCE TO AN EXIT
+   SURFACE.** Now a **signed height against the target's facing surface**,
+   approached from outside — so the sign is a *subtraction*, not an inference
+   from a normal.
+4. **A THRESHOLD THAT CHANGED SIGN UNDERNEATH THE TEST.** Falsification ARM 4b
+   lifted the post above the crown, driving `POST_WELD_MAX` to **−5.00 mm**, and
+   a negative weld bound **inverts** the weld test: it fired on a **floating**
+   post, printing *"DRIVEN INTO the bar — welded in −0.00 mm, past the bound
+   −4.00 mm."* **§10.90's ARM-3 defect one level up** — not a message
+   contradicting its own state but a *threshold* doing so — and caught the same
+   way, **by reading the arm's output rather than noting that it went red.**
+   Clamped at source, floored in the guard, with an explicit check so a future
+   negative cannot be silently absorbed by the floor.
+
+**THE TOLERANCE IS DELIBERATELY ASYMMETRIC AND SAYS SO.** A **gap** is a defect
+at 1.0 mm. An **overlap is a weld** — a post welded to a curved channel top is
+scribed into it, it does not hover above the crown — and it is bounded by
+`POST_WELD_MAX`, **DERIVED from `BUMP_PROFILE`'s own crown-to-station slope**,
+which moves if the profile does. It is not a free tolerance and it is not the
+same number as the gap tolerance. **Calling a test "two-sided" without saying
+which side is which is what §10.90's ARM 3 did.**
+
+**BUILT RESULT: blade welded 2.25 mm, bar gap 0.41 mm, symmetric, tol 1.0 mm on
+the gap side and 3.30 mm on the weld side.** The 2.25 mm is the crown-to-station
+slope; the 0.41 mm is the tube's `seg=6` faceting.
+
+#### 10.91.7  FALSIFIED IN SEVEN ARMS, AND ONE OF THEM IS A NON-ARM
+
+| arm | planted | result |
+|---|---|---|
+| 1 | `POST_Y` outboard of `BAR_HALF_Y` | assert fires, naming both values |
+| 2 | post **6 mm short** | *"floats 6.00 mm clear of the bar"* — magnitude and side both right |
+| 3 | post **8 mm long** | *"DRIVEN INTO the bar, welded in 8.00 mm"* — the side §10.90's ARM 3 got wrong |
+| **4** | **land on the crown** | **0 fail — A NON-ARM** |
+| 4b | post lifted 5 mm above the crown | *"floats 5.05 mm clear of the blade"* (after defect 4 above was fixed) |
+| 5 | build ONE post | count check fires, citing §10.90.7 |
+| 6 | post renamed so it is not exempt | `BANNED` still fires |
+| 7 | exemption widened to a name `BANNED` never matched | the exemption's own control fires |
+
+**ARM 4 IS PUBLISHED AS A NON-ARM RATHER THAN QUIETLY DROPPED.** Landing on the
+crown — the original defect — gives **0 fail**, because a flat-bottomed post on a
+sloping channel touches *somewhere* either way. **THE GUARD BOUNDS THE JOINT TO
+WITHIN `BUMP_PROFILE`'s OWN 2.30 mm CROWN-TO-STATION SLOPE BUT DOES NOT FIX WHERE
+IN THAT BAND THE BOTTOM SITS. THAT IS ITS CEILING.** Fifth revision running in
+which an arm has turned out not to be an arm (§10.89's ARM 5, four revisions).
+
+**AND THE LOG LINE WAS ASSERTING ITS OWN DATUM.** It read *"landed on
+`_blade_top_at(axis)`, NOT on the crown"* as fixed prose — **a sentence that was
+FALSE under ARM 4 while the guard passed.** §10.52's rule — a claim in prose is
+not a guard, *including inside the guard*. It now **prints the measured offset
+from the crown**, so ARM 4 self-reports as `+0.00 mm relative to the crown` and
+the non-arm is **legible instead of silent.**
+
+
+### 10.92  rev 37 — REGION 3 IS RE-PUT TO THE OWNER: A CONTRADICTION BETWEEN ONE OF HIS OWN READINGS AND A SETTLED ENTRY, UNASKED SINCE REV 19
+
+**rev 12**, from his own answer, settled the counter as a *"tan top, brass nosing
+on the OUTER EDGE, **body cream below**"* — the pale band under the nosing is the
+**vehicle's own belt paint**.
+
+**rev 19**, shown four candidate cream regions and asked which were the bus's own
+painted cream, he selected **only region 2** and **did not select region 3**,
+which is that band. The two readings disagree. The rev-19 record itself says it
+was *"worth re-putting to him, it was not chased in rev 19"* — and it was not
+chased in rev 20–36 either, nor did it appear in any open-items list.
+
+**WHAT THE ANSWER CLOSES.** Whether `countercream` should carry that band at all.
+It is currently painted by the **counter's** material; if it is the body's belt
+paint it belongs to `body_paint`'s cream and inherits the flank's weathering,
+fade and dust, **none of which the counter's material applies**. That is a
+**shader-routing** consequence, not a geometry one. It also bears on
+`COUNTERTAN`'s level bracket, whose fascia arm sits directly below this band.
+**NOTHING MOVES UNTIL HE ANSWERS.**
+
+**THE FIGURE IS DELIBERATELY PLAIN, AND THAT IS §10.90's LESSON APPLIED.** One 7×
+crop of `ref_side.jpg` (u 556–700, v 396–448, printed), **ONE red circle**, one
+sentence. rev 36's first question figure carried five mark classes, printed crop
+boxes, a coalescence column and a priced null, and produced *"i don't understand
+what is being asked."* The single mark is a **POINTER**; `mark_rev37_region3.py`
+**reads no pixels for any number**, because adding a sampling window would mix
+mark classes and reproduce the defect. It **refuses to write** if the crop leaves
+the frame or if the mark falls outside its own crop.
