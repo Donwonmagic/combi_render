@@ -6956,3 +6956,85 @@ rule, written when the bar's ends were left to rev 36). **They are rev 38's item
 **AND THE HERO IS WHAT SURFACED THEM.** `rev37_hero34f.png` is an honest
 photograph of a build with three known defects in its face. That is what a hero
 is for, and it is the argument against deferring one again.
+
+
+### 10.95  rev 37 — HIS SECOND BATCH OFF THE SAME HERO: FOUR MORE, AND TWO OF THEM ARE ONE DEFECT
+
+> *"Also, the doors extend lower, around the wheel well, also there seems to be a
+> bar obstructing the front wheel? also '100% calidad' is off center, and we
+> there are two bars propping up the art sign on either side, not one"*
+
+**EIGHT DEFECT REPORTS FROM HIM IN ONE SESSION, ALL OFF ONE HERO.** That is the
+argument against ever deferring one: `rev30_hero34f.png` was superseded in rev 36
+and never re-shot, so these eight sat unseen for seven revisions. **SHOOT THE
+HERO ON EVERY REVISION THAT MOVES GEOMETRY.**
+
+#### 10.95.1  REPORT 8 — THE SIGN'S STRUTS. CONFIRMED AGAINST THE BUILD, COST: ONE GREP
+
+**HE IS RIGHT AND THE BUILD IS WRONG.** `t1_shell.signboard()` ends with a
+**single** `struts.append(T.cylinder(..., name="sign_strut"))` — **no loop over
+sides, one strut.** He reports **two, one on either side.**
+
+**A COUNT IS THE CHEAPEST CLAIM IN THIS PROJECT TO CHECK AND THE HARDEST TO
+ARGUE WITH**, and this one took a single grep. It needs no scale, no px/m and no
+camera model — which is why it is the first of the eight that should be built.
+
+#### 10.95.2  REPORTS 5 AND 6 ARE ONE DEFECT, NOT TWO
+
+He reports the doors should **extend lower, around the wheel well**, and — as a
+**question**, so he is unsure — that **"there seems to be a bar obstructing the
+front wheel?"** The geometry says these are the same fault seen from two sides:
+
+| object | extent (dropped frame) |
+|---|---|
+| `doorback1` — the door's inner back panel | x **[0.918, 1.824]**, y [0.796, 0.857], z **[0.717, 1.755]** |
+| `tyre1.31` | z top **0.665** |
+
+`doorback1`'s **lower edge stands 52 mm above the tyre's crown and runs the whole
+length of the arch**, at y 0.796–0.857 — just inboard of the skin. **If the cab
+door's outer skin does not reach as low as he says it should, the inner back
+panel is what shows through the arch opening — and it would read exactly as a
+grey bar across the wheel.**
+
+**CORROBORATED BY THE BAR'S OWN END.** In `hero34f` the vehicle's nose is to
+frame-left, so image-right is decreasing x. The bar's blunt right-hand end in the
+render coincides with **`doorback1`'s rear edge at x = 0.918.**
+
+**THIS IS A WELL-EVIDENCED IDENTIFICATION, NOT A CONFIRMED ONE, AND IT IS
+LABELLED AS SUCH.** An ablation was attempted and **did not run** — the harness
+failed to resolve the `hero34f` camera, and appending the removal to `build.py`
+would have executed *after* the preview render, i.e. in the wrong order. **No
+ablation result is reported, because none was obtained.** rev 38's first act on
+this item is to run it: delete `doorback1`/`doorback-1`, re-render the crop, and
+see whether the bar goes. **If it does, reports 5 and 6 are one fix; if it does
+not, report 6 is a separate object and the search starts again.**
+
+`_DOOR_TOP_AUTH` and `DOOR_H` are **AUTHORED, not measured** (§10.73), and the
+door's **lower** boundary has never been measured by any revision — so there is
+no locked value standing against his reading.
+
+#### 10.95.3  REPORT 7 — "100% CALIDAD" IS OFF CENTRE
+
+`cal_gen.py:246` sets `glyph_calidad(t, w * 0.180, h * 0.645, h * 0.196)` — an
+absolute x of **0.180 of the texture width**, not a centred placement. Whether
+the defect is inside the texture or in the panel the texture lands on is **not
+yet determined and must not be guessed**: §10.20's family, where a lockup looked
+wrong because the *panel* aspect was stale rather than the artwork.
+
+**NOTE THE DISTINCTION FROM HIS EARLIER STICKER COMPLAINT.** On the sticker he
+raised **"'100% CALIDAD' legibility"**, more than once. **This is a PLACEMENT
+report and it is new.** Do not merge them.
+
+#### 10.95.4  WHAT IS BUILT ON ANY OF THE EIGHT: NOTHING
+
+Eight reports, four of them geometry, at the end of a shipped revision. §10.89's
+rule — rushing a geometry change at the end of a revision is how this project has
+been burned — applies eightfold. **They are rev 38's item 1**, ordered by what
+each costs to establish:
+
+1. **the sign's second strut** — a count, confirmed, needs nothing
+2. **the door / front-wheel bar** — run the ablation FIRST, then decide if it is one fix or two
+3. **the headlamp / two-tone alignment** (§10.94) — the measurement exists at 4.4 σ and its scale-free arm needs no px/m. **DO NOT MOVE THE ROUNDEL WITH IT**
+4. **the VW glyph** — §10.25's premise is false; rebuild against the 52 mm interpenetration
+5. **`V_POW`** — 0.60 locked against an implied 0.30–0.48; re-fit, and **mirror into `t1_shell.nose_shape.zV` or the pressed swage and the painted break de-register**
+6. **"100% Calidad"** — determine texture-versus-panel before touching either
