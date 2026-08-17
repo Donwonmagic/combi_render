@@ -281,8 +281,94 @@ strip per call through the middle**. Edge strips ~70–90 s.
 
 ## §11. THE COMMIT COUNT AND THE CONTENT FIGURES
 
-Written LAST, after the final commit, from a fresh-clone verification run.
+Written LAST, after the final commit. **EVERY VALUE BELOW WAS READ OFF A
+FRESH-CLONE VERIFICATION RUN — none was typed from memory.**
 **THIS HAS GONE WRONG IN TWELVE REVISIONS DURING HANDOFF ASSEMBLY.**
 **A grep count is invalidated by any later edit to the file it counts.**
 **ANCHOR HEADING COUNTS WITH `^`. `grep -c` COUNTS LINES, NOT OCCURRENCES — a
 multi-line anchor CANNOT FIRE.**
+
+### Restore, twenty-five lines. The rev14b line is a `fetch`, BEFORE rev15.
+
+```bash
+git clone tacombi_history_rev9.bundle tacombi && cd tacombi
+git pull --ff-only ../tacombi_rev14_unified.bundle HEAD          # -> 59
+git fetch ../tacombi_rev14b_incremental.bundle HEAD:refs/heads/b14   # FETCH
+git pull --ff-only ../tacombi_rev15_incremental.bundle HEAD      # -> 67
+#   ... rev16 71, rev17 75, rev18 81, rev19 87, rev20 93, rev21 96, rev22 101,
+#       rev23 105, rev24 107, rev25 115, rev26 120, rev27 126, rev28 130,
+#       rev29 135, rev30 148, rev31 158, rev32 166, rev33 173, rev34 182,
+#       rev35 187, rev36 191
+git pull --ff-only ../tacombi_rev37_incremental.bundle HEAD      # -> 203
+```
+**If a pull says "Need to specify how to reconcile divergent branches", STOP.**
+The hero is gitignored and lives only on my disk.
+
+### Content checks — all read off the fresh clone
+
+```bash
+git status                                              # clean
+grep -c '^### 10.91' SPEC.md                            # 1
+grep -c '^#### 10.91' SPEC.md                           # 8
+grep -c '^### 10.92' SPEC.md                            # 1
+grep -c '^### 10.93' SPEC.md                            # 1
+grep -c '^### 10.94' SPEC.md                            # 1
+grep -c '^### 10.95' SPEC.md                            # 1
+grep -c '^#### 10.95' SPEC.md                           # 4
+grep -c '10.91' SPEC.md                                 # 23
+grep -c '10.94' SPEC.md                                 # 2
+grep -c '10.95' SPEC.md                                 # 5
+grep -c 'amtrak' SPEC.md                                # 2   HIS WORD
+grep -c 'MEMORY ENTRY IS A CLAIM' SPEC.md               # 2
+grep -c 'NOT A CONFIRMED ONE' SPEC.md                   # 1
+grep -c 'BANNED_EXEMPT' verify.py                       # 7
+grep -c 'SPEC 10.91' verify.py                          # 18
+grep -c 'NOT APPLICABLE' verify.py                      # 3
+grep -c 'POST_WELD_MAX' verify.py                       # 7
+grep -c 'overrider_posts' t1_detail.py                  # 1
+grep -c 'IRON_Y' t1_detail.py                           # 5
+grep -c 'POST_WELD_MAX' t1_detail.py                    # 1
+grep -c 'DERIVED' t1_detail.py                          # 10
+grep -c 'overrider_bar' build.py                        # 2   BOTH COMMENTED
+grep -c 'overrider_posts' build.py                      # 2   BOTH COMMENTED
+grep -c 'POINTER' mark_rev37_region3.py                 # 3
+grep -c 'REFUSING TO WRITE' mark_rev37_region3.py       # 2
+grep -c 'A THIRD TIME' SPEC.md                          # 1   ANCESTOR rev 36
+grep -c 'OCCLUSION BAND' SPEC.md                        # 1   ANCESTOR rev 36
+grep -c 'OCCLUSION BAND' mark_rev36_ends.py             # 2   ANCESTOR rev 36
+ls HANDOFF_rev37.md STATE_rev37.md NEXT_CONTEXT_PROMPT_rev38.md \
+   mark_rev37_region3.py rev37_region3.png
+ls rev37_hero34f.png    # MUST FAIL -- the hero is gitignored
+```
+
+Ancestry — **rev 37 adds `b6a93ec`, the rev-36 tip (16 now):**
+```bash
+for c in f3c53f4 87aeaa6 d519fc6 5087b84 7ce3d03 f3cde44 efc1268 456b201 \
+         b08e424 e792d73 6f87977 cac32b9 2253399 52e451a 3496cab b6a93ec; do
+  git merge-base --is-ancestor $c HEAD && echo "$c ok" || echo "$c LOST"; done
+```
+
+Textures — **all three must match; rev 37 changed NO artwork:**
+```bash
+md5sum tex/swirl.png tex/swirl_b.png tex/nose.png
+# 4ee4e09e...   d201597e...   b31ea156...
+```
+
+### Guards on the fresh clone, watched print
+
+| check | SUB=1 | SUB=2 |
+|---|---|---|
+| VERIFY | **0 fail, 0 warn** | **0 fail, 0 warn** |
+| `audit.py` | **0 fail, 0 warn** | **0 fail, 0 warn** |
+| roof crown @ rear axle | **1.9835** | **1.9833** |
+| cut roof hole | **68564v** | **252749v** |
+| objects at `materials:` | **126** | **126** |
+| meshes | **185** | **185** |
+| bay widths | 0.516 0.515 0.516 | same |
+| over-rider rows | **NOT APPLICABLE, stated** | same |
+
+**126 objects / 185 meshes are rev 37's ONLY geometry deltas** (rev 30-36:
+127 / 186), and both are the removed bar. 42 materials, 5 constant-rough,
+**0 non-manifold**, rake 17.75, L=4.065 W=1.750, arch gaps 39.7 / 40.7 mm.
+
+**FINAL COUNT: 203 commits, clean tree.** *(This line lands in commit 203 itself — the commit was AMENDED to carry the correction rather than adding a 204th, so the number is true of the commit that states it. rev 29's pattern, kept since.)*
