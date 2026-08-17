@@ -424,13 +424,24 @@ def bumper(front=True, z=0.4800, name="bumper"):
     return T.sweep(path, BUMP_PROFILE, up=(0, 0, 1), name=name)
 
 
+# HOISTED IN REV 37, VALUES UNCHANGED.  These three were written inline below.
+# SPEC 10.91 stands the over-rider POSTS on the bumper irons, and this project's
+# rule (SPEC 10.25) is that a constant tuned against another constant must be
+# EXPRESSED IN TERMS OF IT -- otherwise moving the iron would silently leave the
+# post behind.  This is a HOIST ONLY: every guard figure must be unchanged after
+# it, and that was checked at both subdivision levels before anything was built.
+IRON_Y = 0.470             # bumper iron lateral station, rev 16
+IRON_W = 0.062             # iron section across y
+IRON_H = 0.030             # iron section in z
+
+
 def bumper_irons(front=True):
     obs = []
     x = 2.045 if front else (T.X_TAIL + 0.078)   # rev 16: was -2.030
     z0, z1 = 0.470, 0.585
     for s in (1, -1):
-        pts = T.rrect(0.062, 0.030, 0.010, seg=3)
-        obs.append(T.solid_prism((x, s * 0.470, 0.525), (0, 1, 0), (0, 0, 1),
+        pts = T.rrect(IRON_W, IRON_H, 0.010, seg=3)
+        obs.append(T.solid_prism((x, s * IRON_Y, 0.525), (0, 1, 0), (0, 0, 1),
                                  (1, 0, 0), pts, 0.150,
                                  name=f"iron{s}{'F' if front else 'R'}"))
     return obs
@@ -690,6 +701,120 @@ def overrider_bar(name="orb_bar"):
             path = path + arc
     prof = T.rrect(BAR_DIA, BAR_DIA, BAR_DIA / 2.0, seg=6)
     return T.sweep(path, prof, up=(0, 0, 1), name=name)
+
+
+# ---------------------------------------------------------------------------
+# SPEC 10.91, rev 37.  THE OVER-RIDER POSTS.  WORKSHOP-STAGE.
+#
+# THE OWNER'S RULING, rev 26 (SPEC 10.75), box C at (357,681)-(374,697):
+#   "ON THE BUS -- an over-rider joining A to B."
+# and the SCOPE he set in the same exchange: "MODEL THEM, TAGGED WORKSHOP-STAGE."
+# THE BAR (box A) WAS BUILT IN REV 30.  THE POST WAS NOT, FOR ELEVEN REVISIONS,
+# and the instruction had been lost from every carrier that crosses contexts --
+# it survived only in memory.  Recovered in rev 37 by checking the brief against
+# memory BEFORE opening the code, which is exactly why SPEC 10.90 says to.
+#
+# THERE ARE TWO POSTS, NOT ONE (SPEC 10.90.7, rev 36).  10.83 spent five
+# revisions trying to place "the post at the centreline"; the question was
+# unanswerable because it assumed there was one.  They straddle it.
+#
+# WHY THIS ADDS NO NEW CONSTANT -- the whole point of the entry.
+# Rev 36 RETIRED two grade-E constants (BAR_END_DROP, BAR_END_BACK).  Adding a
+# member back with two fresh grade-E constants would be a net provenance loss on
+# the same assembly one revision later.  It is not necessary:
+#
+#   POST_Y   = IRON_Y     the EXISTING bumper-iron station (rev 16).  A post is
+#                         carried by the bumper's own bracket.  This is a
+#                         STRUCTURAL INFERENCE, NOT A READING OF THE FRAME, and
+#                         it is graded and falsifiable, not asserted -- see the
+#                         two predictions below.
+#   POST_DIA = BAR_DIA    the tube it joins.  The image bracket on
+#                         post-section / tube-diameter is 0.68 .. 1.52 (rev 36's
+#                         capped-bridge widths 8 px near / 12 px far against
+#                         rev 26's threshold-swept tube 7.9-11.7 px).  Ratio 1.00
+#                         sits INSIDE that bracket, so BAR_DIA is not excluded --
+#                         and it is the only value that introduces nothing.
+#                         THE BRACKET IS OPERATOR-MISMATCHED and is stated as
+#                         such: the two widths come from different detectors.
+#   POST_LEN            DERIVED.  Zero freedom: the post spans the blade's top
+#                         face to the bar tube's underside, and both are already
+#                         established quantities.
+#
+# TWO PREDICTIONS THIS STATION MAKES, NEITHER OF WHICH WAS USED TO CHOOSE IT:
+#   (1) The owner said in rev 36 "both continue past the post."  IRON_Y 0.470
+#       against the DERIVED BAR_HALF_Y 0.574387 is 0.8183 of the half-span, so
+#       the bar continues 104.4 mm outboard past the post before it even begins
+#       to turn, and 159.5 mm to the frozen tip.  HIS SENTENCE IS SATISFIED
+#       RATHER THAN ASSUMED.
+#   (2) It is a +- pair straddling the centreline, which is independently what
+#       rev 36 found at 41:1 against the null.  That finding is SUGGESTIVE, NOT
+#       ESTABLISHED (it crosses the band boundary) and is NOT promoted here --
+#       this is a consistency check, not a derivation from it.
+#
+# WHAT IS STILL NOT MEASURED, NAMED RATHER THAN IMPLIED:
+#   the posts' TRUE lateral station in metres.  SPEC 10.72 admits no px/m on the
+#   bumper plane; 10.88 and 10.89 each retired a route on a precondition; 10.90.8
+#   enumerated a third and abandoned it before building it.  NO METRE SCALE IS
+#   INVENTED HERE.  If a square-on frame of the front ever arrives it closes this
+#   and the post may move -- which is what WORKSHOP-STAGE tagging is for.
+POST_Y = IRON_Y                       # EXISTING, bumper_irons.  Not a new lever.
+POST_DIA = BAR_DIA                    # EXISTING.  Inside the 0.68-1.52 bracket.
+
+# THE LANDING DATUM IS THE SAME ONE THE HOOP USES, AND THE FIRST VERSION OF THIS
+# GOT IT WRONG IN EXACTLY THE WAY SPEC 10.90 WARNED ABOUT.
+#
+# The post stands coaxial in x with the tube, so its footprint spans the same
+# outward offsets the tube's does.  The blade's top face SLOPES.  The first
+# attempt took `max(_blade_top_at(lo), _blade_top_at(hi))` over the footprint,
+# reasoning that the highest point cannot penetrate -- and that returned
+# `BLADE_TOP_Z`, THE CROWN, which is precisely the datum 10.90 established is
+# NOT the landing datum.  The built post floated 2.08 mm, against the 2.30 mm
+# crown-to-station slope 10.90 measured.  10.24's family, third appearance.
+#
+# IT FAILED THROUGH A FALL-THROUGH, WHICH IS WORTH RECORDING SEPARATELY.
+# `_POST_OUT_HI` exceeds `_PROF_MAX_OUT` by 2e-6 m -- two microns -- so
+# `_blade_top_at()` missed every bracket and returned its final-point fallback,
+# 35 mm low.  A function that ANSWERS ANYWAY outside its domain supplied a datum.
+# SPEC 10.36's rule is that a probe which cannot answer must return None rather
+# than an endpoint; the same applies to a geometry helper.  The sampling is now
+# CLAMPED to the profile's own domain and asserted, so it cannot recur silently.
+POST_X = BAR_X
+_POST_OUT_LO = max(0.0, _BAR_OUTWARD - POST_DIA / 2.0)
+_POST_OUT_HI = min(_PROF_MAX_OUT, _BAR_OUTWARD + POST_DIA / 2.0)
+assert 0.0 <= _POST_OUT_LO < _POST_OUT_HI <= _PROF_MAX_OUT, (
+    "the post's footprint is outside BUMP_PROFILE's top edge, so _blade_top_at "
+    "would answer from its fallback rather than from the profile")
+_POST_Z_BOT = _blade_top_at(_BAR_OUTWARD)     # rev 36's _LAND_Z, the AXIS station
+# The overlap this leaves at the inboard rim, where the blade's crown stands
+# above the axis station.  DERIVED FROM THE PROFILE, never chosen -- it is the
+# bound the guard allows on the WELD side, and if BUMP_PROFILE changes it moves.
+POST_WELD_MAX = max(_blade_top_at(_POST_OUT_LO),
+                    _blade_top_at(_POST_OUT_HI)) - _POST_Z_BOT
+_POST_Z_TOP = BAR_Z - BAR_DIA / 2.0   # the tube's underside in its STRAIGHT run
+POST_LEN = _POST_Z_TOP - _POST_Z_BOT                                # DERIVED
+
+# The post must stand where the bar is STRAIGHT, or its top datum is wrong: past
+# BAR_HALF_Y the tube is bending and its underside is no longer BAR_Z - r.
+assert POST_Y < BAR_HALF_Y, (
+    "POST_Y %.6f is outboard of BAR_HALF_Y %.6f -- the post would meet the "
+    "bend, not the straight run, and _POST_Z_TOP would be wrong"
+    % (POST_Y, BAR_HALF_Y))
+assert POST_LEN > 0.0, "the bar's underside is at or below the blade's top face"
+
+
+def overrider_posts(name="orb_post"):
+    """The two vertical posts joining the over-rider bar to the bumper blade.
+
+    Workshop-stage.  One per side, at the bumper irons' own lateral station.
+    Section equal to the tube's.  Length DERIVED from the two members it joins,
+    so it cannot go stale if either moves.
+    """
+    obs = []
+    for s in (1, -1):
+        obs.append(T.cylinder((POST_X, s * POST_Y, _POST_Z_BOT + POST_LEN / 2.0),
+                              (0, 0, 1), POST_DIA / 2.0, POST_LEN, seg=24,
+                              name=f"{name}{'P' if s > 0 else 'M'}"))
+    return obs
 
 
 # =================================================================== LAMPS

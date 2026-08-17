@@ -331,6 +331,12 @@ A(D.bumper_irons(True), "bumpercream")
 # not automatically present in service; if an in-service frame ever shows the
 # nose and contradicts this, delete this one line.
 A(D.overrider_bar(), "bumpercream")
+# SPEC 10.91, rev 37: the two over-rider POSTS.  The other half of the owner's
+# rev-26 "model them" (SPEC 10.75 box C), unbuilt for ELEVEN revisions because
+# the instruction had been lost from every carrier that crosses contexts and
+# survived only in memory.  WORKSHOP-STAGE on the bar's own terms above: if an
+# in-service frame ever shows the nose and contradicts it, delete this one line.
+A(D.overrider_posts(), "bumpercream")
 A(D.gutter(), "paint")
 A(D.mirrors(), "chrome")
 A(D.wipers(), "chrome_d")

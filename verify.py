@@ -130,6 +130,28 @@ RAKE_SPEC = 0.01775
 
 BANNED = ("bed", "gate", "canopy", "fascia", "post")   # pickup-era geometry
 
+# SPEC 10.91, rev 37.  A SUBSTRING BAN THAT FIRED ON A MEMBER THE OWNER ASKED FOR.
+#
+# BANNED's "post" is a PROPHYLACTIC ban on pickup-era geometry (stake/dropside
+# posts).  It came in at the baseline commit with no history behind it, and
+# `git grep` over every commit in every ref shows NO object has ever been built
+# in this tree whose name contains "post" -- so until rev 37 it had never fired
+# on anything at all.  Then it fired on `orb_postP`/`orb_postM`, the over-rider
+# posts the owner ruled ON THE BUS in rev 26 (SPEC 10.75 box C).
+#
+# THE TWO WRONG REPAIRS, BOTH REJECTED:
+#   * rename the object to dodge the substring.  That is dodging a guard, not
+#     answering it, and it would leave the next person's legitimate "post"
+#     failing for the same reason.
+#   * drop "post" from BANNED.  That deletes real coverage to fix a scope error,
+#     and SPEC 10.41's rule is that a guard tripping means the guard is WORKING.
+#
+# THE REPAIR IS TO MAKE THE BAN SAY WHAT IT MEANS.  The exemption is an EXACT
+# match on the whole lowercase object name, never a substring, so every other
+# post-like name still fails -- `bedpost`, `sidepost`, `orb_post_spare` and a
+# pickup-era `post_l` all still fire.  A control below plants one and asserts it.
+BANNED_EXEMPT = ("orb_postp", "orb_postm")      # SPEC 10.91, exact names only
+
 # Material names this project has ever used for a reading SPEC sec.0.2 retires.
 # Only names that are actually MATERIAL keys belong here -- sec.0.2 is prose, so
 # the mapping from a retired reading to the datablock that implemented it has to
@@ -692,11 +714,32 @@ def run(body, log=print):
         log("  measured " + "  ".join(f"{k}={v:.4f}" for k, v in sorted(m.items())))
 
     # 3. pickup-era geometry must be gone
+    # SPEC 10.91: BANNED_EXEMPT is matched on the WHOLE lowercase name, never as
+    # a substring, so the ban keeps its full reach over every other name.
     for ob in bpy.data.objects:
         n = ob.name.lower()
+        if n in BANNED_EXEMPT:
+            continue
         for b in BANNED:
             if b in n:
                 fails.append(f"banned object '{ob.name}' (matches '{b}')")
+
+    # SPEC 10.91 CONTROL, TWO-SIDED ON THE EXEMPTION ITSELF.  A named exemption
+    # is a hole in a guard, so prove the hole is exactly the size it claims:
+    # a planted name that CONTAINS an exempt name must still fail, and the
+    # exempt names must not be banned outright.  Costs nothing and runs always.
+    _planted = ("orb_postp_spare", "bedpost", "post_l", "xorb_postm")
+    _leaks = [p for p in _planted
+              if p in BANNED_EXEMPT or not any(b in p for b in BANNED)]
+    if _leaks:
+        fails.append("SPEC 10.91 exemption is too wide -- these should still be "
+                     f"banned but are not caught: {_leaks}")
+    _over = [e for e in BANNED_EXEMPT if not any(b in e for b in BANNED)]
+    if _over:
+        fails.append("SPEC 10.91 exemption names something BANNED never matched, "
+                     f"so it is not an exemption at all: {_over}")
+    log("  SPEC 10.91 ban-exemption control: %d exempt names, %d planted "
+        "near-misses all still banned" % (len(BANNED_EXEMPT), len(_planted)))
 
     # 4. exactly three OPEN apertures on the show side — tested on the shell
     import t1_shell as _S
@@ -1222,6 +1265,178 @@ def run(body, log=print):
                     f"({_D30.BAR_HALF_Y:.6f}) from a FROZEN tip "
                     f"({_D30.BAR_TIP_Y:.6f}); BAR_END_DROP and BAR_END_BACK "
                     f"are RETIRED.")
+
+    # ------------------------------------------------------------------
+    # SPEC 10.91, rev 37.  THE OVER-RIDER POSTS MUST MEET BOTH MEMBERS.
+    #
+    # The owner ruled the post ON THE BUS in rev 26 and it went unbuilt for
+    # eleven revisions.  This is its guard, and it is TWO-SIDED AT BOTH ENDS
+    # for the reason SPEC 10.90 learned the hard way: "joins A to B" bounded on
+    # one side only is satisfied by driving the post through the bumper, or by
+    # burying its top inside the tube.  Four ways to fail, not two.
+    #
+    # RAY-CAST, not constants.  SPEC 10.90's first attempt at exactly this
+    # measurement compared un-dropped constants against the dropped mesh and was
+    # wrong by 81.7 mm; the posts are authored un-dropped and step 8b shears
+    # them, so a constant-space check here would reproduce that defect a THIRD
+    # time.  The rule from 10.90: A CLAIM READ OFF A CONSTANT WHOSE CONSUMER
+    # MODIFIES IT IS NOT A MEASUREMENT.
+    _posts = [o for o in bpy.data.objects if o.name.lower() in BANNED_EXEMPT]
+    if len(_posts) != 2:
+        fails.append(
+            f"SPEC 10.91: expected 2 over-rider posts, found {len(_posts)}. "
+            f"rev 36 established there are TWO posts straddling the centreline "
+            f"(10.90.7) -- 10.83 spent five revisions on the assumption of one.")
+    else:
+        _dg2 = bpy.context.evaluated_depsgraph_get()
+        POST_TOL = 0.0010            # 1.0 mm on the GAP side.  See _WELD_CAP.
+        _WANT_T = {"blade": "bumper_f", "bar": "orb_bar"}
+        _pres = []
+        # A CONTACT IS THE MINIMUM GAP OVER THE FOOTPRINT, NOT THE GAP AT ONE
+        # VERTEX.  The first version of this guard cast from the post's extreme
+        # vertex and reported "floats 35.00 mm" and "floats 12.38 mm" -- the
+        # second being BAR_DIA/2 to within a facet, which is the tell: it was
+        # measuring from the RIM, where a vertical ray misses the blade's 24.8 mm
+        # top face and the tube's underside entirely and lands on whatever is
+        # further along the section.  THE POST WAS NEVER FLOATING.  Sixteenth-plus
+        # instance of check-what-the-probe-can-physically-see, and the fourth in
+        # two revisions where a detector found the wrong object and returned a
+        # plausible number.  Sampling the whole face fixes it and, unlike moving
+        # the geometry, it is the thing that was actually wrong.
+        for _p in sorted(_posts, key=lambda o: -o.matrix_world.translation.y):
+            _pv = [(_p.matrix_world @ v.co) for v in _p.data.vertices]
+            # THE CAPS ARE SELECTED BY CLUSTERING, NOT BY AN EXACT z MATCH.
+            # The second version of this guard selected `abs(v.z - zlo) < 1e-6`
+            # and silently collapsed to ONE vertex, because step 8b SHEARS the
+            # mesh and a cap is no longer planar in z.  So the "footprint
+            # sampling" that was supposed to fix the single-vertex defect WAS
+            # the single-vertex defect, and the numbers did not move -- which is
+            # the only reason it was caught.  A sorted split is shear-proof:
+            # the caps are POST_LEN apart and each spans only the shear over
+            # POST_DIA, so the two halves cannot interleave.  Asserted below.
+            _sz = sorted(_pv, key=lambda v: v.z)
+            _h = len(_sz) // 2
+            _lowg, _higg = _sz[:_h], _sz[_h:]
+            _spread = max(_lowg[-1].z - _lowg[0].z, _higg[-1].z - _higg[0].z)
+            _sep = _higg[0].z - _lowg[-1].z
+            if _sep <= _spread:
+                fails.append(
+                    f"SPEC 10.91: post '{_p.name}' cap clustering is unsafe -- "
+                    f"separation {_sep*1000:.3f} mm is not greater than the "
+                    f"within-cap spread {_spread*1000:.3f} mm, so the halves "
+                    f"may interleave and the contact test is meaningless.")
+            _row = {}
+            for _tag, _face, _dir in (("blade", _lowg, Vector((0, 0, -1))),
+                                      ("bar", _higg, Vector((0, 0, +1)))):
+                # A PENETRATION DEPTH IS NOT A DISTANCE TO AN EXIT SURFACE.
+                # The third version of this guard cast from the post's face in
+                # the direction of travel and, when the face started INSIDE the
+                # target, measured the distance to where the ray LEFT it: it
+                # reported "overlap 108.24 mm" (BUMP_PROFILE's full 108 mm
+                # height) and "overlap 24.97 mm" (BAR_DIA exactly).  Both are the
+                # member's own thickness, not an overlap.  Those two round
+                # numbers are what gave it away -- SPEC 10.90's "detector that
+                # found the wrong object and returned a plausible number", except
+                # here the number was not even plausible.
+                #
+                # THE FIX IS TO MEASURE THE TARGET'S SURFACE, NOT A RAY LENGTH.
+                # Approach each target from OUTSIDE it, find the facing surface,
+                # and take the SIGNED height difference against the post's face:
+                #   signed > 0  the post floats clear
+                #   signed < 0  the post is welded in by that much
+                # Sign is then a subtraction, not an inference from a normal.
+                _sgn, _hits = [], set()
+                _far = 0.25
+                for _v in _face:
+                    _start = _v - _dir * _far          # outside, beyond target
+                    _o = Vector(_start)
+                    _found = None
+                    for _ in range(10):
+                        _ok, _loc, _n, _i, _ob, _mw = \
+                            bpy.context.scene.ray_cast(_dg2, _o, _dir,
+                                                       distance=2 * _far)
+                        if not _ok:
+                            break
+                        _hits.add(_ob.name)
+                        # the facing surface of the wanted target: its normal
+                        # opposes the direction of travel
+                        if _ob.name == _WANT_T[_tag] and _n.dot(_dir) < 0.0:
+                            _found = _loc.z
+                            break
+                        _o = _loc + _dir * 1e-6
+                    if _found is None:
+                        continue
+                    # blade: dir is DOWN, post face above target => v.z - surf
+                    # bar:   dir is UP,   post face below target => surf - v.z
+                    _sgn.append((_v.z - _found) if _tag == "blade"
+                                else (_found - _v.z))
+                _row[_tag] = (min(_sgn) if _sgn else None,
+                              max(_sgn) if _sgn else None, _hits)
+            _pres.append((_p.name, _row))
+        # THE TOLERANCE IS DELIBERATELY ASYMMETRIC AND THAT IS STATED, NOT SLID
+        # IN.  A GAP is a defect at 1.0 mm -- the owner's ruling is that the post
+        # JOINS the two members.  An OVERLAP is a weld, and a real post welded to
+        # a curved channel top is scribed into it; it does not hover above the
+        # crown.  So the weld side is bounded by POST_WELD_MAX, which is DERIVED
+        # from BUMP_PROFILE's own crown-to-station slope and moves if the profile
+        # does.  It is NOT a free tolerance and it is NOT the same number as
+        # POST_TOL.  Calling this "two-sided" without saying which side is which
+        # is the mistake SPEC 10.90's ARM 3 made.
+        _WELD_CAP = _D30.POST_WELD_MAX + POST_TOL
+        for _nm, _row in _pres:
+            for _tag in ("blade", "bar"):
+                _closest, _furthest, _hits = _row[_tag]
+                _side = "below" if _tag == "blade" else "above"
+                _want = _WANT_T[_tag]
+                if _closest is None:
+                    fails.append(
+                        f"SPEC 10.91: post '{_nm}' finds no facing surface of "
+                        f"'{_want}' {_side} it (saw {sorted(_hits) or 'nothing'})"
+                        f" -- it does not reach the {_tag} at all. The owner's "
+                        f"ruling is that it JOINS the bar to the bumper.")
+                elif _closest < -_WELD_CAP:
+                    fails.append(
+                        f"SPEC 10.91: post '{_nm}' is DRIVEN INTO the {_tag} -- "
+                        f"welded in {-_closest*1000:.2f} mm {_side}, past the "
+                        f"bound {_WELD_CAP*1000:.2f} mm (BUMP_PROFILE's own "
+                        f"crown-to-station slope "
+                        f"{_D30.POST_WELD_MAX*1000:.2f} + tol "
+                        f"{POST_TOL*1000:.1f}). This is the OTHER side of the "
+                        f"test, not the floating one.")
+                elif _closest > POST_TOL:
+                    fails.append(
+                        f"SPEC 10.91: post '{_nm}' floats {_closest*1000:.2f} "
+                        f"mm clear of the {_tag} at its CLOSEST sample (tol "
+                        f"{POST_TOL*1000:.1f} mm). It must JOIN the two "
+                        f"members, not hang between them.")
+        if len(_pres) == 2 and all(_row[t][0] is not None
+                                   for _, _row in _pres
+                                   for t in ("blade", "bar")):
+            _asym = max(abs(_pres[0][1][t][0] - _pres[1][1][t][0])
+                        for t in ("blade", "bar"))
+            if _asym > 1e-4:
+                fails.append(
+                    f"SPEC 10.91: the two posts are not symmetric -- "
+                    f"{_asym*1000:.3f} mm apart. They are mirror-built.")
+
+            def _r(t):
+                _c, _f, _ = _pres[0][1][t]
+                return (f"welded {-_c*1000:.2f} mm" if _c < 0 else
+                        f"gap {_c*1000:.2f} mm")
+            log(f"  over-rider posts (SPEC 10.91, rev 37, WORKSHOP-STAGE): 2 "
+                f"posts at y=+-{_D30.POST_Y:.4f} -- the EXISTING bumper-iron "
+                f"station, {_D30.POST_Y/_D30.BAR_HALF_Y:.4f} of the bar's "
+                f"DERIVED half-span, so the bar continues "
+                f"{(_D30.BAR_HALF_Y-_D30.POST_Y)*1000:.1f} mm outboard past "
+                f"them, as the owner stated. dia {_D30.POST_DIA*1000:.2f} mm "
+                f"= BAR_DIA (image bracket on post/tube is 0.68-1.52, "
+                f"OPERATOR-MISMATCHED); length {_D30.POST_LEN*1000:.2f} mm "
+                f"DERIVED; landed on _blade_top_at(axis), NOT on the crown. "
+                f"blade {_r('blade')}, bar {_r('bar')}; gap tol "
+                f"{POST_TOL*1000:.1f} mm, weld bound {_WELD_CAP*1000:.2f} mm "
+                f"DERIVED from BUMP_PROFILE -- ASYMMETRIC ON PURPOSE. Lateral "
+                f"station is a STRUCTURAL INFERENCE, NOT a metre measurement: "
+                f"SPEC 10.72 still admits no px/m on this plane.")
 
     log(f"  gap_englid is in the (y,z) TAIL frame at x="
         f"{_T.X_TAIL + _S.ENGLID_CUT_DX:.4f}; no flank aperture shares that "
