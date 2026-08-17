@@ -1140,6 +1140,89 @@ def run(body, log=print):
                 f"model-free upper bound on the ratio is "
                 f"{_D30.BAR_RATIO_MAX:.4f}. Lateral extent is graded E.")
 
+            # ---------------------------------------------------------------
+            # SPEC 10.90, rev 36.  THE HOOP ENDS MUST MEET THE BUMPER.
+            #
+            # The owner reported the ends floating and rev 36 closed it.  This
+            # is the GUARD for that, not a probe: a probe is a thing somebody
+            # has to remember to run.  It is TWO-SIDED on purpose -- it fails
+            # both if the ends float AND if they sink into the blade, because
+            # "touching" bounded on one side only is satisfied by driving the
+            # tube through the bumper.
+            #
+            # It measures by RAY-CAST, so it is immune to the frame error that
+            # broke rev 36's own first attempt at this number by 81.7 mm: the
+            # bar is authored un-dropped and step 8b shears it afterwards.
+            _dg = bpy.context.evaluated_depsgraph_get()
+            _bvw = [(_orb.matrix_world @ v.co) for v in _orb.data.vertices]
+            _ym = max(abs(v.y) for v in _bvw)
+            _gaps = []
+            for _s in (+1, -1):
+                _band = [v for v in _bvw if _s * v.y >= 0.94 * _ym]
+                _lo = min(_band, key=lambda v: v.z)
+                _o = _lo + Vector((0, 0, -1e-5))
+                _ok, _loc, _n, _i, _ob, _mw = bpy.context.scene.ray_cast(
+                    _dg, _o, Vector((0, 0, -1)), distance=0.2)
+                # the bar itself may be hit first; step past it
+                for _ in range(6):
+                    if not _ok or _ob is not _orb:
+                        break
+                    _o = _loc + Vector((0, 0, -1e-5))
+                    _ok, _loc, _n, _i, _ob, _mw = bpy.context.scene.ray_cast(
+                        _dg, _o, Vector((0, 0, -1)), distance=0.2)
+                # THE SIGN MATTERS, AND THE FIRST VERSION OF THIS GUARD LOST
+                # IT.  Falsification ARM 3 drove the leg 1.5x, punching the
+                # tube THROUGH the bumper -- and the guard failed (correctly)
+                # with the message "floats 77.38 mm", which is the OPPOSITE of
+                # what had happened.  A downward ray started INSIDE a solid
+                # leaves through a DOWN-facing surface, so the hit normal's z
+                # sign separates float from penetration.  SPEC 10.87.2's family
+                # -- a narration contradicting its own table -- and it was
+                # caught by READING THE ARM'S OUTPUT, not by noting it went red.
+                _gaps.append(((_loc - _lo).length,
+                              _ob.name if _ok else None,
+                              _n.z if _ok else 0.0)
+                             if _ok else (None, None, 0.0))
+            ORB_TANGENT_TOL = 0.0010          # 1.0 mm, two-sided
+            for _s, (_g, _hit, _nz) in zip(("+y", "-y"), _gaps):
+                if _g is None:
+                    fails.append(
+                        f"SPEC 10.90: the over-rider's {_s} end casts DOWN "
+                        f"into nothing -- it does not sit over the bumper at "
+                        f"all. The owner's rev-35 report is un-fixed.")
+                elif _hit != "bumper_f":
+                    fails.append(
+                        f"SPEC 10.90: the over-rider's {_s} end lands on "
+                        f"'{_hit}', not on bumper_f")
+                elif _g > ORB_TANGENT_TOL and _nz < 0.0:
+                    fails.append(
+                        f"SPEC 10.90: the over-rider's {_s} end is DRIVEN "
+                        f"THROUGH the bumper -- the downward ray leaves via a "
+                        f"down-facing surface {_g*1000:.2f} mm below, so the "
+                        f"tube starts INSIDE the blade. 'Touching' is bounded "
+                        f"on BOTH sides; this is the other side.")
+                elif _g > ORB_TANGENT_TOL:
+                    fails.append(
+                        f"SPEC 10.90: the over-rider's {_s} end floats "
+                        f"{_g*1000:.2f} mm above the bumper (tol "
+                        f"{ORB_TANGENT_TOL*1000:.1f} mm). rev 35's owner "
+                        f"report was that the ends do not connect; they must.")
+            if all(_g is not None for _g, _, _ in _gaps):
+                _dsym = abs(_gaps[0][0] - _gaps[1][0])
+                if _dsym > 1e-4:
+                    fails.append(
+                        f"SPEC 10.90: the two hoop ends are not symmetric -- "
+                        f"{_dsym*1000:.3f} mm apart. The bar is mirror-built; "
+                        f"asymmetry means the path, not the geometry.")
+                log(f"  over-rider hoop ends (SPEC 10.90, rev 36): land on "
+                    f"bumper_f with {_gaps[0][0]*1000:.2f} / "
+                    f"{_gaps[1][0]*1000:.2f} mm residual (tol "
+                    f"{ORB_TANGENT_TOL*1000:.1f}, TWO-SIDED); was 23.59 mm of "
+                    f"clear air in rev 30-35. BAR_HALF_Y is now DERIVED "
+                    f"({_D30.BAR_HALF_Y:.6f}) from a FROZEN tip "
+                    f"({_D30.BAR_TIP_Y:.6f}); BAR_END_DROP and BAR_END_BACK "
+                    f"are RETIRED.")
+
     log(f"  gap_englid is in the (y,z) TAIL frame at x="
         f"{_T.X_TAIL + _S.ENGLID_CUT_DX:.4f}; no flank aperture shares that "
         f"surface, so a flank crossing test is NOT APPLICABLE (stated, not "

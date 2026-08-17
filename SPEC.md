@@ -6324,3 +6324,223 @@ height remains a bracket, ≈0.40–0.49 m. `422 px/m` is consumed nowhere. The 
 and still need rewriting, not fixing** — rev 35 did not reach them.
 **A SQUARE-ON FRAME OF THE FRONT REMAINS THE ONLY THING THAT CLOSES THE POST**,
 and after §10.89.3 it is also the only thing that could bound the camera's roll.
+
+### 10.90  rev 36 — THE HOOP ENDS MEET THE BUMPER AT LAST; THREE OF REV 35's FIGURES FALL; A COLUMN THE PROJECT HAS CONSUMED SINCE REV 32 IS RENAMED BY THE OWNER; AND §10.83's FIVE-REVISION QUESTION DISSOLVES BECAUSE IT ASSUMED THERE WAS ONE POST
+
+**The first geometry change since rev 30.**
+
+#### 10.90.1  The owner's report, and the three things wrong with the old end
+
+*[stated, rev 35]* "the upper bar appears to also connect with the main bumper
+on either end. In the current version, there is no connection made."
+
+Rev 35 confirmed this **"against the build's own constants, no render needed"**
+and published two magnitudes. That method is the defect. It read the
+CONSTANTS and not the FUNCTION THAT CONSUMES THEM: `overrider_bar()` capped the
+hoop's turn at `(π/2)×0.62` = **55.80°**, the code's own comment saying
+*"≤ 56 deg from horizontal"*, so the end descended `DROP·sin(a)` and retreated
+`BACK·(1−cos a)`, not `DROP` and `BACK`.
+
+Measured instead by **ray-cast through the built scene** — frame-free, and so
+immune to the un-dropped/dropped confusion that broke rev 36's own first
+attempt at this number by 81.7 mm:
+
+| | rev 35 | **measured, rev 36** |
+|---|---|---|
+| vertical clear air above the blade | 8.1 mm | **23.59 mm** |
+| tip behind the blade face | 52.4 mm | **0.51 mm** |
+
+**THERE WAS ONE GAP, NOT TWO, AND IT WAS 2.9× THE PUBLISHED SIZE** — 0.945 ×
+`BAR_DIA`, not 0.32×. The fore-aft figure does not describe this build in any
+axis: `BAR_X` is *defined* as `2.1403 − BAR_DIA/2`, "outer faces coplanar", and
+the measurement confirms the choice took.
+
+Two further defects, neither of which was the gap:
+
+- **A TANGENT DISCONTINUITY.** The old arc's first segment left the horizontal
+  bar at **61.2° below horizontal instantly** — a kink in a swept tube — then
+  **flattened to 43.4°** by its end, because the rearward term grew faster than
+  the drop term. A kink needs no measurement to call. Nobody had looked at the
+  tangent in six revisions.
+- **THE 0.62 WAS NEVER A SHAPE DECISION.** The comment gives a NUMERICAL
+  reason: `sweep()`'s frame is `t × UP` and degenerates as the tangent
+  approaches UP. **A NUMERICAL WORKAROUND HAD BECOME THE SHAPE, AND THEREFORE
+  THE DEFECT THE OWNER REPORTED.**
+
+#### 10.90.2  What the photograph measures, scale-free
+
+Tracing the tube's centreline through the near bend of `ref_workshop.jpg`,
+**111 samples**, with the tube's own apparent diameter (**10.0 px**) as the
+scale ruler: horizontal, then a bend of radius **1.35 tube diameters**, then a
+descent at **69° below horizontal which it HOLDS**.
+
+**Bend then steepen. The build kinked then flattened.** Wrong in kind.
+
+Both figures are image-space and **each is published with the direction of its
+bound**: the bend plane is foreshortened, which compresses it, so **1.35 is a
+LOWER bound on the true radius and 69° is an UPPER bound on the true angle.**
+
+#### 10.90.3  What was built, and what is now derived rather than chosen
+
+A **true circular bend** tangent to the bar (`BEND_R_RATIO` × `BAR_DIA`,
+MEASURED), turning to `BEND_THETA` (MEASURED), then a **straight leg whose
+length is DERIVED** so the tube's end cap lands on the bumper.
+
+- `BAR_LEG_LEN` — **DERIVED**, 66.06 mm.
+- `BAR_HALF_Y` — **DERIVED**, 0.574387. No longer a free grade-E constant.
+- `BAR_TIP_Y` — **FROZEN** at the rev-30..35 tip, written as the OLD FORMULA so
+  the equality is provable rather than asserted. **THE BAR'S OUTER EXTENT DOES
+  NOT MOVE**: `BAR_HALF_Y = 0.6000` was graded E "spans the nose as
+  photographed", so what was matched to the photograph was the TIP, and it is
+  the tip that is held. Every fraction ever published about this assembly
+  carries `BAR_HALF_Y` in its denominator; freezing the tip rather than the root
+  is what keeps the silhouette identical while the end changes.
+- `BAR_END_BACK`, `BAR_END_DROP` — **RETIRED, not re-tuned.** Both grade E, no
+  support. `BAR_END_BACK`'s only effect was to carry the end 17.5 mm rearward,
+  **off the back of a blade top face only 24.8 mm deep — so no amount of extra
+  drop could ever have landed the tube on it.**
+
+**THE LANDING DATUM IS NOT `BLADE_TOP_Z`, AND THE FIRST ATTEMPT ASSUMED IT WAS.**
+It landed on the blade's CROWN and the built gap came out **2.32 mm** instead of
+zero. `BLADE_TOP_Z` is `bumper() z + BUMP_PROFILE max`, and that max sits at
+outward 0.000, hard against the body; the channel's top **slopes away** — 0.0560
+at outward 0, 0.0532 at 0.0150. The tube stands at outward 0.0123, where the
+blade is **2.30 mm lower than its crown**, which is the 2.32 mm to 0.02 mm. A
+**DATUM ERROR**, SPEC 10.24's indicator-lens family. `BLADE_TOP_Z` is
+deliberately left alone — it anchors `BAR_Z` and verify.py's over-rider row, and
+moving it to suit this derivation would silently re-baseline a guard.
+
+**RESULT: 23.59 mm → 0.02 mm**, both ends, symmetric to 0.002 mm. The 0.02 mm is
+mesh discretisation — the swept profile is a 6-segment rounded rect, not an
+analytic circle.
+
+#### 10.90.4  The guard, and the arm that caught its narration
+
+`verify.py` gains **SPEC 10.90**, a **TWO-SIDED** ray-cast guard: it fails both
+if the ends float AND if they sink into the blade, because *"touching"* bounded
+on one side only is satisfied by driving the tube through the bumper.
+
+Four falsification arms, all firing: landing datum reverted to the crown
+(**2 fails**); straight leg removed (**2 fails**, 61.01 mm); leg over-driven
+×1.5 (**2 fails**); ends made asymmetric (**2 fails**, including the symmetry
+row at 6.166 mm).
+
+**ARM 3 CAUGHT THE GUARD'S NARRATION, NOT ITS VERDICT.** With the tube driven
+THROUGH the bumper the guard failed — correctly — with the message
+*"floats 77.38 mm"*, **which is the opposite of what had happened.** A downward
+ray started inside a solid leaves through a DOWN-facing surface, so the hit
+normal's z sign separates float from penetration; the guard now does that.
+**SPEC 10.87.2's family, and it was caught by READING THE ARM'S OUTPUT rather
+than by noting that it went red.**
+
+#### 10.90.5  THE OWNER RENAMES A COLUMN THE PROJECT HAS CONSUMED SINCE REV 32
+
+Shown a 7× crop of the far end and asked what it shows, he answered — and his
+answer was **none of the four options offered**, which by this project's own
+rule means the option set did not reach far enough:
+
+*[stated, rev 36]* "that circle is the post that connects the bumper to the bar,
+and both continue past the post. past that, out of sight the bar wraps
+downwards, and meets with the bumper, the same way it does on the close side"
+
+**`u = 205–208` IS A POST'S OUTER EDGE, NOT THE BAR'S FAR END.** That column was
+put to him TWICE — rev 33 Q1 and rev 34 Q1b — under the label *"the bar's far
+end"*, and both answers were consumed as readings of a bar terminus. **HIS
+READINGS WERE RIGHT; THE LABEL WAS WRONG.** Every C5 row from rev 32 onward
+inherits it, and §10.88's retirement of the cross-ratio turned on *"the strut
+sits 1.5 px from the bar's far end"* — a statement about a feature that is not
+there.
+
+Corroborated independently from the frame: the element stands **20–35 px
+outboard of the vehicle's own green silhouette** (body edge cols 229–242, post
+edge 205–213). Something proud of the body with the bar and bumper carrying on
+behind it is exactly that geometry.
+
+#### 10.90.6  §10.83 DISSOLVES: THERE ARE TWO POSTS AND NEITHER IS ON THE CENTRELINE
+
+`probe_rev36_posts.py`, 5 controls, all passing.
+
+| | column |
+|---|---|
+| FAR post centre | **219.5** (cols 214–225) |
+| NEAR post centre | **362.5** (cols 359–366) |
+| midpoint | **291.0** |
+| centreline, §10.85 rev 31b, from the V-swage arms | **288.8 ± 3** |
+
+The target is **read from `REF_MEASUREMENTS.md` at run time, not typed into the
+probe**, so it was fixed five revisions before the claim existed and cannot have
+been tuned to it.
+
+**§10.83 has spent five revisions trying to place "the post at the vehicle's
+centreline" and failing. THE QUESTION WAS UNANSWERABLE BECAUSE IT ASSUMED THERE
+WAS ONE POST.** There are two and they straddle the centreline.
+
+**PRICED, NOT ADMIRED.** Two columns drawn uniformly from the search window land
+within 3 px of 288.8 **2.45 % of the time** — about **41:1**, not proof. And it
+is **SENSITIVE**: with this probe's near-post column (362.5) the residual is
+**0.73 of the band**; with the column the project has consumed since rev 32
+(365.5) it is **1.23 — OUTSIDE**. **A RESULT THAT FLIPS ON A 3 px CHOICE IS
+SUGGESTIVE, NOT ESTABLISHED**, and it is recorded at that strength.
+
+**MY FIRST DETECTOR FOR THIS FIRED ON THE VEHICLE'S OWN CREAM V-SWAGE**,
+reporting a 30 px "post" at cols 281–310 that is the body. Its falsification arm
+caught two more above the bar. Three controls went down and **the probe refused
+to rule.** The replacement keys on whether the bridge is **capped by the bar** —
+a property of the bridge, not of what happens to be behind it.
+
+#### 10.90.7  A THIRD ESTIMATOR WAS ENUMERATED AND ABANDONED BEFORE IT WAS BUILT
+
+His statement makes the bar's span a **LOWER bound, not a reading** — it
+continues past the far post and wraps out of sight. A construction to recover it
+looked available: a 1-D projectivity is fixed by three collinear correspondences,
+and the two posts plus a centreline would give three.
+
+**IT NEEDS THE CENTRELINE'S IMAGE AT THE BAR'S HEIGHT AND DEPTH.** `u = 288.8`
+is the V-swage apex — a different height at a different depth. **THAT IS EXACTLY
+THE FEATURE §10.89 KILLED THE HARMONIC ROUTE FOR LACKING. THE SAME MISSING
+FEATURE, A THIRD TIME.** Enumerated before building, not after. **NOT OPENED.**
+
+#### 10.90.8  Defects of my own, six
+
+1. **A FRAME ERROR, `verify.py` 11d2's, reproduced.** The first bar-end probe
+   compared un-dropped constants against the dropped mesh and failed its own
+   control C3 by **81.7 mm**. Caught before a number was published; rebuilt on
+   ray-casts, which are frame-free by construction.
+2. **A DETECTOR THAT FOUND THE WRONG OBJECT AND RETURNED A PLAUSIBLE NUMBER.**
+   `mark_rev36_ends.py`'s first "bumper top edge right of the plate" read the
+   **BAR TUBE**, which passes through the same rows, giving 24 px where the true
+   rise is ~48. Replaced by a **topological** two-sided test — the column at
+   which bar and bumper stop being one white body — which needs no discrimination
+   at all.
+3. **A SEARCH ANCHORED ON THE BOUNDARY IT WAS LAUNCHED FROM.** That replacement
+   started at `EDGE+2`, on the antialiased edge pixel, where the body splits and
+   the scan reads two runs immediately. It returned col 210 instead of 226.
+4. **A POST DETECTOR KEYED ON BACKGROUND COLOUR** — §10.90.6 above.
+5. **A GUARD WHOSE FAILURE MESSAGE DESCRIBED THE OPPOSITE DEFECT** — §10.90.4.
+6. **THE LANDING DATUM** — §10.90.3.
+
+**AND A SEVENTH, INHERITED AND NOT MINE: THE BRIEF I WAS HANDED HAD LOST HIS OWN
+DEFECT REPORT ENTIRELY.** *"the upper bar appears to also connect with the main
+bumper on either end"* appears in **NO** carrier that crosses contexts — not
+`SPEC.md`, not `HANDOFF_rev35.md`, not anywhere in `NEXT_CONTEXT_PROMPT_rev36.md`,
+whose §6 item 1 is the probe rewrite and whose §5 states *"NO QUESTION IS
+OUTSTANDING WITH ME."* All four checked by grep. **The only surviving carrier
+was memory.** Had the code been opened first, rev 36 would have rewritten two
+probes and never touched the bar. **THE CARRIER THAT FAILED IS THE ONE HE PASTES
+IN**, and that is the "travel between contexts consciously" failure by name.
+
+#### 10.90.9  What is still not known, stated rather than papered over
+
+- **WHERE ALONG THE BAR the junction sits.** The span is a LOWER bound. The
+  build places it at the frozen tip because that is where the old build put it,
+  and that is a CHOICE inherited, not a reading.
+- **The manner of the junction at the NEAR end is UNOBSERVED.** Rows **725–732**
+  at cols 470–510 carry **ZERO white and 50 % dark** — a black workshop frame
+  member crosses the junction. Rev 35 reported *"one continuous white path"*
+  there; **it read a junction through an occlusion**, and its crop stopped at
+  v 730, inside the band. A **NEW MARK CLASS, the OCCLUSION BAND**, was added to
+  say so on the figure — the first mark in this project that marks the *absence*
+  of legibility rather than something legible. Its negative control matters:
+  clear body reads zero white too, so **zero white alone proves nothing**; the
+  band is an occlusion because it is 50 % DARK.
+- **`BEND_R_RATIO` and `BEND_THETA` are image-space bounds, not 3-D readings.**

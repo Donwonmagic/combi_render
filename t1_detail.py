@@ -508,30 +508,182 @@ BAR_RISE = BAR_RISE_RATIO * APERTURE_M     # 0.09797 m
 BLADE_TOP_Z = 0.4800 + 0.0560              # bumper() z + BUMP_PROFILE max
 BAR_Z = BLADE_TOP_Z + BAR_RISE - BAR_DIA / 2.0
 BAR_X = 2.1403 - BAR_DIA / 2.0             # outer faces coplanar -- a CHOICE
-BAR_HALF_Y = 0.6000        # E: spans the nose as photographed, NOT measured
-BAR_END_DROP = 2.6 * BAR_DIA               # E: the hoop end turns down
-BAR_END_BACK = 1.6 * BAR_DIA               # E: and back
+# ---------------------------------------------------------------------------
+# rev 36, SPEC 10.90.  THE HOOP ENDS NOW MEET THE BUMPER.
+#
+# THE OWNER'S REPORT (rev 35, verbatim): "the upper bar appears to also connect
+# with the main bumper on either end.  In the current version, there is no
+# connection made."  And rev 36, shown the far end: "that circle is the post
+# that connects the bumper to the bar, and both continue past the post.  past
+# that, out of sight the bar wraps downwards, and meets with the bumper, the
+# same way it does on the close side."
+#
+# THREE THINGS WERE WRONG WITH THE OLD END, AND ONLY ONE OF THEM WAS THE GAP.
+#
+# 1. THE GAP.  Measured by RAY-CAST THROUGH THE BUILT SCENE, not by arithmetic
+#    on constants: 23.59 mm of clear air, 0.945 x BAR_DIA, both ends, symmetric
+#    to 0.002 mm.  Rev 35 published 8.1 mm PLUS a second, fore-aft gap of
+#    52.4 mm.  THERE WAS ONE GAP, NOT TWO, and it was 2.9x the published size;
+#    the tip sits 0.51 mm behind the blade face, coplanar by construction.  Both
+#    of rev 35's figures came from spending BAR_END_DROP and BAR_END_BACK AT
+#    FULL VALUE when the code turned the hoop only 0.62 of a quarter turn.
+#    A CLAIM IN PROSE IS NOT A GUARD -- and neither is a claim read off a
+#    constant whose consumer modifies it.
+#
+# 2. A TANGENT DISCONTINUITY.  The old arc's first segment left the horizontal
+#    bar at 61.2 deg below horizontal INSTANTLY -- a kink in a swept tube, which
+#    is a modelling error needing no measurement to call -- and then FLATTENED
+#    to 43.4 deg by its end, because the rearward BAR_END_BACK term grew faster
+#    than the drop term.  Nobody had looked at the tangent.
+#
+# 3. IT FLATTENED WHERE THE PHOTOGRAPH STEEPENS.  Tracing the tube's centreline
+#    through the near bend of ref_workshop.jpg (111 samples; the tube's own
+#    apparent diameter, 10.0 px, is the scale ruler, so the result is
+#    SCALE-FREE): horizontal, then a bend of radius 1.35 tube diameters, then a
+#    descent at 69 deg below horizontal which it HOLDS.  Bend then steepen --
+#    the opposite of kink then flatten.
+#
+# GRADES.  Two measured ratios, each stated WITH THE DIRECTION OF ITS BOUND,
+# and everything else derived:
+#
+#   BEND_R_RATIO  MEASURED, image, scale-free.  A LOWER BOUND on the true
+#                 radius -- the bend plane is foreshortened, which compresses it
+#                 and makes the bend look tighter than it is.
+#   BEND_THETA    MEASURED, image.  An UPPER BOUND on the true angle, by the
+#                 same foreshortening, in the same direction.
+#   BAR_LEG_LEN   DERIVED.  Solved so the tube's end lands ON the blade.
+#   BAR_HALF_Y    DERIVED.  No longer a free grade-E constant.
+#
+# THE BAR'S OUTER EXTENT DOES NOT MOVE.  `BAR_HALF_Y = 0.6000` was graded E with
+# the comment "spans the nose as photographed, NOT measured" -- so what was
+# matched to the photograph was the bar's VISIBLE SPAN, i.e. its TIPS.  The tip
+# is therefore FROZEN at exactly its rev-30..35 value, written as the OLD
+# FORMULA so the equality is provable rather than asserted, and BAR_HALF_Y now
+# follows from it.  Every fraction this project has published about this
+# assembly carries BAR_HALF_Y in its denominator; freezing the tip rather than
+# the root is what keeps the silhouette identical while the end changes.
+#
+# BAR_END_BACK IS RETIRED, NOT RE-TUNED.  Grade E, no support, and its only
+# effect was to carry the hoop's end 17.5 mm rearward -- off the back of a blade
+# top face only 24.8 mm deep, so NO amount of extra drop could ever have landed
+# the tube on it.  The hoop is now planar at BAR_X.
+#
+# WHAT IS STILL NOT KNOWN, stated rather than papered over: WHERE ALONG THE BAR
+# the junction sits.  He says the bar continues past the far post and wraps out
+# of sight, so the span is a LOWER bound, not a reading.  A construction to
+# recover it was ENUMERATED AND ABANDONED BEFORE IT WAS BUILT: a 1-D
+# projectivity needs three collinear images; the two posts give two; the third
+# would have to be the centreline's image AT THE BAR'S HEIGHT AND DEPTH --
+# exactly the feature SPEC 10.89 killed the harmonic route for lacking.
+# u = 288.8 is the V-swage apex, a different height at a different depth.
+# THE SAME MISSING FEATURE, A THIRD TIME.  Not opened.
+_OLD_HALF_Y = 0.6000                        # rev 30-35's value, to freeze the tip
+_OLD_DROP = 2.6 * BAR_DIA                   # rev 30-35's BAR_END_DROP
+_OLD_AMAX = 0.62 * math.pi / 2.0            # rev 30-35's capped sweep angle
+BAR_TIP_Y = _OLD_HALF_Y + 0.55 * _OLD_DROP * math.sin(_OLD_AMAX)    # FROZEN
+
+BEND_R_RATIO = 1.35                         # MEASURED image, LOWER bound
+BEND_R = BEND_R_RATIO * BAR_DIA
+BEND_THETA = math.radians(69.0)             # MEASURED image, UPPER bound
+
+# THE LANDING DATUM IS NOT `BLADE_TOP_Z`.
+#
+# The first version of this derivation landed the tube on BLADE_TOP_Z and the
+# built gap came out at 2.32 mm instead of zero.  BLADE_TOP_Z is the blade's
+# CROWN -- `bumper() z + BUMP_PROFILE max` -- and BUMP_PROFILE's max sits at
+# outward 0.000, hard against the body.  The channel's top face SLOPES AWAY
+# from there: 0.0560 at outward 0, 0.0532 at 0.0150, 0.0430 at 0.0225.  The
+# tube stands at outward 0.0123, where the blade is 2.30 mm lower than its
+# crown -- which is the 2.32 mm, to 0.02 mm.
+#
+# A DATUM ERROR, the same family as SPEC 10.24's indicator-lens depth, which
+# was applied and then refuted because it measured proud-of-PLINTH against a
+# body-skin target.  Caught here by a ray-cast, not by re-reading the algebra.
+# Recorded, not quietly fixed.
+#
+# BLADE_TOP_Z IS DELIBERATELY LEFT ALONE.  It is the datum for BAR_Z and for
+# verify.py's over-rider row ("97.51 mm above the blade top"); moving it to
+# suit this derivation would silently move the bar's height and re-baseline a
+# guard.  The landing datum is a SEPARATE, LOCAL quantity.
+def _blade_top_at(outward):
+    """World z of the bumper channel's UPPER face at a given outward offset.
+
+    Interpolates BUMP_PROFILE's top edge -- the run of points with decreasing
+    'up' from the crown -- so this tracks the profile if the profile changes,
+    rather than restating a number from it.
+    """
+    # The top edge runs from the crown outward, with 'up' falling and 'outward'
+    # rising.  Stop as soon as EITHER stops holding, or the walk carries on
+    # round the outer face and down the underside -- which is monotonic in 'up'
+    # but NOT in 'outward', and would make the bracketing search ambiguous.
+    top = []
+    for o, u in BUMP_PROFILE:
+        if top and (u >= top[-1][1] or o <= top[-1][0]):
+            break
+        top.append((o, u))
+    if len(top) < 2:
+        raise RuntimeError("BUMP_PROFILE has no descending top edge")
+    if outward <= top[0][0]:
+        return 0.4800 + top[0][1]
+    for (o0, u0), (o1, u1) in zip(top, top[1:]):
+        if o0 <= outward <= o1:
+            t = (outward - o0) / (o1 - o0)
+            return 0.4800 + u0 + t * (u1 - u0)
+    return 0.4800 + top[-1][1]
+
+
+# DERIVED.  A tube's end cap is a disc normal to the tangent, so for a tube of
+# radius r whose axis descends at THETA the cap's lowest point sits
+# r*cos(THETA) below the axis end -- and, the tangent lying in the y-z plane,
+# that lowest point sits at x = BAR_X exactly.  Solve the straight leg that
+# puts THAT point on the blade's top face AT THAT STATION.
+_BAR_R = BAR_DIA / 2.0
+_PROF_MAX_OUT = max(o for o, _ in BUMP_PROFILE)     # 0.0248
+_BLADE_PATH_X = 2.1403 - _PROF_MAX_OUT              # the sweep path's own x
+_BAR_OUTWARD = BAR_X - _BLADE_PATH_X                # where the tube stands
+_LAND_Z = _blade_top_at(_BAR_OUTWARD)               # THE LANDING DATUM
+_Z_AXIS_END = _LAND_Z + _BAR_R * math.cos(BEND_THETA)
+_DROP_TOTAL = BAR_Z - _Z_AXIS_END
+_DROP_BEND = BEND_R * (1.0 - math.cos(BEND_THETA))
+BAR_LEG_LEN = (_DROP_TOTAL - _DROP_BEND) / math.sin(BEND_THETA)     # DERIVED
+_Y_EXC = BEND_R * math.sin(BEND_THETA) + BAR_LEG_LEN * math.cos(BEND_THETA)
+BAR_HALF_Y = BAR_TIP_Y - _Y_EXC                                     # DERIVED
+assert BAR_LEG_LEN > 0.0, "the bend alone over-runs the blade"
+assert BAR_HALF_Y > 0.0, "the bend consumes the whole bar"
 
 
 def overrider_bar(name="orb_bar"):
-    """The transverse over-rider tube across the nose, with the rounded hoop
-    ends the photograph shows and SPEC has never recorded.  Workshop-stage."""
+    """The transverse over-rider tube across the nose.  Each end turns down
+    through a TRUE CIRCULAR BEND, tangent to the bar where it leaves it, then
+    runs straight until it meets the bumper's top.  Workshop-stage.
+
+    The bend stops at BEND_THETA (69 deg) rather than at vertical, which is
+    both what the photograph measures AND what keeps sweep() away from its
+    frame singularity: sweep()'s side vector is t x UP, whose magnitude here is
+    cos(BEND_THETA) = 0.358, not zero.  The old code dodged that singularity by
+    capping the turn at 0.62 of a quarter turn -- A NUMERICAL WORKAROUND THAT
+    HAD BECOME THE SHAPE, and therefore the gap the owner reported.
+    """
     path = []
     n = 24
     for i in range(n + 1):
         y = -BAR_HALF_Y + 2 * BAR_HALF_Y * i / n
         path.append((BAR_X, y, BAR_Z))
-    # hoop ends: a quarter turn down and back at each end.  The turn is kept
-    # off vertical on purpose -- sweep()'s frame is built from t x UP and
-    # degenerates as the tangent approaches UP.
     for s, at in ((-1, 0), (1, len(path))):
         arc = []
-        m = 7
-        for k in range(1, m + 1):
-            a = (math.pi / 2) * k / m * 0.62      # <= 56 deg from horizontal
-            arc.append((BAR_X - BAR_END_BACK * (1 - math.cos(a)),
-                        s * (BAR_HALF_Y + 0.55 * BAR_END_DROP * math.sin(a)),
-                        BAR_Z - BAR_END_DROP * math.sin(a)))
+        m = 10
+        for k in range(1, m + 1):                       # circular bend
+            a = BEND_THETA * k / m
+            arc.append((BAR_X,
+                        s * (BAR_HALF_Y + BEND_R * math.sin(a)),
+                        BAR_Z - BEND_R * (1.0 - math.cos(a))))
+        y_t = BAR_HALF_Y + BEND_R * math.sin(BEND_THETA)
+        z_t = BAR_Z - BEND_R * (1.0 - math.cos(BEND_THETA))
+        for k in range(1, 4):                           # straight leg
+            L = BAR_LEG_LEN * k / 3.0
+            arc.append((BAR_X,
+                        s * (y_t + L * math.cos(BEND_THETA)),
+                        z_t - L * math.sin(BEND_THETA)))
         if at == 0:
             path = list(reversed(arc)) + path
         else:
