@@ -104,7 +104,7 @@ tree at commit `7c74e57`, `working tree | clean`, with `STATE_rev36.md`
 alongside. **It has a `working tree` row; if that says DIRTY, the file is not
 a record of anything.**
 
-**§10.90 IS REV 36's. IT MOVES GEOMETRY.** It does nine things:
+**§10.90 IS REV 36's. IT MOVES GEOMETRY.** It does ten things:
 1. **OVERTURNS ALL THREE OF REV 35's FIGURES** about the bar's ends. One gap,
    not two; 23.59 mm, not 8.1; the fore-aft gap does not exist.
 2. **FINDS TWO DEFECTS THAT WERE NOT THE GAP** — a 61.2° tangent discontinuity,
@@ -117,7 +117,9 @@ a record of anything.**
 7. **DISSOLVES §10.83** — two posts, neither on the centreline.
 8. **ENUMERATES A THIRD ESTIMATOR'S PRECONDITIONS AND ABANDONS IT BEFORE
    BUILDING IT.**
-9. **RECORDS SIX DEFECTS OF MY OWN, PLUS A SEVENTH THAT WAS THE BRIEF'S.**
+9. **RECORDS SIX DEFECTS OF MY OWN, PLUS ONE THAT WAS THE BRIEF'S.**
+10. **ADDS A SEVENTH OF MY OWN, FOUND AFTER THE BUNDLE WAS FIRST CUT** — and
+   the revision was RE-CUT rather than shipped with the record incomplete.
 
 ## Step 5 — ASK ME WHAT THE PHOTOGRAPHS SHOW before you measure from them
 This has now paid off twenty-seven times. Show me a crop, mark the regions,
@@ -276,7 +278,7 @@ git pull --ff-only ../tacombi_rev32_incremental.bundle HEAD      # -> 166
 git pull --ff-only ../tacombi_rev33_incremental.bundle HEAD      # -> 173
 git pull --ff-only ../tacombi_rev34_incremental.bundle HEAD      # -> 182
 git pull --ff-only ../tacombi_rev35_incremental.bundle HEAD      # -> 187
-git pull --ff-only ../tacombi_rev36_incremental.bundle HEAD      # -> 190
+git pull --ff-only ../tacombi_rev36_incremental.bundle HEAD      # -> 191
 ```
 **If a pull says "Need to specify how to reconcile divergent branches", STOP.**
 The hero is gitignored and lives only on my disk.
@@ -284,8 +286,8 @@ The hero is gitignored and lives only on my disk.
 ```bash
 git status                                                   # clean
 grep -c '^### 10.90' SPEC.md                                 # 1   rev 36
-grep -c '^#### 10.90' SPEC.md                                # 9   rev 36
-grep -c '10.90' SPEC.md                                      # 14  rev 36
+grep -c '^#### 10.90' SPEC.md                                # 10  rev 36
+grep -c '10.90' SPEC.md                                      # 15  rev 36
 grep -c 'A NUMERICAL WORKAROUND HAD BECOME THE SHAPE' SPEC.md # 1  rev 36
 grep -c 'THERE WAS ONE GAP, NOT TWO' SPEC.md                 # 1   rev 36
 grep -c 'A THIRD TIME' SPEC.md                               # 1   rev 36
@@ -293,6 +295,7 @@ grep -c 'DATUM ERROR' SPEC.md                                # 1   rev 36
 grep -c 'SUGGESTIVE, NOT ESTABLISHED' SPEC.md                # 1   rev 36
 grep -c 'READING THE ARM' SPEC.md                            # 1   rev 36
 grep -c 'OCCLUSION BAND' SPEC.md                             # 1   rev 36
+grep -c 'READ THAT TOTAL' SPEC.md                             # 1   rev 36
 grep -c 'BAR_TIP_Y' t1_detail.py                             # 2   rev 36
 grep -c 'BEND_THETA' t1_detail.py                            # 13  rev 36
 grep -c '_blade_top_at' t1_detail.py                         # 2   rev 36
@@ -371,7 +374,10 @@ Also: **186 meshes**; 42 materials; 5 constant-rough; **0 non-manifold**;
 band 1.372–1.775. **EVERY INHERITED GEOMETRY FIGURE IS IDENTICAL TO REV 30–35's**
 — the bar's tip was frozen precisely so this stayed true.
 
-Probe controls on the fresh clone: `probe_rev36_barend.py` **8 / 0**;
+Probe controls on the fresh clone, **READ FROM EACH PROBE'S OWN
+`CONTROLS: n checked, m FAILED` SUMMARY LINE, NOT re-derived from its tags** —
+see §10.90.10, where re-deriving them disagreed with three of eight and was
+itself the error: `probe_rev36_barend.py` **8 / 0**;
 `probe_rev36_posts.py` **5 / 0**; `probe_rev35_harmonic.py` **18 checked, 6
 FAILED — H3, H5, G1, G3, B2, B3, and ALL SIX ARE THE RESULT**;
 `probe_rev34_levels.py` **8 / 4**; `probe_rev34_ruling.py` **6 / 4**;
@@ -386,7 +392,7 @@ LEFT FAILING**. **Do not "fix" any of these.**
   and `BAR_END_BACK` RETIRED; `BAR_LEG_LEN` and `BAR_HALF_Y` DERIVED;
   `BAR_TIP_Y` FROZEN; `_blade_top_at()` added.
 - **`verify.py`** — BUILD FILE. SPEC 10.90's two-sided ray-cast guard.
-- **`SPEC.md`** — NEW §10.90, nine parts.
+- **`SPEC.md`** — NEW §10.90, TEN parts.
 - **`STATE.md`** — regenerated on the clean rev-36 tree at `7c74e57`,
   `working tree | clean`. **`STATE_rev36.md`** alongside.
 - **NEW, all read-only**: `probe_rev36_barend.py`, `probe_rev36_posts.py`,
@@ -437,8 +443,10 @@ This section is written LAST, after the final commit, and every figure in §1
 was read off a fresh-clone verification run rather than typed from memory.
 **This has gone wrong in ELEVEN revisions during handoff assembly.**
 
-**FINAL COUNT: 190 commits, clean tree.** *(Verified: this line lands in commit
-190 itself, which is what makes it true — rev 29's pattern, kept since.)*
+**FINAL COUNT: 191 commits, clean tree.** *(Verified: this line lands in commit
+191 itself — the re-cut commit was AMENDED to carry this correction rather than
+adding a 192nd, so the number is true of the commit that states it. rev 29's
+pattern, kept since.)*
 
 **THE GREP TRAP FIRED AGAIN AND THE VERIFICATION RUN CAUGHT IT — INCLUDING ONE
 OF A NEW KIND.** §10.90's own text moved three inherited counts: `10.89`
@@ -449,3 +457,11 @@ returns **0**, because SPEC wraps that sentence across a line break and
 **`grep -c` matches LINES.** Replaced with `'A THIRD TIME'`, which is on one
 line and returns 1. **A GREP ANCHOR IS A PROBE TOO — AND A MULTI-LINE ONE
 CANNOT FIRE.** Fourteenth revision the trap has fired.
+
+**AND THE REVISION WAS RE-CUT AFTER THE BUNDLE WAS ALREADY MADE.** Verifying the
+inherited probe-control counts turned up a SEVENTH defect of mine (§10.90.10):
+an ad-hoc tag counter disagreed with the brief on three of eight probes, and
+**the brief was right both times — the probes report their own totals and some
+controls do not emit a tag.** Rather than ship with the record incomplete,
+§10.90.10 was written, the counts above were re-read, and the bundle was cut
+again. **THE COUNTS IN §1 ARE FROM THE SECOND CUT.**
