@@ -188,3 +188,59 @@ answers.**
 - All 25 inherited probes were **run**, and every control count matches the
   brief. **Do not "fix" any of them.** My own summary grep **under-read six**
   before I read their logs — §10.90.10's lesson, on me, within ten minutes.
+
+---
+
+## 9. LATE IN THE REVISION HE SENT EIGHT DEFECT REPORTS OFF THE HERO
+
+**This is the most valuable input since rev 35, and it arrived only because the
+hero was shot.** `rev30_hero34f.png` was superseded in rev 36 and never re-shot,
+so these eight sat unseen for seven revisions.
+
+**Batch 1 (SPEC 10.94), verbatim:** *"the front nose is shaped inaccurately, it
+looks more like the front of an amtrak train than a vw bus, also we need to fix
+the vw logo, also the paint job and the headlights are not alligned"*
+
+**THREE OF THESE CORROBORATE FINDINGS THIS PROJECT MEASURED AND NEVER APPLIED.**
+Every mapping verified by grep against SPEC and the build files:
+
+| his report | existing finding | status before he spoke |
+|---|---|---|
+| paint / headlamps not aligned | §10.24 item 3 — headlamp centre belt − 0.339 ± 0.025 m photographed vs **belt − 0.242** built, **97 mm at ~3.9 σ** | **OPEN SINCE REV 10** |
+| the vw logo | §10.25's premise is **FALSE** — "no gap but a **52 mm interpenetration**" | fix made the glyph smaller, hiding the fusion |
+| nose shape | `V_POW` locked **0.60**; audit implies **0.30–0.48** (arm rises ~2× too fast) | measured, never applied |
+
+**§10.24's STATED BLOCKER WAS DISCHARGED AND THE ENTRY NEVER LEARNED OF IT.** It
+said the headlamp claim "deserves a second derivation first". The rev-11 audit
+gave two: **83 ± 19 mm at 4.4 σ** by a ratio needing no px/m, and a test needing
+**no scale at all** — *in the photograph the indicator aperture lies BELOW the
+two-tone break; in the build it lies ABOVE it.* **That sentence is his report.**
+
+**TRAP: DO NOT MOVE THE ROUNDEL WITH THE LAMPS.** Its height is supported by both
+chains. And **report 3 is ONE report about a RELATIONSHIP** — do not split it.
+
+**Batch 2 (SPEC 10.95), verbatim:** *"the doors extend lower, around the wheel
+well, also there seems to be a bar obstructing the front wheel? also '100%
+calidad' is off center, and we there are two bars propping up the art sign on
+either side, not one"*
+
+- **THE SIGN'S STRUTS — CONFIRMED, COST ONE GREP.** `t1_shell.signboard()`
+  appends **ONE** strut, no loop over sides. He reports two. **Build this first:
+  a count needs no scale, no px/m, no camera model.**
+- **THE DOOR AND THE "BAR" ARE PROBABLY ONE DEFECT.** `doorback1` spans
+  x [0.918, 1.824] with its lower edge at **z 0.717**, **52 mm above the tyre's
+  crown (0.665)**, across the whole arch; the bar's blunt end in the render lands
+  on `doorback1`'s rear edge at x 0.918. **LABELLED AS A WELL-EVIDENCED
+  IDENTIFICATION, NOT A CONFIRMED ONE — THE ABLATION WAS ATTEMPTED AND DID NOT
+  RUN** (camera unresolved; appending to `build.py` would have executed after the
+  preview render). **No ablation result is reported because none was obtained.**
+  `_DOOR_TOP_AUTH`/`DOOR_H` are AUTHORED and the door's LOWER boundary has never
+  been measured, so nothing locked stands against him.
+- **"100% Calidad"** — `cal_gen.py:246` places it at an absolute 0.180 of texture
+  width. **Texture-versus-panel NOT determined; do not guess** (§10.20's family).
+  **Distinct from his earlier sticker LEGIBILITY complaint — do not merge them.**
+
+**NOTHING WAS BUILT ON ANY OF THE EIGHT.** §10.95.4 has the ordered list.
+
+**THE LESSON, AND IT IS THE REVISION'S BIGGEST: SHOOT THE HERO ON EVERY REVISION
+THAT MOVES GEOMETRY.** Eight defects surfaced the moment one was shot.
