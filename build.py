@@ -331,12 +331,18 @@ A(D.bumper_irons(True), "bumpercream")
 # not automatically present in service; if an in-service frame ever shows the
 # nose and contradicts this, delete this one line.
 A(D.overrider_bar(), "bumpercream")
-# SPEC 10.91, rev 37: the two over-rider POSTS.  The other half of the owner's
-# rev-26 "model them" (SPEC 10.75 box C), unbuilt for ELEVEN revisions because
-# the instruction had been lost from every carrier that crosses contexts and
-# survived only in memory.  WORKSHOP-STAGE on the bar's own terms above: if an
-# in-service frame ever shows the nose and contradicts it, delete this one line.
-A(D.overrider_posts(), "bumpercream")
+# SPEC 10.91, rev 37: the two over-rider POSTS -- BUILT, THEN WITHDRAWN BY THE
+# OWNER IN THE SAME REVISION.  SPEC 10.91.8 has his decision.  He asked for them
+# ("build the post -- the half of 'model them' still unbuilt"), the build and its
+# guard were completed and falsified in seven arms, and he then said: "I want to
+# change my decision back... I want to stick to the original bumper."
+#
+# THE LINE IS COMMENTED, NOT DELETED, and `overrider_posts()` stays defined --
+# the same treatment SPEC 2.4 gives the rear bumper eight lines above.  The
+# measurement work, the guard and the four detector defects it caught are all
+# still of value and are recorded in SPEC 10.91; only the GEOMETRY is withdrawn.
+# Re-enabling is this one line.  DO NOT re-add it without his say-so.
+# A(D.overrider_posts(), "bumpercream")
 A(D.gutter(), "paint")
 A(D.mirrors(), "chrome")
 A(D.wipers(), "chrome_d")

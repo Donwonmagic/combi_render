@@ -6804,3 +6804,45 @@ what is being asked."* The single mark is a **POINTER**; `mark_rev37_region3.py`
 **reads no pixels for any number**, because adding a sampling window would mix
 mark classes and reproduce the defect. It **refuses to write** if the crop leaves
 the frame or if the mark falls outside its own crop.
+
+#### 10.91.8  BUILT, THEN WITHDRAWN BY THE OWNER IN THE SAME REVISION
+
+He chose the post as rev 37's work, was shown what it would cost and what it
+would not close, and then — after the build, the guard, the seven arms and the
+SPEC entry were complete — said:
+
+> *"I want to change my decision back, sorry. I want to stick to the original
+> bumper."*
+
+**THE GEOMETRY IS WITHDRAWN. `build.py`'s call is COMMENTED, NOT DELETED**, and
+`overrider_posts()` stays defined — the treatment §2.4 gives the rear bumper
+eight lines above it in the same file. Re-enabling is one line. **The model is
+back to 127 objects and 186 meshes, and every inherited figure is identical to
+rev 30–36's.**
+
+**THE GUARD IS KEPT ARMED, NOT DELETED.** With zero posts it logs **NOT
+APPLICABLE — stated, not silently skipped**, the treatment `gap_englid` already
+gets; with two it runs in full. **A WITHDRAWN FEATURE WHOSE GUARD WAS DELETED
+COMES BACK UNGUARDED**, and this project has been burned that way before. The
+one commented line therefore restores full coverage with no edit to `verify.py`.
+
+**WHAT SURVIVES THE WITHDRAWAL, AND IS THE REAL YIELD OF THE REVISION:**
+
+- **Four of his own instructions recovered** from memory and verified against the
+  tree (§10.91.1). Three remain outstanding regardless of the post.
+- **A memory entry proved to be a phantom** (§10.91.2) — and the rule that a
+  memory entry is a claim and must be grepped like one.
+- **The near post's WIDTH disagreement priced at 2.9×** and resolved as a merge
+  separating at T=170 (§10.91.3). §10.90 priced the *centre* sensitivity of those
+  two readings and nobody had priced the width.
+- **A substring ban that had never fired in the project's history** was found
+  mis-scoped, and repaired with an exemption carrying its own control (§10.91.5).
+  **This is live and load-bearing whether or not any post is built.**
+- **Four detector defects** of my own (§10.91.6) and a **non-arm published as
+  one** with the guard's ceiling stated (§10.91.7).
+
+**NOTHING HERE ARGUES WITH THE DECISION.** The lateral station was always a
+STRUCTURAL INFERENCE and never a measurement (§10.91.4); §10.72 still admits no
+px/m on the bumper plane. **A member the reference cannot place is a member the
+owner is entitled to decline**, and declining it costs the model nothing that was
+ever measured.

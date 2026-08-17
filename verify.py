@@ -1282,7 +1282,20 @@ def run(body, log=print):
     # time.  The rule from 10.90: A CLAIM READ OFF A CONSTANT WHOSE CONSUMER
     # MODIFIES IT IS NOT A MEASUREMENT.
     _posts = [o for o in bpy.data.objects if o.name.lower() in BANNED_EXEMPT]
-    if len(_posts) != 2:
+    if len(_posts) == 0:
+        # STATED, NOT SILENTLY SKIPPED -- the treatment `gap_englid` gets below.
+        # The owner BUILT-THEN-WITHDREW the posts inside rev 37 (SPEC 10.91.8),
+        # so zero posts is the INTENDED state and must not read as a failure.
+        # The guard is kept live for the two-post case so that re-enabling the
+        # one commented line in build.py restores full coverage with no edit
+        # here -- a withdrawn feature whose guard was deleted comes back
+        # unguarded, which is how this project has been burned before.
+        log("  over-rider posts (SPEC 10.91): NOT APPLICABLE -- the posts were "
+            "built in rev 37 and WITHDRAWN BY THE OWNER in the same revision "
+            "(10.91.8); build.py's call is commented, not deleted. This guard "
+            "stays armed for the 2-post case, so re-enabling that one line "
+            "restores it with no change here. Stated, not silently skipped.")
+    elif len(_posts) != 2:
         fails.append(
             f"SPEC 10.91: expected 2 over-rider posts, found {len(_posts)}. "
             f"rev 36 established there are TWO posts straddling the centreline "
