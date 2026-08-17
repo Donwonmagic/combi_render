@@ -1382,7 +1382,18 @@ def run(body, log=print):
         # does.  It is NOT a free tolerance and it is NOT the same number as
         # POST_TOL.  Calling this "two-sided" without saying which side is which
         # is the mistake SPEC 10.90's ARM 3 made.
-        _WELD_CAP = _D30.POST_WELD_MAX + POST_TOL
+        # FLOORED so the weld bound can never go negative and INVERT the test.
+        # Falsification ARM 4b drove POST_WELD_MAX to -5.00 mm, and the weld test
+        # then fired on a post that was floating, printing "welded in -0.00 mm,
+        # past the bound -4.00 mm".  The source is clamped too; BOTH are
+        # deliberate, and the explicit check below means a future negative cannot
+        # be silently absorbed by the floor.
+        _WELD_CAP = max(POST_TOL, _D30.POST_WELD_MAX + POST_TOL)
+        if _D30.POST_WELD_MAX < 0.0:
+            fails.append(
+                f"SPEC 10.91: POST_WELD_MAX is {_D30.POST_WELD_MAX*1000:.2f} mm, "
+                f"i.e. NEGATIVE -- the weld bound has inverted and the weld side "
+                f"of this test would fire on a floating post. ARM 4b's defect.")
         for _nm, _row in _pres:
             for _tag in ("blade", "bar"):
                 _closest, _furthest, _hits = _row[_tag]
@@ -1431,10 +1442,15 @@ def run(body, log=print):
                 f"them, as the owner stated. dia {_D30.POST_DIA*1000:.2f} mm "
                 f"= BAR_DIA (image bracket on post/tube is 0.68-1.52, "
                 f"OPERATOR-MISMATCHED); length {_D30.POST_LEN*1000:.2f} mm "
-                f"DERIVED; landed on _blade_top_at(axis), NOT on the crown. "
+                f"DERIVED; bottom sits "
+                f"{(_D30._POST_Z_BOT - _D30.BLADE_TOP_Z)*1000:+.2f} mm relative "
+                f"to the crown BLADE_TOP_Z (the axis station is "
+                f"{(_D30._blade_top_at(_D30._BAR_OUTWARD) - _D30.BLADE_TOP_Z)*1000:+.2f}"
+                f" mm, so 0.00 here would BE the crown -- 10.90's datum error). "
                 f"blade {_r('blade')}, bar {_r('bar')}; gap tol "
                 f"{POST_TOL*1000:.1f} mm, weld bound {_WELD_CAP*1000:.2f} mm "
-                f"DERIVED from BUMP_PROFILE -- ASYMMETRIC ON PURPOSE. Lateral "
+                f"({'DERIVED from BUMP_PROFILE' if _D30.POST_WELD_MAX > 0.0 else 'AT THE FLOOR -- POST_WELD_MAX is zero'})"
+                f" -- ASYMMETRIC ON PURPOSE. Lateral "
                 f"station is a STRUCTURAL INFERENCE, NOT a metre measurement: "
                 f"SPEC 10.72 still admits no px/m on this plane.")
 
