@@ -978,8 +978,24 @@ def roof_lids():
                       name="lid_rail")
         rails.append(r)
 
-    # ---- prop strut, hinge side to free edge
-    for (ob, xs, deg, w) in ((main, LID_X1 + 0.16, LID_OPEN_DEG, LID_W),):
+    # ---- prop struts, hinge side to free edge.  TWO, one near each END of the
+    # lid, inset 160 mm.
+    #
+    # OWNER READING, rev 37, off `rev37_hero34f.png`, verbatim: "we there are
+    # two bars propping up the art sign on either side, not one".  A COUNT --
+    # the cheapest class of observation there is, needing no scale, no px/m and
+    # no camera model.  Until rev 38 this loop ran over a ONE-ELEMENT tuple and
+    # built `lid_strut0` alone.
+    #
+    # NOTE FOR ANY LATER CONTEXT: `NEXT_CONTEXT_PROMPT_rev38.md` sec.6 item 1
+    # attributed this to `t1_shell.signboard()`'s single `sign_strut`.  That is
+    # the WRONG OBJECT: signboard() is gated behind T1_SIGNBOARD=1, is not the
+    # default, and SPEC forbids rendering a hero with it on -- so no
+    # `sign_strut` exists in any shipped frame.  The strut he can see is
+    # `lid_strut0`, from here.  The report was right; the attribution was not.
+    # x is symmetric about the lid's own ends: LID_X1 + 0.16 and LID_X0 - 0.16.
+    for (ob, xs, deg, w) in ((main, LID_X1 + 0.16, LID_OPEN_DEG, LID_W),
+                             (main, LID_X0 - 0.16, LID_OPEN_DEG, LID_W)):
         a = math.radians(deg)
         tipy = LID_Y_HINGE + w * math.cos(a) * 0.86
         tipz = (roof_z(xs, LID_Y_HINGE) + LID_PROUD) + w * math.sin(a) * 0.86

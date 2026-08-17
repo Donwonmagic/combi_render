@@ -299,6 +299,11 @@ if sign_boards:
 A(D.plank_counter(S.SHOW_SIDE), "countercream")
 A(D.galley(), "steel")
 A(D.interior(), "dark")
+# rev 38, SPEC 10.96: close each wheel arch from inside.  Without these the arch
+# is a cylinder cut clean through the skin with NOTHING behind it, and the cab
+# floor is in plain sight from outside -- which is what his report 6, "there
+# seems to be a bar obstructing the front wheel?", was looking at.
+A(D.wheel_houses(), "dark")
 log("conversion fit-out")
 
 # ------------------------------------------------------------- 7 brightwork
@@ -622,6 +627,41 @@ if os.environ.get("T1_SAVE"):
 if os.environ.get("T1_VERIFY"):
     import verify; importlib.reload(verify)
     verify.run(body, log)
+
+# ---------------------------------------------------------------------------
+# T1_ABLATE -- rev 38.  Remove named objects from the built scene BEFORE the
+# preview renders, so an ablation A/B can be shot in one process.
+#
+# WHY IT LIVES HERE AND NOT IN A WRAPPER: rev 37's ablation was attempted by
+# APPENDING the removal to build.py, which executes AFTER the T1_PREVIEW block
+# has already rendered -- so it removed the object from a scene nobody looked
+# at and the test never ran.  SPEC's rule that a test you did not get to run is
+# not a result.  The hook has to be upstream of the render, and this is it.
+#
+# THE POSITIVE CONTROL IS THE POINT.  A name that matches nothing RAISES.  An
+# ablation that silently removes zero objects renders a frame identical to the
+# baseline, and "identical" is exactly the reading that would be interpreted as
+# "the object was not the bar" -- a false negative that looks like a finding.
+# Default OFF: unset T1_ABLATE leaves the shipped path bit-identical.
+_abl = os.environ.get("T1_ABLATE")
+if _abl:
+    _want = [n.strip() for n in _abl.split(",") if n.strip()]
+    _gone = []
+    for _n in _want:
+        _hit = [o for o in bpy.data.objects if o.name == _n]
+        if not _hit:
+            raise SystemExit(
+                "T1_ABLATE: no object named %r in the built scene -- REFUSING "
+                "to render an ablation that removes nothing.  Present names "
+                "matching a prefix: %s" % (
+                    _n, sorted(o.name for o in bpy.data.objects
+                               if o.name.startswith(_n[:5]))[:12]))
+        for _o in _hit:
+            _gone.append("%s (%dv)" % (_o.name, len(_o.data.vertices)
+                                       if getattr(_o, "data", None)
+                                       and hasattr(_o.data, "vertices") else -1))
+            bpy.data.objects.remove(_o, do_unlink=True)
+    log("T1_ABLATE removed %d object(s): %s" % (len(_gone), ", ".join(_gone)))
 
 if os.environ.get("T1_PREVIEW"):
     import studio as ST; importlib.reload(ST)

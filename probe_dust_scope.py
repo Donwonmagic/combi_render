@@ -254,8 +254,17 @@ nm = sum(1 for o in bpy.data.objects if o.type == 'MESH')
 # check's whole job is to prove the truncated exec built the WHOLE vehicle, and
 # a count that is allowed to drift cannot do that job.
 # A CONTROL NOBODY RUNS IS NOT A CONTROL.
-P("  %d mesh objects (audit.py publishes 186)" % nm)
-check(nm == 186, "mesh count matches audit.py's published 186",
+# rev 38: 186 -> 190.  THIS LITERAL HAS NOW DRIFTED TWICE, IN BOTH DIRECTIONS.
+# rev 30 added `orb_bar` (185 -> 186) and did not sweep it; rev 32 found it.
+# rev 37 WITHDREW the bar (186 -> 185) and did not sweep it either, so this
+# control was firing spuriously on arrival in rev 38 while the brief published
+# it as 8/0.  rev 38 adds four wheel houses and a second lid strut (185 -> 190).
+# Corrected, not loosened, for the reason the rev-32 comment above already
+# gives.  THE RULE THE TWO MISSES SHARE: a revision that MOVES GEOMETRY must
+# re-run the probes, exactly as it must re-shoot the hero -- the hero rule was
+# written down in rev 37 and this sibling was not.
+P("  %d mesh objects (audit.py publishes 190)" % nm)
+check(nm == 190, "mesh count matches audit.py's published 190",
       "the truncated exec built the whole vehicle")
 
 AT = sum(area_tot.values())

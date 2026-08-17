@@ -8,10 +8,10 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-17 20:13:23 UTC |
-| git commit | `ce29c49` |
-| git subject | rev 37: NEXT_CONTEXT_PROMPT_rev38.md -- carries all EIGHT of his defect reports as sec.6, and the three instructions of his still outstanding as sec.7 |
-| working tree | clean |
+| generated | 2026-08-17 22:00:49 UTC |
+| git commit | `54fc45d` |
+| git subject | rev 37: sec.11 content checks and the commit count, read off a fresh-clone verification run |
+| working tree | **DIRTY** — this state is not committed |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=1 (applied, destructive, before booleans) |
 | geometry source | procedural, built this run |
@@ -140,9 +140,9 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 
 | | |
 |---|---|
-| mesh objects | 185 |
-| vertices (all meshes) | 143511 |
-| faces (all meshes) | 137976 |
+| mesh objects | 190 |
+| vertices (all meshes) | 144907 |
+| faces (all meshes) | 139344 |
 
 | prefix | n |
 |---|---|
@@ -157,6 +157,7 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 | `rim-1` | 4 |
 | `rim1` | 4 |
 | `tyre` | 4 |
+| `wheelhouse` | 4 |
 | `fringe` | 3 |
 | `gal_band` | 3 |
 | `gal_can_u` | 3 |
@@ -179,6 +180,7 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 | `hl_lens` | 2 |
 | `hl_ring` | 2 |
 | `lid_rail` | 2 |
+| `lid_strut` | 2 |
 | `louvres` | 2 |
 | `mir_arm` | 2 |
 | `mir_head` | 2 |
@@ -238,7 +240,6 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 | `iron1F` | 1 |
 | `lid_board` | 1 |
 | `lid_main` | 1 |
-| `lid_strut` | 1 |
 | `plancha` | 1 |
 | `plate` | 1 |
 | `plate_digits` | 1 |

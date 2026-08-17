@@ -7038,3 +7038,177 @@ each costs to establish:
 4. **the VW glyph** — §10.25's premise is false; rebuild against the 52 mm interpenetration
 5. **`V_POW`** — 0.60 locked against an implied 0.30–0.48; re-fit, and **mirror into `t1_shell.nose_shape.zV` or the pressed swage and the painted break de-register**
 6. **"100% Calidad"** — determine texture-versus-panel before touching either
+
+### 10.96  rev 38 — HIS REPORT 6 IS NOT A DOOR PART: IT IS THE CAB FLOOR, SEEN THROUGH A WHEEL ARCH THAT HAS NOTHING BEHIND IT. FOUR WHEEL HOUSES BUILT, BOTH FLOOR PANS NARROWED, AND THE HERO CATCHES TWO DEFECTS THE GUARDS PASSED
+
+His report 6, verbatim, off `rev37_hero34f.png`: *"also there seems to be a bar
+obstructing the front wheel?"* — phrased as a question, so treated as an
+observation to check, not a settled reading.
+
+#### 10.96.1  The brief's candidate was ablated and REFUTED
+
+`NEXT_CONTEXT_PROMPT_rev38.md` §6 item 2 identified `doorback1`, spanning
+x [0.918, 1.824] with its lower edge at z 0.717, and instructed: *"Delete
+`doorback1` / `doorback-1`, re-render the crop, and look. If the bar goes,
+reports 5 and 6 are ONE fix. If not, report 6 is a different object and the
+search restarts."*
+
+Rev 37 attempted this and could not run it, because appending the removal to
+`build.py` executes AFTER the `T1_PREVIEW` block has already rendered. Rev 38
+added **`T1_ABLATE`** UPSTREAM of that block, with a positive control: **a name
+matching nothing RAISES and writes no frame.** An ablation that silently
+removes zero objects renders a frame identical to the baseline, and "identical"
+is exactly the reading that would be misread as *"the object was not the bar"* —
+a false negative dressed as a finding. Armed on a bogus name; it refused.
+
+Ablation run: `doorback1` (304v) and `doorback-1` (304v) removed, `hero34f`
+re-rendered at 1600x1067. **612 pixels of 1.7 M changed, none of them the bar.**
+The member is pixel-identical. **THE CANDIDATE IS REFUTED**, and by the brief's
+own rule the search restarted.
+
+#### 10.96.2  Identified by construction, not by inference
+
+`probe_rev38_wheelbar.py` casts rays from the `hero34f` camera through a grid of
+pixels covering the member and reports the FIRST object hit. No colour, no
+threshold, no segmentation. Result: **`cab_floor`** — 99 hits in the member
+window, **308** across the whole front arch, first hit, nothing in front of it.
+
+**THE ROOT CAUSE IS ONE NUMBER.** `cab_floor` was `rrect(1.560, 0.960)`,
+half-width **0.780**, against a front tyre whose OUTER face is at **0.760** — it
+stood 20 mm proud of the wheel. `van_floor` was `rrect(1.400, 2.700)`,
+half-width 0.700, i.e. 55 mm INBOARD, and the rear arch showed **9** interior
+rays against the front's 308. A 34x difference explained entirely by 80 mm a side.
+
+**AND THERE WAS NO WHEEL HOUSE ANYWHERE IN THE BUILD** — `grep` finds no
+`liner`, `inner_wing`, `wheelwell`, `wheel_well` or `splash`. Each arch is a
+cylinder cut clean through the skin with nothing behind it, so the cab interior
+is in plain sight from outside.
+
+#### 10.96.3  THE CONTROL FAILED, AND ITS FAILURE IS THE FINDING
+
+`probe_rev38_floorpen.py` tests floor-vs-wheel interpenetration by BVH overlap
+on the EVALUATED, WORLD-SPACE meshes — not a bounding-box test, because
+bounding boxes overlap for many pairs that never touch and a bbox claim is not
+an interpenetration claim.
+
+    cab_floor  vs tyre1.31 / tyre1.3-1              240 face pairs each
+               vs rim1.31_barrel / rim1.3-1_barrel   76 each     632 total
+    van_floor  vs tyre-1.11 / tyre-1.1-1            152 each
+               vs rim-1.11_barrel / rim-1.1-1_barrel 110 each    524 total
+
+The `van_floor` row was written as the CONTROL for the cab-floor claim, and it
+**FAILED**. That failure is what showed the defect is **SYSTEMIC, NOT A CAB
+QUIRK**: both floor pans pass through all four wheels, because there are no
+wheel houses to stop them. The 1.560 slab was not merely invisible-and-wrong,
+it was geometrically impossible. **A CONTROL THAT FAILS IS A RESULT, NOT A
+BROKEN INSTRUMENT.**
+
+Both widths were **AUTHORED** — neither 1.560 nor 1.400 appears anywhere in
+`SPEC.md` or `REF_MEASUREMENTS.md`. Nothing measured is overturned.
+
+#### 10.96.4  What was built
+
+* **`FLOOR_W = 1.200`** for both pans (half-width 0.600): clears the front
+  tyre's inner face (0.609) by 9 mm and the rear's (0.604) by 4 mm. A narrow
+  footwell between two wheel-house humps is also what a real T1 has. **THIS IS
+  NOT A MEASUREMENT OF THE VEHICLE and is not tagged as one** — it replaces an
+  authored number that is impossible with an authored number that is possible.
+  No photograph shows this vehicle's cab floor and none is claimed.
+* **Four wheel houses**, `wheelhouse{axle}{side}`, arc shells of radius
+  `WH_R = ARCH_R` about each axle, flanged inward, sweeping the UPPER sector
+  only, with the OUTBOARD face following `T.flank_y`.
+* **The second lid strut** — see 10.96.6.
+
+Post-repair, measured: **0 overlapping face pairs** for both pans against all
+wheel parts (was 632 / 524), and **0 interior-object rays** through either arch
+(front was 308, rear 9).
+
+#### 10.96.5  THE HERO CAUGHT TWO DEFECTS EVERY GUARD PASSED
+
+**This is rev 37's rule earning its keep twice inside one revision.**
+
+1. The first wheel house used `T.revolve` — a FULL 360 degree surface. Guards:
+   **0 fail, 0 warn, 0 non-manifold, 0 interior rays, C1-C6 all PASS.** The
+   render showed **a dark skirt hanging in mid-air below the sill, outboard of
+   the bumper line.** The bodywork exists only above the arch's horizontal
+   diameter; below it the arch is open to the road.
+2. The second used an arc sector but a FIXED outboard y of 0.877. Guards passed
+   again. The render showed the liner standing proud of the skin. **Measured**
+   on the arch rim, `T.flank_y` runs **0.873 at the crown down to 0.801 (front)
+   and 0.787 (rear)** near horizontal — so one number stands proud by up to
+   **90 mm** at the sector ends. Repaired by making the outboard face conform.
+
+**NEITHER WAS VISIBLE TO ANY GUARD OR ANY PROBE.** A guard tests the property
+you thought to name. Only the render tests the property you did not.
+
+#### 10.96.6  REPORT 8 — the second strut, and the brief named the wrong function
+
+His words: *"we there are two bars propping up the art sign on either side, not
+one"*. A COUNT — the cheapest class of observation, needing no scale, no px/m
+and no camera model.
+
+`NEXT_CONTEXT_PROMPT_rev38.md` §6 item 1 attributed this to
+`t1_shell.signboard()`'s single `sign_strut` and called it **"CONFIRMED, BUILD
+IT FIRST."** **THAT IS THE WRONG OBJECT.** `signboard()` returns
+`[], [], []` unless `T1_SIGNBOARD=1`, which is **not the default**, and SPEC and
+`HANDOFF_rev12.md` both forbid rendering a hero with it on — so **no
+`sign_strut` exists in any shipped frame, including the one he was looking at.**
+
+The strut he can see is **`lid_strut0`**, from `t1_shell.roof_lids()`, where the
+loop ran over a ONE-ELEMENT tuple. **HIS REPORT WAS RIGHT; THE ATTRIBUTION WAS
+NOT.** Second strut added symmetrically at `LID_X0 - 0.16` against the existing
+`LID_X1 + 0.16`. Confirmed in the render: two struts, one at each end.
+
+#### 10.96.7  TWO INHERITED PROBE FIGURES IN THE BRIEF WERE PRE-WITHDRAWAL
+
+The brief published `probe_rev36_barend` **8/0** and `probe_dust_scope` **8/0**.
+On arrival, measured:
+
+* `probe_rev36_barend`: `[FAIL] C1 orb_bar: 0 object(s)` ->
+  **"REFUSING TO PRINT A RULING -- a positive control is down."** The bar was
+  withdrawn in rev 37, so it cannot rule. **The probe behaved correctly; the
+  brief's number was stale.** Left alone: it must stay armed for the built case.
+* `probe_dust_scope`: **8 checked, 1 FAILED** — `mesh count matches audit.py's
+  published 186`, hard-coded, against a build now publishing 185.
+
+**THAT LITERAL HAS NOW DRIFTED TWICE, IN BOTH DIRECTIONS.** rev 30 added
+`orb_bar` (185 -> 186) without sweeping it; rev 32 found it and wrote above it
+*"A CONTROL NOBODY RUNS IS NOT A CONTROL."* rev 37 withdrew the bar
+(186 -> 185) without sweeping it either. Corrected to **190**, not loosened.
+
+**THE RULE THE TWO MISSES SHARE, AND IT IS NEW:** rev 37 wrote down *shoot the
+hero every revision that moves geometry*. **IT HAS A SIBLING NOBODY WROTE DOWN:
+RE-RUN THE PROBES TOO.** A revision that moves geometry invalidates every
+literal that counts it.
+
+#### 10.96.8  Reports 5 and 6 are NOT one fix
+
+The brief hoped they were. The ablation refuted the shared cause. Report 6 is
+`cab_floor` plus the missing wheel houses — **CLOSED in rev 38**. Report 5, the
+cab door reaching lower and wrapping the wheel well, is the door outline's lower
+boundary: `doorback1` runs z **0.717 -> 1.755**, its bottom a straight line
+**52 mm above the tyre crown (0.665)**, not following the arch. `_DOOR_TOP_AUTH`
+and `DOOR_H` are AUTHORED, not measured, and the door's LOWER boundary has never
+been measured. **OPEN, and rev 39's item 1.**
+
+#### 10.96.9  Two detector defects of mine, both caught by controls
+
+* **THE FIRST DRAFT OF `probe_rev38_wheelbar.py` RAN AGAINST BLENDER'S DEFAULT
+  STARTUP CUBE.** It never built the vehicle. Every ray hit `Cube` and it
+  printed a confident, well-formatted, entirely fictional tally with a bounding
+  box. **C1-C3 caught it.** A ray-caster that hits SOMETHING always produces a
+  plausible answer. Fixed to use the project's own truncated-exec idiom.
+* **MY "REAR ARCH" CONTROL WINDOW LANDED ON THE NOSE** — it was returning
+  `vw_ring` and `hl_lens`. Added **C5**, which asserts the window actually lands
+  on a rear wheel, rather than reporting a control I had mis-aimed.
+* And **C1's SCOPE was wrong, not its result**: the pixel lands on the hub cap,
+  which IS a wheel part, and the first draft asked for `"tyre"` in the name.
+  **Repair the scope; never re-aim the ray until it hits the name you first
+  wrote down.**
+
+#### 10.96.10  A guard fired on the first build and it was right
+
+Setting `ob.location` on the wheel houses tripped `build.py`'s step-8b assert:
+the shear reads `v.co.x` as world x and requires an identity transform on every
+mesh. The offset was baked into the MESH instead. **The geometry is what moves,
+never the guard.**

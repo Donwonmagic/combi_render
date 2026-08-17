@@ -1096,7 +1096,14 @@ def galley():
     pts = T.rrect(0.560, 0.780, 0.02, seg=3)
     obs.append(T.solid_prism((0.520, -0.180, 1.1900), (0, 1, 0), (1, 0, 0),
                              (0, 0, 1), pts, 0.530, name="plancha"))
-    pts = T.rrect(1.400, 2.700, 0.02, seg=3)
+    # rev 38: 1.400 -> FLOOR_W.  At 1.400 the half-width is 0.700 and the REAR
+    # tyre's inner face is at y 0.604, so this slab passed THROUGH both rear
+    # wheels -- 152 overlapping face pairs per tyre, 110 per rim barrel, BVH
+    # overlap on the evaluated world-space meshes (probe_rev38_floorpen.py).
+    # Found as the CONTROL for the cab-floor test, and the control FAILING is
+    # what showed the defect is systemic rather than a cab quirk.  1.400 was
+    # AUTHORED -- it appears nowhere in SPEC.md or REF_MEASUREMENTS.md.
+    pts = T.rrect(FLOOR_W, 2.700, 0.02, seg=3)
     obs.append(T.solid_prism((-0.500, 0.000, 0.5400), (0, 1, 0), (1, 0, 0),
                              (0, 0, 1), pts, 0.040, name="van_floor"))
     # rev 11 carried two 0.900 x 0.240 steel slabs at x -1.500 and -1.780,
@@ -1120,9 +1127,121 @@ def galley():
 
 
 # ================================================================ INTERIOR
+# rev 38, SPEC 10.96.  The interior floor pans are NARROWED so they clear the
+# wheels, and wheel houses are added so the arch apertures are closed.
+#
+# WHAT HIS REPORT 6 ACTUALLY WAS.  Off `rev37_hero34f.png` he asked "there
+# seems to be a bar obstructing the front wheel?".  The rev-38 brief proposed
+# `doorback1`.  ABLATED (T1_ABLATE, built for this) and the member did not
+# move -- 612 px of 1.7 M changed, none of them the bar.  Ray-cast from the
+# hero34f camera then named it BY CONSTRUCTION: `cab_floor`, 308 rays through
+# the front arch, first hit, nothing in front of it.  Not a door part.
+#
+# WHY IT WAS VISIBLE AT ALL: there is no wheel house anywhere in this build
+# (grep: no liner, inner_wing, wheelwell, splash).  Each arch is a cylinder cut
+# clean through the skin with nothing behind it, so the cab interior is in
+# plain sight from outside.
+#
+# THE NUMBERS.  cab_floor was 1.560 (half-width 0.780) against a front tyre
+# whose OUTER face is at 0.760 -- 20 mm proud of the wheel.  van_floor was
+# 1.400 (half-width 0.700) against a rear tyre inner face at 0.604.  BOTH were
+# AUTHORED; neither appears in SPEC.md or REF_MEASUREMENTS.md, so nothing
+# measured is being overturned.  FLOOR_W = 1.200 gives half-width 0.600, which
+# clears the front tyre's inner face (0.609) by 9 mm and the rear's (0.604) by
+# 4 mm.  A narrow footwell between two wheel-house humps is also what a real T1
+# has; the 1.560 slab was not merely invisible-and-wrong, it was impossible.
+#
+# THIS IS NOT A MEASUREMENT OF THE VEHICLE and is not tagged as one.  It
+# replaces an authored number that is geometrically impossible with an authored
+# number that is possible.  Its ceiling: no photograph shows this vehicle's
+# cab floor, and none is claimed.
+FLOOR_W = 1.200                     # AUTHORED, rev 38; see SPEC 10.96
+WH_R = 0.3735                       # = t1_shell.ARCH_R, the arch cut's radius
+WH_T = 0.010                        # house shell thickness
+WH_Y_IN = 0.500                     # inboard face; wheel spans y 0.604..0.760
+WH_INSET = 0.0026                   # outboard face this far inside flank_y (skin 2.8 mm)
+WH_SWEEP = 2.0                      # degrees past horizontal each side
+
+
+def _arc_liner(xa, zc, sgn, a0, a1, seg, name):
+    """A wheel-house shell: an arc tube about the axle whose OUTBOARD face
+    follows the flank skin instead of sitting at a fixed y.
+
+    TWO THINGS THIS FIXES, BOTH CAUGHT BY LOOKING RATHER THAN BY A GUARD:
+      1. A FULL 360 revolve is wrong.  The bodywork exists only above the
+         arch's horizontal diameter; below it the arch is open to the road.
+         rev 38's first attempt revolved the full circle and every guard
+         passed -- 0 fail, 0 warn, 0 non-manifold, 0 interior rays -- while
+         the render showed a dark skirt hanging in mid-air below the sill.
+      2. A FIXED outboard y is wrong.  Measured on the arch rim,
+         `T.flank_y` runs 0.873 at the crown down to 0.801 (front) and 0.787
+         (rear) near horizontal, so one number stands proud of the skin by up
+         to 90 mm at the sector ends -- which is what the second render showed.
+    IT WAS THE HERO THAT CAUGHT BOTH, NOT THE GUARDS.  That is rev 37's rule
+    earning its keep twice inside one revision.
+    """
+    R_IN = 0.030
+    verts, faces = [], []
+    n = 6
+    for k in range(seg + 1):
+        a = a0 + (a1 - a0) * k / seg
+        ca, sa = math.cos(a), math.sin(a)
+        x = xa + WH_R * ca
+        z = zc + WH_R * sa
+        try:
+            y_out = T.flank_y(x, z) - WH_INSET
+        except Exception:
+            y_out = 0.870 - WH_INSET
+        prof = [(WH_Y_IN,        WH_R),
+                (y_out,          WH_R),
+                (y_out,          WH_R - WH_T),
+                (WH_Y_IN + WH_T, WH_R - WH_T),
+                (WH_Y_IN + WH_T, R_IN),
+                (WH_Y_IN,        R_IN)]
+        if sgn < 0:
+            prof = list(reversed([(-t, r) for (t, r) in prof]))
+        for (t, r) in prof:
+            verts.append((r * ca, t, r * sa))
+    for k in range(seg):
+        for i in range(n):
+            j = (i + 1) % n
+            faces.append((k * n + i, k * n + j, (k + 1) * n + j, (k + 1) * n + i))
+    faces.append(tuple(range(n - 1, -1, -1)))
+    faces.append(tuple(seg * n + i for i in range(n)))
+    me = bpy.data.meshes.new(name)
+    me.from_pydata(verts, [], faces)
+    me.validate()
+    ob = bpy.data.objects.new(name, me)
+    bpy.context.collection.objects.link(ob)
+    T.fix_normals(ob)
+    return ob
+
+
+def wheel_houses():
+    """Close each wheel arch from inside -- the missing feature behind report 6."""
+    import t1_shell as S
+    obs = []
+    a0 = -math.radians(WH_SWEEP)
+    a1 = math.pi + math.radians(WH_SWEEP)
+    for xa in (T.X_AXLE_F, T.X_AXLE_R):
+        zc = S.arch_z(xa)
+        for sgn in (1, -1):
+            ob = _arc_liner(xa, zc, sgn, a0, a1, 56, f"wheelhouse{xa:.0f}{sgn}")
+            # Bake the offset into the MESH, not the object transform.  Setting
+            # ob.location tripped build.py's step-8b assert -- the shear reads
+            # v.co.x as world x and requires an identity transform on every
+            # mesh.  The guard fired on the first run and it was right; the
+            # geometry is what moves, never the guard.
+            for v in ob.data.vertices:
+                v.co.x += xa
+                v.co.z += zc
+            obs.append(ob)
+    return obs
+
+
 def interior():
     obs = []
-    pts = T.rrect(1.560, 0.960, 0.05, seg=4)
+    pts = T.rrect(FLOOR_W, 0.960, 0.05, seg=4)
     obs.append(T.solid_prism((1.360, 0, 0.6400), (0, 1, 0), (1, 0, 0),
                              (0, 0, 1), pts, 0.070, name="cab_floor"))
     pts = T.rrect(0.560, 0.470, 0.05, seg=4)
