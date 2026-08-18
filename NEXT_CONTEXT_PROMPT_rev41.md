@@ -321,5 +321,77 @@ git pull --ff-only ../tacombi_rev40_incremental.bundle HEAD      # -> SEE BELOW
 The hero is gitignored and lives only on my disk.
 
 ### Content checks — all read off the fresh clone
-See the block written at the end of this revision. `rev40_datum.png` and
-`rev40_q_region3.png` ARE in the repo (they are 153 KB and 63 KB).
+**One candidate anchor of mine returned 0 because SPEC wraps it across a line
+break — the rev-36 trap, caught before publication and REPLACED, not loosened.**
+```bash
+git status                                              # clean
+grep -c '^### 10.98' SPEC.md                            # 1
+grep -c '^#### 10.98' SPEC.md                           # 13
+grep -c '10.98' SPEC.md                                 # 21
+grep -c "THE COUNTER'S FRONT FACE" SPEC.md              # 3   NOTE THE QUOTES
+grep -c 'CNT_NOSE_F' SPEC.md                            # 5
+grep -c 'break-to-sill' SPEC.md                         # 2
+grep -c 'CLOSED BY HIM' SPEC.md                         # 3   CASE MATTERS
+grep -c 'T1_FC_OLDDATUM' SPEC.md                        # 2
+grep -c 'T1_FC_OLDDATUM' flank_compare.py               # 3
+grep -c '_assert_same_edge' flank_compare.py            # 4
+grep -c 'def _assert_same_edge' flank_compare.py        # 1
+grep -c 'JOINT registration' probe_rev39_flank.py       # 1   SINGLE-LINE ANCHOR
+grep -c 'def _score' probe_rev39_flank.py               # 1
+grep -c 'def _authored' probe_rev40_datum.py            # 1
+grep -c 'CNT_NOSE_F' probe_rev40_datum.py               # 5
+grep -c 'SCOPE' probe_rev40_datum.py                    # 1
+grep -c 'STOPPED its own item 1' HANDOFF_rev40.md       # 1
+grep -c 'probe_rev40_datum' HANDOFF_rev40.md            # 2
+#   inherited, must still hold:
+grep -c '^### 10.97' SPEC.md                            # 1
+grep -c '^### 10.96' SPEC.md                            # 1
+grep -c 'cab_floor' SPEC.md                             # 4
+grep -c 'T1_ABLATE' build.py                            # 5
+grep -c 'FLOOR_W' t1_detail.py                          # 5
+grep -c '190' probe_dust_scope.py                       # 4
+grep -c 'amtrak' SPEC.md                                # 2   HIS WORD
+grep -ic 'nolita' SPEC.md                               # 9
+grep -c 'TEN flower heads' SPEC.md                      # 1
+ls HANDOFF_rev40.md STATE_rev40.md SPEC_rev40.md NEXT_CONTEXT_PROMPT_rev41.md \
+   probe_rev40_datum.py rev40_datum.png rev40_q_region3.png
+ls probe_*.py | wc -l    # 29
+ls rev38_hero34f.png     # MUST FAIL -- heroes are gitignored
+```
+Ancestry — **rev 40 adds `668614e`, the rev-39 tip (19 now):**
+```bash
+for c in f3c53f4 87aeaa6 d519fc6 5087b84 7ce3d03 f3cde44 efc1268 456b201 \
+         b08e424 e792d73 6f87977 cac32b9 2253399 52e451a 3496cab b6a93ec \
+         54fc45d 4843cc3 668614e; do
+  git merge-base --is-ancestor $c HEAD && echo "$c ok" || echo "$c LOST"; done
+```
+Textures — **all three must match; rev 40 changed NO artwork:**
+```bash
+md5sum tex/swirl.png tex/swirl_b.png tex/nose.png
+# 4ee4e09e...   d201597e...   b31ea156...
+```
+
+### Guards on the fresh clone, watched print
+| check | SUB=1 | SUB=2 |
+|---|---|---|
+| VERIFY | **0 fail, 0 warn** | **0 fail, 0 warn** |
+| `audit.py` | **0 fail, 0 warn** | **0 fail, 0 warn** |
+| roof crown @ rear axle | **1.9835** | **1.9833** |
+| cut roof hole | **68564v** | **252749v** |
+| objects at `materials:` | **131** | **131** |
+| meshes | **190** | **190** |
+| bay widths | 0.516 0.515 0.516 | same |
+| over-rider rows | **NOT APPLICABLE, stated** | same |
+
+**NO GEOMETRY MOVED IN REV 40.** 42 materials, 5 constant-rough, **0
+non-manifold**, rake 17.75, L=4.065 W=1.750, arch gaps 39.7 / 40.7 mm, off flank
+804.9 mm — every figure identical to rev 38's and rev 39's.
+
+**No hero this revision, and none is owed** — the mesh has not moved since rev 38
+shot `rev38_hero34f.png`. **The moment item 3 lands, one IS owed.**
+
+**Two figures ARE in the repo this time** (153 KB and 63 KB, well under the bridge
+ceiling): `rev40_datum.png` and `rev40_q_region3.png`.
+
+**FINAL COUNT: 215 commits, clean tree.** *(This line lands in commit 215 itself
+— rev 29's pattern, kept since.)*
