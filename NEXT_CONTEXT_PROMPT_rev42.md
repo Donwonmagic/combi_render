@@ -357,14 +357,14 @@ The hero is gitignored and lives only on my disk.
 git status                                              # clean
 grep -c '^### 10.99' SPEC.md                            # 1
 grep -c '^#### 10.99' SPEC.md                           # 7
-grep -c 'false-answer rate' SPEC.md                     # 3
+grep -c 'false-answer rate' SPEC.md                     # 1
 grep -c 'A GATE WITHOUT A NULL IS NOT A GATE' SPEC.md   # 1   SINGLE-LINE ANCHOR
-grep -c 'COMMON-MODE' SPEC.md                           # 2   CASE MATTERS
+grep -c 'COMMON-MODE' SPEC.md                           # 3   CASE MATTERS
 grep -c '0.9533' SPEC.md                                # 2
 grep -c 'T1_R41_NOG4' SPEC.md                           # 1
-grep -c 'T1_R41_NOG4' probe_rev41_gate.py               # 2
+grep -c 'T1_R41_NOG4' probe_rev41_gate.py               # 3
 grep -c 'def gate' probe_rev41_gate.py                  # 1
-grep -c 'NULL_OFFS' probe_rev41_gate.py                 # 3
+grep -c 'NULL_OFFS' probe_rev41_gate.py                 # 6
 grep -c 'class Band' probe_rev41_gate.py                # 1
 grep -c 'CRITERION 1 IS REFUTED' probe_rev41_gate.py    # 1
 grep -c 'AN ABSENCE HAS A TIMESTAMP TOO' HANDOFF_rev41.md   # 1
@@ -375,7 +375,7 @@ grep -c '^#### 10.98' SPEC.md                           # 13
 grep -c '^### 10.97' SPEC.md                            # 1
 grep -c '^### 10.96' SPEC.md                            # 1
 grep -c "THE COUNTER'S FRONT FACE" SPEC.md              # 3   NOTE THE QUOTES
-grep -c 'CNT_NOSE_F' SPEC.md                            # 9
+grep -c 'CNT_NOSE_F' SPEC.md                            # 6
 grep -c 'CLOSED BY HIM' SPEC.md                         # 3   CASE MATTERS
 grep -c '_assert_same_edge' flank_compare.py            # 4
 grep -c 'cab_floor' SPEC.md                             # 4
