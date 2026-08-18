@@ -54,8 +54,15 @@ may be cited.
 ### 3.1 What was wrong, and why it looked unmeasurable
 
 `DOOR_GAP` cut the cab door's bottom as a **straight chord across the top of
-the front wheel arch**, z 0.8000–0.8160 un-dropped, **14.6–30.6 mm ABOVE** the
-crown at 0.7854. rev 7 through rev 41 all shipped it.
+the front wheel arch**, z 0.8000–0.8160 un-dropped, **23.0–39.0 mm ABOVE** the
+crown, whose built value is `_ARCH_TOP_F` = **0.7770** (smoothed minimum over
+the arch's x-span 0.8006, **23.6 mm**). rev 7 through rev 41 all shipped it.
+
+**A FIGURE OF MINE WAS WRONG HERE AND IS CORRECTED, NOT QUIETLY.** My first
+draft said crown 0.7854 and clearance 14.6–30.6 mm. **0.7854 is a rev-8 COMMENT
+in `t1_shell.py`**, not a printed value — the trap SPEC §10 already names twice.
+**The geometry is unaffected**: the construction and both asserts call
+`arch_z(T.X_AXLE_F)` live. Only the prose was wrong. §10.100.1.
 
 §10.62 and §10.73 record that **no supplied frame carries both a closed cab
 door and an admissible px/m on the door plane**. `ref_side.jpg` has the door

@@ -497,8 +497,20 @@ DOOR_GAP = [
 #
 # WHAT WAS WRONG.  The table above cuts the cab door's bottom as a STRAIGHT
 # CHORD ACROSS THE TOP OF THE FRONT WHEEL ARCH, z 0.8000-0.8160 un-dropped,
-# 14.6-30.6 mm above the arch crown at 0.7854.  Every revision from rev 7 to
-# rev 41 shipped that chord.
+# 23.0-39.0 mm above the arch crown -- whose BUILT value is
+# arch_z(X_AXLE_F) + ARCH_R = 0.4035 + 0.3735 = 0.7770, WATCHED PRINT.  The
+# smoothed rev-41 outline's minimum over the arch's x-span is 0.8006, 23.6 mm.
+# Every revision from rev 7 to rev 41 shipped that chord.
+#
+# MY FIRST DRAFT OF THIS COMMENT SAID 0.7854 AND 14.6-30.6 mm.  0.7854 is the
+# rev-8 COMMENT forty lines above ("the front arch top moves 0.7710 -> 0.7854")
+# and it has been STALE SINCE REV 13, which re-derived the rake 33.0 -> 17.75
+# mm/m and moved arch_z with it.  I quoted the comment instead of the value the
+# build prints -- SPEC 10's own trap, reproduced inside the repair.  THE
+# GEOMETRY IS UNAFFECTED: everything below calls arch_z(T.X_AXLE_F) live and
+# never touches the literal.  The rev-8 comment is left where it is because it
+# is a dated record of a rev-8 state; this note is what stops it being read as
+# a current one.
 #
 # HIS TWO READINGS, rev 42, off `ref_workshop.jpg` -- the ONLY frame with the
 # cab door SHUT.  Shown one 9x crop with three marks (the shut line; the height

@@ -7915,9 +7915,26 @@ since rev 37, and it is now built.
 #### 10.100.1  WHAT WAS WRONG, AND WHY NOBODY COULD MEASURE IT
 
 `t1_shell.DOOR_GAP` cut the cab door's bottom as a **STRAIGHT CHORD ACROSS THE
-TOP OF THE FRONT WHEEL ARCH** — z 0.8000–0.8160 un-dropped, **14.6–30.6 mm
-ABOVE** the arch crown at `_ARCH_TOP_F` 0.7854. Every revision from rev 7 to
-rev 41 shipped that chord, pinned there by an import-time assert.
+TOP OF THE FRONT WHEEL ARCH** — z 0.8000–0.8160 un-dropped, **23.0–39.0 mm
+ABOVE** the arch crown, whose built value is `_ARCH_TOP_F` =
+`arch_z(X_AXLE_F) + ARCH_R` = 0.4035 + 0.3735 = **0.7770**. The rev-41 smoothed
+outline's minimum over the arch's x-span is **0.8006, 23.6 mm above the crown**.
+Every revision from rev 7 to rev 41 shipped that chord, pinned there by an
+import-time assert.
+
+> **A FIGURE OF MINE IN THIS SECTION WAS WRONG AND IS CORRECTED HERE RATHER
+> THAN QUIETLY.** My first draft of §10.100 and of `HANDOFF_rev42.md` put the
+> crown at **0.7854** and the clearance at **14.6–30.6 mm**. 0.7854 is a
+> **rev-8 COMMENT** in `t1_shell.py` (*"The front arch top moves 0.7710 →
+> 0.7854"*), describing a state before later changes to the rake and the arch.
+> I quoted the comment instead of the value the build prints. **It is exactly
+> the trap SPEC §10 already names** — rev 13's *"never put a figure in an
+> acceptance test unless you watched it print"* and rev 26's *"another figure
+> in a comment that was never watched print"* — reproduced by me in the section
+> documenting the repair. **THE GEOMETRY IS UNAFFECTED**: the construction and
+> both asserts call `arch_z(T.X_AXLE_F)` live and never touch the literal, so
+> nothing built or guarded moves. Only the prose figure was wrong, and it was
+> caught by re-running the value rather than re-reading the sentence.
 
 The reason it survived is that it looked unmeasurable. §10.62 and §10.73 both
 record that **no supplied frame carries BOTH a closed cab door AND an
@@ -8229,3 +8246,16 @@ settle a question whose bar is 50 pp away.
   `senor.png` reads 100 % pooled and 0.00 % per object.
 * **A FRACTION OVER 100 % IS THE CHEAPEST CONTROL THERE IS.** It caught a cache
   key that no assertion in the probe was watching.
+
+#### 10.101.9  AND ONE MORE RULE, EARNED IN §10.100 AND RECORDED HERE
+
+* **A FIGURE IN A COMMENT IS NOT A MEASUREMENT, AND THE COMMENT MAY BE THIRTY
+  REVISIONS OLD.** §10.100.1's crown was first published as 0.7854 because I
+  quoted `t1_shell.py`'s rev-8 comment instead of the value the build prints;
+  0.7770 is the built value and the comment has been stale since rev 13
+  re-derived the rake. rev 13's rule — *never put a figure in an acceptance test
+  unless you watched it print* — **third instance in this repo, and the first
+  where the stale figure was in a comment rather than a test.** Corrected in
+  SPEC, in `HANDOFF_rev42.md` and in the code comment itself, and the rev-8
+  comment left in place with a note saying why, because it is a dated record of
+  a rev-8 state and not a current claim.
