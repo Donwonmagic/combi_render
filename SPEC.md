@@ -7772,6 +7772,11 @@ band that previously declined can now answer.
 is z 0.90–1.20 at **−1 px = −5 mm**, reproducing the joint whole-vehicle
 registration's −5 mm from a tenth of the pixels.
 
+**FALSIFIED WITH A LEVER WHOSE DEFAULT IS A PROVEN NO-OP** (rev 20's pattern):
+`T1_R41_NOG4=1` removes G4 and all ten bands come straight back, including the
+three at −193/+222/+193 mm. That is what shows G4 is load-bearing rather than
+decorative.
+
 #### 10.99.4  AND THE VERDICT WAS TESTED FOR BEING MINE RATHER THAN THE VEHICLE'S
 
 ```
