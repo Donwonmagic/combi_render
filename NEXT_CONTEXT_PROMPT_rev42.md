@@ -428,5 +428,5 @@ shot `rev38_hero34f.png`. **The moment §6 item 1 lands, one IS owed.**
 **Two figures are NOT in the repo this revision** — rev 41 shot no render and
 produced no marked crop; its output is `probe_rev41_gate.py` and SPEC 10.99.
 
-**FINAL COUNT: 221 commits, clean tree.** *(This line lands in commit 221 itself
+**FINAL COUNT: 222 commits, clean tree.** *(This line lands in commit 222 itself
 — rev 29's pattern, kept since.)*
