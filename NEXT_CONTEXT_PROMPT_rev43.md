@@ -1,271 +1,631 @@
 # NEXT CONTEXT PROMPT — rev 43
 Please act as my expert. Continue the Señor Tacombi combi build. **Forty-two
 revisions sit behind this.** You are picking up mid-stream, not starting.
-## Step 0 — CHECK A FOLDER IS CONNECTED BEFORE YOU PLAN ANYTHING
-Call `get_device_info`. **In rev 32 through rev 42 `~/Desktop/tacombi_bus_render`
-was ALREADY in `connectedFolders` on the first call** — eleven in a row. It
-timed out unanswered in rev 28/29 and was granted on the first request in
-rev 30/31. **Do not assume any of those outcomes** — call it, and say plainly
-what came back, WITH ITS TIMESTAMP.
-**AN ABSENCE HAS A TIMESTAMP TOO.** Rev 41's first recursive listing ran at
-12:04 and found **zero** rev-40 files; it reported rev 40 as having delivered
-nothing. **They landed at 12:08.** Rev 42 stated the clock time of every look.
-If a delivery looks missing, say *when* you looked and ask before concluding.
-**THE BRIDGE DROPPED TWICE IN REV 40** and came back both times on his word;
-rev 31/35/36/39's pattern. **Rev 41 and rev 42 saw ZERO drops.**
-**WAIT IT OUT AND DO CLOUD-SIDE WORK IN BETWEEN. DO NOT RETRY IN A LOOP.** A
-60-second stage timeout with nothing landed is a transient; the next call
-returning *"device … is not connected to the bridge"* is the real drop.
-**THE BRIDGE HAS A THROUGHPUT CEILING, NOT JUST A SIZE ONE.** Only TWO files need
-splitting: the 19.5 MB base bundle (7 parts) and the 8.5 MB `rev14_unified`
-(3 parts). **Everything rev15–rev42 is under 3 MB and crosses whole EXCEPT the
-hero, which is ~15 MB and crosses whole on its own.**
-**REV 34–42 ALL REUSED REV 33's `_xfer33/` SPLIT PARTS.** They are still on his
-disk and their sizes sum **byte-exactly** to both source bundles — base parts to
-**19,478,840**, r14u parts to **8,519,034**. Check that before spending
-`device_bash`. **REV 42 MOVED 36 FILES IN 3 BRIDGE CALLS.**
-**`device_bash` DOES NOT SEE `/Users/...`** — the mount is
-`/sessions/<session-id>/mnt/tacombi_bus_render`. **`device_stage_files` DOES take
-the `/Users/...` path. AND YOUR SHELL'S `~` IS `/root`.**
-**`hero.py` IS NOT A BLENDER SCRIPT** — it is a plain Python driver. To preview,
-drive `build.py`:
+
+**THE PROJECT IS ON GITHUB AND YOU ARE RUNNING ON HIS MACHINE.** Revisions 1–42
+ran in an ephemeral Linux cloud sandbox with a file bridge to his Desktop. You
+are Claude Code on his Mac, sitting in a real working copy. That changes Steps
+0–2 completely and changes nothing at all about the model, the record, or the
+standard. **Where this brief and the machine disagree, the machine is right —
+say so and correct the brief in the same revision.**
+
+**VERIFY BY CONTENT. THERE IS NOW A SCRIPT FOR IT:** `./verify_clone.sh`.
+Forty-nine checks, exit 0 or exit 1. Until rev 43 those checks were thirty lines
+of prose re-typed by hand every revision — which is a drift surface, and this
+project has already shipped a measurement quoted from a thirty-revision-old
+comment. **A number in a script that runs cannot go stale the way a number in a
+paragraph can.** See §11.
+
+---
+
+## Step 0 — prove the tree you are sitting in is the right one
 ```bash
-T1_SUB=1 T1_PREVIEW=hero34f T1_FX=0 T1_RX=1600 T1_RY=1067 T1_SAMP=24 \
-  T1_OUT=/tmp/prev T1_PFX=pv blender -b --python build.py     # ~225 s
+pwd && git remote -v            # expect .../Donwonmagic/combi_render
+git fetch origin && git status -sb
+./verify_clone.sh               # must print ALL 49 PASS and exit 0
 ```
-**`ref_workshop.jpg`, `ref_side.jpg` and `ref_rear34.jpg` are IN THE REPO.**
-## Step 1 — read my memory BEFORE you read any code
-`/areas/tacombi-combi-3d.md`, then `-rev14`, `-rev17` … `-rev41`, then
-**`/areas/tacombi-combi-3d-rev42.md`** (SEPARATE FILES; each revision's file does
-NOT carry the next), then `/areas/tacombi-combi-sticker.md`, then
-`/preferences.md`. If you cannot read them, say so explicitly.
-**A MEMORY ENTRY IS A CLAIM TOO — GREP IT.** Rev 37 found memory had invented
-`MIGRATION_APPENDIX_rev32.md`, a file that has never existed in any ref; rev 39
-through rev 42 all re-checked and it still has not. Rev 41 and rev 42 both
-checked the **entire git history across every ref** — 0 paths.
+**DO NOT RE-CLONE.** You are already in his working copy, and it holds things a
+fresh clone does not: **every rendered hero and `out/` — those two are
+gitignored and exist nowhere else.** (The marked question crops are NOT
+gitignored: `.gitignore` excludes only `rev*_hero*.png`, and **17 marked crops
+are tracked and committed.** Rev 43 must commit its own. `verify_clone.sh`
+counts them.)
+
+**IF `verify_clone.sh` EXITS 1, STOP.** Report the failing line and its ACTUAL
+value and do not build. **A failing check is a finding, not a broken
+instrument** — and do not edit the script to make it pass. That rule has been
+earned four separate times in this project; §9.
+
+**THERE IS NO BRIDGE AND NO STAGING STEP ANY MORE. HIS DISK IS YOUR DISK.**
+`~/Desktop/tacombi_bus_render` is a real local folder. Renders and marked crops
+go there with `cp`, and `open <path>` puts them on his screen. That is the whole
+delivery mechanism now. **Every file is directly readable — no upload, no
+transfer, no size cap.** This is a real gain; use it.
+
+**AN ABSENCE HAS A TIMESTAMP TOO.** Rev 41 reported a delivery as never made
+four minutes before it arrived. So report what `ls -l` actually returned and
+when you ran it — never what you assume you wrote.
+
+**WHAT IS IN THE WORKING TREE AND NOT IN THE REPO:** every rendered hero
+(gitignored, ~15 MB each — `rev42_hero34f.png` should be current), `out/`, and
+the old git bundles. **TAKE THE INVENTORY WITHOUT SWALLOWING THE ERRORS:**
+```bash
+ls -l out/ 2>&1 | head -5
+ls -l rev4*_hero34f.png 2>&1
+ls -ld ~/Desktop/tacombi_bus_render 2>&1
+```
+**No `2>/dev/null`.** A "No such file" line IS the finding, and this brief's own
+rule is that an absence has a timestamp too. **Do not assume any of these three
+exist** — report what came back. **The bundles are dead weight now that the repo
+exists.**
+
+## Step 1 — the memory files are NOT reachable from here. Do not pretend to read them.
+Revisions 14–42 kept a running record in a cloud assistant's memory store at
+`/areas/tacombi-combi-3d-rev*.md`. **Those are not files on this laptop and no
+tool here can open them.** Say so plainly rather than inventing their contents.
+
+**EVERYTHING LOAD-BEARING IN THEM IS ALSO IN THE REPO, WITH PROVENANCE:**
+`SPEC.md` §10 (cumulative, it contains its own history), `HANDOFF_rev42.md` back
+to `HANDOFF_rev7.md`, `AUDIT_rev11.md`, `AUDIT_rev12.md`, and the superseded
+`NEXT_CONTEXT_PROMPT_rev*.md`. Read those. **If you ever cite something that
+exists only in memory, mark it unverified.**
+**A RECORD ENTRY IS A CLAIM TOO — GREP IT.** Rev 37 found memory had invented
+`MIGRATION_APPENDIX_rev32.md`, a file that has never existed; rev 39 through 42
+re-checked and it still has not. `ls MIGRATION_APPENDIX_rev32.md` must fail.
 **CHECK THIS PROMPT AGAINST MEMORY BEFORE TRUSTING ITS WORK LIST.**
-**REV 40 REFUSED ITS BRIEF'S ITEM 1 AS A DATUM ERROR. REV 41 GRADED ITS ITEM 1 AS
-SOUND AND EXECUTED IT, AND REFUSED ITS ITEM 3. REV 42 GRADED ITS ITEMS 1 AND 7
-AS SOUND AND DID BOTH, AND CORRECTED ONE WORDING ERROR IN ITS BRIEF.** Grade
-every item before you build it — and notice that grading is not the same as
-refusing.
+**REV 40 REFUSED ITS BRIEF'S ITEM 1. REV 41 GRADED ITS ITEM 1 SOUND AND DID IT,
+AND REFUSED ITS ITEM 3. REV 42 GRADED ITEMS 1 AND 7 SOUND, DID BOTH, AND
+CORRECTED A WORDING ERROR IN ITS BRIEF.** Grade every item before you build it —
+and notice that grading is not the same as refusing.
 **I have never stood in the bus.** The "remember standing in the kombi" bar is
 about the RESTAURANT'S owner. **Do not ask me what the real vehicle looks like.**
-Ask me what a PHOTOGRAPH shows — that has now paid off thirty-three times, twice
-in rev 42 alone.
-## Step 2 — restore, and verify BY CONTENT (never by hash or commit count)
-See §11. **THIRTY bundle lines now**, and the rev14b line is a `fetch` that
-must come BEFORE rev15. rev 20 through rev 42 all restored CLEAN.
-## Step 3 — install Blender 4.5.3 and run BOTH guards before proposing anything
+Ask me what a PHOTOGRAPH shows — that has paid off thirty-three times, twice in
+rev 42 alone.
+**AND ASK IT AS MULTIPLE CHOICE WITH THE REFERENCE MATERIAL ATTACHED. ONE CROP,
+ONE MARK, ONE SENTENCE.** This is the highest-yield technique in the whole
+project and it belongs here, at the front, not buried at the end: **that format
+closed region 3 after twenty-one revisions and report 5 after five.** And **if I
+do not understand the question, the FIGURE is the defect, not me.**
+
+## Step 2 — Blender 4.5.3 on macOS, and BOTH guards before you propose anything
+**THE REPO HARD-CODES `/tmp/blender`. DO NOT INSTALL BLENDER SOMEWHERE SENSIBLE
+AND FIND OUT HOURS LATER.** Eight files bake that path in: `hero.py`,
+`flank_compare.py` (twice), `probe_rev42_uv.py`, and the headers of
+`probe_clean_top`, `probe_dust_anchor`, `probe_psf_lines`, `probe_psf_owner`,
+`probe_psf_workshop`. Satisfy the layout instead of editing eight files —
+editing them is a diff the guards do not cover and it churns every revision.
+
 ```bash
-curl -fsSL -o b.tar.xz https://download.blender.org/release/Blender4.5/blender-4.5.3-linux-x64.tar.xz
-tar -xf b.tar.xz && mv blender-4.5.3-linux-x64 /tmp/blender
+# macOS ships a .dmg, NOT the linux tarball rev 42 used. Skip if 4.5.3 is installed.
+curl -fsSL -o b.dmg https://download.blender.org/release/Blender4.5/blender-4.5.3-macos-x64.dmg
+hdiutil attach -nobrowse -quiet b.dmg
+cp -R "/Volumes/Blender/Blender.app" "$HOME/blender-4.5.3.app"
+hdiutil detach -quiet /Volumes/Blender
+xattr -dr com.apple.quarantine "$HOME/blender-4.5.3.app"   # else Gatekeeper kills -b
+
+# reproduce the layout the repo expects
+mkdir -p /tmp/blender
+printf '#!/bin/sh\nexec "%s/Contents/MacOS/Blender" "$@"\n' "$HOME/blender-4.5.3.app" \
+  > /tmp/blender/blender && chmod +x /tmp/blender/blender
+ln -sfn "$HOME/blender-4.5.3.app/Contents/Resources/4.5" /tmp/blender/4.5
+/tmp/blender/4.5/python/bin/python3.11 -m ensurepip
 /tmp/blender/4.5/python/bin/python3.11 -m pip install pillow scipy
+/tmp/blender/blender -b --version        # WATCH IT PRINT 4.5.3
 ```
-That pip line is required. Guards are `T1_SUB=n T1_VERIFY=1 blender -b --python
-build.py` and `T1_SUB=n blender -b --python audit.py`. Report the guards' ACTUAL
-output, both levels. **`audit.py` rewrites `STATE.md` every run — `git checkout
+**macOS empties `/tmp` on reboot.** Re-run the `mkdir`/`printf`/`ln` three lines
+at the start of any session where `/tmp/blender/blender` is missing. One second,
+and every hard-coded path stays valid.
+
+That pip line is required. **BOTH GUARDS, BOTH LEVELS — `n` IS NOT A VALUE, IT IS 1 AND THEN 2.**
+`build.py` does `int(os.environ.get("T1_SUB", "2"))`, so a literal `T1_SUB=n`
+raises `ValueError` before anything builds:
+```bash
+for n in 1 2; do
+  T1_SUB=$n T1_VERIFY=1 /tmp/blender/blender -b --python build.py
+  T1_SUB=$n /tmp/blender/blender -b --python audit.py && git checkout STATE.md
+done
+```
+**All four runs, every revision. The cab-door booleans passed at SUB=1 and
+collapsed the shell 205562v → 12v at SUB=2 for six revisions.**
+Report the guards' ACTUAL output, both levels. **If a guard does not print
+0 fail / 0 warn, that is the revision's first finding — report it before you
+touch anything.** **`audit.py` rewrites `STATE.md` every run — `git checkout
 STATE.md` after.**
-**THE GUARDS ARE 0 fail / 0 WARN. GEOMETRY MOVED IN REV 42 FOR THE FIRST TIME
-SINCE REV 38** — the cab door's lower shut line. **131 objects, 190 meshes, and
-every figure is identical to rev 38's EXCEPT the two roof-hole vertex counts,
-which are re-baselined at 70069 / 254428.**
-**RUN THE PROBES YOU INHERIT, NOT ONLY THE ONES YOU WRITE.** **31 now** — rev 42
-added `probe_rev42_uv.py`. Under `blender -b --python`: `probe_ctan_index`,
-`probe_dust_scope`, `probe_f90`, `probe_rev16`, **`probe_cross_anatomy` and
-`probe_shutlines` (transitive)**, `probe_rev36_barend`, **both rev38 probes, and
-`probe_rev42_uv`**. Everything else under
-`/tmp/blender/4.5/python/bin/python3.11` — **including `probe_clean_top` and
-`probe_dust_anchor`, whose only `bpy` is in a comment, and `probe_rev39_flank`,
-`probe_rev40_datum` and `probe_rev41_gate`.**
-**`probe_ctan_index` is the slow one (~7 min); it renders. `probe_rev42_uv` is
-the OTHER slow one (~9 min); it rasterises every triangle nine times.**
-**READ EACH PROBE'S OWN SUMMARY LINE. DO NOT RE-DERIVE IT.** Wordings differ:
+**THE GUARDS ARE 0 fail / 0 WARN. GEOMETRY MOVED IN REV 42** — the cab door's
+lower shut line. **131 objects, 190 meshes, every figure identical to rev 38's
+EXCEPT the two roof-hole vertex counts, re-baselined at 70069 / 254428.**
+
+## Step 3 — run the probes you inherit, not only the ones you write
+**31 now.** Under `blender -b --python`: `probe_ctan_index`, `probe_dust_scope`,
+`probe_f90`, `probe_rev16`, `probe_cross_anatomy`, `probe_shutlines`,
+`probe_rev36_barend`, both rev38 probes, and `probe_rev42_uv`. Everything else
+under `/tmp/blender/4.5/python/bin/python3.11`, including `probe_clean_top` and
+`probe_dust_anchor` (their only `bpy` is in a comment) and `probe_rev39_flank`,
+`probe_rev40_datum`, `probe_rev41_gate`. **Do not reach for the system
+`python3` — macOS's has neither numpy nor Pillow.**
+**READ EACH PROBE'S OWN SUMMARY LINE. DO NOT RE-DERIVE IT.** Wordings differ —
 `probe_rev36_posts` prints `ALL 5 CONTROLS PASSED`, not `CONTROLS: n checked`.
 **A SUMMARY GREP UNDER-READ SIX PROBES IN REV 37 AND AGAIN IN REV 39.**
-Expected: **`rev42_uv` 5 checked / 1 FAILED — C3 IS *SUPPOSED* TO FAIL, see
-§9**, **`rev41_gate` 5 / 1 — C4 IS *SUPPOSED* TO FAIL**, **`rev40_datum` 4 / 1 —
-C3 IS *SUPPOSED* TO FAIL**, `rev39_flank` **3/0**, `rev38_wheelbar` **6/0**,
-`rev38_floorpen` **1/0**, `rev36_posts` **5/0**, `rev35_harmonic` **18/6**,
-`rev34_levels` **8/4**, `rev34_ruling` **6/4**, `rev33_barend` **7/4**,
-`orb_xratio` **6/1**, `rev32_pointer` **10/0**, `dust_scope` **8/0**,
-`updust_pointer` **6/0**, `psf_lines` **2 FAILED both EXPECTED**, `clean_top`
-and `dust_anchor` **DELIBERATELY LEFT FAILING**.
-**`probe_rev36_barend` PRINTS "REFUSING TO PRINT A RULING"** and that is CORRECT.
+**EVERY FAILURE IN THE LIST BELOW IS BY DESIGN. A TALLY THAT MATCHES THE LIST
+MEANS THE PROBE IS HEALTHY; ONLY A TALLY THAT DIFFERS IS A FINDING.** **Seven
+probes carry explicit KILL controls** — controls written to fail, because a
+control that cannot fail proves nothing (`grep -ln 'KILL' probe_*.py`:
+`orb_hoop`, `orb_xratio`, `rev33_barend`, `rev34_levels`, `rev34_ruling`,
+`rev35_harmonic`, `rev42_uv`). **Others fail by design without saying so** —
+which is the point of the tally below. `probe_orb_xratio` prints *"EXIT CODE 1 IS THE
+INTENDED RESULT HERE"* in as many words. Under an owner whose standard is *any
+single measurement off is unacceptable*, an unannotated `8/4` reads as four
+regressions. **It is not. Read the expected tally first, then the probe.**
+**`probe_rev40_datum` AND `probe_rev41_gate` DO NOT SAY SO THEMSELVES** — this
+brief is their only carrier, and it is the one place §3's "read the probe's own
+summary line" is not enough.
+
+Expected: **`rev42_uv` 5/1 — C3 SUPPOSED TO FAIL**, **`rev41_gate` 5/1 — C4
+SUPPOSED TO FAIL**, **`rev40_datum` 4/1 — C3 SUPPOSED TO FAIL**,
+`rev39_flank` 3/0, `rev38_wheelbar` 6/0, `rev38_floorpen` 1/0, `rev36_posts`
+5/0, `rev35_harmonic` 18/6, `rev34_levels` 8/4, `rev34_ruling` 6/4,
+`rev33_barend` 7/4, `orb_xratio` 6/1, `rev32_pointer` 10/0, `dust_scope` 8/0,
+`updust_pointer` 6/0, `psf_lines` 2 FAILED both EXPECTED, `clean_top` and
+`dust_anchor` DELIBERATELY LEFT FAILING.
+**`probe_rev36_barend` PRINTS "REFUSING TO PRINT A RULING"** — correct.
 **`probe_rev39_flank` PRINTS "NOT flat, so the offset-versus-scale question is
-NOT settled here" — NOT the phrase "NO RULING".** The rev-42 brief said
-otherwise; rev 42 corrected it by reading the probe. **Do not "fix" any of
-these.**
-Both flank probes and `probe_rev40_datum` and `probe_rev41_gate` need
-`out/p_side.png` (see §10).
-## Step 4 — read, in this order
-`STATE.md` → `SPEC.md` §10, then §10.9 through §10.101 → this file →
-**`HANDOFF_rev42.md`** → `HANDOFF_rev41.md` → … → `REF_MEASUREMENTS.md`.
+NOT settled here"** — and note that phrase is split across two `print()` calls,
+so a literal grep for it returns 0. `NO RULING` *is* a live branch in that file;
+it fires when fewer than four bands answer. **Do not "fix" `rev36_barend`'s or
+`rev39_flank`'s wording — the refusals ARE the finding.** `clean_top` and
+`dust_anchor` are the different case: they fail on purpose and §6 item 6
+disposes of them.
+**TWELVE PROBES HAVE NO PUBLISHED TALLY.** Run them, record their output
+verbatim into the handoff, and do NOT treat an unfamiliar line as a regression —
+rev 44 needs the baseline you are about to create.
+**`out/p_side.png` IS NEEDED BY EXACTLY THREE:** `probe_rev39_flank`,
+`probe_rev40_datum`, `probe_rev41_gate` (and `flank_compare.py`). See §10.
+
+## Step 4 — read, in this order — AND FAN THE BULK OF IT OUT
+**THERE IS NO `docs/` DIRECTORY AND THERE NEVER HAS BEEN.** All 37 handoffs and
+every prompt are at the repo ROOT. Rev 43's first draft said `docs/HANDOFF_rev42.md`
+and would have failed the read, then created `docs/` and broken a 37-file
+convention. `verify_clone.sh` checks both.
+
+`STATE.md` → **`SPEC.md` §10.99–§10.101 yourself** → this file →
+`HANDOFF_rev42.md` → `HANDOFF_rev41.md` → … → `REF_MEASUREMENTS.md`.
+
+**DO NOT READ 550 KB OF SPEC SERIALLY INTO THIS CONTEXT.** Fan it out: one
+subagent per five handoffs, each with a named extraction question. That is §5's
+single best use of parallelism and it is available to you from the first minute.
+**SPEC's §10 IS NOT IN FILE ORDER.** §10.11–§10.33 come first, then §10.49–§10.75,
+then — at roughly line 3936 — *"## 10. rev 7 — the canonical constants
+(supersedes any value above)"*, then §10.1–§10.9 and §10.34–§10.48, then
+§10.83–§10.101. **§10.9 and §10.10 are `##` headings, not `###`.** Read by
+anchor, never by scrolling: `grep -n '^#\{2,4\} 10\.' SPEC.md` first, then jump.
 `STATE.md` is machine-written; **if it and any prose disagree, it is right — BUT
-CHECK ITS PROVENANCE ROWS FIRST**, including the `working tree` row. **If that
-says DIRTY, the file is not a record of anything.** Rev 38 shipped it DIRTY;
-rev 39 through rev 42 all shipped it CLEAN. **Check it anyway.**
+CHECK ITS PROVENANCE ROWS FIRST**, including `working tree`. **If that says
+DIRTY, the file is not a record of anything.** rev 39–42 all shipped it CLEAN.
+**Check it anyway.**
+
 ---
+
+# §5. THROUGHPUT — what actually parallelises here, and what does not
+
+Use expanded workflows and parallel execution — but against the machine that
+exists.
+
+**MEASURE THIS MACHINE AND REPLACE THIS BLOCK BEFORE YOU SCHEDULE ANYTHING:**
+```bash
+uname -m && sysctl -n hw.ncpu hw.memsize && df -h . /tmp
+```
+**CHECK `uname -m` FIRST AND DO NOT SKIP IT.** Step 2 fetches
+`blender-4.5.3-macos-x64.dmg` and this section assumes Cycles is CPU-only. Both
+are true on **Intel (`x86_64`)** and both are wrong on **Apple Silicon
+(`arm64`)**, where you want the arm64 build and Cycles has Metal — which changes
+the render budget by more than any other single fact here. His desktop reported
+`x64` in rev 43; **confirm it, do not inherit it.**
+Every timing below was measured on the **old 2-core cloud box** (Intel Xeon @
+2.10 GHz, 7.8 GB, 28 GB free). His Mac is not that machine. Treat these as an
+UPPER bound and a shape, not a prediction: **re-time SUB=1 and SUB=2 once, print
+both, and budget off your own numbers.** Carry the new figures into rev 44's
+brief — that is the single most useful thing you can leave behind about
+throughput.
+**Cycles on Intel macOS is CPU-only and a laptop throttles on a multi-hour
+frame.** A strip that runs long late in a render is thermal, not a hang.
+
+### What DOES parallelise — 3 to 5 agents, on DISJOINT files
+Agent reasoning is API-bound, not CPU-bound, so several genuinely run at once
+even on two cores. **This is where the throughput is.**
+* **Reading and grepping the record.** `SPEC.md` is 550 KB and there are 37
+  handoffs. Rev 42 put ten memory files through one subagent and got a
+  structured extraction back while the main context ran the guards.
+* **INDEPENDENT MEASUREMENT ROUTES.** The most valuable fan-out in this project:
+  give N agents the SAME question with DIFFERENT photographs, or the same
+  photograph with different estimators, and compare. §10.99 exists because one
+  route was checked against a second that shared no step with it.
+* **ADVERSARIAL VERIFICATION.** He has asked directly: *"Have you conducted
+  truly adversarial audits?"* The pattern that works is N skeptics per finding,
+  each instructed to REFUTE it, majority kills it. **Findings this project
+  accepted without that have been overturned more often than not.**
+* **Writing SPEC / HANDOFF / the next prompt** while a render holds the CPU.
+
+### What does NOT parallelise — do not fan these out
+
+    build SUB=1 (guard)      ~25 s
+    build SUB=2 (guard)      ~104 s
+    p_side preview           ~95 s
+    probe_ctan_index         ~7 min   (renders)
+    probe_rev42_uv           ~9 min   (rasterises every triangle nine times)
+    hero, 20 strips          153 s at the top -> 614 s at strip 16 ->
+                             390 s at the bottom; 18 measured strips
+                             = 7631 s, whole frame ~2.3 h
+
+**Run Blender work strictly one at a time** — it is CPU-bound and two instances
+make both slower. That part is machine-independent.
+**BUT THE OLD AGENT CEILING DOES NOT APPLY HERE.** Rev 11 launched a 25-agent
+Workflow on the 2-core box and two hours later it had started 2 of 25. That was
+a CPU artefact of that box, recorded once, in `HANDOFF_rev11.md`. Subagent
+concurrency in Claude Code is a tool limit, not a core count. **Do not inherit
+that ceiling — measure your own and write it down.**
+
+### The scheduling pattern that won rev 42 back three hours
+**THE HERO IS THE LONG POLE.** Start it as soon as nothing further will move
+geometry **OR RE-BAKE A TEXTURE** — which means after §6 item 1 lands, not
+before. A hero shot before the re-bake photographs the old artwork, and rev 25
+already shipped a model wearing artwork fourteen revisions old. Then do every
+text-shaped thing in its shadow:
+```bash
+# CONFIRM THE INTERPRETER FIRST. macOS system python3 has no numpy and no PIL,
+# and a nohup'd loop that died on import looks exactly like a render running.
+PY=/tmp/blender/4.5/python/bin/python3.11
+$PY -c 'import numpy, PIL; print("ok")'
+# REDIRECT EXPLICITLY. `nohup` only writes nohup.out when stdout is a TERMINAL;
+# under a tool-driven shell stdout is a pipe and the render's output is LOST --
+# which is exactly the silent death this check exists to catch.
+caffeinate -is nohup bash -c 'for i in $(seq 0 19); do '"$PY"' hero.py hero34f \
+  --res 4800x3200 --samples 56 --strips 20 --sub 2 --tag rev43_hero34f --only $i; done' \
+  > hero_rev43.log 2>&1 &
+sleep 60 && tail -20 hero_rev43.log     # CHECK IT WITHIN THE MINUTE
+```
+`caffeinate -is` stops the Mac sleeping mid-frame. **Then `--stitch-only`, then
+`post.py` ONCE on the stitched frame.** Then write SPEC, the handoff and the next
+prompt, and poll. Rev 42 wrote §10.100,
+§10.101, its handoff and this prompt while 20 strips rendered. **Do not sit and
+wait on a render.**
+
+**CHECKPOINT LONG RENDERS.** The container-restart hazard is gone — nothing
+restarts a laptop mid-session — but the session is not immortal: a closed lid, a
+killed CLI, a compacted context all lose in-flight work. Rev 42's hero died at
+strip 10 of 20 and resumed from 10 **only because `hero.py` writes each strip as
+its own file. Never hold three hours of work in a process's memory.** After any
+interruption, `hero.py`'s own seam report is what proves the two halves are
+consistent; rev 42's read **z = 1.95 against a threshold of 4**.
+**`hero.py`'s OWN DOCSTRING IS STALE ON THIS POINT** — it says "the sandbox reaps
+background processes (nohup/setsid/disown all fail)". That was rev 9's sandbox.
+It works here. Do not "fix" the strip-splitting on the grounds that its stated
+rationale no longer holds; the real rationale is seams and the denoiser.
+
+### The one big fan-out he has actually asked for and that has never run
+**`workflows/tacombi-rev11-audit.js`** — ten specialist dimensions, an
+adversarial verifier per ranked finding instructed to REFUTE, then a synthesis.
+He asked for *"a complete and comprehensive workflow by a number of expert
+specialists"* and later: *"I think that we should conduct that audit workflow at
+some point, I believe you were one that put it on ice."* Rev 11 deferred it for
+the 2-core reason above and it has never run.
+**THERE IS NO `Workflow()` RUNNER IN CLAUDE CODE. DO NOT TRY TO EXECUTE THE
+FILE.** Read it as a SPECIFICATION: it holds ten dimension briefs plus the
+adversarial-verifier pattern, and its own header already gives the fallback —
+*spawn them 3–4 at a time with the Agent tool on DISJOINT files*. Run it that
+way: fan out the dimensions, one adversarial verifier per ranked finding, one
+synthesis into `AUDIT_rev43.md`.
+**FOUR OF THE TEN DIMENSIONS HAVE ALREADY BEEN RUN BY HAND** — proportion,
+`materials` (which `AUDIT_rev11.md` calls "weathering"), script, fascia — and
+that file carries their results. Five remain: counter/galley internal contrast,
+wheels and contact shadow, tail, roof, optics/glass. **Do not redo the four.**
+**FOUR PLUS FIVE IS NINE. THE TENTH KEY IN THE FILE IS `playa`** — and
+`AUDIT_rev11.md` drops it silently. It is the warm low-light hero of §7.4,
+deprioritised but **not cancelled**. Account for it rather than inheriting the
+arithmetic gap.
+**Its dimension briefs were written against rev 10 and MUST be updated to rev 42
+before it runs** — the file's own header says so.
+
+### What throughput does NOT mean
+Not more findings per hour. **This project's failure mode has never been too
+little output; it has been confident output that a control later killed.** Rev 42
+alone had two estimators killed by their own controls, a line that turned out to
+be its own annotation, a cache key that printed 571 %, and a crown figure quoted
+from a stale comment. Every one was caught by a check costing minutes.
+**Spend the parallelism on checking, not on producing.**
+
+---
+
 # §6. ORDERED WORK LIST FOR REV 43
-**HIS EIGHT DEFECT REPORTS ARE STILL THE SPINE. THREE ARE NOW CLOSED — 6 and 8
-in rev 38, and 5 in rev 42. DO NOT RE-OPEN ANY. REPORT 3 IS *NOT* CLOSED AND
-*NOT* SOLVED** — it is where rev 38 left it, as SPEC §10.24. Rev 41 closed one
-of its ROUTES (§10.99.6).
+**ITEMS 1 AND 2 ARE THE REVISION. EVERYTHING BELOW 2 IS OPPORTUNISTIC.** Rev 40
+closed one item, rev 41 one, rev 42 two. Nine is not a plan, it is a menu.
+**If you get one thing done, make it item 1 — and if you cannot finish the
+re-bake, DO NOT START IT.** Half a re-bake is the worst state this project can
+be in: textures moved, the md5 tripwire fired, and no SPEC §10.10 report to show
+for it. Say which items you did not touch, by number.
+
+**ITEM 1 IS BLOCKED ON ME AND YOU SHOULD EXPECT THAT FROM THE START.** It needs
+two things only I can give: the answer to *did the door get deeper under the
+art, or does the art scale with it* (one crop, one mark, one sentence), and
+`folk_door.md`, which is not in the repo. **ASK FOR BOTH IN YOUR FIRST MESSAGE
+TO ME — do not do a revision's work and then discover you needed them.**
+
+**WHAT TO DO WHILE YOU WAIT ON ME — in this order, none of it blocked:**
+0a. Rebuild the instrument floor: Blender, both guards at **both** levels,
+    `out/p_side.png`, then all 31 probes against §3's tally.
+0b. **Item 8b, `SCR`** — measured, checked, condition met, unapplied for three
+    revisions. Small, self-contained, and it moves geometry.
+0c. **Item 2's scale-free headlamp test.** SPEC §10.94 already gives it: does
+    the indicator aperture sit below or above the two-tone break in the current
+    build? It needs no px/m and no answer from me.
+0d. Update `workflows/tacombi-rev11-audit.js`'s dimension briefs from rev 10 to
+    rev 42, then run the five remaining dimensions as subagents.
+**None of that touches the re-bake, and all of it is work rev 44 would otherwise
+inherit.**
+**HIS EIGHT DEFECT REPORTS ARE THE SPINE. THREE ARE CLOSED — 6 and 8 in rev 38,
+5 in rev 42. DO NOT RE-OPEN ANY. REPORT 3 IS *NOT* CLOSED AND *NOT* SOLVED** —
+it is where rev 38 left it, as SPEC §10.24.
+
 1. **THE ART FRAME AND THE BODY'S MISSING UV LAYOUT — ONE JOB, AND THEY MUST BE
-   DONE TOGETHER.** Rev 42 moved the cab door's bottom **272 mm at the rear
-   corner and 388 mm at the front** (SPEC §10.100) and DELIBERATELY left
-   `folk_gen`'s art frame at rev 41's `DOOR_H = 1.013467`, because re-pointing
-   it forces a texture re-bake and rev 25's rule is one lever at a time.
-   Separately, `probe_rev42_uv` measured **55.97 % of painted surface
-   self-overlapping**, all of it the BOX projection on `T1_paint` — **the body
-   has no UV layout at all** (SPEC §10.101). **BOTH fixes are the same re-bake.**
-   Doing either alone burns the bake twice. **This is the largest single piece
-   of work left in the project and it needs a plan before a line of code.**
-2. **REPORT 3's REMAINING INDEPENDENT ROUTE, and it is buildable.**
-   `t1_detail.py` names it and nobody has built it: **the counter top's INNER
-   edge, which lies ON the flank plane and needs NO parallax term at all.**
-   Unusable in `ref_side.jpg` (the cream ramps from saturation 0.10 to 0.35 with
-   no step) but **a clean step in `ref_rear34.jpg` at y 423, x 700**, needing
-   only a local vertical scale. **DO NOT re-derive the fascia off the flank
-   ruler — that is what rev 41 refused.** §10.99.6.
-3. **REPORT 4 — THE VW GLYPH.** §10.25's premise is FALSE: SPEC's own later entry
-   records *"no gap but a 52 mm interpenetration"*. There was never a 12.7 mm air
-   gap to preserve, so the V and W still **fuse into an X**. §10.94.
+   DONE TOGETHER.** The largest piece of work left, and it needs a written plan
+   before a line of code.
+   * **BOTH FIXES ARE THE SAME RE-BAKE. Doing either alone burns the bake
+     twice.** This is rev 25's one-lever rule's stated exception, not a breach
+     of it: **the lever IS the bake.** A re-bake is a deliberate act under
+     SPEC §10.10 and must report against §10.10's own targets — rev 25 did
+     exactly that and its numbers are the template.
+   * **"RE-BAKE" HERE DOES NOT MEAN A BLENDER BAKE.** There is no
+     `bpy.ops.object.bake` anywhere in this repo and never has been. It means
+     re-running `folk_gen.py` under plain python3 (`main()`, needs
+     pillow and numpy; **scipy is optional** — it is imported in a `try`, and
+     without it only the colour-bleed pass is skipped) — it deliberately never imports `bpy`, it parses
+     `t1_shell.py` and `t1_core.py` as source. Also `lid_gen.py`, `cal_gen.py`,
+     `texgen.py`.
+   * Rev 42 moved the cab door's bottom **272 mm at the rear corner and 388 mm
+     at the front corner** (§10.100) and DELIBERATELY left `folk_gen`'s art
+     frame at rev 41's `DOOR_H = 1.013467`. **The door is now ~390 mm deeper
+     than its art frame AT THE FRONT LOWER CORNER** — 272 mm at the rear. It is
+     not one number.
+   * **`DOOR_H` SCALES THE DOOR ART VERTICALLY — IT IS A MULTIPLIER, `h = sv *
+     DOOR_H`, TWICE IN `folk_gen.py`.** (SPEC §10.100.6 calls it a *divisor*;
+     `grep -n 'DOOR_H' folk_gen.py` shows otherwise, and there is no `/ DOOR_H`
+     anywhere. The consequence is the same, the mechanism is not — **check the
+     code, not the sentence.**) Re-pointing it at the wrapped outline takes it
+     1.013 → ~1.40 m and **stretches the art ~38 % vertically.** The art was measured on the door as photographed swung open
+     49°. **Nothing says the art extends into the new 390 mm.** *"Did the door
+     get deeper UNDER the art, or does the art scale WITH it?"* is a question
+     for HIM — one crop, one mark, one sentence — not a coding decision.
+   * The second half of the same job: `probe_rev42_uv` measured **55.97 % of
+     painted surface self-overlapping** (§10.101). **The body has no UV layout
+     at all.** Every hand-made UV layout is 0.00 %.
+   * **ONE JOB, TWO MECHANISMS — AND CONFUSING THEM IS THE TRAP.** SPEC
+     §10.101.7 is explicit that they *"should be done together, and neither
+     should be done alone"* — that is the schedule, and it is why this is item
+     1. But they are not the same *edit*, and assuming they are is how the plan
+     goes wrong. The
+     overlap is not in the artwork — it is `t1_mats.py`'s `swirl`/`swirl_b`
+     driven `projection='BOX'` off `TexCoord.Object`. **Re-running `folk_gen`
+     changes 0 % of it.** Fixing it means giving `T1_body` a real UV layout and
+     rewriting `body_paint` — **and that replaces `folk_gen`'s MAPPING CONTRACT**
+     (`u = U0 + SGN·0.26·x`, `v = 0.263 + 0.26·z`) against which all 2455 lines
+     of measured composition are authored. **THE PLAN'S FIRST DECISION IS
+     WHETHER THE NEW UV LAYOUT REPRODUCES THAT AFFINE MAP ON THE FLANK — so
+     `folk_gen` survives — OR REPLACES IT, so `folk_gen` is re-authored and
+     every §10.10 target re-measured.** Decide that before anything else.
+   * **`folk_door.md` IS NOT IN THE CLONE.** It is cited 20 times in
+     `folk_gen.py` at `/home/claude/work/measure/folk_door.md`, and it is the
+     source of every door-art number. 0 hits in `SPEC.md` and
+     `REF_MEASUREMENTS.md`. **Ask him for it before planning the bake, or state
+     explicitly that the plan proceeds without the measurement its targets came
+     from.**
+   * **TWO RECIPES ARE ALREADY WRITTEN IN `folk_gen.py`'s TRAILING NOTES — DO
+     NOT RE-DERIVE THEM.** `grep -n '0.2280\|(f) THE NOSE FRONT FACE' folk_gen.py`.
+     One removes the texture-wrap collision (`Scale 0.2600 → 0.2280`, `Location
+     x 0.185 → 0.500`; period becomes 4.386 m, longer than the 4.01 m flank, so
+     no two points on the body share a texel). **It cites `t1_mats.py:823` and
+     `:815` — LINE NUMBERS, so re-locate by symbol before trusting them.** The
+     other, note (f), documents the nose/door shared-window collision and proves
+     no tile change can fix it: *"one image cannot hold two different drawings
+     for one (u, v)"* — which is the argument for the UV layout, already made.
+   * **The eight texture md5s in `verify_clone.sh` are the tripwire**, and this
+     item is what moves them. §11 has the procedure; follow it exactly.
+2. **REPORT 3 IS THE HEADLAMPS AND THE PAINT BREAK — SPEC §10.24 item 3.**
+   97 mm at ~3.9σ, open since rev 10. It is a report about a RELATIONSHIP:
+   §10.94 records his words as *the paint and the headlamps are not aligned
+   **with each other***.
+   * **THE SCALE-FREE ROUTE ALREADY EXISTS AND HAS NEVER BEEN APPLIED.** SPEC
+     §10.94 records that in the photograph the indicator aperture lies **BELOW**
+     the two-tone break, and in the build it lies **ABOVE** it. That is an
+     ORDINAL fact — no px/m, no camera model, admissible where a metric is
+     barred. **It is the same class of fact that broke Report 5 open after five
+     revisions.** Confirm it still holds on the current build, then move.
+   * **TWO TRAPS, both §10.94's. DO NOT MOVE THE ROUNDEL WITH THE LAMPS** — its
+     height is supported by both chains independently. And **§10.24's three
+     findings were applied together once and reverted together once: they are
+     NOT one change.**
+2b. *(separate, and lower — do not let it displace 2)* The counter top's **INNER
+   edge** in `ref_rear34.jpg` at y 423, x 700 lies ON the flank plane and needs
+   no parallax term. **This is rev 41's work-list ITEM 3, not his REPORT 3** —
+   SPEC §10.99.6 is titled *"ITEM 3 IS REFUSED"* and the two have been conflated
+   before. It re-opens the **fascia depth only**, which §10.99.6 already reports
+   as consistent with zero everywhere in the documented band (−2.1 to −2.8 mm,
+   sign-flipping across the parallax bracket). **DO NOT re-derive the fascia off
+   the flank ruler — that is exactly what rev 41 refused.**
+3. **REPORT 4 — THE VW GLYPH.** §10.25's premise is FALSE: SPEC's own later
+   entry records *"no gap but a 52 mm interpenetration"*. The V and W fuse into
+   an X, and `rev42_hero34f.png` photographs it plainly. §10.94.
 4. **REPORT 7 — "100% CALIDAD" OFF CENTRE.** `cal_gen.py:246` places it at an
-   absolute **0.180 of texture width** — re-verified at that exact line in
-   rev 42. **DETERMINE TEXTURE-VERSUS-PANEL BEFORE TOUCHING EITHER** (§10.20's
-   family). **DISTINCT from my earlier sticker LEGIBILITY complaint. Do not
-   merge them.** §10.95.3. Note `calidad.png` is **2400×1771**, below §5's own
-   3K floor, and its UV layout is **clean at 0.00 %**.
-5. **REPORTS 1 & 5 — `V_POW`.** Locked at **0.60** — it is `t1_mats.py:149` and
-   `t1_shell.py:1086`'s `V_POW_Z`, **not** `t1_shell.py:1070`. The rev-11 audit
-   implies **0.30–0.48**. **MIRROR ANY CHANGE INTO `t1_shell.zV`** or the pressed
-   swage and the painted break de-register. **Report 5's geometry half is now
-   CLOSED, but report 1 — the nose shape — is not.**
+   absolute **0.180 of texture width**, re-verified at that line in rev 42.
+   **DETERMINE TEXTURE-VERSUS-PANEL BEFORE TOUCHING EITHER** (§10.20's family).
+   **DISTINCT from his sticker LEGIBILITY complaint — do not merge them.**
+   `calidad.png` is 2400×1771, below **SPEC §5**'s 3K floor, UV layout clean at 0.00 %.
+5. **REPORTS 1 & 5 — `V_POW`.** Locked at 0.60. **FIND IT BY SYMBOL, NOT BY
+   LINE:** `grep -n '^V_POW' t1_mats.py t1_shell.py`. Three separate documents
+   have cited its line number and all three are now wrong — SPEC §10.94 says
+   `:1070`, `HANDOFF_rev42.md` says `:1086`, and by rev 42 the symbol had moved
+   to `:1217` while line 1086 went blank. **That is §9's rule biting the very
+   document that states it.** The rev-11 audit implies **0.30–0.48**.
+   **MIRROR ANY CHANGE INTO `t1_shell.zV`** or the pressed swage and the painted
+   break de-register. Report 5's geometry half is closed; report 1, the nose
+   shape, is not.
 6. **`probe_clean_top.py` and `probe_dust_anchor.py` — REWRITE OR RETIRE.**
-   **TEN revisions now.** Decide the post-retirement question first. **Do not
-   widen a tolerance.**
-7. **TWO ORPHANS REPORTED IN REV 42 AND NOT TOUCHED:** `lidsign.png` is loaded
-   by a material worn by **no object**, and `tex/emblem.png` is referenced by
-   **nothing at all**. Cheap, and neither moves geometry.
-8. **A HERO, after anything that moves geometry.** Camera absolutely last.
+   **TEN revisions open** (rev 42's handoff says TEN; the count has been drifting
+   upward un-anchored, so anchor it: `grep -n 'revisions' HANDOFF_rev42.md`).
+   **THE QUESTION TO DECIDE FIRST, stated plainly because ten revisions have
+   stalled on it being implicit: if these two retire, WHAT INSTRUMENT COVERS THE
+   CLAIM THEY WERE STANDING IN FOR?** Name its replacement before deleting
+   either. **Do not widen a tolerance.**
+7. **ONE ORPHAN, NOT TWO — AND THE OTHER IS A TRAP THAT HAS ALREADY CAUGHT ONE
+   REVISION.** `tex/emblem.png` is genuinely unreferenced: `texgen.py` writes
+   it, only `audit.py`'s provenance list reads it. Dispose of that one.
+   * **`lidsign.png` IS NOT AN ORPHAN. DO NOT DELETE THE TEXTURE, THE MATERIAL
+     OR THE FUNCTION.** `build.py` binds it — `A(sign_boards[0], "lidsign")`.
+     It is worn by no object because `t1_shell.signboard()` is gated behind
+     `T1_SIGNBOARD=1`, and **that gate is HIS decision, not a defect:** he
+     retired the panel from the vehicle — *"I was wrong, I think it is a
+     detached sign"*, *"it is not part of this vehicle"*. The geometry is kept
+     rather than deleted because **he has changed his reading of this one panel
+     three times**, and **no hero may be rendered with it on.**
+   * **`t1_shell.py` ALREADY CARRIES A LITERAL "NOTE FOR ANY LATER CONTEXT"**
+     recording that `NEXT_CONTEXT_PROMPT_rev38.md` §6 item 1 sent a revision at
+     this same function by mistake. **and rev 43's brief nearly did it again.** Anything that looks unused
+     around `signboard` / `lidsign` / `sign_strut` is that decision.
+8. **`analysis/` HARD-CODES `/home/claude/tacombi/ref_side.jpg` IN 25 OF ITS 27
+   SCRIPTS** — not three, which is what rev 42's record said.
+   Check it yourself: `grep -rl '/home/claude' analysis/ |
+   wc -l`. **There is no `/home` on macOS at all**, so this is now a permanently
+   dead directory rather than a latent one. They are rev 4–11 one-offs called by
+   nothing in the build or the guards. **Decide once:** repoint them at
+   `os.path.dirname(__file__)`, or move them to `analysis/attic/` with a README.
+   Do not leave a directory that cannot run and do not edit 25 files blind.
+8b. **`SCR` IS MEASURED, CHECKED, AND UNAPPLIED FOR TWO REVISIONS.** `build.py`,
+   `SCR = dict(...)`. **+76.2 mm forward, −33.3 mm up** (SPEC §10.98 — the
+   vertical term flipped sign when the datum was fixed; the +76.2 never depended
+   on it). Rev 41's condition was *"re-measure once more after any counter
+   change, then apply"* — **the counter has not moved since, so the condition is
+   met.** This is the panel half of §7.7's argument that the failure is the
+   PANEL and not the render. It moves geometry, so it owes a hero.
+9. **A HERO, after anything that moves geometry.** Camera absolutely last.
+
 **SHOOT THE HERO AT THE END, AND SHOOT IT EVERY REVISION THAT MOVES GEOMETRY.
 AND RE-RUN THE PROBES TOO.**
+
 ---
+
 ## §7. INSTRUCTIONS OF MINE STILL OUTSTANDING, IN NO OTHER CARRIER
 Grep each before acting — a memory entry is a claim.
-1. ~~**DRIVE FIXES OFF THE BROADSIDE RENDER LAID OVER `ref_side.jpg`**~~ —
-   **DONE IN REV 39, DATUM CORRECTED IN REV 40, GATE ADJUDICATED IN REV 41.**
-   `probe_rev39_flank.py` is the instrument and it is a standing one.
-   **RE-RUN IT EVERY REVISION THAT MOVES THE FLANK — but read §10.99 first: its
-   Z-LADDER has no power and only its JOINT registration should be quoted.**
-   Rev 42 moved the flank and it still reads **(−1, −4) px**.
+1. ~~**DRIVE FIXES OFF THE BROADSIDE RENDER OVER `ref_side.jpg`**~~ — **DONE
+   rev 39, DATUM CORRECTED rev 40, GATE ADJUDICATED rev 41.**
+   `probe_rev39_flank.py` is a standing instrument. **RE-RUN IT EVERY REVISION
+   THAT MOVES THE FLANK — but read §10.99 first: its Z-LADDER has no power and
+   only its JOINT registration may be quoted.** It still reads (−1, −4) px after
+   rev 42 moved the flank.
 2. **"REMEMBER TO HOLD UP NEXT TO THE ACTUAL SOURCE PHOTOS."** A standing check.
-   Rev 39/40/41 did it for the show flank; **rev 42 did it for the CAB DOOR off
-   `ref_workshop.jpg`. Still never done for the NOSE, the TAIL or the ROOF.**
+   Done for the show flank (rev 39/40/41) and the cab door (rev 42).
+   **Still never done for the NOSE, the TAIL or the ROOF.**
 3. **THE DIE-CUT VINYL STICKER IS THE ORIGINAL DELIVERABLE AND IS UNBUILT.**
    For children at the restaurant; should spark joy and be something families
    keep. **Style LOCKED by me: cartoon with rendered depth.** **Scene LOCKED by
    me: nothing but the bus, die-cut tight, plus the sun and the papel picado.**
-   *[stated, rev 39]* On the papel-picado conflict: **"Leave it open, I'll decide
-   when the sticker is actually being built."** **DO NOT RE-PUT IT UNTIL THEN.**
-   I also said I like how the wheels were drawn in the earlier cartoon version.
+   On the papel-picado conflict: **"Leave it open, I'll decide when the sticker
+   is actually being built."** **DO NOT RE-PUT IT UNTIL THEN.** I like how the
+   wheels were drawn in the earlier cartoon version.
 4. **THE PLAYA HERO IS DEPRIORITISED, NOT CANCELLED** — *"let's not do playa
    right now. Lets focus on the 3d model"*. The agreed deliverable is the
-   white-studio hero for fidelity **PLUS** a warm low-light Playa hero, and **the
-   Playa one carries the emotional bar that sits ABOVE clinical accuracy.**
-5. ~~**NINE FLOWER HEADS**~~ — **CLOSED IN REV 39. I ANSWERED TEN.** SPEC
-   10.97.11. **Do not re-open it.**
+   white-studio hero for fidelity **PLUS** a warm low-light Playa hero, and
+   **the Playa one carries the emotional bar that sits ABOVE clinical
+   accuracy.**
+5. ~~**NINE FLOWER HEADS**~~ — **CLOSED IN REV 39. I ANSWERED TEN.** §10.97.11.
 6. **ABSOLUTE REPLICATION OF ALL ARTWORK** — mural board, flank paisley, the
-   script, the Calidad decal, **the menu strips and cards, the rear-lid
-   lettering, the plate surround**. A hard bar. Rev 10 recorded the lettered panel
-   reads *"La S——— and no further"* and that **"La Santa" is a RECONSTRUCTION**.
-7. **THE SEÑOR TACOMBI SCRIPT — I REJECTED IT TWICE.** On the corrected datum
-   `flank_compare` puts `Senor` at **0.459 of its own ceiling**, and its
-   texture-only control scores **0.7595 = 0.884** overall — so **the failure is
-   the PANEL and the `Senor` reconstruction, not the render.**
-   Also open: **the silver is FLAT** — `tex/senor.png` emits a constant
-   (214,216,218) against reference per-channel std 16–19. **Rev 42 measured
-   `senor.png` at 4096×1738, the ONLY image meeting §5's 3K bar, and its UV
-   layout at 0.00 % overlap — so neither resolution nor layout is the problem.**
+   script, the Calidad decal, the menu strips and cards, the rear-lid lettering,
+   the plate surround. A hard bar. Rev 10 recorded the lettered panel reads
+   *"La S——— and no further"* and that **"La Santa" is a RECONSTRUCTION**.
+7. **THE SEÑOR TACOMBI SCRIPT — I REJECTED IT TWICE.** `flank_compare` puts
+   `Senor` at **0.459 of its own ceiling**; its texture-only control scores
+   **0.884 overall** — so **the failure is the PANEL and the `Senor`
+   reconstruction, not the render.** Also open: **the silver is FLAT** —
+   `tex/senor.png` emits a constant (214,216,218) against reference per-channel
+   std 16–19. Rev 42 measured `senor.png` at 4096×1738, **the only image meeting
+   §5's 3K bar**, UV layout **clean at 0.00 %** — so neither resolution nor
+   layout is the problem.
 8. **THE FRONT ROOF LID NEEDS TWO-SIDED ARTWORK** — my settled topology, never
-   implemented. `roof_lids()` gives each lid ONE board face. Also mine: **a TRUNK
-   LID, separate from the roof lids, and region C is that trunk lid, OPEN.**
-   `grep -c trunk t1_shell.py build.py` is **0 and 0** — re-verified in rev 42.
-9. **"CLUTTER ON THE COUNTER"** — a defect I raised more than once, never
-   recorded as closed, and rev 11 then dressed the galley with 51 objects.
+   implemented. `roof_lids()` gives each lid ONE board face. Also mine: **a
+   TRUNK LID, separate from the roof lids, and region C is that trunk lid,
+   OPEN.** `grep -c trunk t1_shell.py build.py` is **0 and 0**.
+9. **"CLUTTER ON THE COUNTER"** — raised more than once, never recorded as
+   closed, and rev 11 then dressed the galley with 51 objects.
 10. **I STATED THE BUS SITS NOTICEABLY LOWER THAN STOCK.** **NO REVISION HAS
     MEASURED THIS AND NONE MUST BE READ AS HAVING DONE SO** — every flank number
     is relative to the counter fascia or the break by construction and says
     nothing about ride height. Still unadjudicated.
 11. **NOLITA IS RE-ADMITTED FOR GEOMETRY ONLY** (rev 15, §10.32).
-    `grep -ic nolita`: **9 in SPEC, 0 in REF_MEASUREMENTS.** Twenty-seven
-    revisions, **no Nolita frame ever measured.** **AN AUTHORISED SOURCE CLASS IS
+    `grep -ic nolita`: **9 in SPEC, 0 in REF_MEASUREMENTS.** Twenty-eight
+    revisions, **no Nolita frame ever measured. AN AUTHORISED SOURCE CLASS IS
     SITTING UNUSED.** Every Nolita-derived number must be TAGGED.
-12. **THE GITHUB MIGRATION** I asked to have executed (rev 31c). Still
-    unfulfilled; its supposed artefact is a phantom, re-checked in rev 42.
-    **Running Claude Code LOCALLY was raised alongside it and never decided.**
+12. ~~**THE GITHUB MIGRATION**~~ — **EXECUTED IN REV 42, BY HIM.** The repo is
+    `https://github.com/Donwonmagic/combi_render`, 227 commits with full
+    history. ~~Running Claude Code locally~~ — **DECIDED. THIS SESSION IS
+    IT. Do not re-put it.** Open in its place: **re-measure §5 on this machine
+    and carry the numbers into rev 44's brief** — every scheduling rule in §5
+    was a 2-core artefact.
 13. ~~**REGION 3**~~ — **CLOSED BY ME IN REV 40: THE PALE BAND IS THE COUNTER'S
-    FRONT FACE.** It supersedes rev 12's "body's own belt paint" and explains my
-    rev-19 non-selection. **DO NOT RE-PUT IT.** §10.98.11. **Note rev 41 did NOT
-    disturb this — it refused the DEPTH measurement built on top of it.**
+    FRONT FACE.** §10.98.11. **DO NOT RE-PUT IT.**
 14. **THE STANDARD, IN MY WORDS:** *"we are recreating a photo realistic version
-    of that exact bus"* and *"any single measurement off is unacceptable"*. Also:
-    4K non-overlapping textures and no floating artifacts. ~~**no revision has
-    ever run a UV-overlap or texture-resolution check**~~ — **RUN IN REV 42.
-    SPEC §10.101. ONE image of seven meets §5's own 3K floor and 55.97 % of the
-    painted surface self-overlaps. THE MEASUREMENT EXISTS NOW; THE REPAIR DOES
-    NOT.**
+    of that exact bus"* and *"any single measurement off is unacceptable"*.
+    Also 4K non-overlapping textures and no floating artifacts — **MEASURED AT
+    LAST IN REV 42, §10.101: one image of seven meets **SPEC §5**'s own 3K floor and
+    55.97 % of painted surface self-overlaps. The measurement exists; the repair
+    does not.**
+
 ## §8. ALREADY SETTLED — do not re-open without new evidence AND a different method
-**REPORT 6 IS CLOSED** (`cab_floor`; four wheel houses; both pans `FLOOR_W =
-1.200`). **REPORT 8 IS CLOSED** (second `lid_strut`). SPEC 10.96.
-**REPORT 5 IS CLOSED FOR ITS GEOMETRY** (rev 42, SPEC 10.100) — the cab door now
-wraps the front wheel arch, on HIS two readings of `ref_workshop.jpg`. **Its ART
-FRAME is NOT closed and is §6 item 1.**
-**THE FRONT OVER-RIDER ASSEMBLY IS WITHDRAWN — BAR AND POSTS.** My decision,
-rev 37. **DO NOT RE-PROPOSE IT** without a square-on frame of the front or my
-say-so — **it is ANSWERED, not open.** `build.py`'s two calls are **COMMENTED,
-NOT DELETED**; the guards stay armed and log NOT APPLICABLE.
-**THE MURAL BOARD'S TEN FLOWER HEADS ARE SETTLED BY ME** (rev 39).
-**REGION 3 IS SETTLED BY ME** (rev 40) — the counter's front face.
-**THE TYRE DIAMETER IS RIGHT** — rev 39 measured 651 ± 13 mm against the locked
-665. **Do not re-open it off a visual impression of the overlay.**
+**REPORT 6 CLOSED** (`cab_floor`; four wheel houses; `FLOOR_W = 1.200`).
+**REPORT 8 CLOSED** (second `lid_strut`). §10.96.
+**REPORT 5 CLOSED FOR ITS GEOMETRY** (rev 42, §10.100) — the cab door wraps the
+front wheel arch, on HIS two readings of `ref_workshop.jpg`. **Its ART FRAME is
+NOT closed and is §6 item 1.**
+**THE FRONT OVER-RIDER ASSEMBLY IS WITHDRAWN — BAR AND POSTS.** His decision,
+rev 37. **DO NOT RE-PROPOSE IT** without a square-on frame of the front or his
+say-so. `build.py`'s two calls are COMMENTED, NOT DELETED; the guards stay armed
+and log NOT APPLICABLE.
+**THE MURAL BOARD'S TEN FLOWER HEADS ARE SETTLED BY HIM** (rev 39).
+**REGION 3 IS SETTLED BY HIM** (rev 40) — the counter's front face.
+**THE TYRE DIAMETER IS RIGHT** — 651 ± 13 mm against the locked 665 (rev 39).
 **THE MODEL'S BREAK-TO-SILL IS RIGHT TO 2.7 mm** (rev 40).
 **THE COUNTER SLAB IS RIGHT TO 0.0 mm** (rev 41). **Do not move `CNT_ZT`,
 `CNT_ZB` or `CNT_NOSE_F` off a flank-plane reading.**
-**THE Z-LADDER IN `probe_rev39_flank.py` HAS NO POWER** (rev 41, §10.99).
-**Do not re-tune its gate. Do not quote its bands. Its JOINT registration is
-sound and is the only part that may be cited.**
-**THE DOOR OUTLINE'S ARCH CLEARANCE IS ARMED AT REV 41's OWN VALUE** (rev 42,
-§10.100.5). It can only be satisfied by being no worse than what shipped. **Do
-not re-arm it at a number chosen later.**
+**THE Z-LADDER IN `probe_rev39_flank.py` HAS NO POWER** (§10.99). **Do not
+re-tune its gate. Do not quote its bands.**
+**THE DOOR OUTLINE'S ARCH CLEARANCE IS ARMED AT REV 41's OWN VALUE**
+(§10.100.5). **Do not re-arm it at a number chosen later.**
+
 ## §9. HARD-WON RULES — every one was learned by breaking it
 Every rule in the rev-42 prompt still stands. **NEW in rev 42:**
-* **AN ORDINAL FACT NEEDS NO RULER, AND THAT IS WHAT MAKES IT ADMISSIBLE WHERE
-  A METRIC IS BARRED.** Report 5 sat unbuildable for five revisions because
-  §10.62 bars a px/m on the door plane. The finding that broke it was that the
-  door's shut line runs BELOW the arch crown and the build put it ABOVE — a
-  SIGN, and a sign has no units.
-* **A LINE YOU DREW IS NOT EVIDENCE.** My first marked figure produced a "door
-  bottom" that, contrast-stretched with no overlay, does not exist: ridge scores
-  4–8 against a noise floor of 3.5–5.5. I had read my own annotation back as a
-  measurement. Check the unmarked frame.
-* **A GUARD FIRING ON YOUR OWN CHANGE IS THE GUARD WORKING.** The arch-clearance
-  assert caught my first door outline 1.9 mm too close. Fix the construction.
-* **WHEN SMOOTHING MOVES A CURVE, SOLVE FOR THE INPUT THAT PUTS THE OUTPUT WHERE
-  YOU WANT IT.** A fixed point, not a hand-tuned offset, so it re-solves itself
-  when the resample count changes.
+* **AN ORDINAL FACT NEEDS NO RULER, AND THAT IS WHAT MAKES IT ADMISSIBLE WHERE A
+  METRIC IS BARRED.** Report 5 sat unbuildable for five revisions because §10.62
+  bars a px/m on the door plane. What broke it was noticing the door's shut line
+  runs BELOW the arch crown and the build put it ABOVE. **A sign has no units.**
+* **A LINE YOU DREW IS NOT EVIDENCE.** Rev 42's first marked figure produced a
+  "door bottom" that, contrast-stretched with no overlay, does not exist.
+  **Check the UNMARKED frame before the marked one goes anywhere.**
+* **A GUARD FIRING ON YOUR OWN CHANGE IS THE GUARD WORKING.** Fix the
+  construction, never the bar.
+* **WHEN SMOOTHING MOVES A CURVE, SOLVE FOR THE INPUT** — a fixed point, not a
+  hand-tuned offset, so it re-solves itself when the resample count changes.
+* **ARM A NEW GUARD AT THE OLD BUILD'S OWN MEASURED VALUE**, so new geometry can
+  satisfy it only by being no worse than what shipped.
 * **A REQUIREMENT NOBODY HAS INSTRUMENTED IS NOT A REQUIREMENT.** §5's
   "non-overlapping" sat in SPEC for thirty-nine revisions with no probe.
-* **SWEEP THE PARAMETER YOU ADDED YOURSELF.** `C_FOOT` was mine and it moves the
+* **SWEEP THE PARAMETER YOU ADDED YOURSELF.** `C_FOOT` was mine; it moves the
   answer 8 pp.
 * **POOLING TWO OBJECTS THAT SHARE A DECAL MANUFACTURES A DEFECT.** `senor.png`
   reads 100 % pooled and 0.00 % per object.
-* **A FRACTION OVER 100 % IS THE CHEAPEST CONTROL THERE IS.** It caught a cache
-  key nothing else was watching.
-* **C3 CAN FAIL AND THE RULING CAN STILL STAND, IF THE WHOLE SWEEP IS ON ONE
-  SIDE OF THE BAR.** State both. Do not let an uncertain figure suppress a
-  certain verdict, and do not let a certain verdict launder an uncertain figure.
+* **A FRACTION OVER 100 % IS THE CHEAPEST CONTROL THERE IS.**
+* **C3 CAN FAIL AND THE RULING CAN STILL STAND**, if the whole sweep is on one
+  side of the bar. State both.
+* **A FIGURE IN A COMMENT IS NOT A MEASUREMENT, AND THE COMMENT MAY BE THIRTY
+  REVISIONS OLD.** Rev 42 published the arch crown as 0.7854 off a rev-8 comment
+  stale since rev 13; the built value is **0.7770**. **Re-run the value; do not
+  re-read the sentence.**
+
 ## How I work
 * Ground in the reference → build → adversarial audit → iterate. Never build
   before grounding. Never call it done off self-review.
@@ -273,117 +633,87 @@ Every rule in the rev-42 prompt still stands. **NEW in rev 42:**
   self-assigned score.
 * Do not tell me anything is ready. Tell me what is fixed, what is still wrong,
   and what you measured.
-* Keep visible cadence on long work and send renders as they land.
-* Travel between contexts consciously, every time.
-* **Ask me questions as MULTIPLE CHOICE with reference material** (rev 26) — and
-  **if I do not understand the question, the FIGURE is the defect, not me**
-  (rev 36). One crop, one mark, one sentence. **That format closed region 3 in
-  rev 40 after twenty-one revisions and report 5 in rev 42 after five.**
+* Keep visible cadence on long work. **As each render lands: `cp` it to
+  `~/Desktop/tacombi_bus_render/`, `open` it, and print the absolute path.** Do
+  not batch them to the end, and **a copy you did not `ls -l` afterwards is not
+  a delivery.**
+* **Ask me questions as MULTIPLE CHOICE with reference material.** Stated in
+  full at Step 1, where you need it first.
+
 ---
 > **THE STANDARD, in the owner's words.** The final product should be nearly
 > indistinguishable from the original. **Any single measurement off is
 > unacceptable.** The criterion is PER-MEASUREMENT. And above clinical accuracy:
-> *"I want the owner to remember standing in the kombi, in this very picture that
-> was provided."* — **that owner is the restaurant's owner.**
+> *"I want the owner to remember standing in the kombi, in this very picture
+> that was provided."* — **that owner is the restaurant's owner.**
 ---
+
 ## §10. RESOLUTION AND THE SIDE PROBE
-The hero: **4800×3200 in 20 strips**, SUB=2, 56 samples. Drive
-`hero.py --only N` one strip per call then `--stitch-only`; run `post.py`
-**once** on the stitched frame, never per strip. **TIMINGS RISE MONOTONICALLY
-DOWN THE FRAME** — strips 0–2 ~152 s, and the bottom strips run 3–4× that.
-**Run the bottom strips with `nohup … &` and poll.** `hero.py` STRIPS IN ROW
-SPACE — SEAMS ARE HORIZONTAL.
-**The flank probes NEED `out/p_side.png`**, which is gitignored, so **produce it
-first** (≈95 s):
+The hero: **4800×3200 in 20 strips**, SUB=2, 56 samples. `hero.py --only N` one
+strip per call then `--stitch-only`; `post.py` runs **once** on the stitched
+frame, never per strip. **TIMING RISES DOWN THE FRAME, PEAKS MID-FRAME, AND FALLS
+AGAIN** — 153 s at strip 1, up to **614 s at strip 16**, back to **390 s at strip
+19**, because the bottom strips are mostly ground and the mid-frame strips carry
+the bus. **Rev 42 published "TIMINGS RISE MONOTONICALLY DOWN THE FRAME"; that is
+wrong in shape, not just in value.** The figures here were re-derived from the
+strip files' own mtimes — **and those files are gitignored, so this is the one
+claim in this brief you cannot re-check from the repo.** Re-measure it on your
+own machine and replace it. **Budget for the peak, not for the last strip.** **Run it with `nohup … &` and poll.** `hero.py`
+strips in ROW space — seams are horizontal, and its own seam report is the check
+that the frame is consistent (rev 42: **z = 1.95** against a threshold of 4).
+
+**The flank probes NEED `out/p_side.png`**, gitignored, so produce it first
+(≈95 s):
 ```bash
 T1_SUB=1 T1_PREVIEW=side T1_SAMP=24 T1_RX=1400 T1_RY=933 T1_FX=0 \
-  T1_PFX=p blender -b --python build.py
+  T1_PFX=p /tmp/blender/blender -b --python build.py
 ```
 `T1_FX=0` is load-bearing: every mask in that chain is a chromaticity rule.
 **1400 px wide is a FLOOR, not a suggestion** — `flank_compare` documents a
 verdict flip across its aspect tolerance at 900 px for no change in the model.
-## §11. THE COMMIT COUNT AND THE CONTENT FIGURES
-Written LAST, after the final commit. **EVERY VALUE BELOW WAS READ OFF A
-FRESH-CLONE VERIFICATION RUN — none was typed from memory.**
-**THIS HAS GONE WRONG IN FIFTEEN REVISIONS DURING HANDOFF ASSEMBLY.**
-**A grep count is invalidated by any later edit to the file it counts.**
-**ANCHOR HEADING COUNTS WITH `^`. `grep -c` COUNTS LINES, NOT OCCURRENCES.**
-**CHECK EVERY ANCHOR'S CASE AND THAT IT DOES NOT WRAP ACROSS A LINE BREAK.**
-### Restore, thirty lines. The rev14b line is a `fetch`, BEFORE rev15.
+
+## §11. VERIFY BY CONTENT — NOW A SCRIPT, NOT A PARAGRAPH
 ```bash
-git clone tacombi_history_rev9.bundle tacombi && cd tacombi
-git pull --ff-only ../tacombi_rev14_unified.bundle HEAD          # -> 59
-git fetch ../tacombi_rev14b_incremental.bundle HEAD:refs/heads/b14   # FETCH
-git pull --ff-only ../tacombi_rev15_incremental.bundle HEAD      # -> 67
-#   ... rev16 71, rev17 75, rev18 81, rev19 87, rev20 93, rev21 96, rev22 101,
-#       rev23 105, rev24 107, rev25 115, rev26 120, rev27 126, rev28 130,
-#       rev29 135, rev30 148, rev31 158, rev32 166, rev33 173, rev34 182,
-#       rev35 187, rev36 191, rev37 203, rev38 207, rev39 211, rev40 215,
-#       rev41 222
-git pull --ff-only ../tacombi_rev42_incremental.bundle HEAD      # -> SEE BELOW
+./verify_clone.sh            # 49 checks. exit 0 = ALL PASS. exit 1 = STOP.
+./verify_clone.sh --quiet    # verdict line only
 ```
-**If a pull says "Need to specify how to reconcile divergent branches", STOP.**
-The hero is gitignored and lives only on my disk.
-### Content checks — EVERY ONE READ OFF THE FRESH-CLONE RUN
-```bash
-git status                                              # clean
-grep -c '^### 10.100' SPEC.md                           # 1
-grep -c '^#### 10.100' SPEC.md                          # 8
-grep -c '^### 10.101' SPEC.md                           # 1
-grep -c '^#### 10.101' SPEC.md                          # 9
-grep -c 'AN ORDINAL FACT NEEDS NO RULER' SPEC.md        # 1   SINGLE-LINE ANCHOR
-grep -c 'A LINE YOU DREW IS NOT EVIDENCE' SPEC.md       # 1
-grep -c '0.7770' SPEC.md                                # 2   the BUILT arch crown
-grep -c '55.97' SPEC.md                                 # 1
-grep -c '0.024426' SPEC.md                              # 2
-grep -c 'DOOR_ARCH_G' t1_shell.py                       # 7
-grep -c '_G_BUILD' t1_shell.py                          # 4
-grep -c '_arch_radial' t1_shell.py                      # 4
-grep -c 'DOOR_GAP_CUT' t1_shell.py                      # 1
-grep -c 'DOOR_BOT_RUN' t1_shell.py                      # 1
-grep -c 'build_selectors' probe_rev42_uv.py             # 2
-grep -c 'C_FOOT' probe_rev42_uv.py                      # 7
-grep -c 'CELL_K' probe_rev42_uv.py                      # 4
-grep -c '_TRI_CACHE' probe_rev42_uv.py                  # 3
-grep -c '571.71' probe_rev42_uv.py                      # 1
-grep -c 'A FIGURE OF MINE' HANDOFF_rev42.md             # 1
-grep -c 'probe_rev42_uv' HANDOFF_rev42.md               # 2
-#   inherited, must still hold:
-grep -c '^### 10.99' SPEC.md                            # 1
-grep -c '^#### 10.99' SPEC.md                           # 7
-grep -c '^#### 10.98' SPEC.md                           # 13
-grep -c 'COMMON-MODE' SPEC.md                           # 3   CASE MATTERS
-grep -c "THE COUNTER'S FRONT FACE" SPEC.md              # 3   NOTE THE QUOTES
-grep -c 'CLOSED BY HIM' SPEC.md                         # 3   CASE MATTERS
-grep -c 'CNT_NOSE_F' SPEC.md                            # 6
-grep -c '_assert_same_edge' flank_compare.py            # 4
-grep -c 'cab_floor' SPEC.md                             # 4
-grep -c 'T1_ABLATE' build.py                            # 5
-grep -c 'FLOOR_W' t1_detail.py                          # 5
-grep -c '190' probe_dust_scope.py                       # 4
-grep -c 'amtrak' SPEC.md                                # 2   HIS WORD
-grep -ic 'nolita' SPEC.md                               # 9
-grep -c 'TEN flower heads' SPEC.md                      # 1
-grep -c 'T1_R41_NOG4' SPEC.md                           # 1
-grep -c 'NULL_OFFS' probe_rev41_gate.py                 # 6
-ls HANDOFF_rev42.md STATE_rev42.md SPEC_rev42.md NEXT_CONTEXT_PROMPT_rev43.md \
-   probe_rev42_uv.py
-ls probe_*.py | wc -l    # 31
-ls rev42_hero34f.png     # MUST FAIL -- heroes are gitignored
-```
-Ancestry — **rev 42 adds `2a2ae9a`, the rev-41 tip (21 now):**
-```bash
-for c in f3c53f4 87aeaa6 d519fc6 5087b84 7ce3d03 f3cde44 efc1268 456b201 \
-         b08e424 e792d73 6f87977 cac32b9 2253399 52e451a 3496cab b6a93ec \
-         54fc45d 4843cc3 668614e 69fe7d2 2a2ae9a; do
-  git merge-base --is-ancestor $c HEAD && echo "$c ok" || echo "$c LOST"; done
-```
-Textures — **all three must match; rev 42 changed NO artwork:**
-```bash
-md5sum tex/swirl.png tex/swirl_b.png tex/nose.png
-# 4ee4e09e...   d201597e...   b31ea156...
-```
-### Guards on the fresh clone, watched print
+**WHY THIS REPLACED SIXTY LINES OF PROSE.** Until rev 43 these checks were
+thirty hand-typed `grep -c` lines in the brief plus an eight-row guard table —
+a second copy of numbers `STATE.md` already owns, free to drift, in a document
+whose central rule is that stale values are the enemy. **Every one of those
+lines was a value that could silently go stale.** They are now executable.
+
+**WHAT IT CHECKS, and the three design rules behind it:**
+* **IDENTITY IS ANCESTRY, NOT ARITHMETIC.** It does not test `== 227 commits` —
+  that would fail the moment *you* commit anything, which is exactly when you
+  need it. It tests that rev 42's verified tip `437d543` is an ancestor of HEAD,
+  and that counts have not *shrunk*. **Run it as often as you like, mid-revision,
+  after every commit.**
+* **LOCATE BY SYMBOL, NEVER BY LINE NUMBER.** Nothing in it cites a line. Line
+  numbers are precisely what rots — see §6 item 5.
+* **A GATE WITHOUT A NULL IS NOT A GATE.** It was proved against five nulls on
+  clean committed trees: delete a probe → caught; corrupt a texture → caught;
+  silently downcase a SPEC rule → caught; create `docs/` and move a handoff →
+  both caught; **move `V_POW_Z` to a different line → correctly NOT caught**,
+  because the line number is not the invariant.
+
+**IF IT EXITS 1: STOP, report the failing line with its ACTUAL value, and do not
+build.** **Do not edit the script to make it pass.** If a check is genuinely
+wrong, fix the check and say in the handoff which one moved and why — in the
+same commit as the change that moved it.
+
+**THE THREE TEXTURE md5s ARE IN THERE AND THEY WILL MOVE** when §6 item 1's
+re-bake lands. That is the point of the re-bake, not a regression. Re-run `md5`,
+paste the new hashes into the script **in the same commit as the new artwork**.
+Never a separate commit — that is how a tripwire becomes a rubber stamp.
+
+**ONE NOTE ON CITATIONS IN THIS BRIEF.** `§5`, `§6`, `§10`, `§11` with no prefix
+mean **sections of this file**. Anything written **`SPEC §n`** means a section of
+`SPEC.md`. Bare `§10.x` always means SPEC — this file has no §10.x
+subsections. **When in doubt grep SPEC.md for the anchor: the file is the
+authority, not this sentence.**
+
+### Guards, watched print
 | check | SUB=1 | SUB=2 |
 |---|---|---|
 | VERIFY | **0 fail, 0 warn** | **0 fail, 0 warn** |
@@ -394,19 +724,20 @@ md5sum tex/swirl.png tex/swirl_b.png tex/nose.png
 | meshes | **190** | **190** |
 | bay widths | 0.516 0.515 0.516 | same |
 | over-rider rows | **NOT APPLICABLE, stated** | same |
+
 42 materials, 5 constant-rough, **0 non-manifold at both levels**, rake 17.75,
-L=4.065 W=1.750, arch gaps 39.7 / 40.7 mm, off flank 804.9 mm.
-**THE ONLY FIGURES THAT MOVED SINCE REV 38 ARE THE TWO ROOF-HOLE VERTEX COUNTS**
-— 68564 → **70069** and 252749 → **254428** — and both follow from the longer
-door outline. Re-baselined and flagged, rev 23's precedent.
-**A HERO IS OWED AND WAS SHOT.** `rev42_hero34f.png`, **4800×3200, SUB=2, 56
-samples, 20 strips, worst seam z = 1.95** against a threshold of 4 (rev 38
-shipped 1.94). `post.py` run **ONCE** on the stitched frame. **The container
-restarted mid-render at ~16:48 UTC and the last ten strips were rendered after
-it came back; the seam report is what proves the two halves are consistent, and
-it is 1.95.** The hero is gitignored and lives only on his disk.
-**Two figures are in the repo this revision:** none. The door A/B and the
-question crop were delivered to his disk only — 1.2 and 0.5 MB, and rev 39's
-precedent keeps large figures out of a small bundle.
-**FINAL COUNT: 227 commits, clean tree.** *(This line lands in commit 227
-itself — rev 29's pattern, kept since.)*
+L = 4.065 W = 1.750, arch gaps 39.7 / 40.7 mm, off flank 804.9 mm.
+
+**HOW TO SHIP NOW.** Commit and push; that is the whole handover.
+1. Write **`HANDOFF_rev43.md`** and **`NEXT_CONTEXT_PROMPT_rev44.md`** at the
+   **repo ROOT** — there is no `docs/`, and all 37 handoffs are flat there.
+2. Regenerate `STATE.md` on a clean tree (`audit.py`, then `git checkout
+   STATE.md` if you are not shipping it).
+3. **Run `./verify_clone.sh` one last time and paste its verdict line into the
+   handoff.** If you changed anything it checks, update the script IN THE SAME
+   COMMIT as the change and say which check moved and why.
+4. `git push`.
+5. **COMMIT YOUR MARKED CROPS — they are tracked, and 17 predecessors are in
+   the repo.** Only the hero and `out/` are gitignored and will not travel by
+   push: `cp` those into `~/Desktop/tacombi_bus_render/`, `open` them, and print
+   the absolute paths.
