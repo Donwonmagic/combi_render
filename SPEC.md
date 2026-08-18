@@ -3247,6 +3247,7 @@ must come first. **No geometry was changed on this finding in rev 26.**
 
 | Date | Change |
 |---|---|
+| 2026-08-18 | **rev 41 — THE Z-LADDER'S GATE CANNOT BE RE-DERIVED, AND THE COUNTER-FASCIA FINDING IS A RULER SCOPE ERROR (§10.99).** Item 1's criterion was stated BEFORE the run and **REFUTED BY ITS OWN RUN**: G3, two-sided half-prominence descent, admits **10 of 10** bands including all three at −193/+222/+193 mm — their curves DO descend both sides, so they are not ramps riding a bound but well-formed local maxima in the wrong place, and §10.97.7's mechanism does not survive the corrected datum. **THE NEGATIVE CONTROL IS THE FINDING:** displacing the reference 120–360 px, every offset ≥ 2×SEARCH so no true dy is reachable BY CONSTRUCTION, the inherited gate still answers **181 of 260 = 70 %**, with null prominences reaching **2.13–3.11×** against an inherited bar of **1.08×** — and **nine of ten bands' real prominences sit BELOW their own null maxima**. `MIN_PROM` was never a filter; the gate is not mis-tuned, the statistic has no power. Re-derived as **G4, a max-statistic null test** whose bar is each BAND'S OWN null maximum — not chosen, per-band, and built where the answer is unreachable so it cannot be steered: **1 of 10 answers, NO RULING**, the survivor z 0.90–1.20 at **−1 px = −5 mm** reproducing the joint fit from a tenth of the pixels. **AND THE VERDICT WAS TESTED FOR BEING MINE:** one bar sweep returns **FLAT (19 mm), NO RULING and NOT FLAT (415 mm)** — the ladder's answer is a function of the bar, not of the vehicle. The flat-versus-scale question is NOT awaiting a better gate; **the z-ladder cannot answer it**. The **JOINT registration (−1, −4) px** is untouched and §10.98's headline does not rest on the ladder. **ITEM 3 REFUSED, and not executed:** §10.98.11's −6.5 mm counter fascia compares the right FEATURE on the WRONG RULER — both photographic readings are taken on the counter's outer face (0.295 m nearer the camera) and divided by the FLANK's px/m, which `t1_detail.py` states of that very 113-column run. REF §6's own parallax pair fits a one-parameter model exactly (**s = 0.9533**, reproducing REF's +16/+21 mm, camera height 1.531 m), taking **−6.5 mm → −2.1/−2.8 mm**, sign-changing across `t1_detail`'s documented +15…+31 mm bracket; and the third route sharing no step — REF §6's slab edge **22.65 px = 0.107 ± 0.005 m** against the built **0.1070 m** — is **zero**. §10.98.11's "two readings 0.7 mm apart" is COMMON-MODE, not a cross-check. **NO GEOMETRY MOVED, NO ARTWORK MOVED, no hero owed**; guards 0 fail / 0 warn at both levels on both tools; all 29 inherited probes match their published tallies. **FOUR DEFECTS OF MINE, ALL CAUGHT BY CONTROLS:** a TRANSPOSED C1 target `(-4,-1)` for the published `(-1,-4)`; an INVALID first C3 that rolled the edge map without the mask and manufactured an instability signal, replaced by an end-to-end render shift (predicted −10.5 px, observed −11); a **CONSTANT VERDICT STRING** asserting "no bar supports FLAT" three lines below a row printing FLAT — §10.50's defect, third instance in this repo, second by me; and C6, which proves the fast scorer equals the inherited `np.roll` form to **6.75e-13** rather than claiming it in a comment. |
 | 2026-08-18 | **rev 40 — THE 81 mm IS A DATUM ERROR; item 1 was STOPPED before it moved geometry (§10.98).** `probe_rev39_flank.py` pins the model's counter fascia **BOTTOM** onto the photograph's counter fascia **TOP**. `flank_compare.py`'s own comment claimed they are *"the SAME cream/red break ... the same physical edge, so the two are used as ONE datum and its height never enters"* -- **the two lines are fitted with DIFFERENT ESTIMATORS in DIFFERENT ROW WINDOWS** (a LUMINANCE gradient over rows 425-452 on the reference, a REDNESS gradient on the render) and on a cream / gold-nosing / beige-fascia / red stack those are not the same boundary. §10.45: a claim in prose is not a guard. **Measured, `probe_rev40_datum.py`, READ-ONLY:** the render datum sits at authored **z = 1.1459** against `t1_detail.CNT_ZB` **1.1470** (**1.1 mm**, read with `ast` at run time) and `CNT_ZT` 1.2540 (108 mm); the reference datum sits **0.69 px** from the photograph's fascia TOP and **19.46 px** from its bottom. **THE JOINT WHOLE-VEHICLE REGISTRATION SETTLES IT IN ONE LINE: rev-39 datum (+19, -1) px = +92 mm; rev-40 datum (-1, -4) px = -5 mm.** **AN INDEPENDENT ARM SHARING NO DATUM WITH THE WARP CONFIRMS IT:** photographed window-sill-to-body-break **102.7 +/- 6.6 mm** (n=8, cab door -- the only place the body's own break is visible) against a built `Z_SILL - Z_BELT_AUTH` of **100.0 mm** and REF sec.3(a)'s own hand figure of 100.0 -- **-2.7 mm. A break line 81 mm out of place would show ~81 mm here.** **FIXED, opening no new estimator:** the reference datum now uses the redness gradient the render side already used, `v = -0.03412 u +466.632`, **19.8 px = 92 mm below** the rev-39 line -- one counter fascia. `_assert_same_edge()` armed **TWO-SIDED on both fits** (reference step +0.5608, render +0.6598, bar +0.030) and **FALSIFIED with `T1_FC_OLDDATUM=1`**, which restores the old fit and makes the guard **FIRE at -0.0293**. **`SCR` RE-MEASURED AND ITS VERTICAL TERM FLIPS SIGN:** §10.97.2's *+76.2 mm forward and +61.9 mm down* becomes **+76.2 mm forward (unchanged -- the datum never entered x) and -33.3 mm, i.e. 33 mm UP**; 61.9 - 33.3 = 95.2 mm, one fascia height. NOT APPLIED. **A SECOND PROBE DEFECT:** dx and dy were searched **sequentially** and are coupled -- the sequential search returns dx **-15 px (-71 mm)** where the joint returns **-4 px (-19 mm)**. Now joint. Consequence: §10.97.4's *map validated at 5 mm* is withdrawn and re-valued at **19 mm**. **AND THE Z-LADDER NO LONGER RULES FLAT:** seven bands cluster at -5..-24 mm, three return **+/-193-222 mm** -- **the same three that DECLINED under the rev-39 datum**, and +222 mm is the exact figure §10.97.7 says its gate was written to kill. Prominence cannot separate them (1.20/1.30/1.55 against a good band's 1.23). **THE GATE WAS NOT RETUNED**; the derived verdict is spread 415 mm, **NO RULING**. So **§10.97.5's "FLAT, ONE RIGID OFFSET" was a property of the datum, not of the vehicle**, and an acceptance gate calibrated on one datum does not transfer to another. **REGION 3 CLOSED BY HIM** after twenty-one revisions -- *[stated, rev 40]* the pale band under the brass nosing is **THE COUNTER'S FRONT FACE**, superseding rev 12's "body's own belt paint" and explaining his rev-19 non-selection. The model's routing was already right. **That makes the depth measurable: painted fascia 87.1 mm built against 93.6 +/- 2.0 mm (this probe, 5 cols) and 94.3 mm (`t1_detail`'s own independent 113-column half-max run) -- two photographic readings 0.7 mm apart, model -6.5 mm SHORT.** NOT APPLIED. **A SCOPE ERROR OF MINE, IN THE SECTION DOCUMENTING SCOPE ERRORS (§10.98.13):** the first cut published *"13.4 mm TOO DEEP"* by comparing the model's whole **slab** (107.0 mm) against the photograph's **painted fascia** -- `CNT_NOSE_F` caps 19.9 mm of that slab in brass. Corrected to **-6.5 mm, opposite sign**. **Naming a defect class does not immunise you against it.** **MY POSITIVE CONTROL C3 FAILED AND IS PRICED, NOT LOOSENED:** the gate reproduces REF sec.3(a)'s hand-read cab-door table at +1 px on three columns and +2 on the fourth, a one-sided **+1.25 +/- 0.43 px = 6 mm** bias -- and pricing it is what later showed it must NOT be applied to the fascia figure, whose cross-check uses a half-max criterion instead. **§10.24 IS NEITHER RE-OPENED NOR RE-CLOSED** -- what is withdrawn is only §10.97.6's claim to be a fourth, headlamp-free corroboration of it. **NO GEOMETRY, NO ARTWORK AND NO CONSTANT MOVED**; guards 0 fail / 0 warn at both levels on both tools; 3/3 texture md5s unchanged. |
 | 2026-08-15 | **rev 26 — the front bumper carries an OVER-RIDER BAR the model does not build (§10.75).** Shown `ref_workshop.jpg` — the ONE frame where the front bumper is not occluded by the lamppost — beside a render of the current build, with three pointer boxes printed in original-frame coordinates, the owner ruled **A (the upper tube) and C (the vertical post) are BOTH ON THE BUS**: a bumper over-rider bar and its post. **The model has no member for either** — `build.py:322` builds one blade and `:326` two 62 × 30 mm brackets. Confirmed against a render made this revision. **Scope also settled by him: model them, TAGGED WORKSHOP-STAGE**, because `ref_workshop.jpg` is the conversion stage and §2.4 records the REAR bumper was removed between that stage and service — so front hardware present in the workshop is not automatically present in service, and no in-service frame shows the front. Tagged the way Nolita geometry is (§10.32), so it can be pulled back out. **THE MEASUREMENT IS NOT DONE AND THE FIRST PASS FAILED ITS OWN CONSISTENCY CHECK, recorded rather than tidied away**: a naive column scan returned blade heights of 30/42/41/36/34/12/9/11 px — a 4.7× spread caused by the foreground trolley occluding the blade's lower edge — giving 0.574 ± 0.507, which is not quoted anywhere. Restricted to the seven clean columns and **sweeping the threshold rather than picking one**, the tube reads **11.7 → 7.9 px across thresholds 110 → 170 with sd ≤ 0.8 within each**: tight per threshold, **±19 % across the choice**, and that systematic is what binds. **MY OWN PSF CONTROL WAS INVALID AND IS RECORDED AS SUCH** — the 10–90 rise I fitted crossed the nose two-tone break DIAGONALLY, so its 52.0 px measured the boundary's slope, not the point spread; §10.38's *check the control itself* applying to a control written in the same session. **No metre figure is available and none is invented**: there is no admissible px/m on the bumper plane in this three-quarter frame, §10.48's 344.1 is the plate plane of a different photograph, and §10.72 has just established the bumper face's own station is unmeasured. **NO GEOMETRY WAS CHANGED on this finding.** rev 27 inherits it well-posed: valid PSF first, then a plane scale or a proof none is admissible, then build. |
 | 2026-08-15 | **rev 26 — `COUNTERTAN`'s pedestal is IDENTIFIED after six revisions, and it is the settled-dust film (§10.70).** Four arms — two albedo points × dust on/off — through rev 24's index-clean mask at ONE purged rig: pedestal **60.8/58.2/59.5 % → 25.1/25.0/31.9 %** with `T1_CTAN_DUST=0`, and **→ 6.6/6.6/8.5 %** once spec and coat go too. **Dust carries 57.1/52.6/36.6 % of it; dust + spec + coat carry 89.3/87.9/84.8 %.** The dust-shipped arm **reproduces §10.65's published clean pedestal to three significant figures in all three channels** on an independently restored tree — that harness control is what makes the rest readable; null control exact in every arm, noise floor 0.211 % against a 35-point effect. **WHY FIVE REVISIONS MISSED IT:** §10.56 ablated dust, saw the top's radiance rise only +4.1/+8.6/+13.3 %, and concluded "REFUTED — and it was HELPING". **That does not follow.** Removing a mix of coverage `f` and base-independent colour `D` changes radiance by `f·(A−D)` — small *precisely because* `W_DUST_COL_UP` is within **13.5 %** of `COUNTERTAN` in R — while contributing `f·D` to the pedestal, which is large. Both true at once; §10.56 measured the wrong derivative. **§10.68's rule inverted: a SMALL magnitude does not mean a small contribution.** The coverage was never hidden — `t1_mats.py:366` says "mean coverage 0.548 on the counter top" in prose and a **live assert** recomputes 0.548256 on every build. **Independent cross-check from an unrelated route:** removing a mix at coverage `f` must raise `k` by `1/(1−f) = 2.214×`; measured **1.988/1.978/1.989**, agreement claimed to ~10 % and no better. The lever was checked before it was believed — `Dust` reaches Base Color and nothing else, so it removes the ALBEDO per §10.56's own rule; `T1_CTAN_WEAR=0` also drops Metallic and is stated as two levers. **Nothing tuned: `COUNTERTAN` UNCHANGED, sixth revision.** What this settles is *why* it was never solvable — `k` is **2.37× weaker** in the shipped configuration than the bare surface allows, by construction. **§10.71, found while verifying that and RECORDED NOT APPLIED:** `W_DUST_FAC_UP = 0.7313` is pinned by a live assert that predicts `_UP_MEASURED` ("dirty counter top") from **`COUNTERCREAM`**, while the top carries **`COUNTERTAN`** — re-anchored to the right base the assert **fails by 0.1600, eighty times its own 2e-3 tolerance** — and **both halves entered in ONE commit**, `00d3819` "…tan counter top…". The name-matched-material family again, fifth instance. **§10.72 — work item 3 is MALFORMED:** `2.145 = 4.290/2` and `2.140 = 4.280/2`, both changed in the **same diff hunk** of `27f6ee6` "…against factory sources", so the 5 mm is exactly half a catalogue revision; `verify.py:33` already records 4.290's catalogue origin and `:37` invokes the standing instruction for `L` while §2's bumper row never got it; `X_BUMP_F/R` have **zero read sites**; `BUMP_OFF`'s own comment shows the mesh was **fitted to the constant**; the rear face is commented out at `build.py:325`; and the `:191` citation is stale (`:201`), **born stale in the commit that wrote it**. Neither value is measured — strike both, re-open as UNMEASURED. **§10.73 — work item 2 is an ARTEFACT:** `_DOOR_TOP_AUTH`'s "4.2 mm" compares a five-knot **run mean** with a **station value**; at x = 1.36 on `DOOR_GAP_S`, the outline that actually cuts, the disagreement is **0.315 mm**. rev 25's pre-print comment was right and its print measured a different quantity. Value HELD, **no re-bake owed**, `DOOR_H` 1.013467 unchanged. **§10.74 — two defects in rev 25's own record**, caught on arrival: `swirl_b.png`'s md5 wrong in its eighth character (`d2015971` → **`d201597e`**; the file was always right), and §1's `ls rev25_hero34f.png` check **cannot pass on a fresh clone** because §7 of the same document explains the hero was deliberately filtered out — check deleted, not loosened. **NO GEOMETRY MOVED, NO ARTWORK MOVED**; guards 0 fail / 0 warn at both levels throughout, textures byte-identical. |
@@ -7700,3 +7701,200 @@ number rather than waved away, it was available to test the corrected figure
 against — and testing it is what showed the bias must NOT be applied here either,
 because it is referenced to a different edge criterion than the repo's own
 reading. A bias you priced can be reasoned about; a bias you loosened away cannot.
+
+### 10.99  rev 41 — THE Z-LADDER'S GATE CANNOT BE RE-DERIVED, BECAUSE THE STATISTIC IT GATES HAS A 70 % FALSE-ANSWER RATE UNDER THE NULL. AND THE COUNTER-FASCIA FINDING IS A SCOPE ERROR ON THE RULER, NOT ON THE FEATURE
+
+Rev 41's item 1 asked for `probe_rev39_flank.py`'s band acceptance gate to be
+re-derived, with the criterion stated before the run. It was, twice. The first
+criterion was refuted by its own run and the second one changed the question.
+`probe_rev41_gate.py` is the instrument, READ-ONLY, and it changes nothing.
+
+#### 10.99.1  CRITERION 1 WAS STATED FIRST AND IS REFUTED — recorded, not deleted
+
+§10.97.7 records that the three bad bands originally *"returned the ENDPOINT of
+the ±55 px search range"*, which is what `MIN_EDGE` was written to catch. On that
+reading the corrected datum's ~19.8 px shift slid a **ramp's** arg-max just
+inside the bound, while `MIN_PROM` never had power over it. The missing clause
+would then be:
+
+> **G3, TWO-SIDED HALF-PROMINENCE DESCENT** — on EACH side of the peak the curve
+> must fall to ≤ `median + 0.5 × (peak − median)` inside the search range. A
+> curve that climbs to the edge of its window and stops has no peak, it has a
+> bound.
+
+**G3 ADMITS 10 OF 10 BANDS, INCLUDING ALL THREE BAD ONES.** Their curves *do*
+descend on both sides. **The assumed mechanism is wrong**: on the corrected datum
+these are not ramps riding a bound, they are well-formed local maxima in the
+wrong place. G3 is kept in the probe and printed, because a criterion that fails
+is a result.
+
+#### 10.99.2  THE NEGATIVE CONTROL IS THE FINDING — 70 %
+
+Displace the reference by 120–360 px, every offset ≥ 2 × `SEARCH`, so that no
+true `dy` is reachable inside the window **by construction**. Then read the peak
+prominence.
+
+```
+  z band     null prominence  max    mean   | inherited gate answers under null
+  0.10-0.40                  2.93x  1.61x   |  19 of 26
+  0.30-0.60                  2.72x  1.47x   |  20 of 26
+  0.50-0.80                  2.58x  1.40x   |  19 of 26
+  0.70-1.00                  2.35x  1.37x   |  16 of 26
+  0.90-1.20                  2.85x  1.60x   |  17 of 26
+  1.10-1.40                  2.13x  1.40x   |  19 of 26
+  1.30-1.60                  2.26x  1.39x   |  18 of 26
+  1.50-1.80                  2.37x  1.42x   |  16 of 26
+  1.70-2.00                  2.42x  1.48x   |  19 of 26
+  1.90-2.20                  3.11x  1.59x   |  18 of 26
+                      INHERITED GATE FALSE-ANSWER RATE: 181/260 = 70 %
+```
+
+**Prominences of 2–3× arise routinely when there is nothing to find, against an
+inherited bar of 1.08×.** Nine of the ten bands' real prominences sit BELOW their
+own null maxima. `MIN_PROM` was never a filter. **The gate is not mis-tuned; the
+statistic has no power**, and §10.98.10's "prominence cannot separate them" is
+true for a much stronger reason than it states.
+
+#### 10.99.3  CRITERION 2, AND WHY IT IS NOT A NUMBER ANYONE CHOSE
+
+> **G4, MAX-STATISTIC NULL TEST** — a band answers only if its actual prominence
+> exceeds **the largest prominence that same band reached under the destroyed
+> correspondence**.
+
+The bar is the band's OWN null maximum: not chosen, and per-band, so a band with
+noisy texture is automatically held higher than a clean one. **The null cannot
+contain the answer** — it is built where the true registration is unreachable —
+so nothing in it can steer the result toward −5 mm or toward +222 mm. G1 and G2
+are inherited verbatim and G4 is ANDed on, so it is **strictly stricter**; no
+band that previously declined can now answer.
+
+**RESULT: 1 of 10 bands answers, so the ladder returns NO RULING.** The survivor
+is z 0.90–1.20 at **−1 px = −5 mm**, reproducing the joint whole-vehicle
+registration's −5 mm from a tenth of the pixels.
+
+#### 10.99.4  AND THE VERDICT WAS TESTED FOR BEING MINE RATHER THAN THE VEHICLE'S
+
+```
+  bar                          bands answering   ladder verdict
+  null MAX (G4, used)                1 of 10     NO RULING
+  null 95th percentile               2 of 10     NO RULING
+  null 75th percentile               4 of 10     FLAT, 19 mm
+  null MEAN (weakest defensible)     3 of 10     NO RULING
+  inherited MIN_PROM 1.08           10 of 10     NOT FLAT, spread 415 mm
+```
+
+**Three different verdicts — FLAT, NO RULING and NOT FLAT — across one sweep of
+the acceptance bar.** The ladder's answer is a function of the bar, not of the
+vehicle. At a 70 % null false-answer rate every bar low enough to admit four
+bands is already inside the noise.
+
+**SO THE FLAT-VERSUS-SCALE QUESTION IS NOT AWAITING A BETTER GATE. THE Z-LADDER
+CANNOT ANSWER IT.** No gate rescues an instrument whose null beats its signal.
+What survives untouched is the **JOINT whole-vehicle registration, (−1, −4) px =
+−5 mm in z and −19 mm in x**, which uses the entire silhouette rather than a
+tenth of it. §10.98's headline finding does not rest on the ladder and is
+unaffected.
+
+#### 10.99.5  DEFECTS OF MINE, ALL CAUGHT BY CONTROLS
+
+* **C1 failed on a TRANSPOSED transcription.** I typed the published joint fit as
+  `(-4, -1)`; `probe_rev39_flank` publishes `(-1, -4)`. My computation was right
+  and my target was wrong — the count trap in a new costume, and the reason C1
+  exists is that it caught it.
+* **C3's first draft was INVALID.** It rolled the edge map without rolling the
+  mask, decoupling them, and manufactured a spurious "the peaks are unstable"
+  signal. Replaced by an END-TO-END control that shifts the render image itself
+  and re-derives the whole warp: predicted −10.5 px, observed −11.
+* **A CONSTANT VERDICT STRING, THIRD INSTANCE IN THIS REPO AND SECOND BY ME.**
+  The bar sweep first printed *"NO BAR IN THAT RANGE SUPPORTS FLAT"* while the
+  75th-percentile row printed **FLAT, 19 mm** three lines above it. §10.50's
+  `rear34_character` defect; `probe_rev39_flank`'s first draft did the same in
+  the hour it wrote the rule down; mine did it in the hour I quoted them both.
+  Now DERIVED from the sweep and it prints the disagreement.
+* **C6 exists because the fast scorer is a SECOND INSTRUMENT.** It reproduces the
+  inherited `np.roll` form to **6.75e-13**, proven numerically rather than
+  claimed in a comment (§10.45).
+
+#### 10.99.6  ITEM 3 IS REFUSED: THE COUNTER FASCIA IS MEASURED ON THE WRONG RULER
+
+§10.98.11 reports the painted fascia **6.5 mm short** — 87.1 mm built against
+93.6 ± 2.0 mm and 94.3 mm photographed. **Both photographic readings are taken on
+the counter's OUTER FACE and converted with the FLANK plane's scale.**
+`probe_rev40_datum.py` divides by `FC.flank_kv(u)`; the 113-column figure is
+`20.32 / FC.K_T`. The counter's outer face is **0.295 m nearer the camera** than
+the flank (`CNT_Y_OUT` 1.1660 against a body surface of ~0.871 at counter
+height), so a height read there and divided by the flank's px/m comes out too
+large.
+
+**This is not an inference. `t1_detail.py` says it of the very 113-column run
+that yields the 94.3:** *"both flank-plane readings, i.e. before the
+outboard-parallax term. The counter's outer face is ~0.295 m nearer the camera
+than the ruler."*
+
+`REF_MEASUREMENTS.md` §6 supplies the correction itself:
+
+```
+  gold nosing (outer top)    y_ref 416.8    -> 1.189 m AG   (1.205 parallax-corrected)
+  fascia bottom (cream->red) y_ref 439.45   -> 1.082 m AG   (1.103 parallax-corrected)
+  FASCIA / SLAB EDGE DEPTH   22.65 px = 0.107 +/- 0.005 m
+```
+
+Uncorrected separation **107.0 mm**, corrected **102.0 mm**. Those two REF pairs
+fit a single-parameter scale-about-the-horizon model exactly, reproducing REF's
+own stated **+16 mm and +21 mm** with **s = 0.9533** and an implied camera height
+of **1.531 m** — one parameter, two constraints, exact. Applying that same s:
+
+```
+  rev 40's probe, 5 cols     93.6 mm flank-plane  ->  89.2 mm  ->  model - photo  -2.1 mm
+  t1_detail's 113-col        94.3 mm flank-plane  ->  89.9 mm  ->  model - photo  -2.8 mm
+```
+
+**−6.5 mm becomes −2.1 to −2.8 mm**, and across the parallax bracket `t1_detail`
+documents independently (*"+15 to +31 mm depending on how camera height and
+distance split"*) **the residual changes sign**, running +1.4 to +2.0 mm at the
+far end. It is consistent with zero everywhere in the documented band.
+
+**THE THIRD ROUTE, SHARING NO STEP WITH EITHER READING, AGREES.** REF §6 measures
+the whole slab edge at **22.65 px = 0.107 ± 0.005 m** and the build's
+`CNT_ZT − CNT_ZB` is **0.1070 m** — **zero difference on a lock measured
+directly**.
+
+Two consequences worth naming:
+
+* **§10.98.11 quotes the two readings' 0.7 mm agreement as corroboration. It is
+  not.** They share the entire scale chain; the agreement is COMMON-MODE and says
+  nothing about the term that separates both from the model. Rev 40's own rule —
+  *when a finding is the previous revision's headline, find a route that shares
+  no datum with it* — applied to rev 40.
+* **§10.98.13 caught the FEATURE half of this scope error and missed the RULER
+  half.** It corrected comparing the *slab* against the *painted fascia*, from
+  +13.4 mm to −6.5 mm, opposite sign. The surviving −6.5 mm compares the right
+  feature on the wrong ruler. Same family, one layer down, inside the section
+  documenting the family. **NAMING A DEFECT CLASS DOES NOT IMMUNISE YOU AGAINST
+  IT**, twice now.
+
+**NO GEOMETRY MOVES. `CNT_ZT`, `CNT_ZB` and `CNT_NOSE_F` STAY**, and no hero is
+owed for item 3. `t1_detail.py` had already refused this move for this reason:
+*"1.254 / 1.147 / 0.107 are all inside that band and all three are SPEC 10.5
+locks, so they STAY… the rule earned there is to measure it a third way before
+moving a lock."*
+
+**WHAT WOULD RE-OPEN IT** is the route `t1_detail.py` already names and nobody has
+built: **the counter top's INNER edge, which lies ON the flank plane and needs no
+parallax at all** — unusable in `ref_side.jpg` where the cream ramps with no
+step, but a clean step in `ref_rear34.jpg` at y 423, x 700, needing only a local
+vertical scale to close. That is a genuinely independent third method.
+
+#### 10.99.7  NEW RULES
+
+* **A GATE WITHOUT A NULL IS NOT A GATE.** Any acceptance threshold on a
+  correlation statistic must be quoted against that statistic's distribution when
+  the correspondence is destroyed. `MIN_PROM = 1.08` sat unexamined for two
+  revisions against a null that routinely reaches 2–3.
+* **WHEN A VERDICT MOVES WITH THE THRESHOLD, PUBLISH THE SWEEP, NOT THE VERDICT.**
+  One bar sweep produced FLAT, NO RULING and NOT FLAT from one dataset.
+* **A COMMON-MODE AGREEMENT IS NOT A CROSS-CHECK.** Two readings that share their
+  entire scale chain agreeing to 0.7 mm is a statement about their noise, not
+  about their accuracy.
+* **A SCOPE ERROR HAS TWO HALVES — THE FEATURE AND THE RULER.** Fixing the feature
+  and re-publishing is how rev 40's corrected figure kept a systematic.
