@@ -424,3 +424,9 @@ non-manifold**, rake 17.75, L=4.065 W=1.750, arch gaps 39.7 / 40.7 mm, off flank
 
 **No hero this revision, and none is owed** — the mesh has not moved since rev 38
 shot `rev38_hero34f.png`. **The moment §6 item 1 lands, one IS owed.**
+
+**Two figures are NOT in the repo this revision** — rev 41 shot no render and
+produced no marked crop; its output is `probe_rev41_gate.py` and SPEC 10.99.
+
+**FINAL COUNT: 221 commits, clean tree.** *(This line lands in commit 221 itself
+— rev 29's pattern, kept since.)*
