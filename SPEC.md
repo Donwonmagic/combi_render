@@ -4269,7 +4269,11 @@ Lid geometry, measured at 211.5 px/m: main lid **X +0.964 → −1.070**, 1.11 m
 hinge-to-free-edge, opened **104°**; `RAG_X0 = +1.4800` is **contradicted** — the
 cab roof dome is unbroken to X = +0.964. Second lid **X −1.140 → −1.780** at 82°.
 Proud height **0.0228** skin / **0.0213** rail. Mural artwork in `lid_gen.py`:
-**nine flower heads** (five upper, four lower — counted off `ref_side.jpg`),
+~~**nine flower heads** (five upper, four lower — counted off `ref_side.jpg`)~~
+**RETIRED by the owner in rev 39 (§10.97.11): the board carries TEN flower heads
+plus one part head cut by the right strip.** `lid_gen.py` has built ten since
+rev 10; his rev-8 count of nine was never checked against the build until rev 39
+put the rectified board to him, and he answered TEN. The build was right,
 palette ratios measured on the board interior (n = 70400: red 43 %, orange 34 %,
 yellow 17 %; generated 52 / 34 / 14).
 
@@ -7212,3 +7216,228 @@ Setting `ob.location` on the wheel houses tripped `build.py`'s step-8b assert:
 the shear reads `v.co.x` as world x and requires an identity transform on every
 mesh. The offset was baked into the MESH instead. **The geometry is what moves,
 never the guard.**
+
+
+### 10.97  rev 39 — THE OWNER'S OWN METHOD RUN AT LAST: THE BROADSIDE LAID OVER `ref_side.jpg`. `flank_compare.py` EXECUTED FOR THE FIRST TIME IN THE PROJECT, SPEC 10.35's MAP VALIDATED END TO END AT 5 mm, AND §10.24 CORROBORATED A FOURTH TIME BY A ROUTE THAT TOUCHES NO HEADLAMP
+
+#### 10.97.1  The instruction, and why it had never been carried out
+
+*[stated]* **"For the model work he wants fixes driven off the broadside render
+laid over `ref_side.jpg` at matched scale"** — that flank carries the script,
+folk art, counter, Calidad decal, belt line, stance and arches. Recorded in
+rev 10 and never executed. `flank_compare.py` was written for the SCRIPT LOCKUP,
+was recorded NOT RUN in rev 10, and **is not mentioned again in twenty-eight
+revisions.** The whole-vehicle comparison has not been made since rev 16.
+
+The owner chose this over doing his Report 5 directly, over Reports 3+4, and
+over the sticker, on the argument that it **grounds** the door fix rather than
+authoring it.
+
+#### 10.97.2  `flank_compare.py` — the actual output, not a summary
+
+```
+PASS  ink area ratio   0.9366            target 1.000 +/- 0.10
+PASS  ink aspect       2.3622 vs 2.2527  target within 5 %  (+4.86 %)
+PASS  IoU vs ceiling   0.7627 = 0.889 of the 0.8584 measured that run
+FAIL  worst region     0.503 (Senor)     target >= 0.75 of its own ceiling
+FAIL  -- flank script, render against ref_side.jpg
+```
+
+**The verdict is not the finding.** The finding is its registration line:
+
+> *the render's lockup has to move **+76.2 mm forward and +61.9 mm down** to sit
+> where the calibrated map puts the photograph's.*
+
+Cross-checked in the same run by a route sharing no step with it: `SCR`'s own x
+extents sit **+83 / +80 mm** aft of `flank_X(LOCKUP)`, and the cream/red
+differential puts the ink top **−36.9 mm** high. Height **−31.5 mm (−5.5 %)**.
+
+rev 17 carried *"`SCR` is +80 mm aft and 12–24 mm short"* forward for **22
+revisions** unapplied. It is now re-measured two ways and **the height deficit is
+31.5 mm, not 12–24.**
+
+Its positive control localises the fault and that matters more than the number:
+texture-alone IoU **0.7667** against the render's **0.7627**, so **the render and
+the whole chromaticity mask rule together are worth −0.005 of ceiling.
+Everything between 0.893 and 1.000 is the PANEL.**
+
+**NOT APPLIED.** `SCR`'s vertical term is measured against the cream/red break,
+which §10.97.5 shows is itself the misplaced member. Applying both would double
+count. §10.29's rule — *re-fit jointly, never separately*.
+
+#### 10.97.3  The whole-flank overlay, and NO NEW ESTIMATOR
+
+`probe_rev39_flank.py`, READ-ONLY. The ortho broadside is carried into
+`ref_side.jpg`'s own projective frame using only instruments already calibrated
+here and IMPORTED, never re-typed: `flank_compare`'s `flank_X` / `flank_u` /
+`flank_mpp` / `flank_kv` (§10.34 + §10.35), its exact ortho `projector()`, and
+the cream/red two-tone break which `flank_compare` fits in BOTH frames and uses
+as ONE datum precisely so its own height never enters. Neither image is
+resampled onto the other.
+
+§10.79 and §10.89 each died on a panel after a second estimator was opened;
+§10.90 enumerated a third and abandoned it before building it. **This opens
+none.**
+
+* **C1** the projector reproduces `flank_compare`'s own printed self-check —
+  model z=0 at render row **827.2**, published 827.2.
+* **C2** `flank_kv(749.38)` reduces to §10.34's `k_t` = **215.5 px/m**.
+
+#### 10.97.4  HORIZONTAL: SPEC 10.35's map validated end to end at 5 mm
+
+Registered over the whole vehicle: **−1 px = −5 mm.** The map has been used for
+twenty-three revisions and has never before been checked against a rendered
+model across its whole range. It is very good.
+
+#### 10.97.5  VERTICAL: 81 ± 7 mm, FLAT, and it is the BREAK LINE
+
+The warp pins the model's break onto the photograph's, so the residual is the
+whole BODY against the BREAK. **This is a relative measurement by construction
+and must never be quoted as a ride-height one.**
+
+Registered in five COLUMN bands over u 200–900: **+15, +19, +19, +15, +18 px,
+spread 4 px**, fit slope 1.0 px over 700 columns. Flat in u.
+
+Registered in ten Z bands, selected by **model z** — the field the warp is built
+from — so every band spans the full width and cannot alias onto one horizontal
+line:
+
+```
+  0.10-0.40  +16  +77 mm      0.90-1.20  +19  +92 mm      1.50-1.80  +16  +77 mm
+  0.30-0.60  +16  +77 mm      1.10-1.40  +19  +92 mm      1.70-2.00  +16  +77 mm
+  0.50-0.80  +15  +72 mm      1.30-1.60      DECLINED     1.90-2.20      DECLINED
+  0.70-1.00      DECLINED
+```
+
+**7 answered, 3 declined. dy = 81 ± 7 mm, spread 19 mm over the whole height
+z 0.10 → 2.00.** Flat in height.
+
+Flat in u AND flat in z ⇒ **ONE RIGID OFFSET of the body against the cream/red
+break. Not a vertical scale error, not a stance error.** Equivalently: **the
+two-tone break line sits ~81 mm too low on the body.**
+
+#### 10.97.6  IT IS §10.24, AND IT REFRAMES WHY §10.24 KEPT BEING REVERTED
+
+§10.24 from the other end: photographed the headlamp is **belt − 0.339 m**,
+built **belt − 0.242 m** — the built lamp is **97 mm** too high relative to the
+belt; and 83 ± 19 mm at 4.4 σ by a ratio needing no px/m. **81 ± 7 mm comes off
+the whole silhouette and uses no headlamp, no roundel and no scale on the lamp.**
+Fourth derivation, first that does not touch the front of the vehicle.
+
+**And the reframing.** §10.24's findings were applied once and reverted once,
+killed each time because a third method — the frontal silhouette of
+`ref_side.jpg` — refuted the finding **as applied**, and *as applied* meant
+**moving the HEADLAMPS**. This measurement says the misplaced member is **the
+BREAK LINE**. Moving the break is a DIFFERENT change with three properties the
+reverted one did not have:
+
+* the **roundel does not move at all** — §10.24's explicit constraint is
+  satisfied by construction, not by care;
+* the **headlamps do not move**, so the frontal-silhouette refutation that killed
+  it twice does not bear on it;
+* it is the **relationship** the owner's Report 3 names — *"the paint job and the
+  headlights are not alligned"* — rather than either half of it.
+
+**NOT BUILT IN REV 39.** Four geometry changes at the tail of a shipped revision
+is how this project has been burned. Rev 40's item 1, number in hand.
+
+#### 10.97.7  A PROBE THAT REPORTS THE END OF ITS OWN SEARCH RANGE IS NOT REPORTING A PEAK
+
+The first z-ladder let three bands return the **endpoint of the ±55 px search
+range** as if it were a maximum. It manufactured **"+222 mm for the upper body"**
+and an apparent **13 % vertical scale error**, both fictional, and I had written
+both down before the gate existed. The `or -9` / `_roof_at` shape of §10.47,
+third instance.
+
+Acceptance is now stated BEFORE the run: an interior maximum at least 8 samples
+from either bound, exceeding the curve's own median by ≥ 8 %; otherwise the band
+DECLINES. **FALSIFIED with a lever whose default is a proven no-op**
+(`T1_R39_NOGATE=1`): without the gate the spread goes **19 mm → 531 mm** and the
+derived verdict flips to NOT FLAT.
+
+#### 10.97.8  AND THE VERDICT WAS A CONSTANT STRING, IN THE PROBE THAT SAYS SO
+
+The first draft of `probe_rev39_flank.py` printed **"FLAT IN HEIGHT"**
+unconditionally — §10.50's defect, `rear34_character`'s constant verdict, in a
+file written the same hour. It is now derived from the measured spread and prints
+**NO RULING** when fewer than four bands answer.
+
+#### 10.97.9  SEVEN DETECTOR DEFECTS OF MINE, NOT ONE FOUND BY INSPECTION
+
+1. Flower-head detector gated `sat < 0.62` for "pale". The heads are **gold and
+   saturated**: **0/10 on its own positive control**, and it found the man's
+   white cap. §10.42's *a class gate is a probe too*.
+2. Its negative control failed **9/200**, all one contiguous region — the same
+   man. Priced at **2.79 % of the interior**, inside `lid_gen`'s own recorded
+   6.09 % of occluders, and excluded rather than trimmed away.
+3. A drip-rail finder locked onto the aperture band at z 1.32; a plausibility
+   assert fired and the datum was dropped to one line.
+4. A hub detector locked onto **the man's RED SHIRT** (7 776 px). §10.7 records
+   that every front-arch attempt has done this. Fourth instance, on me.
+5. A tyre gate used luminance alone. **The red body's luma is 79** and it sits
+   inside any dark band: it would have printed a confident *"the tyre is 11.3 %
+   too small"*. Two-term gate, endmembers printed.
+6. The z-ladder's endpoint peaks — §10.97.7.
+7. The unconditional verdict string — §10.97.8.
+
+#### 10.97.10  A FALSE LEAD OF MINE, KILLED BY MEASUREMENT
+
+Reading the overlay I took the cyan wheels for too large and nearly wrote it up.
+Measured instead at the rear-axle column **the calibrated map placed** rather
+than one I chose: rear tyre **651 ± 13 mm** on a swept two-term gate against the
+locked **665 mm**, inside the ±15 mm floor the two scales' 2.3 % disagreement
+sets. **The tyre is right.** The horizontal arm of that same run was **clipped by
+my own crop** and pinned at 857 mm in every threshold arm — discarded, not
+quoted.
+
+#### 10.97.11  THE OWNER'S NINE FLOWER HEADS, CHECKED FOR THE FIRST TIME
+
+*[stated, rev 8]* he counted **nine** off the photograph. `lid_gen.py` builds
+**`N_FLOWERS = 10`** plus one part head, and its own docstring says the centres
+*"reproduce rev 10's ten to better than 0.012"* — **rev 11 verified rev 10's ten
+against rev 10's own ten**, a self-consistency check standing in for a check
+against him. Nobody compared to his nine in twenty-eight revisions.
+
+Board rectified through `lid_gen`'s documented quad; all four corners round-trip
+to **0.000 px** and the independently computed head radii reproduce `lid_gen`'s
+stated **176.5 / 168.9 px** at 176.6 / 168.8. Detector: **C1 positive 10/10**,
+worst 0.234 R (the head behind the palm fronds); **C2 negative 0 of 200** planted
+off-head centres reach even the worst built head's score. Ceiling stated: the
+separation is **+0.42 and thin**, driven entirely by head 10.
+
+*[stated, rev 39]* Shown the board flat, unmarked above and marked below, he
+answered **TEN**. **His own rev-8 count of nine is SUPERSEDED by him**, and
+§0's rev-8 entry is corrected accordingly.
+
+#### 10.97.12  THE INHERITED BRIEF NAMED THE WRONG FRAME FOR REPORT 5
+
+`NEXT_CONTEXT_PROMPT_rev39.md` §6 item 1 says to measure the cab door's lower
+cutaway off `ref_side.jpg` *"if the man's red shirt does not occlude it"*. The
+shirt is not the blocker. **`SPEC.md` §10.18 and the NOT MEASURABLE list both
+record that the cab door is OPEN 49° across the relevant columns in that frame.**
+A closed door's outline cannot be measured where the door is swung open.
+
+The only frame with the door CLOSED is `ref_workshop.jpg` — the owner's own
+rev-23 reading — which is the CONVERSION stage and which §10.62 establishes
+carries **no admissible px/m on the door plane**. **REPORT 5 IS NOT BUILT**, and
+the route to it is a scale-free ratio against the arch, whose radius is locked.
+
+#### 10.97.13  `STATE.md` ARRIVED WITH A DIRTY PROVENANCE ROW
+
+The shipped `STATE.md` reads `working tree | **DIRTY**`, `git commit 07c74b9`
+= commit 205 against a HEAD of 207 — not the clean-tree parent-provenance pattern
+the rev-39 brief describes. rev 38's "clean" describes the file it RECEIVED
+(rev 37's, regenerated clean in `054c1ac`), not the one it SHIPPED.
+
+**Resolved by regeneration, not by trust**: `audit.py` re-run on the clean
+restored tree produces a file **byte-identical except the four provenance rows**.
+Every measurement row reproduces.
+
+#### 10.97.14  `bbox top` DISAGREES BETWEEN THE TWO GUARDS
+
+`audit.py`'s `STATE.md` prints **3.017**; `build.py`'s VERIFY prints **3.046** —
+same tree, same subdivision level, same `verify.py` function. Measured: the true
+top mesh is `lid_main` at **3.0169**. `verify._bounds()` reads `ob.bound_box`
+mid-build without forcing a depsgraph update, so the answer depends on WHEN it is
+called. It is a logged line with no target and no guard — §10.47 left it
+target-less deliberately — so this is RECORDED, not chased.
