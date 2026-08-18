@@ -7903,3 +7903,329 @@ vertical scale to close. That is a genuinely independent third method.
   about their accuracy.
 * **A SCOPE ERROR HAS TWO HALVES — THE FEATURE AND THE RULER.** Fixing the feature
   and re-publishing is how rev 40's corrected figure kept a systematic.
+
+---
+
+### 10.100  rev 42 — HIS REPORT 5 IS BUILT: THE CAB DOOR NOW WRAPS THE FRONT WHEEL ARCH, AND THE SIGN OF THE OLD ERROR NEEDED NO RULER
+
+His defect report 5, verbatim, rev 37: *"the doors extend lower, around the
+wheel well"*. It has been the only untouched item of his that moves geometry
+since rev 37, and it is now built.
+
+#### 10.100.1  WHAT WAS WRONG, AND WHY NOBODY COULD MEASURE IT
+
+`t1_shell.DOOR_GAP` cut the cab door's bottom as a **STRAIGHT CHORD ACROSS THE
+TOP OF THE FRONT WHEEL ARCH** — z 0.8000–0.8160 un-dropped, **14.6–30.6 mm
+ABOVE** the arch crown at `_ARCH_TOP_F` 0.7854. Every revision from rev 7 to
+rev 41 shipped that chord, pinned there by an import-time assert.
+
+The reason it survived is that it looked unmeasurable. §10.62 and §10.73 both
+record that **no supplied frame carries BOTH a closed cab door AND an
+admissible px/m on the door plane**: `ref_side.jpg` has the cab door **OPEN
+49°** (§10.18, §10.97.12) and `ref_workshop.jpg` is a three-quarter view whose
+only locked ruler is the headlamp aperture, on the nose plane, at a catalogue
+0.180 m (§10.72's struck class). REF §9 warns in the same breath that lateral
+scale varies **more than 2:1** across that panel and that a fitted projection
+model **did not close**. So a metric door-plane figure is barred, and rev 42
+takes none.
+
+#### 10.100.2  WHAT WAS MEASURED — AND IT IS ORDINAL, SO IT NEEDS NO SCALE
+
+In `ref_workshop.jpg`, the cab door's **front shut line** fits
+
+    x = -0.03467 v + 512.233
+
+over 49 rows (v 520→716, ridge score rising to 93 at the bottom), and it runs
+**CONTINUOUSLY from the belt down to the body's lower edge at v = 712**. The
+front arch lip's crown in the same frame is at **v ≈ 621**. The door's shut
+line therefore reaches **~91 px BELOW the arch crown**.
+
+The build put the door's bottom **ABOVE** the crown. **THE SIGN WAS WRONG, and
+a sign does not need a ruler.** That is the whole admissible content of the
+photographic half of this finding, and nothing metric is taken from it.
+
+**A CANDIDATE LINE I NEARLY PUBLISHED DID NOT EXIST.** The first marked figure
+drew a near-horizontal "door bottom" across x 500–585 at v ≈ 692. Re-examined
+contrast-stretched at 9× with no overlay, that region is **FLAT**: ridge scores
+4–8 against a noise floor of 3.5–5.5. **The line was my own annotation read
+back as evidence.** It was checked before the figure went to him. A real linear
+feature does exist over x 604–700 descending v 625 → 600 (scores to 19.8) and
+it spans exactly the arch, which is what it belongs to.
+
+#### 10.100.3  HIS TWO READINGS — one crop, three marks, two sentences
+
+*[stated, rev 42]* Shown a 9× crop of `ref_workshop.jpg` with the door shut
+line in red, the height of the arch crown in cyan and the body's lower edge in
+yellow:
+
+* **"the door extends down to the side rocker it looks like"** — his hedge is
+  kept verbatim, because he wrote it.
+* Asked whether the door's rear lower corner sweeps **up and over** the front
+  wheel arch so that the arch's front lip is part of the door: **YES.**
+
+rev 36's format again — one crop, one mark, one sentence — and it settled the
+SHAPE of a member that had been unmeasurable for five revisions. It does **not**
+settle any magnitude, and none is claimed.
+
+#### 10.100.4  THE CONSTRUCTION — not one new constant
+
+    z_bot(x) = max( ZB(x) + G ,  arch_z(X_AXLE_F) + sqrt((ARCH_R+G)^2 - (x-X_AXLE_F)^2) )
+
+* the arch is **the build's own circle** — `X_AXLE_F`, `arch_z`, `ARCH_R`, all
+  locked and all guarded elsewhere;
+* the rocker is **`t1_core.ZB`**, the under-body / sill bottom edge, the same
+  table `folk_gen.sill_z` already parses;
+* the clearance **G is READ OFF REV 41's OWN OUTLINE**: `DOOR_ARCH_G` is the
+  minimum radial distance rev 41's smoothed `DOOR_GAP_S` kept from that circle,
+  **0.024426 m**. So the new outline is **nowhere closer to the arch than the
+  outline that has been passing T1_SUB=2 since rev 23**, and that is asserted,
+  not claimed in prose (§10.45).
+
+Result: the door's bottom is **272.2 mm lower at the rear corner** and
+**387.5 mm lower at the front corner**, and rises to z 0.8033 over the arch
+crown where rev 41's chord sat at 0.800–0.816.
+
+**THE GUARD FIRED ON THE FIRST ATTEMPT AND IT WAS RIGHT.** Built directly at
+`DOOR_ARCH_G`, the resample-plus-smoothing pulled the arc inward and the
+smoothed outline came back at **0.0225 m against rev 41's 0.0244 m** — 1.9 mm
+CLOSER. The guard was **not** relaxed by 1.9 mm. The construction now solves by
+**fixed point** for the build clearance that makes the *smoothed* outline land
+on rev 41's value: converged `_G_BUILD` **0.026278**, smoothed minimum
+**0.024421** against **0.024426**. It re-solves itself if `_NRES`, `_NBOT` or
+the smoothing ever change.
+
+`_NRES` 76 → **200** and `_NBOT` = 61. rev 23's densification precedent
+(`CARGO_GAP` 28 → 154): the bottom run is now an ARC and a coarse resample of
+an arc is not worth shipping merely because a guard would catch it.
+
+#### 10.100.5  THE GUARD IS RE-SCOPED, AND ITS NEW RATIONALE IS STATED
+
+rev 23's rule: **DO NOT INHERIT A GUARD'S RATIONALE ALONG WITH ITS SHAPE.**
+
+The old assert required the outline to stay 10 mm **above the arch CROWN**.
+That shape was only ever a **proxy** for the thing that actually collapsed the
+shell **205562 v → 12 v at T1_SUB=2 for six revisions**: the outline **crossing
+the arch lip**. A door that wraps the arch violates the proxy while satisfying
+the invariant. The guard is therefore rewritten as the invariant it always
+meant — a **RADIAL clearance from the arch circle** — and armed at the
+clearance **rev 41's own outline kept**, so it can be satisfied only by being
+no worse than what shipped, never by a number chosen today. A second assert
+keeps a 10 mm absolute floor; a third keeps the outline off the body's own
+lower edge (closest approach **26.3 mm**).
+
+#### 10.100.6  WHAT IS **NOT** CHANGED — named, not absorbed
+
+`DOOR_GAP` is left **BIT-IDENTICAL** and keeps its second job: it is the **ART
+DATUM**. `folk_gen` parses it for `DOOR_X0` / `DOOR_X1` / `DOOR_W` and for
+`_DOOR_BOT_AUTH`, from which **`DOOR_H` = 1.013467 m divides every
+v-coordinate of the door art**. Re-pointing that parse at the wrapped outline
+moves `DOOR_H` by ~390 mm and forces a re-bake of the flank textures — a
+SECOND lever in the same revision, which is exactly what rev 25 refused when it
+held `_DOOR_TOP_AUTH` at 1.8140 *"so `DOOR_H` stays bit-identical and only one
+lever moves"*. Same call, same reason.
+
+**THE ART FRAME IS THEREFORE STILL REV 41's, AND THAT IS AN OPEN ITEM, NOT A
+SOLVED ONE.** The door is now ~390 mm deeper at its front lower corner than the
+frame its art was baked into. **The three texture md5s are unchanged this
+revision BY CONSTRUCTION.** This is rev 43's item 1.
+
+#### 10.100.7  WHAT IT COST THE GUARDS — nothing
+
+**0 fail / 0 warn at BOTH levels on BOTH tools.** 131 objects, 190 meshes, 42
+materials, 5 constant-rough, **0 non-manifold at both levels**. Roof
+1.9835/1.9833, rake 17.75, arch gaps 39.7 / 40.7 mm, bays 0.516 0.515 0.516,
+off flank 804.9 mm, L=4.065 W=1.750 — every inherited figure identical.
+
+**Two figures MOVE, and both are the direct consequence of a longer outline:**
+cut roof hole **68564 → 70069 v** (SUB=1) and **252749 → 254428 v** (SUB=2).
+Re-baselined, flagged, not hidden — rev 23's precedent.
+
+**THE T1_SUB=2 SHELL DID NOT COLLAPSE.** That was the risk the old assert
+existed to prevent, and it is the reason the new assert is armed at rev 41's
+own clearance rather than at a looser one.
+
+**ALL 30 INHERITED PROBES RE-RUN ON THE MOVED GEOMETRY AND ALL 30 REPRODUCE
+THEIR PUBLISHED TALLIES.** `probe_rev39_flank`'s JOINT registration is still
+**(−1, −4) px = (−5 mm z, −19 mm x)**, `probe_cross_anatomy` still shows flank
+**0.0 mm** / off flank **804.9 mm**, `probe_dust_scope` still 8/0 on its
+hard-coded 190.
+
+---
+
+### 10.101  rev 42 — THE UV-OVERLAP AND TEXTURE-RESOLUTION CHECK, RUN FOR THE FIRST TIME IN FORTY-TWO REVISIONS
+
+§5 of this document has said, since rev 3:
+
+    Decals 3K-4K, **non-overlapping**, correctly oriented, correct handedness.
+
+and the owner's own words on the 3D deliverable are *"4K non-overlapping
+textures ... no floating artifacts"*. **Nothing had ever measured either half.**
+Verified before acting: `grep -ric "uv overlap|texel densit|non-overlapping"`
+over `SPEC.md`, `REF_MEASUREMENTS.md` and every `.py` returns **exactly one
+hit — SPEC:319, the requirement itself.**
+
+`probe_rev42_uv.py`, NEW, READ-ONLY.
+
+#### 10.101.1  THE CENSUS IS ALREADY A RESULT
+
+Seven image nodes across five materials, and **only ONE meets §5's own 3K
+floor**:
+
+| image | size | projection | coords | ≥3072 | wearers |
+|---|---|---|---|---|---|
+| `nose.png` | 1024×1024 | FLAT | Geometry.Position (Y,Z) → Mapping | **no** | 10 |
+| `lidmural.png` | 2048×1238 | FLAT | default UV | **no** | 1 |
+| `lidsign.png` | 2048×1238 | FLAT | default UV | **no** | **0** |
+| `swirl.png` | 2048×2048 | **BOX** | TexCoord.Object → Mapping | **no** | 10 |
+| `swirl_b.png` | 2048×2048 | **BOX** | TexCoord.Object → Mapping | **no** | 10 |
+| `calidad.png` | 2400×1771 | FLAT | default UV | **no** | 1 |
+| `senor.png` | 4096×1738 | FLAT | default UV | **yes** | 2 |
+
+**`lidsign.png` is loaded by a material worn by NO OBJECT.** `tex/emblem.png`
+is on disk and referenced by nothing at all. Both reported, neither removed —
+this probe changes nothing.
+
+**REPORTED, NOT RULED ON.** 3K–4K is his bar and the call is his. It is also
+not softened: `nose.png` is **1K**, and the nose is the subject of three of his
+eight defect reports.
+
+#### 10.101.2  THERE IS NO UV LAYOUT ON THE BODY AT ALL
+
+`T1_paint` — worn by `T1_body` and nine others — drives `swirl` and `swirl_b`
+through **BOX projection from OBJECT coordinates**, and `nose.png` through a
+FLAT projection of `Geometry.Position`'s (Y, Z). **20 of 190 meshes carry a UV
+layer**, and the body is not one of them.
+
+So "non-overlapping UVs" is not merely unchecked on the body — **it is not
+well-posed there**, because there are no UVs. A triplanar projection maps 3D to
+2D and is multi-valued wherever the surface folds back on itself.
+
+**The repo already knew this and worked around it without measuring it.**
+`folk_gen.py`'s own comment: *"no flank op may reach x < XART_LO: at MAP_SCALE
+0.26 that wraps onto the cab door's hinge edge (x = -2.029 is the same texel as
+x = +1.817)"*. That is a texel collision, documented as a painting restriction.
+
+#### 10.101.3  SELF-OVERLAP vs REUSE — the distinction that changes the answer
+
+A decal worn by two panels shares texels **by design**. `script_L` and
+`script_R` both wear one `senor.png`, which scores **100 % colliding** if the
+two objects are pooled and **0.00 %** when each object is measured against
+itself. Pooling would have published a false defect. Measured per object and
+totalled:
+
+| image | SELF-overlap | of its painted area | cross-object (reuse) |
+|---|---|---|---|
+| `calidad.png` | 0.0000 m² | **0.00 %** | 0.0000 m² |
+| `lidmural.png` | 0.0000 m² | **0.00 %** | 0.0000 m² |
+| `senor.png` | 0.0000 m² | **0.00 %** | 1.3974 m² |
+| `nose.png` | 0.5240 m² | 11.54 % | 0.0000 m² |
+| `swirl_b.png` | 13.2032 m² | **48.36 %** | 0.2318 m² |
+| `swirl.png` | 18.8473 m² | **83.04 %** | 0.1903 m² |
+
+**TOTAL SELF-OVERLAP 32.5746 m² = 55.97 % of 58.2048 m² painted.** A further
+3.13 % is legitimate reuse and is **not** counted against §5.
+
+**EVERY HAND-MADE UV LAYOUT IN THIS BUILD IS CLEAN AT 0.00 %.** All of the
+overlap is the procedural projection.
+
+#### 10.101.4  TEXEL DENSITY, area weighted, against a DERIVED bar
+
+| image | p5 | median | p95 texels/m |
+|---|---|---|---|
+| `calidad.png` | 4639 | **4657** | 4665 |
+| `senor.png` | 3149 | **3197** | 3199 |
+| `lidmural.png` | 1106 | **1106** | 1106 |
+| `nose.png` | 582 | **648** | 656 |
+| `swirl_b.png` | 484 | **531** | 532 |
+| `swirl.png` | 484 | **532** | 532 |
+
+The shipped hero is 4800 px across a 4.065 m vehicle = **1180.8 px/m**. A
+surface delivering fewer texels/m than that is soft in the hero **BY
+ARITHMETIC**. That bar is derived and is labelled as derived; it is not a
+measurement of the vehicle. On it, `swirl`, `swirl_b` and `nose` deliver
+**0.45×, 0.45× and 0.55×** the hero's own sampling rate.
+
+#### 10.101.5  TWO ESTIMATORS WERE KILLED BY THEIR OWN CONTROLS BEFORE THIS ONE
+
+Both are recorded in the probe rather than deleted.
+
+* **DRAFT 1, POINT SAMPLING.** Flag a texel if any two samples in it are far
+  apart. **C3 killed it**: the fraction climbed **5.34 → 6.10 → 10.98 %** as the
+  sample spacing went 40 → 20 → 10 mm. A "does any pair differ" test can only
+  find MORE collisions with more samples; it never converges, so it measured
+  the sample count and not the asset. C1 failed for the same reason and the
+  >25 % bar was never the problem.
+* **DRAFT 2, CONSERVATIVE RASTER WITH A FIXED METRIC TOLERANCE.** **C2 killed
+  it at 99.95 %**: a single flat 2 m quad "collided with itself" everywhere,
+  because a collision CELL spans a finite distance ON THE SURFACE — 62 mm on
+  that quad against a `TOL_M` of 5 mm. **C5 killed it independently** at
+  **+53.8 %** area and a coverage ratio of **3.2452**: area accumulated over the
+  conservative slop margin.
+
+Draft 3 fixes both **causes**: the tolerance is scale aware (a cell is
+colliding when painted from two places farther apart than that cell's own
+footprint could account for), and area is **analytic**, not rasterised.
+Coverage ratio **1.0255**, area exact to **0.587 %**.
+
+**A DEFECT OF MINE, CAUGHT BY ARITHMETIC RATHER THAN BY A CONTROL.** The
+triangle-stream cache was keyed by `(image, selector)` and **not by the object
+list**, so the per-object pass re-used the whole-material stream for every
+object in turn and printed self-overlap of **332.7618 m² = 571.71 %** of a
+58.2048 m² painted area. **A fraction over 100 % is arithmetically impossible**,
+which is the only reason it was caught in one read. Key fixed, comment left in
+place.
+
+**THE SELECTOR IS PARSED, NOT ASSUMED.** The first cut hard-coded my reading of
+`T1_paint`'s Mix chain (centroid y > 0 for the swirl pair; |normal.x| > 0.7 and
+x > 1.6 for the nose). That is a re-typed constant of the class this repo has
+been punished for repeatedly, and worse than usual here: **if the split were on
+the NORMAL rather than the POSITION, the solidified shell's INNER skin would go
+to the other tile and the compared sets would not be the ones the renderer
+uses.** The chain is now evaluated from the graph, 4 rules for each swirl tile
+and 2 for the nose, and anything it cannot evaluate RAISES.
+
+#### 10.101.6  C3 FAILS, THE VERDICT SURVIVES ANYWAY, AND BOTH ARE STATED
+
+| parameter | sweep | spread |
+|---|---|---|
+| `TOL_M` 1 → 20 mm | 59.09 → 59.09 % | **0.00 pp** |
+| `CELL_K` 8 → 4 → 2 texels | 59.58 → 59.09 → 67.50 % | **8.41 pp** |
+| `C_FOOT` 2.0 → 5.0 | 67.10 → 59.06 % | **8.04 pp** |
+
+The stated tolerance was 2.0 pp on each. **C3 FAILS and is recorded as failing;
+nothing is widened.** The published FIGURE is therefore good to about ±8 pp and
+no better.
+
+**But the RULING does not move with the parameters, and that is a separate
+fact.** The bar stated before the run was 10 %. **Every value in the entire
+sweep — 59.06 % to 67.50 % — lies on the same side of it.** rev 41's rule says
+publish the sweep rather than the verdict when the verdict moves with the
+threshold; here the sweep is published *and* the verdict is reported, because
+the sweep does not reach the bar. A figure that is uncertain to ±8 pp can still
+settle a question whose bar is 50 pp away.
+
+#### 10.101.7  WHAT IS **NOT** CLAIMED
+
+* **That an overlap is automatically a defect.** `swirl`/`swirl_b` are REPEAT
+  tiles and repetition is their job; their texel keys are deliberately NOT
+  wrapped, so what is measured is whether the LAYOUT is injective, ignoring
+  intentional tiling. A scope decision, stated.
+* **Anything about the artwork's correctness.** This is a layout and sampling
+  measurement only.
+* **Anything about render quality.** It measures the asset, not a frame.
+* **Any repair.** Nothing in this section moves geometry, artwork or a
+  constant. Fixing it means giving `T1_body` a real UV layout, which is a
+  re-bake of every flank texture and is coupled to §10.100.6's own re-bake.
+  **They should be done together, and neither should be done alone.**
+
+#### 10.101.8  NEW RULES
+
+* **A REQUIREMENT NOBODY HAS INSTRUMENTED IS NOT A REQUIREMENT.** §5's
+  "non-overlapping" sat in this document for thirty-nine revisions with no
+  probe, no number and no owner ever quoting it back.
+* **AN ESTIMATOR WITH A FREE PARAMETER MUST SWEEP THE PARAMETER YOU ADDED
+  YOURSELF.** `C_FOOT` was mine; it moves the answer 8 pp.
+* **POOLING TWO OBJECTS THAT SHARE A DECAL MANUFACTURES A DEFECT.**
+  `senor.png` reads 100 % pooled and 0.00 % per object.
+* **A FRACTION OVER 100 % IS THE CHEAPEST CONTROL THERE IS.** It caught a cache
+  key that no assertion in the probe was watching.

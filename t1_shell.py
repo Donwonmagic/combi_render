@@ -491,19 +491,138 @@ DOOR_GAP = [
     (0.9120 + DOOR_REAR_DX, 1.0000), (0.9084 + DOOR_REAR_DX, 0.8160),
     (1.1000, 0.8040), (1.4000, 0.8000), (1.6500, 0.8040),
 ]
-DOOR_GAP_S = _smooth(_resample(DOOR_GAP, 76), 2)
+# ===========================================================================
+# rev 42 -- HIS DEFECT REPORT 5: "the doors extend lower, around the wheel
+# well".  SPEC 10.100.
+#
+# WHAT WAS WRONG.  The table above cuts the cab door's bottom as a STRAIGHT
+# CHORD ACROSS THE TOP OF THE FRONT WHEEL ARCH, z 0.8000-0.8160 un-dropped,
+# 14.6-30.6 mm above the arch crown at 0.7854.  Every revision from rev 7 to
+# rev 41 shipped that chord.
+#
+# HIS TWO READINGS, rev 42, off `ref_workshop.jpg` -- the ONLY frame with the
+# cab door SHUT.  Shown one 9x crop with three marks (the shut line; the height
+# of the arch crown; the body's lower edge):
+#   * "the door extends down to the side rocker it looks like"  -- his hedge is
+#     kept, deliberately, because he wrote it;
+#   * asked whether the door's rear lower corner sweeps UP AND OVER the front
+#     wheel arch so that the arch's front lip is part of the door: YES.
+#
+# WHY THAT IS ADMISSIBLE HERE.  sec.10.62 and sec.10.73 establish that NO
+# supplied frame carries both a closed cab door and an admissible px/m on the
+# door plane, so no METRIC may be taken from that frame.  Nothing metric is.
+# What was measured before he was asked is ORDINAL, and an ordinal fact needs
+# no scale: the door's front shut line fits x = -0.03467 v + 512.233 over 49
+# rows (ridge scores rising to 93) and runs CONTINUOUSLY from the belt down to
+# the body's lower edge at v = 712, which is ~91 px BELOW the arch crown at
+# v ~= 621.  The build put the door's bottom ABOVE the crown.  THE SIGN WAS
+# WRONG, and a sign does not need a ruler.
+#
+# NOT ONE NEW CONSTANT IS INVENTED.  The new bottom is:
+#   * the build's OWN arch circle -- centre (X_AXLE_F, arch_z(X_AXLE_F)),
+#     radius ARCH_R, all locked and all guarded elsewhere;
+#   * the build's OWN rocker -- `t1_core.ZB`, the under-body / sill bottom edge;
+#   * a clearance G READ OFF THE REV-41 OUTLINE ITSELF: the minimum radial
+#     distance rev 41's own smoothed DOOR_GAP_S kept from that circle.  So the
+#     new outline is NOWHERE CLOSER to the arch than the outline that has been
+#     passing T1_SUB=2 since rev 23.  That is asserted below, not claimed here
+#     -- sec.10.45's rule, a claim in prose is not a guard.
+#
+# WHAT IS **NOT** CHANGED, AND IT IS NAMED RATHER THAN ABSORBED.  `DOOR_GAP`
+# above is left BIT-IDENTICAL and keeps its second job: it is the ART DATUM.
+# `folk_gen` parses it for DOOR_X0 / DOOR_X1 / DOOR_W and for `_DOOR_BOT_AUTH`,
+# from which `DOOR_H` = 1.013467 m divides every v-coordinate of the door art.
+# Re-pointing that parse at the wrapped outline would move DOOR_H by ~390 mm
+# and force a re-bake of the flank textures -- a SECOND lever in the same
+# revision, which is exactly what rev 25 refused to pull when it held
+# `_DOOR_TOP_AUTH` at 1.8140 "so DOOR_H stays bit-identical and only one lever
+# moves".  Same call, same reason.  THE ART FRAME IS THEREFORE STILL REV 41's
+# AND THAT IS AN OPEN ITEM, not a solved one: the door is now ~390 mm deeper at
+# its rear lower corner than the frame the art was baked into.  The three
+# texture md5s are unchanged this revision BY CONSTRUCTION.
+# ===========================================================================
+_ARCH_CX = T.X_AXLE_F
+_ARCH_CZ = arch_z(T.X_AXLE_F)
+_ARCH_TOP_F = _ARCH_CZ + ARCH_R                 # kept: the crown, for messages
 
-# STRUCTURAL GUARD (SPEC sec.10.6): a panel-gap outline must not cross the lip
-# of another aperture. Checked here, at import, so a change to the rake or to
-# the arch can never silently re-open the SUB=2 collapse.
-_ARCH_TOP_F = arch_z(T.X_AXLE_F) + ARCH_R
-_ARCH_X0, _ARCH_X1 = T.X_AXLE_F - ARCH_R, T.X_AXLE_F + ARCH_R
-_over_arch = [z for (x, z) in DOOR_GAP_S if _ARCH_X0 <= x <= _ARCH_X1]
-assert not _over_arch or min(_over_arch) > _ARCH_TOP_F + 0.010, (
-    "cab-door shut line crosses the front wheel arch lip: outline reaches "
-    "z=%.4f over the arch (x %.3f..%.3f) whose top is %.4f. This collapses the "
-    "boolean at T1_SUB=2. Raise the bottom run or lower the arch."
-    % (min(_over_arch), _ARCH_X0, _ARCH_X1, _ARCH_TOP_F))
+
+def _arch_radial(pt):
+    """Signed clearance of a point OUTSIDE the front arch circle, in metres."""
+    return math.hypot(pt[0] - _ARCH_CX, pt[1] - _ARCH_CZ) - ARCH_R
+
+
+# rev 41's outline, smoothed exactly as rev 41 smoothed it, purely to read its
+# own minimum clearance off it.  It is not used to cut anything.
+_GAP41_S = _smooth(_resample(DOOR_GAP, 76), 2)
+DOOR_ARCH_G = min(_arch_radial(p) for p in _GAP41_S)
+
+
+def _door_bot_z(x, g):
+    """The door's lower shut line at clearance `g`: the rocker, lifted over
+    the arch."""
+    z = T.ZB(x) + g
+    dx = x - _ARCH_CX
+    ra = ARCH_R + g
+    if abs(dx) < ra:
+        z = max(z, _ARCH_CZ + math.sqrt(ra * ra - dx * dx))
+    return z
+
+
+_DOOR_X_REAR = 0.9084 + DOOR_REAR_DX
+_DOOR_X_FRONT = 1.8171
+_NBOT = 61
+_BOT_XS = [_DOOR_X_REAR + (_DOOR_X_FRONT - _DOOR_X_REAR) * i / (_NBOT - 1)
+           for i in range(_NBOT)]
+_NRES = 200
+
+
+def _build_gap(g):
+    run = [(x, _door_bot_z(x, g)) for x in _BOT_XS]
+    cut = DOOR_GAP[:-3] + run
+    return run, cut, _smooth(_resample(cut, _NRES), 2)
+
+
+# THE RESAMPLE AND THE TWO SMOOTHING PASSES PULL AN ARC INWARD, and the guard
+# below caught exactly that on the first run: built at DOOR_ARCH_G the smoothed
+# outline came back at 0.0225 m against rev 41's 0.0244 m -- 1.9 mm CLOSER to
+# the arch than what shipped.  The fix is not to relax the guard by 1.9 mm; it
+# is to build the arc at whatever construction clearance makes the SMOOTHED
+# outline land on DOOR_ARCH_G.  Solved here by fixed point, so it re-solves
+# itself if _NRES, _NBOT or the smoothing ever change.  Converged value is
+# printed by audit.py, never typed.
+_G_BUILD = DOOR_ARCH_G
+for _ in range(24):
+    _r, _c, _sm = _build_gap(_G_BUILD)
+    _err = DOOR_ARCH_G - min(_arch_radial(p) for p in _sm)
+    if abs(_err) < 2e-5:
+        break
+    _G_BUILD += _err
+DOOR_BOT_RUN, DOOR_GAP_CUT, DOOR_GAP_S = _build_gap(_G_BUILD)
+
+# STRUCTURAL GUARD (SPEC sec.10.6), RE-SCOPED IN REV 42 WITH ITS NEW RATIONALE
+# STATED -- rev 23's rule: DO NOT INHERIT A GUARD'S RATIONALE ALONG WITH ITS
+# SHAPE.  The old guard required the outline to stay 10 mm ABOVE THE ARCH
+# CROWN.  That shape was only ever a PROXY for the thing that actually
+# collapsed the shell 205562 v -> 12 v at T1_SUB=2 for six revisions: the
+# outline CROSSING THE ARCH LIP.  A door that wraps the arch violates the proxy
+# while satisfying the invariant, so the guard is rewritten as the invariant it
+# always meant -- a RADIAL clearance from the arch circle -- and it is armed at
+# the clearance REV 41's OWN OUTLINE KEPT, so it can only be satisfied by being
+# no worse than what shipped, never by a number chosen today.
+_MIN_RAD = min(_arch_radial(p) for p in DOOR_GAP_S)
+assert _MIN_RAD >= DOOR_ARCH_G - 5e-4, (
+    "cab-door shut line is CLOSER to the front wheel arch than rev 41's was: "
+    "min radial clearance %.4f m against rev 41's %.4f m. That is the "
+    "condition that collapsed the boolean at T1_SUB=2 for six revisions."
+    % (_MIN_RAD, DOOR_ARCH_G))
+assert _MIN_RAD > 0.010, (
+    "cab-door shut line within 10 mm of the front wheel arch lip (%.4f m)."
+    % _MIN_RAD)
+# and it must still not fall through the body's own lower edge
+_MIN_SILL = min(z - T.ZB(x) for (x, z) in DOOR_GAP_S)
+assert _MIN_SILL > 0.005, (
+    "cab-door shut line reaches the body's lower edge: closest approach %.4f m"
+    % _MIN_SILL)
 
 
 def door_gaps():
