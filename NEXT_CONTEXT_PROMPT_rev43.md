@@ -324,5 +324,89 @@ git pull --ff-only ../tacombi_rev42_incremental.bundle HEAD      # -> SEE BELOW
 ```
 **If a pull says "Need to specify how to reconcile divergent branches", STOP.**
 The hero is gitignored and lives only on my disk.
-### Content checks — all read off the fresh clone
-SEE THE TABLE WRITTEN INTO `HANDOFF_rev42.md` §7 AND THE BLOCK BELOW.
+### Content checks — EVERY ONE READ OFF THE FRESH-CLONE RUN
+```bash
+git status                                              # clean
+grep -c '^### 10.100' SPEC.md                           # 1
+grep -c '^#### 10.100' SPEC.md                          # 8
+grep -c '^### 10.101' SPEC.md                           # 1
+grep -c '^#### 10.101' SPEC.md                          # 9
+grep -c 'AN ORDINAL FACT NEEDS NO RULER' SPEC.md        # 1   SINGLE-LINE ANCHOR
+grep -c 'A LINE YOU DREW IS NOT EVIDENCE' SPEC.md       # 1
+grep -c '0.7770' SPEC.md                                # 2   the BUILT arch crown
+grep -c '55.97' SPEC.md                                 # 1
+grep -c '0.024426' SPEC.md                              # 2
+grep -c 'DOOR_ARCH_G' t1_shell.py                       # 7
+grep -c '_G_BUILD' t1_shell.py                          # 4
+grep -c '_arch_radial' t1_shell.py                      # 4
+grep -c 'DOOR_GAP_CUT' t1_shell.py                      # 1
+grep -c 'DOOR_BOT_RUN' t1_shell.py                      # 1
+grep -c 'build_selectors' probe_rev42_uv.py             # 2
+grep -c 'C_FOOT' probe_rev42_uv.py                      # 7
+grep -c 'CELL_K' probe_rev42_uv.py                      # 4
+grep -c '_TRI_CACHE' probe_rev42_uv.py                  # 3
+grep -c '571.71' probe_rev42_uv.py                      # 1
+grep -c 'A FIGURE OF MINE' HANDOFF_rev42.md             # 1
+grep -c 'probe_rev42_uv' HANDOFF_rev42.md               # 2
+#   inherited, must still hold:
+grep -c '^### 10.99' SPEC.md                            # 1
+grep -c '^#### 10.99' SPEC.md                           # 7
+grep -c '^#### 10.98' SPEC.md                           # 13
+grep -c 'COMMON-MODE' SPEC.md                           # 3   CASE MATTERS
+grep -c "THE COUNTER'S FRONT FACE" SPEC.md              # 3   NOTE THE QUOTES
+grep -c 'CLOSED BY HIM' SPEC.md                         # 3   CASE MATTERS
+grep -c 'CNT_NOSE_F' SPEC.md                            # 6
+grep -c '_assert_same_edge' flank_compare.py            # 4
+grep -c 'cab_floor' SPEC.md                             # 4
+grep -c 'T1_ABLATE' build.py                            # 5
+grep -c 'FLOOR_W' t1_detail.py                          # 5
+grep -c '190' probe_dust_scope.py                       # 4
+grep -c 'amtrak' SPEC.md                                # 2   HIS WORD
+grep -ic 'nolita' SPEC.md                               # 9
+grep -c 'TEN flower heads' SPEC.md                      # 1
+grep -c 'T1_R41_NOG4' SPEC.md                           # 1
+grep -c 'NULL_OFFS' probe_rev41_gate.py                 # 6
+ls HANDOFF_rev42.md STATE_rev42.md SPEC_rev42.md NEXT_CONTEXT_PROMPT_rev43.md \
+   probe_rev42_uv.py
+ls probe_*.py | wc -l    # 31
+ls rev42_hero34f.png     # MUST FAIL -- heroes are gitignored
+```
+Ancestry — **rev 42 adds `2a2ae9a`, the rev-41 tip (21 now):**
+```bash
+for c in f3c53f4 87aeaa6 d519fc6 5087b84 7ce3d03 f3cde44 efc1268 456b201 \
+         b08e424 e792d73 6f87977 cac32b9 2253399 52e451a 3496cab b6a93ec \
+         54fc45d 4843cc3 668614e 69fe7d2 2a2ae9a; do
+  git merge-base --is-ancestor $c HEAD && echo "$c ok" || echo "$c LOST"; done
+```
+Textures — **all three must match; rev 42 changed NO artwork:**
+```bash
+md5sum tex/swirl.png tex/swirl_b.png tex/nose.png
+# 4ee4e09e...   d201597e...   b31ea156...
+```
+### Guards on the fresh clone, watched print
+| check | SUB=1 | SUB=2 |
+|---|---|---|
+| VERIFY | **0 fail, 0 warn** | **0 fail, 0 warn** |
+| `audit.py` | **0 fail, 0 warn** | **0 fail, 0 warn** |
+| roof crown @ rear axle | **1.9835** | **1.9833** |
+| cut roof hole | **70069v** | **254428v** |
+| objects at `materials:` | **131** | **131** |
+| meshes | **190** | **190** |
+| bay widths | 0.516 0.515 0.516 | same |
+| over-rider rows | **NOT APPLICABLE, stated** | same |
+42 materials, 5 constant-rough, **0 non-manifold at both levels**, rake 17.75,
+L=4.065 W=1.750, arch gaps 39.7 / 40.7 mm, off flank 804.9 mm.
+**THE ONLY FIGURES THAT MOVED SINCE REV 38 ARE THE TWO ROOF-HOLE VERTEX COUNTS**
+— 68564 → **70069** and 252749 → **254428** — and both follow from the longer
+door outline. Re-baselined and flagged, rev 23's precedent.
+**A HERO IS OWED AND WAS SHOT.** `rev42_hero34f.png`, **4800×3200, SUB=2, 56
+samples, 20 strips, worst seam z = 1.95** against a threshold of 4 (rev 38
+shipped 1.94). `post.py` run **ONCE** on the stitched frame. **The container
+restarted mid-render at ~16:48 UTC and the last ten strips were rendered after
+it came back; the seam report is what proves the two halves are consistent, and
+it is 1.95.** The hero is gitignored and lives only on his disk.
+**Two figures are in the repo this revision:** none. The door A/B and the
+question crop were delivered to his disk only — 1.2 and 0.5 MB, and rev 39's
+precedent keeps large figures out of a small bundle.
+**FINAL COUNT: 227 commits, clean tree.** *(This line lands in commit 227
+itself — rev 29's pattern, kept since.)*
