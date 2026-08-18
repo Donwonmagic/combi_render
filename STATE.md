@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-18 03:45:39 UTC |
-| git commit | `143aff6` |
-| git subject | rev 40: HANDOFF_rev40.md and NEXT_CONTEXT_PROMPT_rev41.md |
+| generated | 2026-08-18 12:58:27 UTC |
+| git commit | `5f5d3b3` |
+| git subject | rev 41: SPEC 10.99 -- the z-ladder's gate cannot be re-derived (70% null false-answer rate), and item 3's counter fascia is a ruler scope error |
 | working tree | clean |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=1 (applied, destructive, before booleans) |
