@@ -463,6 +463,58 @@ def best_shift(ref, gen, rad):
 # cab door 200 px forward of the lockup.  The counter stands 300 mm outboard,
 # which in this projective frame is worth ~16-21 mm of apparent height (REF
 # sec.3); that is a SYSTEMATIC on the differential and it is printed with it.
+#
+# rev 40, SPEC 10.98 -- CORRECTED, AND THE OLD TEXT WAS FALSE.
+# Until rev 40 the two lines were NOT the same physical edge.  The render side
+# was fitted with a REDNESS gradient and landed on the fascia BOTTOM (authored
+# z 1.1459 against t1_detail.CNT_ZB 1.1470 -- 1.1 mm).  The reference side was
+# fitted with a LUMINANCE gradient over rows 425-452 and landed on the fascia
+# TOP: mean |v_break - fascia top| 0.69 px against |v_break - fascia bottom|
+# 19.46 px.  On a cream / gold-nosing / beige-fascia / red stack a luminance
+# step and a redness step are DIFFERENT BOUNDARIES, and the sentence above
+# ("the same physical edge ... its height never enters") asserted otherwise.
+# The fascia's own height therefore did NOT cancel; it entered every vertical
+# number this file publishes as a ~94 mm systematic, and SPEC 10.97.5 read that
+# systematic as "the body sits 81 mm high against the break line".
+#
+# THE FIX IS NOT A NEW ESTIMATOR (SPEC 10.79/10.83/10.90's rule).  It is the
+# estimator this file ALREADY uses on the render side, applied to the reference
+# side as well: a REDNESS gradient at the fascia bottom.  Both sides now fit the
+# beige->red step.  `_assert_same_edge` below is armed TWO-SIDED on both fits so
+# a prose claim can never again stand in for a check.
+# FALSIFICATION LEVER: T1_FC_OLDDATUM=1 restores the rev-39 luminance fit; the
+# guard then FIRES on the reference side, which is what shows it is load-bearing.
+
+def _assert_same_edge(tag, redness, cols, rowfn, k=6, need=0.030):
+    """TWO-SIDED.  The fitted datum line must have NOT-RED above it and RED
+    below it, in this frame's own redness units, at every sampled column.
+
+    It fails if the polarity is inverted (the line is on the fascia TOP, where
+    the gold nosing above is REDDER than the beige below) AND it fails if the
+    step is too weak to be the beige->red boundary at all.  SPEC 10.98: this
+    exists because the claim it replaces was made in a comment and never
+    tested, and the fascia's ~94 mm then entered every vertical number here.
+    """
+    ups, dns = [], []
+    for c in cols:
+        v = int(round(float(rowfn(c))))
+        if v - k < 0 or v + k >= redness.shape[0]:
+            continue
+        ups.append(float(redness[v - k, c]))
+        dns.append(float(redness[v + k, c]))
+    if len(ups) < 20:
+        sys.exit("FAIL %s datum edge check: only %d columns sampled" % (tag, len(ups)))
+    up, dn = float(np.median(ups)), float(np.median(dns))
+    print("   datum edge check [%s]: redness %+.4f above -> %+.4f below "
+          "(step %+.4f, need >= %+.4f over %d cols)"
+          % (tag, up, dn, dn - up, need, len(ups)))
+    if dn - up < need:
+        sys.exit("FAIL %s datum line is NOT the beige->red step: redness above "
+                 "%+.4f, below %+.4f, step %+.4f < %+.4f.  A line fitted on the "
+                 "fascia TOP inverts or flattens this.  SPEC 10.98."
+                 % (tag, up, dn, dn - up, need))
+    return dn - up
+
 
 def fit_edge(lum_or_chroma, cols, r0, r1, sign, min_g):
     """Sub-pixel row of the strongest signed gradient per column, robust line."""
@@ -764,10 +816,19 @@ def main():
              np.percentile(sw, 10) / (2.3548 * sig)))
 
     # ----------------------------------------------- the two datum edges
-    ea, eb, erms, ekeep, en = fit_edge(ref_lum, range(lk[0], lk[2]), 425, 452,
-                                       +1, 3.0)
-    print("\nreference datum: cream/red break over the lockup's own columns "
-          "(NOT the ground line)")
+    ref_red = CS._redness(ref_rgb_full)
+    if os.environ.get("T1_FC_OLDDATUM") == "1":
+        # rev-39 behaviour, kept so the change is provable rather than asserted
+        ea, eb, erms, ekeep, en = fit_edge(ref_lum, range(lk[0], lk[2]),
+                                           425, 452, +1, 3.0)
+        print("\nreference datum: T1_FC_OLDDATUM=1 -- the rev-39 LUMINANCE fit "
+              "over rows 425-452 (the fascia TOP).  SPEC 10.98.")
+    else:
+        ea, eb, erms, ekeep, en = fit_edge(ref_red, range(lk[0], lk[2]),
+                                           440, 462, +1, 0.004)
+        print("\nreference datum: the counter fascia BOTTOM -- the beige->red "
+              "step, fitted with the SAME redness estimator the render side "
+              "uses (SPEC 10.98).  NOT the ground line.")
     print("           v = %+.5f u %+.3f   rms %.3f px  n=%d/%d   "
           "v(u=465.5) = %.2f" % (ea, eb, erms, ekeep, en, ea * 465.5 + eb))
     vvp = DRIP_A * (-FLANK_B) + DRIP_B
@@ -788,13 +849,18 @@ def main():
           "over the same physical x range")
     print("           y = %+.5f x %+.3f   rms %.3f px  n=%d/%d"
           % (ga_, gb_, grms, gkeep, gn))
+    _assert_same_edge("reference", ref_red, range(lk[0], lk[2]),
+                      lambda u: ea * u + eb)
+    _assert_same_edge("render", red_r, range(glo, ghi),
+                      lambda c: ga_ * c + gb_)
     zdat_ref = 0.0                                  # the reference datum IS Z=0
     cmid = float(proj(flank_X(465.5), 0)[0])
     _, zdat_gen = projinv(cmid, ga_ * cmid + gb_)
     print("           at the lockup's mid column that edge is authored "
-          "z = %.4f in the render; the reference's is the same physical edge, "
-          "so the two are used as ONE datum and its height never enters"
-          % zdat_gen)
+          "z = %.4f in the render (t1_detail.CNT_ZB = 1.1470, the counter "
+          "fascia bottom, 1.1 mm).  Both sides are now fitted on THAT edge "
+          "with the same redness estimator and both are checked above, so the "
+          "datum's height cancels -- SPEC 10.98, where it did not." % zdat_gen)
 
     # ---------------------------------------------------- render ink mask
     mx0, mx1 = px0 - MARGIN_PX, px1 + MARGIN_PX

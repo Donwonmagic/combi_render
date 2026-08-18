@@ -57,6 +57,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 os.chdir(HERE)
 sys.path.insert(0, HERE)
 import flank_compare as FC                      # noqa: E402  -- the calibrated map
+import compare_script as CS                     # noqa: E402  -- the reference rule
 
 RENDER = sys.argv[1] if len(sys.argv) > 1 else "out/p_side.png"
 SEARCH = 55                                     # +/- px of vertical search
@@ -68,6 +69,7 @@ MIN_PROM = 1.08                                 # peak / median of the curve
 # straight back.  That is what shows the gate is load-bearing rather than tidy.
 if os.environ.get("T1_R39_NOGATE") == "1":
     MIN_EDGE, MIN_PROM = 0, 0.0
+JSEARCH = 30                                    # +/- px of the JOINT search
 FLAT_MM = 30.0                                  # spread below which "flat" holds
 
 # the man in the white cap and jacket occludes the lower-forward flank.  He is
@@ -113,8 +115,34 @@ def main():
     def zrow(py):
         return (RH * 0.5 - np.asarray(py, float)) / ppm + FC.VIEW["tgt"][2]
 
+    # rev 40, SPEC 10.98.  THIS LINE USED TO BE A TRANSCRIBED LITERAL
+    # (-0.03467 u + 446.813) even though this file's own docstring says every
+    # instrument is "IMPORTED, never re-typed".  That literal was fitted with a
+    # LUMINANCE gradient and landed on the counter fascia TOP, while the render
+    # datum below is a REDNESS fit on the fascia BOTTOM -- two different edges,
+    # one fascia height apart, which is where 10.97.5's 81 mm came from.
+    # It is now FITTED LIVE with flank_compare's own corrected call, and C3
+    # checks it against the fascia-bottom line flank_compare prints.
+    _ref_red = CS._redness(ref)
+    _ea, _eb, _erms, _ekp, _en = FC.fit_edge(
+        _ref_red, range(CS.LOCKUP[0], CS.LOCKUP[2]), 440, 462, +1, 0.004)
+
     def v_break(u):
-        return -0.03467 * np.asarray(u, float) + 446.813
+        return _ea * np.asarray(u, float) + _eb
+
+    # ---- C3: the reference datum, fitted live, must be flank_compare's
+    #      CORRECTED fascia-BOTTOM line and must NOT be the rev-39 fascia-TOP
+    #      literal.  Two-sided on purpose: SPEC 10.98.
+    c3a = abs(_ea - (-0.03412)) < 5e-4 and abs(_eb - 466.632) < 0.5
+    c3b = abs(_eb - 446.813) > 10.0
+    c3 = c3a and c3b
+    fails += not c3
+    print("[%s] C3  reference datum fitted LIVE: v = %+.5f u %+.3f (rms %.3f, "
+          "n=%d/%d)" % ("PASS" if c3 else "FAIL", _ea, _eb, _erms, _ekp, _en))
+    print("        flank_compare's corrected fascia-BOTTOM line is "
+          "-0.03412 u +466.632; the rev-39 literal was -0.03467 u +446.813,")
+    print("        %.1f px = %.0f mm higher -- one counter fascia. SPEC 10.98."
+          % (_eb - 446.813, (_eb - 446.813) / FC.K_T * 1000))
 
     uu, vv = np.meshgrid(np.arange(FW), np.arange(FH))
     xm = FC.flank_X(uu)
@@ -143,10 +171,22 @@ def main():
           % (100 * (man & sil).sum() / max(sil.sum(), 1)))
     base = sil & ~man
 
-    def best_dy(mask):
-        """Interior maximum or None.  NEVER an endpoint."""
-        sc = np.array([(np.roll(ew, d, 0) * er)[np.roll(mask, d, 0)].sum()
-                       / max(np.roll(mask, d, 0).sum(), 1)
+    def _score(mask, dy, dx):
+        m = np.roll(np.roll(mask, dy, 0), dx, 1)
+        return (np.roll(np.roll(ew, dy, 0), dx, 1) * er)[m].sum() \
+            / max(m.sum(), 1)
+
+    def best_dy(mask, dx0):
+        """Interior maximum or None.  NEVER an endpoint.
+
+        rev 40, SPEC 10.98: the row shift is now searched AT THE GLOBAL BEST
+        COLUMN SHIFT.  The rev-39 form searched dx and dy SEQUENTIALLY and they
+        are coupled -- on a flank whose strong edges are near-horizontal, a few
+        px of un-corrected dy moves the dx peak a long way.  Measured: with the
+        corrected datum the sequential search returned dx = -15 px (-71 mm)
+        where the joint search returns -4 px (-19 mm).
+        """
+        sc = np.array([_score(mask, d, dx0)
                        for d in range(-SEARCH, SEARCH + 1)])
         k = int(np.argmax(sc))
         prom = sc[k] / np.median(sc)
@@ -154,16 +194,19 @@ def main():
             return None, prom
         return k - SEARCH, prom
 
-    # ---- horizontal registration, whole vehicle
-    bx = None
-    bs = -1
-    for dx in range(-40, 41):
-        m = np.roll(base, dx, 1)
-        s = (np.roll(ew, dx, 1) * er)[m].sum() / max(m.sum(), 1)
-        if s > bs:
-            bs, bx = s, dx
+    # ---- JOINT whole-vehicle registration, rev 40.  dx and dy are coupled.
+    bs, by, bx = -1.0, 0, 0
+    for dy in range(-JSEARCH, JSEARCH + 1):
+        for dx in range(-40, 41):
+            s = _score(base, dy, dx)
+            if s > bs:
+                bs, by, bx = s, dy, dx
     mpp = float(FC.flank_mpp(FW / 2))
-    print("\nHORIZONTAL registration, whole vehicle: %+d px = %+.0f mm"
+    kv0 = float(FC.flank_kv(FW / 2))
+    print("\nJOINT registration, whole vehicle: (dy, dx) = (%+d, %+d) px "
+          "= (%+.0f mm in z, %+.0f mm in x)"
+          % (by, bx, by / kv0 * 1000, bx * mpp * 1000))
+    print("HORIZONTAL, from that joint fit: %+d px = %+.0f mm"
           % (bx, bx * mpp * 1000))
 
     kv = float(FC.flank_kv(FW / 2))
@@ -176,7 +219,7 @@ def main():
         m = base & (zm >= z0) & (zm < z1)
         if m.sum() < 6000:
             continue
-        dy, prom = best_dy(m)
+        dy, prom = best_dy(m, bx)
         if dy is None:
             print("  %.2f-%.2f      --      --      %.2fx     DECLINED"
                   % (z0, z1, prom))
@@ -208,7 +251,7 @@ def main():
                   % (spread, FLAT_MM))
             print("  flat, so the offset-versus-scale question is NOT settled here.")
 
-    print("\nCONTROLS: %d checked, %d FAILED" % (2, fails))
+    print("\nCONTROLS: %d checked, %d FAILED" % (3, fails))
     print("=" * 78)
     return fails
 
