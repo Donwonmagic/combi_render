@@ -8067,6 +8067,30 @@ THEIR PUBLISHED TALLIES.** `probe_rev39_flank`'s JOINT registration is still
 **0.0 mm** / off flank **804.9 mm**, `probe_dust_scope` still 8/0 on its
 hard-coded 190.
 
+#### 10.100.8  NEW RULES
+
+* **AN ORDINAL FACT NEEDS NO RULER, AND THAT IS WHAT MAKES IT ADMISSIBLE WHERE
+  A METRIC IS BARRED.** Report 5 sat unbuildable for five revisions because
+  §10.62 and §10.73 bar a px/m on the door plane. What broke it was not a better
+  ruler: it was noticing that the door's shut line runs BELOW the arch crown and
+  the build put it ABOVE. A SIGN has no units. Look for the ordinal statement
+  before concluding a frame cannot answer.
+* **A LINE YOU DREW IS NOT EVIDENCE.** My first marked figure produced a "door
+  bottom" that, contrast-stretched with no overlay, does not exist — ridge
+  scores 4–8 against a noise floor of 3.5–5.5. **Check the UNMARKED frame before
+  the marked one goes anywhere.**
+* **A GUARD FIRING ON YOUR OWN CHANGE IS THE GUARD WORKING.** The arch-clearance
+  assert caught my first outline 1.9 mm too close. Fix the construction, never
+  the bar.
+* **WHEN SMOOTHING MOVES A CURVE, SOLVE FOR THE INPUT THAT PUTS THE OUTPUT WHERE
+  YOU WANT IT** — a fixed point, not a hand-tuned offset, so it re-solves itself
+  when the resample count changes.
+* **ARM A NEW GUARD AT THE OLD BUILD'S OWN MEASURED VALUE.** `DOOR_ARCH_G` is
+  read off rev 41's outline, so the new geometry can satisfy the guard only by
+  being no worse than what shipped — never by a threshold chosen today.
+
+---
+
 ---
 
 ### 10.101  rev 42 — THE UV-OVERLAP AND TEXTURE-RESOLUTION CHECK, RUN FOR THE FIRST TIME IN FORTY-TWO REVISIONS
