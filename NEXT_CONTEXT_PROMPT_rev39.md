@@ -312,7 +312,12 @@ poll**, or they will be truncated. Edge strips at the TOP are the fast ones.
 ## §11. THE COMMIT COUNT AND THE CONTENT FIGURES
 Written LAST, after the final commit. **EVERY VALUE BELOW WAS READ OFF A
 FRESH-CLONE VERIFICATION RUN — none was typed from memory.**
-**THIS HAS GONE WRONG IN THIRTEEN REVISIONS DURING HANDOFF ASSEMBLY.**
+**THIS HAS GONE WRONG IN FOURTEEN REVISIONS DURING HANDOFF ASSEMBLY, INCLUDING
+REV 38 ITSELF: FIVE of the counts below were typed from memory on the first
+pass and FIVE were wrong.** One of them, `ONLY THE RENDER TESTS`, returned 0
+because SPEC wraps the sentence across a line break and **`grep -c` matches
+LINES** — the rev-36 trap, reproduced exactly. Every value here is now read off
+a fresh-clone run.
 **A grep count is invalidated by any later edit to the file it counts.**
 **ANCHOR HEADING COUNTS WITH `^`. `grep -c` COUNTS LINES, NOT OCCURRENCES — a
 multi-line anchor CANNOT FIRE.**
@@ -330,3 +335,60 @@ git pull --ff-only ../tacombi_rev38_incremental.bundle HEAD      # -> SEE BELOW
 ```
 **If a pull says "Need to specify how to reconcile divergent branches", STOP.**
 The hero is gitignored and lives only on my disk.
+### Content checks — all read off the fresh clone
+```bash
+git status                                              # clean
+grep -c '^### 10.96' SPEC.md                            # 1
+grep -c '^#### 10.96' SPEC.md                           # 10
+grep -c '10.96' SPEC.md                                 # 12
+grep -c 'cab_floor' SPEC.md                             # 4
+grep -c 'wheel house' SPEC.md                           # 5
+grep -c 'the property you did not' SPEC.md              # 1   SINGLE-LINE ANCHOR
+grep -c 'RE-RUN THE PROBES' SPEC.md                     # 1
+grep -c 'T1_ABLATE' build.py                            # 5
+grep -c 'FLOOR_W' t1_detail.py                          # 5
+grep -c 'wheelhouse' t1_detail.py                       # 1
+grep -c 'def wheel_houses' t1_detail.py                 # 1
+grep -c 'wheel_houses' build.py                         # 1
+grep -c 'lid_strut' t1_shell.py                         # 3
+grep -c 'LID_X0 - 0.16' t1_shell.py                     # 2
+grep -c '190' probe_dust_scope.py                       # 4
+grep -c 'amtrak' SPEC.md                                # 2   HIS WORD
+grep -c 'MEMORY ENTRY IS A CLAIM' SPEC.md               # 2
+grep -c 'A THIRD TIME' SPEC.md                          # 1   ANCESTOR rev 36
+ls HANDOFF_rev38.md STATE_rev38.md SPEC_rev38.md NEXT_CONTEXT_PROMPT_rev39.md \
+   probe_rev38_wheelbar.py probe_rev38_floorpen.py
+ls probe_*.py | wc -l    # 27
+ls rev38_hero34f.png     # MUST FAIL -- the hero is gitignored
+```
+Ancestry — **rev 38 adds `54fc45d`, the rev-37 tip (17 now):**
+```bash
+for c in f3c53f4 87aeaa6 d519fc6 5087b84 7ce3d03 f3cde44 efc1268 456b201 \
+         b08e424 e792d73 6f87977 cac32b9 2253399 52e451a 3496cab b6a93ec \
+         54fc45d; do
+  git merge-base --is-ancestor $c HEAD && echo "$c ok" || echo "$c LOST"; done
+```
+Textures — **all three must match; rev 38 changed NO artwork:**
+```bash
+md5sum tex/swirl.png tex/swirl_b.png tex/nose.png
+# 4ee4e09e...   d201597e...   b31ea156...
+```
+### Guards on the fresh clone, watched print
+| check | SUB=1 | SUB=2 |
+|---|---|---|
+| VERIFY | **0 fail, 0 warn** | **0 fail, 0 warn** |
+| `audit.py` | **0 fail, 0 warn** | **0 fail, 0 warn** |
+| roof crown @ rear axle | **1.9835** | **1.9833** |
+| cut roof hole | **68564v** | **252749v** |
+| objects at `materials:` | **131** | **131** |
+| meshes | **190** | **190** |
+| bay widths | 0.516 0.515 0.516 | same |
+| over-rider rows | **NOT APPLICABLE, stated** | same |
+**131 objects / 190 meshes are rev 38's ONLY geometry deltas** (rev 37: 126/185;
+rev 30-36: 127/186). 42 materials, 5 constant-rough, **0 non-manifold**, rake
+17.75, L=4.065 W=1.750, arch gaps 39.7 / 40.7 mm, off flank 804.9 mm.
+Hero: **`rev38_hero34f.png`, 4800x3200, SUB=2, 56 samples, 20 strips, worst seam
+z 1.94** (rev 37: 1.86; rev 25: 1.91; threshold 4). `post.py` run ONCE.
+**FINAL COUNT: 207 commits, clean tree.** *(This line lands in commit 207 itself
+— the commit was AMENDED to carry the correction rather than adding a 208th, so
+the number is true of the commit that states it. rev 29's pattern, kept since.)*
