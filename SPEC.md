@@ -9016,3 +9016,40 @@ same edit fired on the first build: *"roof-lid prop at x −1.2375 is OUTSIDE th
 lid's own span 0.9640–−1.0700"*. **The guard was right and the change was
 wrong.** The change is reverted, the guard is kept, and its bounds are now
 written the way round the constants actually are.
+
+#### 10.106.7  A NUMBER I RAISED AND KILLED IN THE SAME SESSION — AND WHY THE LOBE SURVIVES IT
+
+While writing §10.106 up I traced the reference's body lower edge and published
+a **~49 mm** discrepancy against the model, first as "possibly a datum error",
+then — after a column-by-column trace showed **one continuous rocker with no
+valance step** — as a settled finding, in `HANDOFF_rev44.md` and
+`NEXT_CONTEXT_PROMPT_rev45.md`. **It is retracted.** The datum question was the
+wrong thing to worry about: **the frame cannot see the edge at all.**
+
+Raw pixels down `ref_nolita_doorshut.jpg` column 132: rows 268–276 run
+(151,31,17) → (80,19,16), then rows **278–298 are RGB (0,0,0)** — twenty-five
+rows clipped to pure black before the floor returns at row 300. The red does not
+fade into the rocker; it hits a wall. Sweeping the mask threshold R>90 → R>30
+moves the "lowest red row" from 274 to 277 and no further; at R>20 it jumps to
+**303, which is the floor**. **Row 277 is where the shadow clips, not where the
+body ends.**
+
+The `ref_side.jpg` cross-check then disagreed in **sign** — rocker 145 mm *below*
+the axle against Nolita's 38 mm *above* — and that trace is bad too: at cols
+900–920, rows 640–700, the pixels are neutral (R≈G≈B, 58–147), so an
+`R > G*1.25` mask passes **warm grey under-body shadow** as red.
+
+**Both traces ran off the end of their data.** The body's lower edge relative to
+the axle is **UNMEASURED**, and `RIDE_DROP` is not implicated by anything.
+
+**NEW RULE.** *A threshold-based "lowest X" trace is only valid if the feature's
+far side is resolved.* Check what is on the other side of the edge — and whether
+the sensor can still see it — before you publish the edge.
+
+**WHY §10.106 STANDS.** The lobe's *position* came from the ramp trace (the line
+descending col 56 → col 46), not from the sill, and its *existence* from a
+`|dL|` 18.9 edge against a floor of 0.5–2.0 well inside the exposed range. Only
+its **depth** touches the sill, as the denominator of a ratio: if the true sill
+is 3 px lower than row 273.50, the drop goes 0.744 → 0.686, i.e. 308 mm → 284 mm.
+That is worth re-deriving from a frame that resolves the rocker, and it is not
+worth moving on this one.

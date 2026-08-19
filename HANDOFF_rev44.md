@@ -270,38 +270,33 @@ next revision — it is cheap and it does not argue.
 3. **The driving position is 622 mm from the seat back to the hub**, roughly
    150 mm more reach than a T1 driver has. Closing it needs the seat's
    fore-aft position, which is rev-8 authored and unmeasured.
-4. **THE BODY'S LOWER EDGE SITS ~49 mm TOO LOW RELATIVE TO THE AXLE. THE
-   DATUM QUESTION IS SETTLED; THE CAUSE IS NOT.**
-   §10.106's trace raised a ~80 mm discrepancy and I flagged it as *possibly a
-   datum error* — the measurement window was cols 30–48, near the nose, where
-   the lowest red edge could be the **front valance** rather than the rocker,
-   and comparing a valance to a sill is exactly what §10.98 caught after it had
-   nearly moved 81 mm of geometry.
-   **Settled by tracing the lowest red pixel column by column, cols 20–140.**
-   Forward of the arch the edge sits at rows **272–276**; aft of it, under the
-   cab door where there is no valance, at **277.0**. **They agree to 2 px and
-   there is no step** — it is one continuous rocker, interrupted only by the
-   arch (rows 269 → 241 → 249 → 277 as the lip climbs and falls) and by the
-   **red hubcap**, which the red mask picks up over cols 74–104 and which is
-   why the first pass read 80 mm instead of 49.
-   Measured on the aft, unambiguous span, two ways:
-
-   | | reference | model (built, dropped) |
-   |---|---|---|
-   | arch crown → rocker | **335.6 mm** | 390.0 mm |
-   | rocker relative to the **axle centre** | **37.8 mm ABOVE** | 11.2 mm BELOW |
-
-   ~**49 mm**, same sign both ways, and insensitive to which of the three
-   scales is used (4 px reads 37.2–38.4 mm across 104.2–107.4 px/m).
-
-   **NOT ACTED ON, and the reason is that the obvious lever is enormous.** The
-   built body is lowered **65.7 mm at x = 1.0** by `RIDE_DROP` plus the rake.
-   If the photograph is right, `RIDE_DROP` is most of the error — which would
-   move every authored z in the model relative to the wheels. That is a
-   whole-vehicle change and it needs its own revision, its own guards, and a
-   second frame before anyone touches it. **First job for rev 45: reproduce
-   this on `ref_side.jpg` independently.** The lobe is unaffected either way —
-   §10.106 anchored it as a RATIO to this same edge in this same frame.
+4. **~~THE BODY'S LOWER EDGE SITS ~49 mm TOO LOW~~ — RETRACTED IN THE SAME
+   SESSION THAT RAISED IT. NEITHER FRAME RESOLVES THE FEATURE.**
+   I published 49 mm here and in the rev-45 brief, having settled the *datum*
+   question (one continuous rocker, no valance step). The datum was the wrong
+   thing to worry about. **The frame cannot see the edge at all.**
+   Raw pixels down `ref_nolita_doorshut.jpg` column 132: rows 268–276 run
+   (151,31,17) → (80,19,16), and then rows **278–298 are RGB (0,0,0)** —
+   twenty-five rows **clipped to pure black** before the floor comes back at
+   row 300. The red does not fade into the rocker; it hits a wall. Sweeping the
+   mask threshold from R>90 down to R>30 moves the "lowest red row" not at all
+   (274 → 277) and then it jumps to 303, which is the **floor**, not the body.
+   **Row 277 is where the shadow clips, not where the body ends.**
+   The cross-check on `ref_side.jpg` then disagreed in **sign** — rocker 145 mm
+   *below* the axle against Nolita's 38 mm *above* — and that trace is bad too:
+   at cols 900–920, rows 640–700, the pixels are neutral (R≈G≈B, 58–147), so my
+   `R > G*1.25` mask was passing **warm grey under-body shadow** as red.
+   **BOTH TRACES RAN OFF THE END OF THEIR DATA.** The body's lower edge relative
+   to the axle is **UNMEASURED**. Do not carry 49 mm forward. `RIDE_DROP` is not
+   implicated by anything.
+   **The lesson, and it is the general one:** a threshold-based *"lowest X"*
+   trace is only valid if the feature's far side is resolved. Check what is on
+   the other side of the edge before you publish the edge.
+   **What this does NOT touch:** §10.106's forward lobe. Its position came from
+   the ramp trace, not from the sill, and its depth is a ratio whose denominator
+   (`sill − rail` = 34.92 px) may be a few px short — if the true sill is 3 px
+   lower the drop goes 0.744 → 0.686, i.e. 308 mm → 284 mm. Worth re-deriving
+   from a frame that resolves the rocker; not worth moving on this one.
 
 5. **The tyres have circumferential grooves but no lateral sipes and no
    sidewall lettering.** Period-correct as far as it goes; the next step is a

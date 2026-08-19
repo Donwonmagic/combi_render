@@ -181,19 +181,21 @@ not argue. Rev 44b's baseline: 190 objects, 655 944 tri (**77 % of them in
 `T1_body` alone**), **0 Bevel modifiers**, **66 566 hard edges**, **0 rivets /
 bolts / screws / nuts / latches**, 0 displacement. See `HANDOFF_rev44.md` §10–13.
 
-**A1. THE ~49 mm AT THE BODY'S LOWER EDGE — FIRST JOB, AND DO IT BEFORE ANYTHING
-ELSE TOUCHES z.** `ref_nolita_doorshut.jpg` puts the rocker **37.8 mm ABOVE**
-the axle centre; the built model puts it **11.2 mm BELOW**. Cross-checked by
-arch-crown-to-rocker: **335.6 mm** measured against **390.0 mm** built. Same sign
-both ways, insensitive to which of the three scales is used. The datum question
-*is settled* — a column-by-column trace of the lowest red pixel over cols 20–140
-shows **one continuous rocker with no valance step**, and the first pass's 80 mm
-was the **red hubcap** leaking into the mask over cols 74–104.
-**Do not move geometry on this yet.** The built body is lowered **65.7 mm at
-x = 1.0** by `RIDE_DROP` plus the rake, so if the photograph is right `RIDE_DROP`
-is most of the error — a whole-vehicle change. **Reproduce it independently on
-`ref_side.jpg` first.** If it reproduces, it is the largest single accuracy
-finding open in the project.
+**A1. ~~THE ~49 mm AT THE BODY'S LOWER EDGE~~ — RETRACTED BEFORE IT SHIPPED.
+DO NOT RE-DERIVE IT THE WAY I DID.** I raised it, settled the datum question
+(one continuous rocker, no valance step), published it here and in the handoff,
+and then killed it on cross-check. **`ref_nolita_doorshut.jpg` cannot see the
+body's lower edge**: down column 132 the red runs (151,31,17) → (80,19,16) and
+then rows **278–298 are RGB (0,0,0)**, twenty-five rows clipped to pure black.
+Sweeping the mask from R>90 to R>30 does not move the answer; at R>20 it jumps
+to the floor. **Row 277 is where the shadow clips.** `ref_side.jpg` disagreed in
+sign, and that trace was bad too — at cols 900–920 the pixels are neutral
+(R≈G≈B) and an `R > G*1.25` mask passes warm grey shadow as red.
+**The body's lower edge relative to the axle is UNMEASURED. `RIDE_DROP` is not
+implicated.** If you want this number, you need a frame with **open shade or
+fill under the sill**, and a chroma mask with a stated rule — not a brightness
+threshold. **General lesson: a "lowest X" trace is only valid if the far side of
+the edge is resolved.**
 
 **A2. FASTENERS.** Still zero outside the four cab-door hinge assemblies added in
 §10.104.6. Next tranche, in return-per-effort order: rivets along the counter's
