@@ -25,11 +25,66 @@ the **model source** and the **reference photographs** instead, and anything nee
 back NOT MEASURABLE rather than invented. Four dimensions — proportion, materials/weathering, script and
 fascia — were run by hand in rev 11 and were **deliberately not redone**.
 
+
 ---
 
-## 1. THE FINDING THAT MATTERS MOST
+## 0. RETRACTION — THE HEADLINE FINDING OF THIS AUDIT IS FALSE
 
-### The brand name is built misspelled.
+**"The ñ HAS NO TILDE. The word is built misspelled." IS WITHDRAWN. The tilde is there, and the
+generator builds it.** The owner said so; the machine agrees with him.
+
+**THE MEASUREMENT THAT SETTLES IT.** Connected-component analysis of both masks, run on the current
+tree, no window chosen by hand:
+
+| | detached component above the letter mass | size |
+|---|---|---|
+| measured photograph, `senor_trace._ref_mask()` | x 44–48, y 2–6 | **16 px** |
+| generator output, `script_gen.senor_only()` | x 50–53, y 3–7 | **16 px** |
+
+**Both masks decompose into SIX components and both contain the tilde.** `script_gen.draw_senor`
+delegates entirely to `senor_trace.draw_senor`, so there is one path and it draws the mark.
+
+**HOW THE FINDING WENT WRONG, and it is this project's most-recorded failure family.** It measured
+the band **x 48–64, y −8..+2**. The photograph's tilde is at **x 44–48, y 2–6**. That window clips
+the mark at **one corner** — which is exactly why the baked mask "held only 4 px" of a 16 px tilde.
+On the photograph side the same window sits *above and to the right* of the tilde, over the `o`/`r`
+region and the silver field; the "106 → 30 px, monotone, never vanishing" it reported is **other
+letters' ink**. *A measurement window edge, not the object, decided the answer* — the same family as
+the mask that dropped 14 % of the ink, the folk art column-scanned on a door swung open 49°, and the
+three confident figures measured on a lamppost. **The `counter` dimension of this same audit names
+that family explicitly. The `typography` dimension then fell into it.**
+
+**AND IT EXPOSES A DEFECT IN THE HARNESS, WHICH IS MINE.** Both refuters confirmed it because **both
+inherited the finder's window.** They were given different *estimators* — one an absolute-blue global
+rule, one a local-median z — and told to default to REFUTED. **Neither was told to re-derive WHERE to
+look.** Varying the method while holding the region of interest fixed is not independence.
+
+> **NEW RULE, EARNED HERE: AN ADVERSARIAL VERIFIER MUST RE-DERIVE THE WINDOW, NOT ONLY THE METHOD.**
+> A refuter handed the finder's region of interest can only ever re-measure the finder's mistake.
+> Make the first question *"is the feature where they say it is?"*, and only then *"is the number
+> right?"*
+
+**CONSEQUENCE FOR THE REST OF THE `typography` DIMENSION.** Its other two severity-5s — *"the `e` is
+not drawn as a letter"* and *"the capital S is built in three floating fragments"* — come from the
+same finder, the same window family and the same pair of refuters. **They are hereby downgraded to
+UNVERIFIED** and must be re-checked with the window independently re-derived before anyone acts on
+them. Note that both masks decompose into **the same six components** with matching structure, which
+is weak evidence *against* the fragmentation claim. **Nothing in this dimension is actionable until
+it is re-run.**
+
+**WHAT SURVIVES THIS RETRACTION.** The other seven dimensions used different finders and different
+windows; they are not implicated by this specific error, but every one of their findings was verified
+by the same two-lens design, so **the window-inheritance weakness applies to all of them.** Treat the
+whole audit as verified against *method* variation and **not** against *window* variation until
+re-run.
+
+---
+
+## 1. THE FINDING THAT MATTERED MOST — NOW RETRACTED, SEE SECTION 0 ABOVE
+
+### ~~The brand name is built misspelled.~~ **WITHDRAWN — see section 0. The tilde is present in both the photograph and the generator.**
+
+The original text is kept below because an unrecorded retraction gets re-raised.
 
 **The ñ has no tilde.** Confirmed by both refuters, by methods sharing no step with the original or with
 each other. One rebuilt the detector from scratch with an absolute-blue global rule: in the band where the

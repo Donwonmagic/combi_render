@@ -121,9 +121,13 @@ field. Several were confirmed as defects while their PROPOSED FIX was refuted. *
 | severity 2 | 11 |
 | severity 1 | 3 |
 
-**Highest: the brand name is built misspelled — the ñ has no tilde.** Confirmed by two refuters using
-methods that share no step. `senor_trace._STROKES` has no tilde branch; the baked mask holds 4 px where
-the photograph holds 30–106. **That is a spelling error on the wordmark, and it has been in every hero.**
+**THE FORMER HEADLINE IS RETRACTED. The ñ HAS its tilde** — connected-component analysis finds a
+detached 16 px mark in BOTH the measured photograph (x 44–48, y 2–6) and the generator's own output
+(x 50–53, y 3–7). The finding's window, x 48–64 / y −8..+2, clipped a 16 px mark at one corner. **Both
+refuters confirmed it because both inherited that window.** See `AUDIT_rev43.md` §0.
+**The `typography` dimension's other two severity-5s are downgraded to UNVERIFIED** pending a re-run
+with the window independently re-derived, so the severity-5 count above is **7 claimed, 4 standing,
+3 withdrawn or suspended**.
 
 **Still countable. That is the point: the instrument list grows, the findings list burns down.**
 

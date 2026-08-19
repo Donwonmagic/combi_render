@@ -202,11 +202,25 @@ holds **30 findings from the four FIDELITY dimensions** that finished — counte
 survived both refuters, 3 were killed and 2 are contested.** Both lanes ran, including the DESIGN lane
 that produced the sticker's art direction.
 
-> **THE HEADLINE: THE BRAND NAME IS BUILT MISSPELLED. The ñ has no tilde.** Two refuters confirmed it by
-> methods sharing no step — the photograph holds 106 → 30 ink px across the tilde band as the threshold
-> sweeps, monotone and never vanishing; the baked reference mask holds **4**, the generator rasterises
-> **1**. Area-matched, still 30 against 4. The `branding` dimension found it independently: the build says
-> `Senor`, SPEC locks `Señor`. **The owner rejected this script twice.**
+> **THAT AUDIT'S HEADLINE FINDING WAS FALSE AND IS RETRACTED.** It claimed the ñ has no tilde and the
+> wordmark is built misspelled. **The owner said it does have the ñ. The machine agrees with him.**
+> Connected-component analysis finds a detached **16 px** mark in BOTH the measured photograph
+> (x 44–48, y 2–6) and the generator's own raster (x 50–53, y 3–7); both masks decompose into the same
+> **six** components. `script_gen.draw_senor` delegates entirely to `senor_trace.draw_senor`, so there
+> is one path and it draws the tilde.
+>
+> **HOW IT GOT THROUGH — and this is the lesson of rev 43.** The finding measured the band
+> **x 48–64, y −8..+2**. The tilde is at **x 44–48, y 2–6**. That window clips a 16 px mark at one
+> corner, which is precisely the "only 4 px in the baked mask" it reported; on the photograph side the
+> same window sampled the `o`/`r` region and the silver field, which is the "106 → 30 px" it reported.
+> **A measurement window edge, not the object, decided the answer** — the family this project has been
+> burned by more than any other, and the `counter` dimension of this same audit named it explicitly.
+>
+> **THE HARNESS DEFECT IS MINE.** Both refuters confirmed it because **both inherited the finder's
+> window**. They were given different estimators and told to default to REFUTED; neither was told to
+> re-derive WHERE to look. **NEW RULE: AN ADVERSARIAL VERIFIER MUST RE-DERIVE THE WINDOW, NOT ONLY THE
+> METHOD.** The `typography` dimension's other two severity-5s are downgraded to **UNVERIFIED** pending
+> a re-run under that rule.
 
 Highest-severity, all unverified: **the main lid is raked the wrong way** (`LID_OPEN_DEG=104°` leans
 the mural board away from the counter) and **the open lid at the tail does not exist** — both

@@ -83,10 +83,20 @@ exit code. The full table is in `LEDGER_rev43.md` — use it rather than re-deri
 **1. THE 60 ARE VERIFIED. THE 89 ARE NOT. Start with the misspelling.**
 **`AUDIT_rev43.md` is done** — 8 dimensions, both lanes, 60 findings, each put to two adversarial
 refuters with different lenses. **55 survived, 3 were killed, 2 are contested.**
-**FIX THE WORDMARK FIRST. `senor_trace._STROKES` HAS NO TILDE BRANCH — the ñ is built without its
-tilde and the name is therefore MISSPELLED in every hero ever shot.** Root cause is upstream in the
-mask baked as `senor_trace._REF_B64`. Two more severity-5s sit beside it: the `e` has lost its bowl
-and eye, and the capital `S` is built in three floating fragments where the photograph is continuous.
+**DO NOT "FIX THE WORDMARK". THAT FINDING WAS FALSE AND IS RETRACTED — `AUDIT_rev43.md` §0.**
+It claimed the ñ has no tilde. **The owner said it does, and the machine agrees:** a detached **16 px**
+component sits above the letter mass in BOTH the measured photograph (x 44–48, y 2–6) and the
+generator's own raster (x 50–53, y 3–7), and both masks decompose into the same six components.
+**The finding's window, x 48–64 / y −8..+2, clipped a 16 px mark at one corner.**
+**AND BOTH REFUTERS CONFIRMED IT ANYWAY, BECAUSE BOTH INHERITED THAT WINDOW.** They were given
+different estimators; neither was told to re-derive WHERE to look. **NEW RULE, and apply it to every
+verification you run: AN ADVERSARIAL VERIFIER MUST RE-DERIVE THE WINDOW, NOT ONLY THE METHOD.** Make
+the first question *"is the feature where they say it is?"* and only then *"is the number right?"*
+**CONSEQUENCE: the `typography` dimension's other two severity-5s — the `e`'s lost bowl and eye, and
+the capital `S` in three fragments — are DOWNGRADED TO UNVERIFIED** and must be re-checked with the
+window independently re-derived. The six-component match is weak evidence against the fragmentation
+claim. **And the window-inheritance weakness applies to ALL 55 surviving findings**: they are verified
+against method variation, NOT against window variation. **Re-verify before acting on any of them.**
 **READ THE `risk_if_applied` FIELD BEFORE TOUCHING ANY OF THEM.** Several findings were confirmed as
 defects while their proposed FIX was refuted — `menucard0`'s stated one-literal fix leaves the card
 43.7 % over the aperture instead of 61.5 %, which a refuter names as the `80 mm standoff` family.
