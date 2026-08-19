@@ -270,23 +270,39 @@ next revision — it is cheap and it does not argue.
 3. **The driving position is 622 mm from the seat back to the hub**, roughly
    150 mm more reach than a T1 driver has. Closing it needs the seat's
    fore-aft position, which is rev-8 authored and unmeasured.
-4. **A 25 % DISCREPANCY AROUND THE BODY'S LOWER EDGE — AND IT IS NOT YET A
-   FINDING, BECAUSE THE TWO SIDES MAY NOT BE THE SAME FEATURE.** §10.106's
-   trace put the reference's rail-to-lowest-red-edge at **34.92 px = 331 mm**
-   against the model's rail-to-`ZB` of **414 mm**. Two independent cross-checks
-   off the same frame agree with each other: arch-crown-to-that-edge reads
-   **303 mm** against the model's 380, and the edge sits **71 mm ABOVE** the
-   hub row where the model's `ZB` sits **14 mm below** the axle. Three ways,
-   ~80 mm, same sign.
-   **DO NOT ACT ON THIS YET.** At cols 30–48 — forward of the arch, near the
-   nose — the lowest red edge in the photograph may be the **front valance**,
-   which on a T1 hangs BELOW the rocker, while `ZB` is the sill. Comparing a
-   valance to a sill is precisely the datum error §10.98 caught after it had
-   nearly moved 81 mm of geometry. **The first job is to establish which
-   feature row 273.50 is**, by tracing it aft along the flank and seeing
-   whether it steps at the rocker/valance junction. Only then is there a
-   number. The lobe itself is unaffected either way: it is anchored as a
-   RATIO to whatever that edge is, in the same frame.
+4. **THE BODY'S LOWER EDGE SITS ~49 mm TOO LOW RELATIVE TO THE AXLE. THE
+   DATUM QUESTION IS SETTLED; THE CAUSE IS NOT.**
+   §10.106's trace raised a ~80 mm discrepancy and I flagged it as *possibly a
+   datum error* — the measurement window was cols 30–48, near the nose, where
+   the lowest red edge could be the **front valance** rather than the rocker,
+   and comparing a valance to a sill is exactly what §10.98 caught after it had
+   nearly moved 81 mm of geometry.
+   **Settled by tracing the lowest red pixel column by column, cols 20–140.**
+   Forward of the arch the edge sits at rows **272–276**; aft of it, under the
+   cab door where there is no valance, at **277.0**. **They agree to 2 px and
+   there is no step** — it is one continuous rocker, interrupted only by the
+   arch (rows 269 → 241 → 249 → 277 as the lip climbs and falls) and by the
+   **red hubcap**, which the red mask picks up over cols 74–104 and which is
+   why the first pass read 80 mm instead of 49.
+   Measured on the aft, unambiguous span, two ways:
+
+   | | reference | model (built, dropped) |
+   |---|---|---|
+   | arch crown → rocker | **335.6 mm** | 390.0 mm |
+   | rocker relative to the **axle centre** | **37.8 mm ABOVE** | 11.2 mm BELOW |
+
+   ~**49 mm**, same sign both ways, and insensitive to which of the three
+   scales is used (4 px reads 37.2–38.4 mm across 104.2–107.4 px/m).
+
+   **NOT ACTED ON, and the reason is that the obvious lever is enormous.** The
+   built body is lowered **65.7 mm at x = 1.0** by `RIDE_DROP` plus the rake.
+   If the photograph is right, `RIDE_DROP` is most of the error — which would
+   move every authored z in the model relative to the wheels. That is a
+   whole-vehicle change and it needs its own revision, its own guards, and a
+   second frame before anyone touches it. **First job for rev 45: reproduce
+   this on `ref_side.jpg` independently.** The lobe is unaffected either way —
+   §10.106 anchored it as a RATIO to this same edge in this same frame.
+
 5. **The tyres have circumferential grooves but no lateral sipes and no
    sidewall lettering.** Period-correct as far as it goes; the next step is a
    normal map, not geometry.
