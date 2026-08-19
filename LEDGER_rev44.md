@@ -61,6 +61,7 @@ Probes required green, each read from **its own summary line**:
 | `probe_f90` | `VERDICT: T1_CTAN_SP=0 IS a COMPLETE specular ablation` | — | ✅ |
 | `probe_psf_owner` | `RESULT: controls pass` | **newly tabled, rev 44** | ✅ |
 | `probe_psf_workshop` | `RESULT: controls pass` | **newly tabled, rev 44** | ✅ |
+| `probe_rev39_flank` | `CONTROLS: 3 checked, 0 FAILED` | 3/0 | ✅ — needed `out/p_side.png` rendered first |
 
 ---
 
@@ -78,7 +79,7 @@ failing. Eleven rows.
 | `probe_rev35_harmonic` | `CONTROLS: 18 checked, 6 FAILED` | 18/6 | ✅ still red |
 | `probe_rev41_gate` | `CONTROLS: 5 checked, 1 FAILED` | 5/1, C4 by design | ✅ still red |
 | `probe_rev42_uv` | `CONTROLS: 5 checked, 1 FAILED` / `FAILED: C3` | 5/1, C3 by design | ✅ still red |
-| `probe_rev40_datum` | `CONTROLS: 4 checked, 1 FAILED` | 4/1, C3 by design | see note |
+| `probe_rev40_datum` | `CONTROLS: 4 checked, 1 FAILED` | 4/1, C3 by design | ✅ still red |
 | `probe_rev36_barend` | `REFUSING TO PRINT A RULING` | refuses | ✅ still refusing |
 | `probe_clean_top` | `RESULT: controls FAIL` | deliberately failing | ✅ still red |
 | `probe_dust_anchor` | `RESULT: FAIL` | deliberately failing | ✅ still red |
@@ -99,6 +100,7 @@ sorted them, so the claim can be made honestly or dropped:
 | probe | what it is | readable by the project's own rule? |
 |---|---|---|
 | `probe_psf_owner` | control-bearing, `RESULT: controls pass` | **yes** — tabled in CLASS 1 above |
+| `probe_rev39_flank` | control-bearing, `CONTROLS: 3 checked, 0 FAILED` | **yes** — tabled in CLASS 1 above |
 | `probe_psf_workshop` | control-bearing, `RESULT: controls pass` | **yes** — tabled in CLASS 1 above |
 | `probe_orb_blade` | controls, but printed as `controls: C1 PASS C2 PASS C3 PASS C5 FAIL` | **no** — non-standard format |
 | `probe_orb_hoop` | controls, printed as `controls: C1 FAIL C2 FAIL C3 PASS` | **no** — non-standard format |
@@ -110,9 +112,20 @@ sorted them, so the claim can be made honestly or dropped:
 | `probe_ctan_pedestal` | **reporter** — ends UNVERIFIED, by its own words | n/a |
 | `probe_orb_post` | **reporter** — ends on a CEILING statement | n/a |
 
-**So the honest statement is: 22 of the 33 probes on disk are control-bearing and every one of them
-reproduced its expected tally this revision. Two more carry controls in a format the reading rule
-cannot parse. Seven are reporters and were never gates at all.** *"31 of 31"* conflated the three.
+**So the honest statement, counted off the RUNS:** there are **34** `probe_*.py` on disk at rev 44
+(31 inherited + 3 added here). **25 are control-bearing with a summary line the project's reading
+rule can parse — 11 in CLASS 1, 11 in CLASS 2, 3 new — and every one of the 31 inherited among them
+reproduced its expected tally this revision.** **2** carry controls in a format the rule cannot parse
+(`probe_orb_blade`, `probe_orb_hoop`). **7** are reporters and were never gates at all
+(`probe_v_apex`, `probe_cross_anatomy`, `probe_shutlines`, `probe_rev16`, `probe_ctan_index`,
+`probe_ctan_pedestal`, `probe_orb_post`). 25 + 2 + 7 = 34. *"31 of 31"* conflated the three kinds.
+
+**AND A METHOD NOTE, BECAUSE THE SHORTCUT WAS WRONG.** A source-grep classifier — "does this file
+contain a summary-line string?" — was written to produce that table quickly and **disagreed with the
+runs on five probes** (`probe_dust_anchor`, `probe_psf_workshop`, `probe_rev38_floorpen`,
+`probe_rev38_wheelbar`, `probe_updust_pointer`), because their summary strings are assembled from
+variables rather than written as literals. **The grep was discarded and the table above is built from
+what was watched print.** §9's rule applies to derivations as much as to figures.
 
 **A PROCEDURAL NOTE THAT COST ME A CYCLE, RECORDED SO IT DOES NOT COST THE NEXT ONE.**
 `probe_rev39_flank`, `probe_rev40_datum`, `probe_v_apex` and several others are **plain-Python**
