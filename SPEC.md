@@ -8581,3 +8581,167 @@ a retraction that quietly re-points its own instrument is not a retraction.
   Three independent constructions for "carry the shut line down behind the wheel"
   each failed against a different guard. That is not three unlucky attempts; it
   is the geometry saying the feature is not there.
+
+---
+
+### 10.103  rev 44 — ROUNDED EDGES ON EVERY SHADER. 66 566 KNIFE EDGES, ZERO BEVELS, AND THE ONE WAY TO FIX IT THAT CANNOT MOVE A MEASURED VERTEX
+
+#### 10.103.1  THE OWNER SET A NEW BAR, AND THE FIRST THING TO DO WITH IT WAS COUNT
+
+*[stated, rev 44]* He supplied a catalogue-grade product render of a school bus
+and asked for **"the very highest resolution, fidelity, and detail possible."**
+That is a target, not a measurement, so `probe_rev44_fidelity.py` was written to
+turn it into numbers off the built scene rather than into an opinion:
+
+| what | built |
+|---|---|
+| mesh objects | **190** |
+| triangles | **655 944** — of which **505 538 (77 %) are in `T1_body` alone** |
+| objects with a Bevel modifier | **0 / 190** |
+| edges over 28° (hard edges) | **66 566** = 10.3 % of 649 268 |
+| rivets / bolts / screws / nuts / hinges / latches | **0 / 0 / 0 / 0 / 0 / 0** |
+| materials with true displacement | **0 / 42** |
+
+**The density is all in the skin and almost none of it is in the detail.** And
+every one of those 66 566 hard edges is mathematically sharp. **No real
+pressed, cast or extruded part has a sharp edge** — it has a fold radius, that
+radius carries a thin specular highlight, and that highlight is most of what
+the eye reads as *a photographed object* rather than *a computer model*.
+
+#### 10.103.2  WHY THIS IS DONE IN THE SHADER — AND WHY THAT IS NOT A COMPROMISE
+
+A Bevel **modifier** moves vertices. This model's geometry is measured. The
+tightest clearance in it is **0.85 mm** (§10.102.4), roughly forty asserts are
+armed on distances of a few millimetres, and the shell spent six revisions
+recovering from booleans that a chamfer is exactly the kind of thing to break
+again.
+
+Cycles' **Bevel node** perturbs the *shading normal* by ray-tracing the local
+surface. There is no code path by which it can move a vertex. It is the one way
+to buy this at **zero risk to a measured model**, and at this scale it is also
+simply the right answer: at 600 px/m a 2.75 mm fold is **1.6 px**, which belongs
+in the shading and not in the silhouette.
+
+#### 10.103.3  THE RADIUS IS DERIVED, NOT CHOSEN
+
+`t1_shell.GAPW` is the panel-gap width, **5.5 mm, measured**. A shut line is two
+folded panel edges facing each other across that gap, so **each fold's radius
+cannot exceed half the gap** or the two folds meet and the gap closes. `GAPW/2`
+is therefore the *geometric ceiling* on a fold radius in this vehicle. Written
+as the expression, not as 0.00275 (§10.25), so re-measuring the gap moves it.
+
+#### 10.103.4  IT COMPOSES WITH THE WEATHER GROUP RATHER THAN REPLACING IT
+
+Every painted panel already drives `Principled.Normal` from the WEATHER group's
+internal Bump — that is the orange peel. `round_edges()` re-routes that source
+into the **Bevel node's own Normal input** and the Bevel into the BSDF, so the
+peel is *rounded* rather than discarded. Where nothing drives Normal, the Bevel
+drives it directly. **42 materials patched, 0 skipped, 0 already had one.**
+
+Idempotent by node type, so a second call is a no-op. **`T1_NOBEVEL=1` stands
+the whole pass down**, so the A/B is one environment variable and needs no edit
+— rev 20's pattern.
+
+---
+
+### 10.104  rev 44 — THE CAB. A 12-TRIANGLE DASH, ONE BOX SEAT, NO HINGES ANYWHERE, AND A STEERING WHEEL MOUNTED LIKE A SHIP'S WHEEL ON THE CABIN WALL
+
+#### 10.104.1  WHAT WAS BEHIND THE WINDSCREEN
+
+In a 78 mm front three-quarter hero the windscreen is a large, bright,
+**transparent** part of the frame and the eye goes straight through it. The
+inventory:
+
+| object | triangles | what it is |
+|---|---|---|
+| `dash` | **12** | a 165 × 115 mm four-point box swept the cab's full width |
+| `seat_base` | 76 | a rounded-rect prism, corner radius 50 mm in **4 steps** |
+| `seat_back` | 76 | the same |
+| `wheel_rim` | 448 | a bare torus — **no spokes, no hub, no horn button** |
+| `col` | 60 | a cylinder |
+
+**And nothing else.** No second seat, no instrument, no gear lever, no pedals,
+no sun visors, no mirror, no glovebox. A 4 m vehicle whose most-looked-at
+aperture opens onto four boxes.
+
+#### 10.104.2  THE STEERING WHEEL WAS FACING SIDEWAYS, AND THE BUILD PRINTED IT
+
+`place(w, rot=(radians(72), 0, 0))` rotates a Z-normal disc about **X**, which
+takes its axis to **(0, −0.951, 0.309)** — 18° off the vehicle's own **Y** axis.
+It was mounted like a ship's wheel on the cabin wall.
+
+**This needs no photograph and no scale.** The built dimensions say it out loud:
+**0.402 × 0.124 × 0.382** — the disc's full 0.402 m diameter lies in X *and* Z,
+and the 0.124 m Y extent is 0.402 × 0.309, the projection of a disc whose normal
+is nearly Y. A sign error, and a sign does not need a ruler (§10.100.2's one
+sound argument, used here for what it is actually good for).
+
+#### 10.104.3  THE COLUMN CARRIED THE SAME BUG, AND THE TWO ARE ONE BUG
+
+`col` ran along **(+0.30, 0, 0.95)** — up and *forward* — putting its upper end
+at x 1.798 while the wheel it is supposed to carry sat at x 1.640: **158 mm
+behind it.** A steering column rises from the box at the front beam and leans
+**back** to the driver, who is at x 0.98. Corrected to **(−0.30, 0, 0.95)**.
+
+#### 10.104.4  THE WHEEL IS NOT RE-AIMED BY EYE — IT IS CONSTRAINED
+
+**A steering wheel is normal to its column and centred on the column's end.**
+That is what a steering wheel *is*: a constraint, not a measurement. So both the
+wheel's plane and its centre are now **derived from `col`**, as
+`atan2(ax, az)` and `COL_MID + normalize(COL_AX)·COL_LEN/2`. Move the column and
+the wheel follows. The angle that falls out is **17.5° from horizontal** — flat,
+bus-like — and it is flat *because the column is at 17.5°*, not because a number
+was picked to make it look right.
+
+#### 10.104.5  WHAT WAS BUILT
+
+Steering wheel: rim (unchanged, 0.1920 major / 0.0088 minor) plus **two spokes**
+— a 1963 T1 is a two-spoke wheel and they run across the car — a dished hub and
+a chrome horn button. Dash: a **seven-point swept fascia**, 215 mm deep and
+182 mm tall, whose top face lands on **`Z_SILL`**, the cab door's window sill,
+guarded every revision; a **speedometer** (chrome bezel, dark dial, glass) set
+normal to the column like everything else the driver looks at; the centre
+**letterbox grille**; a **glovebox lid and knob** on the cabin face. Seating: the
+driver's seat kept **at its exact rev-8 footprint**, a **passenger seat**
+mirrored to −Y, corner segments **4 → 10**, and a **cream welt** round each
+cushion — which is what separates upholstery from a block at any distance. Plus
+**sun visors**, an **interior mirror** on its stem, a **gear lever and knob**,
+and **three pedals**.
+
+**The fascia is `paint`, not `dark`.** A T1 dash is painted the body colour, and
+the cab was one flat "dark" key because `build.py` assigns one material per
+call. `cab_fitout()` therefore returns **(object, material key) pairs**.
+
+#### 10.104.6  AND THE FIRST HINGES IN THE PROJECT
+
+The fastener census returned **zero** of everything. A T1's cab door hangs on
+**two external butt hinges** on its forward edge; they stand proud of the skin,
+their barrels catch the key light, and they are among the most legible pieces of
+hardware on the flank.
+
+**They are not placed by eye.** Both sit on the cab door's own forward shut line
+— `DOOR_GAP`'s front edge, which rakes back 0.0951 m over 0.950 m — the barrel's
+axis **is** that rake, so the hinge line is parallel to the edge it hangs from by
+construction, and each is seated on the skin by **`t1_core.flank_y`**, the same
+function the shut lines and the script use. The two heights are the **quarter
+points of the door's own front edge**, expressed that way rather than typed.
+
+#### 10.104.7  WHAT IS DECLARED, NOT CLAIMED
+
+**No frame in this repo resolves the cab interior.** None of the furniture above
+is measured and none of it is offered as measured — it is type-correct 1963 T1
+cab furniture, placed off members that *are* fixed (the cab floor's top face,
+`Z_SILL`, the windscreen corners, the column, the existing seat's footprint) so
+that it cannot drift independently of the shell. **Ledger class 4 —
+uninstrumented.** A cab interior frame is now the highest-value photograph on
+the wanted list, ahead of everything except the off side.
+
+#### 10.104.8  AND ONE THING DELIBERATELY *NOT* DONE
+
+The reference is a **factory-clean product render**. This is a **weathered 1963
+working food truck**, and SPEC §4.3's chalky finish (`Roughness` 0.420,
+`Coat Weight` 0.02) is **measured** — rev 3's mirror clearcoat is what made the
+red read salmon at 0.37 against the reference's 0.82. **The detail bar
+transfers. The finish does not.** Raising the gloss to match a photograph of a
+different, newer vehicle would be regressing a measurement to chase an
+aesthetic, and it is refused here in writing so it is not quietly done later.

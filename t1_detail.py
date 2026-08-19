@@ -1263,32 +1263,297 @@ def wheel_houses():
     return obs
 
 
-def interior():
+# ===========================================================================
+# rev 44 -- THE CAB.  SPEC 10.104.
+#
+# THE OWNER SET THE BAR WITH A CATALOGUE-GRADE PRODUCT RENDER.  In a 78 mm
+# front three-quarter hero the windscreen is a large, bright, TRANSPARENT part
+# of the frame and the eye goes straight through it.  `probe_rev44_fidelity`
+# counted what was behind it: `dash` **12 triangles**, `seat_back` 76,
+# `seat_base` 76, and `wheel_rim` 448 -- a bare ring with no spokes and no
+# hub.  Nothing else.  No second seat, no instrument, no gear lever, no
+# pedals, no visors, no mirror.  A 4 m vehicle whose most-looked-at aperture
+# opens onto four boxes.
+#
+# AND THE STEERING WHEEL WAS FACING SIDEWAYS.  `place(w, rot=(radians(72),
+# 0, 0))` rotates a Z-normal disc about X, which takes its axis to
+# (0, -0.951, 0.309) -- 18 degrees off the vehicle's own Y axis.  It was
+# mounted like a ship's wheel on the cabin wall.  This needs no photograph and
+# no scale to establish: it is a sign error, and the built dimensions print it
+# -- 0.402 x 0.124 x 0.382, i.e. the disc's full diameter lies in X and Z and
+# its 0.124 m Y extent is the projection of a disc whose normal is nearly Y.
+#
+# THE COLUMN CARRIED THE SAME SIGN ERROR, and the two are the same bug.  `col`
+# ran along (+0.30, 0, 0.95) -- up and FORWARD -- which put its upper end at
+# x 1.798 while the wheel it is supposed to carry sat at x 1.640, **158 mm
+# behind it**.  A steering column rises from the box at the front beam and
+# leans BACK to the driver, who is at x 0.98.  Corrected to (-0.30, 0, 0.95).
+#
+# THE WHEEL IS NOT RE-AIMED BY EYE.  A steering wheel is normal to its column
+# and centred on the column's end -- that is what a steering wheel IS, and it
+# is a constraint, not a measurement.  So the wheel's plane and centre are now
+# both DERIVED FROM `col`: change the column and the wheel follows.  The angle
+# that falls out is 17.5 degrees from horizontal, which is flat and bus-like,
+# and it is flat because the column is at 17.5 degrees -- not because a number
+# was chosen to make it look right.
+#
+# EVERYTHING ELSE HERE IS TYPE-CORRECT 1963 T1 CAB FURNITURE and it is
+# DECLARED AS SUCH: no frame in this repo resolves the cab interior, so none
+# of it is measured and none of it is offered as measured.  It is placed off
+# members that ARE fixed -- the cab floor's top face, `Z_SILL`, the windscreen
+# corners `P_TOP` / `P_BOT`, the column, and the existing seat's own
+# footprint -- so it cannot drift independently of the shell.  Ledger class 4.
+# ===========================================================================
+COL_MID = (1.735, 0.372, 1.045)
+COL_AX = (-0.30, 0.0, 0.95)        # rev 44: up and BACK.  Was +0.30 -- the
+                                   # column leaned away from the driver.
+COL_LEN = 0.420
+COL_R = 0.019
+
+
+def _col_top():
+    a = Vector(COL_AX).normalized()
+    return Vector(COL_MID) + a * (COL_LEN * 0.5), a
+
+
+def _wheel_rot():
+    """Rotation taking a Z-normal disc onto the column's axis.
+
+    Ry(t) . (0,0,1) = (sin t, 0, cos t), so t = atan2(ax, az).  Written as the
+    inverse of the thing it must satisfy rather than as an angle, so it stays
+    correct if COL_AX ever moves (SPEC 10.25).
+    """
+    a = Vector(COL_AX).normalized()
+    return (0.0, math.atan2(a.x, a.z), 0.0)
+
+
+def _steering_wheel():
+    """rim + two spokes + hub + horn button, all in the column's plane"""
     obs = []
-    pts = T.rrect(FLOOR_W, 0.960, 0.05, seg=4)
-    obs.append(T.solid_prism((1.360, 0, 0.6400), (0, 1, 0), (1, 0, 0),
-                             (0, 0, 1), pts, 0.070, name="cab_floor"))
-    pts = T.rrect(0.560, 0.470, 0.05, seg=4)
-    obs.append(T.solid_prism((0.980, 0.400, 0.8650), (0, 1, 0), (1, 0, 0),
-                             (0, 0, 1), pts, 0.180, name="seat_base"))
-    pts = T.rrect(0.560, 0.470, 0.05, seg=4)
-    obs.append(T.solid_prism((0.790, 0.400, 1.1900), (0, 1, 0), (0, 0, 1),
-                             (1, 0, 0), pts, 0.130, name="seat_back"))
-    pts = [(-0.075, 0.0), (0.075, 0.0), (0.090, 0.115), (-0.090, 0.115)]
-    obs.append(T.solid_prism((1.800, 0, 1.2450), (1, 0, 0), (0, 0, 1),
-                             (0, 1, 0), pts, 1.520, name="dash"))
-    w = T.revolve([(0.0, 0.0088), (0.0088, 0.0), (0.0, -0.0088),
-                   (-0.0088, 0.0)], seg=56, axis='Z', name="wheel_rim")
+    top, ax = _col_top()
+    rot = _wheel_rot()
+    RIM_MAJ, RIM_MIN = 0.1920, 0.0088          # unchanged from rev 8
+    w = T.revolve([(0.0, RIM_MIN), (RIM_MIN, 0.0), (0.0, -RIM_MIN),
+                   (-RIM_MIN, 0.0)], seg=72, axis='Z', name="wheel_rim")
     bm = bmesh.new(); bm.from_mesh(w.data)
     for v in bm.verts:
         r = math.hypot(v.co.x, v.co.y)
         if r > 1e-9:
-            v.co.x *= (1 + 0.192 / r); v.co.y *= (1 + 0.192 / r)
+            v.co.x *= (1 + RIM_MAJ / r); v.co.y *= (1 + RIM_MAJ / r)
     bm.to_mesh(w.data); bm.free()
-    place(w, loc=(1.640, 0.372, 1.192), rot=(math.radians(72), 0, 0))
-    obs.append(w)
-    obs.append(T.cylinder((1.735, 0.372, 1.045), (0.30, 0, 0.95), 0.019, 0.42,
-                          seg=20, name="col"))
+    obs.append((place(w, loc=top, rot=rot), "dark"))
+
+    # two spokes.  A 1963 T1 wheel is a TWO-spoke wheel and they run across
+    # the car, which after the column rotation is this disc's local X.
+    HUB_R, BOSS = 0.0480, 0.0110
+    for s in (1, -1):
+        pts = [(s * 0.038, -0.026), (s * (RIM_MAJ - 0.006), -0.0125),
+               (s * (RIM_MAJ - 0.006), 0.0125), (s * 0.038, 0.026)]
+        if s < 0:
+            pts = pts[::-1]
+        sp = T.solid_prism((0, 0, -0.004), (1, 0, 0), (0, 1, 0), (0, 0, 1),
+                           pts, BOSS, name=f"wheel_spoke{s}")
+        obs.append((place(sp, loc=top, rot=rot), "dark"))
+    hub = T.cylinder((0, 0, -0.012), (0, 0, 1), HUB_R, 0.040, seg=40,
+                     name="wheel_hub")
+    obs.append((place(hub, loc=top, rot=rot), "dark"))
+    horn = T.cylinder((0, 0, 0.012), (0, 0, 1), 0.0330, 0.012, seg=36,
+                      name="wheel_horn")
+    obs.append((place(horn, loc=top, rot=rot), "chrome_d"))
+    return obs
+
+
+# ------------------------------------------------------------------ the dash
+# The section is a T1 fascia: a deep pressed panel whose top face lands on
+# Z_SILL (the cab door's window sill, guarded every revision) and whose lower
+# lip returns under.  Depth 215 mm, height 182 mm.  It replaces a 165 x 115 mm
+# four-point box.  x is absolute; the section is swept the full cab width.
+DASH_SECT = [
+    (1.6900, 1.1900), (1.6900, 1.3720), (1.8000, 1.3745),
+    (1.8800, 1.3600), (1.9050, 1.3000), (1.8800, 1.2300),
+    (1.7900, 1.1900),
+]
+DASH_W = 1.520
+DRIVER_Y = 0.372                    # = the column's y, not a second number
+
+
+def _dash():
+    obs = []
+    d = T.solid_prism((0, 0, 0), (1, 0, 0), (0, 0, 1), (0, 1, 0),
+                      DASH_SECT, DASH_W, name="dash")
+    obs.append((d, "paint"))         # a T1 dash is painted the body colour
+
+    # speedometer, normal to the column like everything the driver looks at
+    rot = _wheel_rot()
+    cx, cz = 1.8480, 1.3160
+    for (r, ln, off, nm, key) in ((0.0760, 0.016, 0.000, "speedo_bezel", "chrome_d"),
+                                  (0.0680, 0.010, -0.014, "speedo_face", "dark"),
+                                  (0.0690, 0.004, 0.006, "speedo_glass", "glass")):
+        c = T.cylinder((0, 0, off), (0, 0, 1), r, ln, seg=44, name=nm)
+        obs.append((place(c, loc=(cx, DRIVER_Y, cz), rot=rot), key))
+
+    # the centre "letterbox" -- radio grille aperture, recessed
+    pts = T.rrect(0.2300, 0.0620, 0.012, seg=5)
+    g = T.solid_prism((1.8830, 0.0000, 1.2960), (0, 1, 0), (0, 0, 1),
+                      (1, 0, 0), pts, 0.020, name="dash_grille")
+    obs.append((g, "dark"))
+
+    # glovebox lid on the CABIN face, passenger side, with its knob
+    pts = T.rrect(0.4000, 0.1150, 0.014, seg=5)
+    gb = T.solid_prism((1.6870, -0.3900, 1.2750), (0, 1, 0), (0, 0, 1),
+                       (1, 0, 0), pts, 0.014, name="dash_glovebox")
+    obs.append((gb, "paint"))
+    kn = T.cylinder((1.6760, -0.3900, 1.2750), (1, 0, 0), 0.0125, 0.016,
+                    seg=24, name="dash_knob")
+    obs.append((kn, "chrome_d"))
+    return obs
+
+
+# ------------------------------------------------------------------- seating
+SEAT_Y = 0.400                       # the rev-8 driver's seat, kept exactly
+SEAT_CORNER_SEG = 10                 # was 4: a 50 mm radius in 4 steps reads
+                                     # as a chamfer, not as upholstery
+
+
+def _seat(y, tag):
+    obs = []
+    pts = T.rrect(0.560, 0.470, 0.05, seg=SEAT_CORNER_SEG)
+    obs.append((T.solid_prism((0.980, y, 0.8650), (0, 1, 0), (1, 0, 0),
+                              (0, 0, 1), pts, 0.180, name=f"seat_base{tag}"),
+                "dark"))
+    pts = T.rrect(0.560, 0.470, 0.05, seg=SEAT_CORNER_SEG)
+    obs.append((T.solid_prism((0.790, y, 1.1900), (0, 1, 0), (0, 0, 1),
+                              (1, 0, 0), pts, 0.130, name=f"seat_back{tag}"),
+                "dark"))
+    # piping: a thin cream welt round the cushion's top edge, which is what
+    # separates an upholstered seat from a block at any distance
+    pts = T.rrect(0.548, 0.458, 0.05, seg=SEAT_CORNER_SEG)
+    obs.append((T.solid_prism((0.980, y, 0.9540), (0, 1, 0), (1, 0, 0),
+                              (0, 0, 1), pts, 0.016, name=f"seat_welt{tag}"),
+                "cream"))
+    return obs
+
+
+# ----------------------------------------------------- visors, mirror, levers
+def _cab_furniture():
+    obs = []
+    # sun visors, hinged off the header rail just under the screen's top edge
+    for s in (1, -1):
+        pts = T.rrect(0.3000, 0.1250, 0.018, seg=5)
+        v = T.solid_prism((1.8180, s * 0.3400, 1.7250), (0, 1, 0), (1, 0, 0),
+                          (0, 0, 1), pts, 0.014, name=f"visor{s}")
+        obs.append((v, "cream"))
+    # interior mirror on the header rail
+    pts = T.rrect(0.1700, 0.0520, 0.012, seg=4)
+    obs.append((T.solid_prism((1.8500, 0.0000, 1.7150), (0, 1, 0), (0, 0, 1),
+                              (1, 0, 0), pts, 0.016, name="mirror_int"),
+                "chrome_d"))
+    obs.append((T.cylinder((1.8620, 0.0, 1.7400), (1, 0, 0.35), 0.008, 0.055,
+                           seg=16, name="mirror_stem"), "chrome_d"))
+    # gear lever -- floor mounted, rising up and back, with its knob
+    obs.append((T.cylinder((1.2350, 0.0300, 0.8700), (-0.34, 0.05, 0.94),
+                           0.0105, 0.400, seg=18, name="gear_lever"), "chrome_d"))
+    kb = T.revolve([(-0.026, 0.0), (-0.018, 0.018), (0.0, 0.0245),
+                    (0.018, 0.018), (0.026, 0.0)], seg=28, axis='Z',
+                   name="gear_knob")
+    obs.append((place(kb, loc=(1.1670, 0.0500, 1.0570)), "dark"))
+    # pedals: clutch, brake, accelerator.  Small, but their absence is what
+    # makes a cab floor read as a shelf.
+    for (yy, w_, nm) in ((0.4800, 0.062, "pedal_c"), (0.3550, 0.062, "pedal_b"),
+                         (0.2150, 0.048, "pedal_a")):
+        pts = T.rrect(w_, 0.090, 0.010, seg=4)
+        p = T.solid_prism((1.6100, yy, 0.6960), (0, 1, 0), (1, 0, 0),
+                          (0, 0, 1), pts, 0.013, name=nm)
+        obs.append((p, "dark"))
+    return obs
+
+
+# --------------------------------------------------------- cab door hinges
+# rev 44, SPEC 10.104.  `probe_rev44_fidelity` counted the scene's fasteners
+# and secondary hardware: rivet 0, bolt 0, screw 0, nut 0, HINGE 0, latch 0.
+# A 1963 T1's cab door hangs on TWO EXTERNAL BUTT HINGES on its forward edge
+# and they are among the most legible pieces of hardware on the flank -- they
+# stand proud of the skin, they catch the key light on their barrels, and
+# their absence is one of the things that makes a shell read as a shell.
+#
+# THEY ARE NOT PLACED BY EYE.  Both sit ON the cab door's own forward shut
+# line -- `t1_shell.DOOR_GAP`'s front edge, which rakes back 0.0951 m over
+# 0.950 m of height -- and the barrel's axis is that rake, so the hinge line
+# is parallel to the edge it hangs from by construction.  Each is seated on
+# the body surface by `t1_core.flank_y`, the same function the shut lines and
+# the script use, so a hinge cannot float off a curved flank.
+#
+# The two heights are the only authored numbers and they are declared as
+# authored: no frame in this repo resolves them.  They are placed at the
+# quarter points of the door's own front edge, expressed that way rather than
+# typed, so re-measuring the door moves them (SPEC 10.25).
+HINGE_BARREL_R = 0.0112
+HINGE_H = 0.0760
+HINGE_PROUD = 0.0135
+
+
+def door_hinges():
+    import t1_shell as S
+    edge = [(x, z) for (x, z) in S.DOOR_GAP if z > 0.80 and x > 1.70]
+    edge.sort(key=lambda p: p[1])
+    z0, z1 = edge[0][1], edge[-1][1]
+
+    def edge_x(z):
+        for i in range(len(edge) - 1):
+            (xa, za), (xb, zb) = edge[i], edge[i + 1]
+            if za <= z <= zb:
+                t = (z - za) / (zb - za)
+                return xa + t * (xb - xa)
+        return edge[-1][0]
+
+    rake = (edge[-1][0] - edge[0][0]) / (z1 - z0)
+    ax = (rake, 0.0, 1.0)
+    obs = []
+    for frac in (0.25, 0.75):                 # quarter points of the edge
+        z = z0 + (z1 - z0) * frac
+        x = edge_x(z)
+        for s in (1, -1):
+            y = T.flank_y(x, z)
+            obs.append(T.cylinder(
+                (x, s * (y + HINGE_PROUD), z), ax, HINGE_BARREL_R, HINGE_H,
+                seg=20, name=f"hinge_barrel{s}_{frac:.2f}"))
+            pts = T.rrect(0.0480, HINGE_H * 0.86, 0.006, seg=4)
+            obs.append(T.solid_prism(
+                (x - 0.0180, s * (y + HINGE_PROUD * 0.42), z),
+                (1, 0, 0), (0, 0, 1), (0, 1, 0), pts, HINGE_PROUD * 0.84,
+                name=f"hinge_leaf{s}_{frac:.2f}"))
+    return obs
+
+
+def cab_fitout():
+    """Everything inside the cab, as (object, material key) pairs.
+
+    Returned as PAIRS rather than a flat list because `build.py` assigns one
+    material per call, and the whole point of this revision is that the cab is
+    not one dark mass: the fascia is body-coloured, the instrument is chrome
+    and glass, the welts are cream.
+    """
+    obs = []
+    obs += _steering_wheel()
+    obs += _dash()
+    obs += _seat(SEAT_Y, "")           # names kept: probe_rev38_wheelbar reads
+    obs += _seat(-SEAT_Y, "_p")        # `seat_base` / `seat_back` by name
+    obs += _cab_furniture()
+    obs.append((T.cylinder(COL_MID, COL_AX, COL_R, COL_LEN, seg=20,
+                           name="col"), "dark"))
+    return obs
+
+
+def interior():
+    """The cab shell members that are ONE material -- floor and the slot
+    backings.  Everything with furniture in it moved to `cab_fitout()` in
+    rev 44, because a cab assigned a single "dark" key is a cab that reads as
+    a void (SPEC 10.104).
+    """
+    obs = []
+    pts = T.rrect(FLOOR_W, 0.960, 0.05, seg=4)
+    obs.append(T.solid_prism((1.360, 0, 0.6400), (0, 1, 0), (1, 0, 0),
+                             (0, 0, 1), pts, 0.070, name="cab_floor"))
     obs += interior_fill()
     return obs
 

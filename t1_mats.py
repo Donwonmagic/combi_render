@@ -2018,6 +2018,95 @@ def build_all():
     return M
 
 
+# ===========================================================================
+# rev 44 -- ROUNDED EDGES ON EVERY SHADER.  SPEC 10.103.
+#
+# THE OWNER SET THE BAR WITH A CATALOGUE-GRADE PRODUCT RENDER and asked for
+# that level of fidelity.  `probe_rev44_fidelity.py` counted what actually
+# separates this model from one: **66 566 edges over 28 degrees, and ZERO
+# bevel modifiers in 190 objects.**  Every one of those is a mathematically
+# knife-sharp edge, and a knife edge is the single loudest tell in computer
+# graphics -- no real pressed, cast or extruded part has one.  A real edge
+# carries a fold radius, that radius catches a thin specular highlight, and
+# THAT HIGHLIGHT IS MOST OF WHAT THE EYE READS AS "a photographed object".
+#
+# WHY THIS IS DONE IN THE SHADER AND NOT WITH A BEVEL MODIFIER.  A Bevel
+# modifier MOVES VERTICES.  This model's geometry is measured -- the tightest
+# clearance in it is 0.85 mm (the front arch's rear-most point against the cab
+# door's rear edge, SPEC 10.102.4) and roughly forty asserts are armed on
+# distances of a few millimetres.  A 2.75 mm chamfer applied to a
+# boolean-heavy 250 000-vertex shell would move measured surfaces, could not
+# be proven not to, and historically breaks exactly the booleans this shell
+# spent six revisions recovering from.
+#
+# Cycles' Bevel node perturbs the SHADING NORMAL by ray-tracing the local
+# surface.  It cannot move a vertex -- there is no code path by which it
+# could -- so it is the one way to buy this at zero risk to a measured model.
+# The silhouette stays sharp, which is correct at this scale anyway: at 600
+# px/m a 2.75 mm fold is 1.6 px, so it belongs in the shading and not in the
+# outline.
+#
+# THE RADIUS IS DERIVED, NOT CHOSEN (10.25's rule).  `t1_shell.GAPW` is the
+# panel-gap width, 5.5 mm, MEASURED.  A shut line is two folded panel edges
+# facing each other across that gap, so each fold's radius cannot exceed HALF
+# THE GAP or the two folds meet and the gap closes.  GAPW/2 is therefore the
+# geometric CEILING on a fold radius in this vehicle, expressed in terms of
+# the measured constant rather than typed, so re-measuring the gap moves it.
+#
+# IT COMPOSES WITH THE WEATHER GROUP RATHER THAN REPLACING IT.  Where a
+# material already drives Principled.Normal -- every painted panel does, from
+# WEATHER's internal Bump -- that source is re-routed into the Bevel node's
+# own Normal input, so the orange-peel bump is rounded rather than discarded.
+# Where nothing drives it, the Bevel drives it directly.
+#
+# IDEMPOTENT AND ABLATABLE.  A second call is a no-op (the Bevel node is
+# looked for by type).  `T1_NOBEVEL=1` stands the whole pass down, so the A/B
+# is one environment variable and needs no edit -- rev 20's pattern.
+# ===========================================================================
+BEVEL_SAMPLES = int(os.environ.get("T1_BEVEL_SAMPLES", "8"))
+
+
+def round_edges(radius=None, log=None):
+    """Splice a Cycles Bevel node into every Principled BSDF's Normal input.
+
+    Returns (patched, skipped_no_bsdf, already_had_one).
+    """
+    if os.environ.get("T1_NOBEVEL"):
+        if log:
+            log("  round_edges: STOOD DOWN by T1_NOBEVEL")
+        return (0, 0, 0)
+    if radius is None:
+        import t1_shell as _SH
+        radius = _SH.GAPW / 2.0            # 10.25: expressed, never typed
+    done = skip = had = 0
+    for m in bpy.data.materials:
+        if not m.users or not m.use_nodes or m.node_tree is None:
+            continue
+        nt = m.node_tree
+        b = next((n for n in nt.nodes if n.type == 'BSDF_PRINCIPLED'), None)
+        if b is None:
+            skip += 1
+            continue
+        if any(n.type == 'BEVEL' for n in nt.nodes):
+            had += 1
+            continue
+        x0 = min([n.location[0] for n in nt.nodes] or [0.0])
+        bev = nt.nodes.new("ShaderNodeBevel")
+        bev.location = (b.location[0] - 300.0, b.location[1] - 620.0)
+        bev.samples = BEVEL_SAMPLES
+        bev.inputs["Radius"].default_value = radius
+        ns = b.inputs["Normal"]
+        if ns.links:
+            nt.links.new(ns.links[0].from_socket, bev.inputs["Normal"])
+        nt.links.new(bev.outputs[0], ns)
+        done += 1
+    if log:
+        log("  round_edges: %d materials given a %.2f mm fold radius "
+            "(%d already had one, %d have no Principled)"
+            % (done, radius * 1000.0, had, skip))
+    return (done, skip, had)
+
+
 def assign(ob, mat):
     ob.data.materials.clear()
     ob.data.materials.append(mat)

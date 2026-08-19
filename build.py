@@ -299,6 +299,11 @@ if sign_boards:
 A(D.plank_counter(S.SHOW_SIDE), "countercream")
 A(D.galley(), "steel")
 A(D.interior(), "dark")
+# rev 44, SPEC 10.104 -- THE CAB.  Returned as (object, material key) pairs:
+# a cab assigned one "dark" key is a cab that reads as a void, and the
+# fascia is body-coloured, the instrument chrome and glass, the welts cream.
+for _o, _k in D.cab_fitout():
+    A(_o, _k)
 # rev 38, SPEC 10.96: close each wheel arch from inside.  Without these the arch
 # is a cylinder cut clean through the skin with NOTHING behind it, and the cab
 # floor is in plain sight from outside -- which is what his report 6, "there
@@ -329,6 +334,9 @@ A(D.bumper(True, name="bumper_f"), "bumpercream")
 # absent from both in-service photographs. Do not re-add it.
 # A(D.bumper(False, name="bumper_r"), "bumpercream")
 A(D.bumper_irons(True), "bumpercream")
+# rev 44, SPEC 10.104 -- the cab door hangs on two external butt hinges and
+# the scene had ZERO hinges in it.
+A(D.door_hinges(), "chrome_d")
 # SPEC 10.83, rev 30: the front over-rider bar.  WORKSHOP-STAGE -- it appears
 # in ref_workshop.jpg, which is the CONVERSION stage, and SPEC 10.75's scope
 # ruling (the owner's) is MODEL IT, TAGGED.  The rear bumper was removed
@@ -735,6 +743,12 @@ log(f"lowered {T.RAKE_Z0*1000:.1f} mm at x=0, rake {T.RAKE_DZDX*1000:.1f} mm/m "
     f"{_n_shear} sheared, {_n_wheel} wheel parts held level")
 
 log(f"materials: {len(ASSIGN)} objects")
+
+# rev 44, SPEC 10.103 -- ROUNDED EDGES.  Runs LAST, after every material
+# datablock exists (t1_detail builds some of them at step 7, five steps
+# before build_all()), and after the shear, so it can never interact with
+# geometry: it only rewrites shading normals.  T1_NOBEVEL=1 stands it down.
+MT.round_edges(log=log)
 if FAILED_CUTS:
     log("!! cuts that failed and were rolled back: " + ", ".join(FAILED_CUTS))
 
