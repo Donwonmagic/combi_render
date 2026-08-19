@@ -55,11 +55,16 @@ booleans passed at SUB=1 and collapsed the shell at SUB=2 for six revisions:
 ```bash
 T1_SUB=1 T1_VERIFY=1 /tmp/blender/blender -b --python build.py
 T1_SUB=2 T1_VERIFY=1 /tmp/blender/blender -b --python build.py
-T1_SUB=1 /tmp/blender/blender -b --python audit.py && git checkout STATE.md
-T1_SUB=2 /tmp/blender/blender -b --python audit.py && git checkout STATE.md
+T1_SUB=1 /tmp/blender/blender -b --python audit.py
+git checkout -- STATE.md
+T1_SUB=2 /tmp/blender/blender -b --python audit.py
+git checkout -- STATE.md
 ```
 
 `audit.py` rewrites `STATE.md` on every run — check it out again afterwards.
+**The restore is on its own line, NOT chained with `&&`** (corrected rev 44):
+`audit.py` exits non-zero whenever it reports a failure, and `&&` would skip the
+restore in exactly the case that leaves the tree dirty.
 
 **Expected at rev 42: 0 fail / 0 warn on all four runs.** 131 objects,
 190 meshes, 42 materials, 5 constant-roughness, **0 non-manifold edges**,
@@ -213,8 +218,18 @@ git push -u origin main
   guards calls them, and they are left as found rather than edited blind.
 * **`out/` is gitignored and is not here.** The flank probes
   (`probe_rev39_flank`, `probe_rev40_datum`, `probe_rev41_gate`) need
-  `out/p_side.png` and will raise `FileNotFoundError` until you render it —
-  see §10 of the live brief for the one command that produces it.
+  `out/p_side.png` and will raise `FileNotFoundError` until you render it.
+  **The command is here now** (corrected rev 44 — it used to say *"see §10 of
+  the live brief"*, and the rev-44 brief has no §10):
+
+  ```bash
+  T1_SUB=1 T1_PREVIEW=side T1_SAMP=24 T1_RX=1400 T1_RY=933 T1_FX=0 \
+    T1_PFX=p /tmp/blender/blender -b --python build.py
+  ```
+
+  `T1_FX=0` is load-bearing — every mask in that chain is a chromaticity rule.
+  **1400 px wide is a FLOOR:** `flank_compare` documents a verdict flip across
+  its aspect tolerance at 900 px for no change in the model.
 
 ## Open at rev 42, in the order the next revision should take them
 

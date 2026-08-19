@@ -366,6 +366,65 @@ A(D.mirrors(), "chrome")
 A(D.wipers(), "chrome_d")
 A(D.handles(), "chrome")
 
+# ===================================================================== rev 44
+# SPEC 10.24 ITEM 3 -- APPLIED, after thirty-four revisions OPEN.
+#
+# The owner filed it himself: "the paint job and the headlights are not
+# alligned".  It has been OPEN since rev 10 with one stated blocker -- "it is a
+# single-chain claim that moves the face of the vehicle, and it deserves a
+# SECOND DERIVATION first".
+#
+# THE BLOCKER WAS DISCHARGED AT REV 37 AND SEC.10.24 NEVER LEARNED OF IT
+# (SPEC:6999, the same carrier failure sec.10.91.1 names).  Rev 44 re-checked
+# both arms of that discharge before acting, and they are NOT equally sound:
+#
+#   ARM A -- ORDINAL, SCALE-FREE, and it is what settles that the defect is
+#   REAL.  Three independent routes, none needing a px/m conversion:
+#     * rev 11: in the photograph the INDICATOR aperture lies BELOW the
+#       two-tone break; in the build it lies ABOVE it.
+#     * rev 44 (probe_rev44_report3): in the build the break CUTS A 131.9 mm
+#       CHORD ACROSS THE HEADLAMP APERTURE; in ref_source.jpeg the lamp sits
+#       entirely in the red with 12 px of clear red above it.
+#     * the owner's own report, which is the same statement in his words.
+#
+#   ARM B -- the roundel-ratio MAGNITUDE, "83 +- 19 mm at 4.4 sigma" from a
+#   roundel-to-lamp separation of 0.628 +- 0.066 roundel diameters.  REV 44
+#   COULD NOT REPRODUCE IT: the same arithmetic on today's constants returns
+#   103.4 mm, not 83.  The 20.4 mm gap is a STALE COUPLING in the roundel's own
+#   placement, not in this finding -- see the note above ROUNDEL_Z_AG below.
+#   ARM B IS THEREFORE SET ASIDE AS CONTAMINATED and is NOT used here.
+#
+# SO THE MAGNITUDE COMES FROM THE BELT-RELATIVE ARM ALONE, which touches no
+# stale constant: headlamp centre photographed at belt - 0.339 +- 0.025 m
+# against the build's belt - 0.242, i.e. 97.0 mm too high at ~3.9 sigma.  The
+# belt is independently anchored -- photographed window-sill-to-body-break
+# 102.7 +- 6.6 mm against a built 100.0 (SPEC 10.98), -2.7 mm.
+HL_DROP = 0.0970                 # 97.0 +- 25.0 mm, SPEC 10.24 item 3, belt arm
+HL_X    = 2.1015
+HL_Y    = 0.5450
+HL_Z    = 1.0300 - HL_DROP       # == 0.9330 authored.  WAS 1.0300.
+# THE INDICATOR IS MEASURED RELATIVE TO THE LAMP AND MUST MOVE WITH IT.
+# Its Z was written as the LITERAL 1.2360 while the comment below claimed "Z is
+# set RELATIVE to the lamp, which is robust to the open question about the
+# lamp's own absolute height".  IT WAS NOT -- 1.2360 is 1.0300 + 0.206 re-typed,
+# and the lamp moving would have left the indicator behind.  Y was the same
+# defect (0.6750 == 0.5450 + 0.130).  Both now expressed, which is SPEC 10.25's
+# own rule: "a constant tuned against another constant must be expressed in
+# terms of it, or correcting one silently breaks the other."
+IND_DZ  = 0.2060                 # measured above the lamp, ref_workshop.jpg
+IND_DY  = 0.1300                 # measured outboard of the lamp
+IND_Y   = HL_Y + IND_DY          # == 0.6750, unchanged
+IND_Z   = HL_Z + IND_DZ          # == 1.1390.  WAS the literal 1.2360.
+#
+# WHAT IS DELIBERATELY NOT TOUCHED: THE ROUNDEL.  SPEC:7005 names this trap
+# explicitly -- "DO NOT MOVE THE ROUNDEL WITH THE LAMPS" -- because 10.24's
+# three findings were applied together once and reverted together once, and the
+# lesson from that revert is that they are NOT one change.  ROUNDEL_Z is
+# derived from its own chain and is untouched here.  Its separate defect is
+# recorded, NOT fixed in this revision.
+#
+# TO REVERT: set HL_DROP = 0.0.  That restores the lamp AND the indicator.
+
 for s in (1, -1):
     ring, lens, bowl = D.headlamp()
     # rev 10 (audit materials-6): the bezel is BRASS, not chrome.  Measured in
@@ -375,7 +434,7 @@ for s in (1, -1):
     # bounce: every genuinely warm surface in that frame carries a* with its
     # b* (red 49/40, wall 11/11) and the bezel's ratio is 0.07.  R-B = +68.
     for o, k in ((ring, "brass"), (lens, "lens"), (bowl, "reflector")):
-        D.place(o, loc=(2.1015, s * 0.5450, 1.0300)); A(o, k)
+        D.place(o, loc=(HL_X, s * HL_Y, HL_Z)); A(o, k)
     # rev 10 (audit inventory-9, re-derived).  The finding said "20 mm
     # inboard"; it understated by 7x.  Measured off ref_workshop.jpg the
     # indicator sits 0.130 +/- 0.035 m OUTBOARD of the headlamp centre and
@@ -389,8 +448,8 @@ for s in (1, -1):
     # it was only too shallow (41.5 mm proud of its plinth).  Deepened in
     # t1_detail.bullet_indicator, height untouched.
     ibase, ilens = D.bullet_indicator(f"ind{s}")
-    D.place(ibase, loc=(2.0960, s * 0.6750, 1.2360)); A(ibase, "chrome")
-    D.place(ilens, loc=(2.0960, s * 0.6750, 1.2360)); A(ilens, "amber")
+    D.place(ibase, loc=(2.0960, s * IND_Y, IND_Z)); A(ibase, "chrome")
+    D.place(ilens, loc=(2.0960, s * IND_Y, IND_Z)); A(ilens, "amber")
     # rev 15 -- TAIL LAMP DIAMETER.  It is ROUND (locked) and it was half size.
     # ref_rear34.jpg, probe box (918,636,975,730).  50 %-crossings of the
     # paint/lens step down each column; columns x 925-941 are thrown out
@@ -458,6 +517,37 @@ ROUNDEL_D = 0.2800
 # this used the RIDE_DROP SCALAR.  Since rev 8 the drop is a function of x.
 # At x = 2.1155 rake_drop is 0.1063 against the scalar's 0.0650 -- the roundel
 # was being placed with a 41 mm bookkeeping error internal to the build.
+# ---------------------------------------------------------------- rev 44
+# FINDING, RECORDED AND **NOT** FIXED IN THIS REVISION.  BOTH FIGURES IN THE
+# COMMENT ABOVE ARE STALE, and 1.0170 was tuned against one of them:
+#     "rake_drop(2.1155) is 0.1063"  -> the code computes 0.0855  (-20.8 mm)
+#     "break_z(2.1155) = 1.166 AG"   -> the code computes 1.1865  (+20.5 mm)
+# 0.1063 reproduces under neither the current RAKE_Z0 (0.047925) nor the one
+# its comment says it replaced (0.0365); it predates the rev-13 rake.  The
+# derivation that produced 1.0170 is "roundel centre sits 0.149 +- 0.030 m
+# BELOW the belt, and break_z(2.1155) = 1.166 AG, so the centre belongs at
+# 1.017 AG".  Run on today's break_z that gives 1.1865 - 0.149 = 1.0375.
+#
+# THIS IS SPEC 10.25's OWN DEFECT CLASS -- a constant tuned against another
+# constant and not expressed in terms of it -- sitting nine lines above the
+# block where 10.25's lesson is written down.  THAT PART STANDS.
+#
+# BUT THE MAGNITUDE WAS OVER-CLAIMED WHEN THIS NOTE WAS FIRST WRITTEN, AND THE
+# CORRECTION IS MINE.  It said "THE ROUNDEL IS ~20.5 mm TOO LOW", which is one
+# chain's POINT ESTIMATE quoted as a defect without its error bar and without
+# the second chain.  Both chains, run at rev 44:
+#     A  belt-relative   break_z(2.1155) - 0.149 +- 0.030  = 1.0375 +- 0.0300
+#     B  roundel/lamp    lamp + 0.628 +- 0.066 diameters   = 1.0236 +- 0.0185
+#     JOINT                                                = 1.0274 +- 0.0157
+# Against the built 1.0170 those are 0.68, 0.36 and 0.66 sigma.  ALL THREE ARE
+# INSIDE ONE SIGMA: THE ROUNDEL IS NOT SIGNIFICANTLY MIS-PLACED, and moving
+# geometry on a 0.7-sigma difference is what this project calls laundering.
+#
+# SO IT IS NOT MOVED, AND THE REAL DEFECT -- THAT NOTHING WAS WATCHING -- IS
+# FIXED INSTEAD.  probe_rev44_lampmove C5/C6 now hold 1.0170 against BOTH
+# chains and fire if either drifts out of band, which is what would have caught
+# the datum moving under it in the first place.  SPEC:7005 also forbids moving
+# the roundel in the same change as the lamps, and that stands independently.
 ROUNDEL_Z_AG = 1.0170
 ROUNDEL_Z = ROUNDEL_Z_AG + T.rake_drop(2.1155)
 vr, vd = D.roundel(R=ROUNDEL_D / 2)

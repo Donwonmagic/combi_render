@@ -342,8 +342,67 @@ Tacombi has used more than one bus. The **Nolita / New York** bus has **no
 folk art**, **no side script**, **glazed** apertures with gold frames and
 hand-painted menu names, a **chalkboard** roof board, a narrow shelf counter,
 and "251 ELIZABETH STREET / NUEVA YORK" on the rear corner. **Any photograph
-showing those features is the wrong bus.** Whether it is physically the same
-vehicle is **U**.
+showing those features is the wrong LIVERY STATE.**
+
+### 7.1 ONE VEHICLE, THREE LIVERY STATES — settled with the owner, rev 44
+
+**"Whether it is physically the same vehicle is U" is ANSWERED: it is the SAME
+VEHICLE.** Put to him directly — *is the bus in `ref_nolita_doorshut.jpg` the
+same vehicle as `ref_side.jpg`?* — the owner answered **same vehicle**,
+photographed in a different livery state.
+
+**What that changes.** GEOMETRY from the Nolita frames is **ADMISSIBLE**. In
+particular rev 43's corroboration of §10.100's door outline **stands**; had the
+answer gone the other way it would have evaporated and §10.100 would have
+reverted to resting on `ref_side.jpg` alone. **What does NOT change:** livery
+is still state-dependent, so folk art, script, aperture glazing and roof-board
+treatment may never be carried across states. §7's rule survives — it is a rule
+about LIVERY, not about vehicles.
+
+### 7.2 THE ERA TAGS WERE WRONG — finding 23, rev 44
+
+**BOTH RED-LIVERY FRAMES THE PROJECT HOLDS ARE MEXICO-SHOT.** `ref_rear34.jpg`
+carries a Spanish sign reading **"FAVOR DE ORDENAR Y PAGAR AQUÍ"**, palms and
+banana plants, and an open-air patio with café tables; `ref_source.jpeg` is a
+Mexican street scene with Spanish signage and a palm. Both readings are direct
+and neither needs a ruler.
+
+**AND THE OBVIOUS INFERENCE FROM THAT IS WRONG — RETRACTED IN THE SAME
+REVISION THAT MADE IT.** Rev 44 first wrote *"so the red livery is Playa-era,
+and the project holds no Nolita photograph of the red bus"*. **That does not
+follow, and it is false.** Published descriptions of the Nolita taqueria
+describe *"a bright red 1963 Volkswagen bus … parked between several tables"*
+with *"its roof cut off and lifted to reveal a chalkboard"* — i.e. **the RED,
+folk-art bus is the one standing in Nolita**, having been shipped from Mexico.
+
+**So livery colour is NOT an era discriminator and must never be used as one.**
+What the evidence supports is only the narrow claim: **these two particular
+frames were shot in Mexico.** The era of any frame must be read from its SCENE
+— signage language, vegetation, indoor/outdoor — not from the paint.
+
+**Rev 14's re-admission of Nolita material rested partly on the opposite
+premise**, and so did rev 44's first cut of this section. **No measurement
+moves** — this is provenance only, and §7.1 keeps the geometry admissible.
+
+**Sourcing note:** the Nolita descriptions are **WebSearch result text, not a
+photograph and not fetched** — this environment can search but `WebFetch` and
+`curl` are both egress-blocked, so no page was read and no image obtained.
+Graded **R** at best. It is strong enough to KILL an inference, which is all it
+is used for here; it is not used to support one.
+
+### 7.3 THE SCRIPT IS IN TWO PHOTOGRAPHS — finding 22, scoping SANCTIONED rev 44
+
+`ref_workshop.jpg` carries the same "Señor Tacombi" script on the green body as
+`ref_side.jpg`, and until rev 44 no document connected them. **The owner has
+sanctioned this scoping: LETTERFORM GEOMETRY is admissible from the workshop
+frame; COLOUR AND WEATHERING ARE BARRED from it.**
+
+**Its ceiling, and a correction to how that ceiling has been stated.** The
+workshop view is an **INDEPENDENT** view, not a better one: the script region
+measures **210 × 140 px** there against `ref_side`'s **320 × 110** near-broadside,
+and it is foreshortened. **Those two figures are the SCRIPT CROPS, not the
+frames** — the frames themselves are 1200 × 824 and 1024 × 768. The rev-44
+brief stated them as view sizes; corrected here.
 
 ---
 
@@ -705,7 +764,7 @@ between two surfaces of the SAME class under the SAME light.**
 | finding | verdict | action |
 |---|---|---|
 | `materials-6` bezels are brass not chrome | **CONFIRMED** — bezel b\* +31.6 at L\* 65.6 against five neutrals in the same frame at b\* -2.4...+1.6; not a bounce (every warm surface there carries a\* with its b\*; the bezel's ratio is 0.07) | applied |
-| `livery-9` roundel 9 % undersized, 32 mm high | **REFUTED, and it had been applied in the wrong direction.** Measured **0.280 +/- 0.030 m** by an exact relation needing no camera pose; centre **0.149 +/- 0.030 m BELOW the belt**. The build read `ROUNDEL_D = 0.3700` — 32 % over — and the finding's only photographic support was `ref_source.jpeg`, retired in 0.2 | corrected to 0.280, and **113 mm down** |
+| `livery-9` roundel 9 % undersized, 32 mm high | **REFUTED, and it had been applied in the wrong direction.** Measured **0.280 +/- 0.030 m** by an exact relation needing no camera pose; centre **0.149 +/- 0.030 m BELOW the belt**. The build read `ROUNDEL_D = 0.3700` — 32 % over — and the finding's only photographic support was `ref_source.jpeg`. **FINDING 21, rev 44 — and this entry was corrected TWICE in one revision, the second time against myself.** §10.22's citation *"retired in 0.2"* is wrong: **§0.2 carries no `ref_source` row at all.** But rev 44's first correction then over-reached by concluding *"that frame is NOT retired"* — **it is retired, in §10.2**, which calls it *"the retired 246 × 197 thumbnail"*. The citation was wrong; the retirement is real. **THE CONTRADICTION IS THEREFORE WORSE THAN EITHER STATEMENT OF IT, and it is now measured rather than argued:** §1 defines grade **M** as *measured from `ref_source.jpeg`*, five of §0.2's ⚠ locks carry it (blackwall tyres §8.1, cream bumpers §8.2, the **red nose roundel** §8.3, the three-aperture rear corner §8.4, the cream counter slab §8.5), and **§8.1's own coordinates only resolve on that frame** — its stated hub at px (114.5, 160.5) returns saturation **0.73** inside §8.1's published 0.70–0.83 on `ref_source.jpeg` and **0.11** on `ref_side.jpg`, where those coordinates land nowhere near a hub. (The tyre arm reproduces on luminance, 61 inside the stated 34–93, but reads sat 0.17 against *"< 0.08"* — a sector-average bleeding over the rim edge, so the arm is directional, not exact.) **So §0.2's five locks rest on a frame §10.2 retires.** The resolution ceiling is real and separate: at 246 × 197 the frame runs ~1 px per 40 mm, which is why `livery-9`'s 32 mm claim failed — that finding was refuted on resolution, not the frame on admissibility. **STILL OPEN. It needs the owner, or the five locks re-derived from an admissible frame** | corrected to 0.280, and **113 mm down** |
 | `geometry-4` roof dome +83/+203 mm per side | **NOT MEASURABLE** — no elevation exists in the admissible set; in `ref_workshop` the camera sits at 1.93 m against a ~1.9 m crown so the roof's upper boundary is a tangent locus, not a section; and the lids are open in both usable frames, so the surface the finding describes is physically absent | NOT applied. The blueprint was not passed through |
 | `inventory-9` indicators 20 mm inboard | position **CONFIRMED but 7x understated**: measured **0.130 +/- 0.035 m OUTBOARD**. The proposed flat-oval lens is **REFUTED** — the existing bullet is closer to the photograph | Y moved outboard; type kept |
 | front bumper reads thin | blade is **already correct** (0.110 +/- 0.010 measured against 0.113 built; blade/wheel 0.166 +/- 0.016 in two frames agreeing to 2 %) | see 10.24 |
@@ -738,7 +797,7 @@ which the studio's paper white sits at linear 21.0 (SPEC 10.8), so the solved
 rig lands ~5.6 stops down. `T1_KEY_PLAYA` scales the whole rig together so the
 solved ratios are untouched.
 
-### 10.24 OPEN — three things measured, applied, and then reverted
+### 10.24 — three things measured, applied, and then reverted. **ITEM 3 IS NOW CLOSED (rev 44); ITEMS 1 AND 2 REMAIN OPEN.**
 
 Each was applied from a measurement, broke something that is independently
 locked, and was reverted rather than laundered. None is closed.
@@ -755,10 +814,45 @@ locked, and was reverted rather than laundered. None is closed.
    The same silhouette puts the indicator's front face at column 80 against the
    crown's 78 — ~9 mm behind. If the 65 mm is right, the fix is the pod's
    MOUNTING STATION, not its depth.
-3. **Headlamp vertical position.** The same pass gives headlamp centre =
-   belt - 0.339 +/- 0.025 m, against the build's belt - 0.242 — a 97 mm
-   discrepancy at ~3.9 sigma. NOT applied: it is a single-chain claim that
-   moves the face of the vehicle, and it deserves a second derivation first.
+3. **Headlamp vertical position. APPLIED AT REV 44 — thirty-four revisions
+   after it opened.** The same pass gives headlamp centre = belt - 0.339
+   +/- 0.025 m against the build's belt - 0.242 — a 97 mm discrepancy at
+   ~3.9 sigma. The stated blocker was *"a single-chain claim … it deserves a
+   second derivation first"*. **That derivation was produced at rev 11 and
+   discharged the blocker at rev 37 (SPEC:6999); this entry never learned of
+   it** — the carrier failure §10.91.1 names, inside SPEC rather than between
+   contexts.
+
+   **Rev 44 re-checked both arms of the discharge before acting, and they are
+   NOT equally sound.** The **ORDINAL** arm is unanimous and scale-free —
+   rev 11's indicator-below-the-break test, rev 44's chord test (the break cut
+   **131.9 mm across a 172.4 mm lens** while `ref_source.jpeg` has the lamp
+   clear with 12 px of red above), and the owner's own words. The
+   **roundel-ratio MAGNITUDE** arm, *"83 ± 19 mm at 4.4 sigma"*, **DID NOT
+   REPRODUCE**: the same arithmetic on today's constants returns **103.4 mm**,
+   because `ROUNDEL_Z_AG` is itself stale (ledger finding 26). **That arm was
+   set aside as contaminated and NOT used.**
+
+   **So the magnitude came from the belt-relative arm alone**, which touches no
+   stale constant and is independently anchored at −2.7 mm by §10.98's
+   sill-to-break cross-check. `HL_Z` **1.0300 → 0.9330**.
+
+   **Result:** `probe_rev44_report3` **C6 GREEN** — the lens top now sits
+   **45.2 mm BELOW** the break where it stood 51.8 mm above it. Guards 0 fail /
+   0 warn at both levels, both tools; 190 meshes, 5 constant-rough, unchanged.
+
+   **THE TRAP WAS RESPECTED AND IS NOW ARMED.** The roundel was not moved —
+   measured on the **built mesh** at **1.0170**, and on screen at **dy = +0.01
+   px**. `probe_rev44_lampmove` 4/4 keeps it that way. **An independent arm
+   agrees after the fact:** the roundel-to-lamp separation lands at 0.1695 m
+   against the photographed 0.1758 ± 0.0185 — **0.34 sigma** — from a chain
+   never used to derive the move.
+
+   **A re-typed constant was repaired because the fix needed it:** the
+   indicator's Z was the literal `1.2360` while its comment claimed *"Z is set
+   RELATIVE to the lamp"*. It was not — 1.2360 is 1.0300 + 0.206 re-typed, and
+   the lamp would have moved out from under it. Both Y and Z now expressed.
+   §10.25's own rule. **TO REVERT: `HL_DROP = 0.0`.**
 
 ### 10.25 The VW glyph merged into an X again, by a new route
 
@@ -8034,8 +8128,15 @@ lower edge (closest approach **26.3 mm**).
 
 `DOOR_GAP` is left **BIT-IDENTICAL** and keeps its second job: it is the **ART
 DATUM**. `folk_gen` parses it for `DOOR_X0` / `DOOR_X1` / `DOOR_W` and for
-`_DOOR_BOT_AUTH`, from which **`DOOR_H` = 1.013467 m divides every
-v-coordinate of the door art**. Re-pointing that parse at the wrapped outline
+`_DOOR_BOT_AUTH`, which `panel_bot(x)` returns inside the door span and which
+`door_pv` therefore normalises every v-coordinate of the door art over.
+**CORRECTED, rev 44 — `DOOR_H` DIVIDES NOTHING, and it is not the v-map.** It
+has exactly two read sites, `folk_gen.py:1274` and `:1287`, both `h = sv *
+DOOR_H`, and both **MULTIPLY** a normalised motif height into metres for two
+motifs (`EDGE_E`'s latch sliver, `DARK_1`). The v-map is `door_pv`, and it is
+**PROPORTIONAL** — which is why re-pointing the parse STRETCHES the art rather
+than extending it, and why the owner's rev-44 answer cannot be reached that
+way. Instrumented at `probe_rev44_doorart.py` C1/C5. Re-pointing that parse at the wrapped outline
 moves `DOOR_H` by ~390 mm and forces a re-bake of the flank textures — a
 SECOND lever in the same revision, which is exactly what rev 25 refused when it
 held `_DOOR_TOP_AUTH` at 1.8140 *"so `DOOR_H` stays bit-identical and only one

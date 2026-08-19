@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # =============================================================================
-#  verify_clone.sh -- prove this working tree is the rev-42 state, BY CONTENT.
+#  verify_clone.sh -- prove this working tree matches the rev-42 measured
+#  baseline, BY CONTENT.  That baseline is still current at rev 44: no geometry,
+#  artwork or constant has moved since, so these figures are the live ones.
 #
 #  WHY THIS FILE EXISTS.  Until rev 43 these checks lived as thirty lines of
 #  prose in NEXT_CONTEXT_PROMPT_revN.md, re-typed by hand every revision.  That
@@ -74,6 +76,9 @@ if [ "${NCOM:-0}" -ge 227 ]; then
   say "        ($NCOM commits; 227 is rev 42, more means you have added work)"
 else
   ck "commits >= 227" ok "short:$NCOM"
+    printf '        (A SHALLOW CLONE FAILS HERE AND THE TREE IS FINE.  rev 44\n'
+    printf '         landed on a 50-commit clone.  Fix: git fetch --unshallow,\n'
+    printf '         then re-run.  Do NOT edit this check.)\n'
 fi
 # Only TRACKED modifications are a stop condition.  audit.py rewrites STATE.md
 # on every run -- that is the one this catches.  Untracked files (a new probe
@@ -128,7 +133,13 @@ ck "CLOSED BY HIM (case matters)"   3 "$(grep -c 'CLOSED BY HIM' SPEC.md)"
 ck "CNT_NOSE_F"                     6 "$(grep -c 'CNT_NOSE_F' SPEC.md)"
 ck "cab_floor"                      4 "$(grep -c 'cab_floor' SPEC.md)"
 ck "amtrak (HIS word)"              2 "$(grep -c 'amtrak' SPEC.md)"
-ck "nolita, any case"               9 "$(grep -ic 'nolita' SPEC.md)"
+# rev 44: 9 -> 16.  ADJUDICATED, NOT LOOSENED.  This tripwire asks "has Nolita
+# material crept in without being adjudicated?".  Rev 44's additions ARE the
+# adjudication: the owner answered SPEC sec.7's standing "whether it is
+# physically the same vehicle is U" with SAME VEHICLE, and sec.7.1/7.2 record
+# that plus the era-tag correction.  Seven new mentions, all in those two
+# subsections.  If this fires again, adjudicate the NEW ones -- do not bump it.
+ck "nolita, any case"              16 "$(grep -ic 'nolita' SPEC.md)"
 ck "TEN flower heads"               1 "$(grep -c 'TEN flower heads' SPEC.md)"
 
 # ------------------------------------------------------------------ build files
@@ -232,7 +243,8 @@ fi
 say
 say "=============================================================="
 if [ $FAIL -eq 0 ]; then
-  printf '  ALL %d PASS.  This tree is the rev-42 state.\n' "$PASS"
+  printf '  ALL %d PASS.  Content matches the rev-42 measured baseline,\n' "$PASS"
+  printf '  which is still current at rev 44.\n'
   say "=============================================================="
   say
   exit 0

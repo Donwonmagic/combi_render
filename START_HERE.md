@@ -29,10 +29,11 @@ reference, never a number you assigned yourself. Never declare anything ready.
 
 ```bash
 curl -fsSL -o b.tar.xz https://download.blender.org/release/Blender4.5/blender-4.5.3-linux-x64.tar.xz
-tar -xf b.tar.xz && mv blender-4.5.3-linux-x64 /home/claude/blender
+tar -xf b.tar.xz && mv blender-4.5.3-linux-x64 /tmp/blender
 cd /home/claude/tacombi
-T1_SUB=1 T1_VERIFY=1 /home/claude/blender/blender -b --python build.py
-T1_SUB=1 /home/claude/blender/blender -b --python audit.py
+T1_SUB=1 T1_VERIFY=1 /tmp/blender/blender -b --python build.py
+T1_SUB=1 /tmp/blender/blender -b --python audit.py
+git checkout -- STATE.md
 ```
 
 Expected as of rev 6: **0 fail, 0 warn**, `TYRE_D=0.6650`, 3 open apertures,
@@ -148,3 +149,27 @@ built: have `audit.py` emit a `STATE.md` containing the measured dimensions,
 guard results and object inventory, so the status section cannot claim a passing
 build that isn't. Until that exists, **re-run the guards and believe them over
 any prose in this repo, including this file.**
+
+
+## IF `download.blender.org` RETURNS 403 (it does, through some proxies)
+
+Both the `.dmg` and the Linux tarball fail. The route that works is PyPI:
+
+```bash
+python3.11 -m venv /tmp/bpyvenv
+/tmp/bpyvenv/bin/python -m pip install bpy==4.5.3 pillow numpy scipy
+```
+
+Then reproduce the layout the repo hard-codes in **eight** `.py`/`.sh` files, so
+that not one of them has to be edited:
+
+* `/tmp/blender/blender` — a Python shim parsing `-b --python FILE [-- args]`,
+  importing `bpy`, and `runpy.run_path(FILE, run_name="__main__")`. It must
+  leave the FULL command line in `sys.argv`, because the repo uses the
+  `sys.argv[sys.argv.index("--")+1:]` idiom.
+* `/tmp/blender/4.5/python/bin/python3.11` — `#!/bin/sh` + `exec
+  /tmp/bpyvenv/bin/python "$@"`.
+
+**THE INTERPRETER SHIM MUST `exec`, NOT BE A SYMLINK.** venv resolution keys off
+`sys.executable`'s own directory to find `pyvenv.cfg`; a symlink from `/tmp`
+lands outside the venv and imports nothing. That cost rev 43 a cycle.

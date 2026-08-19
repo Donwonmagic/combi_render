@@ -543,7 +543,12 @@ DOOR_GAP = [
 # WHAT IS **NOT** CHANGED, AND IT IS NAMED RATHER THAN ABSORBED.  `DOOR_GAP`
 # above is left BIT-IDENTICAL and keeps its second job: it is the ART DATUM.
 # `folk_gen` parses it for DOOR_X0 / DOOR_X1 / DOOR_W and for `_DOOR_BOT_AUTH`,
-# from which `DOOR_H` = 1.013467 m divides every v-coordinate of the door art.
+# which `panel_bot(x)` returns inside the door span and which `door_pv` then
+# normalises every v-coordinate of the door art over.
+# CORRECTED rev 44: `DOOR_H` DIVIDES NOTHING and is NOT the v-map.  Its only
+# two read sites, folk_gen.py:1274 and :1287, are both `h = sv * DOOR_H` and
+# both MULTIPLY.  `door_pv` is the v-map and it is PROPORTIONAL, so re-pointing
+# the parse STRETCHES the art instead of extending it.  probe_rev44_doorart.py.
 # Re-pointing that parse at the wrapped outline would move DOOR_H by ~390 mm
 # and force a re-bake of the flank textures -- a SECOND lever in the same
 # revision, which is exactly what rev 25 refused to pull when it held
