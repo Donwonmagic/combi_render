@@ -62,6 +62,7 @@ Probes required green, each read from **its own summary line**:
 | `probe_psf_owner` | `RESULT: controls pass` | **newly tabled, rev 44** | ✅ |
 | `probe_psf_workshop` | `RESULT: controls pass` | **newly tabled, rev 44** | ✅ |
 | `probe_rev39_flank` | `CONTROLS: 3 checked, 0 FAILED` | 3/0 | ✅ — needed `out/p_side.png` rendered first |
+| `probe_rev44_lampmove` | `CONTROLS: 4 checked, 0 FAILED` | 4/0 | ✅ **new, rev 44** — arms SPEC:7005's *"DO NOT MOVE THE ROUNDEL WITH THE LAMPS"*, measured on the built mesh |
 
 ---
 
@@ -88,7 +89,7 @@ failing. Eleven rows.
 
 | probe | own summary line | expected | why |
 |---|---|---|---|
-| `probe_rev44_report3` | `CONTROLS: 6 checked, 2 FAILED — C5,C6` | 6/2 | **C5 is a KILL** (never green). **C6 is the burn-down gate for §10.24 item 3** — it goes green when the defect is fixed, and it is the only control in this project that is *supposed* to change class. |
+| `probe_rev44_report3` | `CONTROLS: 6 checked, 1 FAILED — C5` | 6/1 | **C5 is a KILL** (never green). **C6 was the burn-down gate for §10.24 item 3 and it WENT GREEN THIS REVISION** — the only control in this project that was ever supposed to change class, and it did. |
 | `probe_rev44_doorart` | `CONTROLS: 6 checked, 1 FAILED — C5` | 6/1 | C5 is the finding, armed as a KILL: a re-point must not move a fixed `v`. It moves it **309.1 mm**. |
 | `probe_rev44_typo` | `CONTROLS: 8 checked, 1 FAILED — N1` | 8/1 | N1 is the one new finding — the tilde is present but **half-weight** (8 px against 16). |
 
@@ -142,7 +143,7 @@ real Blender leaves the same `sys.argv` — **it is the wrong interpreter.** The
 |---|---|---|
 | 1 | The art frame — the door is 272.2 mm / 387.5 mm deeper than the art's outline | **CHARACTERISED, rev 44.** The owner answered: **EXTEND at drawn scale, do not stretch.** `probe_rev44_doorart` shows the record was wrong about the mechanism — see below. **Open, and bigger than it looked.** |
 | 2 | The body has **no UV layout at all**; ~56 % self-overlap | **SIZED, rev 44 — and it is NOT inflated by the inner skin.** See below. **Open.** |
-| 3 | Report 3 — headlamps vs the paint break, 97 mm at ~3.9σ, open since rev 10 | **INSTRUMENTED AT LAST, rev 44.** `probe_rev44_report3` C6. **Open.** |
+| 3 | ~~Report 3 — headlamps vs the paint break, 97 mm at ~3.9σ, open since rev 10~~ | **CLOSED, rev 44 — APPLIED after 34 revisions.** `HL_Z` 1.0300 → 0.9330. The gate `probe_rev44_report3` C6 is **GREEN**: the lens top sits 45.2 mm BELOW the break where it stood 51.8 mm above it. Trap respected and armed — `probe_rev44_lampmove` 4/4, roundel measured on the built mesh at 1.0170, unmoved. |
 | 4 | Report 4 — the VW glyph fuses into an X, 52 mm interpenetration | open |
 | 5 | Report 7 — "100% Calidad" off centre at 0.180 of texture width | open |
 | 6 | Report 1 — the nose shape, `V_POW` locked 0.60, audit implies 0.30–0.48 | open |
@@ -165,9 +166,11 @@ real Blender leaves the same `sys.argv` — **it is the wrong interpreter.** The
 | 23 | **NEW, rev 44** — the generator's tilde is **half-weight**: 8 px against the photograph's 16 | open, low severity, `probe_rev44_typo` N1 |
 | 24 | **NEW, rev 44** — `AUDIT_rev43.md` disagrees with itself on the tilde: §0 says **16 px**, §5's typography ceiling says **62 px at 7.8σ** | open — the 61 px component sits **under the S**, not over the `n`. Does not change the retraction; both numbers say the tilde exists. |
 | 25 | **NEW, rev 44** — `AUDIT_rev43.md` §2 still lists the **RETRACTED** tilde finding among its surviving severity-5s | open — so **"55 surviving" over-counts by one.** §0 and §1 were updated; §2's table was not. |
+| 26 | **NEW, rev 44** — **`ROUNDEL_Z_AG = 1.0170` is STALE and the roundel is ~20.5 mm TOO LOW** | open, **deliberately not fixed this revision.** Both figures its derivation rests on have moved: *"rake_drop(2.1155) is 0.1063"* computes **0.0855**, and *"break_z(2.1155) = 1.166 AG"* computes **1.1865**. 0.1063 reproduces under neither the current `RAKE_Z0` (0.047925) nor the one its own comment says it replaced (0.0365) — it predates the rev-13 rake. Today's `break_z` puts the roundel at **1.0375**. This is **SPEC §10.25's own defect class** — a constant tuned against another and not expressed in terms of it — sitting nine lines above where §10.25's lesson is written down. **SPEC:7005 forbids moving the roundel in the same change as the lamps, so it waits.** |
 
-**Twenty-two carried in, two closed (15, 21), three opened (23, 24, 25), one re-sized (22).
-Open from the record: 23.** Plus `AUDIT_rev43.md`'s **55 → 54** (see finding 25), of which **two**
+**Twenty-two carried in. THREE CLOSED — 15 (was never open), 21 (premise false) and, for the first
+time in this project's history of deferring it, 3: SPEC §10.24 item 3 APPLIED. Four opened (23, 24,
+25, 26), one re-sized (22). Open from the record: 23.** Plus `AUDIT_rev43.md`'s **55 → 54** (see finding 25), of which **two**
 are re-verified and refuted this revision (below).
 
 ---
