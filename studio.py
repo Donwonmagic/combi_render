@@ -1043,6 +1043,94 @@ def _pull_in(loc, tgt, dist, tgt_z=None):
     return tuple(t + d * dist)
 
 
+def subject_bbox(exclude=("cyc", "pl_", "ground", "playa")):
+    """World-space bbox of everything that is the SUBJECT, not the set."""
+    lo = [1e9] * 3; hi = [-1e9] * 3
+    for ob in bpy.data.objects:
+        if ob.type != 'MESH' or ob.name.startswith(exclude):
+            continue
+        for c in ob.bound_box:
+            w = ob.matrix_world @ Vector(c)
+            for i in range(3):
+                lo[i] = min(lo[i], w[i]); hi[i] = max(hi[i], w[i])
+    return lo, hi
+
+
+def fit_view(direction, lens, aspect, fill=0.92, sensor=36.0, bbox=None):
+    """Camera loc/target that CENTRES the subject and fills `fill` of the frame.
+
+    rev 44b, SPEC 10.109.  The rev-44 `hero` view was derived by scaling
+    `hero34f`'s offset vector by a ratio read off a render -- and the 3200 px
+    delivery frame it produced CLIPPED THE FRONT WHEEL at the bottom row, with
+    the subject 74 % of the width and hard against the lower edge.  Scaling a
+    distance does not centre anything, and a subject seen from above does not
+    project symmetrically about its own centroid: the near wheel is closest to
+    the camera and drops furthest down the frame.
+
+    Solved instead.  Both the lateral offset and the distance are iterated on
+    the projected corners of the SCENE'S OWN bbox, read live, so re-posing the
+    lids or adding a part re-solves the frame instead of quietly clipping it.
+    Converges in a handful of passes; 60 are run because they are free.
+    """
+    import itertools
+    lo, hi = bbox if bbox else subject_bbox()
+    corners = [Vector(p) for p in itertools.product(*zip(lo, hi))]
+    sh = sensor / aspect
+    d = Vector(direction).normalized()
+
+    def project(dist, tgt):
+        C = tgt + d * dist
+        f = (tgt - C).normalized()
+        r = f.cross(Vector((0, 0, 1))).normalized()
+        u = r.cross(f)
+        us, vs = [], []
+        for P in corners:
+            v = P - C
+            z = v.dot(f)
+            if z <= 1e-6:
+                return None, C, r, u
+            us.append(v.dot(r) / z * lens / (sensor / 2))
+            vs.append(v.dot(u) / z * lens / (sh / 2))
+        return (min(us), max(us), min(vs), max(vs)), C, r, u
+
+    tgt = Vector(((lo[0] + hi[0]) / 2, (lo[1] + hi[1]) / 2, (lo[2] + hi[2]) / 2))
+    dist = max(hi[i] - lo[i] for i in range(3)) * 3.0
+    for _ in range(60):
+        e, C, r, u = project(dist, tgt)
+        if e is None:
+            dist *= 1.5; continue
+        u0, u1, v0, v1 = e
+        # PLUS, not minus: moving the TARGET toward the side the subject is
+        # already on swings the camera that way and brings it back to centre.
+        # The first draft of this had the sign inverted and the iteration ran
+        # off to 2e18 metres in sixty passes -- which is why the loop now
+        # carries a divergence guard as well as a fixed count.
+        tgt = tgt + r * ((u0 + u1) / 2) * (sensor / 2) / lens * dist \
+                  + u * ((v0 + v1) / 2) * (sh / 2) / lens * dist
+        e, C, r, u = project(dist, tgt)
+        if e is None:
+            dist *= 1.5; continue
+        m = max(abs(x) for x in e)
+        dist *= m / fill
+        assert dist < 1.0e4, (
+            "fit_view diverged: distance %.3g m. The subject bbox is %r/%r "
+            "(SPEC 10.109)." % (dist, lo, hi))
+    e, C, r, u = project(dist, tgt)
+    assert max(abs(x) for x in e) <= 1.0, (
+        "fit_view returned a CLIPPED frame: u %.4f..%.4f v %.4f..%.4f. This "
+        "is the defect it exists to prevent (SPEC 10.109)." % e)
+    return tuple(C), tuple(tgt), dist, e
+
+
+def _hero_fit(lens=78.0, fill=0.92):
+    """`hero`, solved live against the scene's own bbox (SPEC 10.109)."""
+    sc = bpy.context.scene
+    aspect = (sc.render.resolution_x / sc.render.resolution_y) if sc else 1.5
+    d = Vector((12.35, 8.55, 2.21))
+    loc, tgt, dist, e = fit_view(d, lens, aspect, fill=fill)
+    return dict(loc=loc, tgt=tgt, lens=lens, focus=ARCH_F, fstop=8.0)
+
+
 def views(dist=1.0):
     return {
         # 3/4 front-left, the reference-photo angle
@@ -1067,10 +1155,7 @@ def views(dist=1.0):
         # of 70/88, applied to hero34f's own offset vector.  The target rises
         # to z 1.55 because the subject is 3.046 m tall with the lids up (the
         # build's own printed bbox) and 1.34 left only 64 mm of headroom.
-        "hero":     dict(loc=_pull_in((12.20, 8.55, 3.55), (-0.15, 0.00, 1.34),
-                                      12.20, tgt_z=1.55),
-                         tgt=(-0.15, 0.00, 1.55),
-                         lens=78, focus=ARCH_F, fstop=8.0),
+        "hero":     _hero_fit(),
         # 3/4 rear-left, shows the counter wrap and the louvre block
         "hero34r":  dict(loc=(-11.30, 9.05, 3.80), tgt=(0.10, 0.00, 1.38),
                          lens=76, focus=(-1.50, 0.95, 1.10), fstop=8.0),

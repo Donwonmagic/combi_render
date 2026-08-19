@@ -9053,3 +9053,74 @@ its **depth** touches the sill, as the denominator of a ratio: if the true sill
 is 3 px lower than row 273.50, the drop goes 0.744 → 0.686, i.e. 308 mm → 284 mm.
 That is worth re-deriving from a frame that resolves the rocker, and it is not
 worth moving on this one.
+
+---
+
+### 10.109  rev 44b — THE DELIVERY FRAME CLIPPED THE FRONT WHEEL, AND A FRAME DERIVED BY SCALING A VECTOR WAS NEVER GOING TO CENTRE ANYTHING
+
+#### 10.109.1  WHAT THE FIRST DELIVERY RENDER ACTUALLY DID
+
+§10.105.6 derived `hero` from `hero34f` by **scaling its offset vector** by
+70/88 — the ratio of measured frame-fill to wanted frame-fill — and raising the
+target to z 1.55 for the open lids. Rendered at 3200 × 2133 it put the subject
+at **74 % of the width** and **hard against the bottom row: the front wheel is
+clipped.**
+
+**Two things were wrong, and the second is the general one.**
+
+* **A distance scale does not centre.** It changes how much of the frame the
+  subject fills and leaves it exactly as off-centre as it was.
+* **A subject seen from above does not project symmetrically about its own
+  centroid.** The near wheel is closest to the camera, so it drops furthest down
+  the frame — which is precisely the part a "raise the target for headroom"
+  correction pushes off the bottom edge. Measured: at 12.20 m / z 1.55 the bbox
+  projects to v **−1.251 … +0.825**, i.e. **25 % past the lower edge** while
+  leaving 18 % of headroom unused.
+
+#### 10.109.2  SOLVED, AND SOLVED LIVE
+
+`studio.fit_view()` iterates **both** the lateral target offset and the distance
+against the projected corners of `subject_bbox()` — the scene's own bounding box,
+read at render time and excluding the set (`cyc`, `pl_*`, ground). Re-posing the
+lids, adding a part, or changing the aspect **re-solves the frame** instead of
+quietly clipping it.
+
+Solved for the 3200 × 2133 delivery frame at 78 mm, fill 0.92:
+
+    dist 13.175 m   loc (10.8445, 7.2900, 3.1313)   tgt (0.1275, -0.1294, 1.2135)
+    u -0.7373..0.7373    v -0.9200..0.9200    centred to 0.00000 / 0.00000
+
+74 % of the width and 92 % of the height, **centred to five decimal places**,
+with 8 % of margin on the binding axis.
+
+#### 10.109.3  THE SIGN, AND WHY THE LOOP CARRIES A DIVERGENCE GUARD
+
+The first implementation subtracted the lateral correction where it should have
+added it — moving the **target** toward the side the subject is already on is
+what swings the camera that way and brings it back. Inverted, the iteration is
+unstable rather than merely wrong: it ran off to **2 × 10¹⁸ metres in sixty
+passes** and returned a frame with zero fill. It now asserts on divergence, and
+**asserts that the returned frame is not clipped** — which is the defect the
+function exists to prevent, so it is the thing worth asserting (§10.45).
+
+#### 10.109.4  WHAT IS NOT FIXED, AND IT IS THE LAST VISIBLE GAP AGAINST HIS REFERENCE
+
+**There is no contact shadow.** `optics-6` has been open since rev 12 with two
+prior attempts recorded in `studio.cyclorama`'s comment: rev 12 measured the
+ground under the tyre at **177.00 against open ground at 177.00** and concluded
+the catcher contributed nothing; rev 17's matte tap corrected that — the alpha
+is *not* zero, there is a soft pool reaching **0.4980** — but the pool is
+**0.0038 mean alpha in the 4–30 px band directly below the silhouette**, so the
+composite over white moves a few code values and the vehicle still reads as
+floating. The obvious lever is **refuted**: `T1_CATCH=0` renders the sweep as a
+real lit surface and does produce a shadow (175.2 mean on the row below the
+contact), but it brings back a 166-grey falloff with a hard horizon line, and
+§6 locks the backdrop to pure white.
+
+The cause is **the rig, not the catcher**: a 16 m strip plus a 0.76-albedo floor
+fills the vehicle's own shadow. That is physically correct for this studio and
+it is why the reference product render — which uses a harder key — has a shadow
+and this does not. **It is an art-direction decision, not a fidelity defect**,
+and per the standing rule for un-measurable aesthetics (finding 30) it goes to
+the owner rather than being tuned. No photograph of this vehicle on a white
+sweep exists to calibrate against.
