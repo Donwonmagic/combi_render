@@ -48,10 +48,13 @@ def lits(path, names):
     return out
 
 def lamp_loc():
-    """the headlamp placement literal, read out of build.py by ast.
+    """the headlamp placement, read out of build.py by ast.
 
-    It is written  D.place(o, loc=(2.1015, s * 0.5450, 1.0300))  inside the
-    `for s in (1,-1)` loop, so y is a BinOp (s * 0.5450), not a constant."""
+    rev 44 replaced the literals with names (HL_X / HL_Y / HL_Z), so the tuple
+    is no longer literal and the placement must be resolved through build.py's
+    module-level assignments.  Resolving them rather than re-typing them is the
+    whole point -- a probe that carries its own copy of the constant cannot
+    detect the constant changing."""
     for node in ast.walk(ast.parse(open("build.py").read())):
         if not isinstance(node, ast.Call):
             continue
@@ -75,14 +78,31 @@ def lamp_loc():
                     continue
             else:
                 continue
-            if abs(x - 2.1015) < 1e-9 and abs(z - 1.0300) < 1e-9:
+            if abs(x - 2.1015) < 1e-9:
                 return x, y, z
     sys.exit("headlamp placement literal not found in build.py")
 
+def _build_consts():
+    """HL_X / HL_Y / HL_Z / IND_Y / IND_Z, evaluated from build.py's own
+    module-level assignments.  HL_Z is `1.0300 - HL_DROP` and IND_Z is
+    `HL_Z + IND_DZ`, so a plain literal_eval will not do it."""
+    env = {}
+    for node in ast.parse(open("build.py").read()).body:
+        if isinstance(node, ast.Assign) and len(node.targets) == 1 \
+           and isinstance(node.targets[0], ast.Name):
+            try:
+                env[node.targets[0].id] = eval(
+                    compile(ast.Expression(node.value), "<c>", "eval"),
+                    {"__builtins__": {}}, dict(env))
+            except Exception:
+                pass
+    return env
+
+BC = _build_consts()
 MT = lits("t1_mats.py",  ("Z_BELT_AUTH", "V_APEX_AUTH", "V_RISE", "V_POW"))
 SH = lits("t1_shell.py", ("V_APEX_Z", "V_RISE_Z", "V_POW_Z", "V_HALF_W"))
 CO = lits("t1_core.py",  ("RAKE_Z0", "RAKE_DZDX"))
-LX, LY, LZ = lamp_loc()
+LX, LY, LZ = BC["HL_X"], BC["HL_Y"], BC["HL_Z"]
 
 def zV_auth(y):
     """two-tone V height at half-width y, AUTHORED (un-dropped) frame."""
@@ -128,9 +148,19 @@ print("    %.1f mm below the belt, hence %.1f mm %s the break."
 print()
 print("  >>> BUILD says BELOW by %.1f mm.  PHOTOGRAPH says BELOW by %.1f mm."
       % (abs(gap) * 1000.0, abs(ph_gap) * 1000.0))
-print("  >>> THE ORDINAL AGREES.  The sign is NOT the defect; the MAGNITUDE is,")
-print("      by %.1f mm.  An ordinal test therefore CANNOT discriminate here."
-      % (abs(ph_gap - gap) * 1000.0))
+if abs(ph_gap - gap) < 5e-4:
+    print("  >>> THEY NOW AGREE, to %.1f mm.  SPEC 10.24 item 3 was APPLIED at"
+          % (abs(ph_gap - gap) * 1000.0))
+    print("      rev 44: the lamp came DOWN 97.0 mm on the belt-relative arm.")
+    print("      HISTORICAL NOTE, kept because it is the reason the fix took 34")
+    print("      revisions to land: BEFORE the fix both figures were BELOW too")
+    print("      (34.4 mm built against 131.4 photographed), so rev 43's")
+    print("      ordinal arm was consistent with the broken build and could")
+    print("      never have discriminated.  What discriminated was the CHORD.")
+else:
+    print("  >>> THE ORDINAL AGREES.  The sign is NOT the defect; the MAGNITUDE")
+    print("      is, by %.1f mm.  An ordinal test cannot discriminate here."
+          % (abs(ph_gap - gap) * 1000.0))
 print()
 
 # ------------------------------------------------- THE DISCRIMINATING TEST
@@ -161,8 +191,9 @@ for nm, R in (("lens", R_LENS), ("chrome ring", R_RING)):
               "%.1f mm width" % ((iv[1] - iv[0]) * 1000.0, 2 * R * 1000.0))
     else:
         print("               break is clear of the disc")
-print("  the lamp's upper rim stands %.1f mm ABOVE the break at its own column."
-      % ((LZ + R_LENS - brk) * 1000.0))
+_rim = LZ + R_LENS - brk
+print("  the lamp's upper rim stands %.1f mm %s the break at its own column."
+      % (abs(_rim) * 1000.0, "ABOVE" if _rim > 0 else "BELOW"))
 print()
 print("  THE PHOTOGRAPH (ref_source.jpeg, 246x197, measured rev 44):")
 print("    topmost-red per column at x=47 -> break y=117; lens spans y=129..145")
@@ -171,10 +202,18 @@ print("    THE LAMP SITS ENTIRELY IN THE RED, 12 px of clear red above it.")
 print("    Rev 43's 20 px centre-gap REPRODUCES (137-117=20); its absolute rows")
 print("    (120/140) are 3 px low -- a red-threshold difference, gap unaffected.")
 print()
-print("  >>> BUILD: the two-tone line runs ACROSS the headlamp.")
-print("  >>> PHOTOGRAPH: the headlamp is CLEAR of it.")
-print("  >>> That is \"the paint job and the headlights are not alligned\",")
-print("      and no px/m conversion enters it.")
+if xing["lens"] is None:
+    print("  >>> BUILD: the headlamp is CLEAR of the two-tone line.")
+    print("  >>> PHOTOGRAPH: the headlamp is CLEAR of it.")
+    print("  >>> AGREED.  This is what \"the paint job and the headlights are")
+    print("      not alligned\" was asking for, and it needed no px/m.")
+    print("      BEFORE rev 44 the break cut a 131.9 mm chord across a 172.4 mm")
+    print("      lens and a 159.9 mm one across the 205.4 mm chrome ring.")
+else:
+    print("  >>> BUILD: the two-tone line runs ACROSS the headlamp.")
+    print("  >>> PHOTOGRAPH: the headlamp is CLEAR of it.")
+    print("  >>> That is \"the paint job and the headlights are not alligned\",")
+    print("      and no px/m conversion enters it.")
 print()
 
 CH, FA = 0, []
@@ -193,9 +232,15 @@ ck("C1", abs(SH["V_APEX_Z"] - MT["V_APEX_AUTH"]) < 1e-9,
 ck("C2", abs((MT["V_APEX_AUTH"] + MT["V_RISE"]) - MT["Z_BELT_AUTH"]) < 1e-9,
    "V arms land on the flank belt: %.4f + %.4f == %.4f"
    % (MT["V_APEX_AUTH"], MT["V_RISE"], MT["Z_BELT_AUTH"]))
-ck("C3", abs(bl_gap - 0.2420) < 5e-5,
-   "reproduces SPEC 10.24's own published build figure: belt - lamp = %.4f "
-   "(published 0.242)" % bl_gap)
+# C3 -- THE FRAME CHECK, RE-POINTED AT REV 44 WHEN THE FIX LANDED.
+# Before the fix it asserted the build's own published belt - 0.242, and that
+# is what validated the frame arithmetic.  The fix MOVES that quantity onto the
+# PHOTOGRAPHED belt - 0.339, so the old assertion had to become the new one or
+# the control would fire on its own success.  Both figures are SPEC 10.24's.
+ck("C3", abs(bl_gap - PH_BELOW_BELT) < 5e-5,
+   "the build now sits on SPEC 10.24's PHOTOGRAPHED figure: belt - lamp = "
+   "%.4f against %.3f (it read 0.242 before rev 44 applied item 3)"
+   % (bl_gap, PH_BELOW_BELT))
 # C4 -- the shear cancels.  Evaluate the SAME difference at two stations 3 m
 # apart in the DROPPED frame and demand they agree to 1e-12.
 g0 = (zV_auth(LY) - rake_drop(LX)) - (LZ - rake_drop(LX))
@@ -216,14 +261,19 @@ ck("C5", abs(bl_gap - gap) < 0.010,
 # burn-down instrument, and it must not be confused with C5, which must never
 # go green.
 ck("C6", xing["lens"] is None,
-   "FINDING: the break must be CLEAR of the lens disc, as it is in the "
-   "photograph.  It is not -- it cuts a %.1f mm chord.  GOES GREEN WHEN "
-   "SPEC 10.24 item 3 IS FIXED."
-   % ((xing["lens"][1] - xing["lens"][0]) * 1000.0 if xing["lens"] else 0.0))
+   ("GATE for SPEC 10.24 item 3: the break is CLEAR of the lens disc, as it is "
+    "in the photograph.  The lens top sits %.1f mm BELOW the break.  GREEN "
+    "SINCE REV 44 APPLIED THE FIX -- if this ever fires again the lamp or the "
+    "swage has moved." % ((brk - (LZ + R_LENS)) * 1000.0))
+   if xing["lens"] is None else
+   ("FINDING: the break must be CLEAR of the lens disc, as it is in the "
+    "photograph.  It is not -- it cuts a %.1f mm chord."
+    % ((xing["lens"][1] - xing["lens"][0]) * 1000.0)))
 
 print()
 print("CONTROLS: %d checked, %d FAILED%s"
       % (CH, len(FA), ("  -- " + ",".join(FA)) if FA else ""))
-print("EXPECTED: 6 checked, 2 FAILED -- C5 is a KILL control (never green);")
-print("          C6 is the FINDING gate (green only when 10.24 item 3 is fixed).")
+print("EXPECTED SINCE REV 44: 6 checked, 1 FAILED -- C5 only, the KILL control,")
+print("          which must never go green.  C6 is the gate for 10.24 item 3")
+print("          and it went GREEN when rev 44 applied the fix.")
 sys.exit(1 if FA else 0)
