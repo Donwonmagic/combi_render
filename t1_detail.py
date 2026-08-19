@@ -1304,7 +1304,26 @@ def wheel_houses():
 # corners `P_TOP` / `P_BOT`, the column, and the existing seat's own
 # footprint -- so it cannot drift independently of the shell.  Ledger class 4.
 # ===========================================================================
-COL_MID = (1.735, 0.372, 1.045)
+# rev 44 -- COL_MID's x MOVED 1.735 -> 1.540, AND IT IS SOLVED, NOT NUDGED.
+# Building a real fascia (DASH_SECT, rear face x 1.6900) exposed that the
+# rev-8 column put the wheel's hub 18 mm BEHIND the dash's rear face, so the
+# rim's forward sweep -- 0.1915 m at this column angle -- drove 173 mm of
+# steering wheel THROUGH the dashboard.  Neither member had been built solidly
+# enough before for the two to meet.
+#
+# Solved rather than eyeballed.  With a = (-sin f, 0, cos f) the rim's
+# forward-most point is  COL_MID.x - sin f * COL_LEN/2 + R * cos f, so
+# requiring DASH_CLEAR of daylight against DASH_SECT's rear face gives
+# COL_MID.x <= 1.5467.  1.540 is that bound rounded down, and `_wheel_clear()`
+# asserts it on the built numbers so the two can never drift back into each
+# other (SPEC 10.45 -- a claim in prose is not a guard).
+#
+# WHAT THIS DOES NOT FIX, AND IT IS NAMED RATHER THAN ABSORBED: the DRIVING
+# POSITION.  The hub now sits 622 mm ahead of the seat back's front face,
+# which is roughly 150 mm more reach than a T1 driver has.  Closing that needs
+# the seat's fore-aft position, which is rev-8 authored and UNMEASURED -- a
+# second lever, and this revision already moved the column.  Ledger class 4.
+COL_MID = (1.540, 0.372, 1.045)
 COL_AX = (-0.30, 0.0, 0.95)        # rev 44: up and BACK.  Was +0.30 -- the
                                    # column leaned away from the driver.
 COL_LEN = 0.420
@@ -1437,19 +1456,37 @@ def _seat(y, tag):
 # ----------------------------------------------------- visors, mirror, levers
 def _cab_furniture():
     obs = []
-    # sun visors, hinged off the header rail just under the screen's top edge
+    # Sun visors and the interior mirror hang just inside the windscreen, so
+    # their x is SOLVED against the screen's own plane rather than typed.  The
+    # screen runs P_TOP -> P_BOT, so x(z) = P_TOP.x + (P_TOP.z - z) * slope;
+    # every part below is placed at that x minus GLASS_CLEAR.  Written this way
+    # because the first draft of this block put the visor 21 mm and the mirror
+    # stem 36 mm THROUGH the glass, and a number typed against a plane goes
+    # stale the moment the plane moves.
+    import t1_shell as S
+    _slope = ((S.P_BOT.x - S.P_TOP.x) / (S.P_TOP.z - S.P_BOT.z))
+
+    def _screen_x(z):
+        return S.P_TOP.x + (S.P_TOP.z - z) * _slope
+
     for s in (1, -1):
         pts = T.rrect(0.3000, 0.1250, 0.018, seg=5)
-        v = T.solid_prism((1.8180, s * 0.3400, 1.7250), (0, 1, 0), (1, 0, 0),
-                          (0, 0, 1), pts, 0.014, name=f"visor{s}")
+        zv = 1.7250
+        v = T.solid_prism((_screen_x(zv) - GLASS_CLEAR - 0.0625, s * 0.3400, zv),
+                          (0, 1, 0), (1, 0, 0), (0, 0, 1), pts, 0.014,
+                          name=f"visor{s}")
         obs.append((v, "cream"))
-    # interior mirror on the header rail
+    # interior mirror, hung off the header rail on a short stem
+    zm = 1.7000
+    xm = _screen_x(zm) - GLASS_CLEAR - 0.0080
     pts = T.rrect(0.1700, 0.0520, 0.012, seg=4)
-    obs.append((T.solid_prism((1.8500, 0.0000, 1.7150), (0, 1, 0), (0, 0, 1),
+    obs.append((T.solid_prism((xm, 0.0000, zm), (0, 1, 0), (0, 0, 1),
                               (1, 0, 0), pts, 0.016, name="mirror_int"),
                 "chrome_d"))
-    obs.append((T.cylinder((1.8620, 0.0, 1.7400), (1, 0, 0.35), 0.008, 0.055,
-                           seg=16, name="mirror_stem"), "chrome_d"))
+    # the stem leans UP AND BACK, because the screen does
+    obs.append((T.cylinder((xm - 0.0050, 0.0, zm + 0.0290), (-0.35, 0, 0.94),
+                           0.008, 0.050, seg=16, name="mirror_stem"),
+                "chrome_d"))
     # gear lever -- floor mounted, rising up and back, with its knob
     obs.append((T.cylinder((1.2350, 0.0300, 0.8700), (-0.34, 0.05, 0.94),
                            0.0105, 0.400, seg=18, name="gear_lever"), "chrome_d"))
@@ -1525,6 +1562,33 @@ def door_hinges():
     return obs
 
 
+DASH_CLEAR = 0.0150            # daylight the wheel keeps from the fascia
+GLASS_CLEAR = 0.0120           # daylight cab fittings keep from the screen
+
+
+def _wheel_clear():
+    """Assert the steering wheel's rim clears the fascia's rear face.
+
+    rev 44.  The first build of the real fascia drove 173 mm of steering wheel
+    through it and nothing in the repo noticed, because neither member had
+    ever been solid enough for the two to meet.  This is that check, armed on
+    the built numbers rather than on the derivation, so re-angling the column,
+    re-sectioning the dash or re-sizing the rim all re-run it.
+    """
+    a = Vector(COL_AX).normalized()
+    top = Vector(COL_MID) + a * (COL_LEN * 0.5)
+    # unit vector in the wheel's plane with the largest x
+    u = Vector((a.z, 0.0, -a.x)).normalized()
+    rim_max_x = top.x + 0.2008 * abs(u.x)
+    dash_rear = min(p[0] for p in DASH_SECT)
+    clear = dash_rear - rim_max_x
+    assert clear >= DASH_CLEAR - 1e-4, (
+        "the steering wheel's rim is INSIDE the dashboard: rim reaches "
+        "x %.4f against the fascia's rear face at %.4f (%.1f mm of "
+        "interference). SPEC 10.104." % (rim_max_x, dash_rear, -clear * 1000.0))
+    return clear
+
+
 def cab_fitout():
     """Everything inside the cab, as (object, material key) pairs.
 
@@ -1533,6 +1597,7 @@ def cab_fitout():
     not one dark mass: the fascia is body-coloured, the instrument is chrome
     and glass, the welts are cream.
     """
+    _wheel_clear()
     obs = []
     obs += _steering_wheel()
     obs += _dash()
