@@ -526,18 +526,28 @@ ROUNDEL_D = 0.2800
 # its comment says it replaced (0.0365); it predates the rev-13 rake.  The
 # derivation that produced 1.0170 is "roundel centre sits 0.149 +- 0.030 m
 # BELOW the belt, and break_z(2.1155) = 1.166 AG, so the centre belongs at
-# 1.017 AG".  Run on today's break_z that gives 1.1865 - 0.149 = **1.0375**,
-# so THE ROUNDEL IS ~20.5 mm TOO LOW.
+# 1.017 AG".  Run on today's break_z that gives 1.1865 - 0.149 = 1.0375.
 #
 # THIS IS SPEC 10.25's OWN DEFECT CLASS -- a constant tuned against another
 # constant and not expressed in terms of it -- sitting nine lines above the
-# block where 10.25's lesson is written down.
+# block where 10.25's lesson is written down.  THAT PART STANDS.
 #
-# IT IS NOT FIXED HERE FOR TWO REASONS.  SPEC:7005 forbids moving the roundel
-# in the same change as the lamps.  And it CONTAMINATES the roundel-ratio arm
-# of 10.24 item 3's second derivation, which is why that arm is set aside above
-# -- correcting the roundel first would change that arm from 103.4 mm back to
-# ~82.9 mm, reproducing the published 83.  Two levers, two revisions.
+# BUT THE MAGNITUDE WAS OVER-CLAIMED WHEN THIS NOTE WAS FIRST WRITTEN, AND THE
+# CORRECTION IS MINE.  It said "THE ROUNDEL IS ~20.5 mm TOO LOW", which is one
+# chain's POINT ESTIMATE quoted as a defect without its error bar and without
+# the second chain.  Both chains, run at rev 44:
+#     A  belt-relative   break_z(2.1155) - 0.149 +- 0.030  = 1.0375 +- 0.0300
+#     B  roundel/lamp    lamp + 0.628 +- 0.066 diameters   = 1.0236 +- 0.0185
+#     JOINT                                                = 1.0274 +- 0.0157
+# Against the built 1.0170 those are 0.68, 0.36 and 0.66 sigma.  ALL THREE ARE
+# INSIDE ONE SIGMA: THE ROUNDEL IS NOT SIGNIFICANTLY MIS-PLACED, and moving
+# geometry on a 0.7-sigma difference is what this project calls laundering.
+#
+# SO IT IS NOT MOVED, AND THE REAL DEFECT -- THAT NOTHING WAS WATCHING -- IS
+# FIXED INSTEAD.  probe_rev44_lampmove C5/C6 now hold 1.0170 against BOTH
+# chains and fire if either drifts out of band, which is what would have caught
+# the datum moving under it in the first place.  SPEC:7005 also forbids moving
+# the roundel in the same change as the lamps, and that stands independently.
 ROUNDEL_Z_AG = 1.0170
 ROUNDEL_Z = ROUNDEL_Z_AG + T.rake_drop(2.1155)
 vr, vd = D.roundel(R=ROUNDEL_D / 2)

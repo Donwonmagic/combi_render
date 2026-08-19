@@ -88,8 +88,35 @@ ck("C4", zl is not None and ind is not None
    "down, which the re-typed literal 1.2360 would not have done (measured %s)"
    % (("%.4f" % (zc(ind) - zl)) if (ind and zl) else "?"))
 
+# ---------------------------------------------------------------- rev 44
+# LEDGER FINDING 26.  ROUNDEL_Z_AG = 1.0170 is a constant tuned against
+# break_z(2.1155) and NOT expressed in terms of it, so when the rake was
+# re-derived at rev 13 the datum moved and the constant did not.  Its own
+# comment still cites two figures that no longer compute -- "rake_drop(2.1155)
+# is 0.1063" (0.0855) and "break_z(2.1155) = 1.166 AG" (1.1865).
+#
+# THE CONSTANT IS **NOT** MOVED, because both chains put it inside one sigma.
+# What is fixed is that nothing was watching.  C5 and C6 watch.
+BRK = 1.1865            # MT.z_belt(2.1155), the datum 1.0170 was tuned against
+A_V, A_S = BRK - 0.149, 0.030                 # chain A, belt-relative
+B_V, B_S = zl + 0.628 * 0.280, 0.066 * 0.280  # chain B, roundel/lamp ratio
+print()
+print("  LEDGER FINDING 26 -- the roundel's height, watched from both chains")
+print("    chain A  break_z - 0.149 +- 0.030 = %.4f  -> built is %+.1f mm, %.2f sigma"
+      % (A_V, (zr - A_V) * 1000, abs(zr - A_V) / A_S))
+print("    chain B  lamp + 0.628 +- 0.066 D  = %.4f  -> built is %+.1f mm, %.2f sigma"
+      % (B_V, (zr - B_V) * 1000, abs(zr - B_V) / B_S))
+ck("C5", abs(zr - A_V) < A_S,
+   "chain A holds the roundel within its own +-30 mm band.  IF THIS FIRES, the "
+   "belt datum has moved under ROUNDEL_Z_AG again -- express it, do not "
+   "re-tune it (SPEC 10.25).")
+ck("C6", abs(zr - B_V) < B_S,
+   "chain B holds it too, and chain B moves when the LAMPS move -- so this is "
+   "also the guard that rev 44's 97 mm lamp drop did not break the roundel's "
+   "other support.")
+
 print()
 print("CONTROLS: %d checked, %d FAILED%s"
       % (CH, len(FA), ("  -- " + ",".join(FA)) if FA else ""))
-print("EXPECTED: 4 checked, 0 FAILED.  ALL FOUR MUST STAY GREEN.")
+print("EXPECTED: 6 checked, 0 FAILED.  ALL SIX MUST STAY GREEN.")
 sys.exit(1 if FA else 0)
