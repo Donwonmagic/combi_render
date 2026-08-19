@@ -80,12 +80,18 @@ exit code. The full table is in `LEDGER_rev43.md` — use it rather than re-deri
 
 ## §6. WORK LIST FOR REV 44
 
-**1. VERIFY THE 30, THEN THE 89. This is the revision.**
-`AUDIT_rev43_PARTIAL.json` holds **30 findings from four FIDELITY dimensions** (counter, wheels,
-roof, tail). **THEY ARE UNVERIFIED — every adversarial refuter died on a session token limit.**
-`AUDIT_RECOVERED.md` holds **89 more**, stranded since a container restart killed that audit's
-verify phase around rev 6. **Findings this project accepted without adversarial verification have
-been overturned more often than not. Until refuted, all 119 are worth nothing.**
+**1. THE 60 ARE VERIFIED. THE 89 ARE NOT. Start with the misspelling.**
+**`AUDIT_rev43.md` is done** — 8 dimensions, both lanes, 60 findings, each put to two adversarial
+refuters with different lenses. **55 survived, 3 were killed, 2 are contested.**
+**FIX THE WORDMARK FIRST. `senor_trace._STROKES` HAS NO TILDE BRANCH — the ñ is built without its
+tilde and the name is therefore MISSPELLED in every hero ever shot.** Root cause is upstream in the
+mask baked as `senor_trace._REF_B64`. Two more severity-5s sit beside it: the `e` has lost its bowl
+and eye, and the capital `S` is built in three floating fragments where the photograph is continuous.
+**READ THE `risk_if_applied` FIELD BEFORE TOUCHING ANY OF THEM.** Several findings were confirmed as
+defects while their proposed FIX was refuted — `menucard0`'s stated one-literal fix leaves the card
+43.7 % over the aperture instead of 61.5 %, which a refuter names as the `80 mm standoff` family.
+`AUDIT_RECOVERED.md` still holds **89 unverified**, stranded since a container restart killed that
+audit's verify phase around rev 6. **Until refuted they are worth nothing.**
 The verification workflow is written and resumable; see `HANDOFF_rev43.md` §7.
 **Highest-severity unverified, both ordinal, both roof:** the main lid is raked the WRONG WAY
 (`LID_OPEN_DEG=104°` leans the mural board away from the counter) and the open lid at the tail does

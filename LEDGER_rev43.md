@@ -105,8 +105,27 @@ A KILL control that starts passing means a route the project **closed** has re-o
 | 21 | **NEW, rev 43** — `ref_source.jpeg` is formally retired *and* load-bearing | SPEC §10.22 vs §0.2 | **open** |
 | 22 | **NEW, rev 43** — 89 findings in `AUDIT_RECOVERED.md` never verified | that file | **in progress** |
 
-**Twenty-two open. Countable, and that is the point: the instrument list grows, the findings list
-burns down.**
+**Twenty-two open from the record. PLUS 55 MORE from the rev-43 specialist audit, which completed
+after a resume — see `AUDIT_rev43.md`. Total open: 77.**
+
+**The audit's 55 are of a different KIND and must not be merged into the 22 above.** These have each
+survived TWO adversarial refuters with different lenses; the 22 are items the record carried. Both are
+open, but the audit's arrive with their evidence, their ceiling and — critically — a **risk-if-applied**
+field. Several were confirmed as defects while their PROPOSED FIX was refuted. **Read the risk field.**
+
+| audit findings by severity | count |
+|---|---|
+| severity 5 | 7 |
+| severity 4 | 18 |
+| severity 3 | 16 |
+| severity 2 | 11 |
+| severity 1 | 3 |
+
+**Highest: the brand name is built misspelled — the ñ has no tilde.** Confirmed by two refuters using
+methods that share no step. `senor_trace._STROKES` has no tilde branch; the baked mask holds 4 px where
+the photograph holds 30–106. **That is a spelling error on the wordmark, and it has been in every hero.**
+
+**Still countable. That is the point: the instrument list grows, the findings list burns down.**
 
 ### Finding 20, in full, because it is this revision's own
 

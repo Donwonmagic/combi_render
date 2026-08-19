@@ -193,14 +193,20 @@ template is **§10.68, rev 25's own re-bake report**, and the plan reports again
 |---|---|---|
 | ~rev 6 | six lenses, all six FIND passes completed | **container restart** killed VERIFY and SYNTHESISE. **89 findings stranded, unverified, to this day** |
 | rev 11 | ten specialists + a refuter per finding | **two CPU cores.** Two hours in, 2 of 25 started. Deferred |
-| **rev 43** | 8 dimensions, 2 lanes, refuters pipelined behind each | **a session token limit.** 4 of 18 agents completed |
+| **rev 43** | 8 dimensions, 2 lanes, refuters pipelined behind each | **a session token limit — TWICE.** But it was RESUMED from cache both times and **it finished: 25 of 26 agents, 60 findings, all adversarially verified.** Only the final synthesis died, and it was written by hand from the adjudicated data |
 
 **THE DIFFERENCE THIS TIME: the findings are on disk and committed.** `AUDIT_rev43_PARTIAL.json`
 holds **30 findings from the four FIDELITY dimensions** that finished — counter, wheels, roof, tail.
 
-> **THEY ARE UNVERIFIED. EVERY REFUTER DIED.** This project's record is that findings accepted
-> without adversarial verification **have been overturned more often than not.** Do not act on any
-> of them until they are refuted. That is the entire point of the class.
+**AND ON RESUME THEY WERE VERIFIED.** `AUDIT_rev43.md` is the full record: **60 findings, 55
+survived both refuters, 3 were killed and 2 are contested.** Both lanes ran, including the DESIGN lane
+that produced the sticker's art direction.
+
+> **THE HEADLINE: THE BRAND NAME IS BUILT MISSPELLED. The ñ has no tilde.** Two refuters confirmed it by
+> methods sharing no step — the photograph holds 106 → 30 ink px across the tilde band as the threshold
+> sweeps, monotone and never vanishing; the baked reference mask holds **4**, the generator rasterises
+> **1**. Area-matched, still 30 against 4. The `branding` dimension found it independently: the build says
+> `Senor`, SPEC locks `Señor`. **The owner rejected this script twice.**
 
 Highest-severity, all unverified: **the main lid is raked the wrong way** (`LID_OPEN_DEG=104°` leans
 the mural board away from the counter) and **the open lid at the tail does not exist** — both
