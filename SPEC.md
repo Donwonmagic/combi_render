@@ -8034,8 +8034,15 @@ lower edge (closest approach **26.3 mm**).
 
 `DOOR_GAP` is left **BIT-IDENTICAL** and keeps its second job: it is the **ART
 DATUM**. `folk_gen` parses it for `DOOR_X0` / `DOOR_X1` / `DOOR_W` and for
-`_DOOR_BOT_AUTH`, from which **`DOOR_H` = 1.013467 m divides every
-v-coordinate of the door art**. Re-pointing that parse at the wrapped outline
+`_DOOR_BOT_AUTH`, which `panel_bot(x)` returns inside the door span and which
+`door_pv` therefore normalises every v-coordinate of the door art over.
+**CORRECTED, rev 44 — `DOOR_H` DIVIDES NOTHING, and it is not the v-map.** It
+has exactly two read sites, `folk_gen.py:1274` and `:1287`, both `h = sv *
+DOOR_H`, and both **MULTIPLY** a normalised motif height into metres for two
+motifs (`EDGE_E`'s latch sliver, `DARK_1`). The v-map is `door_pv`, and it is
+**PROPORTIONAL** — which is why re-pointing the parse STRETCHES the art rather
+than extending it, and why the owner's rev-44 answer cannot be reached that
+way. Instrumented at `probe_rev44_doorart.py` C1/C5. Re-pointing that parse at the wrapped outline
 moves `DOOR_H` by ~390 mm and forces a re-bake of the flank textures — a
 SECOND lever in the same revision, which is exactly what rev 25 refused when it
 held `_DOOR_TOP_AUTH` at 1.8140 *"so `DOOR_H` stays bit-identical and only one
