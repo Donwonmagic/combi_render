@@ -623,6 +623,13 @@ def solid_prism(origin, u, v, w, pts, depth, name="cut"):
     bm.verts.ensure_lookup_table()
     bm.faces.new([bm.verts[i] for i in range(n - 1, -1, -1)])
     bm.faces.new([bm.verts[n + i] for i in range(n)])
+    # rev 44 -- A CAP TRIANGULATION WAS TRIED HERE AND REVERTED, recorded so it
+    # is not tried again.  It was a guess at why the VW emblem's W rendered as
+    # fragments; it did NOT fix that (the real cause was the roundel being
+    # mounted 11 mm inside the nose, see build.py) and it BROKE TWO WHEEL-ARCH
+    # BOOLEANS -- `arch-11` and `arch-1-1` rolled back at both subdivision
+    # levels.  solid_prism builds every cutter in this model, so a change here
+    # is never local.
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
     bm.normal_update(); bm.to_mesh(me); bm.free()
     return ob
@@ -775,9 +782,16 @@ def vw_bars(R, w, origin, u_ax, v_ax, n_ax, depth, tag="vw"):
         BY CONSTRUCTION -- which is why "correcting the diameter" closed the
         designed gap twice and merged the glyph into an X twice.
 
-    The fusion matches the photographs and must stay.  This docstring is what
-    the standing rule "a claim in prose is not a guard" is about: it survived
-    nine revisions because nobody grepped for the node that does it.
+    rev 44 -- THIS PARAGRAPH WAS HALF RIGHT AND THE HALF THAT WAS WRONG COST
+    THE EMBLEM ITS W.  A TOUCH at the centre does match the photographs: in
+    ref_nolita_front34.jpg the V's apex and the W's peak merge into one mass
+    over about 0.1 of the ring diameter.  A 52 mm PENETRATION does not -- it
+    buries the W's centre peak AND both inner arms, and the reference shows all
+    six strokes legible.  The overlap was not a property of the fusion; it was
+    a property of the V being 2.5x too wide-angled, measured above.  With the
+    arm angle corrected the V's outline bottom sits 11.6 mm above the ring
+    centre against the W's peak at 16.8 mm -- a 5 mm touch, which is the
+    photograph.  The fusion stays; the burial does not.
 
     rev 17 also GREW THE V's ARM TIPS.  Building the hubcap ring exposed that
     the V reached only 0.7154 of the glyph's fit radius while the ring's inner
@@ -789,13 +803,34 @@ def vw_bars(R, w, origin, u_ax, v_ax, n_ax, depth, tag="vw"):
     fraction so the two can never drift apart again.
     """
     _RING_INNER_FRAC = 1.0 - 2.0 * 0.093      # t1_detail.CAP_RING_BANDFRAC
-    _V_TIP_R0        = 0.7154                 # measured on the built glyph
-    _VG              = _RING_INNER_FRAC / _V_TIP_R0        # = 1.138
-    _apex            = (0.000, -0.060)
-    _tip             = (0.400, 0.560)
-    _tx = _apex[0] + (_tip[0] - _apex[0]) * _VG
-    _ty = _apex[1] + (_tip[1] - _apex[1]) * _VG
-    V_SPINE = [(-_tx, _ty), _apex, (_tx, _ty)]
+    # ------------------------------------------------------------- rev 44
+    # THE V WAS 2.5x TOO WIDE-ANGLED AND IT WAS ERASING THE W.
+    #
+    # The owner reported the logo off the rev-44 hero.  Rendered face-on the
+    # emblem showed a V and TWO ISOLATED STUBS -- no W centre peak, no inner
+    # arms, no legs.  The W object was built correctly (20 verts, full extent,
+    # not self-intersecting -- all three checked) and then almost entirely
+    # COVERED by the V, which is solid and the same material.
+    #
+    # MEASURED ON ref_nolita_front34.jpg, the owner's rev-44 upload and the
+    # clearest roundel in the set.  Row-run analysis of the red mask, VERTICAL
+    # extents only because the frame is a three-quarter (a rotation about a
+    # vertical axis preserves vertical ratios):
+    #     ring outer vertical D .............. 68 px
+    #     V arm separation at 0.206 D down ... 0.162 D   built 0.406 D  <-- 2.5x
+    #     V apex, from the ring top .......... 0.353 D   built 0.625 D
+    #     V height / ring D .................. 0.235     built 0.374
+    # The V's tips are right (they run into the ring band in both), so the
+    # error is the ARM ANGLE, and widening the arms is what drove the apex
+    # down through the W.
+    #
+    # The tips are now placed ON the band circle by construction at the
+    # measured half-angle, so no fraction can go stale: _V_TIP_X is the only
+    # authored number and the tip height follows from the circle.
+    _V_TIP_X = 0.270                          # measured, see above
+    _apex    = (0.000, 0.284)                 # 0.353 of ring D from the top
+    _ty      = (_RING_INNER_FRAC ** 2 - _V_TIP_X ** 2) ** 0.5
+    V_SPINE = [(-_V_TIP_X, _ty), _apex, (_V_TIP_X, _ty)]
     W_SPINE = [(-0.760, -0.060), (-0.380, -0.700), (0.000, -0.075),
                (0.380, -0.700), (0.760, -0.060)]
     obs = []

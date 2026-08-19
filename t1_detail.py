@@ -1570,8 +1570,31 @@ def vw_logo_fit(ring_r, x=2.1215, depth=0.0110, wfrac=0.1986):
     on the W's centre peak, fused.  SPEC 10.25's premise is wrong, its fix
     (tying the glyph to the ring) is right, and the fusion must stay.
     """
-    obs = vw_logo(R=1.0, w=wfrac, x=x, depth=depth)     # unit glyph
-    _fit_glyph(obs, ring_r)
+    # ----------------------------------------------------------- rev 44
+    # FITTING THE EXTREME TO THE RING'S **OUTER** RADIUS BURIED THE W.
+    #
+    # The owner reported the logo off the rev-44 hero.  Face-on it rendered as
+    # a V, a centre peak and two stubs -- no W arms, no legs.  Isolated in an
+    # empty scene the SAME objects render a clean V over W, so neither the
+    # outline (rasterised and checked directly), the cap fill (area 0.012193 m2
+    # against 0.01232 hand-computed) nor the renderer was at fault.
+    #
+    # THE RING IS IN FRONT OF THE GLYPH.  Built: ring x 2.1155..2.1290, glyph
+    # x 2.1155..2.1265 -- the ring stands 2.5 mm proud.  Its band occupies
+    # radius 0.112..0.140 (roundel()'s own profile, R down to R-0.028).  Fitted
+    # to the OUTER radius the W's legs land at 0.140, so each arm spends its
+    # whole outer half inside the band and is hidden by it.  What survived is
+    # exactly what lies inboard of 0.112: the centre peak and the arm tops.
+    #
+    # The docstring above says the strokes should "stop flush with the ring's
+    # OUTER radius ... every stroke end disappears into the ring band".  The
+    # ends do -- but fitting the EXTREME there pushes the whole glyph out by
+    # 1/0.84, and it is the arms, not just the ends, that go under the band.
+    # Fitted instead so the extreme sits 20 % into the band, the ends still
+    # visibly run into it and the arms stay clear.
+    _BAND_FRAC = 0.028 / 0.140              # roundel()'s band / outer radius
+    _fit_glyph(obs := vw_logo(R=1.0, w=wfrac, x=x, depth=depth),
+               ring_r * (1.0 - 0.8 * _BAND_FRAC))
     return obs
 
 

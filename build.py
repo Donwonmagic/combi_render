@@ -550,9 +550,15 @@ ROUNDEL_D = 0.2800
 # the roundel in the same change as the lamps, and that stands independently.
 ROUNDEL_Z_AG = 1.0170
 ROUNDEL_Z = ROUNDEL_Z_AG + T.rake_drop(2.1155)
+# rev 44 -- THE MOUNTING PLANE, moved forward 13.5 mm.  See the block below the
+# glyph placement for the measurement: the nose reaches x 2.1270 between
+# z 0.86 and 1.01 while the emblem's front face sat at 2.1265, so the roundel's
+# lower half -- the whole W -- was buried inside the bodywork.
+ROUNDEL_X = 2.1290                  # was 2.1155
+GLYPH_X   = ROUNDEL_X + 0.0055      # the emblem plate stands on the disc face
 vr, vd = D.roundel(R=ROUNDEL_D / 2)
 for o, k in ((vr, "roundelred"), (vd, "cream")):
-    D.place(o, loc=(2.1155, 0.0, ROUNDEL_Z)); A(o, k)
+    D.place(o, loc=(ROUNDEL_X, 0.0, ROUNDEL_Z)); A(o, k)
 # rev 10.  The V and the W had merged into an X again -- the same failure
 # SKEPTIC_PASS sec.D fixed in rev 8, returning by a different route.
 #
@@ -576,7 +582,29 @@ for o, k in ((vr, "roundelred"), (vd, "cream")):
 # sigma.  D.vw_logo_fit sizes the glyph off its OWN built outline so the
 # extreme corner lands on the ring's outer radius -- no fraction is written
 # down at all, so there is nothing left here to go stale a third time.
-for b in D.vw_logo_fit(ROUNDEL_D / 2, x=2.1210):   # V over W, never inverted
+# ------------------------------------------------------------------ rev 44
+# THE ROUNDEL WAS MOUNTED ELEVEN MILLIMETRES INSIDE THE NOSE.
+#
+# The owner reported the logo off the rev-44 hero.  Rendered face-on it showed
+# a V, a centre peak and two stubs; the W's four descending strokes and both
+# legs were absent.  Isolated in an empty scene the SAME objects -- glyph, ring
+# and disc together -- render a clean V over W, so the outline (rasterised and
+# checked), the cap fill (area 0.012193 m2 against 0.01232 hand-computed), the
+# material (a flat `simple`, no mask) and the renderer were all cleared.
+#
+# MEASURED on the built body, forward-most x within |y| < 0.06:
+#     z 0.86-1.01 : nose reaches x 2.1266 .. 2.1270   <-- IN FRONT of the glyph
+#     z 1.01-1.16 : nose falls back to 2.1262 .. 2.1194
+# The glyph's front face sat at 2.1265.  So BELOW z = 1.01 the nose stood
+# PROUD of the emblem and buried it, and above that the emblem stood proud and
+# rendered.  The crossover is the exact height where the render stops drawing.
+# The V lives above it; the W's arms and legs live below it.  Nothing was wrong
+# with the emblem at all -- it was sunk into the bodywork.
+#
+# The mounting plane is moved forward 13.5 mm so the glyph's REAR face clears
+# the nose's own maximum by 2 mm.  It does not become the forward-most object:
+# the bullet indicator already reaches x 2.1600.
+for b in D.vw_logo_fit(ROUNDEL_D / 2, x=GLYPH_X):   # V over W, never inverted
     D.place(b, loc=(0.0, 0.0, ROUNDEL_Z)); A(b, "roundelred")
 
 # SPEC sec.4 detail inventory: rear-quarter louvres (10 per side), fuel filler
