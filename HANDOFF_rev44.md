@@ -270,11 +270,23 @@ next revision — it is cheap and it does not argue.
 3. **The driving position is 622 mm from the seat back to the hub**, roughly
    150 mm more reach than a T1 driver has. Closing it needs the seat's
    fore-aft position, which is rev-8 authored and unmeasured.
-4. **The door rail's height is now in question.** §10.106 measured
-   rail-to-body-lower-edge at **34.92 px = 331 mm** on the reference against
-   the model's **414 mm**. That is a 25 % discrepancy in a member the lobe was
-   just anchored to, and it was NOT acted on because it would move `DOOR_GAP`,
-   the art datum. It is the largest single unexplained number left on the door.
+4. **A 25 % DISCREPANCY AROUND THE BODY'S LOWER EDGE — AND IT IS NOT YET A
+   FINDING, BECAUSE THE TWO SIDES MAY NOT BE THE SAME FEATURE.** §10.106's
+   trace put the reference's rail-to-lowest-red-edge at **34.92 px = 331 mm**
+   against the model's rail-to-`ZB` of **414 mm**. Two independent cross-checks
+   off the same frame agree with each other: arch-crown-to-that-edge reads
+   **303 mm** against the model's 380, and the edge sits **71 mm ABOVE** the
+   hub row where the model's `ZB` sits **14 mm below** the axle. Three ways,
+   ~80 mm, same sign.
+   **DO NOT ACT ON THIS YET.** At cols 30–48 — forward of the arch, near the
+   nose — the lowest red edge in the photograph may be the **front valance**,
+   which on a T1 hangs BELOW the rocker, while `ZB` is the sill. Comparing a
+   valance to a sill is precisely the datum error §10.98 caught after it had
+   nearly moved 81 mm of geometry. **The first job is to establish which
+   feature row 273.50 is**, by tracing it aft along the flank and seeing
+   whether it steps at the rocker/valance junction. Only then is there a
+   number. The lobe itself is unaffected either way: it is anchored as a
+   RATIO to whatever that edge is, in the same frame.
 5. **The tyres have circumferential grooves but no lateral sipes and no
    sidewall lettering.** Period-correct as far as it goes; the next step is a
    normal map, not geometry.
