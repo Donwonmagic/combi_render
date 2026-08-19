@@ -171,6 +171,56 @@ the ruling — §10.101.6's own sweep spans 59.06–67.50 % against a bar of 10 
 
 ---
 
+### ITEMS ADDED BY REV 44b — THE FIDELITY PASS
+
+The owner supplied a **catalogue-grade product render of a school bus** and
+asked for *"the very highest resolution, fidelity, and detail possible."* That
+was turned into numbers before anything was built — `probe_rev44_fidelity.py`,
+and **it is the first thing to re-run this revision.** It is cheap and it does
+not argue. Rev 44b's baseline: 190 objects, 655 944 tri (**77 % of them in
+`T1_body` alone**), **0 Bevel modifiers**, **66 566 hard edges**, **0 rivets /
+bolts / screws / nuts / latches**, 0 displacement. See `HANDOFF_rev44.md` §10–13.
+
+**A1. THE ~49 mm AT THE BODY'S LOWER EDGE — FIRST JOB, AND DO IT BEFORE ANYTHING
+ELSE TOUCHES z.** `ref_nolita_doorshut.jpg` puts the rocker **37.8 mm ABOVE**
+the axle centre; the built model puts it **11.2 mm BELOW**. Cross-checked by
+arch-crown-to-rocker: **335.6 mm** measured against **390.0 mm** built. Same sign
+both ways, insensitive to which of the three scales is used. The datum question
+*is settled* — a column-by-column trace of the lowest red pixel over cols 20–140
+shows **one continuous rocker with no valance step**, and the first pass's 80 mm
+was the **red hubcap** leaking into the mask over cols 74–104.
+**Do not move geometry on this yet.** The built body is lowered **65.7 mm at
+x = 1.0** by `RIDE_DROP` plus the rake, so if the photograph is right `RIDE_DROP`
+is most of the error — a whole-vehicle change. **Reproduce it independently on
+`ref_side.jpg` first.** If it reproduces, it is the largest single accuracy
+finding open in the project.
+
+**A2. FASTENERS.** Still zero outside the four cab-door hinge assemblies added in
+§10.104.6. Next tranche, in return-per-effort order: rivets along the counter's
+nosing and the gallows, bumper bolts, hatch latches, drip-rail clips. Each is
+small geometry with a large perceived-detail return, and the hinges show the
+pattern: place them off a member that is already guarded (`DOOR_GAP`'s front
+edge, `flank_y`), never by eye.
+
+**A3. THE CAB IS CLASS 4.** §10.104's furniture is type-correct and **not
+measured** — no frame in this repo resolves the cab interior. It is placed off
+members that *are* fixed so it cannot drift independently of the shell, but that
+is a coupling, not a measurement. Related and open: the **driving position** is
+622 mm from the seat back to the hub, ~150 mm more reach than a T1 driver has,
+and closing it needs the seat's fore-aft position, which is rev-8 authored.
+
+**A4. TYRES.** Circumferential grooves exist and are period-correct; there are no
+lateral sipes and no sidewall lettering. The next step is a **normal map**, not
+geometry — and per §10.105.7 it ships with the frame that shows it or it does not
+ship.
+
+**A5. THE PAINT'S FINISH IS NOT ON THIS LIST, DELIBERATELY.** §10.104.8 refuses
+it in writing: the reference is a factory-clean product render, this is a
+weathered 1963 working truck, and §4.3's chalky finish is **measured** — rev 3's
+mirror clearcoat is what made the red read salmon at 0.37 against 0.82. **The
+detail bar transfers. The finish does not.** If a later context is tempted, read
+§10.104.8 before touching `Roughness` or `Coat Weight`.
+
 ## §4. WHAT ONLY THE OWNER CAN GIVE
 
 1. **THE PHOTOGRAPHS.** See §3.5. He has offered; the list is written.
