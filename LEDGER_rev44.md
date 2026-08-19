@@ -91,6 +91,29 @@ failing. Eleven rows.
 | `probe_rev44_doorart` | `CONTROLS: 6 checked, 1 FAILED — C5` | 6/1 | C5 is the finding, armed as a KILL: a re-point must not move a fixed `v`. It moves it **309.1 mm**. |
 | `probe_rev44_typo` | `CONTROLS: 8 checked, 1 FAILED — N1` | 8/1 | N1 is the one new finding — the tilde is present but **half-weight** (8 px against 16). |
 
+### THE ELEVEN UNTABLED PROBES, CLASSIFIED — rev 44
+
+`LEDGER_rev43.md` claimed *"31 of 31 probes run"* while naming 20. Rev 44 ran the other eleven and
+sorted them, so the claim can be made honestly or dropped:
+
+| probe | what it is | readable by the project's own rule? |
+|---|---|---|
+| `probe_psf_owner` | control-bearing, `RESULT: controls pass` | **yes** — tabled in CLASS 1 above |
+| `probe_psf_workshop` | control-bearing, `RESULT: controls pass` | **yes** — tabled in CLASS 1 above |
+| `probe_orb_blade` | controls, but printed as `controls: C1 PASS C2 PASS C3 PASS C5 FAIL` | **no** — non-standard format |
+| `probe_orb_hoop` | controls, printed as `controls: C1 FAIL C2 FAIL C3 PASS` | **no** — non-standard format |
+| `probe_v_apex` | **reporter** — ends on a CEILING statement, no controls | n/a |
+| `probe_cross_anatomy` | **reporter** — ends on `total 804.9 mm` | n/a |
+| `probe_shutlines` | **reporter** — describes a guard not yet armed | n/a |
+| `probe_rev16` | **reporter** — prints an x-extent inventory | n/a |
+| `probe_ctan_index` | **reporter** — 922 lines, no controls | n/a |
+| `probe_ctan_pedestal` | **reporter** — ends UNVERIFIED, by its own words | n/a |
+| `probe_orb_post` | **reporter** — ends on a CEILING statement | n/a |
+
+**So the honest statement is: 22 of the 33 probes on disk are control-bearing and every one of them
+reproduced its expected tally this revision. Two more carry controls in a format the reading rule
+cannot parse. Seven are reporters and were never gates at all.** *"31 of 31"* conflated the three.
+
 **A PROCEDURAL NOTE THAT COST ME A CYCLE, RECORDED SO IT DOES NOT COST THE NEXT ONE.**
 `probe_rev39_flank`, `probe_rev40_datum`, `probe_v_apex` and several others are **plain-Python**
 probes, not Blender ones. Run under `/tmp/blender/blender -b --python`, they read `sys.argv[1]` as a
