@@ -8002,6 +8002,15 @@ vertical scale to close. That is a genuinely independent third method.
 
 ### 10.100  rev 42 — HIS REPORT 5 IS BUILT: THE CAB DOOR NOW WRAPS THE FRONT WHEEL ARCH, AND THE SIGN OF THE OLD ERROR NEEDED NO RULER
 
+> **RETRACTED IN REV 44 — SEE §10.102.** The wrap is gone and rev 41's flat
+> chord is restored. `ref_nolita_doorshut.jpg` — square-on, shut, and tracked in
+> this repo since rev 42 — holds the door's bottom rail flat to **0 px over 62
+> px of door** and stops the rear shut line **on that rail**, 29 mm above the
+> arch lip against rev 41's shipped 23–39 mm. §10.100.2's ordinal reading (the
+> sign was wrong) still stands; §10.100.4's construction does not. **This section
+> is left intact and is a dated record of a rev-42 state, not a current claim.**
+
+
 His defect report 5, verbatim, rev 37: *"the doors extend lower, around the
 wheel well"*. It has been the only untouched item of his that moves geometry
 since rev 37, and it is now built.
@@ -8384,3 +8393,191 @@ settle a question whose bar is 50 pp away.
   SPEC, in `HANDOFF_rev42.md` and in the code comment itself, and the rev-8
   comment left in place with a note saying why, because it is a dated record of
   a rev-8 state and not a current claim.
+
+---
+
+### 10.102  rev 44 — **§10.100 IS RETRACTED.** THE CAB DOOR DOES NOT WRAP THE FRONT WHEEL ARCH. THE FRAME THAT REFUTES IT HAS BEEN IN THE REPO SINCE REV 42, AND THE OWNER'S DEFECT REPORT WAS RIGHT TWICE OVER
+
+#### 10.102.1  WHAT THE OWNER SAID, AND WHY IT READ AS TWO DIFFERENT COMPLAINTS
+
+*[verbatim, rev 44]*
+
+* **"The door does not continue on the other side of the wheel well."**
+* and, unprompted, a few minutes later: **"Quick note, the door does not
+  continue downward behind the wheel."**
+
+Read against rev 42's geometry these are **one complaint stated twice**, and
+both halves are exactly right:
+
+* §10.100.4's bottom run is `max(ZB(x)+G, arch circle offset radially by G)`.
+  A radial offset of a circle **is a circle**, so the door's bottom rail was
+  **concentric with the arch lip by construction and could never diverge from
+  it.** Measured on the 3200 px side render (574.4 px/m): the two ran
+  **14.0–22.4 px apart with a spread of 8.3 px over 600 mm of x.** Two curves
+  that never separate read as **one thick line**, however far apart they are.
+  The door's bottom stopped being a line that crosses the wheel well and became
+  part of the arch. → *"does not continue on the other side of the wheel well."*
+* And the door's rear shut line, under the wrap, ends **on the arc at z 0.5385
+  — 135 mm below the arch crown and 127 mm above the rocker** — so it stops in
+  the middle of a red panel beside the wheel, reaching neither. → *"does not
+  continue downward behind the wheel."*
+
+#### 10.102.2  THE FRAME THAT SETTLES IT — `ref_nolita_doorshut.jpg`, ALREADY TRACKED
+
+`ref_nolita_doorshut.jpg` is the **one frame in the repo that carries the cab
+door's whole outline, square-on, shut** — §10.100's own PHOTOGRAPHS WANTED entry
+says so ("the one frame that shows the full outline"). It was used in rev 42 to
+establish that the door outline exists at all and **was never asked the question
+§10.100 was deciding.** Three measurements, all by gradient, none by eye:
+
+| what | how | result |
+|---|---|---|
+| the door's bottom shut line | row-gradient of the mean over the door's rear half (cols 70–122, rows 225–265) | a 2 px dark line at **rows 238–242, centre 239–240**, `\|dL\|` 18.3 and 21.1 against a floor of 1–4; **and nothing else in 40 rows** |
+| is it flat? | darkest-row scan, column by column, rows 234–246 | **row 239, held from col 60 to col 122** — 62 px of door, **0 px of descent** |
+| the rear shut line | column-gradient in 8-row bands, cols 112–135 | col 124.5, `\|dL\|` **24–37** for rows 208→240; **rows 240→288 read 0.4–2.2, i.e. the noise floor.** The line **stops at the bottom rail** |
+| the clearance | wheel-well dark top edge at cols 85–94 | arch lip **row 241.5**, door line **row 239** → **2.5 px** |
+| the scale | hub centroid col 91.0, arch rear foot col 123 → 32 px = `ARCH_R` 0.3735 m | **85.7 px/m**, so 2.5 px = **29 mm** |
+
+**REV 41 SHIPPED 23.0–39.0 mm.** The frame lands in the middle of the band that
+shipped, by a route that reads both features off the same image and needs no
+absolute scale: the ratio *(door-line-to-lip) / (arch half-width)* is **0.078
+measured against 0.065 built.**
+
+Under the wrap, the bottom rail descends **388 mm** across that same span and
+the rear shut line continues **another 38 px** to the rocker. **Neither exists
+in the photograph.**
+
+#### 10.102.3  WHAT REV 42 ACTUALLY HAD, AND WHY IT WAS NOT ENOUGH
+
+§10.100.3's evidence was **one yes/no question over a 9× crop of
+`ref_workshop.jpg`**: *"does the door's rear lower corner sweep up and over the
+front wheel arch so that the arch's front lip is part of the door?"* — **YES.**
+
+Three things are wrong with that, and all three were visible at the time:
+
+1. **It is a leading question.** It names the answer and asks for assent. §10.100
+   itself banked "his hedge is kept, deliberately, because he wrote it" on the
+   *other* sentence — and then took the leading one at full strength.
+2. **`ref_workshop.jpg` is a three-quarter frame**, and §10.62 and §10.73 had
+   *already ruled it inadmissible for anything metric on the door plane.*
+   §10.100.2 was careful to take only an **ordinal** fact from it (the shut line
+   runs *below* the arch crown — "the sign was wrong, and a sign does not need a
+   ruler"). That was sound. But **§10.100.4 then built a magnitude out of it**,
+   and the magnitude is what is refuted.
+3. **A square-on frame of the same feature was in the repo.** The ordinal
+   argument was never wrong for want of a ruler — it was wrong for want of
+   *looking at the other photograph.*
+
+**THE RULE, and it is new:** ***when an ordinal reading forces a construction,
+go and find a frame that can carry the magnitude before you build it.*** An
+ordinal fact licenses a *sign*, never a *shape*.
+
+#### 10.102.4  THE ATTEMPT TO FIX IT INSIDE THE WRAP IS WHAT PROVED THE WRAP WRONG
+
+Before the frame was measured, the concentricity was attacked directly. Both
+attempts failed, and **how** they failed is the finding:
+
+* **Flatten the run to the arc's own crown height** — `_ARCH_CZ + (ARCH_R + G)`
+  = 0.7993 authored, against rev 41's shipped chord of 0.800–0.816: a **1 mm**
+  match to a shape that shipped for eighteen revisions, not to my reading of a
+  photograph. It passed the clearance guard (a horizontal line at the offset
+  circle's crown is *tangent* to it, so clearance is ≥ G everywhere and = G only
+  at the crown), and divergence went 8.3 → 86.7 px. **And it silently deleted
+  §10.100.4's rear corner dip**, because the arc's span reaches x = 0.9021 and
+  the door's rear edge is at 0.92565 — *inside* it. The docstring I wrote in the
+  same edit claimed "both corner dips survive"; the very next run printed the
+  rear corner at 0.8014 where §10.100 had 0.5438. **The claim and its refutation
+  were in the same commit-in-progress, four minutes apart.**
+* **Carry the rear shut line down to the rocker** — which is what the owner
+  asked for in plain words. This is where the geometry answers back. The front
+  arch's rear-most point is `X_AXLE_F − ARCH_R` = **0.92650**; the door's rear
+  edge is **0.92565**. **They coincide to 0.85 mm.** So:
+  * the rocker line `ZB+G` at the door's rear edge sits **0.93 mm** from the
+    arch circle — against the guard's 24.4 mm and the hard floor's 10 mm;
+  * offsetting the lip **vertically** by G instead of radially puts the corner
+    at z 0.4279 (visually on the rocker) but **1.65 mm** from the lip, because
+    the lip is vertical there and a vertical offset buys no horizontal gap;
+  * moving the door's rear edge aft the 23.5 mm that would clear it drives
+    `B_PILLAR` **negative** — the exact rev-22 defect §10.62 was written to
+    catch — because `DOOR_REAR_DX = (BAYS[0][1] + B_PILLAR) − _DOOR_REAR_X0`
+    and bay 0's edges are locked by §10.29;
+  * leaving the edge and dropping only the run's rear end produces a **23 mm
+    wide, 400 mm deep tab** hanging off the door's corner.
+
+**A construction that cannot be built at any clearance is usually a construction
+that is not there.** It is not: the Nolita frame stops the rear shut line at row
+240 for the same reason the geometry does.
+
+#### 10.102.5  WHAT IS RESTORED, AND THE PROOF THAT IT IS A RESTORATION
+
+`DOOR_GAP` — rev 41's table — has been sitting in `t1_shell.py` **bit-identical
+this whole time**, because §10.100.6 deliberately kept it as the **art datum**.
+It is the cut outline again:
+
+    _NRES        = 76                      # rev 41's, restored with it
+    DOOR_GAP_CUT = DOOR_GAP
+    DOOR_GAP_S   = _smooth(_resample(DOOR_GAP_CUT, 76), 2)
+    assert DOOR_GAP_S == _GAP41_S
+
+`_GAP41_S` is the object §10.100 built *purely to read rev 41's clearance off*.
+Asserting the two are the same list is the cheapest possible proof that this is
+**a retraction and not a new shape wearing rev 41's name** (§10.45 — a claim in
+prose is not a guard). `DOOR_BOT_RUN` is sliced as the **exact complement** of
+the `DOOR_GAP[:-3]` rev 42 kept, plus the two corners that slice shared with it,
+so the rear-corner point cannot drift between the two definitions.
+
+Measured after the restore: `_MIN_RAD` **0.024426** against rev 41's
+**0.024426**; bottom rail 0.8160 / 0.8040 / 0.8000 / 0.8040 / 0.8120, spread
+**16.0 mm**, clearance above the arch crown **23.0–39.0 mm**. Built at
+**T1_SUB=2**: 252 749 v, `VERIFY: 0 fail, 0 warn`, all four shut lines 100 % open.
+
+#### 10.102.6  A FOURTH GUARD, ARMED ON THE NEW FINDING
+
+The three rev-42 guards are **kept and re-armed**, not reverted with the
+geometry — rev 23's rule cuts both ways, and *radial clearance from the arch
+circle* is still the invariant the boolean cares about; it is simply satisfied
+with room to spare now instead of exactly. One is added, because the finding
+this revision established — **the bottom rail is flat** — was not guarded by
+anything:
+
+    _BOT_SPREAD = max(z) − min(z) over DOOR_BOT_RUN
+    assert _BOT_SPREAD < 0.030
+
+Armed at rev 41's own spread (16.0 mm) plus headroom for smoothing overshoot. A
+re-introduced wrap descends **388 mm** and cannot pass it; neither can any
+future construction that quietly leans the door's bottom rail.
+
+#### 10.102.7  WHAT THIS CLOSES, AND WHAT IT COSTS THE INSTRUMENTS
+
+**LEDGER finding 1 — "the art frame: the door is 272.2 mm / 387.5 mm deeper than
+the art's outline" — IS CLOSED.** It was deeper *because rev 42 made it deeper.*
+The art datum and the cut outline are one table again, so the two corner lobes
+the art would have had to grow into **do not exist and there is nothing to
+draw.** The owner's rev-44 answer to that question ("extend at drawn scale, do
+not stretch") is recorded and **no longer has anything to apply to.**
+
+`probe_rev44_doorart.py`'s **C3 and C4 now FAIL BY DESIGN**: they reproduce
+§10.100.4's published corner depths (272.2 / 387.5 mm) and crown height
+(0.8033), and those figures describe a shape that has been withdrawn. They are
+**left armed and re-classified RED-BY-DESIGN** rather than deleted or relaxed —
+a retraction that quietly re-points its own instrument is not a retraction.
+`C5`, the KILL control on `door_pv`, is unaffected and still passes.
+
+#### 10.102.8  NEW RULES
+
+* **AN ORDINAL FACT LICENSES A SIGN, NEVER A SHAPE.** §10.100.2 was right that
+  the sign was wrong and right that a sign needs no ruler. It then spent that
+  credit on a magnitude. If an ordinal reading is about to force a
+  *construction*, **stop and go find a frame that can carry the magnitude.**
+* **A LEADING QUESTION IS NOT EVIDENCE, EVEN WHEN THE ANSWER IS YES.** §10.100.3
+  banked a hedge verbatim on one sentence — good — and then took a question that
+  named its own answer at full strength.
+* **INVENTORY THE FRAMES YOU ALREADY HOLD BEFORE ASKING THE OWNER FOR A NEW
+  ONE.** `PHOTOS_WANTED_rev44.md` item 4 asks him for "the door, full outline,
+  with the art on it" *and in the same paragraph says we already hold the frame
+  that shows the full outline.* The measurement that settled this took eleven
+  minutes on a file that had been tracked for two revisions.
+* **WHEN A FIX CANNOT BE BUILT AT ANY TOLERANCE, SUSPECT THE THING IT IS FIXING.**
+  Three independent constructions for "carry the shut line down behind the wheel"
+  each failed against a different guard. That is not three unlucky attempts; it
+  is the geometry saying the feature is not there.
