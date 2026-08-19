@@ -8745,3 +8745,101 @@ red read salmon at 0.37 against the reference's 0.82. **The detail bar
 transfers. The finish does not.** Raising the gloss to match a photograph of a
 different, newer vehicle would be regressing a measurement to chase an
 aesthetic, and it is refused here in writing so it is not quietly done later.
+
+---
+
+### 10.105  rev 44 — THE CABIN FILL, AND THE DELIVERY FRAME. A CAB YOU CANNOT SEE IS A CAB THAT WAS NOT WORTH BUILDING
+
+#### 10.105.1  §10.104 BUILT A CAB AND THE NEXT HERO SHOWED NONE OF IT
+
+Measured on that frame, inside the windscreen: **45 DN against a cream body
+band of 138 — a ratio of 0.325.** The two-spoke wheel, the fascia, the
+instrument, the second seat, the visors and the lever were all there and all
+invisible.
+
+#### 10.105.2  THE TARGET IS MEASURED, AND IT IS A RATIO SO IT NEEDS NO EXPOSURE MATCH
+
+`ref_nolita_doorshut.jpg`'s **cab door window** — 9× crop, rows 141–172,
+cols 52–118 — shows the far wall, the seat back, the column and the steering
+wheel's rim plainly. Against the cream band **directly below it** (rows 178–186,
+same columns), so both sides of the ratio are under the same light:
+
+| | reference |
+|---|---|
+| cab glazing, median | **108 DN** (p10 56, p90 168, n = 2046) |
+| cream band, median | **232 DN** (n = 528) |
+| **interior / cream** | **median 0.466, mean 0.494** |
+
+Taking a *ratio against locally-adjacent cream* is deliberate. §10.29's finding
+29 was a unit error from comparing quantities that had been through different
+transfer functions; a same-frame, same-neighbourhood ratio cannot repeat it.
+
+#### 10.105.3  WHY THE RIG DOES NOT DO THIS ON ITS OWN — STATED, NOT PATCHED AROUND
+
+In the photograph **the cab is lit through the far side**: the opposite cab
+door's glazing is the brightest thing in that crop. In the studio the same path
+exists but arrives through two tinted panes and past `galley_backdrop`, so it
+lands an order of magnitude down. `studio.cabin_fill()` stands in for that path.
+It is a **presentation device and it is declared as one**: an 0.80 × 0.80 m box
+inside the cabin, below the roof skin and forward of the B-pillar, and
+**`T1_NOCABFILL=1` removes it** so any exterior measurement can be re-run
+without it.
+
+**It is placed at x 1.05, not 0.72.** At 0.72 the box sits aft of the B-pillar
+and spills straight out through the three open serving bays — the kind of leak
+that makes a fill light a cheat instead of a stand-in.
+
+#### 10.105.4  THE CALIBRATION, AND IT SATURATES
+
+Four renders, same view, same seed, same 40 samples, same measurement boxes:
+
+| power | windscreen median | interior / cream |
+|---|---|---|
+| **0 W** (ablated) | 45.0 | 0.325 |
+| **13 W** ← shipped | 68.3 | **0.494** |
+| 21 W | 71.3 | 0.516 |
+| 46 W | 81.0 | 0.586 |
+
+**Strongly saturating** — 0.0091 ratio per watt over the first 21 W and
+0.0028 per watt over the next 25 — because the interior is already carrying
+bounce and the fill is competing with it. A linear extrapolation from the first
+two points would have landed at 46 W and blown the target by 26 %, which is why
+four points were rendered and not two.
+
+**13 W lands at 0.494 against a target whose own median and mean are 0.466 and
+0.494.** The render sits *inside the reference's own median-to-mean spread*, and
+that is where the calibration stops: chasing the median to three digits through
+a JPEG at 86 px/m would be precision the source cannot support.
+
+#### 10.105.5  THE EXTERIOR ABLATION
+
+The fill lifts the whole exterior **+0.75 %** (mean 150.42 → 151.55 DN over
+111 594 non-backdrop pixels outside the cab aperture). That is light leaving
+through the windows, which is what an interior light physically does, and it is
+reported rather than suppressed. Per-pixel |Δ| runs 3.44 DN mean — **at 40
+samples that is dominated by Monte Carlo noise, not by the light**, and this is
+recorded so nobody later reads 3.44 as a signal.
+
+#### 10.105.6  THE DELIVERY FRAME — `hero`, A SECOND VIEW, NOT AN EDIT
+
+Measured on the rev-44 hero: the subject fills **70 % of the frame vertically
+and 61 % horizontally**, floating in white. The reference the owner set the bar
+with fills its frame.
+
+`hero34f` is **kept bit-identical** — every rev-8-to-43 measurement was taken
+through it — and `hero` is a **second view derived from it** by
+`_pull_in()`, which moves the camera along **its own axis**. The perspective
+character §10.8's 78 mm lens carries is therefore untouched; only the distance
+and the target height move. 70 % → 88 % of frame height is a distance scale of
+70/88 applied to `hero34f`'s own offset vector, giving **12.20 m**; the target
+rises to **z 1.55** because the subject is **3.046 m tall with the lids up** —
+the build's own printed bbox — and 1.34 left only 64 mm of headroom.
+
+At 3:2 that is a 3.754 m frame height for a 3.046 m subject: **81 % fill**,
+against 70 %.
+
+#### 10.105.7  NEW RULE
+
+**A DETAIL YOU CANNOT SEE IS NOT A DETAIL.** §10.104 spent a revision building
+a cab and the very next frame proved none of it. Every future detail pass ships
+with the frame that shows it, or it does not ship.

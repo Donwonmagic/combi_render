@@ -808,6 +808,8 @@ if os.environ.get("T1_PREVIEW"):
         ST.playa(float(os.environ.get("T1_KEY", "1.0")))
     else:
         ST.lighting(float(os.environ.get("T1_KEY", "1.0")))
+    # rev 44, SPEC 10.105 -- the cab was built and then rendered invisible.
+    ST.cabin_fill(float(os.environ.get("T1_KEY", "1.0")))
     ST.camera()
     # rev 9: the Playa scene must NOT go through the studio's alpha-over path.
     # With transparent=True the film is keyed and composite_on_white() lays the

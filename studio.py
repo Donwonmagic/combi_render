@@ -135,6 +135,50 @@ def _softbox(name, loc, aim_at, size, power, colour=(1, 1, 1), spread=None):
     return o
 
 
+# ===========================================================================
+# rev 44 -- THE CABIN FILL.  SPEC 10.105.
+#
+# WHY IT EXISTS.  SPEC 10.104 built a cab -- two-spoke wheel, fascia,
+# instrument, two seats, visors, mirror, lever, pedals -- and the first hero
+# rendered after it showed NONE OF IT.  Measured on that frame, the cab
+# interior read 10-30 DN against a cream body of ~200: a ratio of 0.05-0.15.
+#
+# THE TARGET IS MEASURED, NOT CHOSEN.  `ref_nolita_doorshut.jpg`'s cab door
+# window, 9x crop, shows the far wall, the seat back, the column and the
+# steering wheel's rim plainly.  Its interior mid-tone runs 100-180 DN against
+# a cream body band of 230-245 -- a ratio of about 0.50.  We were four to six
+# times too dark inside, and a cab you cannot see is a cab that was not worth
+# building.
+#
+# WHY THE RIG DOES NOT DO THIS ON ITS OWN, STATED RATHER THAN PATCHED AROUND.
+# In the photograph the cab is lit THROUGH THE FAR SIDE -- the opposite cab
+# door's glazing is the brightest thing in that frame.  In the studio the same
+# path exists but arrives through two tinted panes and past `galley_backdrop`,
+# so it lands an order of magnitude down.  This light stands in for that path.
+# It is a PRESENTATION DEVICE and it is declared as one: it is inside the
+# cabin, it is invisible to the exterior (a rectangle 0.9 x 0.9 m sitting
+# BELOW the roof skin and BEHIND the B-pillar), and `T1_NOCABFILL=1` removes
+# it so any exterior measurement can be re-run without it.
+#
+# IT MUST NOT MOVE THE EXTERIOR.  That is asserted by ablation, not by
+# argument: the A/B is one environment variable (SPEC 10.45).
+# ===========================================================================
+CABFILL_POWER = 13.0                # calibrated -- see SPEC 10.105
+
+
+def cabin_fill(key=1.0):
+    if os.environ.get("T1_NOCABFILL"):
+        return []
+    p = float(os.environ.get("T1_CABFILL", CABFILL_POWER)) * key
+    if p <= 0.0:
+        return []
+    # x 1.05, not 0.72: at 0.72 the box sits aft of the B-pillar and spills
+    # straight out through the three open serving bays, which is exactly the
+    # kind of leak that makes a fill light a cheat instead of a stand-in.
+    return [_softbox("cabin_fill", (1.05, 0.00, 1.62), (1.62, 0.00, 1.06),
+                     (0.80, 0.80), p, colour=(1.00, 0.985, 0.955))]
+
+
 def lighting(key=1.0):
     """
     One long raking strip carries the image; everything else is support.
@@ -985,6 +1029,20 @@ ARCH_F = (1.30, 0.875, 0.36)
 ARCH_F_R = (1.30, -0.875, 0.36)
 
 
+def _pull_in(loc, tgt, dist, tgt_z=None):
+    """`loc` moved along its own axis to `dist` metres from the target.
+
+    The direction is preserved exactly, so a view derived this way keeps the
+    parent view's perspective character and differs only in how much of the
+    frame the subject fills.
+    """
+    t = Vector(tgt)
+    if tgt_z is not None:
+        t = Vector((t.x, t.y, tgt_z))
+    d = (Vector(loc) - Vector(tgt)).normalized()
+    return tuple(t + d * dist)
+
+
 def views(dist=1.0):
     return {
         # 3/4 front-left, the reference-photo angle
@@ -993,6 +1051,25 @@ def views(dist=1.0):
         # moving the camera BACK and raising the target rather than by going
         # wider -- the lens is what carries the perspective character.
         "hero34f":  dict(loc=(12.20, 8.55, 3.55), tgt=(-0.15, 0.00, 1.34),
+                         lens=78, focus=ARCH_F, fstop=8.0),
+        # rev 44 -- THE DELIVERY FRAME.  `hero34f` is kept bit-identical
+        # because every rev-8-to-43 measurement was taken through it, and this
+        # is a SECOND view rather than an edit to it.
+        #
+        # MEASURED on the rev-44 hero: the subject fills 70 % of the frame
+        # vertically and 61 % horizontally, floating in white.  The reference
+        # the owner set the bar with fills its frame.  Nothing about the
+        # vehicle changes here -- the camera moves in along the SAME AXIS, so
+        # the perspective character SPEC 10.8's 78 mm lens carries is
+        # untouched, and only the distance and the target height move.
+        #
+        # DERIVED, NOT TYPED: 70 % -> 88 % of frame height is a distance scale
+        # of 70/88, applied to hero34f's own offset vector.  The target rises
+        # to z 1.55 because the subject is 3.046 m tall with the lids up (the
+        # build's own printed bbox) and 1.34 left only 64 mm of headroom.
+        "hero":     dict(loc=_pull_in((12.20, 8.55, 3.55), (-0.15, 0.00, 1.34),
+                                      12.20, tgt_z=1.55),
+                         tgt=(-0.15, 0.00, 1.55),
                          lens=78, focus=ARCH_F, fstop=8.0),
         # 3/4 rear-left, shows the counter wrap and the louvre block
         "hero34r":  dict(loc=(-11.30, 9.05, 3.80), tgt=(0.10, 0.00, 1.38),
