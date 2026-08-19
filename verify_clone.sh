@@ -125,7 +125,12 @@ ck "AN ORDINAL FACT NEEDS NO RULER" 1 "$(grep -c 'AN ORDINAL FACT NEEDS NO RULER
 ck "A LINE YOU DREW IS NOT EVIDENCE" 1 "$(grep -c 'A LINE YOU DREW IS NOT EVIDENCE' SPEC.md)"
 ck "0.7770 (the BUILT arch crown)"  2 "$(grep -c '0.7770' SPEC.md)"
 ck "55.97 (self-overlap)"           1 "$(grep -c '55.97' SPEC.md)"
-ck "0.024426 (DOOR_ARCH_G)"         2 "$(grep -c '0.024426' SPEC.md)"
+# rev 44b: 2 -> 5.  SPEC 10.102 (the retraction) and 10.106 (the forward
+# lobe) each quote the clearance again, and 10.106 quotes both it and the
+# built 0.024381 side by side.  The CONSTANT has not moved -- t1_shell still
+# derives it from rev 41's own smoothed outline and the guard still fires on
+# it.  Only the number of places SPEC cites it changed.
+ck "0.024426 (DOOR_ARCH_G)"         5 "$(grep -c '0.024426' SPEC.md)"
 ck "COMMON-MODE (case matters)"     3 "$(grep -c 'COMMON-MODE' SPEC.md)"
 PAT_CFF="THE COUNTER'S FRONT FACE"   # apostrophe: keep it in a variable
 ck "THE COUNTER'S FRONT FACE"       3 "$(grep -c "$PAT_CFF" SPEC.md)"
@@ -139,14 +144,31 @@ ck "amtrak (HIS word)"              2 "$(grep -c 'amtrak' SPEC.md)"
 # physically the same vehicle is U" with SAME VEHICLE, and sec.7.1/7.2 record
 # that plus the era-tag correction.  Seven new mentions, all in those two
 # subsections.  If this fires again, adjudicate the NEW ones -- do not bump it.
-ck "nolita, any case"              16 "$(grep -ic 'nolita' SPEC.md)"
+# rev 44b: 16 -> 25.  ref_nolita_doorshut.jpg and ref_nolita_front34.jpg
+# carried four of this revision's findings (10.102, 10.105, 10.106, 10.107),
+# so SPEC names them nine more times.  This row is a REMINDER THAT THE
+# NOLITA FRAMES ARE ADMISSIBLE, not a cap on how often they are used.
+ck "nolita, any case"              25 "$(grep -ic 'nolita' SPEC.md)"
 ck "TEN flower heads"               1 "$(grep -c 'TEN flower heads' SPEC.md)"
 
 # ------------------------------------------------------------------ build files
 say "-- build files --"
-ck "DOOR_ARCH_G in t1_shell.py"     7 "$(grep -c 'DOOR_ARCH_G' t1_shell.py)"
-ck "_G_BUILD in t1_shell.py"        4 "$(grep -c '_G_BUILD' t1_shell.py)"
-ck "_arch_radial in t1_shell.py"    4 "$(grep -c '_arch_radial' t1_shell.py)"
+# rev 44b: 7 -> 3.  SPEC 10.102 retracted 10.100's wrap, and with the arc
+# gone so are its fixed-point solve and the four references that fed it.
+# What remains is the definition, the guard and its message -- which is the
+# whole point: the CLEARANCE INVARIANT survived the geometry that motivated
+# it.  A drop to 0 would be the finding; 3 is the invariant standing alone.
+ck "DOOR_ARCH_G in t1_shell.py"     3 "$(grep -c 'DOOR_ARCH_G' t1_shell.py)"
+# rev 44b: 4 -> 0, AND THAT IS CORRECT.  `_G_BUILD` existed ONLY to solve the
+# construction clearance for 10.100's wrapped arc by fixed point.  10.102
+# retracted the wrap; the outline is rev 41's table again and needs no solve.
+# The PATTERN is not lost -- t1_core.vw_bars now uses it for the emblem
+# (10.107) and that is where to look for it.
+ck "_G_BUILD in t1_shell.py"        0 "$(grep -c '_G_BUILD' t1_shell.py)"
+# rev 44b: 4 -> 3.  Same cause: the fixed-point loop called it once per pass.
+# The three that remain are the definition, DOOR_ARCH_G, and _MIN_RAD -- i.e.
+# the measure, the reference value and the guard.  All three must stay.
+ck "_arch_radial in t1_shell.py"    3 "$(grep -c '_arch_radial' t1_shell.py)"
 ck "T1_ABLATE in build.py"          5 "$(grep -c 'T1_ABLATE' build.py)"
 ck "FLOOR_W in t1_detail.py"        5 "$(grep -c 'FLOOR_W' t1_detail.py)"
 ck "_assert_same_edge"              4 "$(grep -c '_assert_same_edge' flank_compare.py)"
