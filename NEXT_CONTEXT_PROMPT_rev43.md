@@ -10,7 +10,7 @@ standard. **Where this brief and the machine disagree, the machine is right —
 say so and correct the brief in the same revision.**
 
 **VERIFY BY CONTENT. THERE IS NOW A SCRIPT FOR IT:** `./verify_clone.sh`.
-Forty-nine checks, exit 0 or exit 1. Until rev 43 those checks were thirty lines
+Sixty-six checks, exit 0 or exit 1. Until rev 43 those checks were thirty lines
 of prose re-typed by hand every revision — which is a drift surface, and this
 project has already shipped a measurement quoted from a thirty-revision-old
 comment. **A number in a script that runs cannot go stale the way a number in a
@@ -22,7 +22,7 @@ paragraph can.** See §11.
 ```bash
 pwd && git remote -v            # expect .../Donwonmagic/combi_render
 git fetch origin && git status -sb
-./verify_clone.sh               # must print ALL 49 PASS and exit 0
+./verify_clone.sh               # must print ALL 66 PASS and exit 0
 ```
 **DO NOT RE-CLONE.** You are already in his working copy, and it holds things a
 fresh clone does not: **every rendered hero and `out/` — those two are
@@ -58,6 +58,62 @@ ls -ld ~/Desktop/tacombi_bus_render 2>&1
 rule is that an absence has a timestamp too. **Do not assume any of these three
 exist** — report what came back. **The bundles are dead weight now that the repo
 exists.**
+
+## Step 0.5 — SEND ME A STATUS MESSAGE INSIDE TWENTY MINUTES, AND FIRE THE TWO ASKS
+**DO THIS WHILE BLENDER IS STILL DOWNLOADING. DO NOT WAIT FOR THE GUARDS.**
+Rev 42's brief had no instruction to contact me before the work was done, so my
+first contact was whenever the session happened to surface. **The two things
+item 1 is blocked on are human round-trips — they have the longest latency in
+the revision and they must be fired first.**
+
+Send exactly this shape. **No number you did not watch print. An absence is a
+LINE in this report, not a gap in it.**
+```
+REV 43 - OPENING STATUS, <time of the last command you ran>
+
+TREE     ./verify_clone.sh -> <paste the verdict line, do not paraphrase> exit <n>
+         git HEAD <sha>  |  modified tracked files <n>
+MACHINE  uname -m <v> | cores <n> | RAM <n> | free on . and /tmp <n>
+         => Blender build I am installing: <x64|arm64>;  Cycles: <CPU-only|Metal>
+ON DISK  out/            <the ls -l line, or the literal "No such file" line>
+         rev4*_hero34f   <same>
+         ~/Desktop/...   <same>
+BRIEF vs MACHINE   <every place this brief disagrees with what I just ran, both
+                    values. Write "none" only if there are none.>
+
+BLOCKED ON YOU - item 1 cannot start without these:
+  Q1. <one crop, one mark, the question as 2-3 lettered choices>
+  Q2. folk_door.md - cited 20x in folk_gen.py, not in the repo. Can you send it?
+      If not, say so and I will record in SPEC that the plan proceeds without
+      the measurement its targets came from.
+
+WHILE I WAIT, in this order, none of it blocked:
+  0a <state> 0b <state> 0c <state> 0d <state>
+NOT TOUCHING this revision: items <n, n, n>
+```
+
+### And launch the record fan-out NOW — it runs while the .dmg downloads
+Rev 42's brief praised this and never commissioned one, so every session read
+the record serially anyway, because inventing the questions IS the work. **Here
+are the questions. Seven agents, disjoint files, all read-only, each returning
+under 400 words.**
+
+| agent | files | the question, verbatim |
+|---|---|---|
+| A1 | `HANDOFF_rev38..42.md` | Every item stated OPEN, CARRIED FORWARD or UNAPPLIED, with the revision that opened it and the last that touched it. **Flag any item whose stated age disagrees between two handoffs — quote both.** |
+| A2 | `HANDOFF_rev30..37.md` | Every direct quotation of the owner, **verbatim**, with file and line. Mark each DECISION / QUESTION ANSWERED / STANDING INSTRUCTION / NOT YET ANSWERED. **Quote, do not summarise.** |
+| A3 | `SPEC.md` §10.83–§10.101, **by anchor** | Every route recorded REFUTED, RETIRED, REFUSED, DISSOLVED, WITHDRAWN or CLOSED BY HIM. For each: the route, why it closed, and the instrument that must therefore NOT be re-tuned. **This is a do-not-touch list, not a summary.** |
+| A4 | `folk_gen.py`, `t1_mats.py`, SPEC §10.10 + §10.100 + §10.101 | Locate `DOOR_H` **by symbol**: multiplier or divisor, how many call sites? Then state `folk_gen`'s mapping contract as it appears in source, and list every §10.10 target that must be re-measured if the flank UV map **replaces** rather than reproduces that affine map. **Cite symbols back to me, never line numbers.** |
+| A5 | the 31 `probe_*.py` headers only | For each of the twelve with no published tally: its subject, whether its own docstring says a control is expected to fail, whether it needs `bpy`, and **whether its subject belongs to a route A3 reports as closed.** Answer from the file, not from this brief. |
+| A6 | **this brief** + the repo | **Refute this document.** Every checkable claim in Steps 0–4 — counts, tallies, filenames, symbol locations, "N of M" figures — verified against the tree, PASS/FAIL with the actual value. **Start with the check count in Step 0.** |
+| A7 | `analysis/`, `workflows/`, all `*.py` headers | `grep -rl '/home/claude'` across the whole repo. Count per directory and every distinct hard-coded absolute path. **macOS has no `/home`** — anything here is dead, not latent. (`workflows/tacombi-rev11-audit.js` hard-codes `/home/claude/work/tacombi` too, which item 0d walks into.) |
+
+**A6 IS THE ONE THAT PAYS.** Rev 43's brief shipped saying the verify script
+prints 49 checks when it prints 66 — stated three times, hit in minute one, and
+found by an adversary agent rather than by the author. **Point one at this
+document every revision.**
+
+---
 
 ## Step 1 — the memory files are NOT reachable from here. Do not pretend to read them.
 Revisions 14–42 kept a running record in a cloud assistant's memory store at
@@ -96,6 +152,10 @@ AND FIND OUT HOURS LATER.** Eight files bake that path in: `hero.py`,
 editing them is a diff the guards do not cover and it churns every revision.
 
 ```bash
+# ARCHITECTURE FIRST. This costs 40 ms and picks the right 320 MB download.
+uname -m        # x86_64 -> macos-x64 below.  arm64 -> swap in macos-arm64.dmg,
+                # and note Cycles then has METAL, so every timing in 5 is wrong
+                # in your favour.  His desktop reported x64; CONFIRM, do not inherit.
 # macOS ships a .dmg, NOT the linux tarball rev 42 used. Skip if 4.5.3 is installed.
 curl -fsSL -o b.dmg https://download.blender.org/release/Blender4.5/blender-4.5.3-macos-x64.dmg
 hdiutil attach -nobrowse -quiet b.dmg
@@ -122,8 +182,10 @@ raises `ValueError` before anything builds:
 ```bash
 for n in 1 2; do
   T1_SUB=$n T1_VERIFY=1 /tmp/blender/blender -b --python build.py
-  T1_SUB=$n /tmp/blender/blender -b --python audit.py && git checkout STATE.md
-done
+  T1_SUB=$n /tmp/blender/blender -b --python audit.py
+  git checkout -- STATE.md    # NOT `&&` -- if audit.py exits non-zero the restore
+done                          # would be skipped, leaving STATE.md rewritten and
+                              # tripping verify_clone.sh into a false STOP
 ```
 **All four runs, every revision. The cab-door booleans passed at SUB=1 and
 collapsed the shell 205562v → 12v at SUB=2 for six revisions.**
@@ -136,9 +198,37 @@ lower shut line. **131 objects, 190 meshes, every figure identical to rev 38's
 EXCEPT the two roof-hole vertex counts, re-baselined at 70069 / 254428.**
 
 ## Step 3 — run the probes you inherit, not only the ones you write
+**READ THIS BOX BEFORE YOU RUN ANYTHING. IT IS WHAT STEP 3 TRIPS.**
+* **THE FRONT OVER-RIDER ASSEMBLY WAS WITHDRAWN BY HIM IN REV 37** (SPEC §10.93,
+  §10.91.8). `build.py`'s two calls are **COMMENTED, NOT DELETED**, and
+  `STATE.md` logs both guards as **`NOT APPLICABLE`** — *"Stated, not silently
+  skipped."* **THAT IS NOT A GUARD FAILURE**, notwithstanding Step 2's "if a
+  guard does not print 0 fail / 0 warn, report it". **FIVE PROBES EXIST ONLY TO
+  MEASURE THAT DEAD SUBSYSTEM** — `probe_orb_hoop`, `probe_orb_post`,
+  `probe_orb_blade`, `probe_v_apex`, `probe_psf_workshop` — and all five are in
+  the twelve with no published tally. **Run them if you like; do not build a
+  case to rebuild a bumper bar he killed.**
+* **THE RETIRED ESTIMATOR ROUTES.** Cross-ratio retired on a precondition
+  (SPEC §10.88.4), harmonic-conjugate retired on a missing feature (§10.89),
+  §10.83's post question dissolved (§10.90.6). `rev33_barend 7/4`,
+  `rev34_levels 8/4`, `rev34_ruling 6/4`, `rev35_harmonic 18/6` are the tallies
+  of **closed routes**, not of instruments at 75 % health. **Do not "improve"
+  them.**
+* **`probe_v_apex`'s ANCHOR IS FALSE AND SPEC SAYS SO.** §10.85: the "two-tone V
+  apex" is not the apex — it is the V's right arm vanishing behind the
+  over-rider bar, and the anchor is **22.7 px off**. Anyone reaching for a
+  centreline reaches for this first.
+* **TWO BARRED DATUMS.** SPEC §10.11 — the ground-line datum carries a
+  **common-mode error, do not place from it**. §10.15 — `ref_rear34.jpg` is
+  mis-identified, **treat every number off it as suspect**, which includes item
+  2b's `y 423, x 700`.
+
 **31 now.** Under `blender -b --python`: `probe_ctan_index`, `probe_dust_scope`,
-`probe_f90`, `probe_rev16`, `probe_cross_anatomy`, `probe_shutlines`,
-`probe_rev36_barend`, both rev38 probes, and `probe_rev42_uv`. Everything else
+`probe_f90`, `probe_rev16`,
+`probe_rev36_barend`, both rev38 probes, and `probe_rev42_uv`. (Rev 42's brief
+also listed `probe_cross_anatomy` and `probe_shutlines` here; **`grep -c bpy`
+on both returns 0** — they run under plain python. Harmless either way, but it
+is a misclassification in the one paragraph whose whole job is classification.) Everything else
 under `/tmp/blender/4.5/python/bin/python3.11`, including `probe_clean_top` and
 `probe_dust_anchor` (their only `bpy` is in a comment) and `probe_rev39_flank`,
 `probe_rev40_datum`, `probe_rev41_gate`. **Do not reach for the system
@@ -182,13 +272,12 @@ rev 44 needs the baseline you are about to create.
 `probe_rev40_datum`, `probe_rev41_gate` (and `flank_compare.py`). See §10.
 
 ## Step 4 — read, in this order — AND FAN THE BULK OF IT OUT
-**THERE IS NO `docs/` DIRECTORY AND THERE NEVER HAS BEEN.** All 37 handoffs and
-every prompt are at the repo ROOT. Rev 43's first draft said `docs/HANDOFF_rev42.md`
-and would have failed the read, then created `docs/` and broken a 37-file
-convention. `verify_clone.sh` checks both.
+**THERE IS NO `docs/` DIRECTORY.** All 37 handoffs and every prompt are at the
+repo ROOT; `verify_clone.sh` checks both facts. **Write yours there too.**
 
-`STATE.md` → **`SPEC.md` §10.99–§10.101 yourself** → this file →
-`HANDOFF_rev42.md` → `HANDOFF_rev41.md` → … → `REF_MEASUREMENTS.md`.
+You are already inside this file, so: `STATE.md` → **`SPEC.md` §10.99–§10.101,
+yourself** → `HANDOFF_rev42.md` → `HANDOFF_rev41.md` → … → `REF_MEASUREMENTS.md`
+— **and Step 0.5's A1/A2/A3 are already reading most of that for you.**
 
 **DO NOT READ 550 KB OF SPEC SERIALLY INTO THIS CONTEXT.** Fan it out: one
 subagent per five handoffs, each with a named extraction question. That is §5's
@@ -214,12 +303,10 @@ exists.
 ```bash
 uname -m && sysctl -n hw.ncpu hw.memsize && df -h . /tmp
 ```
-**CHECK `uname -m` FIRST AND DO NOT SKIP IT.** Step 2 fetches
-`blender-4.5.3-macos-x64.dmg` and this section assumes Cycles is CPU-only. Both
-are true on **Intel (`x86_64`)** and both are wrong on **Apple Silicon
-(`arm64`)**, where you want the arm64 build and Cycles has Metal — which changes
-the render budget by more than any other single fact here. His desktop reported
-`x64` in rev 43; **confirm it, do not inherit it.**
+**`uname -m` IS IN STEP 2 AND EVERY FIGURE BELOW DEPENDS ON ITS ANSWER.** On
+**Apple Silicon** Cycles has Metal and this whole section is wrong in your
+favour. **On arm64, do NOT `pip install` into a copied `.app`** — it invalidates
+the notarised signature, which Intel tolerates and Apple Silicon does not.
 Every timing below was measured on the **old 2-core cloud box** (Intel Xeon @
 2.10 GHz, 7.8 GB, 28 GB free). His Mac is not that machine. Treat these as an
 UPPER bound and a shape, not a prediction: **re-time SUB=1 and SUB=2 once, print
@@ -229,7 +316,17 @@ throughput.
 **Cycles on Intel macOS is CPU-only and a laptop throttles on a multi-hour
 frame.** A strip that runs long late in a render is thermal, not a hang.
 
-### What DOES parallelise — 3 to 5 agents, on DISJOINT files
+### What DOES parallelise — and the old "3 to 5 agents" cap is DEAD
+**READ THIS BEFORE YOU PLAN THE REVISION.** Every parallelism rule in the
+record was written against a **2-core** cloud box. **You are on his Mac, which
+reports at least 8 cores, and you are Claude Code — you can orchestrate real
+multi-agent work, not just spawn a helper or two.** Rev 11 deferred the biggest
+job in the project purely because two cores could not run it. **That constraint
+is gone. Do not inherit its conclusions.**
+
+**THE ONE RULE THAT SURVIVES UNCHANGED: DO NOT FAN OUT BLENDER.** It is
+CPU-bound and two concurrent instances make both slower. Everything else below
+is now open to you.
 Agent reasoning is API-bound, not CPU-bound, so several genuinely run at once
 even on two cores. **This is where the throughput is.**
 * **Reading and grepping the record.** `SPEC.md` is 550 KB and there are 37
@@ -308,12 +405,54 @@ He asked for *"a complete and comprehensive workflow by a number of expert
 specialists"* and later: *"I think that we should conduct that audit workflow at
 some point, I believe you were one that put it on ice."* Rev 11 deferred it for
 the 2-core reason above and it has never run.
-**THERE IS NO `Workflow()` RUNNER IN CLAUDE CODE. DO NOT TRY TO EXECUTE THE
-FILE.** Read it as a SPECIFICATION: it holds ten dimension briefs plus the
-adversarial-verifier pattern, and its own header already gives the fallback —
-*spawn them 3–4 at a time with the Agent tool on DISJOINT files*. Run it that
-way: fan out the dimensions, one adversarial verifier per ranked finding, one
-synthesis into `AUDIT_rev43.md`.
+**RUN IT. THIS REVISION. IT IS THE REASON THE MACHINE CHANGED.**
+He asked for *"a complete and comprehensive workflow by a number of expert
+specialists"* and then, later, *"I think that we should conduct that audit
+workflow at some point, I believe you were one that put it on ice."* **I was.
+The reason was two cores** — the file's own header says so, and says the quiet
+part too: ***"On a wider box it is a normal fan-out."*** **You are the wider
+box. Thirty-two revisions of deferral end here.**
+
+**DO NOT try to execute the file** — `Workflow({scriptPath: …})` is a runner
+that does not exist here, and the file hard-codes `/home/claude/work/tacombi`.
+**Read it as the SPECIFICATION it is** — it already contains the ten dimension
+briefs, the JSON schemas for findings and verdicts, the refuter's instructions
+and the synthesis prompt — **and drive the same shape with your own subagents.**
+
+**THE HARNESS, concretely:**
+```
+STAGE 1  FAN OUT — the five unrun dimensions, concurrently, disjoint files:
+         counter/galley internal contrast · wheels and contact shadow ·
+         tail · roof · optics/glass
+         (proportion, materials, script and fascia were run BY HAND in rev 11
+         and AUDIT_rev11.md carries their results. DO NOT REDO THEM. The tenth
+         key, `playa`, he deprioritised — replace it with WEATHERING, which the
+         file's own header says is now the dominant CG tell.)
+
+STAGE 2  ADVERSARIAL VERIFY — do NOT wait for all five. The moment a dimension
+         returns, fan its ranked findings straight into refuters. Each refuter
+         is told to REFUTE, not confirm, and to DEFAULT TO REFUTED if it cannot
+         independently reproduce the finding. Give them DIFFERENT LENSES rather
+         than N identical skeptics: does it reproduce · is the datum admissible
+         under SPEC 10.62/10.73 · what does it BREAK if applied. Majority
+         refutes -> the finding dies.
+
+STAGE 3  SYNTHESIS — one agent, the owner-facing review. CONFIRMED findings
+         ranked; REFUTED findings listed WITH THE REASON, because an
+         unrecorded refutation gets re-raised next revision. Write
+         AUDIT_rev43.md.
+```
+**PIPELINE IT, DO NOT BARRIER IT.** A barrier between stage 1 and stage 2 makes
+the fastest dimension wait on the slowest for nothing — no verifier needs
+another dimension's findings. Let each dimension flow through verify on its own.
+
+**FIRST, UPDATE THE BRIEFS — the file's own header lists exactly what moved and
+it is four items:** drop/replace `playa`; the `roof` brief still poses the lid
+topology as unresolved (it is resolved, SPEC §10.26 — re-point it at whether the
+front lid sits forward of `LID_X0`); the `counter` brief predates the rev-11
+galley rebuild (point it at INTERNAL CONTRAST, bay 1 sd 15.3 against the
+photograph's 28.4); add the roof cutter (SPEC §10.27) to `proportion` or `roof`.
+**They were written against rev 10 and the model has moved 32 revisions.**
 **FOUR OF THE TEN DIMENSIONS HAVE ALREADY BEEN RUN BY HAND** — proportion,
 `materials` (which `AUDIT_rev11.md` calls "weathering"), script, fascia — and
 that file carries their results. Five remain: counter/galley internal contrast,
@@ -324,6 +463,30 @@ deprioritised but **not cancelled**. Account for it rather than inheriting the
 arithmetic gap.
 **Its dimension briefs were written against rev 10 and MUST be updated to rev 42
 before it runs** — the file's own header says so.
+
+### The orchestration patterns worth reaching for, now that you can
+Not a menu to work through — pick what fits, and compose.
+* **ADVERSARIAL VERIFY.** N skeptics per finding, each told to REFUTE, majority
+  kills. **Findings this project accepted without that have been overturned
+  more often than not** — that is not a slogan, it is the record.
+* **PERSPECTIVE-DIVERSE VERIFY.** When a finding can fail in more than one way,
+  give each verifier a distinct lens instead of cloning one skeptic. Here the
+  natural lenses are: does it reproduce · is the datum admissible · what does
+  it break.
+* **INDEPENDENT MEASUREMENT ROUTES.** The single most valuable fan-out in this
+  project: the SAME question to N agents with DIFFERENT photographs, or the same
+  photograph with different estimators, then compare. **SPEC §10.99 exists
+  because one route was checked against a second that shared no step with it.**
+* **LOOP-UNTIL-DRY.** For unknown-size discovery, keep spawning finders until
+  two consecutive rounds return nothing new. Dedup against everything SEEN, not
+  against what survived — or judge-rejected findings reappear every round.
+* **COMPLETENESS CRITIC.** A final agent asking *what is missing — which route
+  was not run, which claim is unverified, which source unread?* What it finds is
+  the next round's work.
+* **A6, EVERY REVISION.** One agent pointed at the brief itself, told to refute
+  it. **Rev 43's brief shipped claiming its own verify script prints 49 checks
+  when it prints 66** — stated three times, hit in minute one, and caught by an
+  adversary rather than by its author.
 
 ### What throughput does NOT mean
 Not more findings per hour. **This project's failure mode has never been too
@@ -357,8 +520,14 @@ TO ME — do not do a revision's work and then discover you needed them.**
 0c. **Item 2's scale-free headlamp test.** SPEC §10.94 already gives it: does
     the indicator aperture sit below or above the two-tone break in the current
     build? It needs no px/m and no answer from me.
-0d. Update `workflows/tacombi-rev11-audit.js`'s dimension briefs from rev 10 to
-    rev 42, then run the five remaining dimensions as subagents.
+0d. **RUN THE SPECIALIST AUDIT HE ASKED FOR THIRTY-TWO REVISIONS AGO.** Update
+    `workflows/tacombi-rev11-audit.js`'s four stale dimension briefs, then drive
+    its harness with your own subagents — five dimensions, adversarial refuters
+    pipelined behind each, one synthesis into `AUDIT_rev43.md`. **§5 has the
+    stage-by-stage shape.** It is unblocked, it needs no answer from me, it is
+    the single largest thing this project has deferred, and **it was deferred
+    for a hardware reason that no longer exists.** If you do one thing beyond
+    the instrument floor while you wait on me, do this.
 **None of that touches the re-bake, and all of it is work rev 44 would otherwise
 inherit.**
 **HIS EIGHT DEFECT REPORTS ARE THE SPINE. THREE ARE CLOSED — 6 and 8 in rev 38,
@@ -418,7 +587,9 @@ it is where rev 38 left it, as SPEC §10.24.
      explicitly that the plan proceeds without the measurement its targets came
      from.**
    * **TWO RECIPES ARE ALREADY WRITTEN IN `folk_gen.py`'s TRAILING NOTES — DO
-     NOT RE-DERIVE THEM.** `grep -n '0.2280\|(f) THE NOSE FRONT FACE' folk_gen.py`.
+     NOT RE-DERIVE THEM.** `grep -nE '0\.2280|\(f\) THE NOSE FRONT FACE' folk_gen.py`
+     (**`-E`, not `\|`** — BSD grep takes `\|` literally and finds nothing,
+     which reads exactly like the recipes not existing).
      One removes the texture-wrap collision (`Scale 0.2600 → 0.2280`, `Location
      x 0.185 → 0.500`; period becomes 4.386 m, longer than the 4.01 m flank, so
      no two points on the body share a texel). **It cites `t1_mats.py:823` and
@@ -497,7 +668,7 @@ it is where rev 38 left it, as SPEC §10.24.
    nothing in the build or the guards. **Decide once:** repoint them at
    `os.path.dirname(__file__)`, or move them to `analysis/attic/` with a README.
    Do not leave a directory that cannot run and do not edit 25 files blind.
-8b. **`SCR` IS MEASURED, CHECKED, AND UNAPPLIED FOR TWO REVISIONS.** `build.py`,
+8b. **`SCR` IS MEASURED, CHECKED, AND UNAPPLIED FOR THREE REVISIONS.** `build.py`,
    `SCR = dict(...)`. **+76.2 mm forward, −33.3 mm up** (SPEC §10.98 — the
    vertical term flipped sign when the datum was fixed; the +76.2 never depended
    on it). Rev 41's condition was *"re-measure once more after any counter
@@ -542,11 +713,19 @@ Grep each before acting — a memory entry is a claim.
 7. **THE SEÑOR TACOMBI SCRIPT — I REJECTED IT TWICE.** `flank_compare` puts
    `Senor` at **0.459 of its own ceiling**; its texture-only control scores
    **0.884 overall** — so **the failure is the PANEL and the `Senor`
-   reconstruction, not the render.** Also open: **the silver is FLAT** —
-   `tex/senor.png` emits a constant (214,216,218) against reference per-channel
-   std 16–19. Rev 42 measured `senor.png` at 4096×1738, **the only image meeting
-   §5's 3K bar**, UV layout **clean at 0.00 %** — so neither resolution nor
-   layout is the problem.
+   reconstruction, not the render.** **THE "SILVER IS FLAT" CLAIM IS FALSE AND
+   REV 43 MEASURED IT.** `tex/senor.png` does NOT emit a constant: **0 pixels**
+   hold (214,216,218), it carries **5856 unique opaque colours**, per-channel
+   std **24.1 / 40.2 / 47.7**. The (214,216,218) figure was quoted from a
+   comment in `script_gen.py` whose own sentence is **past tense** — *"rev 10.
+   The generator emitted a CONSTANT…"* — describing behaviour that same comment
+   then documents as fixed. **§9's rule, biting the brief again: a figure in a
+   comment is not a measurement.** There does appear to be a live defect, but it
+   is **VALUE, not flatness**: opaque mean **(205, 194, 200)** against
+   `script_gen`'s own measured target of **(127.4, 124.9, 130.0)**. Re-state the
+   item that way before acting on it. Rev 42 measured `senor.png` at 4096×1738,
+   **the only image meeting SPEC §5's 3K bar**, UV layout **clean at 0.00 %** —
+   so neither resolution nor layout is the problem.
 8. **THE FRONT ROOF LID NEEDS TWO-SIDED ARTWORK** — my settled topology, never
    implemented. `roof_lids()` gives each lid ONE board face. Also mine: **a
    TRUNK LID, separate from the roof lids, and region C is that trunk lid,
@@ -674,7 +853,7 @@ verdict flip across its aspect tolerance at 900 px for no change in the model.
 
 ## §11. VERIFY BY CONTENT — NOW A SCRIPT, NOT A PARAGRAPH
 ```bash
-./verify_clone.sh            # 49 checks. exit 0 = ALL PASS. exit 1 = STOP.
+./verify_clone.sh            # 66 checks. exit 0 = ALL PASS. exit 1 = STOP.
 ./verify_clone.sh --quiet    # verdict line only
 ```
 **WHY THIS REPLACED SIXTY LINES OF PROSE.** Until rev 43 these checks were
@@ -698,11 +877,17 @@ lines was a value that could silently go stale.** They are now executable.
   because the line number is not the invariant.
 
 **IF IT EXITS 1: STOP, report the failing line with its ACTUAL value, and do not
-build.** **Do not edit the script to make it pass.** If a check is genuinely
+build.** **Do not edit the script to make it pass.**
+
+**ONE EXCEPTION, AND IT IS THE ONE YOU WILL HIT: `modified tracked files`.** The
+moment you edit a tracked file, that check fails by design — it exists to catch
+`audit.py`'s rewrite of `STATE.md`. **Mid-revision, expect exactly that one FAIL
+and no other. It is not a finding.** Any OTHER failing line, at any time, is.
+Commit, then re-run, and it should read ALL PASS again. If a check is genuinely
 wrong, fix the check and say in the handoff which one moved and why — in the
 same commit as the change that moved it.
 
-**THE THREE TEXTURE md5s ARE IN THERE AND THEY WILL MOVE** when §6 item 1's
+**ALL EIGHT TEXTURE md5s ARE IN THERE AND THEY WILL MOVE** when §6 item 1's
 re-bake lands. That is the point of the re-bake, not a regression. Re-run `md5`,
 paste the new hashes into the script **in the same commit as the new artwork**.
 Never a separate commit — that is how a tripwire becomes a rubber stamp.
