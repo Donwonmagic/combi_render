@@ -361,17 +361,34 @@ about LIVERY, not about vehicles.
 
 ### 7.2 THE ERA TAGS WERE WRONG — finding 23, rev 44
 
-**BOTH RED-LIVERY FRAMES ARE MEXICO, i.e. Playa-era.** `ref_rear34.jpg` carries
-a Spanish sign reading **"FAVOR DE ORDENAR Y PAGAR AQUÍ"**, palms and banana
-plants, and an open-air patio with café tables; `ref_source.jpeg` is a Mexican
-street scene with Spanish signage and a palm. **So the red livery is Playa-era,
-and the project holds NO Nolita photograph of the red bus** — the only Nolita
-frame it holds at all is `ref_nolita_doorshut.jpg`, committed at rev 43, which
-carries no folk art and no script.
+**BOTH RED-LIVERY FRAMES THE PROJECT HOLDS ARE MEXICO-SHOT.** `ref_rear34.jpg`
+carries a Spanish sign reading **"FAVOR DE ORDENAR Y PAGAR AQUÍ"**, palms and
+banana plants, and an open-air patio with café tables; `ref_source.jpeg` is a
+Mexican street scene with Spanish signage and a palm. Both readings are direct
+and neither needs a ruler.
+
+**AND THE OBVIOUS INFERENCE FROM THAT IS WRONG — RETRACTED IN THE SAME
+REVISION THAT MADE IT.** Rev 44 first wrote *"so the red livery is Playa-era,
+and the project holds no Nolita photograph of the red bus"*. **That does not
+follow, and it is false.** Published descriptions of the Nolita taqueria
+describe *"a bright red 1963 Volkswagen bus … parked between several tables"*
+with *"its roof cut off and lifted to reveal a chalkboard"* — i.e. **the RED,
+folk-art bus is the one standing in Nolita**, having been shipped from Mexico.
+
+**So livery colour is NOT an era discriminator and must never be used as one.**
+What the evidence supports is only the narrow claim: **these two particular
+frames were shot in Mexico.** The era of any frame must be read from its SCENE
+— signage language, vegetation, indoor/outdoor — not from the paint.
 
 **Rev 14's re-admission of Nolita material rested partly on the opposite
-premise** and is corrected here. **No measurement moves** — this is a
-provenance correction, and §7.1 keeps the geometry admissible anyway.
+premise**, and so did rev 44's first cut of this section. **No measurement
+moves** — this is provenance only, and §7.1 keeps the geometry admissible.
+
+**Sourcing note:** the Nolita descriptions are **WebSearch result text, not a
+photograph and not fetched** — this environment can search but `WebFetch` and
+`curl` are both egress-blocked, so no page was read and no image obtained.
+Graded **R** at best. It is strong enough to KILL an inference, which is all it
+is used for here; it is not used to support one.
 
 ### 7.3 THE SCRIPT IS IN TWO PHOTOGRAPHS — finding 22, scoping SANCTIONED rev 44
 
