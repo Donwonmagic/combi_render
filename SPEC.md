@@ -797,7 +797,7 @@ which the studio's paper white sits at linear 21.0 (SPEC 10.8), so the solved
 rig lands ~5.6 stops down. `T1_KEY_PLAYA` scales the whole rig together so the
 solved ratios are untouched.
 
-### 10.24 OPEN — three things measured, applied, and then reverted
+### 10.24 — three things measured, applied, and then reverted. **ITEM 3 IS NOW CLOSED (rev 44); ITEMS 1 AND 2 REMAIN OPEN.**
 
 Each was applied from a measurement, broke something that is independently
 locked, and was reverted rather than laundered. None is closed.
@@ -814,10 +814,45 @@ locked, and was reverted rather than laundered. None is closed.
    The same silhouette puts the indicator's front face at column 80 against the
    crown's 78 — ~9 mm behind. If the 65 mm is right, the fix is the pod's
    MOUNTING STATION, not its depth.
-3. **Headlamp vertical position.** The same pass gives headlamp centre =
-   belt - 0.339 +/- 0.025 m, against the build's belt - 0.242 — a 97 mm
-   discrepancy at ~3.9 sigma. NOT applied: it is a single-chain claim that
-   moves the face of the vehicle, and it deserves a second derivation first.
+3. **Headlamp vertical position. APPLIED AT REV 44 — thirty-four revisions
+   after it opened.** The same pass gives headlamp centre = belt - 0.339
+   +/- 0.025 m against the build's belt - 0.242 — a 97 mm discrepancy at
+   ~3.9 sigma. The stated blocker was *"a single-chain claim … it deserves a
+   second derivation first"*. **That derivation was produced at rev 11 and
+   discharged the blocker at rev 37 (SPEC:6999); this entry never learned of
+   it** — the carrier failure §10.91.1 names, inside SPEC rather than between
+   contexts.
+
+   **Rev 44 re-checked both arms of the discharge before acting, and they are
+   NOT equally sound.** The **ORDINAL** arm is unanimous and scale-free —
+   rev 11's indicator-below-the-break test, rev 44's chord test (the break cut
+   **131.9 mm across a 172.4 mm lens** while `ref_source.jpeg` has the lamp
+   clear with 12 px of red above), and the owner's own words. The
+   **roundel-ratio MAGNITUDE** arm, *"83 ± 19 mm at 4.4 sigma"*, **DID NOT
+   REPRODUCE**: the same arithmetic on today's constants returns **103.4 mm**,
+   because `ROUNDEL_Z_AG` is itself stale (ledger finding 26). **That arm was
+   set aside as contaminated and NOT used.**
+
+   **So the magnitude came from the belt-relative arm alone**, which touches no
+   stale constant and is independently anchored at −2.7 mm by §10.98's
+   sill-to-break cross-check. `HL_Z` **1.0300 → 0.9330**.
+
+   **Result:** `probe_rev44_report3` **C6 GREEN** — the lens top now sits
+   **45.2 mm BELOW** the break where it stood 51.8 mm above it. Guards 0 fail /
+   0 warn at both levels, both tools; 190 meshes, 5 constant-rough, unchanged.
+
+   **THE TRAP WAS RESPECTED AND IS NOW ARMED.** The roundel was not moved —
+   measured on the **built mesh** at **1.0170**, and on screen at **dy = +0.01
+   px**. `probe_rev44_lampmove` 4/4 keeps it that way. **An independent arm
+   agrees after the fact:** the roundel-to-lamp separation lands at 0.1695 m
+   against the photographed 0.1758 ± 0.0185 — **0.34 sigma** — from a chain
+   never used to derive the move.
+
+   **A re-typed constant was repaired because the fix needed it:** the
+   indicator's Z was the literal `1.2360` while its comment claimed *"Z is set
+   RELATIVE to the lamp"*. It was not — 1.2360 is 1.0300 + 0.206 re-typed, and
+   the lamp would have moved out from under it. Both Y and Z now expressed.
+   §10.25's own rule. **TO REVERT: `HL_DROP = 0.0`.**
 
 ### 10.25 The VW glyph merged into an X again, by a new route
 
