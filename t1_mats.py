@@ -1948,8 +1948,28 @@ def build_all():
                                       WEAR[M["countertan"].name]))
     apply_weather(M["countertan"], dust=_CTAN_DUST, wear=_CTAN_WEAR,
                   fade=float(os.environ.get("T1_CTAN_FADE", 1.0)), peel=0.0)
-    apply_weather(M["capred"], dust=1.4, wear=WEAR[M["capred"].name],
-                  fade=1.0, peel=0.0)
+    apply_weather(M["capred"], dust=0.30, wear=WEAR[M["capred"].name],
+                  fade=0.25, peel=0.0)
+    # rev 44 -- DUST 1.4 -> 0.30, FADE 1.0 -> 0.25.  The owner reported the red
+    # hubcaps reading wrong off the hero.  The SIZE is right -- CAP_R is locked
+    # against a 302-ray circle fit at sd 0.79 px, 0.4134 photographed against
+    # 0.4211 built -- but the COLOUR is not, and that is what reads as bulk.
+    # Measured G/R on the cap, model against TWO independent reference frames
+    # that agree with each other to 0.002 (ref_side.jpg rear wheel 0.230,
+    # ref_nolita_doorshut.jpg 0.228 -- different cameras, different eras):
+    #     shipped  dust 1.4 fade 1.0 ....... 0.598      +0.368 off
+    #     dust 0.30 fade 0.25 ............... 0.401      +0.171
+    #     weather FULLY OFF ................. 0.309      +0.079
+    #     TARGET ............................ 0.230
+    # Weather is the WHOLE story -- and it ran the wrong way: the shipped cap
+    # was more bleached than a perfectly clean one would be, so weathering was
+    # not adding grime, it was adding WHITE.  Cutting it halves the error.
+    # A RESIDUAL REMAINS AND IS NOT TUNED AWAY: even at zero weather the render
+    # sits at 0.309 against 0.230, so ~22 % of the gap is lighting/specular,
+    # not weather.  Dropping the clearcoat was tried (coat 0.50 -> 0.12, spec
+    # 0.55 -> 0.35) and made it WORSE, 0.378 -- so the coat is not the lever
+    # and it is restored exactly as shipped.  The residual needs a lighting
+    # pass, and tuning dust further to hide it would be laundering.
     for k in ("countercream", "wheelcream", "capwhite"):
         apply_weather(M[k], dust=1.4, wear=WEAR[M[k].name], fade=1.0, peel=0.0,
                       fadev=FADEV_CREAM)
