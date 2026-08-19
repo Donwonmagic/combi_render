@@ -92,6 +92,7 @@ failing. Eleven rows.
 | `probe_rev44_report3` | `CONTROLS: 6 checked, 1 FAILED — C5` | 6/1 | **C5 is a KILL** (never green). **C6 was the burn-down gate for §10.24 item 3 and it WENT GREEN THIS REVISION** — the only control in this project that was ever supposed to change class, and it did. |
 | `probe_rev44_doorart` | `CONTROLS: 6 checked, 1 FAILED — C5` | 6/1 | C5 is the finding, armed as a KILL: a re-point must not move a fixed `v`. It moves it **309.1 mm**. |
 | `probe_rev44_typo` | `CONTROLS: 8 checked, 1 FAILED — N1` | 8/1 | N1 is the one new finding — the tilde is present but **half-weight** (8 px against 16). |
+| `probe_rev44_nolita_nose` | `CONTROLS: 4 checked, 1 FAILED — C4` | 4/1 | C4 is a **KILL**: this frame must never be quoted for a magnitude. It gives an **ordinal only** — a third arm for §10.24 item 3. |
 | `probe_rev44_vpow` | `CONTROLS: 6 checked, 1 FAILED — C3` | 6/1 | C3 is a finding **against SPEC, not the model**: the published *"V_POW 0.30–0.48"* does not follow from the published 0.111 ± 0.015, which inverts to 0.257–0.344. |
 
 ### THE ELEVEN UNTABLED PROBES, CLASSIFIED — rev 44
@@ -152,7 +153,7 @@ real Blender leaves the same `sys.argv` — **it is the wrong interpreter.** The
 | 8 | `probe_clean_top` / `probe_dust_anchor` — rewrite or retire, **eleven revisions** | open |
 | 9 | `tex/emblem.png` — genuinely orphaned | open |
 | 10 | `analysis/` — 25 of 27 scripts hard-code a dead absolute path | open |
-| 11 | **Absolute roof height — OPEN AND UNMEASURED**; model reads 1.9835 on nothing | open — **and the owner has offered to fetch frames. `PHOTOS_WANTED_rev44.md` is the list.** |
+| 11 | **Absolute roof height — OPEN AND UNMEASURED**; model reads 1.9835 on nothing | open — **but for the first time there is a frame that could close it.** `ref_nolita_front34.jpg` (owner upload, rev 44) carries **people standing on the ground beside the vehicle**, which no earlier reference did. Not yet measured. |
 | 12 | Ride height — owner states lower than stock; SPEC §0.2 and REF §2 contradict | open, never adjudicated |
 | 13 | Off flank 804.9 mm — graded E, never adjudicated | open — **top of the photo list** |
 | 14 | Nolita authorised for geometry rev 15 — **29 revisions, zero frames measured** | open — **but §7.1 now settles that it is ONE VEHICLE, so the frames are admissible** |
