@@ -397,7 +397,31 @@ def bumper(front=True, z=0.4800, name="bumper"):
       rear:   +Y flank aft     -> across the flat tail face -> -Y flank forward
     """
     if front:
-        raw = _plan_curve(z, 1.735, 2.108, 30)          # x increasing
+        # ------------------------------------------------------- rev 44
+        # THE FRONT BUMPER OVERLAPPED THE CAB DOOR.  He reported it; measured
+        # on the built mesh it is unambiguous: `bumper_f` ran x 1.7350..2.1403
+        # while the door aperture starts at DOOR_X1 = 1.8171, so 82 mm of
+        # bumper sat INSIDE the door, and 89 of its 91 vertices in that span
+        # were ABOVE the door's own bottom outline -- the worst by 114 mm.
+        # In ref_nolita_doorshut.jpg the bumper's aft end is plainly FORWARD of
+        # the door's lower-front corner; the two never meet.
+        #
+        # 1.735 was a BARE LITERAL with no derivation, and SPEC 10.72 had
+        # already struck the bumper's x extents as UNMEASURED ("X_BUMP_F/R have
+        # zero read sites ... neither value is measured").  So there is nothing
+        # to preserve, and the aft end is now EXPRESSED IN TERMS OF THE DOOR it
+        # must not touch rather than re-typed -- SPEC 10.25's rule, which is
+        # exactly the coupling this project keeps getting burned by.
+        #
+        # A CLEARANCE, NOT A MEASUREMENT.  The reference cannot give the wrap
+        # length to better than a few centimetres at 480 px, so this does not
+        # pretend to: it takes the hard geometric constraint (the bumper may
+        # not enter the door aperture), adds 10 mm, and stops.  The wrap goes
+        # 373 mm -> 281 mm as a consequence, and that consequence is stated
+        # rather than tuned.
+        import t1_shell as _SH
+        _aft = max(p[0] for p in _SH.DOOR_GAP_S) + 0.010
+        raw = _plan_curve(z, _aft, 2.108, 30)           # x increasing
         nose = raw[-1]
         seq = [(x, -y) for (x, y) in raw]
         for i in range(1, 12):                          # flat nose face
