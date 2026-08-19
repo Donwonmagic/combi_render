@@ -8843,3 +8843,176 @@ against 70 %.
 **A DETAIL YOU CANNOT SEE IS NOT A DETAIL.** §10.104 spent a revision building
 a cab and the very next frame proved none of it. Every future detail pass ships
 with the frame that shows it, or it does not ship.
+
+---
+
+### 10.106  rev 44b — **THE FORWARD LOWER LOBE.** §10.102 WAS RIGHT ABOUT THE HALF OF THE DOOR IT MEASURED AND THEN ASSERTED IT OVER THE WHOLE DOOR
+
+#### 10.106.1  HIS REPORT
+
+*[verbatim, rev 44b]* **"the door curves around the front of the wheel well and
+not the back. So you removed too much door."**
+
+He is right, and so is the frame. §10.102 retracted §10.100's wrap because
+`ref_nolita_doorshut.jpg` holds the bottom rail flat and stops the rear shut
+line on it. **That reading was correct for the part of the door it covered.** It
+was taken over **cols 60–122** — the arch and everything aft of it — and I then
+asserted flatness over the *whole* door and armed a guard on it. Forward of
+col 56 the same scan had already printed no line at all in that row band, and I
+read that as noise instead of as the line having gone somewhere else. **It had.**
+
+#### 10.106.2  THE MEASUREMENT — sub-pixel, three-point parabolic on the row gradient
+
+| feature | window | row |
+|---|---|---|
+| bottom rail, over the arch | cols 70–118 | **238.58** |
+| arch lip crown | cols 70–118 | **241.46** |
+| **forward lower lobe** | cols 30–48 | **264.58** |
+| body's lower edge | cols 30–48 | **273.50** |
+
+The lobe's edge peaks at `|dL|` 18.9 against a floor of 0.5–2.0 over thirty
+rows. It is not marginal.
+
+#### 10.106.3  EVERY CONSTANT IS DIMENSIONLESS, AND THAT MATTERS HERE
+
+Three independent scales are available and they **span 3 %**: arch radius
+**105.9**, rear rim OD **104.2**, hub-to-hub wheelbase **107.4 px/m**. So
+nothing below is expressed in metres.
+
+* **DROP** = (264.58 − 238.58) / (273.50 − 238.58) = **0.7443** of the rail's own
+  height above the body's lower edge — anchored to two features of *the door
+  itself*.
+* **RAMP** = the step's two feet at **0.8877** and **1.1406** of the arch's own
+  radius forward of the axle. The ramp therefore **straddles the arch's forward
+  lip**, which is where a door that clears a wheel puts it.
+
+Built: ramp x 1.6316 → 1.7260 against the arch's forward lip at 1.6735; lobe
+bottom z 0.5039, a drop of **308.1 mm = 0.7446** of rail-to-sill.
+
+#### 10.106.4  WHAT IS UNTOUCHED
+
+The rail **above the arch** — 2.88 px = 27 mm above the lip against rev 41's
+shipped 23–39 mm. §10.102's finding stands exactly where it was measured; this
+adds the part of the door it never looked at. And **`DOOR_GAP` stays
+bit-identical as the art datum** (§10.100.6's one good idea): the lobe goes into
+the cut outline only, spliced rather than re-typed so the seventeen shared
+points cannot disagree. Nothing needs drawing into it — the flank's folk art is
+continuous across this panel gap in every frame we hold.
+
+`_MIN_RAD` **0.024381** against rev 41's 0.024426; `_MIN_SILL` 0.124;
+T1_SUB=2 builds 257 642 v, `VERIFY: 0 fail, 0 warn`.
+
+#### 10.106.5  THE GUARD THAT SHOULD HAVE EXISTED
+
+§10.102 deleted a feature that a photograph holds and **nothing objected**. Two
+guards now:
+
+* `_BOT_SPREAD` is **re-scoped to the span that was actually measured** —
+  x ≤ the arch's forward lip. It is a *stronger* test than before, because the
+  span is stated instead of assumed, and it still kills §10.100's 388 mm arc.
+* `_LOBE_DROP_BUILT` asserts the lobe reproduces **0.7443**, and a second assert
+  fires if it is ever flattened below 0.50. **Armed on the dimensionless
+  measurement**, so it tests what was measured rather than a metre value derived
+  from a px/m the sources disagree about.
+
+#### 10.106.6  NEW RULE
+
+**A MEASUREMENT'S WINDOW IS PART OF THE MEASUREMENT.** §10.102 published "flat
+to 0 px over 62 px of door" — true — and then wrote a guard saying the door is
+flat. The window was in the sentence and I still generalised past it. **State
+the window in the guard, not just in the prose.**
+
+---
+
+### 10.107  rev 44b — **EVERY STROKE END ON THE RING.** THE DOCSTRING HAS CLAIMED IT SINCE REV 15 AND THE GEOMETRY HAS NEVER DONE IT
+
+#### 10.107.1  HIS REPORT, AND WHAT THE BUILT GLYPH ACTUALLY DOES
+
+*[verbatim]* **"The vw still doesn't look right."**
+
+Measured on the built emblem, radius of each stroke end as a fraction of the
+ring radius, with the ring's band spanning **0.800–1.000**:
+
+| end | reach |
+|---|---|
+| W's two **bottom** vertices | **0.840** — into the band |
+| W's two **outer arm** tips | **0.738** — 62 mm short of it |
+| V's two **arm** tips | **0.724** — 76 mm short of it |
+
+`_fit_glyph` scales by the **single furthest vertex**, so whichever end reaches
+furthest lands in the band and **drags every other end short**. Only the W's
+bottom has ever touched. **Four of the six strokes have been floating inside the
+ring since rev 15** — and rev 17 caught exactly this for the V's tips, scaled
+them by 0.8140/0.7154, and then `_fit_glyph`'s divisor moved underneath them
+again because the W was left where it was.
+
+#### 10.107.2  THE PHOTOGRAPH IS UNAMBIGUOUS
+
+`ref_nolita_front34.jpg`, red-mask row runs over the roundel's 41 × 66 px bbox:
+at **y+6** the V's arms and the ring are **one run** on both sides; at **y+62**
+the W's bottoms and the ring's lower arc are **one run**. Nothing floats. rev
+15's own docstring says it in words — *"every stroke end — both V arms, both W
+outer arms, both W legs — disappears into the ring band"*.
+
+Two things the same frame **confirms** and which are therefore not changed: the
+stroke width is **0.098 of the roundel diameter** against `wfrac` 0.1986 R =
+0.0993 D, and the V's arm-tip half-separation reads 0.22–0.37 R against
+`_V_TIP_X` 0.270.
+
+#### 10.107.3  PUTTING THE SPINE ON THE CIRCLE IS NOT ENOUGH — AND THE FIRST ATTEMPT PROVED IT
+
+Projecting all six spine terminals onto the band circle gave V tips **0.716** and
+W bottoms 0.840: *worse for the V than before*. **What must land on the ring is
+the OUTLINE, not the spine**, and the two differ by cap geometry — a terminal
+end is cut flush *at* its spine point, while an interior vertex (the W's two
+bottoms) is a sharp corner that bulges past it by `w / (2 sin(α/2))`.
+Compensating analytically needs the mitre half-angle at each vertex, which is
+exactly the kind of derived literal that has gone stale here twice.
+
+Solved by **fixed point on the built outline** instead — the same pattern as
+`t1_shell._G_BUILD`, and for the same reason: it re-solves itself if the width,
+the angles or the mitre ever change. Converged, **all six ends read 0.8400**,
+20 % into the band. **No angle moved**: the arm angles, the 12.29° separation,
+the apex and the centre peak are all untouched — only the reach.
+
+---
+
+### 10.108  rev 44b — THE SIGN'S PROPS RAKED ACROSS THE ROOF INSTEAD OF STANDING UNDER THE BOARD
+
+*[verbatim]* **"the props for the sign seem to meet something from the sides of
+the sign, rather than the sign resting directly on the poles."**
+
+Measured, and he is describing it exactly. Each prop ran from a foot at
+**y +0.44** — the *show* side of the roof — diagonally across the whole opening
+to a tip at y −0.776: a horizontal travel of 1.22 m against a rise of 1.00 m, a
+**49° rake**. And it met the board at **0.86** of the board's width, which on a
+board leaning 14° *past* vertical is near its top edge. A thin rod arriving at
+49° and touching a nearly-vertical panel near its top does not read as a prop;
+it reads as a stay wired to the sign's edge, which is the phrase he reached for.
+
+**Contact was never the defect** — the tips measured 8.6 and 8.7 mm from the
+lid's nearest vertex against a 7.5 mm rod radius. The *stance* was.
+
+**Two changes, neither needing a photograph.** A prop stands *under* the thing it
+props and meets it *at* the edge that bears — the same class of argument as a
+steering wheel being normal to its column (§10.104.4):
+
+* the tip moves **0.86 → 0.97** of the lid's width, onto the free edge, and its
+  z now comes from **`zh`, the lid's own hinge origin**, so it lands on the
+  panel's plane by construction (local z **0.00000**, at 1.0767 of the lid's
+  1.1100 width);
+* the foot moves to the **roof's own outboard edge**, found by walking `roof_z`
+  outboard until it stops changing rather than by typing a y.
+
+Built lean: **2.5° from vertical**, against 49°. Guarded at < 20°.
+
+#### 10.108.1  AND ONE THING I GOT WRONG IN THE SAME EDIT, RECORDED SO IT IS NOT "FIXED" AGAIN
+
+I first read this as a sign error: the comment says the props are "inset 160 mm"
+and the code reads `LID_X1 + 0.16` / `LID_X0 - 0.16`, which looks outset. **It is
+not.** `LID_X0` is **0.9640** and `LID_X1` is **−1.0700** — X0 is the larger — so
+both are inset exactly as written. I inverted them, and the guard I added in the
+same edit fired on the first build: *"roof-lid prop at x −1.2375 is OUTSIDE the
+lid's own span 0.9640–−1.0700"*. **The guard was right and the change was
+wrong.** The change is reverted, the guard is kept, and its bounds are now
+written the way round the constants actually are.

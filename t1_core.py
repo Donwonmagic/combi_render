@@ -830,9 +830,103 @@ def vw_bars(R, w, origin, u_ax, v_ax, n_ax, depth, tag="vw"):
     _V_TIP_X = 0.270                          # measured, see above
     _apex    = (0.000, 0.284)                 # 0.353 of ring D from the top
     _ty      = (_RING_INNER_FRAC ** 2 - _V_TIP_X ** 2) ** 0.5
-    V_SPINE = [(-_V_TIP_X, _ty), _apex, (_V_TIP_X, _ty)]
-    W_SPINE = [(-0.760, -0.060), (-0.380, -0.700), (0.000, -0.075),
-               (0.380, -0.700), (0.760, -0.060)]
+    # ------------------------------------------------------------- rev 44b
+    # EVERY STROKE END ON THE RING -- WHICH THE DOCSTRING HAS CLAIMED SINCE
+    # REV 15 AND THE GEOMETRY HAS NEVER DONE.  SPEC 10.107.
+    #
+    # *[owner, rev 44b]* "The vw still doesn't look right."
+    #
+    # MEASURED ON THE BUILT GLYPH, six 30-degree sectors, radius as a fraction
+    # of the ring radius, with the ring's band spanning 0.800-1.000:
+    #     W's two BOTTOM vertices ......... 0.840   into the band
+    #     W's two OUTER ARM tips .......... 0.738   62 mm short of it
+    #     V's two ARM tips ................ 0.724   76 mm short of it
+    # `_fit_glyph` scales by the SINGLE FURTHEST VERTEX, so whichever end
+    # reaches furthest lands in the band and drags every other end short.  Only
+    # the W's bottom ever touched.  Four of the six strokes have been floating
+    # inside the ring since rev 15, and rev 17 caught exactly this for the V's
+    # tips -- it scaled them by 0.8140/0.7154 and then `_fit_glyph`'s divisor
+    # moved underneath them again, because the W was left where it was.
+    #
+    # AND THE PHOTOGRAPH IS UNAMBIGUOUS.  `ref_nolita_front34.jpg`, red-mask
+    # row runs over the roundel's 41 x 66 px bbox: at y+6 the V's arms and the
+    # ring are ONE RUN on both sides, and at y+62 the W's bottoms and the
+    # ring's lower arc are ONE RUN.  Nothing floats.  rev 15's own docstring
+    # says it in words -- "every stroke end -- both V arms, both W outer arms,
+    # both W legs -- disappears into the ring band".
+    #
+    # THE FIX CHANGES NO ANGLE.  Each of the six terminal points is projected
+    # RADIALLY onto the band circle, so every arm angle, the 12.29 deg
+    # separation, the apex and the centre peak are all untouched -- only the
+    # REACH moves, and it moves to a circle that is itself an expression of
+    # the ring's own band fraction.  Nothing here can go stale.
+    def _on_band(p):
+        r = (p[0] ** 2 + p[1] ** 2) ** 0.5
+        k = _RING_INNER_FRAC / r
+        return (p[0] * k, p[1] * k)
+
+    V_SPINE = [_on_band((-_V_TIP_X, _ty)), _apex, _on_band((_V_TIP_X, _ty))]
+    W_SPINE = [_on_band((-0.760, -0.060)), _on_band((-0.380, -0.700)),
+               (0.000, -0.075),
+               _on_band((0.380, -0.700)), _on_band((0.760, -0.060))]
+    for _p in (V_SPINE[0], V_SPINE[2], W_SPINE[0], W_SPINE[1],
+               W_SPINE[3], W_SPINE[4]):
+        assert abs((_p[0] ** 2 + _p[1] ** 2) ** 0.5 - _RING_INNER_FRAC) < 1e-12
+    # ------------------------------------------------------------- rev 44b
+    # PUTTING THE SPINE ON THE BAND CIRCLE IS NOT ENOUGH, AND THE FIRST
+    # ATTEMPT PROVED IT: the V's tips came back at 0.716 of the ring radius
+    # and the W's bottoms at 0.840, WORSE for the V than before.
+    #
+    # WHY.  What must land on the ring is the OUTLINE, not the spine, and the
+    # two differ by the cap geometry: a terminal end is cut off flush AT its
+    # spine point, while an interior vertex -- the W's two bottoms -- is a
+    # sharp corner whose outer point BULGES past the spine by w/(2 sin(a/2)).
+    # Placing all six spine points on one circle therefore places the six
+    # OUTLINE ends on six different circles, and `_fit_glyph` then scales by
+    # whichever bulges most.  Compensating analytically would need the mitre's
+    # half-angle at each vertex, which is exactly the kind of derived literal
+    # that has gone stale here twice.
+    #
+    # Solved by FIXED POINT on the built outline instead -- the same pattern
+    # as `t1_shell._G_BUILD`, and for the same reason: it re-solves itself if
+    # the width, the angles or the mitre ever change.  Each terminal's radius
+    # is scaled until the outline vertices belonging to it reach the band
+    # circle.  Converged values are asserted below, never typed.
+    _term = [('V', 0), ('V', 2), ('W', 0), ('W', 1), ('W', 4), ('W', 3)]
+    _rad = {t: _RING_INNER_FRAC for t in _term}
+
+    def _spines():
+        v = list(V_SPINE); ww = list(W_SPINE)
+        for (which, i) in _term:
+            base = V_SPINE[i] if which == 'V' else W_SPINE[i]
+            k = _rad[(which, i)] / _RING_INNER_FRAC
+            if which == 'V':
+                v[i] = (base[0] * k, base[1] * k)
+            else:
+                ww[i] = (base[0] * k, base[1] * k)
+        return v, ww
+
+    for _ in range(40):
+        v, ww = _spines()
+        reach, worst = {}, 0.0
+        for which, spine in (('V', v), ('W', ww)):
+            outline = _mitre_outline([(x * R, y * R) for (x, y) in spine], w)
+            for (px, py) in outline:
+                j = min(range(len(spine)),
+                        key=lambda k: (px / R - spine[k][0]) ** 2
+                                    + (py / R - spine[k][1]) ** 2)
+                if (which, j) in _rad:
+                    rr = math.hypot(px, py) / R
+                    reach[(which, j)] = max(reach.get((which, j), 0.0), rr)
+        for t in _term:
+            if t in reach and reach[t] > 1e-9:
+                e = _RING_INNER_FRAC / reach[t]
+                worst = max(worst, abs(e - 1.0))
+                _rad[t] *= e
+        if worst < 1e-9:
+            break
+    V_SPINE, W_SPINE = _spines()
+
     obs = []
     for i, spine in enumerate((V_SPINE, W_SPINE)):
         pts = _mitre_outline([(x * R, y * R) for (x, y) in spine], w)
