@@ -342,8 +342,50 @@ Tacombi has used more than one bus. The **Nolita / New York** bus has **no
 folk art**, **no side script**, **glazed** apertures with gold frames and
 hand-painted menu names, a **chalkboard** roof board, a narrow shelf counter,
 and "251 ELIZABETH STREET / NUEVA YORK" on the rear corner. **Any photograph
-showing those features is the wrong bus.** Whether it is physically the same
-vehicle is **U**.
+showing those features is the wrong LIVERY STATE.**
+
+### 7.1 ONE VEHICLE, THREE LIVERY STATES — settled with the owner, rev 44
+
+**"Whether it is physically the same vehicle is U" is ANSWERED: it is the SAME
+VEHICLE.** Put to him directly — *is the bus in `ref_nolita_doorshut.jpg` the
+same vehicle as `ref_side.jpg`?* — the owner answered **same vehicle**,
+photographed in a different livery state.
+
+**What that changes.** GEOMETRY from the Nolita frames is **ADMISSIBLE**. In
+particular rev 43's corroboration of §10.100's door outline **stands**; had the
+answer gone the other way it would have evaporated and §10.100 would have
+reverted to resting on `ref_side.jpg` alone. **What does NOT change:** livery
+is still state-dependent, so folk art, script, aperture glazing and roof-board
+treatment may never be carried across states. §7's rule survives — it is a rule
+about LIVERY, not about vehicles.
+
+### 7.2 THE ERA TAGS WERE WRONG — finding 23, rev 44
+
+**BOTH RED-LIVERY FRAMES ARE MEXICO, i.e. Playa-era.** `ref_rear34.jpg` carries
+a Spanish sign reading **"FAVOR DE ORDENAR Y PAGAR AQUÍ"**, palms and banana
+plants, and an open-air patio with café tables; `ref_source.jpeg` is a Mexican
+street scene with Spanish signage and a palm. **So the red livery is Playa-era,
+and the project holds NO Nolita photograph of the red bus** — the only Nolita
+frame it holds at all is `ref_nolita_doorshut.jpg`, committed at rev 43, which
+carries no folk art and no script.
+
+**Rev 14's re-admission of Nolita material rested partly on the opposite
+premise** and is corrected here. **No measurement moves** — this is a
+provenance correction, and §7.1 keeps the geometry admissible anyway.
+
+### 7.3 THE SCRIPT IS IN TWO PHOTOGRAPHS — finding 22, scoping SANCTIONED rev 44
+
+`ref_workshop.jpg` carries the same "Señor Tacombi" script on the green body as
+`ref_side.jpg`, and until rev 44 no document connected them. **The owner has
+sanctioned this scoping: LETTERFORM GEOMETRY is admissible from the workshop
+frame; COLOUR AND WEATHERING ARE BARRED from it.**
+
+**Its ceiling, and a correction to how that ceiling has been stated.** The
+workshop view is an **INDEPENDENT** view, not a better one: the script region
+measures **210 × 140 px** there against `ref_side`'s **320 × 110** near-broadside,
+and it is foreshortened. **Those two figures are the SCRIPT CROPS, not the
+frames** — the frames themselves are 1200 × 824 and 1024 × 768. The rev-44
+brief stated them as view sizes; corrected here.
 
 ---
 
@@ -705,7 +747,7 @@ between two surfaces of the SAME class under the SAME light.**
 | finding | verdict | action |
 |---|---|---|
 | `materials-6` bezels are brass not chrome | **CONFIRMED** — bezel b\* +31.6 at L\* 65.6 against five neutrals in the same frame at b\* -2.4...+1.6; not a bounce (every warm surface there carries a\* with its b\*; the bezel's ratio is 0.07) | applied |
-| `livery-9` roundel 9 % undersized, 32 mm high | **REFUTED, and it had been applied in the wrong direction.** Measured **0.280 +/- 0.030 m** by an exact relation needing no camera pose; centre **0.149 +/- 0.030 m BELOW the belt**. The build read `ROUNDEL_D = 0.3700` — 32 % over — and the finding's only photographic support was `ref_source.jpeg`, retired in 0.2 | corrected to 0.280, and **113 mm down** |
+| `livery-9` roundel 9 % undersized, 32 mm high | **REFUTED, and it had been applied in the wrong direction.** Measured **0.280 +/- 0.030 m** by an exact relation needing no camera pose; centre **0.149 +/- 0.030 m BELOW the belt**. The build read `ROUNDEL_D = 0.3700` — 32 % over — and the finding's only photographic support was `ref_source.jpeg`. **CORRECTED, rev 44 (finding 21): that frame is NOT retired and §0.2 never retired it.** §0.2 carries no `ref_source` row, and five of its ⚠ locks — blackwall tyres §8.1, cream bumpers §8.2, the **red nose roundel** §8.3, the three-aperture rear corner §8.4, the cream counter slab §8.5 — are graded **M**, which §1 defines as *measured from `ref_source.jpeg`*. Retiring it would unlock all five. What is actually true is a RESOLUTION ceiling: the frame is **246 × 197 px**, so at ~1 px per 40 mm it cannot support a 32 mm claim, which is why `livery-9` failed — the finding was refuted on resolution, not the frame on admissibility | corrected to 0.280, and **113 mm down** |
 | `geometry-4` roof dome +83/+203 mm per side | **NOT MEASURABLE** — no elevation exists in the admissible set; in `ref_workshop` the camera sits at 1.93 m against a ~1.9 m crown so the roof's upper boundary is a tangent locus, not a section; and the lids are open in both usable frames, so the surface the finding describes is physically absent | NOT applied. The blueprint was not passed through |
 | `inventory-9` indicators 20 mm inboard | position **CONFIRMED but 7x understated**: measured **0.130 +/- 0.035 m OUTBOARD**. The proposed flat-oval lens is **REFUTED** — the existing bullet is closer to the photograph | Y moved outboard; type kept |
 | front bumper reads thin | blade is **already correct** (0.110 +/- 0.010 measured against 0.113 built; blade/wheel 0.166 +/- 0.016 in two frames agreeing to 2 %) | see 10.24 |
