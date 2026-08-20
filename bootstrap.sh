@@ -26,6 +26,18 @@
 #  IT IS IDEMPOTENT.  Run it as often as you like; it reinstalls nothing that
 #  is already correct, and it re-checks everything every time.
 #
+#  WHAT IS PROVEN AND WHAT IS NOT, STATED SO NOBODY ASSUMES THE REST.
+#    PROVEN at rev 45:  `rm -rf /tmp/blender && ./bootstrap.sh` rebuilds both
+#                       shims from nothing and returns ALL 10 PASS.  The argv
+#                       control, the exec-not-symlink check, the clone-depth
+#                       and stranded-branch rows all ran.
+#    NOT EXERCISED:     the `pip install bpy==4.5.3` branch.  bpy was already
+#                       installed in the container this was written in, so that
+#                       arm has never executed here.  It is the one line most
+#                       likely to behave differently on a fresh machine -- if it
+#                       fails, the row it fails on is "bpy installed", and the
+#                       fallback is START_HERE.md's venv recipe.
+#
 #  WHAT IT WILL NOT DO.  It will not edit any of the eight files that hard-code
 #  /tmp/blender.  That constraint has held since rev 43 and it holds here.
 # =============================================================================
