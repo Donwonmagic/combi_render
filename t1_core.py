@@ -753,6 +753,56 @@ def _mitre_outline(spine, w):
     return [(p.x, p.y) for p in left + right]
 
 
+# ===================================================== rev 46, W2, SPEC 10.119
+# THE VW GLYPH'S VERTICAL PROPORTIONS.  SOLVED, NOT TYPED.
+#
+# The owner has reported this emblem in FOUR consecutive revisions.  rev 44
+# fixed its arm angle, rev 45 found it sunk 32 mm into the bodywork and fixed
+# that, and it still read wrong -- because nobody had checked its VERTICAL
+# PROPORTIONS, which need no axis ratio (SPEC 10.107.2) and so were measurable
+# all along.
+#
+# Landmarks are run-count transitions across the emblem, REGISTERED ON THE RING
+# ITSELF (its own first ->2 and last ->1 rows are 0 and 1), so a crop margin
+# cannot move them.  Photographed on ref_nolita_front34.jpg, stable across
+# thresholds 25-50 and five crop windows:
+#
+#     landmark                         photo    rev 45    rev 46
+#     L1 V arms clear the ring band    0.1940   0.1455    0.1745
+#     L2 V apex / the central knot     0.3433   0.2509    0.3418
+#     L3 W outer arms leave the band   0.4776   0.5018    0.4764
+#     L4 W troughs reach the lower band 0.8060  0.8509    0.8073
+#     L5 V arm separation / ring width 0.2361   0.2248    0.2625
+#     L6 V arm stroke / ring width     0.1528   0.1514    0.1417
+#     residual                          --      0.1167    0.0347
+#
+# EVERY FIGURE ABOVE WAS WATCHED PRINT from a CLEAN probe run (rule 4), twice,
+# bit-identical.  The solver's own console said 0.0262 for the same constants --
+# it reads them in a scene the probe module has already built in, and that state
+# flatters L1 and L5.  The clean number is the honest one; the solver's is not
+# quotable.  AN INSTRUMENT THAT HAS NEVER BEEN WRONG HAS NEVER BEEN TESTED.
+#
+# The V was SQUAT and the W STRETCHED, which is why it read wrong at every size.
+#
+# L5 AND L6 ARE HORIZONTAL, AND THEY ARE WHY THE ANGLES ARE TOUCHABLE AT ALL.
+# Rev 45 refused to move any angle because de-foreshortening a three-quarter
+# view of a circle needs the ring's axis ratio and the two fits disagree by 10 %.
+# But a horizontal DIVIDED BY a horizontal at the same row is invariant to a
+# rotation about a vertical axis -- the cosine cancels.  Without L5 the solver
+# widened the V to VW_V_TIP_X 0.435, well past what the photograph supports;
+# without L6 it thinned the stroke to 0.1426 from a value that was already
+# correct.  Both were caught by their own control before shipping.
+#
+# probe_rev46_vw.py re-solves these from the photograph and is the guard.
+VW_V_TIP_X = 0.3806
+VW_APEX_Z = 0.1250
+VW_W_ARM_X = 0.9200
+VW_W_ARM_Z = 0.0019
+VW_W_TROUGH_X = 0.4925
+VW_W_TROUGH_Z = -0.6200
+VW_W_PEAK_Z = -0.075
+
+
 def vw_bars(R, w, origin, u_ax, v_ax, n_ax, depth, tag="vw"):
     """V-over-W emblem as TWO closed mitred prisms, one V and one W.
 
@@ -827,8 +877,29 @@ def vw_bars(R, w, origin, u_ax, v_ax, n_ax, depth, tag="vw"):
     # The tips are now placed ON the band circle by construction at the
     # measured half-angle, so no fraction can go stale: _V_TIP_X is the only
     # authored number and the tip height follows from the circle.
-    _V_TIP_X = 0.270                          # measured, see above
-    _apex    = (0.000, 0.284)                 # 0.353 of ring D from the top
+    # ------------------------------------------------------------- rev 46, W2
+    # AND REV 44 SET THE SPINE TO A MEASUREMENT OF THE OUTLINE.  SPEC 10.119.
+    #
+    # *[owner, rev 45]* "the vw logo wrong" -- his FOURTH consecutive report of
+    # this emblem.  HIS REPEAT IS A MEASUREMENT: when he reports the same thing
+    # twice the prior closure was wrong or incomplete, and the axis nobody
+    # checked here is the one rev 44's own comment names.
+    #
+    # `_apex = 0.284` was set because 0.284 in ring-radius units is 0.358 of the
+    # ring's diameter from the top, and the photograph's V-apex landmark reads
+    # 0.353.  But the photographed 0.353 is the row where the V's two arms MERGE
+    # INTO ONE RUN -- a property of the OUTLINE -- and the strokes have width, so
+    # they merge well ABOVE the spine's apex.  Setting the spine to an outline
+    # measurement put the built merge at 0.250 against the photograph's 0.353,
+    # 0.103 of the ring's diameter too high.  SPEC 10.110.8: a part measured in
+    # isolation from what it is fitted to is not measured.
+    #
+    # These five constants are now SOLVED so the RASTERISED landmarks match the
+    # photographed ones, by probe_rev46_vw.py, which re-derives them and is the
+    # guard.  Every value here was watched print (rule 4).  They are module-level
+    # so the solver can vary them and verify_clone can check them BY VALUE.
+    _V_TIP_X = VW_V_TIP_X
+    _apex    = (0.000, VW_APEX_Z)
     _ty      = (_RING_INNER_FRAC ** 2 - _V_TIP_X ** 2) ** 0.5
     # ------------------------------------------------------------- rev 44b
     # EVERY STROKE END ON THE RING -- WHICH THE DOCSTRING HAS CLAIMED SINCE
@@ -866,9 +937,11 @@ def vw_bars(R, w, origin, u_ax, v_ax, n_ax, depth, tag="vw"):
         return (p[0] * k, p[1] * k)
 
     V_SPINE = [_on_band((-_V_TIP_X, _ty)), _apex, _on_band((_V_TIP_X, _ty))]
-    W_SPINE = [_on_band((-0.760, -0.060)), _on_band((-0.380, -0.700)),
-               (0.000, -0.075),
-               _on_band((0.380, -0.700)), _on_band((0.760, -0.060))]
+    W_SPINE = [_on_band((-VW_W_ARM_X, VW_W_ARM_Z)),
+               _on_band((-VW_W_TROUGH_X, VW_W_TROUGH_Z)),
+               (0.000, VW_W_PEAK_Z),
+               _on_band((VW_W_TROUGH_X, VW_W_TROUGH_Z)),
+               _on_band((VW_W_ARM_X, VW_W_ARM_Z))]
     for _p in (V_SPINE[0], V_SPINE[2], W_SPINE[0], W_SPINE[1],
                W_SPINE[3], W_SPINE[4]):
         assert abs((_p[0] ** 2 + _p[1] ** 2) ** 0.5 - _RING_INNER_FRAC) < 1e-12

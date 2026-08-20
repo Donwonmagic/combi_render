@@ -282,6 +282,18 @@ ck "calidad burst centre is 0.505/0.575"  1 "$(grep -c '^BURST_CX, BURST_CY = 0.
 ck "calidad TYPE_SHIFT is DERIVED"        1 "$(grep -c '^TYPE_SHIFT = (BURST_CX - TYPE_PRE_CENTROID\[0\],' cal_gen.py)"
 ck "calidad type rotates about the burst" 1 "$(grep -c 'center=(w \* BURST_CX, h \* BURST_CY)' cal_gen.py)"
 ck "calidad generator carries its guard"  1 "$(grep -c 'cal_gen GUARD FAILED' cal_gen.py)"
+# rev 46, W2.  The VW glyph's vertical proportions, SOLVED against the
+# photograph by probe_rev46_vw.py, not typed.  VALUES, not occurrences: the
+# whole point of section 6 item 5's warning is that `grep -c '^VW_APEX_Z'`
+# returns 1 whether the constant reads 0.284 or 0.1250, and 0.284 is the value
+# the owner reported wrong four times running.
+ck "VW_APEX_Z is 0.1250"            1 "$(grep -c '^VW_APEX_Z = 0.1250' t1_core.py)"
+ck "VW_V_TIP_X is 0.3806"           1 "$(grep -c '^VW_V_TIP_X = 0.3806' t1_core.py)"
+ck "VW_W_ARM_X is 0.9200"           1 "$(grep -c '^VW_W_ARM_X = 0.9200' t1_core.py)"
+ck "VW_W_ARM_Z is 0.0019"           1 "$(grep -c '^VW_W_ARM_Z = 0.0019' t1_core.py)"
+ck "VW_W_TROUGH_X is 0.4925"        1 "$(grep -c '^VW_W_TROUGH_X = 0.4925' t1_core.py)"
+ck "VW_W_TROUGH_Z is -0.6200"       1 "$(grep -c '^VW_W_TROUGH_Z = -0.6200' t1_core.py)"
+ck "vw_bars reads the constants"    1 "$(grep -c '_apex    = (0.000, VW_APEX_Z)' t1_core.py)"
 
 # ---------------------------------------------------------------------------
 # THE GUARD TABLE, EXECUTABLE.
