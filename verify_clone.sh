@@ -164,6 +164,15 @@ ck "amtrak (HIS word)"              2 "$(grep -c 'amtrak' SPEC.md)"
 # carried four of this revision's findings (10.102, 10.105, 10.106, 10.107),
 # so SPEC names them nine more times.  This row is a REMINDER THAT THE
 # NOLITA FRAMES ARE ADMISSIBLE, not a cap on how often they are used.
+# rev 45 -- AND A BUMP THAT WAS WRONG, RECORDED BECAUSE THE CHECK CAUGHT IT.
+# On adding SPEC 10.117 this row was bumped 31 -> 33 on the assumption that the
+# new section cites the nolita frames.  IT DOES NOT -- 10.117's photographed
+# targets are quoted as counts and sigmas, and the frame names live in
+# probe_rev45_paint.py and in this file's own comments, neither of which this
+# row greps.  The count is still 31.  Rule 4: never put a figure in an
+# acceptance test unless you watched it print.  Fourth instance in this repo,
+# and the first where the wrong figure was mine and the check found it inside
+# one minute.
 # rev 45: 29 -> 31.  SPEC 10.116 cites ref_nolita_flank.jpg and ref_playa_34.png
 # as two of the four frames that supply the PHOTOGRAPHED contact-shadow target
 # (0.650 +- 0.210).  Third bump this revision; still not a cap.

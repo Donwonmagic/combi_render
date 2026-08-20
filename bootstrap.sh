@@ -242,6 +242,9 @@ if [ $GUARDS -eq 1 ]; then
   R="$(/tmp/blender/blender -b -P probe_rev45_ground.py 2>&1 | grep 'CONTROLS:' | tail -1)"
   [ "$R" = "CONTROLS: 4 checked, 0 FAILED" ] \
     && ck "probe_rev45_ground  4/0" ok || ck "probe_rev45_ground  4/0" "got '$R'"
+  R="$(/tmp/blender/blender -b -P probe_rev45_paint.py 2>&1 | grep 'CONTROLS:' | tail -1)"
+  [ "$R" = "CONTROLS: 4 checked, 0 FAILED" ] \
+    && ck "probe_rev45_paint  4/0" ok || ck "probe_rev45_paint  4/0" "got '$R'"
   R="$(/tmp/blender/blender -b -P probe_rev44_lampmove.py 2>&1 | grep 'CONTROLS:' | tail -1)"
   [ "$R" = "CONTROLS: 6 checked, 0 FAILED" ] \
     && ck "probe_rev44_lampmove  6/0" ok || ck "probe_rev44_lampmove  6/0" "got '$R'"

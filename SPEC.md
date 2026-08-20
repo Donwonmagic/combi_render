@@ -9728,3 +9728,79 @@ device: `T1_SHADOW=1.0` restores the floating arm exactly.
 > that would have been published. Three prior revisions measured `optics-6` and
 > none of them found the defect, not because they were careless but because
 > **nobody ever asked what their instrument would still pass on.**
+
+---
+
+### 10.117  rev 45 — THE PAINT, INSTRUMENTED. AND IT IS **ONE** FINDING, NOT THREE
+
+Ledger finding 38 was measured once, by hand, in a scratch directory.
+`probe_rev45_paint.py` makes it repeatable, and in doing so answers a question
+nobody had asked: whether the flank's dullness, the hubcaps' pinkness and the
+cream's greyness are one defect or three.
+
+#### 10.117.1  PROJECTION IS NOT VISIBILITY
+
+The probe copied `probe_rev45_nose`'s landmark technique onto the **flank** and
+its first three landmarks were **all** wrong. Their visibility raycasts:
+
+```
+    red    first hit 'script_L'   the "Senor Tacombi" decal, 17 mm nearer
+    cream  first hit 'fringe2'    the bobble fringe,          3 mm nearer
+    cap    first hit 'cap1.31'    the cap's own rim,         36 mm nearer
+```
+
+**Three for three.** `world_to_camera_view` maps a point to a pixel whether or
+not the point can be *seen*, and a flank carrying folk art, a script lockup, a
+decal and a bobble fringe has very little clean paint left. The probe reported
+the flank's red as RGB (176, 154, 156) — a pale grey — and every number
+downstream was about the wrong surface.
+
+Fixed two ways at once. Each quantity is now sampled over a **grid of candidate
+points**, and a candidate survives only if the camera's ray reaches **it** first
+*and* the pixel classifies as the material asked for. The value is the median of
+the survivors and **the survivor count is printed**, because a count that
+collapses is itself a finding: `red 21/24, cream 9/15, cap 3/25`.
+
+**`probe_rev45_nose` does not have this test and is correct today by luck of
+geometry** — its landmarks are on the nose and nothing on this vehicle overhangs
+the nose. Recorded in that file, with instructions to copy `visible()` before
+adding any landmark that is not on the front face.
+
+#### 10.117.2  THE NUMBERS, AND THE INDEPENDENT REPRODUCTION
+
+| | built | photographed | σ |
+|---|---|---|---|
+| **P1** body red, G/R of red÷cream | **0.455** | 0.223 ± 0.066 (4 frames) | **3.5** |
+| **P2** hubcap red, G/R of cap÷cream | **0.603** | 0.274 ± 0.096 (3 frames) | **3.4** |
+| **P3** cream warmth, (R−B)/G | **+0.0263** | +0.037 ± 0.013 (3 warm frames) | **0.8** |
+
+**P1 reproduces the hand measurement exactly — 0.455 against 0.455 — by a
+completely different method.** The hand figure came from a masked region of a
+side render; this comes from a visible-population sample at projected landmarks
+in the hero. Two methods, one number.
+
+#### 10.117.3  ONE FINDING, NOT THREE
+
+* **P2 tracks P1 at the same magnitude and the same sign** (3.4 σ against 3.5 σ)
+  on a different object, a different material and a different part of the frame.
+  The hubcaps are not separately wrong; they are wrong *the same way*.
+* **P3 is inside 1 σ.** The cream's hue is right. It reads grey because it sits
+  against a pure-white backdrop with a washed red beside it — a **context**
+  effect, not a colour error.
+
+So there is one cause, and §10.116's ablation already named it: about half the
+excess is the white cyclorama's own specular return, and `T1_SPEC=0` alone moves
+P1 0.455 → 0.347. **The albedo is not the defect** — `t1_mats.RED` is
+sRGB(196, 49, 36), G/R 0.250, which is 0.4 σ from the photographed mean.
+
+#### 10.117.4  P1 AND P2 ARE REPORTED, NOT GATED, AND THAT IS DELIBERATE
+
+Finding 38's fix is an **open question for the owner** — Q6 of `rev45_ba.png`:
+softening the studio would move the paint toward his own photographs and would
+trade the catalogue-clean white background he supplied as the bar. §7 locks the
+paint's *finish* and §10.104.8 refuses to re-open `Roughness` or `Coat Weight`;
+this is neither, but it is still his call.
+
+**Gating on a number whose fix has not been sanctioned would turn a question
+into a fait accompli.** Only P3, which is already correct, is gated. When he
+answers, the gate goes in here.

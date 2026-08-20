@@ -8,6 +8,20 @@
 #   the GLYPH'S OWN PLANE, none of them against the body it sits on.  The
 #   badge was rendering as a CLOCK FACE the whole time (SPEC 10.110).
 #
+#   A LIMITATION OF THIS PROBE, FOUND BY ITS OWN SUCCESSOR AND RECORDED HERE.
+#   probe_rev45_paint copied this landmark technique onto the FLANK and every
+#   one of its first three landmarks turned out to be behind something -- a
+#   decal, the bobble fringe, the hubcap's own rim -- because
+#   world_to_camera_view maps a point to a pixel whether or not the point can
+#   be SEEN.  PROJECTION IS NOT VISIBILITY.  That probe now raycasts from the
+#   camera and discards any candidate the ray does not reach first.
+#
+#   THIS probe does not, and it is correct today by luck of geometry rather
+#   than by test: the roundel, the lamps and the bezel are on the nose, and
+#   nothing on this vehicle overhangs the nose.  If a landmark is ever added
+#   here that is not on the front face -- anything on the flank, under the
+#   counter, or near the fringe -- COPY probe_rev45_paint.visible() FIRST.
+#
 #   The obstacle to looking was always the same one: finding the thing in the
 #   pixels.  Every previous crop box in this repo is a hand-typed literal that
 #   goes stale the moment a camera or a constant moves.  So this probe does not
