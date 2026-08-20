@@ -1,0 +1,21 @@
+=== PHOTOGRAPH, despeckled, no span-the-dropped-run bug ===
+  PHOTO raw mask           NO two-run angle
+  PHOTO despeckled         two-run angles -36.0..-30.0 (13)  cap 14.62  gap 1.12  gap/cap max 0.0769  median 0.0417  cap/burstH 0.240
+
+=== BUILD at the PHOTOGRAPH'S TRUE scale (burst 61 px tall, x*0.715) ===
+LINE_GAP      truth   reading
+   0.150     0.0029  canvas (67, 70) burstH 60.4
+     raw                   two-run angles -34.0..-26.5 (16)  cap 15.75  gap 0.25  gap/cap max 0.0163  median 0.0120  cap/burstH 0.261
+     despeckled            two-run angles -34.0..-26.5 (16)  cap 15.75  gap 0.25  gap/cap max 0.0163  median 0.0120  cap/burstH 0.261
+   0.200     0.0520  canvas (67, 70) burstH 60.4
+     raw                   two-run angles -41.0..-25.0 (33)  cap 15.62  gap 1.12  gap/cap max 0.0726  median 0.0476  cap/burstH 0.259
+     despeckled            two-run angles -41.0..-25.0 (33)  cap 15.62  gap 1.12  gap/cap max 0.0726  median 0.0476  cap/burstH 0.259
+   0.260     0.1108  canvas (67, 70) burstH 60.4
+     raw                   two-run angles -46.0..-23.5 (46)  cap 15.50  gap 1.88  gap/cap max 0.1210  median 0.0787  cap/burstH 0.257
+     despeckled            two-run angles -46.0..-23.5 (46)  cap 15.50  gap 1.88  gap/cap max 0.1210  median 0.0787  cap/burstH 0.257
+   0.320     0.1696  canvas (67, 70) burstH 60.4
+     raw                   two-run angles -46.0..-21.0 (51)  cap 15.62  gap 2.75  gap/cap max 0.1789  median 0.1190  cap/burstH 0.259
+     despeckled            two-run angles -46.0..-21.0 (51)  cap 15.62  gap 2.75  gap/cap max 0.1789  median 0.1190  cap/burstH 0.259
+   0.430     0.2774  canvas (67, 70) burstH 60.4
+     raw                   two-run angles -46.0..-18.0 (57)  cap 15.38  gap 4.50  gap/cap max 0.2927  median 0.2031  cap/burstH 0.255
+     despeckled            two-run angles -46.0..-18.0 (57)  cap 15.38  gap 4.50  gap/cap max 0.2927  median 0.2031  cap/burstH 0.255
