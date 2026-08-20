@@ -325,8 +325,12 @@ ck "calidad centroid is NOT a frozen literal"  0 "$(grep -c '^TYPE_PRE_CENTROID'
 # PROVENANCE to be cited in the source, which is the same protection one step
 # on: a future revision cannot retune LINE_GAP by eye without deleting a
 # reference to the probe and the frame it was measured from.
-ck "calidad LINE_GAP cites its provenance"     1 "$(grep -c 'probe_rev47_gap' cal_gen.py)"
-ck "calidad LINE_GAP names its frame"          1 "$(grep -c 'IMG_2073' cal_gen.py)"
+# PRESENCE, not occurrence count.  A `grep -c` here is a latent false positive:
+# it went red at "got 2, want 1" purely because the provenance is cited on two
+# lines, which is not a defect.  A row that fires on a harmless duplicate is the
+# cry-wolf failure bootstrap.sh's stranded-branch check already had to fix once.
+ck "calidad LINE_GAP cites its provenance"     1 "$(grep -q 'probe_rev47_gap' cal_gen.py && echo 1 || echo 0)"
+ck "calidad LINE_GAP names its frame"          1 "$(grep -q 'IMG_2073' cal_gen.py && echo 1 || echo 0)"
 ck "calidad type rotates about the burst" 1 "$(grep -c 'center=(w \* BURST_CX, h \* BURST_CY)' cal_gen.py)"
 ck "calidad generator carries its guard"  1 "$(grep -c 'cal_gen GUARD FAILED' cal_gen.py)"
 # rev 46, at the OWNER'S instruction, in two stages.  The Calidad decal drew two
