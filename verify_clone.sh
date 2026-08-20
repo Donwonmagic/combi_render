@@ -280,7 +280,15 @@ ck "tex/senor.png"   92ff38554d61947528904e113cf657f0 "$(md5of tex/senor.png)"
 # the words separate under a mask.  Measured as a RATIO against the same
 # estimator run on the build (its +34% absolute bias divides out): photographed
 # 0.244 vs built 0.149 => 1.64x, so LINE_GAP 0.26 -> 0.43.
-ck "tex/calidad.png" 6330c6e5a811ada11bd5be568172b80a "$(md5of tex/calidad.png)"
+# rev 48: RE-BASED because the artwork legitimately changed, and because HE
+# settled what the marks above the burst are.  Shown a three-way crop -- the
+# RED bus (ref_side.jpg, the target vehicle), the GREEN bus (IMG_2073.jpeg)
+# and the build -- he ruled: "They are actually stars that were not properly
+# represented."  Rev 45 drew them as BUNTING; rev 46 retired them at his
+# instruction AND recorded the reason as "no frame we hold shows them", which
+# ref_side.jpg refutes at 7x.  Their PRESENCE was never the error.  Their
+# IDENTITY was, and only he could settle it.  Re-based, never relaxed.
+ck "tex/calidad.png" ffefd297a529adc9f2b0a319107429b1 "$(md5of tex/calidad.png)"
 ck "tex/lidmural.png" 2d62159dba663c90b5ae3746383c15d1 "$(md5of tex/lidmural.png)"
 ck "tex/lidsign.png" bcd3da2dbec0276fabd7d8f8ee03f27b "$(md5of tex/lidsign.png)"
 ck "tex/emblem.png"  574ba2d733353387568b412da48fd436 "$(md5of tex/emblem.png)"
@@ -366,6 +374,21 @@ ck "calidad generator carries its guard"  1 "$(grep -c 'cal_gen GUARD FAILED' ca
 # exactly how this one survived: the function, the pennant loop, and the colour
 # constant must all be gone.
 ck "calidad bunting function gone"   0 "$(grep -c '^def bunting' cal_gen.py)"
+# ------------------------------------------------------- rev 48: THE STARS
+# The bunting stays retired -- he never asked for pennants back, he said the
+# marks were always stars.  So the three absence rows above still stand AND
+# the stars must be present.  Both, not either.
+ck "calidad draws the star band"     1 "$(grep -qE '^def _stars' cal_gen.py && echo 1 || echo 0)"
+ck "calidad stars derive from the burst" 1 "$(grep -q 'bw = RO \* 2.0' cal_gen.py && echo 1 || echo 0)"
+# THE ROW THAT MATTERS.  Both red frames are BLOWN, so the mark band comes
+# back as ONE merged 1499-px component and the COUNT is not derivable from the
+# target vehicle at all.  STAR_N is a pose choice and must keep saying so --
+# the LINE_GAP precedent, applied before the defect rather than after it.
+ck "STAR_N declares itself NOT MEASURED" 1 "$(grep -A 3 '^STAR_N' cal_gen.py | grep -q 'NOT MEASURED' && echo 1 || echo 0)"
+# And the clamp must keep REPORTING what it drops.  The measured band runs to
+# +-1.64 RO and this decal's rectangle holds +-1.38 RO, so two band positions
+# fall outside the texture entirely.  A cap nobody logs reads as coverage.
+ck "the star clamp reports what it drops" 1 "$(grep -q 'fall OUTSIDE this decal' cal_gen.py && echo 1 || echo 0)"
 
 # ---------------------------------------------------- rev 48, JOB 2 and JOB 1
 # THE REAR LOUVRES EXIST.  Three documents said they did not.  These rows make

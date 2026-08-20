@@ -343,6 +343,76 @@ def glyph_calidad(t, x, y, s):
 # the scope of a decal fix.
 
 
+STAR_N = 7
+# NOT MEASURED.  The red bus's mark band is one merged 1499-px component in
+# every threshold tried -- the frames are blown.  Seven is a POSE CHOICE that
+# fills the measured band at the measured mark scale.  Provenance: rev 48, his
+# ruling "They are actually stars that were not properly represented"; no
+# count is derivable from any frame of the RED bus.
+
+# Band and scale, measured off ref_side.jpg and expressed against the burst.
+STAR_BAND_X = (-0.82, 0.82)      # of burst width, about its centre
+STAR_BAND_Y = (-0.82, -0.32)     # of burst height, about its centre
+STAR_R = 0.085                   # of burst radius; the isolated left-hand
+                                 # mark measures 6 x 4 px against a 103 px
+                                 # burst width -> 0.05..0.08.  Kept at the
+                                 # rev-45 value, which is inside that band.
+
+
+def _star(d, sx, sy, sr, fill, points=5, dent=0.42, phase=-math.pi / 2):
+    sp = []
+    for i in range(points * 2):
+        a = math.pi * i / points + phase
+        r = sr if i % 2 == 0 else sr * dent
+        sp.append((sx + r * math.cos(a), sy + r * math.sin(a)))
+    d.polygon(sp, fill=fill + (255,))
+
+
+def _stars(d, cx, cy, RO):
+    """The star band above the burst, plus the isolated lower-left mark.
+
+    Positions are DERIVED from the burst's own centre and radius at draw time
+    (rule 2), never typed in canvas units, so they follow the burst if it
+    moves -- which is exactly what W1 had to fix once already.
+    """
+    bw = RO * 2.0
+    r = STAR_R * RO
+    # THE MEASURED BAND IS WIDER THAN THE DECAL PANEL, AND THAT IS A FINDING,
+    # NOT A BUG.  +-0.82 of burst WIDTH about its centre is +-1.64 RO, and the
+    # canvas holds only ~+-1.0 RO either side of the burst.  On the vehicle
+    # those outermost marks are painted on the BODY, beyond this decal's own
+    # rectangle; this texture physically cannot carry them.  Clamped to the
+    # canvas with a margin, and the number that fell outside is REPORTED
+    # rather than silently dropped -- a cap nobody logs reads as coverage.
+    mx, my = w * 0.035 + r, h * 0.035 + r
+    x0 = max(mx, cx + STAR_BAND_X[0] * bw)
+    x1 = min(w - mx, cx + STAR_BAND_X[1] * bw)
+    y0 = max(my, cy + STAR_BAND_Y[0] * bw)
+    y1 = max(my, cy + STAR_BAND_Y[1] * bw)
+    want = [cx + (STAR_BAND_X[0] + (STAR_BAND_X[1] - STAR_BAND_X[0])
+                  * i / float(STAR_N - 1)) * bw for i in range(STAR_N)]
+    outside = sum(1 for v in want if v < mx or v > w - mx)
+    n = 0
+    for i in range(STAR_N):
+        t = i / float(STAR_N - 1)
+        sx = x0 + (x1 - x0) * t
+        # two staggered rows, which is how the band reads at 7x
+        sy = y0 + (y1 - y0) * (0.18 if i % 2 == 0 else 0.74)
+        _star(d, sx, sy, r * (1.0 if i % 2 == 0 else 0.82), PINK,
+              phase=-math.pi / 2 + 0.35 * i)
+        n += 1
+    # the one mark that IS separately resolved: components at x 702..713,
+    # y 381..391, i.e. below and LEFT of the burst.  rev 45 drew a star to the
+    # left and it was the only one; it stays, moved onto its measured station,
+    # clamped into the canvas on the same grounds as the band.
+    _star(d, max(mx, cx - 0.92 * bw), min(h - my, cy + 0.52 * bw),
+          r * 1.15, PINK)
+    print("  stars: %d drawn in the band + 1 isolated; the measured band runs "
+          "to +-%.2f RO and the canvas holds +-%.2f RO, so %d of the %d band "
+          "positions fall OUTSIDE this decal's own rectangle and are clamped"
+          % (n, abs(STAR_BAND_X[0]) * 2.0, (cx - mx) / RO, outside, STAR_N))
+
+
 def main():
     img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
@@ -350,14 +420,41 @@ def main():
     img = gradient(img, cx, cy)
     d = ImageDraw.Draw(img)
 
-    # small pink star to the left (SPEC sec.3)
-    sx, sy, sr = w * 0.075, h * 0.60, h * 0.085
-    sp = []
-    for i in range(10):
-        a = math.pi * i / 5 - math.pi / 2
-        r = sr if i % 2 == 0 else sr * 0.42
-        sp.append((sx + r * math.cos(a), sy + r * math.sin(a)))
-    d.polygon(sp, fill=PINK + (255,))
+    # ------------------------------------------------ rev 48: THEY ARE STARS
+    # HIS RULING, rev 48, verbatim: "They are actually stars that were not
+    # properly represented."
+    #
+    # He was answering a marked three-way crop of this decal on the RED bus
+    # (ref_side.jpg, the target vehicle), the GREEN bus (IMG_2073.jpeg) and
+    # the build.  Above the burst the red bus carries a band of marks that
+    # rev 45 drew as BUNTING -- two bars with triangular pennants -- and that
+    # rev 46 retired at his instruction.  Rev 46 also recorded the reason as
+    # "no frame we hold shows them", WHICH IS FALSE: ref_side.jpg shows them
+    # plainly at 7x.  What was wrong was not their presence but their
+    # IDENTITY, and only he could settle that.  They are stars.
+    #
+    # WHAT IS MEASURED, on ref_side.jpg, window (700,280)-(870,400), red mask
+    # (R - G) > 26, watched print:
+    #     the burst        x 733..836  y 306..383   ->  103 x 77 px
+    #     the mark band    x 700..869  y 281..320   ->  169 x  39 px
+    # Expressed against the burst, so it is dimensionless (rule 14):
+    #     band x  -0.82 .. +0.82 of burst WIDTH about its centre
+    #     band y  -0.82 .. -0.32 of burst HEIGHT about its centre
+    # The band overlaps the burst's upper spikes, which is what the crop shows.
+    #
+    # WHAT IS NOT MEASURED, AND IT IS THE COUNT.  The band comes back as ONE
+    # connected component of 1499 px.  Both red frames are BLOWN in the
+    # highlights, so the individual stars do not separate at any threshold --
+    # the same failure that stopped this revision measuring the word gap off
+    # the red bus.  STAR_N is therefore a POSE CHOICE carrying NOT MEASURED in
+    # its own comment, and verify_clone requires that declaration to stay, so
+    # a later revision cannot quietly promote it (the LINE_GAP precedent).
+    #
+    # THE GREEN BUS RESOLVES THEM CLEANLY and is NOT used: he has ruled that
+    # artwork may not transfer between the two vehicles, and this revision has
+    # measured their decals to be different artwork (spike depth 0.133/0.239
+    # against 0.044).  The green frame is admissible for GEOMETRY only.
+    _stars(d, cx, cy, RO)
 
     # type on its own mask so the counters punch through, then rotated as one
     # block so the two lines stay parallel at the measured -19.7 degrees
