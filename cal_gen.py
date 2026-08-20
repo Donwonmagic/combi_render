@@ -117,7 +117,54 @@ CAP_100 = 0.228                  # "100%" size, as passed to glyph_100 below
 # divide out of a reading (probe_rev47_gap.py C1).  Photographed 0.244 against
 # built 0.149 on the identical instrument => the photograph's gap is 1.64x the
 # build's, so 0.26 * 1.64 = 0.43.  NOT MEASURED absolutely -- see probe.
-LINE_GAP = 0.43                  # of CAP_100.  Ratio-measured; see probe_rev47_gap.
+# ===================== rev 48: THE RATIO ARGUMENT ABOVE IS RETRACTED ========
+# It is wrong in three separate ways, and the value is KEPT anyway.  Both
+# halves of that need saying.
+#
+# 1.  THE "+34 % ABSOLUTE BIAS" IS NOT A BIAS.  Swept over LINE_GAP 0.20..0.50
+#     against cal_gen's own construction value, the estimator reads
+#         LG    0.20   0.26   0.32   0.38   0.43   0.50
+#         read  0.104  0.149  0.193  0.248  0.281  0.391
+#         r/t   2.00   1.34   1.13   1.08   1.01   1.13
+#     It is not multiplicative and not additive -- it is roughly AFFINE in
+#     LINE_GAP with a NEGATIVE INTERCEPT.  A ratio rescaling assumes
+#     proportionality THROUGH THE ORIGIN, and the intercept is exactly what
+#     makes the 1.64x step wrong.  On clean synthetics the estimator reads
+#     0.984 at every gap: there is no fixed bias to divide out.
+#
+# 2.  THE MECHANISM.  The estimator picks its reading angle by MAXIMISING the
+#     apparent gap.  On this decal it selects -37.5 deg where ANG is -19.7.
+#     Skewing two horizontally staggered words enlarges the apparent gap
+#     between them, so the search rotates away from the true reading angle,
+#     and it does so hardest when the gap is small.  That is the small-gap
+#     inflation the record read as a fixed bias.  It is an instrument defect.
+#     ==> NEXT_CONTEXT_PROMPT_rev48.md's NEW RULE 24 ("QUOTE THE RATIO, NOT
+#     THE READING -- the bias divides out") has its FOUNDING CASE REFUTED.
+#     The rule may still be good practice; this case does not support it.
+#
+# 3.  IT IS THE WRONG VEHICLE.  0.244 was measured on IMG_2073.jpeg -- the
+#     GREEN bus.  He has ruled that the RED bus is the target and that ARTWORK
+#     may not transfer between them, and their decals ARE different artwork
+#     (spike depth 0.133 / 0.239 against 0.044).  A word gap is artwork.
+#
+# SO WHY IS 0.43 STILL HERE?  Because the correction is inadmissible too.
+# Inverting the curve at the photographed 0.244 gives LINE_GAP 0.376 -- but
+# that is still the GREEN bus's number, so substituting it swaps one
+# inadmissible figure for another.  The RED bus's own decal bounds it and no
+# more: both red frames are BLOWN in the highlights, the white type does not
+# separate from the burst at any threshold, and a hand read of the de-rotated
+# saturation profile of ref_side.jpg gives gap/cap 0.25..0.47.
+#
+#     0.43 IS INSIDE THAT BAND.  0.376 is too.  The red bus cannot separate
+#     them, and this revision will not pretend otherwise.
+#
+# STATUS: TRANSFERRED FROM ANOTHER VEHICLE, ARTWORK CONFIRMED DIFFERENT,
+# MAGNITUDE UNVERIFIED ON THE TARGET.  What settles it is one UNBLOWN frame
+# of the red bus's decal -- ref_side.jpg already has the pixels, it does not
+# have the dynamic range.
+LINE_GAP = 0.43                  # of CAP_100.  TRANSFERRED, not measured on
+                                 # the target vehicle; see the block above and
+                                 # probe_rev47_gap.
 LINE_SEP_BASE = 0.250            # rev 46's anchor separation, 0.645 - 0.395
 LINE_SEP = LINE_SEP_BASE + LINE_GAP * CAP_100
 

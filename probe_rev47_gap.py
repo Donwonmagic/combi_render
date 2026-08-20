@@ -92,8 +92,36 @@ for target in (44,):
         print("  BUILT at photo scale: gap/cap %.3f  angle %.1f  cap %.2f px  gap %.2f px"
               % rb)
         TRUTH = rb[0]
-# the build's own construction value, from cal_gen
-built_truth = 0.111        # watched print: clear gap 0.0258 canvas / 0.2326 cap
+# ------------------------------------------------------------ rev 48 FIX
+# THIS WAS A FROZEN LITERAL AND IT MADE C1 LIE IN BOTH DIRECTIONS.
+#
+# It read `built_truth = 0.111`, commented "the build's own construction
+# value, from cal_gen".  It was not from cal_gen; it was typed, and it was the
+# construction gap for LINE_GAP = 0.26.  Commit 1bfc97a changed LINE_GAP
+# 0.26 -> 0.43, regenerated tex/calidad.png AND created this probe, all in one
+# commit -- and the probe was never re-run against the new raster.  Both
+# NEXT_CONTEXT_PROMPT_rev48.md sec.12 and LEDGER_rev47.md sec.8 report
+# "3 checked, 0 FAILED"; the machine says 3 checked, 1 FAILED.
+#
+# AND THE FAILURE POINTED THE WRONG WAY.  At LINE_GAP = 0.43 the estimator
+# reads 0.281 against a construction 0.2776 -- 1.2 % error, its most accurate
+# operating point.  C1 was failing BECAUSE the instrument had become right.
+# It passed when the estimator was 34 % wrong and failed when it was 1 % right:
+# a control ANTI-CORRELATED with the health of the thing it measures.  SPEC
+# 10.116.6, and rule 2 -- expressed is not enough if it is expressed against a
+# frozen measurement; derive it at run time.
+#
+# Derived now, from cal_gen's own constants, so it tracks LINE_GAP for ever.
+# The 0.0258 canvas / 0.2326 cap pair is rev 47's watched-print measurement of
+# the clear gap AT LINE_GAP = 0.26, and the LINE_GAP term is the delta from it.
+import cal_gen as _CG
+_GAP_026_CANVAS = 0.0258          # watched print, rev 47, at LINE_GAP = 0.26
+_CAP_100_CANVAS = 0.2326          # watched print, rev 47, the "100%" cap
+built_truth = (_GAP_026_CANVAS
+               + (_CG.LINE_GAP - 0.26) * _CG.CAP_100) / _CAP_100_CANVAS
+print("  built_truth DERIVED from cal_gen: LINE_GAP %.3f -> construction "
+      "gap/cap %.4f  (frozen literal was 0.111, valid only at LINE_GAP 0.26)"
+      % (_CG.LINE_GAP, built_truth))
 ck("C1 estimator recovers the BUILT gap at photo scale (+/-35%)",
    TRUTH is not None and abs(TRUTH - built_truth) / built_truth < 0.35,
    ("%.3f vs construction %.3f" % (TRUTH, built_truth)) if TRUTH else "no two bands")

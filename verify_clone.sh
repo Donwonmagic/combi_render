@@ -347,6 +347,14 @@ ck "calidad centroid is NOT a frozen literal"  0 "$(grep -c '^TYPE_PRE_CENTROID'
 # cry-wolf failure bootstrap.sh's stranded-branch check already had to fix once.
 ck "calidad LINE_GAP cites its provenance"     1 "$(grep -q 'probe_rev47_gap' cal_gen.py && echo 1 || echo 0)"
 ck "calidad LINE_GAP names its frame"          1 "$(grep -q 'IMG_2073' cal_gen.py && echo 1 || echo 0)"
+# rev 48: TWO MORE, because the frame it names is the WRONG VEHICLE.  He has
+# ruled the RED bus is the target and that artwork may not transfer; 0.244 was
+# measured on the GREEN one.  0.43 is kept because the red bus can only bound
+# the gap to 0.25..0.47 and BOTH 0.43 and the corrected 0.376 sit inside that
+# -- but it must keep declaring what it is, and it must keep carrying the
+# retraction of the ratio argument that produced it.
+ck "LINE_GAP declares it is TRANSFERRED"  1 "$(grep -q 'TRANSFERRED FROM ANOTHER VEHICLE' cal_gen.py && echo 1 || echo 0)"
+ck "the +34% ratio argument stays retracted" 1 "$(grep -q 'FOUNDING CASE REFUTED' cal_gen.py && echo 1 || echo 0)"
 ck "calidad type rotates about the burst" 1 "$(grep -c 'center=(w \* BURST_CX, h \* BURST_CY)' cal_gen.py)"
 ck "calidad generator carries its guard"  1 "$(grep -c 'cal_gen GUARD FAILED' cal_gen.py)"
 # rev 46, at the OWNER'S instruction, in two stages.  The Calidad decal drew two
