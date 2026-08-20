@@ -1307,8 +1307,17 @@ def _hinge_y(ob, x_hinge, z_hinge, deg):
     `deg` swings the lower edge AFT (-x) and UP, which is how a T1 engine lid
     opens.  Baked into vertices, never an object transform: build.py step 8b
     asserts every mesh carries identity, and reads v.co.x as world x.
+
+    THE SIGN WAS INVERTED ON THE FIRST CUT AND ONLY A RENDER CAUGHT IT.  The
+    first version used +sin/-sin in the order that reads naturally as a
+    rotation and swung the lower edge FORWARD, folding the lid down INTO the
+    engine bay -- with the 1963 plate and the T-handle riding it in, so they
+    hung inside the dark cavity.  `VERIFY: 0 fail, 0 warn` and all 95
+    verify_clone rows passed on that build.  Nothing in this project's numbers
+    could see it; one crop of one render could.  SPEC 10.105.7, and the reason
+    `_open_guard` below now exists.
     """
-    a = math.radians(deg)
+    a = math.radians(-deg)
     ca, sa = math.cos(a), math.sin(a)
     for v in ob.data.vertices:
         x, z = v.co.x - x_hinge, v.co.z - z_hinge
@@ -1401,11 +1410,42 @@ def split_trunk_lid(body, log=print):
     me.update()
 
     hx, hz = bb[0][1], bb[2][1] - TRUNK_HINGE_INSET
+
+    # The lid's LOWEST vertex is the free edge -- the one that has to travel.
+    # Measured before and after, so the guard tests the motion, not the code.
+    # Capture the INDEX as a plain int, not the bpy struct.  _hinge_y mutates
+    # the mesh and calls fix_normals, after which the struct is stale and
+    # `low.index` reads garbage -- the first version of this guard died with
+    # `bpy_prop_collection[-1425949424]: out of range` instead of reporting the
+    # defect it was written to catch.  A guard that crashes is not a guard.
+    low_i = int(min(lm.vertices, key=lambda v: v.co.z).index)
+    x_before = float(lm.vertices[low_i].co.x)
+    z_before = float(lm.vertices[low_i].co.z)
     _hinge_y(lid, hx, hz, TRUNK_OPEN_DEG)
     T.fix_normals(lid)
+    x_after = float(lm.vertices[low_i].co.x)
+    z_after = float(lm.vertices[low_i].co.z)
+
+    # ---- THE GUARD, in the same edit as the change (rule 12), and it exists
+    # because the first version of _hinge_y failed EXACTLY here while every
+    # number in the project stayed green.  An open engine lid's free edge must
+    # go AFT and UP.  Watched fail: with the sign inverted this prints
+    #   dx +0.1946 (want negative)  dz +0.0546
+    # and stops the build.  Rule 19 -- the control has been seen to fail on
+    # the defect, not merely to pass on the fix.
+    dx, dz = x_after - x_before, z_after - z_before
+    if not (dx < -1e-4 and dz > -1e-4):
+        raise AssertionError(
+            "trunk lid opened the WRONG WAY: its free edge moved dx %+.4f "
+            "dz %+.4f. An engine lid's free edge swings AFT (dx negative) and "
+            "UP (dz non-negative). Check _hinge_y's sign -- it was inverted "
+            "once already and only a render caught it." % (dx, dz))
+
     log("trunk lid: separated %dv, hinge (x %.4f, z %.4f) lateral, "
         "OPEN %.1f deg  [angle NOT MEASURED -- no frame shows it]"
         % (len(lm.vertices), hx, hz, TRUNK_OPEN_DEG))
+    log("  free edge travelled dx %+.4f m (aft) dz %+.4f m (up) -- guard ok"
+        % (dx, dz))
     return lid, hx, hz, TRUNK_OPEN_DEG
 
 

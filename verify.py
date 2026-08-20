@@ -426,11 +426,30 @@ BAND_SPEC = (1.3720, 1.7750)           # Z_SILL, Z_HEAD, UN-DROPPED
 SLOT_FRAC_MIN = 0.90
 
 
-def _bounds():
+def _bounds(exclude_lids=False):
+    """Overall bounds.  `exclude_lids` drops every `lid_*` part.
+
+    rev 48.  The height row below has said since rev 8 that "the roof lids are
+    modelled OPEN, so the bbox top is the raised signboard at ~3.0 m, not the
+    vehicle", and works around it by measuring _roof_z_at() instead.  THE SAME
+    THING HAS NOW HAPPENED ON THE LENGTH AXIS.  It never bit before because
+    the roof lid spans x -1.070..0.964, comfortably inside the body's
+    -1.873..2.127; rev 48's trunk lid opens AFT, past X_TAIL, and the length
+    row went red at +362 mm on a vehicle whose body had not moved.
+
+    An open lid is no more part of the vehicle's LENGTH than an open lid is
+    part of its HEIGHT.  Excluded BY PREFIX rather than by an enumerated list,
+    which is audit.py:96's stated reason for doing it the same way -- a list
+    goes stale the moment somebody adds a lid.
+
+    Default False, so every existing caller reads bit-identically.
+    """
     lo = Vector((1e9, 1e9, 1e9)); hi = -lo
     for ob in bpy.data.objects:
         if ob.type != 'MESH' or ob.name in ("cyc", "counter", "counter_nosing",
                                             "counter_top"):
+            continue
+        if exclude_lids and ob.name.startswith("lid_"):
             continue
         for c in ob.bound_box:
             v = ob.matrix_world @ Vector(c)
@@ -624,9 +643,15 @@ def run(body, log=print):
 
     # 1. overall dimensions
     lo, hi = _bounds()
+    # LENGTH is measured over the vehicle WITHOUT its opened lids -- see
+    # _bounds.__doc__.  Everything else on this row keeps the old bound.
+    lo_v, hi_v = _bounds(exclude_lids=True)
     bb = [body.matrix_world @ Vector(c) for c in body.bound_box]
     bw = max(v.y for v in bb) - min(v.y for v in bb)
-    L, W, H = hi.x - lo.x, bw, hi.z
+    L, W, H = hi_v.x - lo_v.x, bw, hi.z
+    if abs((hi.x - lo.x) - L) > 1e-6:
+        log("  length excludes opened lids: %.3f with them, %.3f without "
+            "(the open trunk lid projects aft of X_TAIL)" % (hi.x - lo.x, L))
     log(f"  x range [{lo.x:.3f}, {hi.x:.3f}]   full-Y [{lo.y:.3f}, {hi.y:.3f}]")
     # rev 8: HEIGHT IS NOT A SCALAR ANY MORE, twice over. The vehicle is raked,
     # so the roof is a sloping line; and the roof lids are modelled OPEN, so the

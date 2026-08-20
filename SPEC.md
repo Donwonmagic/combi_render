@@ -10085,9 +10085,22 @@ said so where it mattered:
 | | body G/R | raised lid carries |
 |---|---|---|
 | `ref_side.jpg` **RED** | 0.204 | flower mural + yellow menu strips |
-| `ref_rear34.jpg` **RED** | 0.269 | mural outer / cream + red script inner |
+| `ref_rear34.jpg` **RED** | 0.269 | the mural board, plus the "La Santa" cream + red-script board — **two boards, not two faces of one** (see below) |
 | `IMG_2073.jpeg` **GREEN** | 1.378 | tufted damask panel, ornate green frame, bulbs |
 | `ref_workshop.jpg` **GREEN** | 1.304 | plain cream — mid-conversion |
+
+> **RETRACTION, within rev 48, caught by rev 48's own adversarial verifier.**
+> The row above first read *"mural outer / cream + red script inner"* — which
+> describes the "La Santa" board as the **inner face of the raised lid**. That
+> is precisely the §10.19/§10.26 identification the owner retired in §10.28
+> (*"I was wrong, I think it is a detached sign"*) and re-retired in §10.49.
+> **§10.49 exists because §10.38 re-adopted it once already; this was the
+> third re-adoption, and it was mine.** It is also not what the pixels show:
+> at 2× the cream board and the mural board sit on visibly different planes
+> with the roof aperture's maroon interior between them. Corrected above.
+> **A retired identification that keeps coming back unnamed is the same
+> failure mode as a feature that comes back halfway (§10.122.1), and it now
+> has three instances.**
 
 A G/R of 0.20 against 1.38 is not a white-balance artefact. **HIS RULING,
 rev 48, verbatim in substance:**
