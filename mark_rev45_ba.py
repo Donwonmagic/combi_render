@@ -64,6 +64,20 @@
 # RUN
 #   python3 mark_rev45_ba.py
 #   T1_Q45_BEFORE=dir  T1_Q45_AFTER=dir   override the two render directories.
+#
+# REPRODUCING THE **BEFORE** SET.  It is not committed -- three 1400x960 PNGs
+# are 12 MB and they are derivable exactly.  BEFORE is the tree as it stood at
+# the head of this branch before rev 45 touched anything, which is the commit
+# tagged in the log as "Add files via upload" (f30022b at the time of writing):
+#
+#     git worktree add /tmp/before f30022b
+#     cd /tmp/before && T1_SUB=2 T1_PREVIEW=hero34f,front34,side T1_PFX=r45 \
+#       T1_RX=1400 T1_RY=960 T1_SAMP=72 /tmp/blender/blender -b -P build.py
+#     cd - && T1_Q45_BEFORE=/tmp/before/out python3 mark_rev45_ba.py
+#
+# NOTE that build.py at f30022b renders `hero34f`, NOT `hero` -- the rev-45
+# brief's `T1_PREVIEW=hero,side,detail_f` dies with KeyError: 'hero' after a
+# full build.  F1 below refuses to write rather than guessing.
 
 import os
 import sys
@@ -72,7 +86,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-BEFORE_DIR = os.environ.get("T1_Q45_BEFORE", "/tmp/insp/before")
+BEFORE_DIR = os.environ.get("T1_Q45_BEFORE", "/tmp/before/out")
 AFTER_DIR = os.environ.get("T1_Q45_AFTER", os.path.join(HERE, "out"))
 OUT = os.environ.get("T1_Q45_OUT", os.path.join(HERE, "rev45_ba.png"))
 
@@ -152,8 +166,8 @@ ROWS = [
            "centre sat 10 mm INSIDE the nose, so the aperture rendered as a "
            "dark red hole in a brass ring.  AFTER, the lens is convex and the "
            "rim is chrome.  Is the rim chrome or brass on your bus?"),
-        cells=[("BEFORE  rev 44", "before_front", (960, 595, 1055, 680)),
-               ("AFTER  rev 45", "after_front", (960, 595, 1055, 680)),
+        cells=[("BEFORE  rev 44", "before_front", (950, 592, 1032, 668)),
+               ("AFTER  rev 45", "after_front", (950, 592, 1032, 668)),
                ("PHOTOGRAPH  ref_nolita_front34", "ph_front34", (215, 255, 295, 325))],
     ),
     dict(
