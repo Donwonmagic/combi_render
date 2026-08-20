@@ -57,9 +57,43 @@ ORANGE = (238, 122, 22)
 YELLOW = (247, 189, 46)
 WHITE = (252, 250, 246)
 PINK = (232, 96, 122)
-BUNT = (198, 40, 36)
+# BUNT is retired with the bunting: the lines it coloured are vent slats,
+# which are DARK GREY sheet-metal shadow, not red paint.  Kept as a record of
+# what the retired feature used to use, and referenced by nothing.
+_RETIRED_BUNT = (198, 40, 36)
 
 ANG = math.radians(-19.7)        # measured type / bunting angle
+
+# ------------------------------------------------------- rev 46, W1, SPEC 10.118
+# THE BURST'S CENTRE, PROMOTED TO A CONSTANT, AND THE TYPE EXPRESSED AGAINST IT.
+#
+# The owner reported "the 100% calidad off center" and he is right.  It is NOT
+# the defect rev 44 closed: that one was the decal PANEL'S PLACEMENT ON THE
+# VEHICLE (Report 7, 0.180 of texture width).  This is the TYPE'S PLACEMENT
+# INSIDE THE DECAL, which nobody had ever measured.  Both are true and they are
+# different things.
+#
+# Measured on this generator's own output, before the block is rotated: the
+# type's centroid sat at (0.3735, 0.6309) of the canvas while starburst()'s
+# centre is (0.5050, 0.5750).  The block was 0.1315 w LEFT and 0.0559 h BELOW
+# the burst it is supposed to sit on -- and it showed, with "100%" hanging off
+# the burst onto bare cream and "Calidad" running off the panel's bottom edge.
+#
+# TYPE_SHIFT is EXACTLY that measured miss (SPEC 10.25: a constant tuned against
+# another constant is expressed in terms of it).  It is not a re-tuned pair of
+# absolutes -- re-run the pre-rotation centroid measurement after any glyph
+# change and it re-derives.  The two lines keep their relative offset; only the
+# block moves, which is what "off center" means.
+#
+# AND THE ROTATION CENTRE MOVES TO THE BURST'S CENTRE.  It was (0.500, 0.600) --
+# near the burst's centre but not equal to it, so the -19.7 deg rotation swung
+# the block off centre again by a further (+0.0148, +0.0558) even when the
+# layout was right.  Rotating about the point the block is centred ON makes the
+# centring EXACT and independent of ANG: a rotation fixes its own centre.
+BURST_CX, BURST_CY = 0.505, 0.575
+TYPE_PRE_CENTROID = (0.3735, 0.6309)     # watched print, rev 46, pre-rotation
+TYPE_SHIFT = (BURST_CX - TYPE_PRE_CENTROID[0],
+              BURST_CY - TYPE_PRE_CENTROID[1])      # (+0.1315, -0.0559)
 
 
 def rot(px, py, cx, cy, a):
@@ -76,7 +110,7 @@ def starburst(d):
     burst, so the tips wander. The sequence is fixed, not random, so the file
     is reproducible.
     """
-    cx, cy = w * 0.505, h * 0.575
+    cx, cy = w * BURST_CX, h * BURST_CY
     RO, RI = h * 0.435, h * 0.255
     N = 27
     jitter = [0.94, 1.06, 0.88, 1.11, 0.97, 1.04, 0.91, 1.08, 1.00, 0.93,
@@ -232,19 +266,32 @@ def glyph_calidad(t, x, y, s):
     return ox
 
 
-def bunting(d, y0, x0, x1, n, drop, fill):
-    """A bar with triangular pennants hanging below it, at the measured angle."""
-    tan = math.tan(-ANG)
-    th = h * 0.013
-    d.polygon([(x0, y0), (x1, y0 - (x1 - x0) * tan),
-               (x1, y0 - (x1 - x0) * tan + th), (x0, y0 + th)], fill=fill)
-    for i in range(n):
-        ax = x0 + (x1 - x0) * (i + 0.10) / n
-        bx = x0 + (x1 - x0) * (i + 0.80) / n
-        ay = y0 - (ax - x0) * tan + th
-        by = y0 - (bx - x0) * tan + th
-        d.polygon([(ax, ay), (bx, by), ((ax + bx) / 2, (ay + by) / 2 + drop)],
-                  fill=fill)
+# ------------------------------------------------------------------- bunting
+# THERE IS NO BUNTING.  THE LINES ARE VENT SLATS, AND THEY ARE BODYWORK.
+#
+# rev 46, at the owner's instruction and in two stages.  This decal used to draw
+# two red bars across the top of the burst with 15 triangular pennants hanging
+# from them.  He asked for the triangles to go; nothing in any frame we hold
+# shows them, and magnifying ref_playa_34.png 16x over the strip between the
+# roof and the burst shows two thin STRAIGHT lines with plain cream between them
+# and the burst -- no triangles, no scallop, nothing hanging.
+#
+# Then he named what the remaining lines are: VENT SLATS.  He is right, and the
+# generator's own palette is the evidence against itself -- BUNT was (198,40,36),
+# a saturated RED, and the lines in the photograph are DARK GREY.  They are the
+# T1's rear air-intake louvres: shadowed slots in sheet metal, not paint.  A
+# louvre drawn into a decal texture is wrong three times over -- wrong colour,
+# wrong material, and it cannot self-shadow or catch a highlight because it has
+# no depth at all.
+#
+# So the whole feature is gone from the artwork rather than recoloured.
+#
+# AND IT LEAVES A FINDING, REPORTED RATHER THAN QUIETLY FIXED: the model has NO
+# REAR VENTS.  `grep -rn 'vent|louvre|slat'` over the sources returns the cab
+# door's quarter-light and studio.py's lighting rig, and nothing else.  These
+# louvres were the only thing standing in for them, in the one place they could
+# not work.  Building them is bodywork geometry, not artwork, and it is not in
+# the scope of a decal fix.
 
 
 def main():
@@ -263,21 +310,42 @@ def main():
         sp.append((sx + r * math.cos(a), sy + r * math.sin(a)))
     d.polygon(sp, fill=PINK + (255,))
 
-    # bunting: two bars across the top of the burst, pennants hanging below
-    bunting(d, h * 0.150, w * 0.14, w * 0.90, 8, h * 0.058, BUNT + (255,))
-    bunting(d, h * 0.290, w * 0.11, w * 0.88, 7, h * 0.055, BUNT + (255,))
-
     # type on its own mask so the counters punch through, then rotated as one
     # block so the two lines stay parallel at the measured -19.7 degrees
     t = TypeMask(w, h)
-    glyph_100(t, w * 0.150, h * 0.395, h * 0.228)
-    glyph_calidad(t, w * 0.180, h * 0.645, h * 0.196)
+    sx, sy = TYPE_SHIFT
+    glyph_100(t, w * (0.150 + sx), h * (0.395 + sy), h * 0.228)
+    glyph_calidad(t, w * (0.180 + sx), h * (0.645 + sy), h * 0.196)
     lay = Image.merge("RGBA", (
         Image.new("L", (w, h), WHITE[0]), Image.new("L", (w, h), WHITE[1]),
         Image.new("L", (w, h), WHITE[2]), t.m))
     lay = lay.rotate(-math.degrees(ANG), resample=Image.BICUBIC,
-                     center=(w * 0.5, h * 0.60))
+                     center=(w * BURST_CX, h * BURST_CY))
     img = Image.alpha_composite(img, lay)
+
+    # ------------------------------------------------- rev 46, W1: THE GUARD
+    # Added in the SAME EDIT as the change it guards (SPEC 10.117 / rule 12).
+    # A claim in prose is not a guard: this one MEASURES the shipped raster and
+    # refuses to write a decal whose type has drifted off the burst.  It is the
+    # check that did not exist for forty-five revisions, which is why "100%
+    # calidad off center" survived every one of them.
+    _ck = np.array(img).astype(float)
+    _al = _ck[:, :, 3] / 255.0
+    _wm = (_al > 0.5) & (_ck[:, :, 0] > 200) & (_ck[:, :, 1] > 195) & (_ck[:, :, 2] > 190)
+    _ys, _xs = np.nonzero(_wm)
+    _tc = (_xs.mean() / _ck.shape[1], _ys.mean() / _ck.shape[0])
+    _off = (_tc[0] - BURST_CX, _tc[1] - BURST_CY)
+    print("  guard: type centroid (%.4f, %.4f) vs burst centre (%.4f, %.4f) "
+          "-> off (%+.4f, %+.4f)" % (_tc + (BURST_CX, BURST_CY) + _off))
+    # 0.004 is ~10 px on the 2400-wide master: below the LANCZOS/BICUBIC
+    # resampling floor, far under the 0.1167 miss this replaced.
+    if abs(_off[0]) > 0.004 or abs(_off[1]) > 0.004:
+        raise SystemExit(
+            "cal_gen GUARD FAILED: the type is off the burst's centre by "
+            "(%+.4f, %+.4f) of the decal, tolerance 0.004.  This is the defect "
+            "the owner reported as \"100%% calidad off center\".  Re-derive "
+            "TYPE_SHIFT from the pre-rotation centroid; do not widen the "
+            "tolerance." % _off)
 
     img = img.resize((W, H), Image.LANCZOS)
     os.makedirs(TEX, exist_ok=True)
