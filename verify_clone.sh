@@ -233,7 +233,13 @@ say "-- textures (unchanged since rev 25; item 1 WILL move them) --"
 ck "tex/swirl.png"   4ee4e09edcc9afb46303c8d3858a62bf "$(md5of tex/swirl.png)"
 ck "tex/swirl_b.png" d201597e1c867b6e1fbedd2c0f8ab306 "$(md5of tex/swirl_b.png)"
 ck "tex/nose.png"    b31ea156c15d2d8e38ba390d9e151706 "$(md5of tex/nose.png)"
-ck "tex/senor.png"   8e58ad7e9d87184591fe7cb12300e903 "$(md5of tex/senor.png)"
+# rev 46, SPEC 10.120: RE-BASED because 'Senor' was very nearly invisible.
+# Measured per WORD -- which nobody had done, and which dissolves the standing
+# contradiction between ledger findings 19 and 30 -- Michelson against the red
+# each word sits on:  Tacombi 0.4673 photographed / 0.4480 built (right), Senor
+# 0.1922 photographed / 0.0711 built (2.7x too dark).  'Tacombi' was never the
+# problem.  The tarnish lift is DERIVED from the photographed target, not typed.
+ck "tex/senor.png"   411ade90df4fdbb696bbcdb1a481f1d4 "$(md5of tex/senor.png)"
 # rev 45, SPEC 10.112: RE-BASED because the texture legitimately changed.
 # cal_gen.gradient's bias was 0.42 and `t` is zero at the burst's own centre by
 # construction, so the core evaluated to 84 % ORANGE and NOTHING in the shipped

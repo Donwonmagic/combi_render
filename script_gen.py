@@ -660,6 +660,51 @@ SILVER_CHROMA = (127.4, 124.9, 130.0)    # measured sRGB of clean silver
 # tarnished ink from clean.
 SILVER_Y = float(os.environ.get("T1_SILVER_Y", 0.66))    # linear luminance
 TARNISH_K = (0.675, 0.374, 0.276)        # 'Senor' median / clean silver median
+# ===================================================== rev 46, W3, SPEC 10.120
+# "SENOR TACOMBI STILL ISN'T CLEARER" -- AND IT IS *SENOR* THAT ISN'T.
+#
+# His third report of this script.  Every prior revision measured ONE Michelson
+# figure over the WHOLE script and stalled on a contradiction: the ledger's
+# finding 19 says the ink is already too LIGHT against its own measured target,
+# so darkening it toward that target makes legibility WORSE, and the two
+# findings pull opposite ways.
+#
+# MEASURING THE TWO WORDS SEPARATELY DISSOLVES THE CONTRADICTION.  Michelson
+# against the red each sits on:
+#
+#                 photographed        built rev 45
+#     Tacombi     0.4673 +- 0.0009    0.4480          <- right, 4 % low
+#     Senor       0.1922 +- 0.0060    0.0711          <- 2.7x TOO DARK
+#
+# Photographed on ref_side.jpg -- the frame the script was traced from -- over
+# 6 thresholds x 4 crop windows.  'Tacombi' was never the problem.  'Senor' is
+# fully tarnished by TARNISH_K and renders at a luminance of 95 against a ground
+# of 79: it is not low-contrast, it is very nearly INVISIBLE.  He named the word.
+#
+# WHY THE LIFT IS A DECLARED DEPARTURE, AND EXACTLY HOW BIG A ONE.
+# TARNISH_K is a MEASURED ratio, 'Senor' median over clean silver median, and
+# the generator reproduces it faithfully: built Senor/Tacombi = 0.451 against a
+# photographed 0.496.  Correcting that ratio alone is a pure fix and it is worth
+# having -- but it only reaches Michelson 0.1385, still short of the
+# photographed 0.1922.  THE REST IS NOT THE INK.  It is the ground: the built
+# body red renders 11 % brighter relative to the ink than the photograph's
+# (ground/Tacombi 0.376 built against 0.338 photographed), which is LEDGER
+# FINDING W6 -- body red G/R 0.455 built against 0.223 +- 0.066 photographed,
+# 3.5 sigma -- and W6 IS BLOCKED ON THE OWNER because half of it is the white
+# cyclorama he supplied as the bar.
+#
+# So the lift is solved to land on the PHOTOGRAPHED CONTRAST 0.1922 rather than
+# on the photographed ink ratio, and that over-lifts the ink to Senor/Tacombi
+# 0.554 against the photographed 0.496.  THAT 0.058 IS THE DEPARTURE.  It is
+# taken because he has now asked three times, it is recorded here rather than
+# buried, and it has a retirement condition: WHEN W6'S PAINT IS SETTLED,
+# RE-DERIVE THIS LIFT.  It will shrink, and if the red lands where the
+# photograph puts it the departure goes to zero on its own.
+#
+# The lift is DERIVED from the target, not typed (SPEC 10.25), so it re-solves
+# if the silver albedo, the mottle or the body red ever move.
+SENOR_MICHELSON = 0.1922                 # ref_side.jpg, +-0.0060, 6 th x 4 windows
+BODY_RED_L = 0.2126 * 196 + 0.7152 * 49 + 0.0722 * 36    # t1_mats body red sRGB
 MOTTLE_REL = 0.059                       # 7.4 DN on a mean of 125.8
 MOTTLE_LONG = 14.5                       # mask px, measured 13-16
 MOTTLE_SHORT = 4.2                       # mask px, measured 3.5-5.0
@@ -773,7 +818,28 @@ def main():
         z = nd.gaussian_filter(z, sigma=1.2 * ppm, mode='constant')
         tw = np.maximum(tw, z * s * np.clip(blot * 0.7 + 0.45, 0, 1))
     tw = np.clip(tw, 0, 1)[..., None]
-    rgb = rgb * (1.0 - tw) + rgb * np.array(TARNISH_K, float) * tw
+
+    # ------------------------------------------- rev 46, W3: SOLVE THE LIFT
+    # Luminance is LINEAR in the lift -- K' = K + (1-K)*lift gives
+    # L(lift) = L_tarnished + lift * (L_clean - L_tarnished) -- so one solve,
+    # no iteration, and it re-derives from whatever the albedo and mottle are.
+    def _lum(c):
+        return 0.2126 * c[..., 0] + 0.7152 * c[..., 1] + 0.0722 * c[..., 2]
+
+    _K0 = np.array(TARNISH_K, float)
+    _zone = (tw[..., 0] > 0.6) & (al > 96)
+    if _zone.sum() > 100:
+        _Lc = float(_lum(rgb)[_zone].mean())
+        _Lt = float(_lum(rgb * _K0)[_zone].mean())
+        _Ltar = BODY_RED_L * (1.0 + SENOR_MICHELSON) / (1.0 - SENOR_MICHELSON)
+        TARNISH_LIFT = float(np.clip((_Ltar - _Lt) / max(_Lc - _Lt, 1e-6), 0.0, 1.0))
+        print("  Senor lift: clean L %.1f, fully tarnished L %.1f, target L %.1f "
+              "-> lift %.4f" % (_Lc, _Lt, _Ltar, TARNISH_LIFT))
+    else:
+        TARNISH_LIFT = 0.0
+        print("  Senor lift: NO TARNISH ZONE FOUND -- lift 0")
+    _K = _K0 + (1.0 - _K0) * TARNISH_LIFT
+    rgb = rgb * (1.0 - tw) + rgb * _K * tw
 
     rgb = np.clip(rgb, 0, 255).astype(np.uint8)
     out = np.dstack([rgb, al])
