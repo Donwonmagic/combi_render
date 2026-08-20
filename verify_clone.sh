@@ -107,7 +107,23 @@ if [ "${NPR:-0}" -ge 31 ]; then ck "probe_*.py >= 31" ok ok
   say "        ($NPR probes; 31 is rev 42.  Probes are never deleted.)"
 else ck "probe_*.py >= 31" ok "lost:$NPR"; fi
 ck "source photographs (.jpg)"      3 "$(ls ref_side.jpg ref_rear34.jpg ref_workshop.jpg 2>/dev/null | wc -l)"
-ck "annotated derivatives (.png)"   5 "$(ls ref_*.png 2>/dev/null | wc -l)"
+# rev 45 -- THIS CHECK WAS RE-WRITTEN, NOT RE-BASED, AND HERE IS WHY.
+# It counted `ref_*.png` and called the answer "annotated derivatives".  Those
+# are two different things and the label was carrying the check.  rev 45 added
+# ref_playa_34.png, which is a SOURCE PHOTOGRAPH that happens to be a .png, and
+# the count went 5 -> 6 while nothing about the derivatives changed.  Bumping
+# the 5 to a 6 would have made the check pass and stopped it meaning anything.
+# So it now names the five derivatives it is actually about.
+ck "annotated derivatives (grids)" 5 "$(ls ref_band_grid.png ref_grid.png ref_nose_grid.png ref_side_grid.png ref_x6_lanczos.png 2>/dev/null | wc -l)"
+# rev 45 -- NEW, AND IT IS THE CHECK THAT WOULD HAVE SAVED A REVISION.
+# NEXT_CONTEXT_PROMPT_rev45.md sec.4 states "Reference photographs (8, all
+# tracked)" and names four Nolita frames.  THREE OF THE FOUR WERE NEVER
+# COMMITTED.  Item W1 -- the entire roundel task -- was specified against
+# measurements taken on ref_nolita_front34.jpg, a file that was not in the
+# tree.  No check noticed, because no check counted them.  This one does.
+# See REFERENCE_FRAMES_rev45.md for the recovery and the identifications.
+ck "nolita + playa frames"          5 "$(ls ref_nolita_doorshut.jpg ref_nolita_flank.jpg ref_nolita_front34.jpg ref_nolita_front34b.jpg ref_playa_34.png 2>/dev/null | wc -l)"
+ck "upload provenance kept"         5 "$(ls IMG_2053.jpeg IMG_2054.jpeg IMG_2060.jpeg IMG_3840.jpeg IMG_3842.png 2>/dev/null | wc -l)"
 
 # ------------------------------------------------------------ SPEC anchor counts
 # ANCHOR WITH ^.  grep -c COUNTS LINES, NOT OCCURRENCES.  CASE MATTERS.
@@ -125,7 +141,12 @@ ck "AN ORDINAL FACT NEEDS NO RULER" 1 "$(grep -c 'AN ORDINAL FACT NEEDS NO RULER
 ck "A LINE YOU DREW IS NOT EVIDENCE" 1 "$(grep -c 'A LINE YOU DREW IS NOT EVIDENCE' SPEC.md)"
 ck "0.7770 (the BUILT arch crown)"  2 "$(grep -c '0.7770' SPEC.md)"
 ck "55.97 (self-overlap)"           1 "$(grep -c '55.97' SPEC.md)"
-ck "0.024426 (DOOR_ARCH_G)"         2 "$(grep -c '0.024426' SPEC.md)"
+# rev 44b: 2 -> 5.  SPEC 10.102 (the retraction) and 10.106 (the forward
+# lobe) each quote the clearance again, and 10.106 quotes both it and the
+# built 0.024381 side by side.  The CONSTANT has not moved -- t1_shell still
+# derives it from rev 41's own smoothed outline and the guard still fires on
+# it.  Only the number of places SPEC cites it changed.
+ck "0.024426 (DOOR_ARCH_G)"         5 "$(grep -c '0.024426' SPEC.md)"
 ck "COMMON-MODE (case matters)"     3 "$(grep -c 'COMMON-MODE' SPEC.md)"
 PAT_CFF="THE COUNTER'S FRONT FACE"   # apostrophe: keep it in a variable
 ck "THE COUNTER'S FRONT FACE"       3 "$(grep -c "$PAT_CFF" SPEC.md)"
@@ -139,14 +160,50 @@ ck "amtrak (HIS word)"              2 "$(grep -c 'amtrak' SPEC.md)"
 # physically the same vehicle is U" with SAME VEHICLE, and sec.7.1/7.2 record
 # that plus the era-tag correction.  Seven new mentions, all in those two
 # subsections.  If this fires again, adjudicate the NEW ones -- do not bump it.
-ck "nolita, any case"              16 "$(grep -ic 'nolita' SPEC.md)"
+# rev 44b: 16 -> 25.  ref_nolita_doorshut.jpg and ref_nolita_front34.jpg
+# carried four of this revision's findings (10.102, 10.105, 10.106, 10.107),
+# so SPEC names them nine more times.  This row is a REMINDER THAT THE
+# NOLITA FRAMES ARE ADMISSIBLE, not a cap on how often they are used.
+# rev 45 -- AND A BUMP THAT WAS WRONG, RECORDED BECAUSE THE CHECK CAUGHT IT.
+# On adding SPEC 10.117 this row was bumped 31 -> 33 on the assumption that the
+# new section cites the nolita frames.  IT DOES NOT -- 10.117's photographed
+# targets are quoted as counts and sigmas, and the frame names live in
+# probe_rev45_paint.py and in this file's own comments, neither of which this
+# row greps.  The count is still 31.  Rule 4: never put a figure in an
+# acceptance test unless you watched it print.  Fourth instance in this repo,
+# and the first where the wrong figure was mine and the check found it inside
+# one minute.
+# rev 45: 29 -> 31.  SPEC 10.116 cites ref_nolita_flank.jpg and ref_playa_34.png
+# as two of the four frames that supply the PHOTOGRAPHED contact-shadow target
+# (0.650 +- 0.210).  Third bump this revision; still not a cap.
+# rev 45: 28 -> 29 within the same revision -- SPEC 10.115 (the headlamp bowls)
+# cites ref_nolita_front34.jpg as one of the two frames that show the bowl as a
+# shadowed ring round the bezel.  Same reading again: not a cap.
+# rev 45: 25 -> 28.  SPEC 10.110 and 10.111 name ref_nolita_front34.jpg three
+# more times -- it is the frame that settled the headlamp bezel's chroma and
+# the frame rev 45's badge work was checked against.  Same reading as rev 44b's:
+# THIS ROW IS A REMINDER THAT THE NOLITA FRAMES ARE ADMISSIBLE, not a cap.
+ck "nolita, any case"              31 "$(grep -ic 'nolita' SPEC.md)"
 ck "TEN flower heads"               1 "$(grep -c 'TEN flower heads' SPEC.md)"
 
 # ------------------------------------------------------------------ build files
 say "-- build files --"
-ck "DOOR_ARCH_G in t1_shell.py"     7 "$(grep -c 'DOOR_ARCH_G' t1_shell.py)"
-ck "_G_BUILD in t1_shell.py"        4 "$(grep -c '_G_BUILD' t1_shell.py)"
-ck "_arch_radial in t1_shell.py"    4 "$(grep -c '_arch_radial' t1_shell.py)"
+# rev 44b: 7 -> 3.  SPEC 10.102 retracted 10.100's wrap, and with the arc
+# gone so are its fixed-point solve and the four references that fed it.
+# What remains is the definition, the guard and its message -- which is the
+# whole point: the CLEARANCE INVARIANT survived the geometry that motivated
+# it.  A drop to 0 would be the finding; 3 is the invariant standing alone.
+ck "DOOR_ARCH_G in t1_shell.py"     3 "$(grep -c 'DOOR_ARCH_G' t1_shell.py)"
+# rev 44b: 4 -> 0, AND THAT IS CORRECT.  `_G_BUILD` existed ONLY to solve the
+# construction clearance for 10.100's wrapped arc by fixed point.  10.102
+# retracted the wrap; the outline is rev 41's table again and needs no solve.
+# The PATTERN is not lost -- t1_core.vw_bars now uses it for the emblem
+# (10.107) and that is where to look for it.
+ck "_G_BUILD in t1_shell.py"        0 "$(grep -c '_G_BUILD' t1_shell.py)"
+# rev 44b: 4 -> 3.  Same cause: the fixed-point loop called it once per pass.
+# The three that remain are the definition, DOOR_ARCH_G, and _MIN_RAD -- i.e.
+# the measure, the reference value and the guard.  All three must stay.
+ck "_arch_radial in t1_shell.py"    3 "$(grep -c '_arch_radial' t1_shell.py)"
 ck "T1_ABLATE in build.py"          5 "$(grep -c 'T1_ABLATE' build.py)"
 ck "FLOOR_W in t1_detail.py"        5 "$(grep -c 'FLOOR_W' t1_detail.py)"
 ck "_assert_same_edge"              4 "$(grep -c '_assert_same_edge' flank_compare.py)"
@@ -177,7 +234,14 @@ ck "tex/swirl.png"   4ee4e09edcc9afb46303c8d3858a62bf "$(md5of tex/swirl.png)"
 ck "tex/swirl_b.png" d201597e1c867b6e1fbedd2c0f8ab306 "$(md5of tex/swirl_b.png)"
 ck "tex/nose.png"    b31ea156c15d2d8e38ba390d9e151706 "$(md5of tex/nose.png)"
 ck "tex/senor.png"   8e58ad7e9d87184591fe7cb12300e903 "$(md5of tex/senor.png)"
-ck "tex/calidad.png" cc1c46c796e88e6b066d4fb2cb5cc9c2 "$(md5of tex/calidad.png)"
+# rev 45, SPEC 10.112: RE-BASED because the texture legitimately changed.
+# cal_gen.gradient's bias was 0.42 and `t` is zero at the burst's own centre by
+# construction, so the core evaluated to 84 % ORANGE and NOTHING in the shipped
+# texture was the RED = (214,46,30) that starburst() fills the polygon with nine
+# lines above.  Core measured off the shipped file: (237.0,120.3,22.0), G/R
+# 0.508.  Bias -> 0; core now (216.6,55.1,28.2), G/R 0.255, against the body
+# red's own 0.250.  The owner reported this decal twice.
+ck "tex/calidad.png" 247d8ab1a8e1a93effcb74c4674090ed "$(md5of tex/calidad.png)"
 ck "tex/lidmural.png" 2d62159dba663c90b5ae3746383c15d1 "$(md5of tex/lidmural.png)"
 ck "tex/lidsign.png" bcd3da2dbec0276fabd7d8f8ee03f27b "$(md5of tex/lidsign.png)"
 ck "tex/emblem.png"  574ba2d733353387568b412da48fd436 "$(md5of tex/emblem.png)"
@@ -208,11 +272,32 @@ ck "signboard default is OFF"       1 "$(grep -c 'T1_SIGNBOARD\", \"0\"' t1_shel
 # retyping of it.  (It does not run the guards; run those yourself.)
 # ---------------------------------------------------------------------------
 say "-- guard figures, read from the machine-written STATE.md --"
-ck "roof @ rear axle 1.9835"        1 "$(grep -c 'roof@rear-axle=1.9835' STATE.md)"
+# rev 45 -- THIS ROW IS RE-WRITTEN, NOT RE-BASED, AND THE DIFFERENCE MATTERS.
+# It grepped for the literal `roof@rear-axle=1.9835`.  On this machine the
+# build prints 1.9833 -- and it printed 1.9833 BEFORE rev 45 touched anything,
+# on the unmerged tree, so THE COMMITTED STATE.md WAS ALREADY 0.2 mm STALE.
+# 0.2 mm on 1.98 m is 1e-4 relative; it is the same class as probe_rev42_uv's
+# 56.15 % against a published 55.97 % (ledger finding 20) -- bpy-via-pip
+# against whatever binary wrote the record, and no binary exists here to settle
+# it.  Bumping the literal to 1.9833 would hide a real move next time, so the
+# row now checks the LOCKED BASELINE is still claimed AND that the delta the
+# same line prints is inside 1 mm.  That is strictly stronger than one grep.
+ck "roof baseline still 1.9835"     1 "$(grep -c 'regression baseline 1.9835' STATE.md)"
+# sed then awk, NOT gawk's 3-argument match(): this machine's awk is mawk 1.3.4
+# and mawk rejects it outright ("syntax error at or near ,").  The header of
+# this file promises portability across BSD and GNU userlands and that promise
+# is load-bearing -- the check silently returned empty and read as a FAIL.
+ck "roof delta within 1 mm"        ok "$(sed -n 's/.*baseline 1\.9835, \([-+][0-9.]*\) mm.*/\1/p' STATE.md | head -1 | awk '{d=($1<0)?-$1:$1; print (d<=1.0)?"ok":"off:"$1}')"
 ck "rake 17.75 mm/m"                1 "$(grep -c 'rake 17.75 mm/m (locked 17.75)' STATE.md)"
 ck "L=4.065 W=1.750"                1 "$(grep -c 'L=4.065 W=1.750' STATE.md)"
 ck "bay widths 0.516 0.515 0.516"   2 "$(grep -c 'bay widths 0.516 0.515 0.516' STATE.md)"
-ck "mesh objects 190"               1 "$(grep -c '| mesh objects | 190 |' STATE.md)"
+# rev 45: 190 -> 221.  RE-BASED, and the reason is the merge, not this
+# revision's geometry.  The seventeen stranded rev-44/44b commits (SPEC
+# 10.113.4) bring cab_fitout and door_hinges -- the whole cab interior and four
+# hinge assemblies -- which is +31 meshes.  Note that the committed STATE.md on
+# the rev-44b tip ITSELF still said 190: it was never regenerated after the cab
+# was added, so that record was stale on its own branch.
+ck "mesh objects 221"               1 "$(grep -c '| mesh objects | 221 |' STATE.md)"
 ck "non-manifold edges 0"           1 "$(grep -c '| non-manifold edges (body) | 0 |' STATE.md)"
 
 # ---------------------------------------------------------------------------

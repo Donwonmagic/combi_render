@@ -8002,6 +8002,15 @@ vertical scale to close. That is a genuinely independent third method.
 
 ### 10.100  rev 42 — HIS REPORT 5 IS BUILT: THE CAB DOOR NOW WRAPS THE FRONT WHEEL ARCH, AND THE SIGN OF THE OLD ERROR NEEDED NO RULER
 
+> **RETRACTED IN REV 44 — SEE §10.102.** The wrap is gone and rev 41's flat
+> chord is restored. `ref_nolita_doorshut.jpg` — square-on, shut, and tracked in
+> this repo since rev 42 — holds the door's bottom rail flat to **0 px over 62
+> px of door** and stops the rear shut line **on that rail**, 29 mm above the
+> arch lip against rev 41's shipped 23–39 mm. §10.100.2's ordinal reading (the
+> sign was wrong) still stands; §10.100.4's construction does not. **This section
+> is left intact and is a dated record of a rev-42 state, not a current claim.**
+
+
 His defect report 5, verbatim, rev 37: *"the doors extend lower, around the
 wheel well"*. It has been the only untouched item of his that moves geometry
 since rev 37, and it is now built.
@@ -8384,3 +8393,1414 @@ settle a question whose bar is 50 pp away.
   SPEC, in `HANDOFF_rev42.md` and in the code comment itself, and the rev-8
   comment left in place with a note saying why, because it is a dated record of
   a rev-8 state and not a current claim.
+
+---
+
+### 10.102  rev 44 — **§10.100 IS RETRACTED.** THE CAB DOOR DOES NOT WRAP THE FRONT WHEEL ARCH. THE FRAME THAT REFUTES IT HAS BEEN IN THE REPO SINCE REV 42, AND THE OWNER'S DEFECT REPORT WAS RIGHT TWICE OVER
+
+#### 10.102.1  WHAT THE OWNER SAID, AND WHY IT READ AS TWO DIFFERENT COMPLAINTS
+
+*[verbatim, rev 44]*
+
+* **"The door does not continue on the other side of the wheel well."**
+* and, unprompted, a few minutes later: **"Quick note, the door does not
+  continue downward behind the wheel."**
+
+Read against rev 42's geometry these are **one complaint stated twice**, and
+both halves are exactly right:
+
+* §10.100.4's bottom run is `max(ZB(x)+G, arch circle offset radially by G)`.
+  A radial offset of a circle **is a circle**, so the door's bottom rail was
+  **concentric with the arch lip by construction and could never diverge from
+  it.** Measured on the 3200 px side render (574.4 px/m): the two ran
+  **14.0–22.4 px apart with a spread of 8.3 px over 600 mm of x.** Two curves
+  that never separate read as **one thick line**, however far apart they are.
+  The door's bottom stopped being a line that crosses the wheel well and became
+  part of the arch. → *"does not continue on the other side of the wheel well."*
+* And the door's rear shut line, under the wrap, ends **on the arc at z 0.5385
+  — 135 mm below the arch crown and 127 mm above the rocker** — so it stops in
+  the middle of a red panel beside the wheel, reaching neither. → *"does not
+  continue downward behind the wheel."*
+
+#### 10.102.2  THE FRAME THAT SETTLES IT — `ref_nolita_doorshut.jpg`, ALREADY TRACKED
+
+`ref_nolita_doorshut.jpg` is the **one frame in the repo that carries the cab
+door's whole outline, square-on, shut** — §10.100's own PHOTOGRAPHS WANTED entry
+says so ("the one frame that shows the full outline"). It was used in rev 42 to
+establish that the door outline exists at all and **was never asked the question
+§10.100 was deciding.** Three measurements, all by gradient, none by eye:
+
+| what | how | result |
+|---|---|---|
+| the door's bottom shut line | row-gradient of the mean over the door's rear half (cols 70–122, rows 225–265) | a 2 px dark line at **rows 238–242, centre 239–240**, `\|dL\|` 18.3 and 21.1 against a floor of 1–4; **and nothing else in 40 rows** |
+| is it flat? | darkest-row scan, column by column, rows 234–246 | **row 239, held from col 60 to col 122** — 62 px of door, **0 px of descent** |
+| the rear shut line | column-gradient in 8-row bands, cols 112–135 | col 124.5, `\|dL\|` **24–37** for rows 208→240; **rows 240→288 read 0.4–2.2, i.e. the noise floor.** The line **stops at the bottom rail** |
+| the clearance | wheel-well dark top edge at cols 85–94 | arch lip **row 241.5**, door line **row 239** → **2.5 px** |
+| the scale | hub centroid col 91.0, arch rear foot col 123 → 32 px = `ARCH_R` 0.3735 m | **85.7 px/m**, so 2.5 px = **29 mm** |
+
+**REV 41 SHIPPED 23.0–39.0 mm.** The frame lands in the middle of the band that
+shipped, by a route that reads both features off the same image and needs no
+absolute scale: the ratio *(door-line-to-lip) / (arch half-width)* is **0.078
+measured against 0.065 built.**
+
+Under the wrap, the bottom rail descends **388 mm** across that same span and
+the rear shut line continues **another 38 px** to the rocker. **Neither exists
+in the photograph.**
+
+#### 10.102.3  WHAT REV 42 ACTUALLY HAD, AND WHY IT WAS NOT ENOUGH
+
+§10.100.3's evidence was **one yes/no question over a 9× crop of
+`ref_workshop.jpg`**: *"does the door's rear lower corner sweep up and over the
+front wheel arch so that the arch's front lip is part of the door?"* — **YES.**
+
+Three things are wrong with that, and all three were visible at the time:
+
+1. **It is a leading question.** It names the answer and asks for assent. §10.100
+   itself banked "his hedge is kept, deliberately, because he wrote it" on the
+   *other* sentence — and then took the leading one at full strength.
+2. **`ref_workshop.jpg` is a three-quarter frame**, and §10.62 and §10.73 had
+   *already ruled it inadmissible for anything metric on the door plane.*
+   §10.100.2 was careful to take only an **ordinal** fact from it (the shut line
+   runs *below* the arch crown — "the sign was wrong, and a sign does not need a
+   ruler"). That was sound. But **§10.100.4 then built a magnitude out of it**,
+   and the magnitude is what is refuted.
+3. **A square-on frame of the same feature was in the repo.** The ordinal
+   argument was never wrong for want of a ruler — it was wrong for want of
+   *looking at the other photograph.*
+
+**THE RULE, and it is new:** ***when an ordinal reading forces a construction,
+go and find a frame that can carry the magnitude before you build it.*** An
+ordinal fact licenses a *sign*, never a *shape*.
+
+#### 10.102.4  THE ATTEMPT TO FIX IT INSIDE THE WRAP IS WHAT PROVED THE WRAP WRONG
+
+Before the frame was measured, the concentricity was attacked directly. Both
+attempts failed, and **how** they failed is the finding:
+
+* **Flatten the run to the arc's own crown height** — `_ARCH_CZ + (ARCH_R + G)`
+  = 0.7993 authored, against rev 41's shipped chord of 0.800–0.816: a **1 mm**
+  match to a shape that shipped for eighteen revisions, not to my reading of a
+  photograph. It passed the clearance guard (a horizontal line at the offset
+  circle's crown is *tangent* to it, so clearance is ≥ G everywhere and = G only
+  at the crown), and divergence went 8.3 → 86.7 px. **And it silently deleted
+  §10.100.4's rear corner dip**, because the arc's span reaches x = 0.9021 and
+  the door's rear edge is at 0.92565 — *inside* it. The docstring I wrote in the
+  same edit claimed "both corner dips survive"; the very next run printed the
+  rear corner at 0.8014 where §10.100 had 0.5438. **The claim and its refutation
+  were in the same commit-in-progress, four minutes apart.**
+* **Carry the rear shut line down to the rocker** — which is what the owner
+  asked for in plain words. This is where the geometry answers back. The front
+  arch's rear-most point is `X_AXLE_F − ARCH_R` = **0.92650**; the door's rear
+  edge is **0.92565**. **They coincide to 0.85 mm.** So:
+  * the rocker line `ZB+G` at the door's rear edge sits **0.93 mm** from the
+    arch circle — against the guard's 24.4 mm and the hard floor's 10 mm;
+  * offsetting the lip **vertically** by G instead of radially puts the corner
+    at z 0.4279 (visually on the rocker) but **1.65 mm** from the lip, because
+    the lip is vertical there and a vertical offset buys no horizontal gap;
+  * moving the door's rear edge aft the 23.5 mm that would clear it drives
+    `B_PILLAR` **negative** — the exact rev-22 defect §10.62 was written to
+    catch — because `DOOR_REAR_DX = (BAYS[0][1] + B_PILLAR) − _DOOR_REAR_X0`
+    and bay 0's edges are locked by §10.29;
+  * leaving the edge and dropping only the run's rear end produces a **23 mm
+    wide, 400 mm deep tab** hanging off the door's corner.
+
+**A construction that cannot be built at any clearance is usually a construction
+that is not there.** It is not: the Nolita frame stops the rear shut line at row
+240 for the same reason the geometry does.
+
+#### 10.102.5  WHAT IS RESTORED, AND THE PROOF THAT IT IS A RESTORATION
+
+`DOOR_GAP` — rev 41's table — has been sitting in `t1_shell.py` **bit-identical
+this whole time**, because §10.100.6 deliberately kept it as the **art datum**.
+It is the cut outline again:
+
+    _NRES        = 76                      # rev 41's, restored with it
+    DOOR_GAP_CUT = DOOR_GAP
+    DOOR_GAP_S   = _smooth(_resample(DOOR_GAP_CUT, 76), 2)
+    assert DOOR_GAP_S == _GAP41_S
+
+`_GAP41_S` is the object §10.100 built *purely to read rev 41's clearance off*.
+Asserting the two are the same list is the cheapest possible proof that this is
+**a retraction and not a new shape wearing rev 41's name** (§10.45 — a claim in
+prose is not a guard). `DOOR_BOT_RUN` is sliced as the **exact complement** of
+the `DOOR_GAP[:-3]` rev 42 kept, plus the two corners that slice shared with it,
+so the rear-corner point cannot drift between the two definitions.
+
+Measured after the restore: `_MIN_RAD` **0.024426** against rev 41's
+**0.024426**; bottom rail 0.8160 / 0.8040 / 0.8000 / 0.8040 / 0.8120, spread
+**16.0 mm**, clearance above the arch crown **23.0–39.0 mm**. Built at
+**T1_SUB=2**: 252 749 v, `VERIFY: 0 fail, 0 warn`, all four shut lines 100 % open.
+
+#### 10.102.6  A FOURTH GUARD, ARMED ON THE NEW FINDING
+
+The three rev-42 guards are **kept and re-armed**, not reverted with the
+geometry — rev 23's rule cuts both ways, and *radial clearance from the arch
+circle* is still the invariant the boolean cares about; it is simply satisfied
+with room to spare now instead of exactly. One is added, because the finding
+this revision established — **the bottom rail is flat** — was not guarded by
+anything:
+
+    _BOT_SPREAD = max(z) − min(z) over DOOR_BOT_RUN
+    assert _BOT_SPREAD < 0.030
+
+Armed at rev 41's own spread (16.0 mm) plus headroom for smoothing overshoot. A
+re-introduced wrap descends **388 mm** and cannot pass it; neither can any
+future construction that quietly leans the door's bottom rail.
+
+#### 10.102.7  WHAT THIS CLOSES, AND WHAT IT COSTS THE INSTRUMENTS
+
+**LEDGER finding 1 — "the art frame: the door is 272.2 mm / 387.5 mm deeper than
+the art's outline" — IS CLOSED.** It was deeper *because rev 42 made it deeper.*
+The art datum and the cut outline are one table again, so the two corner lobes
+the art would have had to grow into **do not exist and there is nothing to
+draw.** The owner's rev-44 answer to that question ("extend at drawn scale, do
+not stretch") is recorded and **no longer has anything to apply to.**
+
+`probe_rev44_doorart.py`'s **C3 and C4 now FAIL BY DESIGN**: they reproduce
+§10.100.4's published corner depths (272.2 / 387.5 mm) and crown height
+(0.8033), and those figures describe a shape that has been withdrawn. They are
+**left armed and re-classified RED-BY-DESIGN** rather than deleted or relaxed —
+a retraction that quietly re-points its own instrument is not a retraction.
+`C5`, the KILL control on `door_pv`, is unaffected and still passes.
+
+#### 10.102.8  NEW RULES
+
+* **AN ORDINAL FACT LICENSES A SIGN, NEVER A SHAPE.** §10.100.2 was right that
+  the sign was wrong and right that a sign needs no ruler. It then spent that
+  credit on a magnitude. If an ordinal reading is about to force a
+  *construction*, **stop and go find a frame that can carry the magnitude.**
+* **A LEADING QUESTION IS NOT EVIDENCE, EVEN WHEN THE ANSWER IS YES.** §10.100.3
+  banked a hedge verbatim on one sentence — good — and then took a question that
+  named its own answer at full strength.
+* **INVENTORY THE FRAMES YOU ALREADY HOLD BEFORE ASKING THE OWNER FOR A NEW
+  ONE.** `PHOTOS_WANTED_rev44.md` item 4 asks him for "the door, full outline,
+  with the art on it" *and in the same paragraph says we already hold the frame
+  that shows the full outline.* The measurement that settled this took eleven
+  minutes on a file that had been tracked for two revisions.
+* **WHEN A FIX CANNOT BE BUILT AT ANY TOLERANCE, SUSPECT THE THING IT IS FIXING.**
+  Three independent constructions for "carry the shut line down behind the wheel"
+  each failed against a different guard. That is not three unlucky attempts; it
+  is the geometry saying the feature is not there.
+
+---
+
+### 10.103  rev 44 — ROUNDED EDGES ON EVERY SHADER. 66 566 KNIFE EDGES, ZERO BEVELS, AND THE ONE WAY TO FIX IT THAT CANNOT MOVE A MEASURED VERTEX
+
+#### 10.103.1  THE OWNER SET A NEW BAR, AND THE FIRST THING TO DO WITH IT WAS COUNT
+
+*[stated, rev 44]* He supplied a catalogue-grade product render of a school bus
+and asked for **"the very highest resolution, fidelity, and detail possible."**
+That is a target, not a measurement, so `probe_rev44_fidelity.py` was written to
+turn it into numbers off the built scene rather than into an opinion:
+
+| what | built |
+|---|---|
+| mesh objects | **190** |
+| triangles | **655 944** — of which **505 538 (77 %) are in `T1_body` alone** |
+| objects with a Bevel modifier | **0 / 190** |
+| edges over 28° (hard edges) | **66 566** = 10.3 % of 649 268 |
+| rivets / bolts / screws / nuts / hinges / latches | **0 / 0 / 0 / 0 / 0 / 0** |
+| materials with true displacement | **0 / 42** |
+
+**The density is all in the skin and almost none of it is in the detail.** And
+every one of those 66 566 hard edges is mathematically sharp. **No real
+pressed, cast or extruded part has a sharp edge** — it has a fold radius, that
+radius carries a thin specular highlight, and that highlight is most of what
+the eye reads as *a photographed object* rather than *a computer model*.
+
+#### 10.103.2  WHY THIS IS DONE IN THE SHADER — AND WHY THAT IS NOT A COMPROMISE
+
+A Bevel **modifier** moves vertices. This model's geometry is measured. The
+tightest clearance in it is **0.85 mm** (§10.102.4), roughly forty asserts are
+armed on distances of a few millimetres, and the shell spent six revisions
+recovering from booleans that a chamfer is exactly the kind of thing to break
+again.
+
+Cycles' **Bevel node** perturbs the *shading normal* by ray-tracing the local
+surface. There is no code path by which it can move a vertex. It is the one way
+to buy this at **zero risk to a measured model**, and at this scale it is also
+simply the right answer: at 600 px/m a 2.75 mm fold is **1.6 px**, which belongs
+in the shading and not in the silhouette.
+
+#### 10.103.3  THE RADIUS IS DERIVED, NOT CHOSEN
+
+`t1_shell.GAPW` is the panel-gap width, **5.5 mm, measured**. A shut line is two
+folded panel edges facing each other across that gap, so **each fold's radius
+cannot exceed half the gap** or the two folds meet and the gap closes. `GAPW/2`
+is therefore the *geometric ceiling* on a fold radius in this vehicle. Written
+as the expression, not as 0.00275 (§10.25), so re-measuring the gap moves it.
+
+#### 10.103.4  IT COMPOSES WITH THE WEATHER GROUP RATHER THAN REPLACING IT
+
+Every painted panel already drives `Principled.Normal` from the WEATHER group's
+internal Bump — that is the orange peel. `round_edges()` re-routes that source
+into the **Bevel node's own Normal input** and the Bevel into the BSDF, so the
+peel is *rounded* rather than discarded. Where nothing drives Normal, the Bevel
+drives it directly. **42 materials patched, 0 skipped, 0 already had one.**
+
+Idempotent by node type, so a second call is a no-op. **`T1_NOBEVEL=1` stands
+the whole pass down**, so the A/B is one environment variable and needs no edit
+— rev 20's pattern.
+
+---
+
+### 10.104  rev 44 — THE CAB. A 12-TRIANGLE DASH, ONE BOX SEAT, NO HINGES ANYWHERE, AND A STEERING WHEEL MOUNTED LIKE A SHIP'S WHEEL ON THE CABIN WALL
+
+#### 10.104.1  WHAT WAS BEHIND THE WINDSCREEN
+
+In a 78 mm front three-quarter hero the windscreen is a large, bright,
+**transparent** part of the frame and the eye goes straight through it. The
+inventory:
+
+| object | triangles | what it is |
+|---|---|---|
+| `dash` | **12** | a 165 × 115 mm four-point box swept the cab's full width |
+| `seat_base` | 76 | a rounded-rect prism, corner radius 50 mm in **4 steps** |
+| `seat_back` | 76 | the same |
+| `wheel_rim` | 448 | a bare torus — **no spokes, no hub, no horn button** |
+| `col` | 60 | a cylinder |
+
+**And nothing else.** No second seat, no instrument, no gear lever, no pedals,
+no sun visors, no mirror, no glovebox. A 4 m vehicle whose most-looked-at
+aperture opens onto four boxes.
+
+#### 10.104.2  THE STEERING WHEEL WAS FACING SIDEWAYS, AND THE BUILD PRINTED IT
+
+`place(w, rot=(radians(72), 0, 0))` rotates a Z-normal disc about **X**, which
+takes its axis to **(0, −0.951, 0.309)** — 18° off the vehicle's own **Y** axis.
+It was mounted like a ship's wheel on the cabin wall.
+
+**This needs no photograph and no scale.** The built dimensions say it out loud:
+**0.402 × 0.124 × 0.382** — the disc's full 0.402 m diameter lies in X *and* Z,
+and the 0.124 m Y extent is 0.402 × 0.309, the projection of a disc whose normal
+is nearly Y. A sign error, and a sign does not need a ruler (§10.100.2's one
+sound argument, used here for what it is actually good for).
+
+#### 10.104.3  THE COLUMN CARRIED THE SAME BUG, AND THE TWO ARE ONE BUG
+
+`col` ran along **(+0.30, 0, 0.95)** — up and *forward* — putting its upper end
+at x 1.798 while the wheel it is supposed to carry sat at x 1.640: **158 mm
+behind it.** A steering column rises from the box at the front beam and leans
+**back** to the driver, who is at x 0.98. Corrected to **(−0.30, 0, 0.95)**.
+
+#### 10.104.4  THE WHEEL IS NOT RE-AIMED BY EYE — IT IS CONSTRAINED
+
+**A steering wheel is normal to its column and centred on the column's end.**
+That is what a steering wheel *is*: a constraint, not a measurement. So both the
+wheel's plane and its centre are now **derived from `col`**, as
+`atan2(ax, az)` and `COL_MID + normalize(COL_AX)·COL_LEN/2`. Move the column and
+the wheel follows. The angle that falls out is **17.5° from horizontal** — flat,
+bus-like — and it is flat *because the column is at 17.5°*, not because a number
+was picked to make it look right.
+
+#### 10.104.5  WHAT WAS BUILT
+
+Steering wheel: rim (unchanged, 0.1920 major / 0.0088 minor) plus **two spokes**
+— a 1963 T1 is a two-spoke wheel and they run across the car — a dished hub and
+a chrome horn button. Dash: a **seven-point swept fascia**, 215 mm deep and
+182 mm tall, whose top face lands on **`Z_SILL`**, the cab door's window sill,
+guarded every revision; a **speedometer** (chrome bezel, dark dial, glass) set
+normal to the column like everything else the driver looks at; the centre
+**letterbox grille**; a **glovebox lid and knob** on the cabin face. Seating: the
+driver's seat kept **at its exact rev-8 footprint**, a **passenger seat**
+mirrored to −Y, corner segments **4 → 10**, and a **cream welt** round each
+cushion — which is what separates upholstery from a block at any distance. Plus
+**sun visors**, an **interior mirror** on its stem, a **gear lever and knob**,
+and **three pedals**.
+
+**The fascia is `paint`, not `dark`.** A T1 dash is painted the body colour, and
+the cab was one flat "dark" key because `build.py` assigns one material per
+call. `cab_fitout()` therefore returns **(object, material key) pairs**.
+
+#### 10.104.6  AND THE FIRST HINGES IN THE PROJECT
+
+The fastener census returned **zero** of everything. A T1's cab door hangs on
+**two external butt hinges** on its forward edge; they stand proud of the skin,
+their barrels catch the key light, and they are among the most legible pieces of
+hardware on the flank.
+
+**They are not placed by eye.** Both sit on the cab door's own forward shut line
+— `DOOR_GAP`'s front edge, which rakes back 0.0951 m over 0.950 m — the barrel's
+axis **is** that rake, so the hinge line is parallel to the edge it hangs from by
+construction, and each is seated on the skin by **`t1_core.flank_y`**, the same
+function the shut lines and the script use. The two heights are the **quarter
+points of the door's own front edge**, expressed that way rather than typed.
+
+#### 10.104.7  WHAT IS DECLARED, NOT CLAIMED
+
+**No frame in this repo resolves the cab interior.** None of the furniture above
+is measured and none of it is offered as measured — it is type-correct 1963 T1
+cab furniture, placed off members that *are* fixed (the cab floor's top face,
+`Z_SILL`, the windscreen corners, the column, the existing seat's footprint) so
+that it cannot drift independently of the shell. **Ledger class 4 —
+uninstrumented.** A cab interior frame is now the highest-value photograph on
+the wanted list, ahead of everything except the off side.
+
+#### 10.104.8  AND ONE THING DELIBERATELY *NOT* DONE
+
+The reference is a **factory-clean product render**. This is a **weathered 1963
+working food truck**, and SPEC §4.3's chalky finish (`Roughness` 0.420,
+`Coat Weight` 0.02) is **measured** — rev 3's mirror clearcoat is what made the
+red read salmon at 0.37 against the reference's 0.82. **The detail bar
+transfers. The finish does not.** Raising the gloss to match a photograph of a
+different, newer vehicle would be regressing a measurement to chase an
+aesthetic, and it is refused here in writing so it is not quietly done later.
+
+---
+
+### 10.105  rev 44 — THE CABIN FILL, AND THE DELIVERY FRAME. A CAB YOU CANNOT SEE IS A CAB THAT WAS NOT WORTH BUILDING
+
+#### 10.105.1  §10.104 BUILT A CAB AND THE NEXT HERO SHOWED NONE OF IT
+
+Measured on that frame, inside the windscreen: **45 DN against a cream body
+band of 138 — a ratio of 0.325.** The two-spoke wheel, the fascia, the
+instrument, the second seat, the visors and the lever were all there and all
+invisible.
+
+#### 10.105.2  THE TARGET IS MEASURED, AND IT IS A RATIO SO IT NEEDS NO EXPOSURE MATCH
+
+`ref_nolita_doorshut.jpg`'s **cab door window** — 9× crop, rows 141–172,
+cols 52–118 — shows the far wall, the seat back, the column and the steering
+wheel's rim plainly. Against the cream band **directly below it** (rows 178–186,
+same columns), so both sides of the ratio are under the same light:
+
+| | reference |
+|---|---|
+| cab glazing, median | **108 DN** (p10 56, p90 168, n = 2046) |
+| cream band, median | **232 DN** (n = 528) |
+| **interior / cream** | **median 0.466, mean 0.494** |
+
+Taking a *ratio against locally-adjacent cream* is deliberate. §10.29's finding
+29 was a unit error from comparing quantities that had been through different
+transfer functions; a same-frame, same-neighbourhood ratio cannot repeat it.
+
+#### 10.105.3  WHY THE RIG DOES NOT DO THIS ON ITS OWN — STATED, NOT PATCHED AROUND
+
+In the photograph **the cab is lit through the far side**: the opposite cab
+door's glazing is the brightest thing in that crop. In the studio the same path
+exists but arrives through two tinted panes and past `galley_backdrop`, so it
+lands an order of magnitude down. `studio.cabin_fill()` stands in for that path.
+It is a **presentation device and it is declared as one**: an 0.80 × 0.80 m box
+inside the cabin, below the roof skin and forward of the B-pillar, and
+**`T1_NOCABFILL=1` removes it** so any exterior measurement can be re-run
+without it.
+
+**It is placed at x 1.05, not 0.72.** At 0.72 the box sits aft of the B-pillar
+and spills straight out through the three open serving bays — the kind of leak
+that makes a fill light a cheat instead of a stand-in.
+
+#### 10.105.4  THE CALIBRATION, AND IT SATURATES
+
+Four renders, same view, same seed, same 40 samples, same measurement boxes:
+
+| power | windscreen median | interior / cream |
+|---|---|---|
+| **0 W** (ablated) | 45.0 | 0.325 |
+| **13 W** ← shipped | 68.3 | **0.494** |
+| 21 W | 71.3 | 0.516 |
+| 46 W | 81.0 | 0.586 |
+
+**Strongly saturating** — 0.0091 ratio per watt over the first 21 W and
+0.0028 per watt over the next 25 — because the interior is already carrying
+bounce and the fill is competing with it. A linear extrapolation from the first
+two points would have landed at 46 W and blown the target by 26 %, which is why
+four points were rendered and not two.
+
+**13 W lands at 0.494 against a target whose own median and mean are 0.466 and
+0.494.** The render sits *inside the reference's own median-to-mean spread*, and
+that is where the calibration stops: chasing the median to three digits through
+a JPEG at 86 px/m would be precision the source cannot support.
+
+#### 10.105.5  THE EXTERIOR ABLATION
+
+The fill lifts the whole exterior **+0.75 %** (mean 150.42 → 151.55 DN over
+111 594 non-backdrop pixels outside the cab aperture). That is light leaving
+through the windows, which is what an interior light physically does, and it is
+reported rather than suppressed. Per-pixel |Δ| runs 3.44 DN mean — **at 40
+samples that is dominated by Monte Carlo noise, not by the light**, and this is
+recorded so nobody later reads 3.44 as a signal.
+
+#### 10.105.6  THE DELIVERY FRAME — `hero`, A SECOND VIEW, NOT AN EDIT
+
+Measured on the rev-44 hero: the subject fills **70 % of the frame vertically
+and 61 % horizontally**, floating in white. The reference the owner set the bar
+with fills its frame.
+
+`hero34f` is **kept bit-identical** — every rev-8-to-43 measurement was taken
+through it — and `hero` is a **second view derived from it** by
+`_pull_in()`, which moves the camera along **its own axis**. The perspective
+character §10.8's 78 mm lens carries is therefore untouched; only the distance
+and the target height move. 70 % → 88 % of frame height is a distance scale of
+70/88 applied to `hero34f`'s own offset vector, giving **12.20 m**; the target
+rises to **z 1.55** because the subject is **3.046 m tall with the lids up** —
+the build's own printed bbox — and 1.34 left only 64 mm of headroom.
+
+At 3:2 that is a 3.754 m frame height for a 3.046 m subject: **81 % fill**,
+against 70 %.
+
+#### 10.105.7  NEW RULE
+
+**A DETAIL YOU CANNOT SEE IS NOT A DETAIL.** §10.104 spent a revision building
+a cab and the very next frame proved none of it. Every future detail pass ships
+with the frame that shows it, or it does not ship.
+
+---
+
+### 10.106  rev 44b — **THE FORWARD LOWER LOBE.** §10.102 WAS RIGHT ABOUT THE HALF OF THE DOOR IT MEASURED AND THEN ASSERTED IT OVER THE WHOLE DOOR
+
+#### 10.106.1  HIS REPORT
+
+*[verbatim, rev 44b]* **"the door curves around the front of the wheel well and
+not the back. So you removed too much door."**
+
+He is right, and so is the frame. §10.102 retracted §10.100's wrap because
+`ref_nolita_doorshut.jpg` holds the bottom rail flat and stops the rear shut
+line on it. **That reading was correct for the part of the door it covered.** It
+was taken over **cols 60–122** — the arch and everything aft of it — and I then
+asserted flatness over the *whole* door and armed a guard on it. Forward of
+col 56 the same scan had already printed no line at all in that row band, and I
+read that as noise instead of as the line having gone somewhere else. **It had.**
+
+#### 10.106.2  THE MEASUREMENT — sub-pixel, three-point parabolic on the row gradient
+
+| feature | window | row |
+|---|---|---|
+| bottom rail, over the arch | cols 70–118 | **238.58** |
+| arch lip crown | cols 70–118 | **241.46** |
+| **forward lower lobe** | cols 30–48 | **264.58** |
+| body's lower edge | cols 30–48 | **273.50** |
+
+The lobe's edge peaks at `|dL|` 18.9 against a floor of 0.5–2.0 over thirty
+rows. It is not marginal.
+
+#### 10.106.3  EVERY CONSTANT IS DIMENSIONLESS, AND THAT MATTERS HERE
+
+Three independent scales are available and they **span 3 %**: arch radius
+**105.9**, rear rim OD **104.2**, hub-to-hub wheelbase **107.4 px/m**. So
+nothing below is expressed in metres.
+
+* **DROP** = (264.58 − 238.58) / (273.50 − 238.58) = **0.7443** of the rail's own
+  height above the body's lower edge — anchored to two features of *the door
+  itself*.
+* **RAMP** = the step's two feet at **0.8877** and **1.1406** of the arch's own
+  radius forward of the axle. The ramp therefore **straddles the arch's forward
+  lip**, which is where a door that clears a wheel puts it.
+
+Built: ramp x 1.6316 → 1.7260 against the arch's forward lip at 1.6735; lobe
+bottom z 0.5039, a drop of **308.1 mm = 0.7446** of rail-to-sill.
+
+#### 10.106.4  WHAT IS UNTOUCHED
+
+The rail **above the arch** — 2.88 px = 27 mm above the lip against rev 41's
+shipped 23–39 mm. §10.102's finding stands exactly where it was measured; this
+adds the part of the door it never looked at. And **`DOOR_GAP` stays
+bit-identical as the art datum** (§10.100.6's one good idea): the lobe goes into
+the cut outline only, spliced rather than re-typed so the seventeen shared
+points cannot disagree. Nothing needs drawing into it — the flank's folk art is
+continuous across this panel gap in every frame we hold.
+
+`_MIN_RAD` **0.024381** against rev 41's 0.024426; `_MIN_SILL` 0.124;
+T1_SUB=2 builds 257 642 v, `VERIFY: 0 fail, 0 warn`.
+
+#### 10.106.5  THE GUARD THAT SHOULD HAVE EXISTED
+
+§10.102 deleted a feature that a photograph holds and **nothing objected**. Two
+guards now:
+
+* `_BOT_SPREAD` is **re-scoped to the span that was actually measured** —
+  x ≤ the arch's forward lip. It is a *stronger* test than before, because the
+  span is stated instead of assumed, and it still kills §10.100's 388 mm arc.
+* `_LOBE_DROP_BUILT` asserts the lobe reproduces **0.7443**, and a second assert
+  fires if it is ever flattened below 0.50. **Armed on the dimensionless
+  measurement**, so it tests what was measured rather than a metre value derived
+  from a px/m the sources disagree about.
+
+#### 10.106.6  NEW RULE
+
+**A MEASUREMENT'S WINDOW IS PART OF THE MEASUREMENT.** §10.102 published "flat
+to 0 px over 62 px of door" — true — and then wrote a guard saying the door is
+flat. The window was in the sentence and I still generalised past it. **State
+the window in the guard, not just in the prose.**
+
+---
+
+### 10.107  rev 44b — **EVERY STROKE END ON THE RING.** THE DOCSTRING HAS CLAIMED IT SINCE REV 15 AND THE GEOMETRY HAS NEVER DONE IT
+
+#### 10.107.1  HIS REPORT, AND WHAT THE BUILT GLYPH ACTUALLY DOES
+
+*[verbatim]* **"The vw still doesn't look right."**
+
+Measured on the built emblem, radius of each stroke end as a fraction of the
+ring radius, with the ring's band spanning **0.800–1.000**:
+
+| end | reach |
+|---|---|
+| W's two **bottom** vertices | **0.840** — into the band |
+| W's two **outer arm** tips | **0.738** — 62 mm short of it |
+| V's two **arm** tips | **0.724** — 76 mm short of it |
+
+`_fit_glyph` scales by the **single furthest vertex**, so whichever end reaches
+furthest lands in the band and **drags every other end short**. Only the W's
+bottom has ever touched. **Four of the six strokes have been floating inside the
+ring since rev 15** — and rev 17 caught exactly this for the V's tips, scaled
+them by 0.8140/0.7154, and then `_fit_glyph`'s divisor moved underneath them
+again because the W was left where it was.
+
+#### 10.107.2  THE PHOTOGRAPH IS UNAMBIGUOUS
+
+`ref_nolita_front34.jpg`, red-mask row runs over the roundel's 41 × 66 px bbox:
+at **y+6** the V's arms and the ring are **one run** on both sides; at **y+62**
+the W's bottoms and the ring's lower arc are **one run**. Nothing floats. rev
+15's own docstring says it in words — *"every stroke end — both V arms, both W
+outer arms, both W legs — disappears into the ring band"*.
+
+Two things the same frame **confirms** and which are therefore not changed: the
+stroke width is **0.098 of the roundel diameter** against `wfrac` 0.1986 R =
+0.0993 D, and the V's arm-tip half-separation reads 0.22–0.37 R against
+`_V_TIP_X` 0.270.
+
+#### 10.107.3  PUTTING THE SPINE ON THE CIRCLE IS NOT ENOUGH — AND THE FIRST ATTEMPT PROVED IT
+
+Projecting all six spine terminals onto the band circle gave V tips **0.716** and
+W bottoms 0.840: *worse for the V than before*. **What must land on the ring is
+the OUTLINE, not the spine**, and the two differ by cap geometry — a terminal
+end is cut flush *at* its spine point, while an interior vertex (the W's two
+bottoms) is a sharp corner that bulges past it by `w / (2 sin(α/2))`.
+Compensating analytically needs the mitre half-angle at each vertex, which is
+exactly the kind of derived literal that has gone stale here twice.
+
+Solved by **fixed point on the built outline** instead — the same pattern as
+`t1_shell._G_BUILD`, and for the same reason: it re-solves itself if the width,
+the angles or the mitre ever change. Converged, **all six ends read 0.8400**,
+20 % into the band. **No angle moved**: the arm angles, the 12.29° separation,
+the apex and the centre peak are all untouched — only the reach.
+
+---
+
+### 10.108  rev 44b — THE SIGN'S PROPS RAKED ACROSS THE ROOF INSTEAD OF STANDING UNDER THE BOARD
+
+*[verbatim]* **"the props for the sign seem to meet something from the sides of
+the sign, rather than the sign resting directly on the poles."**
+
+Measured, and he is describing it exactly. Each prop ran from a foot at
+**y +0.44** — the *show* side of the roof — diagonally across the whole opening
+to a tip at y −0.776: a horizontal travel of 1.22 m against a rise of 1.00 m, a
+**49° rake**. And it met the board at **0.86** of the board's width, which on a
+board leaning 14° *past* vertical is near its top edge. A thin rod arriving at
+49° and touching a nearly-vertical panel near its top does not read as a prop;
+it reads as a stay wired to the sign's edge, which is the phrase he reached for.
+
+**Contact was never the defect** — the tips measured 8.6 and 8.7 mm from the
+lid's nearest vertex against a 7.5 mm rod radius. The *stance* was.
+
+**Two changes, neither needing a photograph.** A prop stands *under* the thing it
+props and meets it *at* the edge that bears — the same class of argument as a
+steering wheel being normal to its column (§10.104.4):
+
+* the tip moves **0.86 → 0.97** of the lid's width, onto the free edge, and its
+  z now comes from **`zh`, the lid's own hinge origin**, so it lands on the
+  panel's plane by construction (local z **0.00000**, at 1.0767 of the lid's
+  1.1100 width);
+* the foot moves to the **roof's own outboard edge**, found by walking `roof_z`
+  outboard until it stops changing rather than by typing a y.
+
+Built lean: **2.5° from vertical**, against 49°. Guarded at < 20°.
+
+#### 10.108.1  AND ONE THING I GOT WRONG IN THE SAME EDIT, RECORDED SO IT IS NOT "FIXED" AGAIN
+
+I first read this as a sign error: the comment says the props are "inset 160 mm"
+and the code reads `LID_X1 + 0.16` / `LID_X0 - 0.16`, which looks outset. **It is
+not.** `LID_X0` is **0.9640** and `LID_X1` is **−1.0700** — X0 is the larger — so
+both are inset exactly as written. I inverted them, and the guard I added in the
+same edit fired on the first build: *"roof-lid prop at x −1.2375 is OUTSIDE the
+lid's own span 0.9640–−1.0700"*. **The guard was right and the change was
+wrong.** The change is reverted, the guard is kept, and its bounds are now
+written the way round the constants actually are.
+
+#### 10.106.7  A NUMBER I RAISED AND KILLED IN THE SAME SESSION — AND WHY THE LOBE SURVIVES IT
+
+While writing §10.106 up I traced the reference's body lower edge and published
+a **~49 mm** discrepancy against the model, first as "possibly a datum error",
+then — after a column-by-column trace showed **one continuous rocker with no
+valance step** — as a settled finding, in `HANDOFF_rev44.md` and
+`NEXT_CONTEXT_PROMPT_rev45.md`. **It is retracted.** The datum question was the
+wrong thing to worry about: **the frame cannot see the edge at all.**
+
+Raw pixels down `ref_nolita_doorshut.jpg` column 132: rows 268–276 run
+(151,31,17) → (80,19,16), then rows **278–298 are RGB (0,0,0)** — twenty-five
+rows clipped to pure black before the floor returns at row 300. The red does not
+fade into the rocker; it hits a wall. Sweeping the mask threshold R>90 → R>30
+moves the "lowest red row" from 274 to 277 and no further; at R>20 it jumps to
+**303, which is the floor**. **Row 277 is where the shadow clips, not where the
+body ends.**
+
+The `ref_side.jpg` cross-check then disagreed in **sign** — rocker 145 mm *below*
+the axle against Nolita's 38 mm *above* — and that trace is bad too: at cols
+900–920, rows 640–700, the pixels are neutral (R≈G≈B, 58–147), so an
+`R > G*1.25` mask passes **warm grey under-body shadow** as red.
+
+**Both traces ran off the end of their data.** The body's lower edge relative to
+the axle is **UNMEASURED**, and `RIDE_DROP` is not implicated by anything.
+
+**NEW RULE.** *A threshold-based "lowest X" trace is only valid if the feature's
+far side is resolved.* Check what is on the other side of the edge — and whether
+the sensor can still see it — before you publish the edge.
+
+**WHY §10.106 STANDS.** The lobe's *position* came from the ramp trace (the line
+descending col 56 → col 46), not from the sill, and its *existence* from a
+`|dL|` 18.9 edge against a floor of 0.5–2.0 well inside the exposed range. Only
+its **depth** touches the sill, as the denominator of a ratio: if the true sill
+is 3 px lower than row 273.50, the drop goes 0.744 → 0.686, i.e. 308 mm → 284 mm.
+That is worth re-deriving from a frame that resolves the rocker, and it is not
+worth moving on this one.
+
+---
+
+### 10.109  rev 44b — THE DELIVERY FRAME CLIPPED THE FRONT WHEEL, AND A FRAME DERIVED BY SCALING A VECTOR WAS NEVER GOING TO CENTRE ANYTHING
+
+#### 10.109.1  WHAT THE FIRST DELIVERY RENDER ACTUALLY DID
+
+§10.105.6 derived `hero` from `hero34f` by **scaling its offset vector** by
+70/88 — the ratio of measured frame-fill to wanted frame-fill — and raising the
+target to z 1.55 for the open lids. Rendered at 3200 × 2133 it put the subject
+at **74 % of the width** and **hard against the bottom row: the front wheel is
+clipped.**
+
+**Two things were wrong, and the second is the general one.**
+
+* **A distance scale does not centre.** It changes how much of the frame the
+  subject fills and leaves it exactly as off-centre as it was.
+* **A subject seen from above does not project symmetrically about its own
+  centroid.** The near wheel is closest to the camera, so it drops furthest down
+  the frame — which is precisely the part a "raise the target for headroom"
+  correction pushes off the bottom edge. Measured: at 12.20 m / z 1.55 the bbox
+  projects to v **−1.251 … +0.825**, i.e. **25 % past the lower edge** while
+  leaving 18 % of headroom unused.
+
+#### 10.109.2  SOLVED, AND SOLVED LIVE
+
+`studio.fit_view()` iterates **both** the lateral target offset and the distance
+against the projected corners of `subject_bbox()` — the scene's own bounding box,
+read at render time and excluding the set (`cyc`, `pl_*`, ground). Re-posing the
+lids, adding a part, or changing the aspect **re-solves the frame** instead of
+quietly clipping it.
+
+Solved for the 3200 × 2133 delivery frame at 78 mm, fill 0.92:
+
+    dist 13.175 m   loc (10.8445, 7.2900, 3.1313)   tgt (0.1275, -0.1294, 1.2135)
+    u -0.7373..0.7373    v -0.9200..0.9200    centred to 0.00000 / 0.00000
+
+74 % of the width and 92 % of the height, **centred to five decimal places**,
+with 8 % of margin on the binding axis.
+
+#### 10.109.3  THE SIGN, AND WHY THE LOOP CARRIES A DIVERGENCE GUARD
+
+The first implementation subtracted the lateral correction where it should have
+added it — moving the **target** toward the side the subject is already on is
+what swings the camera that way and brings it back. Inverted, the iteration is
+unstable rather than merely wrong: it ran off to **2 × 10¹⁸ metres in sixty
+passes** and returned a frame with zero fill. It now asserts on divergence, and
+**asserts that the returned frame is not clipped** — which is the defect the
+function exists to prevent, so it is the thing worth asserting (§10.45).
+
+#### 10.109.4  WHAT IS NOT FIXED, AND IT IS THE LAST VISIBLE GAP AGAINST HIS REFERENCE
+
+**There is no contact shadow.** `optics-6` has been open since rev 12 with two
+prior attempts recorded in `studio.cyclorama`'s comment: rev 12 measured the
+ground under the tyre at **177.00 against open ground at 177.00** and concluded
+the catcher contributed nothing; rev 17's matte tap corrected that — the alpha
+is *not* zero, there is a soft pool reaching **0.4980** — but the pool is
+**0.0038 mean alpha in the 4–30 px band directly below the silhouette**, so the
+composite over white moves a few code values and the vehicle still reads as
+floating. The obvious lever is **refuted**: `T1_CATCH=0` renders the sweep as a
+real lit surface and does produce a shadow (175.2 mean on the row below the
+contact), but it brings back a 166-grey falloff with a hard horizon line, and
+§6 locks the backdrop to pure white.
+
+The cause is **the rig, not the catcher**: a 16 m strip plus a 0.76-albedo floor
+fills the vehicle's own shadow. That is physically correct for this studio and
+it is why the reference product render — which uses a harder key — has a shadow
+and this does not. **It is an art-direction decision, not a fidelity defect**,
+and per the standing rule for un-measurable aesthetics (finding 30) it goes to
+the owner rather than being tuned. No photograph of this vehicle on a white
+sweep exists to calibrate against.
+
+---
+
+### 10.110  rev 45 — **THE BADGE WAS A FLAT PLATE ON A CURVED NOSE.** TWO CONTEXTS FOUND IT INDEPENDENTLY AND NEITHER FOUND IT BY MEASURING THE GLYPH
+
+**This is the section that answers §0 of `NEXT_CONTEXT_PROMPT_rev45.md`**, which
+asked why the owner had reported the same defects three times while every guard
+stayed green. Part of the answer is §10.113.4 — most of rev 44b was never
+merged. The rest is here.
+
+#### 10.110.1  WHAT HE WAS LOOKING AT
+
+Rendered at any size, the nose badge read as a **clock face**: a ring, a V, and
+two isolated stubs at 7 and 5 o'clock. No W. Every reference frame shows an
+unmistakable V-over-W monogram filling its ring.
+
+#### 10.110.2  EIGHT MEASUREMENTS OF THIS EMBLEM EXIST AND NOT ONE OF THEM COULD SEE IT
+
+§10.25 measured the air gap between the V's apex and the W's peak. §10.107
+measured all six stroke ends against the ring band. `probe_rev44_lampmove`
+measured the badge's height from two independent chains and held it to 0.66 σ.
+rev 45 re-measured the stroke width at **0.218 ± 0.002 R** photographed against
+**0.2046 R** built, 0.7 σ, and left it alone.
+
+**Every one of those was taken on the glyph's own outline, in the glyph's own
+plane.** Not one involved the body the badge is fitted to. Rasterising
+`vw_logo_fit`'s output directly gives a clean, correct V over W — which is
+exactly what rev 44 also found, and it is why four separate hypotheses (the
+outline, the cap fill, self-intersection, the material) were each cleared before
+either context looked at the panel.
+
+#### 10.110.3  THE MEASUREMENT, TWICE, FROM TWO DIRECTIONS
+
+**rev 44** (unmerged until now), forward-most x of the body within |y| < 0.06:
+
+```
+    z 0.86-1.01 : the nose reaches x 2.1266 .. 2.1270   <- IN FRONT of the glyph
+    z 1.01-1.16 : the nose falls back to 2.1262 .. 2.1194
+```
+
+with the glyph's front face at **2.1265**. Below z = 1.01 the nose buries the
+emblem; above it the emblem stands proud. **The crossover is the exact height
+where the render stops drawing.** The V lives above it; the whole W lives below.
+
+**rev 45**, independently, by radial raycast at eight angles × three radii from
+the badge's own centre:
+
+| direction, at the ring radius | nose relative to the badge's front face |
+|---|---|
+| straight UP | **−31.6 mm** (falls away) |
+| up-left / up-right | −19.0 mm |
+| sideways | −0.6 mm |
+| straight DOWN | **+3.0 mm** (comes forward) |
+
+Same conclusion, different instrument, different scan. **The badge's upper half
+floated up to 32 mm off the panel and its lower half was flush with it or
+0.3 mm inside it.**
+
+#### 10.110.4  THE FIX, AND WHY REV 44's IS SUPERSEDED RATHER THAN REJECTED
+
+Rev 44 moved the mounting plane forward **13.5 mm** (`ROUNDEL_X` 2.1155 →
+2.1290) so the glyph's rear face cleared the nose's maximum by 2 mm. That is
+correct as far as it goes and it un-buries the W.
+
+**A uniform shift can only ever be right at one height on a curved panel.** At
+13.5 mm the badge still stands ~18 mm proud at its top. So rev 45 adds
+`t1_core.drape_x`, which translates each vertex **in X only** by
+
+```
+    dx  =  surf_x(y, z)  -  mount  +  standoff
+```
+
+off a raycast lattice, where `mount` is the plate's own authored mounting
+plane. The badge's front faces now stand **6.96 … 15.10 mm** proud everywhere.
+
+`ROUNDEL_X` is kept, and the drape reads it: the drape is **invariant** to it —
+moving it 13.5 mm changed the drape's `dx` from +1.1…+13.1 mm to −13.1…−0.4 mm
+and left the built result identical to 0.01 mm. That invariance is the check
+that the two fixes are the same fix, done to different tolerances.
+
+#### 10.110.5  NOTHING IN THE GLYPH MOVED, AND THAT IS BY CONSTRUCTION
+
+`drape_x` touches x only. The spine, the stroke width, the fit radius,
+`ROUNDEL_D` and `ROUNDEL_Z_AG` are untouched, so `probe_rev44_lampmove`'s two
+chains and SPEC:7005's *"DO NOT MOVE THE ROUNDEL WITH THE LAMPS"* trap are
+unaffected **by construction, not by inspection**.
+
+#### 10.110.6  WHAT REV 45 TRIED TO FIX AND REFUSED TO
+
+The spine's stroke **angles**. Rev 45 de-foreshortened `ref_workshop.jpg`'s
+emblem and read them off a polar unwrap — and then threw the answer away,
+because de-foreshortening a three-quarter view of a circle needs the ring's axis
+ratio and the two available fits disagree by **10 %** (§10.107's published 0.687
+against rev 45's re-fit 0.764). Ten per cent of horizontal stretch is several
+degrees on every angle, which is the whole size of the effect. **Rule 14 says
+prefer dimensionless measurements; here the scale question *is* the measurement,
+and it does not close.**
+
+Rev 44's own angular finding — *"the V was 2.5× too wide-angled"* — used the one
+method that survives this: **vertical extents only**, row-runs of the red mask,
+per §10.107.2. That is the right instrument and it is now merged. Rev 45 adds
+nothing to it and asks the owner for the frame that would close the rest
+(`PHOTOS_WANTED_rev45.md`).
+
+#### 10.110.7  THE GUARD, AND IT FIRED TWICE ON ITS OWN CHANGE
+
+`build.py` asserts every emblem **front-face** vertex stands 0.5–30 mm proud of
+the nose. It fired twice during this edit, both times correctly:
+
+* at **−15.11 mm**, because the first draft guarded *every* vertex and the ring
+  and disc carry material behind the skin on purpose;
+* at **−3.59 mm**, because the second draft draped both plates against one
+  common datum and the disc's front cone is authored to a different one.
+
+Both are stated rather than quietly widened. The second is why `drape_x` takes a
+`mount` per plate.
+
+#### 10.110.8  THE RULE THIS EARNS
+
+> **A PART MEASURED IN ISOLATION FROM WHAT IT IS FITTED TO IS NOT MEASURED.**
+> Eight correct measurements of this emblem exist. Every one of them was taken
+> in the emblem's own plane and every one of them was blind to a 32 mm error in
+> the direction they did not look. Rule 10 says *a detail you cannot see is not
+> a detail*; this is its converse — **a detail that measures perfectly and
+> renders wrong is being measured in the wrong frame.**
+
+---
+
+### 10.111  rev 45 — THE HEADLAMPS. THE LENS WAS DISHED THE WRONG WAY ROUND, AND THE BEZEL'S BRASS WAS NEVER CONTROLLED
+
+Found by the same method as §10.110 and it is the same defect class: a part
+authored in its own local frame and never checked against the panel it is
+fitted to.
+
+#### 10.111.1  THE LENS
+
+`t1_detail.headlamp`'s `lens_prof` ran, in (x, r):
+
+```
+    (0.0000, 0.0000)  ...  (0.0290, 0.0862)
+```
+
+— x = 0 **on the axis**, x = 0.029 **at the rim**. That is **concave**: a
+saucer whose deepest point is in the middle. A headlamp lens is convex.
+
+It was never visible as a shape error because of what it did instead. Raycast
+down the near lamp's own axis, on the built body:
+
+```
+    hit T1_body   at x = 2.1116      <- the nose's outer skin
+    hit T1_body   at x = 2.1088      <- its inner skin, 2.8 mm behind
+    hit hl_lens   at x = 2.1015      <- the lens, 10.1 mm INSIDE the body
+```
+
+**There is no headlamp aperture cut in the nose**, so on the axis the camera
+sees red sheet metal and the lens only emerges near its rim. The aperture
+rendered as a dark red hole ringed by a brass grommet.
+
+Turned convex, apex 3.0 mm behind the bezel's own front face (`ring_prof`'s
+0.0235), radius of curvature 0.263 m over the 0.0862 m lens.
+
+#### 10.111.2  WHAT THE MEASUREMENT WAS, AND WHAT IT WAS NOT
+
+Measured **in the rendered frame** by `probe_rev45_nose`'s projected landmark:
+
+| | render before | render after | photograph, unlit |
+|---|---|---|---|
+| lens / cream luminance | 0.432 | 0.423 | **0.565** |
+| lens (R−B)/cream | **+0.571** | **+0.082** | **−0.024** |
+
+**The luminance was never the defect.** It sat inside any reasonable window
+throughout. The **chroma** was, and the first control written for this — a
+luminance ratio — passed while the aperture was rendering red. C6 was added
+because C4 could not see it.
+
+**A hypothesis was refuted on the way and it is recorded.** The first
+explanation was that a 0.018-roughness glass over a mirror bowl needs
+roughening to scatter. A **17× sweep of both roughnesses was bit-identical**
+(lens RGB 115–118, 41–42, 33 at every setting). Roughness is not the lever;
+the geometry was. Both roughnesses are now overridable (`T1_HL_LENS_RG`,
+`T1_HL_REFL_RG`) so the sweep can be repeated, and the retired mirror arm still
+renders.
+
+#### 10.111.3  THE BEZEL — brass RETIRED to chrome, and rev 10 is not called wrong
+
+`build.py` assigned the ring `"brass"` on a rev-10 measurement while
+`t1_detail.headlamp`'s own docstring said *"returns (chrome ring, …)"* — a
+contradiction that stood for thirty-five revisions because nobody grepped
+across the two files.
+
+Rev 10's reading, on `ref_side.jpg`: bezel a\* +2.1 / b\* **+31.6** at L\* 65.6,
+against five neutrals in the same frame at b\* −2.4…+1.6.
+
+Rev 45's reading, on `ref_nolita_front34.jpg` — the same part at about four
+times the scale, front three-quarter, resolved over ~15 px of arc, cool indoor
+light:
+
+| patch | a\* | b\* |
+|---|---|---|
+| bezel, top arc | +23.1 | **+2.7** |
+| bezel, bottom arc | +16.1 | **+6.7** |
+| white wall, same frame | +6.5 | **+6.9** ← the frame's neutral |
+| red nose, 10 px outboard | +73.6 | **+61.8** ← the frame's warm |
+
+**The bezel's b\* is indistinguishable from the frame's own neutral** and
+nowhere near its warm surfaces.
+
+**Rev 10 is not called wrong. It is called UNCONTROLLED.** Its five neutrals
+are a door handle, a wing mirror, counter stainless, a lamppost and pavement.
+Not one of them is *a small mirror-finish torus ringed by a large warm panel*,
+which is the confound; and on `ref_side.jpg` — a flat side view — the bezel is
+a few pixels wide at grazing incidence. A chrome ring surrounded by cream and
+red bodywork reading b\* +31.6 in that frame is what the bounce predicts.
+
+`ref_playa_34.png` settles the direction independently: the same part in low
+direct sun reads **gold on its sunward arc and dark on the other**. That is
+what chrome does. Brass is warm from every direction.
+
+Built: b\* **+25.7** brass → **+1.7** chrome, against +2.7 photographed.
+`T1_HL_BEZEL=brass` still renders the retired arm.
+
+#### 10.111.4  THE INSTRUMENT THIS REVISION ADDS
+
+`probe_rev45_nose.py` **does not type crop boxes.** Every previous crop box in
+this repository is a hand-typed literal that goes stale the moment a camera or
+a constant moves. This probe projects known 3-D landmarks through the render
+camera with `bpy_extras.world_to_camera_view` and samples where they land, so a
+sample follows `HL_Z` when `HL_Z` moves. Seven controls; **C5 is a KILL written
+to fail forever** — a landmark placed one metre in front of the nose must not
+land on the roundel, without which "the projection works" is untestable.
+
+---
+
+### 10.112  rev 45 — "100 % CALIDAD". THE GRADIENT THREW AWAY THE COLOUR THE GENERATOR DECLARES. REPORTED BY THE OWNER TWICE
+
+`cal_gen.gradient` computed
+
+```python
+    t = ((xx - cx) * 0.62 + (yy - cy) * 0.78) / (1.35 * h)
+    t = np.clip(t * 1.5 + 0.42, 0, 1)
+```
+
+`t` is **zero at the burst's own centre by construction** — `(cx, cy)` is
+`starburst()`'s centre and the axis term is measured from it. A bias of **0.42**
+therefore starts the ramp 42 % along, and the core evaluates to
+RED × 0.16 + ORANGE × 0.84 = (234, 110, 23).
+
+Measured off `tex/calidad.png` **as shipped**: core **(237.0, 120.3, 22.0)**,
+G/R **0.508**. `starburst()` fills the whole polygon with
+`RED = (214, 46, 30)`, G/R **0.215**, *nine lines above* — **and nothing in the
+finished texture was that colour** except the extreme corner where the clip
+bottoms out. The decal rendered **peach** where every photograph is **red**.
+
+**The bias is now zero, and that is not a tuned number.** It is the statement
+that the gradient *departs from* the burst's declared colour going outward
+rather than starting two-thirds of the way to orange. RED at the core, ORANGE
+through the middle distance, YELLOW at the lower-right tips — which is the
+direction the docstring's own sampled bands run.
+
+Re-generated core **(216.6, 55.1, 28.2)**, G/R **0.255**, against the body
+red's own albedo G/R 0.250. The burst and the coachwork are the same red
+family, which is what `cal_gen`'s RED already said.
+
+Rev 44 ruled out two other causes **by test** and both stay ruled out:
+`WEAR['calidad']` is not the lever (re-rendered at 0.22, core bit-identical)
+and the material adds no cream.
+
+---
+
+### 10.113  rev 45 — THE PROPS, THE MERGE, AND THE REAL REASON THE LOOP WAS BROKEN
+
+#### 10.113.1  THE PROPS STOOD IN THE HOLE
+
+Owner, rev 44b: *"the props for the sign seem to meet something from the sides
+of the sign."*
+
+Both feet were `Vector((xs, 0.44, roof_z(xs, 0.44)))`. `roof_z` returns the
+roof **surface height** at (x, y) whether or not there is any roof left there —
+and the roof aperture **is** the lid's closed footprint, y from `LID_Y_HINGE` to
+`LID_Y_HINGE + LID_W` = −0.545 … +0.565. **Both feet sat at y = +0.44, inside
+it.** Each prop rose out of thin air in the middle of the open serving hatch and
+ran a metre across the board's printed face.
+
+Rev 44b (§10.108) and rev 45 found this independently. **Rev 44b's fix is the
+one that ships** and rev 45's is discarded: rev 45 typed `LID_Y_HINGE − 0.14`;
+rev 44b walks `roof_z` outboard until it stops changing and lands on the roof's
+**own** edge, and moves the tip onto the lid's free edge as well — 49° of rake
+down to 3°. A measurement of the body beats a number about it.
+
+Rev 45 keeps only its **Y guard**, which is complementary to rev 44b's lean
+guard: the lean catches a prop that *rakes*, the Y catches a prop that *stands
+on nothing*.
+
+#### 10.113.2  A TRAP THAT CAUGHT BOTH CONTEXTS
+
+The comment says the struts are *"inset 160 mm"* while the code writes
+`LID_X1 + 0.16` and `LID_X0 - 0.16`, which **reads** as an outset. It is not:
+`LID_X1` is the **aft** end at −1.0700 and `LID_X0` the forward one at +0.9640,
+so both expressions move inward. Built: board x −1.0400…+0.9340, struts at
+−0.910 and +0.804.
+
+Rev 44b "fixed" it, its own guard fired on the first build, and it reverted.
+Rev 45 read the same lines and reached for the same wrong conclusion, and was
+stopped by **running the build instead of reading the source**. Recorded twice
+now, so it stops the third context.
+
+#### 10.113.3  THE REFERENCE FRAMES WERE NEVER LOST — THEY WERE NEVER MERGED
+
+`NEXT_CONTEXT_PROMPT_rev45.md` §4 says *"Reference photographs (8, all
+tracked)"* and names four Nolita frames. **One was in the tree.** Item **W1** —
+the entire roundel-placement task — is specified against measurements taken on
+`ref_nolita_front34.jpg`, which had never been committed. **W1 as written was
+unexecutable.** See `REFERENCE_FRAMES_rev45.md`.
+
+#### 10.113.4  AND NEITHER WAS THE REST OF REV 44b
+
+`origin/claude/tacombi-combi-rev-44-h4ipmg` carried **seventeen commits above
+the point where PR #2 was merged.** Neither `origin/main` nor the branch this
+revision started from had any of them. Missing from the mainline:
+
+* **`SPEC.md` §10.102 – §10.109**, all eight sections, 632 lines — including
+  §10.100's retraction, the forward lower lobe, the six stroke ends, the props
+  and the delivery frame;
+* `cab_fitout`, `door_hinges` (`t1_detail.py`, +460 lines);
+* `cabin_fill` (`studio.py`);
+* `round_edges` on all 42 materials;
+* the roundel's 13.5 mm mounting plane (§10.110.4);
+* the hubcap red, the bumper/door overlap, the four reference frames.
+
+**`SPEC.md` on `main` ends at §10.101.**
+
+§0 of the rev-45 brief asks why *"the loop between measured fix and he can see
+it is broken"* and offers three candidate causes, all of them about how the
+owner is shown things. There is a fourth and it is simpler than all of them:
+**the fixes were measured, committed, and left on a branch.** The brief was
+written from a working tree that had them and handed to a context that did not.
+
+Rev 45 merged all seventeen. Three conflicts — `build.py`, `t1_shell.py`,
+`mark_rev45_q.py` — resolved in rev 44b's favour on the props and on
+`mark_rev45_q.py`, in rev 45's favour on the drape, and keeping both guards.
+
+#### 10.113.5  THE RULE THIS EARNS
+
+> **A REVISION THAT IS NOT MERGED DID NOT HAPPEN.** Every green guard, every
+> SPEC section and every measurement in those seventeen commits was correct and
+> none of it reached the mainline. Before diagnosing why a fix did not land,
+> check that the fix is *in the tree you are looking at* — `git log HEAD..<the
+> branch the last revision worked on>` is eleven characters and it would have
+> saved this one an entire investigation.
+
+---
+
+### 10.114  rev 45 — TWO QUESTION FIGURES, AND WHY THAT IS NOT ONE TOO MANY
+
+`mark_rev45_q.py` is rev 44b's and it is right about what it is right about:
+rev 36 shipped a figure with five mark classes and got back *"i don't
+understand what is being asked"*, then shipped one crop, one circle, one
+sentence and got the most valuable answer in ten revisions. **Its rule stands —
+if he does not understand the question, the FIGURE is the defect, not him.**
+
+`mark_rev45_ba.py` is rev 45's, and it obeys that rule: no boxes, no arrows, no
+leader lines, one sentence per row. What it adds is not a mark class. It is two
+more **pictures** per row — every row is **BEFORE | AFTER | PHOTOGRAPH** at
+matched scale — because rev 44b's figure crops one render and therefore cannot
+show that anything changed, and §0's three candidate causes are each killed by
+a different one of those three cells:
+
+* *"he means a different thing"* dies because the photograph is in the row;
+* *"the fix is sub-threshold at the size he views it"* dies because the crop is
+  magnified;
+* *"he is looking at an older image"* dies because BEFORE is labelled next to
+  AFTER.
+
+Five controls, and **F5 is a negative control on the ordering of the changes**:
+the badge's before/after difference must exceed the decal's, because one is
+geometry and the other is a recolour. If that inverts, the wrong files are
+wired up.
+
+**Rev 44b's docstring forward-references "SPEC 10.110" for itself.** That
+section did not exist when it was written; §10.110 is now the drape and the
+question figures are here.
+
+---
+
+### 10.115  rev 45 — THE HEADLAMP BOWLS. FINDING 41 CLOSED, AND THREE CONTROLS THAT COULD NOT SEE THEIR OWN DEFECT
+
+#### 10.115.1  THE DEFECT
+
+**There was no headlamp aperture in the nose at all.** The lamp assembly was
+fitted into unbroken sheet metal. Raycast down the near lamp's own axis on the
+built body, before this change:
+
+```
+    hl_lens.001  ->  T1_body  ->  T1_body  ->  hl_bowl.001
+```
+
+The two `T1_body` hits are the 2.8 mm solidified skin. The reflector was behind
+it and therefore invisible, and the lens was backed by body paint.
+
+A 1963 T1's headlamp does **not** sit in a plain hole: the nose panel is drawn
+back into a shallow bowl and the lamp sits in it, chrome rim on the outer face.
+Both frames show it as a shadowed ring round the bezel —
+`ref_nolita_front34.jpg` and `ref_playa_34.png` — and that shadow is most of
+what makes a lamp read as set **into** a panel rather than stuck **on** it.
+
+#### 10.115.2  THE FIX, AND WHAT IN IT IS AUTHORED
+
+`t1_shell.headlamp_recess_cutters` issues one bore per side in **step 3**, with
+the other apertures, while the shell is still a plain solidified skin.
+`HL_X`/`HL_Y`/`HL_Z` are **hoisted to step 0 verbatim** rather than duplicated —
+a cutter cannot read a constant defined three hundred lines later, and re-typing
+it is §10.25's defect class exactly.
+
+**The depth (52 mm) and the straight-sided section are AUTHORED, NOT MEASURED.**
+No frame we hold resolves the bowl's section; it is inside the bezel in every
+one of them. Both numbers live in one place so a later measurement replaces two
+values and nothing else. `PHOTOS_WANTED_rev45.md` asks for the frame.
+
+`T1_HL_BOWL=0` skips the cut and restores the un-bored arm.
+
+#### 10.115.3  THE BORE IS COUPLED TO THE REFLECTOR, AND THAT IS THE INTERESTING PART
+
+Before the bore the lens was backed by sheet metal, which is why it read as a
+mid-grey disc — **accidentally close to the photograph, for the wrong reason.**
+Cutting the bore exposes `hl_bowl`, a `metal = 1.0` mirror, and a mirror in an
+unlit cavity returns the cavity. Measured through `probe_rev45_nose`'s projected
+landmark, at the **shipped** reflector settings:
+
+| | un-bored | bored | photographed |
+|---|---|---|---|
+| lens / cream | 0.423 | **0.549** | 0.565 |
+| lens (R−B) / cream | +0.069 | **+0.027** | −0.024 |
+
+Both move toward the photograph. A four-arm sweep of the reflector
+(`T1_HL_REFL_MET` × `T1_HL_REFL_RG`) was run and **the shipped defaults win** —
+roughening or de-metalling it moves lens/cream to 0.458–0.700 and away from
+0.565. Nothing about the reflector is changed.
+
+#### 10.115.4  THE FIRST EYEBALL READ OF THIS SPIKE WAS WRONG, AND SO WAS THE FIRST CONTROL
+
+Two errors on one change, both caught, both recorded.
+
+**The eye.** The first look at the bored arm — a 48-sample `T1_SUB=1` crop —
+read as *"worse: a deep dark hole"*, and the spike was very nearly reverted on
+it. The A/B at 64 samples against the photograph overturned it outright: bored,
+the aperture has a highlight, a bright arc and depth; un-bored it is a flat dull
+disc. **Rule 10 cuts both ways — a detail you cannot see is not a detail, and a
+detail you looked at badly is not looked at.**
+
+**The control.** C8 was first written as *"the first object down the lamp axis
+is `hl_*`, not `T1_body`"*, straight off the measurement that found the defect.
+**It passed in both arms.** That measurement was taken on the *concave* lens;
+§10.111.1 had since turned the lens convex with its apex at 2.1220, in front of
+the nose, so the first hit is the lens whether or not the bore exists. **The
+control passed on the very defect it was written for** — rule 18, inside the
+probe that rule 18 came from.
+
+Re-written to walk the axis and require that **no `T1_body` face lies between
+the lens and the bowl**, which is what the bore actually changes. It now reads:
+
+```
+    bored     hl_lens.001 -> hl_bowl.001                        PASS
+    un-bored  hl_lens.001 -> T1_body -> T1_body -> hl_bowl.001  FAIL
+```
+
+**A control is not finished when it passes. It is finished when you have watched
+it fail on the defect.** `T1_HL_BOWL=0` exists so that stays cheap forever.
+
+#### 10.115.5  WHAT IT COST THE GUARDS
+
+The bore changes the body's manifold state, which is the same class of change as
+rev 12's roof hole, so `verify.py`'s non-manifold count and every shut-line probe
+were re-read at **both** subdivision levels rather than at one.
+
+---
+
+### 10.116  rev 45 — **`optics-6` CLOSED.** THE VEHICLE FLOATED FOR THIRTY-THREE REVISIONS AND EVERY MEASUREMENT OF IT WAS TAKEN SOMEWHERE THE SHADOW ISN'T
+
+#### 10.116.1  THREE PRIOR MEASUREMENTS, ALL IN THE WRONG PLACE
+
+| rev | what was measured | verdict |
+|---|---|---|
+| 12 | side **ortho**, `T1_BGW=1.0`: ground under the tyre 177.00 against open ground 177.00 | "the catcher contributes exactly nothing" |
+| 17 | matte tap on a **400×300** frame: alpha pool reaches 0.4980, but 0.0038 mean in the 4–30 px band below the silhouette | "a different symptom" |
+| 44 | none; the ledger carries rev 17's | — |
+
+**Two of the three read a side orthographic view.** In a side ortho the camera
+is level with the vehicle and the ground plane is edge-on, so "the band below
+the silhouette" is not ground at all — it is the three or four pixels where the
+ground vanishes to a line. There is no contact patch to see from there. The
+third read a matte in which a tyre is twelve pixels wide.
+
+**A contact shadow is a thing you look DOWN at.** `probe_rev45_ground.py`
+measures it in `hero34f`, the delivery frame, and finds the ground by
+**projecting the four contact patches through the render camera** — from
+`X_AXLE_F`, `X_AXLE_R`, `TRACK_F`, `TRACK_R` and z = 0, none of them typed.
+
+#### 10.116.2  THE PROBE CAUGHT ITSELF FOUR TIMES BEFORE IT CAUGHT THE DEFECT
+
+Every one is recorded at the code rather than tidied away, because each is a
+different way for an instrument to look healthy and be wrong.
+
+1. **A contaminated sample.** The first window was an annulus round the contact
+   patch keeping "neutral" pixels, on the reasoning that ground and backdrop
+   are neutral and the body is not. **The body is** — the cream renders
+   (192, 192, 188), max-minus-min 4. It reported G1 = 0.8639, a real-looking
+   number about the vehicle's own flank.
+2. **An inert kill control.** C4 sampled open ground 10 m ahead, which projects
+   off-screen; it returned `<no sample>` and **passed**. Then 4 m to the off
+   side — also off-screen, also passing. It now walks a list of candidates and
+   prints the one it used.
+3. **A blind level control.** C3 read the frame's top two corners and reported
+   "255.00, PURE WHITE" for `T1_CATCH=0` — a frame with a **hard horizon across
+   it** and a grey sweep filling the lower two-thirds. The horizon sits about
+   18 % down; the corners are above it.
+4. **The wrong window.** With all of the above fixed, G1 read 0.9975 — "it
+   floats" — while a shadow was plainly present. The window was 0.5–3.5
+   tyre-widths below the patch, 8 to 54 cm of ground. Profiled in 0.25 TW steps:
+
+   ```
+   fl   219 244 246 247 248 249 250 250 251 251 251 252 252 252 252 252
+   rl   236 251 252 253 254 255 255 255 255 255 255 255 255 255 255 255
+   ```
+
+   against open ground 252. **The whole shadow lives in the first ~0.35 TW —
+   about 5 cm — and the window started where it had already ended.** Rule 8: a
+   measurement's window is part of the measurement.
+
+#### 10.116.3  THE BASELINE, AND A PHOTOGRAPHED TARGET
+
+| | G1, tight contact | G3, under-body pool |
+|---|---|---|
+| built, before | **0.9756** | **0.9132** |
+
+Photographed on his own truck — ground at the tyre over open ground, same
+frame, which cancels exposure and surface:
+
+| frame | ratio |
+|---|---|
+| `ref_playa_34.png`, front wheel | 0.3049 |
+| `ref_playa_34.png`, rear wheel | 0.7300 |
+| `ref_nolita_front34.jpg` | 0.6950 |
+| `ref_nolita_flank.jpg` | **0.8713** ← the weakest |
+| **mean** | **0.6503 ± 0.2101** |
+
+**The target is the weakest reading, not the mean.** The sd is a third of the
+value and the boxes are hand-placed; what the four agree on is a **sign**, not
+a magnitude (rule 6). Every photograph of this vehicle has a substantial
+contact shadow and the render had none.
+
+#### 10.116.4  TWO LEVERS REFUTED BEFORE THE THIRD WORKED
+
+**`T1_CATCH=0` — refused again, and rev 12 was right.** Re-run with an
+instrument: it buys **G1 0.9756 → 0.6924** and pays with a backdrop whose
+row-to-row step goes **0.100 → 22.123 DN**, i.e. a hard horizon. SPEC §6 locks
+the backdrop to pure white. Refused, this time with both numbers.
+
+**A plain gain on the catcher's alpha — refuted by its own control.** The
+argument was that the backdrop is alpha 0 and `0 ** k == 0`, so it stays white
+*by construction*. C3 disagreed: the upper-margin level fell **254.97 →
+250.91** as the gain rose. Moving the node upstream of the bloom changed
+**nothing**, which is what refuted bloom as the cause. The real cause is that
+**the "sweep" is not empty space — it is the cyclorama, a shadow catcher, and
+it fills most of the frame.** A catcher's alpha far from the subject is not
+zero, it is a noise floor of a few thousandths, and a power function amplifies
+small numbers hardest (0.002 ** 0.31 = 0.13). So any gain greys the whole sweep
+before it deepens the contact shadow.
+
+#### 10.116.5  WHAT SHIPS
+
+Subtract the noise floor, **then** gain, then clamp:
+
+```
+    a'  = clamp( (a - T1_SHADOW_FLOOR) / (1 - T1_SHADOW_FLOOR) )
+    a'' = a' ** (1 / T1_SHADOW)
+```
+
+Below the floor the backdrop goes to **exactly** zero, which is what the
+`0 ** k == 0` argument needs to be true rather than nearly true. Applied on the
+raw render layer. **The cost is stated rather than hidden: it also erodes the
+faintest real shadow, so the floor is kept as small as C3 allows.**
+
+At `T1_SHADOW=9.0`, `T1_SHADOW_FLOOR=0.030`:
+
+| | before | after | photographed |
+|---|---|---|---|
+| G1 tight contact | 0.9756 | **0.8729** | 0.8713 ← the weakest reading |
+| G3 under-body pool | 0.9132 | **0.8406** | — |
+| G2 backdrop | 254.97 | **254.45** | must stay ~255 |
+
+Pushed to `T1_SHADOW=20` the backdrop finally goes and C3 fires. **It is not
+pushed there.**
+
+**DECLARED AND ABLATABLE**, which is §10.105's template for a presentation
+device: `T1_SHADOW=1.0` restores the floating arm exactly.
+
+#### 10.116.6  THE RULE THIS EARNS
+
+> **AN INSTRUMENT THAT HAS NEVER BEEN WRONG HAS NEVER BEEN TESTED.** This probe
+> was wrong four times in one sitting — contaminated sample, inert kill, blind
+> level, wrong window — and every one of the four produced a plausible number
+> that would have been published. Three prior revisions measured `optics-6` and
+> none of them found the defect, not because they were careless but because
+> **nobody ever asked what their instrument would still pass on.**
+
+---
+
+### 10.117  rev 45 — THE PAINT, INSTRUMENTED. AND IT IS **ONE** FINDING, NOT THREE
+
+Ledger finding 38 was measured once, by hand, in a scratch directory.
+`probe_rev45_paint.py` makes it repeatable, and in doing so answers a question
+nobody had asked: whether the flank's dullness, the hubcaps' pinkness and the
+cream's greyness are one defect or three.
+
+#### 10.117.1  PROJECTION IS NOT VISIBILITY
+
+The probe copied `probe_rev45_nose`'s landmark technique onto the **flank** and
+its first three landmarks were **all** wrong. Their visibility raycasts:
+
+```
+    red    first hit 'script_L'   the "Senor Tacombi" decal, 17 mm nearer
+    cream  first hit 'fringe2'    the bobble fringe,          3 mm nearer
+    cap    first hit 'cap1.31'    the cap's own rim,         36 mm nearer
+```
+
+**Three for three.** `world_to_camera_view` maps a point to a pixel whether or
+not the point can be *seen*, and a flank carrying folk art, a script lockup, a
+decal and a bobble fringe has very little clean paint left. The probe reported
+the flank's red as RGB (176, 154, 156) — a pale grey — and every number
+downstream was about the wrong surface.
+
+Fixed two ways at once. Each quantity is now sampled over a **grid of candidate
+points**, and a candidate survives only if the camera's ray reaches **it** first
+*and* the pixel classifies as the material asked for. The value is the median of
+the survivors and **the survivor count is printed**, because a count that
+collapses is itself a finding: `red 21/24, cream 9/15, cap 3/25`.
+
+**`probe_rev45_nose` does not have this test and is correct today by luck of
+geometry** — its landmarks are on the nose and nothing on this vehicle overhangs
+the nose. Recorded in that file, with instructions to copy `visible()` before
+adding any landmark that is not on the front face.
+
+#### 10.117.2  THE NUMBERS, AND THE INDEPENDENT REPRODUCTION
+
+| | built | photographed | σ |
+|---|---|---|---|
+| **P1** body red, G/R of red÷cream | **0.455** | 0.223 ± 0.066 (4 frames) | **3.5** |
+| **P2** hubcap red, G/R of cap÷cream | **0.603** | 0.274 ± 0.096 (3 frames) | **3.4** |
+| **P3** cream warmth, (R−B)/G | **+0.0263** | +0.037 ± 0.013 (3 warm frames) | **0.8** |
+
+**P1 reproduces the hand measurement exactly — 0.455 against 0.455 — by a
+completely different method.** The hand figure came from a masked region of a
+side render; this comes from a visible-population sample at projected landmarks
+in the hero. Two methods, one number.
+
+#### 10.117.3  ONE FINDING, NOT THREE
+
+* **P2 tracks P1 at the same magnitude and the same sign** (3.4 σ against 3.5 σ)
+  on a different object, a different material and a different part of the frame.
+  The hubcaps are not separately wrong; they are wrong *the same way*.
+* **P3 is inside 1 σ.** The cream's hue is right. It reads grey because it sits
+  against a pure-white backdrop with a washed red beside it — a **context**
+  effect, not a colour error.
+
+So there is one cause, and §10.116's ablation already named it: about half the
+excess is the white cyclorama's own specular return, and `T1_SPEC=0` alone moves
+P1 0.455 → 0.347. **The albedo is not the defect** — `t1_mats.RED` is
+sRGB(196, 49, 36), G/R 0.250, which is 0.4 σ from the photographed mean.
+
+#### 10.117.4  P1 AND P2 ARE REPORTED, NOT GATED, AND THAT IS DELIBERATE
+
+Finding 38's fix is an **open question for the owner** — Q6 of `rev45_ba.png`:
+softening the studio would move the paint toward his own photographs and would
+trade the catalogue-clean white background he supplied as the bar. §7 locks the
+paint's *finish* and §10.104.8 refuses to re-open `Roughness` or `Coat Weight`;
+this is neither, but it is still his call.
+
+**Gating on a number whose fix has not been sanctioned would turn a question
+into a fait accompli.** Only P3, which is already correct, is gated. When he
+answers, the gate goes in here.

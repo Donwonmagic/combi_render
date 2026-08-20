@@ -102,7 +102,35 @@ def gradient(img, cx, cy):
     a = np.array(img).astype(np.float32)
     yy, xx = np.mgrid[0:a.shape[0], 0:a.shape[1]]
     t = ((xx - cx) * 0.62 + (yy - cy) * 0.78) / (1.35 * h)
-    t = np.clip(t * 1.5 + 0.42, 0, 1)
+    # ------------------------------------------------- rev 45, SPEC 10.112
+    # THE BIAS WAS 0.42 AND IT THREW THE DECLARED COLOUR AWAY.
+    #
+    # `t` is zero AT THE BURST'S OWN CENTRE by construction -- (cx, cy) is
+    # starburst()'s centre and the axis term is measured from it.  A bias of
+    # 0.42 therefore started the ramp 42 % of the way along, so the core
+    # evaluated to RED*0.16 + ORANGE*0.84 = (234, 110, 23).  Measured off
+    # tex/calidad.png as shipped: core (237.0, 120.3, 22.0), G/R 0.508.
+    # starburst() fills the whole polygon with RED = (214, 46, 30), G/R 0.215,
+    # nine lines above -- AND NOTHING IN THE FINISHED TEXTURE IS THAT COLOUR
+    # except the extreme upper-left corner where the clip bottoms out.  The
+    # decal renders PEACH where the photograph is RED, which is what the owner
+    # has reported twice.
+    #
+    # THE BIAS IS ZERO.  That is not a tuned number: it is the statement that
+    # the gradient DEPARTS from the burst's declared colour going outward,
+    # rather than starting two-thirds of the way to orange.  RED at the core,
+    # ORANGE through the middle distance, YELLOW at the lower-right tips --
+    # which is the direction the docstring's sampled bands actually run.
+    #
+    # Cross-check that needs no photograph: cal_gen's RED (214,46,30) has
+    # G/R 0.215 and t1_mats' body RED sRGB(196,49,36) has G/R 0.250.  The
+    # burst and the coachwork are the same red family, and at bias 0 the
+    # rendered core lands there instead of 0.5.
+    #
+    # rev 44 ruled out two other causes BY TEST and both stay ruled out:
+    # WEAR['calidad'] is not the lever (re-rendered at 0.22, core bit-
+    # identical) and the material adds no cream.
+    t = np.clip(t * 1.5 + 0.00, 0, 1)
     stops = np.array([RED, ORANGE, YELLOW], np.float32)
     k = t * 2.0
     i0 = np.clip(np.floor(k), 0, 1).astype(int)

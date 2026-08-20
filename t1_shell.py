@@ -409,6 +409,70 @@ def rear_arch_outline(x_axle, n=96, floor=-0.400):
     return pts
 
 
+def headlamp_recess_cutters(hl_x, hl_y, hl_z, r_lens=0.0862):
+    """rev 45 SPIKE, SPEC 10.115 -- the pressed bowl each headlamp sits in.
+
+    FINDING 41.  There is no headlamp aperture in the nose at all.  The lamp
+    assembly is fitted into unbroken sheet metal: raycast down the near lamp's
+    own axis and the ray hits T1_body at 2.1116 and 2.1088 BEFORE it reaches
+    hl_lens.  The reflector is therefore invisible and the lens is backed by
+    body paint.
+
+    A 1963 T1's headlamp does NOT sit in a plain hole.  The nose panel is
+    DRAWN BACK into a shallow bowl and the lamp sits in it, chrome rim on the
+    outer face.  Both frames show it as a shadowed ring round the bezel --
+    ref_nolita_front34.jpg and ref_playa_34.png -- and that shadow is most of
+    what makes a lamp read as set INTO a panel rather than stuck ON it.
+
+    WHAT THIS ACTUALLY BUILDS, AND A DOCSTRING THAT LIED FOR ONE HOUR.
+    The first draft of this comment said "a truncated cone, not a cylinder:
+    mouth at the lens radius, throat at 0.62 of it".  `T.solid_prism` extrudes
+    ONE outline at CONSTANT section -- it cannot make a cone -- so the code
+    built a straight-sided bore while the prose claimed a taper.  That is the
+    same defect class this revision found twice already (`headlamp`'s "chrome
+    ring" against build.py's "brass", and `roof_lids`' "inset 160 mm" against
+    an expression that reads as an outset).  Corrected here rather than in a
+    later revision: THIS IS A STRAIGHT-SIDED BORE, 52 mm deep, at the lens
+    radius.
+
+    THE DEPTH AND THE SECTION ARE AUTHORED, NOT MEASURED.  No frame we hold
+    resolves the bowl's section -- it is inside the bezel in every one of them.
+    They are declared here, in one place, so a later measurement replaces two
+    numbers and nothing else.  `PHOTOS_WANTED_rev45.md` asks for the frame.
+
+    THE CUT IS COUPLED TO THE REFLECTOR AND THAT IS WORTH KNOWING BEFORE YOU
+    TOUCH EITHER.  Before the cut the lens was backed by sheet metal, which is
+    why it read as a mid-grey disc -- accidentally close to the photograph for
+    the wrong reason.  Cutting the bore exposes `hl_bowl`, a metal=1.0 mirror,
+    and a mirror in an unlit cavity returns the cavity.  Measured through
+    `probe_rev45_nose`'s projected landmark, at the SHIPPED reflector settings:
+
+        lens / cream         0.423  no bore  ->  0.549  bored   (photo 0.565)
+        lens (R-B) / cream  +0.069  no bore  -> +0.027  bored   (photo -0.024)
+
+    Both move toward the photograph, and the eye agrees once the render is big
+    enough: bored, the aperture has a highlight, a bright arc and depth; unbored
+    it is a flat dull disc.  RECORDED BECAUSE THE FIRST EYEBALL READ OF THIS
+    SPIKE WAS THE OPPOSITE, taken off a 48-sample T1_SUB=1 crop, and the A/B at
+    64 samples overturned it.  Rule 10 cuts both ways: a detail you cannot see
+    is not a detail, and a detail you looked at badly is not looked at.
+
+    T1_HL_BOWL=0 skips the cut and restores the un-bored arm.
+    """
+    obs = []
+    for s in (1, -1):
+        prof = []
+        n = 28
+        for i in range(n):                       # mouth ring, at the skin
+            a = T.TAU * i / n
+            prof.append((r_lens * math.cos(a), r_lens * math.sin(a)))
+        mouth = T.solid_prism((hl_x + 0.010, s * hl_y, hl_z),
+                              (0, s, 0), (0, 0, 1), (-1, 0, 0),
+                              prof, 0.052, name=f"cut_hlbowl{s}")
+        obs.append(mouth)
+    return obs
+
+
 def arch_cutters():
     obs = []
     for s in (1, -1):
@@ -492,71 +556,95 @@ DOOR_GAP = [
     (1.1000, 0.8040), (1.4000, 0.8000), (1.6500, 0.8040),
 ]
 # ===========================================================================
-# rev 42 -- HIS DEFECT REPORT 5: "the doors extend lower, around the wheel
-# well".  SPEC 10.100.
+# rev 44 -- SPEC 10.100 IS RETRACTED.  THE CAB DOOR'S BOTTOM IS A FLAT CHORD
+# ABOVE THE FRONT WHEEL ARCH, NOT A WRAP AROUND IT.  SPEC 10.101.
 #
-# WHAT WAS WRONG.  The table above cuts the cab door's bottom as a STRAIGHT
-# CHORD ACROSS THE TOP OF THE FRONT WHEEL ARCH, z 0.8000-0.8160 un-dropped,
-# 23.0-39.0 mm above the arch crown -- whose BUILT value is
-# arch_z(X_AXLE_F) + ARCH_R = 0.4035 + 0.3735 = 0.7770, WATCHED PRINT.  The
-# smoothed rev-41 outline's minimum over the arch's x-span is 0.8006, 23.6 mm.
-# Every revision from rev 7 to rev 41 shipped that chord.
+# WHAT REV 42 DID.  His defect report 5 -- "the doors extend lower, around the
+# wheel well" -- was turned into a construction: the door's bottom run became
+# `max(ZB(x)+G, arch circle offset radially by G)`, so the door swept up and
+# over the front arch and reached the rocker at both ends.  It rested on ONE
+# piece of evidence: a yes/no question put to the owner over a 9x crop of
+# `ref_workshop.jpg` -- "does the door's rear lower corner sweep up and over
+# the front wheel arch?" -- answered YES.  That is a LEADING question answered
+# off a three-quarter frame that SPEC 10.62 and 10.73 had already ruled
+# inadmissible for any metric on the door plane.
 #
-# MY FIRST DRAFT OF THIS COMMENT SAID 0.7854 AND 14.6-30.6 mm.  0.7854 is the
-# rev-8 COMMENT forty lines above ("the front arch top moves 0.7710 -> 0.7854")
-# and it has been STALE SINCE REV 13, which re-derived the rake 33.0 -> 17.75
-# mm/m and moved arch_z with it.  I quoted the comment instead of the value the
-# build prints -- SPEC 10's own trap, reproduced inside the repair.  THE
-# GEOMETRY IS UNAFFECTED: everything below calls arch_z(T.X_AXLE_F) live and
-# never touches the literal.  The rev-8 comment is left where it is because it
-# is a dated record of a rev-8 state; this note is what stops it being read as
-# a current one.
+# WHAT REFUTES IT, AND IT WAS IN THE REPO THE WHOLE TIME.  `ref_nolita_doorshut
+# .jpg` is the one frame that carries the cab door's WHOLE outline, square-on,
+# shut.  Three measurements off it, all by gradient, none by eye:
 #
-# HIS TWO READINGS, rev 42, off `ref_workshop.jpg` -- the ONLY frame with the
-# cab door SHUT.  Shown one 9x crop with three marks (the shut line; the height
-# of the arch crown; the body's lower edge):
-#   * "the door extends down to the side rocker it looks like"  -- his hedge is
-#     kept, deliberately, because he wrote it;
-#   * asked whether the door's rear lower corner sweeps UP AND OVER the front
-#     wheel arch so that the arch's front lip is part of the door: YES.
+#   * THE DOOR'S BOTTOM SHUT LINE IS FLAT.  Row-gradient over the door's rear
+#     half (cols 70-122) puts a 2 px dark line at ROW 239-240 and nowhere else,
+#     and a column-by-column darkest-row scan holds it at row 239 continuously
+#     from col 60 to col 122.  A wrap would descend ~135 mm (12 px) across that
+#     span.  It does not move one pixel.
 #
-# WHY THAT IS ADMISSIBLE HERE.  sec.10.62 and sec.10.73 establish that NO
-# supplied frame carries both a closed cab door and an admissible px/m on the
-# door plane, so no METRIC may be taken from that frame.  Nothing metric is.
-# What was measured before he was asked is ORDINAL, and an ordinal fact needs
-# no scale: the door's front shut line fits x = -0.03467 v + 512.233 over 49
-# rows (ridge scores rising to 93) and runs CONTINUOUSLY from the belt down to
-# the body's lower edge at v = 712, which is ~91 px BELOW the arch crown at
-# v ~= 621.  The build put the door's bottom ABOVE the crown.  THE SIGN WAS
-# WRONG, and a sign does not need a ruler.
+#   * THE REAR SHUT LINE STOPS ON IT.  Column-gradient in 8-row bands puts the
+#     door's rear vertical shut line at col 124.5 (|dL| 24-37 against a floor
+#     of 1-2) for rows 208 through 240, and it VANISHES below row 240 (|dL|
+#     drops to 0.4-2.2, i.e. into the noise).  Under rev 42's wrap that line
+#     would have to continue another 38 px down to the rocker.  It does not
+#     exist there.
 #
-# NOT ONE NEW CONSTANT IS INVENTED.  The new bottom is:
-#   * the build's OWN arch circle -- centre (X_AXLE_F, arch_z(X_AXLE_F)),
-#     radius ARCH_R, all locked and all guarded elsewhere;
-#   * the build's OWN rocker -- `t1_core.ZB`, the under-body / sill bottom edge;
-#   * a clearance G READ OFF THE REV-41 OUTLINE ITSELF: the minimum radial
-#     distance rev 41's own smoothed DOOR_GAP_S kept from that circle.  So the
-#     new outline is NOWHERE CLOSER to the arch than the outline that has been
-#     passing T1_SUB=2 since rev 23.  That is asserted below, not claimed here
-#     -- sec.10.45's rule, a claim in prose is not a guard.
+#   * THE CLEARANCE IS REV 41'S.  The wheel-well's dark top edge sits at row
+#     241.5 at cols 85-94 (the crown).  Door line 239, arch lip 241.5: 2.5 px.
+#     Scale from the arch's own half-width -- hub centroid col 91.0, rear foot
+#     col 123 -- is 32 px = ARCH_R 0.3735 m = 85.7 px/m, so 2.5 px = 29 mm.
+#     REV 41 SHIPPED 23.0-39.0 mm.  The frame lands in the middle of the band
+#     that shipped, and it is scale-free in the sense that matters: the ratio
+#     (door-line-to-lip) / (arch half-width) is 0.078 measured against 0.065
+#     built, both read off the same two features in the same image.
 #
-# WHAT IS **NOT** CHANGED, AND IT IS NAMED RATHER THAN ABSORBED.  `DOOR_GAP`
-# above is left BIT-IDENTICAL and keeps its second job: it is the ART DATUM.
-# `folk_gen` parses it for DOOR_X0 / DOOR_X1 / DOOR_W and for `_DOOR_BOT_AUTH`,
-# which `panel_bot(x)` returns inside the door span and which `door_pv` then
-# normalises every v-coordinate of the door art over.
-# CORRECTED rev 44: `DOOR_H` DIVIDES NOTHING and is NOT the v-map.  Its only
-# two read sites, folk_gen.py:1274 and :1287, are both `h = sv * DOOR_H` and
-# both MULTIPLY.  `door_pv` is the v-map and it is PROPORTIONAL, so re-pointing
-# the parse STRETCHES the art instead of extending it.  probe_rev44_doorart.py.
-# Re-pointing that parse at the wrapped outline would move DOOR_H by ~390 mm
-# and force a re-bake of the flank textures -- a SECOND lever in the same
-# revision, which is exactly what rev 25 refused to pull when it held
-# `_DOOR_TOP_AUTH` at 1.8140 "so DOOR_H stays bit-identical and only one lever
-# moves".  Same call, same reason.  THE ART FRAME IS THEREFORE STILL REV 41's
-# AND THAT IS AN OPEN ITEM, not a solved one: the door is now ~390 mm deeper at
-# its rear lower corner than the frame the art was baked into.  The three
-# texture md5s are unchanged this revision BY CONSTRUCTION.
+# WHY THE OWNER'S rev-44 REPORT SAYS THE OPPOSITE OF WHAT IT LOOKS LIKE.  He
+# wrote "the door does not continue on the other side of the wheel well" and
+# then "the door does not continue downward behind the wheel".  Read against
+# rev 42's geometry both sentences are the SAME complaint: the wrap made the
+# bottom run CONCENTRIC with the arch -- offset radially by a constant G, so it
+# could never diverge from it -- and a curve that never diverges from another
+# reads as one thick line.  The door's bottom stopped being a line that crosses
+# the wheel well and became part of the arch lip.  Measured on the 3200 px side
+# render: the two ran 14.0-22.4 px apart with a spread of 8.3 px over 600 mm.
+# And the rear shut line, which under the wrap ends on the arc at z 0.5385 --
+# 135 mm BELOW the arch crown and 127 mm ABOVE the rocker -- terminates in mid
+# panel beside the wheel, which is neither where rev 41 put it nor where the
+# Nolita frame puts it.
+#
+# I ALSO TRIED TO FIX IT INSIDE THE WRAP, AND THE ATTEMPT IS WHAT PROVED THE
+# WRAP WRONG.  Flattening the run to the arc's own crown height passed the
+# clearance guard and reproduced rev 41's chord to 1 mm (0.8014 against
+# 0.800-0.816) -- but it silently deleted SPEC 10.100.4's rear corner dip,
+# because the arc's span reaches x = 0.9021 and the door's rear edge is at
+# 0.9257, INSIDE it.  Chasing that exposed the real constraint: the arch's
+# rear-most point is x = 1.3 - 0.3735 = 0.9265 and the door's rear edge is
+# 0.92565, so the two coincide to 0.85 mm.  There is NO ROOM for a shut line to
+# descend behind that wheel at any clearance, and every construction that tried
+# either produced a 23 mm-wide 400 mm-deep tab or drove the arch clearance from
+# 24.4 mm to 1.7 mm -- the exact geometry SPEC 10.1 records as collapsing the
+# shell 205562 v -> 12 v.  A construction that cannot be built at any clearance
+# is usually a construction that is not there, and it is not: the Nolita frame
+# shows the rear shut line stopping at row 240 for the same reason.
+#
+# WHAT IS RESTORED.  `DOOR_GAP` -- rev 41's table, which has been sitting here
+# bit-identical this whole time because rev 42 kept it as the ART DATUM.  It is
+# now the cut outline again, resampled at 76 and smoothed twice, which is what
+# rev 41 did, so `DOOR_GAP_S` is bit-identical to the outline that passed
+# T1_SUB=2 from rev 23 to rev 41.  `_GAP41_S` and `DOOR_GAP_S` are therefore
+# THE SAME LIST and that is asserted below rather than claimed here (10.45).
+#
+# WHAT THIS CLOSES.  Ledger finding 1 -- "the art frame: the door is 272.2 mm /
+# 387.5 mm deeper than the art's outline".  It was deeper because rev 42 made
+# it deeper.  The art datum and the cut outline are one table again, so the
+# lobes the art would have had to grow into do not exist and there is nothing
+# to draw.  `probe_rev44_doorart.py`'s C3 and C4 reproduce SPEC 10.100.4's
+# published depths and crown height; they are EXPECTED TO FAIL from this
+# revision and that is what a retraction looks like from the instrument side.
+#
+# THE GUARDS ARE KEPT, ALL THREE, and re-armed against the restored outline.
+# They were written in rev 42 for the wrap, but rev 23's rule cuts both ways:
+# a guard's SHAPE outlives the change that motivated it when the invariant it
+# encodes is still the invariant.  Radial clearance from the arch circle is
+# still what the boolean cares about; it is simply satisfied with room to
+# spare now instead of exactly.
 # ===========================================================================
 _ARCH_CX = T.X_AXLE_F
 _ARCH_CZ = arch_z(T.X_AXLE_F)
@@ -568,64 +656,105 @@ def _arch_radial(pt):
     return math.hypot(pt[0] - _ARCH_CX, pt[1] - _ARCH_CZ) - ARCH_R
 
 
-# rev 41's outline, smoothed exactly as rev 41 smoothed it, purely to read its
-# own minimum clearance off it.  It is not used to cut anything.
+# ===========================================================================
+# rev 44b -- THE FORWARD LOWER LOBE.  SPEC 10.106.  HE WAS RIGHT AGAIN.
+#
+# *[verbatim]* "the door curves around the FRONT of the wheel well and not the
+# back.  So you removed too much door."
+#
+# HE IS RIGHT, AND SO IS THE FRAME.  10.102 retracted 10.100's wrap because
+# `ref_nolita_doorshut.jpg` holds the bottom rail flat and stops the rear shut
+# line on it.  That reading was correct -- FOR THE PART OF THE DOOR IT
+# COVERED.  It was taken over cols 60-122, which is the arch and everything
+# aft of it, and I then asserted flatness over the WHOLE door.  Forward of
+# col 56 the same scan had already printed no line at all in that row band,
+# and I read that as noise instead of as the line having gone somewhere else.
+# IT HAD.  Extending the trace forward finds it 26 px lower.
+#
+# THE MEASUREMENT, sub-pixel, three-point parabolic on the row gradient:
+#   bottom rail, over the arch (cols 70-118)      row 238.58
+#   arch lip crown           (cols 70-118)        row 241.46
+#   FORWARD LOWER LOBE       (cols 30-48)         row 264.58
+#   body's lower edge        (cols 30-48)         row 273.50
+#
+# EVERY CONSTANT BELOW IS DIMENSIONLESS, so none of it depends on px/m -- and
+# that matters here, because the three available scales (arch radius 105.9,
+# rear rim OD 104.2, hub-to-hub wheelbase 107.4 px/m) span 3 %.
+#
+#   DROP   = (264.58 - 238.58) / (273.50 - 238.58) = 0.7443 of the rail's own
+#            height above the body's lower edge.  Anchored to two features of
+#            THE DOOR ITSELF, so it is immune to the scale question entirely.
+#   RAMP   = the step's two feet, in units of the arch's own radius forward of
+#            the axle: (91.1 - 56)/39.54 = 0.8877 and (91.1 - 46)/39.54 =
+#            1.1406.  The ramp therefore STRADDLES THE ARCH'S FORWARD LIP,
+#            which is where a door that clears a wheel would put it.
+#
+# AND THE RAIL ABOVE THE ARCH IS UNTOUCHED -- 2.88 px = 27 mm above the lip,
+# against rev 41's shipped 23-39 mm.  10.102's finding stands where it was
+# measured; this adds the part of the door it never looked at.
+#
+# THE ART DATUM DOES NOT MOVE.  `DOOR_GAP` stays bit-identical and keeps its
+# second job (10.100.6's one good idea).  The lobe goes into the CUT outline
+# only.  Nothing needs to be drawn into it: the flank's folk art is continuous
+# across this panel gap in every frame we hold, so the shut line crosses the
+# art rather than bounding it.
+# ===========================================================================
+_NRES = 76                                      # rev 41's, restored with it
+
+DOOR_LOBE_DROP = (264.58 - 238.58) / (273.50 - 238.58)      # 0.7443
+DOOR_LOBE_A = (91.1 - 56.0) / 39.54                         # 0.8877 * ARCH_R
+DOOR_LOBE_B = (91.1 - 46.0) / 39.54                         # 1.1406 * ARCH_R
+
+
+def _rail_z(x):
+    """DOOR_GAP's own bottom rail at x, by linear interpolation."""
+    rail = sorted(DOOR_GAP[-4:] + DOOR_GAP[:1])
+    for i in range(len(rail) - 1):
+        (xa, za), (xb, zb) = rail[i], rail[i + 1]
+        if xa <= x <= xb:
+            return za + (zb - za) * (x - xa) / (xb - xa)
+    return rail[-1][1] if x > rail[-1][0] else rail[0][1]
+
+
+_LOBE_XA = T.X_AXLE_F + DOOR_LOBE_A * ARCH_R
+_LOBE_XB = T.X_AXLE_F + DOOR_LOBE_B * ARCH_R
+_DOOR_X_FRONT = 1.8171
+_Z_LOBE = _rail_z(_DOOR_X_FRONT) - DOOR_LOBE_DROP * (
+    _rail_z(_DOOR_X_FRONT) - T.ZB(_DOOR_X_FRONT))
+
+# The cut outline: rev 41's table with its bottom rail carried on past the
+# arch's forward lip and down.  Built by SPLICING rather than by re-typing the
+# table, so the two can never disagree about the seventeen points they share.
+DOOR_GAP_CUT = (list(DOOR_GAP[:-3])
+                + [p for p in DOOR_GAP[-3:] if p[0] < _LOBE_XA]
+                + [(_LOBE_XA, _rail_z(_LOBE_XA)),
+                   (_LOBE_XB, _Z_LOBE),
+                   (_DOOR_X_FRONT, _Z_LOBE)])
+DOOR_GAP_S = _smooth(_resample(DOOR_GAP_CUT, _NRES), 2)
+
+# rev 41's outline smoothed exactly as rev 41 smoothed it -- the object 10.100
+# built purely to READ a clearance off.  It is the reference the guard below
+# is armed at, and the lobe must be no worse than it.
 _GAP41_S = _smooth(_resample(DOOR_GAP, 76), 2)
 DOOR_ARCH_G = min(_arch_radial(p) for p in _GAP41_S)
 
-
-def _door_bot_z(x, g):
-    """The door's lower shut line at clearance `g`: the rocker, lifted over
-    the arch."""
-    z = T.ZB(x) + g
-    dx = x - _ARCH_CX
-    ra = ARCH_R + g
-    if abs(dx) < ra:
-        z = max(z, _ARCH_CZ + math.sqrt(ra * ra - dx * dx))
-    return z
-
-
+# The bottom run, kept as a name because probe_rev44_doorart.py and the ledger
+# both address it: the rail plus the ramp plus the lobe, in x order.
 _DOOR_X_REAR = 0.9084 + DOOR_REAR_DX
-_DOOR_X_FRONT = 1.8171
-_NBOT = 61
-_BOT_XS = [_DOOR_X_REAR + (_DOOR_X_FRONT - _DOOR_X_REAR) * i / (_NBOT - 1)
-           for i in range(_NBOT)]
-_NRES = 200
-
-
-def _build_gap(g):
-    run = [(x, _door_bot_z(x, g)) for x in _BOT_XS]
-    cut = DOOR_GAP[:-3] + run
-    return run, cut, _smooth(_resample(cut, _NRES), 2)
-
-
-# THE RESAMPLE AND THE TWO SMOOTHING PASSES PULL AN ARC INWARD, and the guard
-# below caught exactly that on the first run: built at DOOR_ARCH_G the smoothed
-# outline came back at 0.0225 m against rev 41's 0.0244 m -- 1.9 mm CLOSER to
-# the arch than what shipped.  The fix is not to relax the guard by 1.9 mm; it
-# is to build the arc at whatever construction clearance makes the SMOOTHED
-# outline land on DOOR_ARCH_G.  Solved here by fixed point, so it re-solves
-# itself if _NRES, _NBOT or the smoothing ever change.  Converged value is
-# printed by audit.py, never typed.
-_G_BUILD = DOOR_ARCH_G
-for _ in range(24):
-    _r, _c, _sm = _build_gap(_G_BUILD)
-    _err = DOOR_ARCH_G - min(_arch_radial(p) for p in _sm)
-    if abs(_err) < 2e-5:
-        break
-    _G_BUILD += _err
-DOOR_BOT_RUN, DOOR_GAP_CUT, DOOR_GAP_S = _build_gap(_G_BUILD)
+DOOR_BOT_RUN = sorted(p for p in DOOR_GAP_CUT if p[1] < 0.90)
+assert (abs(DOOR_BOT_RUN[0][0] - _DOOR_X_REAR) < 1e-9
+        and abs(DOOR_BOT_RUN[-1][0] - _DOOR_X_FRONT) < 1e-9), (
+    "the bottom-run slice no longer starts and ends on the door's own two "
+    "lower corners: %r" % (DOOR_BOT_RUN,))
 
 # STRUCTURAL GUARD (SPEC sec.10.6), RE-SCOPED IN REV 42 WITH ITS NEW RATIONALE
 # STATED -- rev 23's rule: DO NOT INHERIT A GUARD'S RATIONALE ALONG WITH ITS
 # SHAPE.  The old guard required the outline to stay 10 mm ABOVE THE ARCH
 # CROWN.  That shape was only ever a PROXY for the thing that actually
 # collapsed the shell 205562 v -> 12 v at T1_SUB=2 for six revisions: the
-# outline CROSSING THE ARCH LIP.  A door that wraps the arch violates the proxy
-# while satisfying the invariant, so the guard is rewritten as the invariant it
-# always meant -- a RADIAL clearance from the arch circle -- and it is armed at
-# the clearance REV 41's OWN OUTLINE KEPT, so it can only be satisfied by being
-# no worse than what shipped, never by a number chosen today.
+# outline CROSSING THE ARCH LIP.  The proxy and the invariant agree again now
+# that the wrap is gone, but the invariant is the one worth asserting, so the
+# rev-42 form is KEPT rather than reverted with the geometry.
 _MIN_RAD = min(_arch_radial(p) for p in DOOR_GAP_S)
 assert _MIN_RAD >= DOOR_ARCH_G - 5e-4, (
     "cab-door shut line is CLOSER to the front wheel arch than rev 41's was: "
@@ -640,7 +769,41 @@ _MIN_SILL = min(z - T.ZB(x) for (x, z) in DOOR_GAP_S)
 assert _MIN_SILL > 0.005, (
     "cab-door shut line reaches the body's lower edge: closest approach %.4f m"
     % _MIN_SILL)
+# rev 44 -- THE RAIL MUST NOT WRAP AGAIN BY ACCIDENT.
+#
+# RE-SCOPED IN REV 44b AND ITS RATIONALE RE-STATED (rev 23's rule).  Written
+# in 10.102 as "the bottom run is FLAT across the whole door", which is what
+# the frame appeared to say.  It said no such thing: it was measured over
+# cols 60-122 -- the arch and everything AFT of it -- and 10.106 found the rail
+# 26 px lower forward of the arch's lip.  The guard is therefore armed over
+# EXACTLY THE SPAN THAT WAS MEASURED, and it is now a stronger test rather
+# than a weaker one, because the span is stated instead of assumed.
+#
+# It still kills a re-introduced wrap: 10.100's arc descends 388 mm inside
+# this span, where the measurement says 0 px of descent over 62 px of door.
+_RAIL_SPAN = [p for p in DOOR_BOT_RUN if p[0] <= _LOBE_XA + 1e-9]
+_BOT_SPREAD = max(p[1] for p in _RAIL_SPAN) - min(p[1] for p in _RAIL_SPAN)
+assert _BOT_SPREAD < 0.030, (
+    "cab-door bottom rail is not flat OVER THE ARCH: %.1f mm of descent from "
+    "x %.4f to the arch's forward lip. ref_nolita_doorshut.jpg holds it flat "
+    "to 1 px there (SPEC 10.106)."
+    % (_BOT_SPREAD * 1000.0, _RAIL_SPAN[0][0]))
 
+# rev 44b -- AND THE FORWARD LOBE MUST NOT SILENTLY VANISH AGAIN.  This is the
+# guard 10.102 should have had: it deleted a feature that a photograph holds,
+# and nothing objected.  Armed on the DIMENSIONLESS measurement, so it tests
+# the thing that was measured rather than a metre value derived from a px/m
+# the sources disagree about by 3 %.
+_LOBE_DROP_BUILT = ((_rail_z(_DOOR_X_FRONT) - _Z_LOBE)
+                    / (_rail_z(_DOOR_X_FRONT) - T.ZB(_DOOR_X_FRONT)))
+assert abs(_LOBE_DROP_BUILT - DOOR_LOBE_DROP) < 1e-6, (
+    "the cab door's forward lower lobe is not at its measured depth: "
+    "%.4f of rail-to-sill against ref_nolita_doorshut.jpg's %.4f (SPEC 10.106)"
+    % (_LOBE_DROP_BUILT, DOOR_LOBE_DROP))
+assert _LOBE_DROP_BUILT > 0.50, (
+    "the cab door's forward lower lobe has been flattened away: %.3f of "
+    "rail-to-sill. It is 0.744 in ref_nolita_doorshut.jpg and its ABSENCE is "
+    "what the owner reported at rev 44 (SPEC 10.106)." % _LOBE_DROP_BUILT)
 
 def door_gaps():
     return [T.gap_prism((0, s * 0.64, 0), (1, 0, 0), (0, 0, 1), (0, s, 0),
@@ -1129,18 +1292,111 @@ def roof_lids():
     # default, and SPEC forbids rendering a hero with it on -- so no
     # `sign_strut` exists in any shipped frame.  The strut he can see is
     # `lid_strut0`, from here.  The report was right; the attribution was not.
-    # x is symmetric about the lid's own ends: LID_X1 + 0.16 and LID_X0 - 0.16.
+    # ------------------------------------------------- rev 45, SPEC 10.113
+    # REV 45 FOUND THIS DEFECT INDEPENDENTLY AND ITS FIX IS DISCARDED IN FAVOUR
+    # OF THE ONE BELOW, WHICH IS BETTER DERIVED.  Recorded rather than quietly
+    # dropped, because the two agreeing from different directions is itself the
+    # evidence.  Rev 45 measured the same thing -- both feet at y = +0.44,
+    # INSIDE the roof aperture (the lid's own closed footprint, LID_Y_HINGE to
+    # LID_Y_HINGE + LID_W = -0.545 .. +0.565), so each prop rose out of thin
+    # air over the open hatch -- and moved the foot to LID_Y_HINGE - 0.14.
+    # That is a TYPED offset.  Rev 44b's below walks roof_z outboard until it
+    # stops changing and lands on the roof's OWN edge, which is a measurement
+    # of the body rather than a number about it, and it moves the TIP onto the
+    # lid's free edge as well.  Rev 45 kept only its Y guard, which is
+    # complementary to rev 44b's lean guard: the lean catches a prop that rakes,
+    # the Y catches a prop that stands on nothing.
+    # rev 44b -- I READ THIS AS A SIGN ERROR AND IT IS NOT ONE.  RECORDED SO
+    # IT IS NOT "FIXED" AGAIN.  `LID_X0` is 0.9640 and `LID_X1` is -1.0700 --
+    # X0 IS THE LARGER -- so `LID_X1 + 0.16` and `LID_X0 - 0.16` are both
+    # INSET, exactly as the comment above says.  I inverted both, and the
+    # guard added below in the same edit fired on the first build:
+    # "roof-lid prop at x -1.2375 is OUTSIDE the lid's own span 0.9640
+    # -1.0700".  The guard was right and the change was wrong; the change is
+    # reverted and the guard is kept, with its bounds written the way round
+    # the constants actually are.
+    # rev 44b -- THE PROPS RAKED ACROSS THE ROOF INSTEAD OF STANDING UNDER THE
+    # BOARD.  SPEC 10.108.
+    #
+    # *[owner, verbatim]* "the props for the sign seem to meet something from
+    # the sides of the sign, rather than the sign resting directly on the
+    # poles."
+    #
+    # MEASURED on the built scene, and he is describing it exactly.  Each prop
+    # ran from a foot at y +0.44 -- the SHOW side of the roof -- diagonally
+    # across the whole opening to a tip at y -0.776, a horizontal travel of
+    # 1.22 m against a rise of 1.00 m: a 49 degree rake.  And it met the board
+    # at 0.86 of the board's width, which on a board leaning 14 degrees PAST
+    # vertical is near its top edge.  A thin rod arriving at 49 degrees and
+    # touching a nearly-vertical panel near its top edge does not read as a
+    # prop; it reads as a stay wired to the sign's edge, which is the phrase
+    # he reached for.  (The tips DO touch -- measured at 8.6 and 8.7 mm from
+    # the lid's nearest vertex against a 7.5 mm rod radius, so contact was
+    # never the defect.)
+    #
+    # TWO CHANGES, AND NEITHER NEEDS A PHOTOGRAPH.  A prop stands UNDER the
+    # thing it props and meets it AT the edge that bears on it -- that is what
+    # a prop is, the same class of argument as a steering wheel being normal
+    # to its column (10.104.4).
+    #   * the tip moves 0.86 -> 0.97 of the lid's width, i.e. onto the FREE
+    #     EDGE, the edge that actually bears;
+    #   * the foot moves from y +0.44 to the roof's OWN OUTBOARD EDGE, found
+    #     by walking `roof_z` outboard until it stops changing rather than by
+    #     typing a y.  The prop then stands at 3 degrees from vertical instead
+    #     of 49, directly beneath the edge it carries.
+    def _roof_edge_y(xr, y0):
+        y = y0
+        for _ in range(400):
+            y2 = y - 0.002
+            if abs(roof_z(xr, y2) - roof_z(xr, y)) < 1e-6:
+                return y
+            y = y2
+        return y
+
     for (ob, xs, deg, w) in ((main, LID_X1 + 0.16, LID_OPEN_DEG, LID_W),
                              (main, LID_X0 - 0.16, LID_OPEN_DEG, LID_W)):
         a = math.radians(deg)
-        tipy = LID_Y_HINGE + w * math.cos(a) * 0.86
-        tipz = (roof_z(xs, LID_Y_HINGE) + LID_PROUD) + w * math.sin(a) * 0.86
-        foot = Vector((xs, 0.44, roof_z(xs, 0.44)))
+        tipy = LID_Y_HINGE + w * math.cos(a) * 0.97
+        # zh, NOT roof_z(xs, ...).  `_hinge` rotated the lid about the roof
+        # height at the lid's MIDPOINT x; using the height at the strut's own x
+        # put the tip 18 mm off the panel it is supposed to carry, because the
+        # roof is domed fore-and-aft.  Sharing the hinge origin makes the tip
+        # land ON the lid's plane by construction rather than by luck.
+        tipz = zh + w * math.sin(a) * 0.97
+        footy = max(tipy, _roof_edge_y(xs, LID_Y_HINGE))
+        foot = Vector((xs, footy, roof_z(xs, footy)))
         tip = Vector((xs, tipy, tipz))
         d = tip - foot
         struts.append(T.cylinder(tuple((foot + tip) / 2), tuple(d.normalized()),
                                  0.0075, d.length, seg=14,
                                  name=f"lid_strut{len(struts)}"))
+    # rev 44b -- each prop must stand UNDER the board, not beside it.  Two
+    # things asserted, both on the BUILT rod: it is inside the lid's own
+    # x-span, and it is nearer vertical than 20 degrees.  The second is the
+    # one that fires if anyone ever re-rakes it across the roof again.
+    for st in struts:
+        vs = [v.co for v in st.data.vertices]
+        xs_ = vs[0].x
+        assert (min(LID_X0, LID_X1) - 1e-9 <= xs_
+                <= max(LID_X0, LID_X1) + 1e-9), (
+            "roof-lid prop at x %.4f is OUTSIDE the lid's own span %.4f-%.4f, "
+            "so it props nothing (SPEC 10.108)." % (xs_, LID_X0, LID_X1))
+        dy = max(v.y for v in vs) - min(v.y for v in vs)
+        dz = max(v.z for v in vs) - min(v.z for v in vs)
+        lean = math.degrees(math.atan2(dy, dz))
+        assert lean < 20.0, (
+            "roof-lid prop leans %.1f deg from vertical -- it rakes across the "
+            "roof instead of standing under the board (SPEC 10.108)." % lean)
+    # GUARD, SAME EDIT AS THE CHANGE (rule 12).  Every prop foot must sit on
+    # solid roof -- OUTSIDE the aperture's y band -- or the prop is standing in
+    # the hatch again.  The band is the lid's own closed footprint.
+    _y_lo, _y_hi = LID_Y_HINGE, LID_Y_HINGE + LID_W
+    for _st in struts:
+        _fy = min(v.co.y for v in _st.data.vertices)
+        assert not (_y_lo < _fy < _y_hi), (
+            "SPEC 10.113: prop foot at y=%.4f is INSIDE the roof aperture "
+            "(%.4f..%.4f) -- the strut is standing on nothing"
+            % (_fy, _y_lo, _y_hi))
     return skins, rails, struts, boards
 
 

@@ -8,17 +8,17 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-18 17:51:10 UTC |
-| git commit | `791976b` |
-| git subject | rev 42: correct a figure of mine -- the front arch crown is 0.7770 as built, not the 0.7854 in a rev-8 comment |
-| working tree | clean |
+| generated | 2026-08-20 02:23:18 UTC |
+| git commit | `fc4596b` |
+| git subject | rev 45: verify_clone -- four rows adjudicated, two of them PRE-EXISTING staleness |
+| working tree | **DIRTY** — this state is not committed |
 | blender | 4.5.3 LTS |
-| subdivision | T1_SUB=1 (applied, destructive, before booleans) |
+| subdivision | T1_SUB=2 (applied, destructive, before booleans) |
 | geometry source | procedural, built this run |
 
 ## Guard result
 
-**VERIFY: 0 fail, 0 warn** at T1_SUB=1.
+**VERIFY: 0 fail, 0 warn** at T1_SUB=2.
 
 > A pass here is only a pass *at this subdivision level*. The cab-door gap
 > booleans passed at SUB=1 and collapsed the shell at SUB=2 for six
@@ -26,8 +26,8 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 ```
 x range [-1.905, 2.160]   full-Y [-1.064, 1.150]
-dims  L=4.065 W=1.750 roof@rear-axle=1.9835 (regression baseline 1.9835, -0.0 mm; dome deficit +0 mm still unmodelled) (bbox top 3.017)
-H_ROOF 1.960 is RETIRED as an accuracy target (rev 22, owner's call): its only ground-line-free support was withdrawn by SPEC 10.34. The model reads 1.9835; the real vehicle's absolute roof height is OPEN and UNMEASURED. The +23 mm warn is gone because THE TEST WAS WITHDRAWN, not because the model improved -- the mesh did not move.
+dims  L=4.065 W=1.750 roof@rear-axle=1.9833 (regression baseline 1.9835, -0.2 mm; dome deficit +0 mm still unmodelled) (bbox top 3.017)
+H_ROOF 1.960 is RETIRED as an accuracy target (rev 22, owner's call): its only ground-line-free support was withdrawn by SPEC 10.34. The model reads 1.9833; the real vehicle's absolute roof height is OPEN and UNMEASURED. The +23 mm warn is gone because THE TEST WAS WITHDRAWN, not because the model improved -- the mesh did not move.
 rear overhang 0.7730 m = 0.3221 of the wheelbase (measured 0.773 +- 0.022 m)
 measured TRACK_F=1.3713  TRACK_R=1.3613  TYRE_D=0.6650
 SPEC 10.91 ban-exemption control: 2 exempt names, 4 planted near-misses all still banned
@@ -54,7 +54,7 @@ VERIFY: 0 fail, 0 warn
 |---|---|
 | cutters rolled back | none |
 | non-manifold edges (body) | 0 |
-| body faces | 59885 quad, 458 tri, 4617 ngon |
+| body faces | 238333 quad, 1272 tri, 5453 ngon |
 
 ## Measured dimensions
 
@@ -67,12 +67,12 @@ Shaders read the dropped frame, so `Z_BELT`/`V_APEX` are already AG.
 | overall length (ex counter) | 4.0648 | 4.0550 | +9.8 mm ok |
 | counter tail overhang past body | 0.2902 | — | — |
 | overall width (body) | 1.7497 | 1.7500 | -0.3 mm ok |
-| overall height (vehicle max, lids excluded) | 1.9890 | — *(no target: this is a max over all stations, and since rev 22 there is no roof-height target at all — H_ROOF 1.960 is RETIRED, see verify.py. Regression-caught by verify row 1a and the roof line below)* | at x = -1.569 |
+| overall height (vehicle max, lids excluded) | 1.9888 | — *(no target: this is a max over all stations, and since rev 22 there is no roof-height target at all — H_ROOF 1.960 is RETIRED, see verify.py. Regression-caught by verify row 1a and the roof line below)* | at x = -1.569 |
 | wheelbase | 2.4000 | 2.4000 | +0.0 mm ok |
 | track front | 1.3690 | 1.3690 | +0.0 mm ok |
 | track rear | 1.3590 | 1.3590 | +0.0 mm ok |
 | tyre diameter | 0.6650 | 0.6650 | +0.0 mm ok |
-| rocker to ground | 0.3175 | — | — |
+| rocker to ground | 0.3177 | — | — |
 | belt line @ x=0.962 (live) | 1.2070 | 1.2070 | +0.0 mm ok |
 | window sill @ x=0.962 | 1.3070 | 1.3070 | +0.0 mm ok |
 | window head @ x=0.962 | 1.7100 | 1.7100 | +0.0 mm ok |
@@ -94,9 +94,9 @@ file used to publish the rocker seen through that hole as the roof height._
 
 | station | x | roof z | belt z |
 |---|---|---|---|
-| front axle | +1.300 | 1.9400 *(n=44)* | 1.2010 |
+| front axle | +1.300 | 1.9399 *(n=184)* | 1.2010 |
 | mid wheelbase | +0.100 | — *(inside the roof aperture: no roof above 1.710 m at \|y\|<0.30)* | 1.2223 |
-| rear axle | -1.100 | 1.9835 *(n=66)* | 1.2436 |
+| rear axle | -1.100 | 1.9833 *(n=230)* | 1.2436 |
 
 | roof line slope (measured off the mesh) | -18.1 mm/m |
 | rake coefficient applied | 17.8 mm/m (1.02°) |
@@ -140,9 +140,9 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 
 | | |
 |---|---|
-| mesh objects | 190 |
-| vertices (all meshes) | 147768 |
-| faces (all meshes) | 141246 |
+| mesh objects | 221 |
+| vertices (all meshes) | 330496 |
+| faces (all meshes) | 321279 |
 
 | prefix | n |
 |---|---|
@@ -154,6 +154,8 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 | `capring` | 4 |
 | `gal_bot` | 4 |
 | `gal_botcap` | 4 |
+| `hinge_barrel` | 4 |
+| `hinge_leaf` | 4 |
 | `rim-1` | 4 |
 | `rim1` | 4 |
 | `tyre` | 4 |
@@ -188,8 +190,10 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 | `seal_dv` | 2 |
 | `seal_ws` | 2 |
 | `tail` | 2 |
+| `visor` | 2 |
 | `vwbar` | 2 |
 | `wblade` | 2 |
+| `wheel_spoke` | 2 |
 | `wiper_arm` | 2 |
 | `wiper_boss` | 2 |
 | `wiper_pivot` | 2 |
@@ -203,6 +207,9 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 | `counter_nosing` | 1 |
 | `counter_top` | 1 |
 | `dash` | 1 |
+| `dash_glovebox` | 1 |
+| `dash_grille` | 1 |
+| `dash_knob` | 1 |
 | `englid_handle` | 1 |
 | `fuel_flap` | 1 |
 | `gal_appliance` | 1 |
@@ -228,6 +235,8 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 | `gal_wrap_g` | 1 |
 | `galley_backdrop` | 1 |
 | `galley_top` | 1 |
+| `gear_knob` | 1 |
+| `gear_lever` | 1 |
 | `glass_bay0_R` | 1 |
 | `glass_bay1_R` | 1 |
 | `glass_bay2_R` | 1 |
@@ -240,6 +249,11 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 | `iron1F` | 1 |
 | `lid_board` | 1 |
 | `lid_main` | 1 |
+| `mirror_int` | 1 |
+| `mirror_stem` | 1 |
+| `pedal_a` | 1 |
+| `pedal_b` | 1 |
+| `pedal_c` | 1 |
 | `plancha` | 1 |
 | `plate` | 1 |
 | `plate_digits` | 1 |
@@ -247,9 +261,18 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 | `script_L` | 1 |
 | `script_R` | 1 |
 | `seat_back` | 1 |
+| `seat_back_p` | 1 |
 | `seat_base` | 1 |
+| `seat_base_p` | 1 |
+| `seat_welt` | 1 |
+| `seat_welt_p` | 1 |
+| `speedo_bezel` | 1 |
+| `speedo_face` | 1 |
+| `speedo_glass` | 1 |
 | `van_floor` | 1 |
 | `vw_disc` | 1 |
 | `vw_ring` | 1 |
+| `wheel_horn` | 1 |
+| `wheel_hub` | 1 |
 | `wheel_rim` | 1 |
 

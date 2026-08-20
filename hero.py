@@ -158,7 +158,13 @@ def main():
     if a.no_post:
         return
     final = os.path.join(a.out, "%s.png" % tag)
-    cmd = ["python3", "post.py", raw, final] + a.post_args.split()
+    # rev 44: was hard-coded "python3".  hero.py's own dependencies (numpy,
+    # PIL) live in whatever interpreter it was LAUNCHED with, and on a machine
+    # where Blender is reached through `pip install bpy` that is not the system
+    # python3 -- so post.py died on ModuleNotFoundError after the strips had
+    # already rendered.  Use the same interpreter, which is correct on every
+    # machine rather than lucky on one.
+    cmd = [sys.executable, "post.py", raw, final] + a.post_args.split()
     dt, out = sh([c for c in cmd if c], dict(os.environ), "post")
     print(out.strip())
     print("  post %.1f s -> %s" % (dt, final))

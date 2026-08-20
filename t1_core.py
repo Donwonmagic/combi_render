@@ -623,6 +623,13 @@ def solid_prism(origin, u, v, w, pts, depth, name="cut"):
     bm.verts.ensure_lookup_table()
     bm.faces.new([bm.verts[i] for i in range(n - 1, -1, -1)])
     bm.faces.new([bm.verts[n + i] for i in range(n)])
+    # rev 44 -- A CAP TRIANGULATION WAS TRIED HERE AND REVERTED, recorded so it
+    # is not tried again.  It was a guess at why the VW emblem's W rendered as
+    # fragments; it did NOT fix that (the real cause was the roundel being
+    # mounted 11 mm inside the nose, see build.py) and it BROKE TWO WHEEL-ARCH
+    # BOOLEANS -- `arch-11` and `arch-1-1` rolled back at both subdivision
+    # levels.  solid_prism builds every cutter in this model, so a change here
+    # is never local.
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
     bm.normal_update(); bm.to_mesh(me); bm.free()
     return ob
@@ -775,9 +782,16 @@ def vw_bars(R, w, origin, u_ax, v_ax, n_ax, depth, tag="vw"):
         BY CONSTRUCTION -- which is why "correcting the diameter" closed the
         designed gap twice and merged the glyph into an X twice.
 
-    The fusion matches the photographs and must stay.  This docstring is what
-    the standing rule "a claim in prose is not a guard" is about: it survived
-    nine revisions because nobody grepped for the node that does it.
+    rev 44 -- THIS PARAGRAPH WAS HALF RIGHT AND THE HALF THAT WAS WRONG COST
+    THE EMBLEM ITS W.  A TOUCH at the centre does match the photographs: in
+    ref_nolita_front34.jpg the V's apex and the W's peak merge into one mass
+    over about 0.1 of the ring diameter.  A 52 mm PENETRATION does not -- it
+    buries the W's centre peak AND both inner arms, and the reference shows all
+    six strokes legible.  The overlap was not a property of the fusion; it was
+    a property of the V being 2.5x too wide-angled, measured above.  With the
+    arm angle corrected the V's outline bottom sits 11.6 mm above the ring
+    centre against the W's peak at 16.8 mm -- a 5 mm touch, which is the
+    photograph.  The fusion stays; the burial does not.
 
     rev 17 also GREW THE V's ARM TIPS.  Building the hubcap ring exposed that
     the V reached only 0.7154 of the glyph's fit radius while the ring's inner
@@ -789,15 +803,130 @@ def vw_bars(R, w, origin, u_ax, v_ax, n_ax, depth, tag="vw"):
     fraction so the two can never drift apart again.
     """
     _RING_INNER_FRAC = 1.0 - 2.0 * 0.093      # t1_detail.CAP_RING_BANDFRAC
-    _V_TIP_R0        = 0.7154                 # measured on the built glyph
-    _VG              = _RING_INNER_FRAC / _V_TIP_R0        # = 1.138
-    _apex            = (0.000, -0.060)
-    _tip             = (0.400, 0.560)
-    _tx = _apex[0] + (_tip[0] - _apex[0]) * _VG
-    _ty = _apex[1] + (_tip[1] - _apex[1]) * _VG
-    V_SPINE = [(-_tx, _ty), _apex, (_tx, _ty)]
-    W_SPINE = [(-0.760, -0.060), (-0.380, -0.700), (0.000, -0.075),
-               (0.380, -0.700), (0.760, -0.060)]
+    # ------------------------------------------------------------- rev 44
+    # THE V WAS 2.5x TOO WIDE-ANGLED AND IT WAS ERASING THE W.
+    #
+    # The owner reported the logo off the rev-44 hero.  Rendered face-on the
+    # emblem showed a V and TWO ISOLATED STUBS -- no W centre peak, no inner
+    # arms, no legs.  The W object was built correctly (20 verts, full extent,
+    # not self-intersecting -- all three checked) and then almost entirely
+    # COVERED by the V, which is solid and the same material.
+    #
+    # MEASURED ON ref_nolita_front34.jpg, the owner's rev-44 upload and the
+    # clearest roundel in the set.  Row-run analysis of the red mask, VERTICAL
+    # extents only because the frame is a three-quarter (a rotation about a
+    # vertical axis preserves vertical ratios):
+    #     ring outer vertical D .............. 68 px
+    #     V arm separation at 0.206 D down ... 0.162 D   built 0.406 D  <-- 2.5x
+    #     V apex, from the ring top .......... 0.353 D   built 0.625 D
+    #     V height / ring D .................. 0.235     built 0.374
+    # The V's tips are right (they run into the ring band in both), so the
+    # error is the ARM ANGLE, and widening the arms is what drove the apex
+    # down through the W.
+    #
+    # The tips are now placed ON the band circle by construction at the
+    # measured half-angle, so no fraction can go stale: _V_TIP_X is the only
+    # authored number and the tip height follows from the circle.
+    _V_TIP_X = 0.270                          # measured, see above
+    _apex    = (0.000, 0.284)                 # 0.353 of ring D from the top
+    _ty      = (_RING_INNER_FRAC ** 2 - _V_TIP_X ** 2) ** 0.5
+    # ------------------------------------------------------------- rev 44b
+    # EVERY STROKE END ON THE RING -- WHICH THE DOCSTRING HAS CLAIMED SINCE
+    # REV 15 AND THE GEOMETRY HAS NEVER DONE.  SPEC 10.107.
+    #
+    # *[owner, rev 44b]* "The vw still doesn't look right."
+    #
+    # MEASURED ON THE BUILT GLYPH, six 30-degree sectors, radius as a fraction
+    # of the ring radius, with the ring's band spanning 0.800-1.000:
+    #     W's two BOTTOM vertices ......... 0.840   into the band
+    #     W's two OUTER ARM tips .......... 0.738   62 mm short of it
+    #     V's two ARM tips ................ 0.724   76 mm short of it
+    # `_fit_glyph` scales by the SINGLE FURTHEST VERTEX, so whichever end
+    # reaches furthest lands in the band and drags every other end short.  Only
+    # the W's bottom ever touched.  Four of the six strokes have been floating
+    # inside the ring since rev 15, and rev 17 caught exactly this for the V's
+    # tips -- it scaled them by 0.8140/0.7154 and then `_fit_glyph`'s divisor
+    # moved underneath them again, because the W was left where it was.
+    #
+    # AND THE PHOTOGRAPH IS UNAMBIGUOUS.  `ref_nolita_front34.jpg`, red-mask
+    # row runs over the roundel's 41 x 66 px bbox: at y+6 the V's arms and the
+    # ring are ONE RUN on both sides, and at y+62 the W's bottoms and the
+    # ring's lower arc are ONE RUN.  Nothing floats.  rev 15's own docstring
+    # says it in words -- "every stroke end -- both V arms, both W outer arms,
+    # both W legs -- disappears into the ring band".
+    #
+    # THE FIX CHANGES NO ANGLE.  Each of the six terminal points is projected
+    # RADIALLY onto the band circle, so every arm angle, the 12.29 deg
+    # separation, the apex and the centre peak are all untouched -- only the
+    # REACH moves, and it moves to a circle that is itself an expression of
+    # the ring's own band fraction.  Nothing here can go stale.
+    def _on_band(p):
+        r = (p[0] ** 2 + p[1] ** 2) ** 0.5
+        k = _RING_INNER_FRAC / r
+        return (p[0] * k, p[1] * k)
+
+    V_SPINE = [_on_band((-_V_TIP_X, _ty)), _apex, _on_band((_V_TIP_X, _ty))]
+    W_SPINE = [_on_band((-0.760, -0.060)), _on_band((-0.380, -0.700)),
+               (0.000, -0.075),
+               _on_band((0.380, -0.700)), _on_band((0.760, -0.060))]
+    for _p in (V_SPINE[0], V_SPINE[2], W_SPINE[0], W_SPINE[1],
+               W_SPINE[3], W_SPINE[4]):
+        assert abs((_p[0] ** 2 + _p[1] ** 2) ** 0.5 - _RING_INNER_FRAC) < 1e-12
+    # ------------------------------------------------------------- rev 44b
+    # PUTTING THE SPINE ON THE BAND CIRCLE IS NOT ENOUGH, AND THE FIRST
+    # ATTEMPT PROVED IT: the V's tips came back at 0.716 of the ring radius
+    # and the W's bottoms at 0.840, WORSE for the V than before.
+    #
+    # WHY.  What must land on the ring is the OUTLINE, not the spine, and the
+    # two differ by the cap geometry: a terminal end is cut off flush AT its
+    # spine point, while an interior vertex -- the W's two bottoms -- is a
+    # sharp corner whose outer point BULGES past the spine by w/(2 sin(a/2)).
+    # Placing all six spine points on one circle therefore places the six
+    # OUTLINE ends on six different circles, and `_fit_glyph` then scales by
+    # whichever bulges most.  Compensating analytically would need the mitre's
+    # half-angle at each vertex, which is exactly the kind of derived literal
+    # that has gone stale here twice.
+    #
+    # Solved by FIXED POINT on the built outline instead -- the same pattern
+    # as `t1_shell._G_BUILD`, and for the same reason: it re-solves itself if
+    # the width, the angles or the mitre ever change.  Each terminal's radius
+    # is scaled until the outline vertices belonging to it reach the band
+    # circle.  Converged values are asserted below, never typed.
+    _term = [('V', 0), ('V', 2), ('W', 0), ('W', 1), ('W', 4), ('W', 3)]
+    _rad = {t: _RING_INNER_FRAC for t in _term}
+
+    def _spines():
+        v = list(V_SPINE); ww = list(W_SPINE)
+        for (which, i) in _term:
+            base = V_SPINE[i] if which == 'V' else W_SPINE[i]
+            k = _rad[(which, i)] / _RING_INNER_FRAC
+            if which == 'V':
+                v[i] = (base[0] * k, base[1] * k)
+            else:
+                ww[i] = (base[0] * k, base[1] * k)
+        return v, ww
+
+    for _ in range(40):
+        v, ww = _spines()
+        reach, worst = {}, 0.0
+        for which, spine in (('V', v), ('W', ww)):
+            outline = _mitre_outline([(x * R, y * R) for (x, y) in spine], w)
+            for (px, py) in outline:
+                j = min(range(len(spine)),
+                        key=lambda k: (px / R - spine[k][0]) ** 2
+                                    + (py / R - spine[k][1]) ** 2)
+                if (which, j) in _rad:
+                    rr = math.hypot(px, py) / R
+                    reach[(which, j)] = max(reach.get((which, j), 0.0), rr)
+        for t in _term:
+            if t in reach and reach[t] > 1e-9:
+                e = _RING_INNER_FRAC / reach[t]
+                worst = max(worst, abs(e - 1.0))
+                _rad[t] *= e
+        if worst < 1e-9:
+            break
+    V_SPINE, W_SPINE = _spines()
+
     obs = []
     for i, spine in enumerate((V_SPINE, W_SPINE)):
         pts = _mitre_outline([(x * R, y * R) for (x, y) in spine], w)
@@ -850,6 +979,109 @@ def sweep(path, profile, up=(0, 0, 1), name="sweep", closed=False,
 def flank_y(x, z):
     """outer body half-width at a point on the flank"""
     return WX(x) * G(z)
+
+
+def drape_x(objs, surf_x, mount, standoff=0.0016, grid=41, pad=0.02):
+    """Push a FLAT, X-extruded plate (the nose emblem) onto the CURVED nose.
+
+    rev 45.  THIS IS THE DEFECT BEHIND "THE LOGO IS OFF", REPORTED BY THE OWNER
+    IN THREE CONSECUTIVE REVISIONS AND NEVER FOUND, BECAUSE EVERY CHECK EVER
+    RUN ON THE EMBLEM WAS RUN ON ITS OWN OUTLINE, IN ITS OWN PLANE, IN
+    ISOLATION FROM THE BODY IT SITS ON.
+
+    `t1_detail.roundel` and `vw_logo_fit` both build the emblem in the Y-Z
+    plane and extrude it along +X, so the finished badge is a FLAT PLATE.  The
+    nose is not flat.  Raycast against the built body at rev 45, at the
+    roundel's own centre height, ROUNDEL_D = 0.280 m:
+
+        straight UP   at the ring radius   the nose is  -31.6 mm  (falls away)
+        up-left/right at the ring radius                -19.0 mm
+        sideways      at the ring radius                 -0.6 mm
+        straight DOWN at the ring radius                 +3.0 mm  (comes forward)
+
+    The glyph's front face sits at x = 2.1265 after the step-8b shear and the
+    nose below the badge centre sits at 2.1265..2.1268.  So the plate's LOWER
+    half is flush with, or 0.3 mm BEHIND, the sheet metal, and its UPPER half
+    floats up to 32 mm proud of it.  Rendered, the V (which lives in the upper
+    half) stands out and THE WHOLE W DISAPPEARS INTO THE BODY except for the
+    two outer arm tips, which is why the badge reads as a CLOCK FACE.
+
+    Everything else about the glyph was measured this revision and is RIGHT:
+    the spine angles reproduce ref_workshop.jpg's mark to a few degrees
+    (V arms +-37 deg photographed against +-35.2 deg built; W outer arms +-95
+    against +-93; W troughs +-145 against +-151.5), and the stroke width is
+    0.218 +- 0.002 R photographed against 0.2046 R built.  NOTHING IN THE
+    SPINE OR THE WIDTH IS MOVED BY THIS FIX.  SPEC 10.110.
+
+    `surf_x(y, z)` returns the body's surface X at a point, or None on a miss.
+    It is sampled ONCE on a `grid` x `grid` lattice over the objects' own
+    (y, z) bounding box padded by `pad`, then bilinearly interpolated, so the
+    result is smooth and a single stray miss cannot spike one vertex.
+
+    `mount` is the X of the plate's OWN MOUNTING PLANE -- the plane its author
+    intended to lie against the sheet metal.  Every vertex moves by
+
+        dx  =  surf_x(y, z) - mount + standoff
+
+    so the mounting plane lands ON the surface everywhere and the plate's
+    relief is carried out from there.  Nothing moves in Y or Z, so the
+    outline, the scale and every in-plane measurement are untouched BY
+    CONSTRUCTION.
+
+    `mount` matters and a single shared reference is NOT good enough: the ring
+    and its backing disc are authored with the mounting plane at local x = 0
+    (world 2.1155) while the glyph is authored with its BACK FACE as the
+    mounting plane (world 2.1210).  Draping them against one common datum left
+    the disc's front cone 3.6 mm INSIDE the nose -- the guard below caught it,
+    at -3.59 mm, on this revision's own first attempt.  Call this once per
+    plate, each with its own mount.
+
+    Returns (n_moved, dx_min, dx_max, n_miss).
+    """
+    ys, zs = [], []
+    for o in objs:
+        for v in o.data.vertices:
+            ys.append(v.co.y); zs.append(v.co.z)
+    y_lo, y_hi = min(ys) - pad, max(ys) + pad
+    z_lo, z_hi = min(zs) - pad, max(zs) + pad
+    gy = [y_lo + (y_hi - y_lo) * i / (grid - 1) for i in range(grid)]
+    gz = [z_lo + (z_hi - z_lo) * i / (grid - 1) for i in range(grid)]
+    n_miss = 0
+    G = [[None] * grid for _ in range(grid)]
+    for j, z in enumerate(gz):
+        for i, y in enumerate(gy):
+            x = surf_x(y, z)
+            if x is None:
+                n_miss += 1
+            G[j][i] = x
+    # fill misses from the nearest sampled neighbour so the lattice is total
+    known = [(j, i) for j in range(grid) for i in range(grid) if G[j][i] is not None]
+    if not known:
+        raise RuntimeError("drape_x: the surface raycast missed EVERY lattice "
+                           "point -- the emblem is not over the body at all")
+    for j in range(grid):
+        for i in range(grid):
+            if G[j][i] is None:
+                jj, ii = min(known, key=lambda p: (p[0] - j) ** 2 + (p[1] - i) ** 2)
+                G[j][i] = G[jj][ii]
+
+    def interp(y, z):
+        fy = (y - y_lo) / (y_hi - y_lo) * (grid - 1)
+        fz = (z - z_lo) / (z_hi - z_lo) * (grid - 1)
+        i = min(max(int(fy), 0), grid - 2); j = min(max(int(fz), 0), grid - 2)
+        a, b = fy - i, fz - j
+        return (G[j][i] * (1 - a) * (1 - b) + G[j][i + 1] * a * (1 - b)
+                + G[j + 1][i] * (1 - a) * b + G[j + 1][i + 1] * a * b)
+
+    dxs = []
+    n = 0
+    for o in objs:
+        for v in o.data.vertices:
+            dx = interp(v.co.y, v.co.z) - mount + standoff
+            v.co.x += dx
+            dxs.append(dx); n += 1
+        o.data.update()
+    return n, min(dxs), max(dxs), n_miss
 
 
 def conform_solid(outline, side, off=0.0, thick=0.10, name="cf"):
