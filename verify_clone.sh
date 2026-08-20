@@ -249,7 +249,7 @@ ck "tex/senor.png"   8e58ad7e9d87184591fe7cb12300e903 "$(md5of tex/senor.png)"
 # that same point, and CARRIES ITS OWN GUARD: it refuses to write a decal whose
 # type is more than 0.004 off centre.  Watched fail at (-0.1099, +0.1127) on the
 # rev-45 layout and at (-0.0132, +0.0134) on 12 % of the correction.
-ck "tex/calidad.png" dae697a591dd90b404dfd76524ca20fa "$(md5of tex/calidad.png)"
+ck "tex/calidad.png" d8c27a4a31ffdb7f750e8d7d1b41eaaf "$(md5of tex/calidad.png)"
 ck "tex/lidmural.png" 2d62159dba663c90b5ae3746383c15d1 "$(md5of tex/lidmural.png)"
 ck "tex/lidsign.png" bcd3da2dbec0276fabd7d8f8ee03f27b "$(md5of tex/lidsign.png)"
 ck "tex/emblem.png"  574ba2d733353387568b412da48fd436 "$(md5of tex/emblem.png)"
@@ -282,6 +282,18 @@ ck "calidad burst centre is 0.505/0.575"  1 "$(grep -c '^BURST_CX, BURST_CY = 0.
 ck "calidad TYPE_SHIFT is DERIVED"        1 "$(grep -c '^TYPE_SHIFT = (BURST_CX - TYPE_PRE_CENTROID\[0\],' cal_gen.py)"
 ck "calidad type rotates about the burst" 1 "$(grep -c 'center=(w \* BURST_CX, h \* BURST_CY)' cal_gen.py)"
 ck "calidad generator carries its guard"  1 "$(grep -c 'cal_gen GUARD FAILED' cal_gen.py)"
+# rev 46, at the OWNER'S instruction, in two stages.  The Calidad decal drew two
+# red bars with 15 triangular pennants hanging from them.  He asked for the
+# triangles to go -- no frame we hold shows them -- and then named what the
+# remaining lines are: VENT SLATS.  They are the T1's rear air-intake louvres,
+# DARK GREY shadowed slots in sheet metal, and cal_gen was painting them in
+# saturated red inside a decal texture.  The whole feature is retired.
+# ABSENCE, checked three ways, because a feature that comes back halfway is
+# exactly how this one survived: the function, the pennant loop, and the colour
+# constant must all be gone.
+ck "calidad bunting function gone"   0 "$(grep -c '^def bunting' cal_gen.py)"
+ck "calidad pennant loop gone"       0 "$(grep -c 'ay + by) / 2 + drop' cal_gen.py)"
+ck "calidad BUNT colour retired"     0 "$(grep -c '^BUNT = ' cal_gen.py)"
 # rev 46, W2.  The VW glyph's vertical proportions, SOLVED against the
 # photograph by probe_rev46_vw.py, not typed.  VALUES, not occurrences: the
 # whole point of section 6 item 5's warning is that `grep -c '^VW_APEX_Z'`
