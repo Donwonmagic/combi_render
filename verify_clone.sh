@@ -266,7 +266,13 @@ ck "tex/senor.png"   92ff38554d61947528904e113cf657f0 "$(md5of tex/senor.png)"
 # rev 47, W4: RE-BASED because the artwork legitimately changed.  "100%" and
 # "Calidad" shared 1110 pixels; they now share 0, with a clear gap of 0.0258 of
 # the canvas height.  Re-based, never relaxed.
-ck "tex/calidad.png" ac9d1590c28587566b7dda03f8d1c316 "$(md5of tex/calidad.png)"
+# rev 47b: RE-BASED again, and this time against a PHOTOGRAPH.  He looked at
+# LINE_GAP 0.26 and said the words still did not read as two.  IMG_2073.jpeg
+# arrived and shows the burst at 44x61 px instead of ref_playa_34's 23x39, and
+# the words separate under a mask.  Measured as a RATIO against the same
+# estimator run on the build (its +34% absolute bias divides out): photographed
+# 0.244 vs built 0.149 => 1.64x, so LINE_GAP 0.26 -> 0.43.
+ck "tex/calidad.png" 6330c6e5a811ada11bd5be568172b80a "$(md5of tex/calidad.png)"
 ck "tex/lidmural.png" 2d62159dba663c90b5ae3746383c15d1 "$(md5of tex/lidmural.png)"
 ck "tex/lidsign.png" bcd3da2dbec0276fabd7d8f8ee03f27b "$(md5of tex/lidsign.png)"
 ck "tex/emblem.png"  574ba2d733353387568b412da48fd436 "$(md5of tex/emblem.png)"

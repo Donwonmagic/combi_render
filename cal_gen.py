@@ -110,7 +110,14 @@ BURST_CX, BURST_CY = 0.505, 0.575
 # It is expressed as a fraction of the "100%" cap height rather than of the
 # canvas, so it survives a change of type size (SPEC 10.25 / rule 2).
 CAP_100 = 0.228                  # "100%" size, as passed to glyph_100 below
-LINE_GAP = 0.26                  # of CAP_100.  NOT MEASURED -- see above.
+# rev 47b: NOW MEASURED, from IMG_2073.jpeg, which he sent after seeing 0.26 and
+# reporting that the words STILL did not read as two.  He was right.  The gap is
+# carried as a RATIO against the same estimator run on the build, because the
+# estimator has a +34% absolute bias that DIVIDES OUT of a ratio and does not
+# divide out of a reading (probe_rev47_gap.py C1).  Photographed 0.244 against
+# built 0.149 on the identical instrument => the photograph's gap is 1.64x the
+# build's, so 0.26 * 1.64 = 0.43.  NOT MEASURED absolutely -- see probe.
+LINE_GAP = 0.43                  # of CAP_100.  Ratio-measured; see probe_rev47_gap.
 LINE_SEP_BASE = 0.250            # rev 46's anchor separation, 0.645 - 0.395
 LINE_SEP = LINE_SEP_BASE + LINE_GAP * CAP_100
 
