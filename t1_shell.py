@@ -1238,6 +1238,177 @@ def _lid_face(x0, x1, w, name, inset=0.030, off=0.0):
     return ob
 
 
+# ============================================================ rev 48, JOB 1
+# THE ENGINE / TRUNK LID, OPENED -- his newest requirement.
+#
+#     "we're going to need the trunk open like it's in service"
+#
+# WHAT IS MEASURED, AND WHAT IS NOT.  Stated before the constants, because
+# three revisions of this project have been spent unpicking a placeholder that
+# was quietly promoted to a measurement.
+#
+# MEASURED, and it is why this is a SEPARATION and not a rebuild:
+#   the lid ALREADY EXISTS as a free-floating closed island inside T1_body.
+#   engine_lid_gap() cuts a real 5.5 mm through-slot, and build.py:69 records
+#   the connected-component count going 1 -> 6 "as each gap cutter frees a
+#   panel".  A T1_SUB=2 build gives exactly six, and one of them is
+#       7982 v   x -1.873..-1.870   y -0.467..+0.467   z 0.608..1.103
+#   which is gap_prism's own outline (y +-0.470, z 0.6025..1.1025) to 3 mm.
+#   WATCHED PRINT, not inferred from the source -- the brief's §9 trap about
+#   the sign props is exactly this failure mode, and this went the other way.
+#
+# NOT MEASURED.  No frame in this project shows the trunk open:
+#   * the open ANGLE.  TRUNK_OPEN_DEG carries NOT MEASURED in its own comment
+#     and verify_clone.sh requires that declaration to stay present, so it
+#     cannot be silently promoted (the LINE_GAP precedent, rev 47).
+#   * stay-held vs counterbalanced.  NOTHING is built for it -- an invented
+#     strut would be a claim, and a claim in prose is not a guard (rule 1).
+#   * what the inner face carries.  Left as plain body paint.
+#
+# AND ONE THING THAT IS TYPE-LEVEL, NOT VEHICLE-LEVEL, SO IT IS LABELLED:
+#   a T1's engine lid is TOP-hinged, the lower edge swinging aft and up.  That
+#   is a property of the model of vehicle.  The owner has ruled that geometry
+#   transfers between his frames -- "the geometry appears the same" -- so this
+#   is admissible, but it is NOT a measurement of HIS bus and is not recorded
+#   as one.
+#
+# WHY THIS RUNS AFTER THE RAKE SHEAR (build.py step 8b), UNLIKE roof_lids().
+#   _hinge() rotates about a FORE-AFT axis, so it changes y and z and leaves
+#   x alone -- which is why a roof lid can be swung before the shear and still
+#   be sheared at its correct station.  A tail lid hinges about a LATERAL
+#   axis and DOES move x.  Swing it first and step 8b shears it by the wrong
+#   station, tilting the open lid by the rake angle for no reason.  So the
+#   swing happens after the shear, in the final frame.
+#
+# THE FRAGILITY THIS MUST NOT DISTURB (t1_core.py:230-244): gap_englid is the
+# model's most delicate boolean -- at NHALF=56 it is REJECTED at SUB=2 and
+# moving the cutter in x does not fix it.  NOTHING HERE TOUCHES THE CUTTER OR
+# THE OUTLINE.  The panel is separated after the fact; the boolean is
+# untouched, so that failure mode cannot be reopened by this change.
+
+TRUNK_OPEN_DEG = 52.0
+# NOT MEASURED.  No frame we hold shows this lid open, so this is a POSE
+# CHOICE, not a measurement, and it is written here rather than buried.  It
+# is the angle at which the lid reads as open and in service without the
+# lower edge fouling the rear valance.  Provenance: rev 48, JOB 1; no frame.
+# If a photograph of the open tail ever arrives, this is the first thing to
+# re-derive, and probe/verify_clone will still be requiring the declaration.
+
+TRUNK_HINGE_INSET = 0.006      # the hinge sits 6 mm below the seam's top edge,
+                               # inside the metal, so the lid does not lift
+                               # clear of the aperture as it swings.
+
+
+def _hinge_y(ob, x_hinge, z_hinge, deg):
+    """Rotate a lid about a LATERAL (Y) hinge axis, in place, into world space.
+
+    The tail-lid sibling of _hinge().  _hinge() spins in the y-z plane about a
+    fore-aft axis; this spins in the x-z plane about a lateral one.  Positive
+    `deg` swings the lower edge AFT (-x) and UP, which is how a T1 engine lid
+    opens.  Baked into vertices, never an object transform: build.py step 8b
+    asserts every mesh carries identity, and reads v.co.x as world x.
+    """
+    a = math.radians(deg)
+    ca, sa = math.cos(a), math.sin(a)
+    for v in ob.data.vertices:
+        x, z = v.co.x - x_hinge, v.co.z - z_hinge
+        v.co.x = x_hinge + (x * ca - z * sa)
+        v.co.z = z_hinge + (x * sa + z * ca)
+    ob.data.update()
+    T.fix_normals(ob)
+
+
+def _components(me):
+    """Vertex index sets of `me`'s connected components, largest first."""
+    n = len(me.vertices)
+    parent = list(range(n))
+
+    def find(a):
+        while parent[a] != a:
+            parent[a] = parent[parent[a]]
+            a = parent[a]
+        return a
+
+    for e in me.edges:
+        ra, rb = find(e.vertices[0]), find(e.vertices[1])
+        if ra != rb:
+            parent[rb] = ra
+    groups = {}
+    for i in range(n):
+        groups.setdefault(find(i), []).append(i)
+    return sorted(groups.values(), key=len, reverse=True)
+
+
+def split_trunk_lid(body, log=print):
+    """Separate the already-free engine-lid island out of the shell and OPEN it.
+
+    Returns (lid, hinge_x, hinge_z, deg) so build.py can carry the tail
+    hardware -- the T-handle and the 1963 plate -- through the same swing.
+    Returns (None, ...) and says why if the island is not there, rather than
+    inventing one: if the boolean stopped freeing the panel that is a finding
+    about the boolean, not something to paper over here.
+    """
+    import bmesh
+    me = body.data
+    # The island we want is the one that matches gap_englid's own outline.
+    # Identified by GEOMETRY, never by index -- component order is not stable
+    # across subdivision levels.
+    want = dict(x=(-1.99, -1.80), y=(-0.52, 0.52), z=(0.50, 1.25))
+    comps = _components(me)
+    hit = []
+    for vs in comps:
+        if not (200 < len(vs) < len(me.vertices) * 0.25):
+            continue
+        co = [me.vertices[i].co for i in vs]
+        bb = [(min(c[k] for c in co), max(c[k] for c in co)) for k in range(3)]
+        if all(want[a][0] <= bb[k][0] and bb[k][1] <= want[a][1]
+               for k, a in enumerate("xyz")):
+            hit.append((vs, bb))
+    if len(hit) != 1:
+        log("!! trunk lid NOT separated: %d islands match the engine-lid "
+            "outline (want exactly 1). The gap boolean may have stopped "
+            "freeing the panel -- read FAILED_CUTS." % len(hit))
+        return None, 0.0, 0.0, 0.0
+    vs, bb = hit[0]
+
+    keep = set(vs)
+    bm = bmesh.new()
+    bm.from_mesh(me)
+    bm.verts.ensure_lookup_table()
+    lid_faces = [f for f in bm.faces if all(v.index in keep for v in f.verts)]
+
+    lm = bpy.data.meshes.new("lid_trunk")
+    lb = bmesh.new()
+    vmap = {}
+    for f in lid_faces:
+        for v in f.verts:
+            if v.index not in vmap:
+                vmap[v.index] = lb.verts.new(v.co)
+        try:
+            lb.faces.new([vmap[v.index] for v in f.verts])
+        except ValueError:
+            pass                       # duplicate face, already added
+    lb.to_mesh(lm)
+    lb.free()
+    lid = bpy.data.objects.new("lid_trunk", lm)
+    bpy.context.collection.objects.link(lid)
+    if me.materials:
+        lm.materials.append(me.materials[0])
+
+    bmesh.ops.delete(bm, geom=[bm.verts[i] for i in vs], context='VERTS')
+    bm.to_mesh(me)
+    bm.free()
+    me.update()
+
+    hx, hz = bb[0][1], bb[2][1] - TRUNK_HINGE_INSET
+    _hinge_y(lid, hx, hz, TRUNK_OPEN_DEG)
+    T.fix_normals(lid)
+    log("trunk lid: separated %dv, hinge (x %.4f, z %.4f) lateral, "
+        "OPEN %.1f deg  [angle NOT MEASURED -- no frame shows it]"
+        % (len(lm.vertices), hx, hz, TRUNK_OPEN_DEG))
+    return lid, hx, hz, TRUNK_OPEN_DEG
+
+
 def roof_lids():
     """The ONE cut roof lid, OPEN. Returns (skins, rails, struts, boards).
 

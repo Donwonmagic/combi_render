@@ -337,12 +337,56 @@ ck "calidad generator carries its guard"  1 "$(grep -c 'cal_gen GUARD FAILED' ca
 # red bars with 15 triangular pennants hanging from them.  He asked for the
 # triangles to go -- no frame we hold shows them -- and then named what the
 # remaining lines are: VENT SLATS.  They are the T1's rear air-intake louvres,
-# DARK GREY shadowed slots in sheet metal, and cal_gen was painting them in
-# saturated red inside a decal texture.  The whole feature is retired.
+# and cal_gen was painting them in saturated red inside a decal texture.  The
+# whole feature is retired.
+# rev 48 CORRECTION, and it was overdue.  This comment said the slats are
+# "DARK GREY shadowed slots in sheet metal".  LEDGER_rev47.md sec.10c retracted
+# that at rev 47 -- they are BODY COLOUR, and read dark only because each
+# pressed slot SELF-SHADOWS -- but nobody updated this file, so the machine
+# went on handing the retracted reading to every context that read it.  A
+# retraction that lands in a ledger and not in the source is half a retraction
+# (rule 15).
+# rev 48, SECOND CORRECTION, larger.  LEDGER_rev46.md sec.5 concluded from the
+# retirement of these painted lines that "THE MODEL HAS NO REAR VENTS", and
+# rev 47 and this revision's brief both inherited it.  IT IS FALSE, and false
+# against the BUILD: t1_detail.louvres() has built 10 pressed louvres per
+# flank, 20 in all, for many revisions.  The painted bunting sat between the
+# roof and the burst; the real louvres are on the quarter panel half a metre
+# below.  Retiring the paint was right; concluding the geometry was missing
+# chained a second error onto the first.  Guarded below.
 # ABSENCE, checked three ways, because a feature that comes back halfway is
 # exactly how this one survived: the function, the pennant loop, and the colour
 # constant must all be gone.
 ck "calidad bunting function gone"   0 "$(grep -c '^def bunting' cal_gen.py)"
+
+# ---------------------------------------------------- rev 48, JOB 2 and JOB 1
+# THE REAR LOUVRES EXIST.  Three documents said they did not.  These rows make
+# that un-sayable again: the builder, the count and the call site must all be
+# present.  PRESENCE tests, not occurrence counts -- the cry-wolf lesson above.
+ck "rear louvres are BUILT geometry"      1 "$(grep -qE '^def louvres\(' t1_detail.py && echo 1 || echo 0)"
+ck "rear louvre count is 10 per flank"    1 "$(grep -c '^LOUV_N = 10' t1_detail.py)"
+ck "rear louvres are called from the build" 1 "$(grep -q 'louvres()' t1_detail.py && echo 1 || echo 0)"
+# The count is not merely present, it is CONFIRMED against a photograph: 10
+# slats on IMG_2073.jpeg (rows 468-582, cols 1156-1188, de-sheared s = -0.180),
+# pitch 8.106 +/- 0.023 px.  That is GEOMETRY, and the owner has ruled geometry
+# transfers between his two vehicles ("the geometry appears the same"), so the
+# green frame is admissible here where it would not be for paint or artwork.
+
+# THE TRUNK LID OPENS.  His newest requirement, built at rev 48.
+ck "trunk lid is separated and hinged"    1 "$(grep -qE '^def split_trunk_lid' t1_shell.py && echo 1 || echo 0)"
+ck "trunk lid has a LATERAL hinge"        1 "$(grep -qE '^def _hinge_y' t1_shell.py && echo 1 || echo 0)"
+ck "build.py opens the trunk lid"         1 "$(grep -q 'split_trunk_lid' build.py && echo 1 || echo 0)"
+# THE ROW THAT MATTERS MOST, and it is the LINE_GAP lesson applied before the
+# defect rather than after it.  No frame in this project shows the trunk open,
+# so TRUNK_OPEN_DEG is a POSE CHOICE and not a measurement.  This row requires
+# it to keep SAYING SO.  A later revision cannot quietly promote 52 deg into a
+# measured angle without deleting the words that admit it is not one.
+ck "TRUNK_OPEN_DEG declares itself NOT MEASURED" 1 "$(grep -A 3 '^TRUNK_OPEN_DEG' t1_shell.py | grep -q 'NOT MEASURED' && echo 1 || echo 0)"
+# And the tail hardware must travel with the lid it is mounted on.  If a future
+# edit swings the lid and leaves the handle floating in mid-air at the closed
+# position, this row goes red before anyone renders it.
+ck "the T-handle rides the trunk lid"     1 "$(grep -q 'englid_handle' build.py && echo 1 || echo 0)"
+ck "the 1963 plate rides the trunk lid"   1 "$(grep -q 'plate_1963\"' build.py && echo 1 || echo 0)"
 ck "calidad pennant loop gone"       0 "$(grep -c 'ay + by) / 2 + drop' cal_gen.py)"
 ck "calidad BUNT colour retired"     0 "$(grep -c '^BUNT = ' cal_gen.py)"
 # rev 46, W2.  The VW glyph's vertical proportions, SOLVED against the

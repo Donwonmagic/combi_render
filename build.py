@@ -885,6 +885,35 @@ log(f"lowered {T.RAKE_Z0*1000:.1f} mm at x=0, rake {T.RAKE_DZDX*1000:.1f} mm/m "
     f"nose-down ({math.degrees(math.atan(T.RAKE_DZDX)):.2f} deg); "
     f"{_n_shear} sheared, {_n_wheel} wheel parts held level")
 
+# ------------------------------------------------- 8c THE TRUNK LID, OPENED
+# rev 48, JOB 1.  "we're going to need the trunk open like it's in service."
+#
+# AFTER the shear, deliberately.  See t1_shell.split_trunk_lid.__doc__ and the
+# block above it: a tail lid hinges about a LATERAL axis, so the swing moves
+# v.co.x, and step 8b shears on v.co.x.  Swinging first would shear the open
+# lid at the wrong station and tilt it by the rake angle for nothing.  A ROOF
+# lid can be swung first only because _hinge() leaves x untouched.
+#
+# The T-handle and the 1963 plate are mounted ON the lid panel, so they travel
+# with it through the identical transform -- not a copy of the angle, the same
+# call with the same hinge, so the two can never drift apart (rule 2).
+_lid_trunk, _thx, _thz, _tdeg = S.split_trunk_lid(body, log=log)
+if _lid_trunk is not None:
+    for _nm in ("englid_handle", "plate_1963"):
+        _o = bpy.data.objects.get(_nm)
+        if _o is None:
+            log("!! trunk lid: %s absent, nothing to carry" % _nm)
+            continue
+        S._hinge_y(_o, _thx, _thz, _tdeg)
+        log("  carried %s through the lid's own swing" % _nm)
+    # WHAT IS BEHIND IT IS NOT DECIDED HERE.  The aperture now shows the
+    # shell's own inner skin -- the body is solidified with use_rim=True, so
+    # the slot has a 2.8 mm returned edge and the cavity is closed.  Whether
+    # that reads correctly is a LOOK-AT-IT question and is answered from the
+    # render, not from here.  Nothing is invented to fill the bay:
+    # PHOTOS_WANTED_rev44 records that "the engine was scrapped and the
+    # transmission sold", so its contents are unknown.
+
 log(f"materials: {len(ASSIGN)} objects")
 
 # rev 44, SPEC 10.103 -- ROUNDED EDGES.  Runs LAST, after every material
