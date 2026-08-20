@@ -202,10 +202,22 @@ NC="$(git rev-list --count HEAD 2>/dev/null)"
 # to a context that did not.  This is eleven characters and it would have saved
 # that revision an entire investigation.
 git fetch --all --quiet >/dev/null 2>&1
+# COUNT COMMITS TO FIND CANDIDATES, THEN TEST CONTENT -- and the second half
+# is there because the first half alone gave a FALSE POSITIVE within a day of
+# being written.  When PR #3 merged this branch into main, origin/main gained
+# ONE commit HEAD did not have: the merge commit itself.  Nothing was stranded
+# -- `git diff HEAD...origin/main` was empty -- but the row fired and said
+# "STRANDED: origin/main(1)".
+#
+# A row that cries wolf on a successful merge is worse than no row, because the
+# next context learns to ignore it, and this is the one row that must never be
+# ignored.  So a branch is stranded only if it carries CONTENT HEAD lacks.
 STRANDED=""
 for b in $(git branch -r --format='%(refname:short)' 2>/dev/null | grep -v HEAD); do
   n="$(git rev-list --count HEAD.."$b" 2>/dev/null)"
-  [ "${n:-0}" -gt 0 ] && STRANDED="$STRANDED $b($n)"
+  [ "${n:-0}" -gt 0 ] || continue
+  d="$(git diff --name-only HEAD..."$b" 2>/dev/null | wc -l | tr -d '[:space:]')"
+  [ "${d:-0}" -gt 0 ] && STRANDED="$STRANDED $b($n commits, $d files)"
 done
 [ -z "$STRANDED" ] && ck "no branch carries work HEAD does not have" ok \
   || ck "no branch carries work HEAD does not have" "STRANDED:$STRANDED -- SPEC 10.113.5"
@@ -245,6 +257,11 @@ if [ $GUARDS -eq 1 ]; then
   R="$(/tmp/blender/blender -b -P probe_rev45_paint.py 2>&1 | grep 'CONTROLS:' | tail -1)"
   [ "$R" = "CONTROLS: 4 checked, 0 FAILED" ] \
     && ck "probe_rev45_paint  4/0" ok || ck "probe_rev45_paint  4/0" "got '$R'"
+  # HIS FOUR REPORTS.  Run without the render arm so --guards stays ~10 min;
+  # R3 needs a render and is exercised by running the probe on its own.
+  R="$(T1_R46_NORENDER=1 /tmp/blender/blender -b -P probe_rev46_reports.py 2>&1 | grep 'CONTROLS:' | tail -1)"
+  [ "$R" = "CONTROLS: 5 checked, 0 FAILED" ] \
+    && ck "probe_rev46_reports  5/0" ok || ck "probe_rev46_reports  5/0" "got '$R'"
   R="$(/tmp/blender/blender -b -P probe_rev44_lampmove.py 2>&1 | grep 'CONTROLS:' | tail -1)"
   [ "$R" = "CONTROLS: 6 checked, 0 FAILED" ] \
     && ck "probe_rev44_lampmove  6/0" ok || ck "probe_rev44_lampmove  6/0" "got '$R'"

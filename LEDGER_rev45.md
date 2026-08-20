@@ -213,13 +213,27 @@ Carried from `LEDGER_rev44.md` with rev 45's changes marked. **Findings 1–37 k
 | 26 | `ROUNDEL_Z_AG = 1.0170` tuned against a moved datum | open — instrumented, geometry not moved, all three chains inside 1 σ |
 | 27 | SPEC's *"`V_POW` ≈ 0.30–0.48"* does not reproduce from its own measurement | open |
 | ~~optics-6~~ | ~~the vehicle floats — open since rev 12~~ | **CLOSED, rev 45, §10.116.** And note what it cost to close: the probe was wrong **four times** before it was right — contaminated sample, inert kill control, blind level control, wrong window — each producing a plausible number that would have been published. |
+| **42** | **NEW, rev 45 — "100 % CALIDAD" — THE TYPE IS OFF-CENTRE INSIDE THE DECAL, and this is not what rev 44 closed.** Type centroid minus burst centroid: built **(−0.1195, +0.1782)** of the decal, photographed **(+0.0455, +0.0746)** on `ref_playa_34.png`. **The horizontal error is in the wrong direction.** Type bbox cols 0.155–0.645 against a burst spanning 0.015–0.951. | **HIS REPORT, rev 45 close. Open.** Finding 5's "the defect is COLOUR, not position" was about the PANEL'S PLACEMENT ON THE VEHICLE (Report 7, 0.180 of texture width). Both true, different things. `cal_gen.py`. |
+| **43** | **NEW, rev 45 — THE VW GLYPH'S VERTICAL PROPORTIONS ARE WRONG, measured without any axis ratio.** As a fraction of the ring's vertical diameter from its top: V's apex **0.254 built against 0.353 photographed — 0.099, i.e. 27.7 mm on a 280 mm badge.** V's arms clear the band at 0.104 vs 0.147; W's troughs 0.866 vs ~0.81. The V occupies 0.15 of the ring's height against 0.206; the W 0.61 against 0.46. | **HIS FOURTH REPORT OF THIS BADGE. Open.** Rev 45 fixed the drape (§10.110) and explicitly did not check the spine, because ANGLES need the axis ratio. **Vertical extents do not** — §10.107.2's own rule. `t1_core.vw_bars`. |
+| **44** | **NEW, rev 45 — THE NOSE IS PLANAR, and finding 6 is about a different axis.** Raycast at z = 1.25: the surface recedes **14.3 mm over 0.70 m of half-width**. The only forward bulge in the model is `bulge = 0.019` in `t1_shell.nose_shape`. | **HIS REPORT. Open, and NOT YET ANCHORED** — rev 45 has no photographed measurement of the plan curvature and threw away an uncontrolled attempt rather than publish it. `V_POW_Z` drives the PAINTED break line, not the metal. |
+| **45** | **NEW, rev 45 — the script's contrast, re-measured and HIS THIRD REPORT.** Michelson ink-against-red **0.217 built, 0.324 photographed** (finding 30 has 0.269/0.466 on different boxes; same ratio). | **THE SANCTION FINDING 30 WAS WAITING FOR HAS ARRIVED.** He has asked three times. Ship a deliberate departure and say in SPEC that it is one. Note finding 19 pulls the other way, so the lever is the EDGE, not the ink's mean. |
 | **38** | **NEW, rev 45 — the body red renders 3.5 σ too pale and it is the STUDIO, not the paint.** Same root cause as `optics-6`. | **INSTRUMENTED, NOT APPLIED — needs the owner.** §3 above; Q6 of `mark_rev45_ba.py`. Now guarded by `probe_rev45_paint`, which **reproduces the hand measurement exactly (P1 = 0.455) by a completely different method** — a visible-population sample at projected landmarks, against a hand-masked region. **And it settles that this is ONE finding, not three:** the hubcap red reads P2 = 0.603 against a photographed 0.274 ± 0.096, i.e. **3.4 σ, the same magnitude and the same sign as the flank**, while the cream's own warmth is **within 0.8 σ** (P3 +0.0263 against +0.037 ± 0.013). The cream is not mis-coloured; it reads grey because it sits against pure white with a washed red beside it. |
 | **39** | **NEW, rev 45 — the roof sign board's artwork is a flower mural; every photograph shows a hand-chalked BLACKBOARD** in a cream frame with TACOMBI across the top and BIENVENIDOS down the side. | **NOT TOUCHED — art direction.** Q5 of `mark_rev45_ba.py`. |
 | **40** | **NEW, rev 45 — the emblem's backing disc is buried.** `roundel()`'s `disc_prof` puts its front surface *on* the mounting plane at r = 0, so with the ring's bead 13.5 mm proud the disc's centre sits behind the nose. Harmless (cream on cream) but it is dead geometry that z-fights. | open, low severity |
 | ~~41~~ | ~~there is no headlamp aperture cut in the nose~~ | **CLOSED, rev 45, §10.115.** Bored in step 3 with the other apertures. Raycast down the lamp axis goes `hl_lens -> T1_body -> T1_body -> hl_bowl` un-bored and `hl_lens -> hl_bowl` bored. lens/cream **0.423 -> 0.549** against 0.565 photographed; chroma **+0.069 -> +0.027** against −0.024. The bore's DEPTH and SECTION are authored, not measured. `T1_HL_BOWL=0` restores the un-bored arm. |
 
-**Closed this revision: 4, 5, 41, and `optics-6` after thirty-three revisions. Opened: 38, 39, 40, 41.
-Open from the record: 24.**
+**Closed this revision: 4, 5, 41, and `optics-6` after thirty-three revisions. Opened: 38, 39, 40, 41,
+and — from his four reports at the close of rev 45, all four measured before handover — 42, 43, 44, 45.
+Open from the record: 28.**
+
+> **AND THE PATTERN IN 42–45 IS ITSELF THE FINDING.** All four are things he has reported before.
+> Two of them (42, 44) were previously "closed" against a DIFFERENT AXIS of the same part — the
+> decal's placement on the body rather than the type's placement in the decal; the painted break
+> line rather than the sheet metal's shape. One (43) was left explicitly unchecked by rev 45 on a
+> reason that was right for angles and wrong for vertical extents. One (45) has been waiting three
+> revisions for a sanction he has now given three times.
+> **NEW RULE: HIS REPEAT IS A MEASUREMENT.** When he reports the same defect twice, the prior
+> closure was wrong or incomplete. Find the axis nobody checked.
 
 ---
 
