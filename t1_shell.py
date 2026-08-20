@@ -1130,17 +1130,56 @@ def roof_lids():
     # `sign_strut` exists in any shipped frame.  The strut he can see is
     # `lid_strut0`, from here.  The report was right; the attribution was not.
     # x is symmetric about the lid's own ends: LID_X1 + 0.16 and LID_X0 - 0.16.
+    # ------------------------------------------------- rev 45, SPEC 10.113
+    # THE FEET STOOD IN THE HOLE.
+    #
+    # The foot was Vector((xs, 0.44, roof_z(xs, 0.44))).  roof_z returns the
+    # roof SURFACE height at (x, y) whether or not there is any roof left there
+    # -- and there is not.  The roof aperture is the lid's own closed
+    # footprint, y from LID_Y_HINGE to LID_Y_HINGE + LID_W, i.e.
+    # -0.545 .. +0.565, and BOTH FEET WERE PLANTED AT y = +0.44, INSIDE IT.
+    # Each prop therefore rose out of thin air in the middle of the open
+    # serving hatch and ran a metre across the aperture to the board's outer
+    # edge, crossing the printed face of the sign on the way.
+    #
+    # That is the owner's rev-44b report, verbatim: "the props for the sign
+    # seem to meet something from the sides of the sign".
+    #
+    # WHAT THIS IS NOT.  It is NOT the "sign error" rev 44b retracted, and rev
+    # 45 walked into that same trap before measuring: the comment above says
+    # the struts are "inset 160 mm" while the code writes LID_X1 + 0.16 and
+    # LID_X0 - 0.16, which LOOKS like an outset.  It is not -- LID_X1 is the
+    # AFT end at -1.0700 and LID_X0 the forward one at +0.9640, so both
+    # expressions move INWARD.  Measured on the built mesh: board x
+    # -1.0400..+0.9340, strut0 at -0.910, strut1 at +0.804.  Both inside.
+    # THE INSET WAS ALWAYS RIGHT.  The foot's Y was always wrong.
+    #
+    # The foot goes onto SOLID ROOF, outboard of the hinge, expressed off
+    # LID_Y_HINGE so it cannot drift away from the aperture it has to clear
+    # (rule 2).  Guarded in roof_lids' caller, in this same edit.
+    FOOT_OUTBOARD = 0.14            # m of solid roof beyond the hinge line
     for (ob, xs, deg, w) in ((main, LID_X1 + 0.16, LID_OPEN_DEG, LID_W),
                              (main, LID_X0 - 0.16, LID_OPEN_DEG, LID_W)):
         a = math.radians(deg)
         tipy = LID_Y_HINGE + w * math.cos(a) * 0.86
         tipz = (roof_z(xs, LID_Y_HINGE) + LID_PROUD) + w * math.sin(a) * 0.86
-        foot = Vector((xs, 0.44, roof_z(xs, 0.44)))
+        footy = LID_Y_HINGE - FOOT_OUTBOARD
+        foot = Vector((xs, footy, roof_z(xs, footy)))
         tip = Vector((xs, tipy, tipz))
         d = tip - foot
         struts.append(T.cylinder(tuple((foot + tip) / 2), tuple(d.normalized()),
                                  0.0075, d.length, seg=14,
                                  name=f"lid_strut{len(struts)}"))
+    # GUARD, SAME EDIT AS THE CHANGE (rule 12).  Every prop foot must sit on
+    # solid roof -- OUTSIDE the aperture's y band -- or the prop is standing in
+    # the hatch again.  The band is the lid's own closed footprint.
+    _y_lo, _y_hi = LID_Y_HINGE, LID_Y_HINGE + LID_W
+    for _st in struts:
+        _fy = min(v.co.y for v in _st.data.vertices)
+        assert not (_y_lo < _fy < _y_hi), (
+            "SPEC 10.113: prop foot at y=%.4f is INSIDE the roof aperture "
+            "(%.4f..%.4f) -- the strut is standing on nothing"
+            % (_fy, _y_lo, _y_hi))
     return skins, rails, struts, boards
 
 
