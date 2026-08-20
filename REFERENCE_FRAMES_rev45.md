@@ -38,14 +38,26 @@ missing frames; one is new to this project entirely.
 |---|---|---|---|
 | `IMG_2060.jpeg` | 700×467 | **`ref_nolita_front34.jpg`** | **PROVEN.** The rev-45 brief publishes "roundel bbox cols 152–192, rows 192–257 → centre (172.0, 224.5), vertical D 66 px" for this frame. Re-measured on `IMG_2060.jpeg`: emblem mask rows **192–259**, cols **152–192**. The columns match exactly and the rows to 2 px. No other frame in the set has a roundel at those coordinates. |
 | `IMG_3840.jpeg` | 480×320 | (already tracked as `ref_nolita_doorshut.jpg`) | **PROVEN.** md5-identical to the tracked file, `f1b6f98c6a…`. |
-| `IMG_2054.jpeg` | 450×450 | **`ref_nolita_flank.jpg`** | **BY CONTENT, not proven.** A near flank of the Nolita truck: cab door, handle, front wheel and hubcap, serving-bay signage aft. It is the only near-flank frame in the upload. |
-| `IMG_2053.jpeg` | 550×412 | **`ref_nolita_front34b.jpg`** | **BY CONTENT, not proven.** A wide three-quarter of the Nolita truck with the roof sign board raised and the chalkboard menu legible. |
+| `IMG_2054.jpeg` | 450×450 | **`ref_nolita_flank.jpg`** | **PROVEN — see §2a.** Identified by content first; the merge then confirmed it md5-identical to rev 44b's file of that name. |
+| `IMG_2053.jpeg` | 550×412 | **`ref_nolita_front34b.jpg`** | **PROVEN — see §2a.** Same. |
 | `IMG_3842.png` | 500×400 | **`ref_playa_34.png`** | **NEW TO THIS PROJECT.** Not named anywhere in rev 44's inventory or wanted-list. It is the **PLAYA** truck — folk-art flank, "Señor Tacombi" script, the "100 % Calidad" decal, an **unlit** headlamp in daylight, and the cab door's lower edge over the front wheel. It is the only frame in the whole set that shows the painted livery this model is actually reproducing. |
 
-**The two "by content" identifications are stated as such and nothing in rev 45
-rests on either of them.** Everything rev 45 measured came off
-`ref_nolita_front34.jpg` (proven), `ref_playa_34.png` (unambiguous whatever it
-is called) and `ref_workshop.jpg` (tracked since rev 15).
+## §2a. THE TWO "BY CONTENT" IDENTIFICATIONS TURNED OUT TO BE PROVABLE
+
+They were published above as **not proven**, and nothing in rev 45 was allowed
+to rest on either. Then rev 45 merged the seventeen stranded rev-44/44b commits
+(§4 below) — which carry `ref_nolita_flank.jpg` and `ref_nolita_front34b.jpg`
+under exactly those names — and the files are **md5-identical**:
+
+```
+ref_nolita_front34.jpg    rev 44b ed2c33b0ec   rev 45 from the upload ed2c33b0ec
+ref_nolita_flank.jpg      rev 44b a00c45b431   rev 45 from the upload a00c45b431
+ref_nolita_front34b.jpg   rev 44b b8e7f7a44b   rev 45 from the upload b8e7f7a44b
+```
+
+Three for three. **This is recorded because the ordering matters**: the
+identifications were made and published as unproven, and only then checked. Had
+they been checked first the agreement would prove nothing about the method.
 
 The `IMG_*` originals are **kept tracked as well as the canonical copies**, so
 the provenance chain is in the repository rather than in this sentence.
@@ -79,3 +91,27 @@ A 10 % error in the horizontal stretch moves every measured angle by several
 degrees, which is the whole size of the discrepancy anyone would be trying to
 measure. **So rev 45 did not move the spine**, and `PHOTOS_WANTED_rev45.md`
 asks for the one frame that closes it: the nose badge, square on.
+
+
+## §4. AND THE REASON THEY WENT MISSING IN THE FIRST PLACE
+
+The frames were not lost. **They were never merged.**
+
+`origin/claude/tacombi-combi-rev-44-h4ipmg` carries **seventeen commits above
+the point where PR #2 was merged**, and neither `origin/main` nor this branch
+had any of them:
+
+```
+0437cf3  rev 44: the owner's uploads -- three NEW frames, two duplicates removed
+028de7b  rev 44: the new front three-quarter measured -- ORDINAL only
+3996ccd  rev 44: THE VW LOGO -- the roundel was mounted 11 mm INSIDE the nose
+...
+d90014f  rev 44b: his three reports, all confirmed, all measured
+```
+
+That is where `ref_nolita_*` was added (`0437cf3`), and it is also where
+`SPEC.md` grew §10.102–§10.109, where `cab_fitout`, `door_hinges` and
+`cabin_fill` were written, and where §10.100's door wrap was retracted.
+**`SPEC.md` on `main` ends at §10.101.**
+
+Rev 45 merged all seventeen. See `LEDGER_rev45.md` §1.

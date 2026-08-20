@@ -1981,8 +1981,28 @@ def build_all():
                                       WEAR[M["countertan"].name]))
     apply_weather(M["countertan"], dust=_CTAN_DUST, wear=_CTAN_WEAR,
                   fade=float(os.environ.get("T1_CTAN_FADE", 1.0)), peel=0.0)
-    apply_weather(M["capred"], dust=1.4, wear=WEAR[M["capred"].name],
-                  fade=1.0, peel=0.0)
+    apply_weather(M["capred"], dust=0.30, wear=WEAR[M["capred"].name],
+                  fade=0.25, peel=0.0)
+    # rev 44 -- DUST 1.4 -> 0.30, FADE 1.0 -> 0.25.  The owner reported the red
+    # hubcaps reading wrong off the hero.  The SIZE is right -- CAP_R is locked
+    # against a 302-ray circle fit at sd 0.79 px, 0.4134 photographed against
+    # 0.4211 built -- but the COLOUR is not, and that is what reads as bulk.
+    # Measured G/R on the cap, model against TWO independent reference frames
+    # that agree with each other to 0.002 (ref_side.jpg rear wheel 0.230,
+    # ref_nolita_doorshut.jpg 0.228 -- different cameras, different eras):
+    #     shipped  dust 1.4 fade 1.0 ....... 0.598      +0.368 off
+    #     dust 0.30 fade 0.25 ............... 0.401      +0.171
+    #     weather FULLY OFF ................. 0.309      +0.079
+    #     TARGET ............................ 0.230
+    # Weather is the WHOLE story -- and it ran the wrong way: the shipped cap
+    # was more bleached than a perfectly clean one would be, so weathering was
+    # not adding grime, it was adding WHITE.  Cutting it halves the error.
+    # A RESIDUAL REMAINS AND IS NOT TUNED AWAY: even at zero weather the render
+    # sits at 0.309 against 0.230, so ~22 % of the gap is lighting/specular,
+    # not weather.  Dropping the clearcoat was tried (coat 0.50 -> 0.12, spec
+    # 0.55 -> 0.35) and made it WORSE, 0.378 -- so the coat is not the lever
+    # and it is restored exactly as shipped.  The residual needs a lighting
+    # pass, and tuning dust further to hide it would be laundering.
     for k in ("countercream", "wheelcream", "capwhite"):
         apply_weather(M[k], dust=1.4, wear=WEAR[M[k].name], fade=1.0, peel=0.0,
                       fadev=FADEV_CREAM)
@@ -2029,6 +2049,95 @@ def build_all():
     rough_field("gal_menucard", scale=260.0,  # 96 x 311 mm card -> 3.8 mm
                 albedo_w=W_ROUGH_SWING * 0.5)
     return M
+
+
+# ===========================================================================
+# rev 44 -- ROUNDED EDGES ON EVERY SHADER.  SPEC 10.103.
+#
+# THE OWNER SET THE BAR WITH A CATALOGUE-GRADE PRODUCT RENDER and asked for
+# that level of fidelity.  `probe_rev44_fidelity.py` counted what actually
+# separates this model from one: **66 566 edges over 28 degrees, and ZERO
+# bevel modifiers in 190 objects.**  Every one of those is a mathematically
+# knife-sharp edge, and a knife edge is the single loudest tell in computer
+# graphics -- no real pressed, cast or extruded part has one.  A real edge
+# carries a fold radius, that radius catches a thin specular highlight, and
+# THAT HIGHLIGHT IS MOST OF WHAT THE EYE READS AS "a photographed object".
+#
+# WHY THIS IS DONE IN THE SHADER AND NOT WITH A BEVEL MODIFIER.  A Bevel
+# modifier MOVES VERTICES.  This model's geometry is measured -- the tightest
+# clearance in it is 0.85 mm (the front arch's rear-most point against the cab
+# door's rear edge, SPEC 10.102.4) and roughly forty asserts are armed on
+# distances of a few millimetres.  A 2.75 mm chamfer applied to a
+# boolean-heavy 250 000-vertex shell would move measured surfaces, could not
+# be proven not to, and historically breaks exactly the booleans this shell
+# spent six revisions recovering from.
+#
+# Cycles' Bevel node perturbs the SHADING NORMAL by ray-tracing the local
+# surface.  It cannot move a vertex -- there is no code path by which it
+# could -- so it is the one way to buy this at zero risk to a measured model.
+# The silhouette stays sharp, which is correct at this scale anyway: at 600
+# px/m a 2.75 mm fold is 1.6 px, so it belongs in the shading and not in the
+# outline.
+#
+# THE RADIUS IS DERIVED, NOT CHOSEN (10.25's rule).  `t1_shell.GAPW` is the
+# panel-gap width, 5.5 mm, MEASURED.  A shut line is two folded panel edges
+# facing each other across that gap, so each fold's radius cannot exceed HALF
+# THE GAP or the two folds meet and the gap closes.  GAPW/2 is therefore the
+# geometric CEILING on a fold radius in this vehicle, expressed in terms of
+# the measured constant rather than typed, so re-measuring the gap moves it.
+#
+# IT COMPOSES WITH THE WEATHER GROUP RATHER THAN REPLACING IT.  Where a
+# material already drives Principled.Normal -- every painted panel does, from
+# WEATHER's internal Bump -- that source is re-routed into the Bevel node's
+# own Normal input, so the orange-peel bump is rounded rather than discarded.
+# Where nothing drives it, the Bevel drives it directly.
+#
+# IDEMPOTENT AND ABLATABLE.  A second call is a no-op (the Bevel node is
+# looked for by type).  `T1_NOBEVEL=1` stands the whole pass down, so the A/B
+# is one environment variable and needs no edit -- rev 20's pattern.
+# ===========================================================================
+BEVEL_SAMPLES = int(os.environ.get("T1_BEVEL_SAMPLES", "8"))
+
+
+def round_edges(radius=None, log=None):
+    """Splice a Cycles Bevel node into every Principled BSDF's Normal input.
+
+    Returns (patched, skipped_no_bsdf, already_had_one).
+    """
+    if os.environ.get("T1_NOBEVEL"):
+        if log:
+            log("  round_edges: STOOD DOWN by T1_NOBEVEL")
+        return (0, 0, 0)
+    if radius is None:
+        import t1_shell as _SH
+        radius = _SH.GAPW / 2.0            # 10.25: expressed, never typed
+    done = skip = had = 0
+    for m in bpy.data.materials:
+        if not m.users or not m.use_nodes or m.node_tree is None:
+            continue
+        nt = m.node_tree
+        b = next((n for n in nt.nodes if n.type == 'BSDF_PRINCIPLED'), None)
+        if b is None:
+            skip += 1
+            continue
+        if any(n.type == 'BEVEL' for n in nt.nodes):
+            had += 1
+            continue
+        x0 = min([n.location[0] for n in nt.nodes] or [0.0])
+        bev = nt.nodes.new("ShaderNodeBevel")
+        bev.location = (b.location[0] - 300.0, b.location[1] - 620.0)
+        bev.samples = BEVEL_SAMPLES
+        bev.inputs["Radius"].default_value = radius
+        ns = b.inputs["Normal"]
+        if ns.links:
+            nt.links.new(ns.links[0].from_socket, bev.inputs["Normal"])
+        nt.links.new(bev.outputs[0], ns)
+        done += 1
+    if log:
+        log("  round_edges: %d materials given a %.2f mm fold radius "
+            "(%d already had one, %d have no Principled)"
+            % (done, radius * 1000.0, had, skip))
+    return (done, skip, had)
 
 
 def assign(ob, mat):

@@ -299,6 +299,11 @@ if sign_boards:
 A(D.plank_counter(S.SHOW_SIDE), "countercream")
 A(D.galley(), "steel")
 A(D.interior(), "dark")
+# rev 44, SPEC 10.104 -- THE CAB.  Returned as (object, material key) pairs:
+# a cab assigned one "dark" key is a cab that reads as a void, and the
+# fascia is body-coloured, the instrument chrome and glass, the welts cream.
+for _o, _k in D.cab_fitout():
+    A(_o, _k)
 # rev 38, SPEC 10.96: close each wheel arch from inside.  Without these the arch
 # is a cylinder cut clean through the skin with NOTHING behind it, and the cab
 # floor is in plain sight from outside -- which is what his report 6, "there
@@ -329,6 +334,9 @@ A(D.bumper(True, name="bumper_f"), "bumpercream")
 # absent from both in-service photographs. Do not re-add it.
 # A(D.bumper(False, name="bumper_r"), "bumpercream")
 A(D.bumper_irons(True), "bumpercream")
+# rev 44, SPEC 10.104 -- the cab door hangs on two external butt hinges and
+# the scene had ZERO hinges in it.
+A(D.door_hinges(), "chrome_d")
 # SPEC 10.83, rev 30: the front over-rider bar.  WORKSHOP-STAGE -- it appears
 # in ref_workshop.jpg, which is the CONVERSION stage, and SPEC 10.75's scope
 # ruling (the owner's) is MODEL IT, TAGGED.  The rear bumper was removed
@@ -581,9 +589,15 @@ ROUNDEL_D = 0.2800
 # the roundel in the same change as the lamps, and that stands independently.
 ROUNDEL_Z_AG = 1.0170
 ROUNDEL_Z = ROUNDEL_Z_AG + T.rake_drop(2.1155)
+# rev 44 -- THE MOUNTING PLANE, moved forward 13.5 mm.  See the block below the
+# glyph placement for the measurement: the nose reaches x 2.1270 between
+# z 0.86 and 1.01 while the emblem's front face sat at 2.1265, so the roundel's
+# lower half -- the whole W -- was buried inside the bodywork.
+ROUNDEL_X = 2.1290                  # was 2.1155
+GLYPH_X   = ROUNDEL_X + 0.0055      # the emblem plate stands on the disc face
 vr, vd = D.roundel(R=ROUNDEL_D / 2)
 for o, k in ((vr, "roundelred"), (vd, "cream")):
-    D.place(o, loc=(2.1155, 0.0, ROUNDEL_Z)); A(o, k)
+    D.place(o, loc=(ROUNDEL_X, 0.0, ROUNDEL_Z)); A(o, k)
 _EMBLEM_PLATE = [vr, vd]
 _EMBLEM_FRONT = {}                     # object -> indices of its FRONT face
 # rev 10.  The V and the W had merged into an X again -- the same failure
@@ -609,7 +623,29 @@ _EMBLEM_FRONT = {}                     # object -> indices of its FRONT face
 # sigma.  D.vw_logo_fit sizes the glyph off its OWN built outline so the
 # extreme corner lands on the ring's outer radius -- no fraction is written
 # down at all, so there is nothing left here to go stale a third time.
-for b in D.vw_logo_fit(ROUNDEL_D / 2, x=2.1210):   # V over W, never inverted
+# ------------------------------------------------------------------ rev 44
+# THE ROUNDEL WAS MOUNTED ELEVEN MILLIMETRES INSIDE THE NOSE.
+#
+# The owner reported the logo off the rev-44 hero.  Rendered face-on it showed
+# a V, a centre peak and two stubs; the W's four descending strokes and both
+# legs were absent.  Isolated in an empty scene the SAME objects -- glyph, ring
+# and disc together -- render a clean V over W, so the outline (rasterised and
+# checked), the cap fill (area 0.012193 m2 against 0.01232 hand-computed), the
+# material (a flat `simple`, no mask) and the renderer were all cleared.
+#
+# MEASURED on the built body, forward-most x within |y| < 0.06:
+#     z 0.86-1.01 : nose reaches x 2.1266 .. 2.1270   <-- IN FRONT of the glyph
+#     z 1.01-1.16 : nose falls back to 2.1262 .. 2.1194
+# The glyph's front face sat at 2.1265.  So BELOW z = 1.01 the nose stood
+# PROUD of the emblem and buried it, and above that the emblem stood proud and
+# rendered.  The crossover is the exact height where the render stops drawing.
+# The V lives above it; the W's arms and legs live below it.  Nothing was wrong
+# with the emblem at all -- it was sunk into the bodywork.
+#
+# The mounting plane is moved forward 13.5 mm so the glyph's REAR face clears
+# the nose's own maximum by 2 mm.  It does not become the forward-most object:
+# the bullet indicator already reaches x 2.1600.
+for b in D.vw_logo_fit(ROUNDEL_D / 2, x=GLYPH_X):   # V over W, never inverted
     D.place(b, loc=(0.0, 0.0, ROUNDEL_Z)); A(b, "roundelred")
     _EMBLEM_PLATE.append(b)
 
@@ -656,13 +692,24 @@ def _nose_x(y, z):
     return loc.x if hit else None
 
 
-# Two plates, two mounting planes.  The ring and its backing disc are authored
-# with the mounting plane at local x = 0, placed at 2.1155; the glyph is
-# authored with its BACK FACE as the mounting plane, at 2.1210.
+# Two plates, two mounting planes, and BOTH ARE READ OFF THE CONSTANTS ABOVE
+# rather than typed -- rule 2.  The ring and its backing disc are authored with
+# the mounting plane at local x = 0 and placed at ROUNDEL_X; the glyph is
+# authored with its BACK FACE as the mounting plane, at GLYPH_X.
+#
+# NOTE ON REV 44's 13.5 mm.  The block above moves ROUNDEL_X 2.1155 -> 2.1290
+# because the nose stood proud of the emblem below z = 1.01.  That measurement
+# is right and rev 45 reproduced it from the other direction (a radial raycast
+# at eight angles and three radii, rather than a forward-most-x scan of a
+# |y| < 0.06 strip).  THE DRAPE SUBSUMES THE SHIFT: dx = surf - mount +
+# standoff, so the badge lands on the surface whatever ROUNDEL_X is, and a
+# uniform shift can only ever be right at one height on a curved panel -- at
+# 13.5 mm the badge still floated ~18 mm proud at its top.  ROUNDEL_X is kept
+# because it is the record and because the drape reads it.
 _n_dr = _n_miss = 0
 _dx_lo, _dx_hi = 9e9, -9e9
-for _plate, _mount in (([vr, vd], 2.1155),
-                       ([o for o in _EMBLEM_PLATE if o not in (vr, vd)], 2.1210)):
+for _plate, _mount in (([vr, vd], ROUNDEL_X),
+                       ([o for o in _EMBLEM_PLATE if o not in (vr, vd)], GLYPH_X)):
     _n, _lo, _hi, _ms = T.drape_x(_plate, _nose_x, _mount, standoff=0.0016)
     _n_dr += _n; _n_miss += _ms
     _dx_lo = min(_dx_lo, _lo); _dx_hi = max(_dx_hi, _hi)
@@ -819,6 +866,12 @@ log(f"lowered {T.RAKE_Z0*1000:.1f} mm at x=0, rake {T.RAKE_DZDX*1000:.1f} mm/m "
     f"{_n_shear} sheared, {_n_wheel} wheel parts held level")
 
 log(f"materials: {len(ASSIGN)} objects")
+
+# rev 44, SPEC 10.103 -- ROUNDED EDGES.  Runs LAST, after every material
+# datablock exists (t1_detail builds some of them at step 7, five steps
+# before build_all()), and after the shear, so it can never interact with
+# geometry: it only rewrites shading normals.  T1_NOBEVEL=1 stands it down.
+MT.round_edges(log=log)
 if FAILED_CUTS:
     log("!! cuts that failed and were rolled back: " + ", ".join(FAILED_CUTS))
 
@@ -878,6 +931,8 @@ if os.environ.get("T1_PREVIEW"):
         ST.playa(float(os.environ.get("T1_KEY", "1.0")))
     else:
         ST.lighting(float(os.environ.get("T1_KEY", "1.0")))
+    # rev 44, SPEC 10.105 -- the cab was built and then rendered invisible.
+    ST.cabin_fill(float(os.environ.get("T1_KEY", "1.0")))
     ST.camera()
     # rev 9: the Playa scene must NOT go through the studio's alpha-over path.
     # With transparent=True the film is keyed and composite_on_white() lays the

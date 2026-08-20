@@ -128,7 +128,13 @@ print("   >>> AND THE STRETCH IS NOT EVEN UNIFORM ALONG THE DOOR, so a re-point"
 print("       does not merely scale the art -- it SHEARS it, hardest at the")
 print("       corners and not at all over the arch.")
 print()
-print("   >>> THE OWNER CHOSE 'EXTEND AT DRAWN SCALE'.  door_pv must become")
+print("   >>> SUPERSEDED rev 44, SPEC 10.102 -- THE WRAP IS RETRACTED, so the")
+print("       two corner lobes below do not exist and there is nothing to draw.")
+print("       The paragraph is LEFT PRINTING as a dated record of the rev-43")
+print("       state; the depths above now read 0.0 mm, which is the retraction")
+print("       showing through the instrument rather than being asserted at it.")
+print()
+print("   >>> [rev 43] THE OWNER CHOSE 'EXTEND AT DRAWN SCALE'.  door_pv must become")
 print("       BELT-ANCHORED AND METRIC, and the inventory must GROW to fill")
 print("       two corner lobes.  That is a drawing job, not a constant change")
 print("       and not a re-point.")
@@ -148,13 +154,21 @@ ck("C1", mult and len(sites) == 2,
    "DOOR_H has exactly 2 read sites and both MULTIPLY (found %d)" % len(sites))
 ck("C2", abs(F.DOOR_H - 1.013467) < 5e-7,
    "DOOR_H reproduces its published 1.013467 m (%.6f)" % F.DOOR_H)
+# C3 and C4 -- RED BY DESIGN FROM REV 44.  They reproduce SPEC 10.100.4's
+# published corner depths and crown height, and SPEC 10.102 RETRACTED the shape
+# those figures describe: the cab door does not wrap the front wheel arch, and
+# rev 41's flat chord is restored.  They are LEFT ARMED AND LEFT FAILING rather
+# than deleted or re-pointed at the new numbers.  A retraction that quietly
+# re-points its own instrument is not a retraction -- and if anything ever
+# re-introduces the wrap, these two go GREEN and say so in one line.
 ck("C3", abs(dep["rear corner  (DOOR_X0)"] - 272.2) < 0.2
        and abs(dep["front corner (DOOR_X1)"] - 387.5) < 0.2,
-   "reproduces SPEC 10.100.4's published depths: %.1f / %.1f mm "
-   "(published 272.2 / 387.5)"
+   "RED BY DESIGN (SPEC 10.102): reproduces the RETRACTED 10.100.4 depths "
+   "272.2 / 387.5 mm.  Reads %.1f / %.1f mm.  FAIL IS THE INTENDED RESULT."
    % (dep["rear corner  (DOOR_X0)"], dep["front corner (DOOR_X1)"]))
 ck("C4", abs(max(p[1] for p in S.DOOR_BOT_RUN) - 0.8033) < 5e-4,
-   "reproduces the published arch-crown height 0.8033 (%.4f)"
+   "RED BY DESIGN (SPEC 10.102): reproduces the RETRACTED 10.100.4 crown "
+   "height 0.8033.  Reads %.4f.  FAIL IS THE INTENDED RESULT."
    % max(p[1] for p in S.DOOR_BOT_RUN))
 # C5 -- THE FINDING, armed as a KILL.  If door_pv were belt-anchored and
 # metric, re-pointing the outline would leave a given v at the SAME depth below
@@ -176,5 +190,16 @@ ck("C6", all(d > 0 for d in dep.values()),
 print()
 print("CONTROLS: %d checked, %d FAILED%s"
       % (CH, len(FA), ("  -- " + ",".join(FA)) if FA else ""))
-print("EXPECTED: 6 checked, 1 FAILED (C5 is the finding, armed as a KILL).")
+print("EXPECTED, rev 42-43: 6 checked, 1 FAILED (C5, the finding, a KILL).")
+print("EXPECTED, rev 44 on: 6 checked, 3 FAILED -- C3,C4,C6.  C3 and C4 are RED")
+print("  BY DESIGN: SPEC 10.102 retracted the shape they measure.  C6 follows")
+print("  them -- with the wrap gone the cut outline IS the art outline, so it")
+print("  is no longer BELOW it at any station.")
+print()
+print("  AND C5 HAS FLIPPED TO PASS, WHICH IS THE POINT.  It was armed as a")
+print("  KILL on the rev-43 finding that re-pointing the art's v-map would")
+print("  STRETCH the art; it now reads 0.0 mm because there is nothing left to")
+print("  re-point.  THAT IS LEDGER FINDING 1 CLOSING, INSTRUMENTED: the art")
+print("  datum and the cut outline are one table again.  C1 and C2 are the")
+print("  live controls and both still PASS.")
 sys.exit(1 if FA else 0)

@@ -206,3 +206,114 @@ the owner remains the only route to the image files themselves.
 4. **Report 3's fix**, with `probe_rev44_report3` C6 as the gate.
 5. **The photographs**, if he has added any. `PHOTOS_WANTED_rev44.md` says what makes each usable.
 6. **The sticker asset** — the specification exists; nothing has ever been drawn.
+
+---
+
+# HANDOFF — rev 44b (the fidelity pass)
+
+Everything above is rev 44's audit work and stands. This section is what the
+owner asked for after it: **a catalogue-grade product render of a school bus,
+and "the very highest resolution, fidelity, and detail possible."**
+
+## 10. THE BAR WAS TURNED INTO NUMBERS BEFORE ANYTHING WAS BUILT
+
+`probe_rev44_fidelity.py`, on the built scene at T1_SUB=2:
+
+| | built |
+|---|---|
+| mesh objects | 190 |
+| triangles | 655 944 — **505 538 (77 %) in `T1_body` alone** |
+| objects with a Bevel modifier | **0 / 190** |
+| edges over 28° | **66 566** = 10.3 % of 649 268 |
+| rivets / bolts / screws / nuts / **hinges** / latches | **0 / 0 / 0 / 0 / 0 / 0** |
+| materials with true displacement | 0 / 42 |
+
+**The density is all in the skin and almost none of it is in the detail.** That
+single table set the whole work list, and it is the artefact to re-run first
+next revision — it is cheap and it does not argue.
+
+## 11. WHAT SHIPPED, AND THE ONE THING DELIBERATELY REFUSED
+
+* **§10.103 rounded edges** — Cycles Bevel node on all 42 materials, radius
+  `GAPW/2` **derived** from the measured panel gap. **Not** a Bevel modifier:
+  a modifier moves vertices and this geometry is measured to 0.85 mm.
+  Measured effect: **p99 image gradient +10.8 %**, mean gradient +3.1 %, while
+  mean luminance moves **+0.2 %** and clipped pixels **−0.1 %** — structure at
+  edges, not exposure. `T1_NOBEVEL=1` ablates.
+* **§10.104 the cab** — was a 12-triangle dash, two 76-triangle boxes for one
+  seat, and a bare torus for a steering wheel **whose axis pointed along the
+  vehicle's Y**. Built: two-spoke wheel with hub and horn button, seven-point
+  swept fascia landing on the guarded `Z_SILL`, speedometer, letterbox grille,
+  glovebox, a second seat, cream welts, visors, mirror, gear lever, pedals —
+  and the **first hinges in the project**.
+* **§10.105 the cabin fill** — calibrated to `ref_nolita_doorshut.jpg`'s own
+  interior/cream ratio, and the response **saturates** (0.0091 per watt over
+  the first 21 W, 0.0028 over the next 25), which is why four renders were made
+  and not two. Shipped at 13 W.
+* **§10.106–10.108** — the owner's three rev-44b reports: the door's forward
+  lower lobe, every VW stroke end on the ring, and the sign's props stood up
+  under the board.
+* **REFUSED, in writing (§10.104.8):** raising the paint's gloss to match the
+  reference. The reference is a factory-clean product render; this is a
+  weathered 1963 working truck and §4.3's chalky finish is **measured**. **The
+  detail bar transfers. The finish does not.**
+
+## 12. WHAT REV 45 SHOULD DO ABOUT FIDELITY, IN ORDER
+
+1. **Re-run `probe_rev44_fidelity.py`.** Fasteners are still 0 except the four
+   cab-door hinge assemblies. Rivets on the counter and the gallows, bumper
+   bolts, and hatch latches are the next tranche and each is small geometry
+   with a large perceived-detail return.
+2. **The cab interior is CLASS 4 — uninstrumented.** No frame in this repo
+   resolves it. **A square-on cab interior photograph is now the highest-value
+   frame on the wanted list after the off side.**
+3. **The driving position is 622 mm from the seat back to the hub**, roughly
+   150 mm more reach than a T1 driver has. Closing it needs the seat's
+   fore-aft position, which is rev-8 authored and unmeasured.
+4. **~~THE BODY'S LOWER EDGE SITS ~49 mm TOO LOW~~ — RETRACTED IN THE SAME
+   SESSION THAT RAISED IT. NEITHER FRAME RESOLVES THE FEATURE.**
+   I published 49 mm here and in the rev-45 brief, having settled the *datum*
+   question (one continuous rocker, no valance step). The datum was the wrong
+   thing to worry about. **The frame cannot see the edge at all.**
+   Raw pixels down `ref_nolita_doorshut.jpg` column 132: rows 268–276 run
+   (151,31,17) → (80,19,16), and then rows **278–298 are RGB (0,0,0)** —
+   twenty-five rows **clipped to pure black** before the floor comes back at
+   row 300. The red does not fade into the rocker; it hits a wall. Sweeping the
+   mask threshold from R>90 down to R>30 moves the "lowest red row" not at all
+   (274 → 277) and then it jumps to 303, which is the **floor**, not the body.
+   **Row 277 is where the shadow clips, not where the body ends.**
+   The cross-check on `ref_side.jpg` then disagreed in **sign** — rocker 145 mm
+   *below* the axle against Nolita's 38 mm *above* — and that trace is bad too:
+   at cols 900–920, rows 640–700, the pixels are neutral (R≈G≈B, 58–147), so my
+   `R > G*1.25` mask was passing **warm grey under-body shadow** as red.
+   **BOTH TRACES RAN OFF THE END OF THEIR DATA.** The body's lower edge relative
+   to the axle is **UNMEASURED**. Do not carry 49 mm forward. `RIDE_DROP` is not
+   implicated by anything.
+   **The lesson, and it is the general one:** a threshold-based *"lowest X"*
+   trace is only valid if the feature's far side is resolved. Check what is on
+   the other side of the edge before you publish the edge.
+   **What this does NOT touch:** §10.106's forward lobe. Its position came from
+   the ramp trace, not from the sill, and its depth is a ratio whose denominator
+   (`sill − rail` = 34.92 px) may be a few px short — if the true sill is 3 px
+   lower the drop goes 0.744 → 0.686, i.e. 308 mm → 284 mm. Worth re-deriving
+   from a frame that resolves the rocker; not worth moving on this one.
+
+5. **The tyres have circumferential grooves but no lateral sipes and no
+   sidewall lettering.** Period-correct as far as it goes; the next step is a
+   normal map, not geometry.
+
+## 13. RULES EARNED THIS PASS
+
+* **A detail you cannot see is not a detail** (§10.105.7). §10.104 spent a
+  revision building a cab and the very next frame proved none of it. Every
+  detail pass ships with the frame that shows it.
+* **A measurement's window is part of the measurement** (§10.106.6). §10.102
+  published "flat over 62 px of door" — true — and then guarded "the door is
+  flat". State the window in the guard, not just the prose.
+* **An ordinal fact licenses a sign, never a shape** (§10.102.8).
+* **When a fix cannot be built at any tolerance, suspect the thing it is
+  fixing** (§10.102.8).
+* **Add the guard in the same edit as the change.** The prop guard fired on my
+  own inverted "fix" on the first build (§10.108.1), and the wheel/dash
+  clearance guard caught a 173 mm interference that neither member had ever
+  been solid enough to reveal.

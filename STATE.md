@@ -8,10 +8,10 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-20 01:10:19 UTC |
-| git commit | `93edc95` |
-| git subject | rev 45: the badge was a flat plate on a curved nose -- SPEC 10.110 |
-| working tree | clean |
+| generated | 2026-08-20 01:30:59 UTC |
+| git commit | `48e3143` |
+| git subject | rev 45: the Calidad decal is red again, and the sign props stood in the hole |
+| working tree | **DIRTY** — this state is not committed |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=2 (applied, destructive, before booleans) |
 | geometry source | procedural, built this run |
@@ -54,7 +54,7 @@ VERIFY: 0 fail, 0 warn
 |---|---|
 | cutters rolled back | none |
 | non-manifold edges (body) | 0 |
-| body faces | 238897 quad, 1200 tri, 6569 ngon |
+| body faces | 239607 quad, 1212 tri, 5221 ngon |
 
 ## Measured dimensions
 
@@ -140,9 +140,9 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 
 | | |
 |---|---|
-| mesh objects | 190 |
-| vertices (all meshes) | 332127 |
-| faces (all meshes) | 322952 |
+| mesh objects | 221 |
+| vertices (all meshes) | 331246 |
+| faces (all meshes) | 322261 |
 
 | prefix | n |
 |---|---|
@@ -154,6 +154,8 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 | `capring` | 4 |
 | `gal_bot` | 4 |
 | `gal_botcap` | 4 |
+| `hinge_barrel` | 4 |
+| `hinge_leaf` | 4 |
 | `rim-1` | 4 |
 | `rim1` | 4 |
 | `tyre` | 4 |
@@ -188,8 +190,10 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 | `seal_dv` | 2 |
 | `seal_ws` | 2 |
 | `tail` | 2 |
+| `visor` | 2 |
 | `vwbar` | 2 |
 | `wblade` | 2 |
+| `wheel_spoke` | 2 |
 | `wiper_arm` | 2 |
 | `wiper_boss` | 2 |
 | `wiper_pivot` | 2 |
@@ -203,6 +207,9 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 | `counter_nosing` | 1 |
 | `counter_top` | 1 |
 | `dash` | 1 |
+| `dash_glovebox` | 1 |
+| `dash_grille` | 1 |
+| `dash_knob` | 1 |
 | `englid_handle` | 1 |
 | `fuel_flap` | 1 |
 | `gal_appliance` | 1 |
@@ -228,6 +235,8 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 | `gal_wrap_g` | 1 |
 | `galley_backdrop` | 1 |
 | `galley_top` | 1 |
+| `gear_knob` | 1 |
+| `gear_lever` | 1 |
 | `glass_bay0_R` | 1 |
 | `glass_bay1_R` | 1 |
 | `glass_bay2_R` | 1 |
@@ -240,6 +249,11 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 | `iron1F` | 1 |
 | `lid_board` | 1 |
 | `lid_main` | 1 |
+| `mirror_int` | 1 |
+| `mirror_stem` | 1 |
+| `pedal_a` | 1 |
+| `pedal_b` | 1 |
+| `pedal_c` | 1 |
 | `plancha` | 1 |
 | `plate` | 1 |
 | `plate_digits` | 1 |
@@ -247,9 +261,18 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 | `script_L` | 1 |
 | `script_R` | 1 |
 | `seat_back` | 1 |
+| `seat_back_p` | 1 |
 | `seat_base` | 1 |
+| `seat_base_p` | 1 |
+| `seat_welt` | 1 |
+| `seat_welt_p` | 1 |
+| `speedo_bezel` | 1 |
+| `speedo_face` | 1 |
+| `speedo_glass` | 1 |
 | `van_floor` | 1 |
 | `vw_disc` | 1 |
 | `vw_ring` | 1 |
+| `wheel_horn` | 1 |
+| `wheel_hub` | 1 |
 | `wheel_rim` | 1 |
 
