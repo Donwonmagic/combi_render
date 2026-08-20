@@ -852,6 +852,109 @@ def flank_y(x, z):
     return WX(x) * G(z)
 
 
+def drape_x(objs, surf_x, mount, standoff=0.0016, grid=41, pad=0.02):
+    """Push a FLAT, X-extruded plate (the nose emblem) onto the CURVED nose.
+
+    rev 45.  THIS IS THE DEFECT BEHIND "THE LOGO IS OFF", REPORTED BY THE OWNER
+    IN THREE CONSECUTIVE REVISIONS AND NEVER FOUND, BECAUSE EVERY CHECK EVER
+    RUN ON THE EMBLEM WAS RUN ON ITS OWN OUTLINE, IN ITS OWN PLANE, IN
+    ISOLATION FROM THE BODY IT SITS ON.
+
+    `t1_detail.roundel` and `vw_logo_fit` both build the emblem in the Y-Z
+    plane and extrude it along +X, so the finished badge is a FLAT PLATE.  The
+    nose is not flat.  Raycast against the built body at rev 45, at the
+    roundel's own centre height, ROUNDEL_D = 0.280 m:
+
+        straight UP   at the ring radius   the nose is  -31.6 mm  (falls away)
+        up-left/right at the ring radius                -19.0 mm
+        sideways      at the ring radius                 -0.6 mm
+        straight DOWN at the ring radius                 +3.0 mm  (comes forward)
+
+    The glyph's front face sits at x = 2.1265 after the step-8b shear and the
+    nose below the badge centre sits at 2.1265..2.1268.  So the plate's LOWER
+    half is flush with, or 0.3 mm BEHIND, the sheet metal, and its UPPER half
+    floats up to 32 mm proud of it.  Rendered, the V (which lives in the upper
+    half) stands out and THE WHOLE W DISAPPEARS INTO THE BODY except for the
+    two outer arm tips, which is why the badge reads as a CLOCK FACE.
+
+    Everything else about the glyph was measured this revision and is RIGHT:
+    the spine angles reproduce ref_workshop.jpg's mark to a few degrees
+    (V arms +-37 deg photographed against +-35.2 deg built; W outer arms +-95
+    against +-93; W troughs +-145 against +-151.5), and the stroke width is
+    0.218 +- 0.002 R photographed against 0.2046 R built.  NOTHING IN THE
+    SPINE OR THE WIDTH IS MOVED BY THIS FIX.  SPEC 10.110.
+
+    `surf_x(y, z)` returns the body's surface X at a point, or None on a miss.
+    It is sampled ONCE on a `grid` x `grid` lattice over the objects' own
+    (y, z) bounding box padded by `pad`, then bilinearly interpolated, so the
+    result is smooth and a single stray miss cannot spike one vertex.
+
+    `mount` is the X of the plate's OWN MOUNTING PLANE -- the plane its author
+    intended to lie against the sheet metal.  Every vertex moves by
+
+        dx  =  surf_x(y, z) - mount + standoff
+
+    so the mounting plane lands ON the surface everywhere and the plate's
+    relief is carried out from there.  Nothing moves in Y or Z, so the
+    outline, the scale and every in-plane measurement are untouched BY
+    CONSTRUCTION.
+
+    `mount` matters and a single shared reference is NOT good enough: the ring
+    and its backing disc are authored with the mounting plane at local x = 0
+    (world 2.1155) while the glyph is authored with its BACK FACE as the
+    mounting plane (world 2.1210).  Draping them against one common datum left
+    the disc's front cone 3.6 mm INSIDE the nose -- the guard below caught it,
+    at -3.59 mm, on this revision's own first attempt.  Call this once per
+    plate, each with its own mount.
+
+    Returns (n_moved, dx_min, dx_max, n_miss).
+    """
+    ys, zs = [], []
+    for o in objs:
+        for v in o.data.vertices:
+            ys.append(v.co.y); zs.append(v.co.z)
+    y_lo, y_hi = min(ys) - pad, max(ys) + pad
+    z_lo, z_hi = min(zs) - pad, max(zs) + pad
+    gy = [y_lo + (y_hi - y_lo) * i / (grid - 1) for i in range(grid)]
+    gz = [z_lo + (z_hi - z_lo) * i / (grid - 1) for i in range(grid)]
+    n_miss = 0
+    G = [[None] * grid for _ in range(grid)]
+    for j, z in enumerate(gz):
+        for i, y in enumerate(gy):
+            x = surf_x(y, z)
+            if x is None:
+                n_miss += 1
+            G[j][i] = x
+    # fill misses from the nearest sampled neighbour so the lattice is total
+    known = [(j, i) for j in range(grid) for i in range(grid) if G[j][i] is not None]
+    if not known:
+        raise RuntimeError("drape_x: the surface raycast missed EVERY lattice "
+                           "point -- the emblem is not over the body at all")
+    for j in range(grid):
+        for i in range(grid):
+            if G[j][i] is None:
+                jj, ii = min(known, key=lambda p: (p[0] - j) ** 2 + (p[1] - i) ** 2)
+                G[j][i] = G[jj][ii]
+
+    def interp(y, z):
+        fy = (y - y_lo) / (y_hi - y_lo) * (grid - 1)
+        fz = (z - z_lo) / (z_hi - z_lo) * (grid - 1)
+        i = min(max(int(fy), 0), grid - 2); j = min(max(int(fz), 0), grid - 2)
+        a, b = fy - i, fz - j
+        return (G[j][i] * (1 - a) * (1 - b) + G[j][i + 1] * a * (1 - b)
+                + G[j + 1][i] * (1 - a) * b + G[j + 1][i + 1] * a * b)
+
+    dxs = []
+    n = 0
+    for o in objs:
+        for v in o.data.vertices:
+            dx = interp(v.co.y, v.co.z) - mount + standoff
+            v.co.x += dx
+            dxs.append(dx); n += 1
+        o.data.update()
+    return n, min(dxs), max(dxs), n_miss
+
+
 def conform_solid(outline, side, off=0.0, thick=0.10, name="cf"):
     """
     Closed prism whose two faces follow the curved flank.

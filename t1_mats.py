@@ -1888,10 +1888,43 @@ def build_all():
                         transmit=0.75, ior=1.49)
     M["ruby"] = simple("ruby", (0.7000, 0.0350, 0.0250), rough=0.09,
                        transmit=0.72, ior=1.49)
-    M["lens"] = simple("lens", (0.900, 0.918, 0.930), rough=0.018,
+    # ------------------------------------------------- rev 45, SPEC 10.111
+    # THE HEADLAMP APERTURE RENDERED AS A DARK RED HOLE, and it is the second
+    # most conspicuous thing on the face of this vehicle after the roundel.
+    #
+    # MEASURED, in the rendered frame, by probe_rev45_nose's projected
+    # landmark (no hand-typed crop box):
+    #     render, unlit lens   RGB (115,  41,  33)   strongly RED
+    #     photograph, unlit    RGB (124, 127, 127)   NEUTRAL   (IMG_3842,
+    #                          ref_playa_34.png, the only frame in the set with
+    #                          an unlit lamp square enough to read)
+    # The luminance was never the defect -- lens/cream ran 0.432 built against
+    # 0.565 photographed, inside any reasonable window.  THE CHROMA WAS.
+    #
+    # CAUSE, and it is not a tuning error.  A transmission-0.96 glass at
+    # roughness 0.018 is an invisible window, and behind it sits a metal=1.0
+    # bowl at roughness 0.055 -- a MIRROR.  A mirror with no bulb in front of
+    # it returns an image of whatever surrounds it, which here is the red nose.
+    # So the aperture faithfully renders a red panel reflected in a parabola.
+    #
+    # A 1963 T1 headlamp lens is MOULDED PRISMATIC GLASS -- fluted, not
+    # polished -- and the flutes are what make a real lamp read as a bright
+    # grey disc from any angle.  Modelling each flute at 0.086 m radius is not
+    # this revision's brief; a rough transmissive glass is the honest proxy for
+    # a diffuser and it is LABELLED as a proxy rather than passed off as the
+    # part.  The reflector is roughened with it, because without a bulb the
+    # specular arm of a mirror bowl has nothing correct to return.
+    #
+    # BOTH ARE OVERRIDABLE so the retired arm can still be rendered for
+    # comparison, which is this project's standing pattern for a retirement
+    # (cf. W_DUST_FAC_UP / T1_W_DUP, SPEC 10.82):
+    #     T1_HL_LENS_RG=0.018 T1_HL_REFL_RG=0.055   restores the mirror arm.
+    M["lens"] = simple("lens", (0.900, 0.918, 0.930),
+                       rough=float(os.environ.get("T1_HL_LENS_RG", 0.018)),
                        transmit=0.96, ior=1.52, spec=0.42)
     # sealed inside the lamp bowl -- nothing weathers it
-    M["reflector"] = simple("reflector", (0.960, 0.962, 0.968), rough=0.055,
+    M["reflector"] = simple("reflector", (0.960, 0.962, 0.968),
+                            rough=float(os.environ.get("T1_HL_REFL_RG", 0.055)),
                             metal=1.0)
     # brushed galley stainless, not a mirror: at rough 0.28 in an unlit box
     # the hatches filled with specular blobs instead of reading as an interior

@@ -433,7 +433,38 @@ for s in (1, -1):
     # wing mirror, counter stainless, lamppost, pavement).  It is not a warm
     # bounce: every genuinely warm surface in that frame carries a* with its
     # b* (red 49/40, wall 11/11) and the bezel's ratio is 0.07.  R-B = +68.
-    for o, k in ((ring, "brass"), (lens, "lens"), (bowl, "reflector")):
+    #
+    # ------------------------------------------------- rev 45, SPEC 10.111
+    # RETIRED TO CHROME, AND THE REV-10 READING IS NOT CALLED WRONG -- IT IS
+    # CALLED UNCONTROLLED.  ref_nolita_front34.jpg (recovered this revision;
+    # the rev-44 brief listed it as tracked and it was NOT in the tree) shows
+    # the same bezel at about four times the scale, front three-quarter,
+    # resolved over ~15 px of arc, under cool indoor light:
+    #
+    #     bezel top arc                 b* + 2.7      a* +23.1
+    #     bezel bottom arc              b* + 6.7      a* +16.1
+    #     white wall, SAME frame        b* + 6.9      <- the frame's neutral
+    #     red nose, 10 px outboard      b* +61.8      <- the frame's warm
+    #
+    # The bezel's b* is INDISTINGUISHABLE FROM THE FRAME'S OWN NEUTRAL and
+    # nowhere near its warm surfaces.  ref_playa_34.png shows the same part in
+    # low direct sun reading gold on its sunward arc and dark on the other --
+    # which is what CHROME does and what brass does not: brass is warm from
+    # every direction.
+    #
+    # WHY THE REV-10 CONTROL SET DOES NOT CONTROL.  Its five neutrals are a
+    # door handle, a wing mirror, counter stainless, a lamppost and pavement.
+    # Not one of them is a SMALL MIRROR-FINISH TORUS RINGED BY A LARGE WARM
+    # PANEL, which is the confound here, and on ref_side.jpg -- a flat side
+    # view -- the bezel is seen at grazing incidence and is a few pixels wide.
+    # A chrome ring surrounded by cream and red bodywork reading b* +31.6 in
+    # that frame is exactly what the bounce predicts.  The 1963 T1's headlamp
+    # rim is a chrome-plated pressing; two frames and the part agree.
+    #
+    # THE RETIRED ARM STILL RENDERS: T1_HL_BEZEL=brass restores it.  This is
+    # the same pattern as SPEC 10.82's T1_W_DUP.
+    _BEZEL = os.environ.get("T1_HL_BEZEL", "chrome")
+    for o, k in ((ring, _BEZEL), (lens, "lens"), (bowl, "reflector")):
         D.place(o, loc=(HL_X, s * HL_Y, HL_Z)); A(o, k)
     # rev 10 (audit inventory-9, re-derived).  The finding said "20 mm
     # inboard"; it understated by 7x.  Measured off ref_workshop.jpg the
@@ -553,6 +584,8 @@ ROUNDEL_Z = ROUNDEL_Z_AG + T.rake_drop(2.1155)
 vr, vd = D.roundel(R=ROUNDEL_D / 2)
 for o, k in ((vr, "roundelred"), (vd, "cream")):
     D.place(o, loc=(2.1155, 0.0, ROUNDEL_Z)); A(o, k)
+_EMBLEM_PLATE = [vr, vd]
+_EMBLEM_FRONT = {}                     # object -> indices of its FRONT face
 # rev 10.  The V and the W had merged into an X again -- the same failure
 # SKEPTIC_PASS sec.D fixed in rev 8, returning by a different route.
 #
@@ -578,6 +611,85 @@ for o, k in ((vr, "roundelred"), (vd, "cream")):
 # down at all, so there is nothing left here to go stale a third time.
 for b in D.vw_logo_fit(ROUNDEL_D / 2, x=2.1210):   # V over W, never inverted
     D.place(b, loc=(0.0, 0.0, ROUNDEL_Z)); A(b, "roundelred")
+    _EMBLEM_PLATE.append(b)
+
+# The front face of each piece, identified BEFORE the drape moves anything:
+# these are the vertices the camera actually sees, and they are the only ones
+# that have to stand proud.  The ring's profile and the disc's back plate both
+# carry material BEHIND the skin on purpose, so a guard over every vertex is
+# the wrong guard -- it fired on this very change (rule 12 working), at
+# -15.11 mm, on the ring's back rim.  Stated, not quietly widened.
+for _o in _EMBLEM_PLATE:
+    _xm = max(_v.co.x for _v in _o.data.vertices)
+    _EMBLEM_FRONT[_o.name] = [_v.index for _v in _o.data.vertices
+                              if _v.co.x > _xm - 1e-6]
+
+# ------------------------------------------------------- rev 45, SPEC 10.110
+# DRAPE THE BADGE ONTO THE NOSE.  Everything above builds the roundel in the
+# Y-Z plane and extrudes it along +X, so ring, disc and glyph together are one
+# FLAT PLATE -- and the nose is not flat.  Raycast against this very body,
+# before the drape, at the badge's own centre height:
+#
+#     straight UP    at the ring radius   the nose is  -31.6 mm  (falls away)
+#     up-left/right                                    -19.0 mm
+#     sideways                                          -0.6 mm
+#     straight DOWN                                     +3.0 mm  (comes forward)
+#
+# so the plate's upper half floated up to 32 mm proud of the sheet metal and
+# its LOWER half was flush with it or 0.3 mm BEHIND it.  Rendered, the V stood
+# out and THE ENTIRE W VANISHED INTO THE BODY except its two outer arm tips --
+# which is why the badge reads as a CLOCK FACE at every resolution, and is what
+# the owner has been reporting as "the logo is off" for three revisions.
+#
+# It was never found because every check ever run on this emblem was run on the
+# GLYPH'S OWN OUTLINE, IN ITS OWN PLANE: SPEC 10.25's air gap, 10.107's six
+# stroke ends, probe_rev44_lampmove's height.  Not one of them involved the
+# body.  A detail you cannot see is not a detail (rule 10) -- and a detail
+# measured in isolation from what it sits on is not measured.
+#
+# NOTHING IN THE GLYPH MOVES IN ITS OWN PLANE.  drape_x translates each vertex
+# in X ONLY.  The spine, the stroke width, the fit radius, ROUNDEL_D and
+# ROUNDEL_Z_AG are all untouched, so probe_rev44_lampmove's two chains and
+# SPEC:7005's trap are unaffected by construction, not by inspection.
+def _nose_x(y, z):
+    hit, loc, _n, _i = body.ray_cast(Vector((3.5, y, z)), Vector((-1, 0, 0)))
+    return loc.x if hit else None
+
+
+# Two plates, two mounting planes.  The ring and its backing disc are authored
+# with the mounting plane at local x = 0, placed at 2.1155; the glyph is
+# authored with its BACK FACE as the mounting plane, at 2.1210.
+_n_dr = _n_miss = 0
+_dx_lo, _dx_hi = 9e9, -9e9
+for _plate, _mount in (([vr, vd], 2.1155),
+                       ([o for o in _EMBLEM_PLATE if o not in (vr, vd)], 2.1210)):
+    _n, _lo, _hi, _ms = T.drape_x(_plate, _nose_x, _mount, standoff=0.0016)
+    _n_dr += _n; _n_miss += _ms
+    _dx_lo = min(_dx_lo, _lo); _dx_hi = max(_dx_hi, _hi)
+log("roundel draped onto the nose: %d verts, dx %+.1f..%+.1f mm, %d lattice misses"
+    % (_n_dr, _dx_lo * 1000, _dx_hi * 1000, _n_miss))
+# GUARD, ADDED IN THE SAME EDIT AS THE CHANGE (rule 12).  Every emblem vertex
+# must now stand PROUD of the nose, and by a bounded amount -- a plate that is
+# flush anywhere is a plate that will be swallowed by the shader bevel and the
+# 2.8 mm skin, and a plate standing 30 mm off is the defect this fixes.
+_pr = []
+for _o in _EMBLEM_PLATE:
+    for _i in _EMBLEM_FRONT[_o.name]:
+        _v = _o.data.vertices[_i]
+        _sx = _nose_x(_v.co.y, _v.co.z)
+        if _sx is not None:
+            _pr.append(_v.co.x - _sx)
+assert _pr, "emblem drape guard: no front-face vertex resolved against the nose"
+assert min(_pr) > 0.0005, (
+    "SPEC 10.110: an emblem FRONT-FACE vertex is only %.2f mm proud of the "
+    "nose (the flat plate reached -0.3 mm); the badge is being swallowed again"
+    % (min(_pr) * 1000))
+assert max(_pr) < 0.030, (
+    "SPEC 10.110: an emblem FRONT-FACE vertex stands %.1f mm proud of the "
+    "nose (the flat plate reached 32 mm); the badge is a flat plate on a "
+    "curved panel again" % (max(_pr) * 1000))
+log("  emblem front faces proud of nose: %.2f .. %.2f mm over %d verts"
+    % (min(_pr) * 1000, max(_pr) * 1000, len(_pr)))
 
 # SPEC sec.4 detail inventory: rear-quarter louvres (10 per side), fuel filler
 # flap, aperture bobble fringe, drip-rail bulb string, pillar menu cards,

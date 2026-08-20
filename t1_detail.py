@@ -819,7 +819,13 @@ def overrider_posts(name="orb_post"):
 
 # =================================================================== LAMPS
 def headlamp(x_off=0.0):
-    """returns (chrome ring, lens, bowl) for one side; y positive"""
+    """returns (bezel ring, lens, bowl) for one side; y positive
+
+    The ring's material is chosen at the CALL SITE in build.py, not here --
+    see SPEC 10.111.  This docstring said "chrome ring" for thirty-five
+    revisions while build.py assigned "brass"; the contradiction is resolved
+    there, and the word is neutral here so it cannot go stale again.
+    """
     R = 0.0862
     ring_prof = [
         (-0.004, R + 0.0165), (0.008, R + 0.0155), (0.019, R + 0.0060),
@@ -827,11 +833,32 @@ def headlamp(x_off=0.0):
         (-0.004, R - 0.0090),
     ]
     ring = T.revolve(ring_prof, seg=72, axis='X', name="hl_ring")
+    # ------------------------------------------------- rev 45, SPEC 10.111
+    # THE LENS WAS DISHED THE WRONG WAY ROUND.  The retired profile ran
+    # (x, r) = (0.0000, 0.0000) at the centre out to (0.0290, 0.0862) at the
+    # rim -- i.e. CONCAVE, a saucer whose deepest point is on the axis.  A
+    # headlamp lens is CONVEX.
+    #
+    # It was never visible as a shape error because of what it did instead.
+    # Raycast down the near lamp's own axis, rev 45, on the built body:
+    #     hit T1_body   at x = 2.1116      <- the nose's outer skin
+    #     hit T1_body   at x = 2.1088      <- its inner skin, 2.8 mm behind
+    #     hit hl_lens   at x = 2.1015      <- the lens, 10.1 mm INSIDE the body
+    # so on the axis the camera sees RED SHEET METAL and the lens only emerges
+    # near its rim.  That is the whole of the "dark red hole" -- and it is the
+    # SAME defect class as SPEC 10.110's roundel: a part authored in its own
+    # local frame and never once checked against the panel it is fitted to.
+    #
+    # Turned convex, apex forward, sitting 3.0 mm behind the bezel's own front
+    # face (ring_prof's 0.0235) so the glass fills the aperture and the chrome
+    # still stands proud of it.  Radius of curvature 0.263 m over the 0.0862 m
+    # lens -- a gently domed lens, which is the part.
+    LENS_APEX = 0.0205                       # ring_prof's front is 0.0235
     lens_prof = [
-        (0.0000, 0.0000), (0.0060, 0.0300), (0.0110, 0.0520),
-        (0.0165, 0.0700), (0.0230, 0.0810), (0.0290, 0.0862),
-        (0.0250, 0.0862), (0.0180, 0.0790), (0.0110, 0.0640),
-        (0.0055, 0.0400), (0.0000, 0.0150),
+        (LENS_APEX, 0.0000), (0.0200, 0.0300), (0.0186, 0.0520),
+        (0.0160, 0.0700), (0.0120, 0.0810), (0.0060, 0.0862),
+        (0.0020, 0.0862), (0.0075, 0.0790), (0.0105, 0.0640),
+        (0.0130, 0.0400), (0.0145, 0.0150),
     ]
     lens = T.revolve(lens_prof, seg=72, axis='X', name="hl_lens")
     bowl_prof = [

@@ -107,7 +107,23 @@ if [ "${NPR:-0}" -ge 31 ]; then ck "probe_*.py >= 31" ok ok
   say "        ($NPR probes; 31 is rev 42.  Probes are never deleted.)"
 else ck "probe_*.py >= 31" ok "lost:$NPR"; fi
 ck "source photographs (.jpg)"      3 "$(ls ref_side.jpg ref_rear34.jpg ref_workshop.jpg 2>/dev/null | wc -l)"
-ck "annotated derivatives (.png)"   5 "$(ls ref_*.png 2>/dev/null | wc -l)"
+# rev 45 -- THIS CHECK WAS RE-WRITTEN, NOT RE-BASED, AND HERE IS WHY.
+# It counted `ref_*.png` and called the answer "annotated derivatives".  Those
+# are two different things and the label was carrying the check.  rev 45 added
+# ref_playa_34.png, which is a SOURCE PHOTOGRAPH that happens to be a .png, and
+# the count went 5 -> 6 while nothing about the derivatives changed.  Bumping
+# the 5 to a 6 would have made the check pass and stopped it meaning anything.
+# So it now names the five derivatives it is actually about.
+ck "annotated derivatives (grids)" 5 "$(ls ref_band_grid.png ref_grid.png ref_nose_grid.png ref_side_grid.png ref_x6_lanczos.png 2>/dev/null | wc -l)"
+# rev 45 -- NEW, AND IT IS THE CHECK THAT WOULD HAVE SAVED A REVISION.
+# NEXT_CONTEXT_PROMPT_rev45.md sec.4 states "Reference photographs (8, all
+# tracked)" and names four Nolita frames.  THREE OF THE FOUR WERE NEVER
+# COMMITTED.  Item W1 -- the entire roundel task -- was specified against
+# measurements taken on ref_nolita_front34.jpg, a file that was not in the
+# tree.  No check noticed, because no check counted them.  This one does.
+# See REFERENCE_FRAMES_rev45.md for the recovery and the identifications.
+ck "nolita + playa frames"          5 "$(ls ref_nolita_doorshut.jpg ref_nolita_flank.jpg ref_nolita_front34.jpg ref_nolita_front34b.jpg ref_playa_34.png 2>/dev/null | wc -l)"
+ck "upload provenance kept"         5 "$(ls IMG_2053.jpeg IMG_2054.jpeg IMG_2060.jpeg IMG_3840.jpeg IMG_3842.png 2>/dev/null | wc -l)"
 
 # ------------------------------------------------------------ SPEC anchor counts
 # ANCHOR WITH ^.  grep -c COUNTS LINES, NOT OCCURRENCES.  CASE MATTERS.
