@@ -183,7 +183,15 @@ ck "amtrak (HIS word)"              2 "$(grep -c 'amtrak' SPEC.md)"
 # more times -- it is the frame that settled the headlamp bezel's chroma and
 # the frame rev 45's badge work was checked against.  Same reading as rev 44b's:
 # THIS ROW IS A REMINDER THAT THE NOLITA FRAMES ARE ADMISSIBLE, not a cap.
-ck "nolita, any case"              31 "$(grep -ic 'nolita' SPEC.md)"
+# rev 48: 31 -> 32.  SPEC 10.122.3 cites ref_nolita_front34.jpg for the one
+# thing that frame settled this revision: it shows the REAL rear louvres
+# reading as BRIGHT highlight lines, which is what refuted rev 48's own
+# headline finding that the built slats have the wrong sign.  Sixth bump,
+# same reading as every one before it: THIS ROW IS A REMINDER THAT THE NOLITA
+# FRAMES ARE ADMISSIBLE, not a cap.  WATCHED PRINT at "got '32', want '31'"
+# before it was changed here (rule 4) -- the row went red first, and the bump
+# is the response to it, not a guess ahead of it.
+ck "nolita, any case"              32 "$(grep -ic 'nolita' SPEC.md)"
 ck "TEN flower heads"               1 "$(grep -c 'TEN flower heads' SPEC.md)"
 
 # ------------------------------------------------------------------ build files
