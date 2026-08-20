@@ -228,6 +228,55 @@ against 0.46.** The V is squat and the W stretched, which is why it still reads 
   segments cleanly; the workshop frame's chrome does not.
 * The spine lives in `t1_core.vw_bars` — `V_SPINE` and `W_SPINE`. Move the V's apex DOWN and the W's
   troughs UP, in ring-radius units, and re-run the row-structure comparison.
+
+#### W2a — THE OWNER'S POINT, AND IT CHANGES THE METHOD: **THIS IS A FACTORY PART**
+
+At the close of rev 45 he asked: *"I imagine the logo badge has to be the same dimensions as other vw
+logo badges right?"*
+
+**He is right, and it matters more than it looks.** Confirmed on `ref_nolita_front34.jpg` at 10×: the
+badge **casts a shadow onto the cream at its lower right** and the ring carries its own thickness
+shading. It is a three-dimensional pressing painted red — **not a painted-on graphic.** So it is a
+catalogue part with a part number and a specified diameter.
+
+**`ROUNDEL_D` is currently a PHOTOGRAMMETRIC ESTIMATE WITH A ±30 mm ERROR BAR.** From `build.py`'s
+own comment: *"the outer diameter is 0.28 ± 0.03 m … Method: D_roundel / D_aperture = (m_ro/2)(1/m_near
++ 1/m_far) = 1.384 off `ref_workshop.jpg`."* **±10.7 % on a part that has a specification.** A
+catalogue figure would beat that by an order of magnitude and needs no frame at all.
+
+**What rev 45 found, and the trap it stopped on.** The part number for a 1963 bus is
+**`241853601A`** (Type 2 front emblem, 1955–1967). **A citable diameter for THAT part was not
+found**, and the diameters that *were* findable are era-specific and wildly different:
+
+| part | fits | diameter |
+|---|---|---|
+| `211853601E` | Bus 72½–79 | **7 in** ≈ 178 mm |
+| `211853601B` | Bus 68–72½ | **9¾ in** ≈ 248 mm |
+| a listed "vintage original" | probably the 1950–55 barndoor | **12½ in** ≈ 318 mm |
+| **`241853601A`** | **Bus 1955–1967 — OURS** | **NOT FOUND** |
+
+> **DO NOT GUESS FROM THE TABLE.** Four eras, four sizes, and picking the wrong row would be worse
+> than the ±30 mm estimate already in the tree. Rev 45 did **not** change `ROUNDEL_D`.
+
+**How to close it, in order of preference:**
+
+1. **A supplier's dimensioned listing or a restoration manual for `241853601A`.** `WebSearch` works in
+   this environment; `WebFetch` and `curl` are 403 on every domain except `raw.githubusercontent.com`,
+   so you may be able to *find* a page and not *read* it. Search result snippets carrying the number
+   are usable if the part number is in the same snippet as the dimension.
+2. **Ask him.** He is standing next to the vehicle. *"Tape measure across the VW badge on the nose,
+   outer edge to outer edge"* is a fifteen-second job and it is worth more than any photograph in
+   this repository. **This is now the cheapest open item in the whole project** — add it to
+   `PHOTOS_WANTED` as a MEASUREMENT rather than a photograph.
+3. Only then fall back to photogrammetry.
+
+**AND THE BIGGER PRIZE IS THE GLYPH, NOT THE RING.** The VW monogram is a **registered trademark with
+fixed proportions**. Four revisions have now tried to derive its spine from a 68-pixel emblem and he
+has reported it wrong every time. **Build the canonical mark and use the photograph to VERIFY, not to
+derive** — the numbers in W2's table above become the acceptance test rather than the source. That
+inverts the method that has failed four times, and it is what his question implies.
+
+
 * **`probe_rev44_lampmove` C5/C6 hold the badge's HEIGHT on the nose from two chains and must stay
   6/0.** They watch where the badge sits, not what it draws; this change must not move them.
 * SPEC:7005 forbids moving the roundel in the same change as the lamps. Still in force.
@@ -323,11 +372,14 @@ Ranked, and every entry says *why it cannot be settled from what we hold*:
 1. **The off side** — a flat-on right flank. 804.9 mm, graded **E**, and **we do not know what is
    painted on it.**
 2. **Anything settling the absolute roof height.** One photo of him beside it, plus his height.
-3. **The nose, SQUARE ON** — now worth double: it settles W2's remaining angles *and* W4's plan
+3. **A TAPE MEASURE ACROSS THE NOSE BADGE, outer edge to outer edge.** Fifteen seconds, and it
+   replaces a ±30 mm photogrammetric estimate on a catalogue part. **The cheapest open item in the
+   project.** See W2a.
+4. **The nose, SQUARE ON** — now worth double: it settles W2's remaining angles *and* W4's plan
    curvature. Reading angles off a three-quarter needs the ring's axis ratio and the two fits
    available disagree by 10 %.
-4. **The cab interior, square on through the windscreen.** The cab is class 4.
-5. The sign board (W5), a head-on rear and the trunk lid, and the cab door's full outline with the
+5. **The cab interior, square on through the windscreen.** The cab is class 4.
+6. The sign board (W5), a head-on rear and the trunk lid, and the cab door's full outline with the
    art on it.
 
 **Do NOT ask him again for:** the over-rider assembly, the signboard's existence, region 3, the ten

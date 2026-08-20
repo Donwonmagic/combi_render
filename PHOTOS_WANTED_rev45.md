@@ -26,7 +26,25 @@ assumption made at rev 10 and never tested.
 every single run saying the figure is unsupported. **One photograph of you standing beside it, plus
 your height, closes an eleven-revision hole.**
 
-## 3. THE NOSE BADGE, SQUARE ON — new, rev 45, and it is cheap
+## 3. A TAPE MEASURE ACROSS THE NOSE BADGE — new, rev 45. NOT a photograph.
+
+**Outer edge to outer edge of the VW badge on the nose. Fifteen seconds.**
+
+This is now the **cheapest open item in the whole project**, and it exists because of your own
+question: *"I imagine the logo badge has to be the same dimensions as other vw logo badges right?"*
+You are right — it is a factory pressing (it casts a shadow onto the cream in your own photograph,
+so it is relief, not paint), part number **`241853601A`** for 1955–1967.
+
+**The model currently uses 0.280 m ± 0.030 m** — a photogrammetric estimate off `ref_workshop.jpg`,
+**±10.7 % on a part that has a specification.** Rev 45 searched for a catalogue diameter for that
+part number and did not find one; the sizes it *could* find are era-specific and range from 7 in to
+12½ in across four different emblems, so guessing would be worse than the estimate.
+
+**One tape measure closes it to the millimetre.**
+
+## 4. THE NOSE BADGE, SQUARE ON — new, rev 45, and it is cheap
+
+*(§3 and §4 are the same fifteen seconds at the same place: tape first, then step back and shoot.)*
 
 Stand directly in front of the bus, phone at badge height, fill the frame with the badge.
 
@@ -40,7 +58,7 @@ no squash to undo.**
 Rev 45 fixed why the badge rendered as a clock face (it was sunk into the bodywork) and deliberately
 did **not** touch the drawing, because this frame does not exist yet.
 
-## 4. THE CAB INTERIOR, SQUARE ON THROUGH THE WINDSCREEN — new at rev 44b, still open
+## 5. THE CAB INTERIOR, SQUARE ON THROUGH THE WINDSCREEN — new at rev 44b, still open
 
 The cab is **class 4**: it was built at rev 44, it is type-correct 1963 T1, and **no frame in this
 project resolves it**. It is placed off members that are fixed, so it cannot drift independently of
@@ -49,7 +67,7 @@ the shell — but that is a coupling, not a measurement.
 Related and open: the driving position is 622 mm from the seat back to the hub, about 150 mm more
 reach than a T1 driver has.
 
-## 5. THE ROOF SIGN BOARD, AND WHICH ONE YOU WANT — new, rev 45
+## 6. THE ROOF SIGN BOARD, AND WHICH ONE YOU WANT — new, rev 45
 
 The build paints the raised board as a **flower mural with menu strips down its edges**. Every
 photograph we hold — `ref_nolita_doorshut.jpg`, `ref_nolita_front34b.jpg` — shows a **hand-chalked
@@ -59,11 +77,11 @@ BLACKBOARD** in a cream frame, TACOMBI across the top, BIENVENIDOS down the side
 blackboard, a straight-on frame of it with the writing legible would let it be reproduced rather than
 invented.
 
-## 6. HEAD-ON REAR, and the **trunk lid** question
+## 7. HEAD-ON REAR, and the **trunk lid** question
 
 `grep -c trunk` is 0 in both the code and the spec, and it has been raised twice.
 
-## 7. THE CAB DOOR, FULL OUTLINE, WITH THE ART ON IT
+## 8. THE CAB DOOR, FULL OUTLINE, WITH THE ART ON IT
 
 `ref_nolita_doorshut.jpg` has the outline but the Nolita livery; `ref_playa_34.png` has the art but at
 500 px for a 4 m vehicle. One frame with both would close the art-frame finding for good.
