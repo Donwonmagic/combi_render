@@ -211,6 +211,37 @@ along**, and note that `HL_Z` moved **down 97 mm** in rev 44 (§10.24 item 3,
 Report 3 applied after 34 revisions) — so this ratio has *just* changed and has
 never been checked against a photograph since.
 
+**W1b — AND THE GLYPH'S SIZE HAS TWO MEASUREMENTS 3.6 σ APART. THIS IS THE
+STRONGEST CANDIDATE FOR "THE VW STILL DOESN'T LOOK RIGHT".** Both measure the
+same quantity — *glyph height / ring outer D* — by the same rule (the stroke
+ends terminate inside the ring band), off two different frames:
+
+| source | ratio |
+|---|---|
+| rev 15, `ref_workshop.jpg`, cited in `vw_logo_fit.__doc__` | **0.746 ± 0.028** |
+| rev 44b, `ref_nolita_front34.jpg`, red-mask row runs (glyph y+6 → y+62 of a 66 px roundel) | **≈ 0.848** |
+| **the model, after §10.107** | **≈ 0.805** |
+
+**They cannot both be right and the model sits between them.** Until this is
+settled nobody knows what size the badge should be, which is exactly the state
+that produces "it still doesn't look right" three revisions running. §10.107's
+fix (all six ends to 0.840 of the ring radius) *grew* the glyph — correctly, on
+its own evidence — so this conflict is newly binding.
+**Settle it before touching the emblem again.** `ref_workshop.jpg` is a
+three-quarter frame that §10.62/§10.73 rule inadmissible for metrics on the door
+plane; whether that ruling extends to the nose is itself unrecorded.
+`ref_nolita_front34.jpg` is also three-quarter but the roundel is only 41 × 66 px
+in it. **Vertical extents only in both** (§10.107.2).
+
+**W1c — WHAT THE EMBLEM IS *NOT*, MEASURED, SO IT IS NOT CHASED AGAIN.** The
+built V outline has **0 self-intersections**; the V × W crossings are **2**,
+which is the intended fusion; the V's apex overlaps the W's centre peak by
+**4.31 mm** against §10.107's designed ~5 mm. The X-like reading at the centre
+of the badge is **also present in `ref_nolita_front34.jpg`** — the V's arms rise
+out of the same junction the W's inner arms fall from, and that is what the real
+badge does. **Do not "fix" the crossing.** SPEC records the glyph being merged
+into an X twice by people who tried.
+
 **W2 — "100% CALIDAD" (ledger finding 5, open).** Re-measured in rev 44: the
 defect is **colour, not position**. Core, top-decile saturation: model
 **(213,131,111)** G/R 0.617 against reference **(237,103,90)** G/R 0.434 — it
