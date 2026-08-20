@@ -409,6 +409,70 @@ def rear_arch_outline(x_axle, n=96, floor=-0.400):
     return pts
 
 
+def headlamp_recess_cutters(hl_x, hl_y, hl_z, r_lens=0.0862):
+    """rev 45 SPIKE, SPEC 10.115 -- the pressed bowl each headlamp sits in.
+
+    FINDING 41.  There is no headlamp aperture in the nose at all.  The lamp
+    assembly is fitted into unbroken sheet metal: raycast down the near lamp's
+    own axis and the ray hits T1_body at 2.1116 and 2.1088 BEFORE it reaches
+    hl_lens.  The reflector is therefore invisible and the lens is backed by
+    body paint.
+
+    A 1963 T1's headlamp does NOT sit in a plain hole.  The nose panel is
+    DRAWN BACK into a shallow bowl and the lamp sits in it, chrome rim on the
+    outer face.  Both frames show it as a shadowed ring round the bezel --
+    ref_nolita_front34.jpg and ref_playa_34.png -- and that shadow is most of
+    what makes a lamp read as set INTO a panel rather than stuck ON it.
+
+    WHAT THIS ACTUALLY BUILDS, AND A DOCSTRING THAT LIED FOR ONE HOUR.
+    The first draft of this comment said "a truncated cone, not a cylinder:
+    mouth at the lens radius, throat at 0.62 of it".  `T.solid_prism` extrudes
+    ONE outline at CONSTANT section -- it cannot make a cone -- so the code
+    built a straight-sided bore while the prose claimed a taper.  That is the
+    same defect class this revision found twice already (`headlamp`'s "chrome
+    ring" against build.py's "brass", and `roof_lids`' "inset 160 mm" against
+    an expression that reads as an outset).  Corrected here rather than in a
+    later revision: THIS IS A STRAIGHT-SIDED BORE, 52 mm deep, at the lens
+    radius.
+
+    THE DEPTH AND THE SECTION ARE AUTHORED, NOT MEASURED.  No frame we hold
+    resolves the bowl's section -- it is inside the bezel in every one of them.
+    They are declared here, in one place, so a later measurement replaces two
+    numbers and nothing else.  `PHOTOS_WANTED_rev45.md` asks for the frame.
+
+    THE CUT IS COUPLED TO THE REFLECTOR AND THAT IS WORTH KNOWING BEFORE YOU
+    TOUCH EITHER.  Before the cut the lens was backed by sheet metal, which is
+    why it read as a mid-grey disc -- accidentally close to the photograph for
+    the wrong reason.  Cutting the bore exposes `hl_bowl`, a metal=1.0 mirror,
+    and a mirror in an unlit cavity returns the cavity.  Measured through
+    `probe_rev45_nose`'s projected landmark, at the SHIPPED reflector settings:
+
+        lens / cream         0.423  no bore  ->  0.549  bored   (photo 0.565)
+        lens (R-B) / cream  +0.069  no bore  -> +0.027  bored   (photo -0.024)
+
+    Both move toward the photograph, and the eye agrees once the render is big
+    enough: bored, the aperture has a highlight, a bright arc and depth; unbored
+    it is a flat dull disc.  RECORDED BECAUSE THE FIRST EYEBALL READ OF THIS
+    SPIKE WAS THE OPPOSITE, taken off a 48-sample T1_SUB=1 crop, and the A/B at
+    64 samples overturned it.  Rule 10 cuts both ways: a detail you cannot see
+    is not a detail, and a detail you looked at badly is not looked at.
+
+    T1_HL_BOWL=0 skips the cut and restores the un-bored arm.
+    """
+    obs = []
+    for s in (1, -1):
+        prof = []
+        n = 28
+        for i in range(n):                       # mouth ring, at the skin
+            a = T.TAU * i / n
+            prof.append((r_lens * math.cos(a), r_lens * math.sin(a)))
+        mouth = T.solid_prism((hl_x + 0.010, s * hl_y, hl_z),
+                              (0, s, 0), (0, 0, 1), (-1, 0, 0),
+                              prof, 0.052, name=f"cut_hlbowl{s}")
+        obs.append(mouth)
+    return obs
+
+
 def arch_cutters():
     obs = []
     for s in (1, -1):

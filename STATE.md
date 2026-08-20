@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-20 01:30:59 UTC |
-| git commit | `48e3143` |
-| git subject | rev 45: the Calidad decal is red again, and the sign props stood in the hole |
+| generated | 2026-08-20 02:23:18 UTC |
+| git commit | `fc4596b` |
+| git subject | rev 45: verify_clone -- four rows adjudicated, two of them PRE-EXISTING staleness |
 | working tree | **DIRTY** — this state is not committed |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=2 (applied, destructive, before booleans) |
@@ -54,7 +54,7 @@ VERIFY: 0 fail, 0 warn
 |---|---|
 | cutters rolled back | none |
 | non-manifold edges (body) | 0 |
-| body faces | 239607 quad, 1212 tri, 5221 ngon |
+| body faces | 238333 quad, 1272 tri, 5453 ngon |
 
 ## Measured dimensions
 
@@ -141,8 +141,8 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 | | |
 |---|---|
 | mesh objects | 221 |
-| vertices (all meshes) | 331246 |
-| faces (all meshes) | 322261 |
+| vertices (all meshes) | 330496 |
+| faces (all meshes) | 321279 |
 
 | prefix | n |
 |---|---|

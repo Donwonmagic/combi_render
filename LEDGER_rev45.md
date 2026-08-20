@@ -137,12 +137,13 @@ samples, not the mottle map. Render heroes at more samples; change nothing.
 | `T1_SUB=1 audit.py` | see §6 |
 | `T1_SUB=2 audit.py` | see §6 |
 | `./verify_clone.sh` | see §6 — and **`git fetch --unshallow` first**, or the `commits >= 227` line fails on `short:73` |
+| `./bootstrap.sh` | **NEW, rev 45. ALL 10 PASS.** Reproduces the toolchain from a bare container and then runs `verify_clone.sh`. Proven from scratch: `rm -rf /tmp/blender && ./bootstrap.sh` rebuilds and passes. `--guards` adds both builds and the probes. |
 
 **NEW IN CLASS 1, rev 45:**
 
 | probe | own summary line | expected |
 |---|---|---|
-| `probe_rev45_nose` | `CONTROLS: 7 checked, 0 FAILED` | 7/0 — **C5 is a KILL**, see below |
+| `probe_rev45_nose` | `CONTROLS: 8 checked, 0 FAILED` | 8/0 — **C5 is a KILL**, see below |
 
 `probe_rev45_nose` is the instrument this project was missing: **it does not type crop boxes.** Every
 other crop box in this repository is a hand-typed literal that goes stale when a camera or a constant
@@ -151,9 +152,17 @@ moves. This one projects known 3-D landmarks through the render camera and sampl
 the roundel — because without it "the projection works" is untestable: a stub returning a constant
 would pass every other control.
 
-**A control that could not see its own defect, recorded because it is the lesson.** C4 tests the
-lens's **luminance** ratio and it **passed at 0.432 while the aperture was rendering red**. C6, the
-chroma control, is what catches it. *A ratio that is right for the wrong reason is not a control.*
+**TWO controls that could not see their own defect, both recorded because it is the lesson.**
+
+* **C4** tests the lens's **luminance** ratio and it **passed at 0.432 while the aperture was
+  rendering red**. C6, the chroma control, is what catches it.
+* **C8** was first written as *"the first object down the lamp axis is `hl_*`, not `T1_body`"*,
+  straight off the measurement that found finding 41 — and it **passed in both arms**, because that
+  measurement predated §10.111.1's convex lens. Re-written to require that no `T1_body` face lies
+  *between* the lens and the bowl, and then **watched to fail** under `T1_HL_BOWL=0`.
+
+*A ratio that is right for the wrong reason is not a control. And a control is not finished when it
+passes — it is finished when you have watched it fail on the defect.*
 
 ---
 
@@ -197,9 +206,9 @@ Carried from `LEDGER_rev44.md` with rev 45's changes marked. **Findings 1–37 k
 | **38** | **NEW, rev 45 — the body red renders 3.5 σ too pale and it is the STUDIO, not the paint.** Same root cause as `optics-6`. | **INSTRUMENTED, NOT APPLIED — needs the owner.** §3 above; Q6 of `mark_rev45_ba.py`. |
 | **39** | **NEW, rev 45 — the roof sign board's artwork is a flower mural; every photograph shows a hand-chalked BLACKBOARD** in a cream frame with TACOMBI across the top and BIENVENIDOS down the side. | **NOT TOUCHED — art direction.** Q5 of `mark_rev45_ba.py`. |
 | **40** | **NEW, rev 45 — the emblem's backing disc is buried.** `roundel()`'s `disc_prof` puts its front surface *on* the mounting plane at r = 0, so with the ring's bead 13.5 mm proud the disc's centre sits behind the nose. Harmless (cream on cream) but it is dead geometry that z-fights. | open, low severity |
-| **41** | **NEW, rev 45 — there is no headlamp aperture cut in the nose.** The lamp assembly is fitted into unbroken sheet metal; the reflector is therefore invisible and the lens is backed by body paint. The convex lens hides it, but the shell is wrong. | open, low severity — cutting it changes the roof/manifold counts and every shut-line probe |
+| ~~41~~ | ~~there is no headlamp aperture cut in the nose~~ | **CLOSED, rev 45, §10.115.** Bored in step 3 with the other apertures. Raycast down the lamp axis goes `hl_lens -> T1_body -> T1_body -> hl_bowl` un-bored and `hl_lens -> hl_bowl` bored. lens/cream **0.423 -> 0.549** against 0.565 photographed; chroma **+0.069 -> +0.027** against −0.024. The bore's DEPTH and SECTION are authored, not measured. `T1_HL_BOWL=0` restores the un-bored arm. |
 
-**Closed this revision: 4, 5. Opened: 38, 39, 40, 41. Open from the record: 25.**
+**Closed this revision: 4, 5, 41. Opened: 38, 39, 40, 41. Open from the record: 24.**
 
 ---
 

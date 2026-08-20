@@ -1925,7 +1925,7 @@ def build_all():
     # sealed inside the lamp bowl -- nothing weathers it
     M["reflector"] = simple("reflector", (0.960, 0.962, 0.968),
                             rough=float(os.environ.get("T1_HL_REFL_RG", 0.055)),
-                            metal=1.0)
+                            metal=float(os.environ.get("T1_HL_REFL_MET", 1.0)))
     # brushed galley stainless, not a mirror: at rough 0.28 in an unlit box
     # the hatches filled with specular blobs instead of reading as an interior
     M["steel"] = interior_wear("steel", (0.560, 0.562, 0.568), 0.46, metal=1.0)

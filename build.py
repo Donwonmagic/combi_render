@@ -213,6 +213,16 @@ def cut(target, cutters, tag, kind="aperture"):
         f"   worst v-ratio {wv:.4f} f-ratio {wf:.4f} vol {wvol:.3e}")
 
 
+# --- headlamp hard points, hoisted to step 0 at rev 45 -----------------------
+# These were declared in step 7.  Step 3 now cuts the headlamp bowls (finding
+# 41) and a cutter cannot read a constant that is defined 300 lines later, so
+# they are hoisted VERBATIM rather than duplicated.  The rev-44 derivation of
+# HL_DROP is unchanged and lives with the lamp assembly in step 7.
+HL_DROP = 0.0970                 # 97.0 +- 25.0 mm, SPEC 10.24 item 3, belt arm
+HL_X    = 2.1015
+HL_Y    = 0.5450
+HL_Z    = 1.0300 - HL_DROP       # == 0.9330 authored.  WAS 1.0300.
+
 # ------------------------------------------------------------------- 1 shell
 log("lofting Kombi shell")
 body = T.build_kombi()
@@ -253,6 +263,17 @@ cut(body, S.door_gaps() + S.cargo_door_gaps() + S.engine_lid_gap(), "gaps",
 # non-manifold count and the shut-line probes must both be re-read at BOTH
 # subdivision levels.
 cut(body, S.roof_cutters(), "roof hole")
+
+# rev 45 SPIKE, finding 41 / SPEC 10.115 -- the headlamp bowls.  HL_X/Y/Z are
+# defined in step 7 (brightwork) which runs AFTER this, so the three constants
+# are forward-declared there and read here; they are NOT re-typed.  Cutting in
+# step 3 is required: this is an aperture like every other one and must be cut
+# while the shell is still a plain solidified skin.
+# T1_HL_BOWL=0 skips the cut, so the A/B is one flag and the ablation is
+# declared rather than reconstructed by editing the source (SPEC 10.105's rule
+# for a presentation device, applied to a geometry spike).
+if os.environ.get("T1_HL_BOWL", "1") != "0":
+    cut(body, S.headlamp_recess_cutters(HL_X, HL_Y, HL_Z), "headlamp bowls")
 
 body.name = "T1_body"
 body.data.shade_smooth()
@@ -407,10 +428,9 @@ A(D.handles(), "chrome")
 # against the build's belt - 0.242, i.e. 97.0 mm too high at ~3.9 sigma.  The
 # belt is independently anchored -- photographed window-sill-to-body-break
 # 102.7 +- 6.6 mm against a built 100.0 (SPEC 10.98), -2.7 mm.
-HL_DROP = 0.0970                 # 97.0 +- 25.0 mm, SPEC 10.24 item 3, belt arm
-HL_X    = 2.1015
-HL_Y    = 0.5450
-HL_Z    = 1.0300 - HL_DROP       # == 0.9330 authored.  WAS 1.0300.
+# rev 45: HL_DROP/X/Y/Z are DECLARED IN STEP 0 (search "HL_DROP =") because
+# step 3 cuts the headlamp bowls and needs them.  They are read here, not
+# re-typed -- re-typing them is exactly SPEC 10.25's defect class.
 # THE INDICATOR IS MEASURED RELATIVE TO THE LAMP AND MUST MOVE WITH IT.
 # Its Z was written as the LITERAL 1.2360 while the comment below claimed "Z is
 # set RELATIVE to the lamp, which is robust to the open question about the

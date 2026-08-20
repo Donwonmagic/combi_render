@@ -9505,3 +9505,95 @@ wired up.
 **Rev 44b's docstring forward-references "SPEC 10.110" for itself.** That
 section did not exist when it was written; §10.110 is now the drape and the
 question figures are here.
+
+---
+
+### 10.115  rev 45 — THE HEADLAMP BOWLS. FINDING 41 CLOSED, AND THREE CONTROLS THAT COULD NOT SEE THEIR OWN DEFECT
+
+#### 10.115.1  THE DEFECT
+
+**There was no headlamp aperture in the nose at all.** The lamp assembly was
+fitted into unbroken sheet metal. Raycast down the near lamp's own axis on the
+built body, before this change:
+
+```
+    hl_lens.001  ->  T1_body  ->  T1_body  ->  hl_bowl.001
+```
+
+The two `T1_body` hits are the 2.8 mm solidified skin. The reflector was behind
+it and therefore invisible, and the lens was backed by body paint.
+
+A 1963 T1's headlamp does **not** sit in a plain hole: the nose panel is drawn
+back into a shallow bowl and the lamp sits in it, chrome rim on the outer face.
+Both frames show it as a shadowed ring round the bezel —
+`ref_nolita_front34.jpg` and `ref_playa_34.png` — and that shadow is most of
+what makes a lamp read as set **into** a panel rather than stuck **on** it.
+
+#### 10.115.2  THE FIX, AND WHAT IN IT IS AUTHORED
+
+`t1_shell.headlamp_recess_cutters` issues one bore per side in **step 3**, with
+the other apertures, while the shell is still a plain solidified skin.
+`HL_X`/`HL_Y`/`HL_Z` are **hoisted to step 0 verbatim** rather than duplicated —
+a cutter cannot read a constant defined three hundred lines later, and re-typing
+it is §10.25's defect class exactly.
+
+**The depth (52 mm) and the straight-sided section are AUTHORED, NOT MEASURED.**
+No frame we hold resolves the bowl's section; it is inside the bezel in every
+one of them. Both numbers live in one place so a later measurement replaces two
+values and nothing else. `PHOTOS_WANTED_rev45.md` asks for the frame.
+
+`T1_HL_BOWL=0` skips the cut and restores the un-bored arm.
+
+#### 10.115.3  THE BORE IS COUPLED TO THE REFLECTOR, AND THAT IS THE INTERESTING PART
+
+Before the bore the lens was backed by sheet metal, which is why it read as a
+mid-grey disc — **accidentally close to the photograph, for the wrong reason.**
+Cutting the bore exposes `hl_bowl`, a `metal = 1.0` mirror, and a mirror in an
+unlit cavity returns the cavity. Measured through `probe_rev45_nose`'s projected
+landmark, at the **shipped** reflector settings:
+
+| | un-bored | bored | photographed |
+|---|---|---|---|
+| lens / cream | 0.423 | **0.549** | 0.565 |
+| lens (R−B) / cream | +0.069 | **+0.027** | −0.024 |
+
+Both move toward the photograph. A four-arm sweep of the reflector
+(`T1_HL_REFL_MET` × `T1_HL_REFL_RG`) was run and **the shipped defaults win** —
+roughening or de-metalling it moves lens/cream to 0.458–0.700 and away from
+0.565. Nothing about the reflector is changed.
+
+#### 10.115.4  THE FIRST EYEBALL READ OF THIS SPIKE WAS WRONG, AND SO WAS THE FIRST CONTROL
+
+Two errors on one change, both caught, both recorded.
+
+**The eye.** The first look at the bored arm — a 48-sample `T1_SUB=1` crop —
+read as *"worse: a deep dark hole"*, and the spike was very nearly reverted on
+it. The A/B at 64 samples against the photograph overturned it outright: bored,
+the aperture has a highlight, a bright arc and depth; un-bored it is a flat dull
+disc. **Rule 10 cuts both ways — a detail you cannot see is not a detail, and a
+detail you looked at badly is not looked at.**
+
+**The control.** C8 was first written as *"the first object down the lamp axis
+is `hl_*`, not `T1_body`"*, straight off the measurement that found the defect.
+**It passed in both arms.** That measurement was taken on the *concave* lens;
+§10.111.1 had since turned the lens convex with its apex at 2.1220, in front of
+the nose, so the first hit is the lens whether or not the bore exists. **The
+control passed on the very defect it was written for** — rule 18, inside the
+probe that rule 18 came from.
+
+Re-written to walk the axis and require that **no `T1_body` face lies between
+the lens and the bowl**, which is what the bore actually changes. It now reads:
+
+```
+    bored     hl_lens.001 -> hl_bowl.001                        PASS
+    un-bored  hl_lens.001 -> T1_body -> T1_body -> hl_bowl.001  FAIL
+```
+
+**A control is not finished when it passes. It is finished when you have watched
+it fail on the defect.** `T1_HL_BOWL=0` exists so that stays cheap forever.
+
+#### 10.115.5  WHAT IT COST THE GUARDS
+
+The bore changes the body's manifold state, which is the same class of change as
+rev 12's roof hole, so `verify.py`'s non-manifold count and every shut-line probe
+were re-read at **both** subdivision levels rather than at one.

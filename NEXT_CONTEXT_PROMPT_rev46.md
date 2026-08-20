@@ -76,14 +76,28 @@ projects known 3-D landmarks through the render camera and samples where they la
 
 ---
 
-## §3. PROVE THE TREE
+## §3. PROVE THE TREE — ONE COMMAND
 
 ```bash
 cd /home/user/combi_render
-git branch --show-current
-git fetch --unshallow                     # or verify_clone.sh fails on 'commits >= 227'
-./verify_clone.sh                         # expect ALL PASS on a clean tree
+./bootstrap.sh            # toolchain + tree.  ~1 min warm, ~5 min cold.
+./bootstrap.sh --guards   # ... and both builds and the probes.  ~6 min more.
 ```
+
+**`bootstrap.sh` is new at rev 45 and it exists because every context before you
+spent its first twenty minutes doing the same four things by hand from a recipe
+that lives in prose and has drifted twice.** It installs `bpy`, builds the two
+shims, deepens a shallow clone, checks that **no branch carries work `HEAD` does
+not have** (§0), and then runs `verify_clone.sh`. Expect **ALL 10 PASS**.
+
+It is idempotent and it was proved from scratch: `rm -rf /tmp/blender &&
+./bootstrap.sh` rebuilds the whole toolchain and passes.
+
+It also carries a **positive control on the shim itself** — several probes read
+`sys.argv[sys.argv.index("--")+1:]`, and a shim that rewrites argv makes those
+read the wrong slice silently. Without that control "the shim works" is untested.
+
+If you would rather do it by hand, everything below still applies.
 
 **Blender is not installed as an application.** `download.blender.org` returns 403 through the egress
 proxy. Blender 4.5.3 comes from `pip install bpy==4.5.3`, and **two shims** reproduce the paths eight
@@ -118,7 +132,7 @@ T1_PREVIEW=hero34f,side,detail_f T1_PFX=r T1_RX=1400 T1_RY=960 T1_SAMP=56 \
 Useful env: `T1_SUB` (**2 is the guarded case**), `T1_SAMP`, `T1_RX`/`T1_RY`, `T1_PFX`, `T1_OUT`,
 `T1_SAVE`, `T1_KEY`, `T1_SCENE=playa`, `T1_CLAY`, and the ablation switches `T1_NOBEVEL`,
 `T1_NOCABFILL`, `T1_CATCH`, `T1_GRAIN`, `T1_BPILLAR`, `T1_SPEC`, `T1_VT`, plus rev 45's
-`T1_HL_BEZEL`, `T1_HL_LENS_RG`, `T1_HL_REFL_RG`.
+`T1_HL_BEZEL`, `T1_HL_LENS_RG`, `T1_HL_REFL_RG`, `T1_HL_REFL_MET`, `T1_HL_BOWL`.
 
 **A build at `T1_SUB=2` takes ~80–100 s. A 3200×2133 hero at 192 samples takes ~55 min. A 4800×3200
 at 300 samples was quoted at 4½ hours and was killed — do not start one.** He has twice said *"Kill
@@ -130,7 +144,7 @@ it. Don't waste the computer."* Render small and often; render big once.
 
 1. **`LEDGER_rev45.md`** — the burn-down, four classes. **This is the spine.** §1 is the merge, §3 is
    the one finding rev 45 measured and refused to apply.
-2. **`SPEC.md`** — ~9500 lines, §10.1 … §10.114. Each §10.x is a dated record of one revision's
+2. **`SPEC.md`** — ~9600 lines, §10.1 … §10.115. Each §10.x is a dated record of one revision's
    reasoning. **Sections are never deleted**; a retracted one gets a banner pointing at its
    retraction.
 3. **`REFERENCE_FRAMES_rev45.md`** — what each of the nine frames can and cannot carry. **Read this
@@ -142,6 +156,16 @@ it. Don't waste the computer."* Render small and often; render big once.
 ---
 
 ## §5. WORK LIST FOR REV 46
+
+**Read the split first.** Two items are blocked on the owner and everything else is not, so if no
+answer has come back, start at W3 and do not sit waiting.
+
+| | | |
+|---|---|---|
+| **BLOCKED on him** | W0 | Q5 (the sign board) and Q6 (the paint) — both are decisions, not measurements |
+| **UNBLOCKED, in order** | W3 W4 W5 | the cab, fasteners, the ledger tail |
+| **BLOCKED on a photograph** | W1 | the badge's drawing — needs the square-on frame |
+
 
 **W0 — SEND HIM `rev45_ba.png` AND GET Q5 AND Q6 ANSWERED.** Two of rev 45's six questions are not
 fixes, they are decisions only he can make, and both block real work:
@@ -161,11 +185,11 @@ which is several degrees on every angle — the whole size of the effect. **Do n
 square-on frame.** Rev 44's `V half-angle` correction, merged this revision, used the one method that
 survives: **vertical extents only**, per §10.107.2.
 
-**W2 — FINDING 41, THE HEADLAMP APERTURE.** There is **no hole cut in the nose for the headlamps**.
-The lamp is fitted into unbroken sheet metal, so the reflector is invisible and the lens is backed by
-body paint. Rev 45's convex lens hides it. Cutting it is a step-3 cutter and it moves the roof
-manifold count and every shut-line probe, so it is a real piece of work — but it is the last obviously
-wrong thing on the face of the vehicle.
+**~~W2 — FINDING 41, THE HEADLAMP APERTURE.~~ DONE, rev 45, §10.115.** Bored in step 3 with the
+other apertures; `T1_HL_BOWL=0` restores the un-bored arm. Two things in it are worth reading before
+you touch a lamp: the bore is **coupled to the reflector** (un-bored, the lens was backed by sheet
+metal and read as a mid-grey disc — accidentally close to the photograph for the wrong reason), and
+the bore's **depth and section are authored, not measured** — no frame we hold resolves them.
 
 **W3 — THE CAB IS STILL CLASS 4.** Merged this revision, type-correct 1963 T1, **not measured**; no
 frame resolves it. Related and open: the driving position is 622 mm seat-back-to-hub, ~150 mm more
@@ -229,20 +253,37 @@ new 38–41.
     `probe_rev45_nose`'s C4 tests the headlamp lens's **luminance** and it **passed at 0.432 while the
     aperture was rendering red**. C6, the chroma control, is what catches it. When you write a
     control, ask what it would still pass on.
+19. **NEW, §10.115.4 — A CONTROL IS NOT FINISHED WHEN IT PASSES. IT IS FINISHED WHEN YOU HAVE WATCHED
+    IT FAIL ON THE DEFECT.** C8 was written straight off the measurement that found finding 41 and
+    **passed in both arms**, because that measurement predated §10.111.1's convex lens. Every ablation
+    switch in this repo exists to make that check cheap: `T1_HL_BOWL=0`, `T1_HL_BEZEL=brass`,
+    `T1_CATCH=0`, `T1_SPEC=0`. Use them on your own controls.
+20. **NEW, §10.115.4 — RULE 10 CUTS BOTH WAYS.** A detail you cannot see is not a detail, **and a
+    detail you looked at badly is not looked at.** The headlamp bore was very nearly reverted on a
+    48-sample `T1_SUB=1` crop that read as "worse"; the A/B at 64 samples against the photograph
+    overturned it outright.
 
 ---
 
 ## §8. THE STATE OF THE MACHINE AT HANDOFF
 
 ```
+bootstrap.sh     ALL 10 PASS  (and from a bare container: rm -rf /tmp/blender first)
 build            T1_SUB=2, clean
 verify.py        VERIFY: 0 fail, 0 warn  at T1_SUB=1 and T1_SUB=2
-verify_clone.sh  ALL PASS on a clean tree (git fetch --unshallow first)
-probes           probe_rev45_nose  7 checked, 0 FAILED  (C5 a KILL, red by design)
+audit.py         0 fail, 0 warn, 221 meshes
+verify_clone.sh  ALL PASS on a clean tree
+probes           probe_rev45_nose      8 checked, 0 FAILED  (C5 a KILL, red by design)
+                 probe_rev44_lampmove  6 checked, 0 FAILED
 branch           claude/project-improvement-id3a9o
-SPEC             sec.10.1 .. sec.10.114
+SPEC             sec.10.1 .. sec.10.115
 frames           9 tracked + 5 IMG_* uploads kept as provenance
 ```
+
+**AND ONE THING THAT IS NOT DONE AND IS NOT A GEOMETRY ITEM.** At handoff this branch is **31
+commits ahead of `origin/main` and 0 behind**. Nothing is stranded on any other branch — but the work
+only reaches `main` through a pull request, and rev 45's whole §0 finding is what happens when it does
+not. **Check `git rev-list --count origin/main..HEAD` before you start and again before you finish.**
 
 **Delivered this revision:** `rev45_ba.png` — six questions, BEFORE | AFTER | PHOTOGRAPH.
 

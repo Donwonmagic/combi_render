@@ -42,6 +42,9 @@
 #   C6  N2b: |lens (R-B)/cream| < 0.15.  THE CHROMA, and it is the control
 #       that actually catches this defect -- C4's luminance ratio passed at
 #       0.432 while the aperture was rendering RED.
+#   C8  N4: no T1_body face lies between the headlamp lens and its reflector.
+#       Finding 41's inverse.  T1_HL_BOWL=0 makes it fail -- and the FIRST
+#       draft of this control did not, which is recorded at the control.
 #   C7  N3: |bezel b*| < 12.  SPEC 10.111 retires the rev-10 brass reading to
 #       chrome; brass renders +25.7, chrome +1.7, photographed +2.7 / +6.7.
 #   C5  KILL, WRITTEN TO FAIL AND EXPECTED TO FAIL FOREVER.  A landmark placed
@@ -203,6 +206,40 @@ ctl("C7", abs(b_star) < 12.0,
     "N3 bezel b* %+.1f  (photographed +2.7 / +6.7 on ref_nolita_front34, "
     "against that frame's own neutral +6.9 and its red +61.8; the retired "
     "brass arm renders +25.7).  RGB %s" % (b_star, bez.round(1)))
+
+# C8 -- FINDING 41's INVERSE: NO SHEET METAL BETWEEN THE LENS AND THE BOWL.
+#
+# THE FIRST DRAFT OF THIS CONTROL DID NOT DISCRIMINATE AND IS RECORDED RATHER
+# THAN QUIETLY REPLACED.  It asserted "the first object down the lamp axis is
+# hl_*, not T1_body", off the rev-45 measurement that the ray hit T1_body at
+# 2.1116 before hl_lens at 2.1015.  That measurement was taken on the CONCAVE
+# lens.  SPEC 10.111.1 then turned the lens convex, apex at 2.1220 -- in front
+# of the nose -- so the first hit is the lens in BOTH arms and the control
+# passed on the defect it was written for.  Rule 18 in its own probe.
+#
+# What the bore actually changes is what sits BEHIND the glass.  So: walk the
+# axis and require that no T1_body face lies between the lens and the bowl.
+# Un-bored, two of them do -- the 2.8 mm solidified skin, at 2.1116 and 2.1088.
+_sgn2 = 1.0 if _near == "lamp_L" else -1.0
+_dg = bpy.context.evaluated_depsgraph_get()
+_org = Vector((3.5, _sgn2 * HL_Y, HL_Z - rake_drop(HL_X)))
+_dir = Vector((-1, 0, 0))
+_seq = []
+for _k in range(12):
+    _hit, _loc, _nn, _ii, _ob, _mat = bpy.context.scene.ray_cast(_dg, _org, _dir)
+    if not _hit:
+        break
+    _seq.append(_ob.name)
+    _org = _loc + _dir * 0.0005
+    if _ob.name.startswith("hl_bowl"):
+        break
+_lens_i = next((i for i, n in enumerate(_seq) if n.startswith("hl_lens")), None)
+_bowl_i = next((i for i, n in enumerate(_seq) if n.startswith("hl_bowl")), None)
+_between = ([n for n in _seq[_lens_i:_bowl_i] if n == "T1_body"]
+            if _lens_i is not None and _bowl_i is not None else ["<no bowl reached>"])
+ctl("C8", _lens_i is not None and _bowl_i is not None and not _between,
+    "N4 nothing between lens and reflector down the lamp axis; hits = %s"
+    % " -> ".join(_seq))
 
 ghost = PXK["ghost"]
 same = (abs(ghost[0] - PX["roundel"][0]) < 1.0
