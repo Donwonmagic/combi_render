@@ -442,17 +442,52 @@ def _bounds(exclude_lids=False):
     which is audit.py:96's stated reason for doing it the same way -- a list
     goes stale the moment somebody adds a lid.
 
-    Default False, so every existing caller reads bit-identically.
+    Default False, so every existing caller reads bit-identically in shape --
+    though NOT in value, and that is the second half of this rev-48 change:
+
+    IT READ `ob.bound_box`, AND bound_box GOES STALE AFTER AN IN-PLACE VERTEX
+    EDIT.  Measured, watched print:
+
+        glass_rear   bound_box x  -1.8560..-1.8500
+                     vertices  x  -2.1510..-1.8501   <-- 295 mm hidden
+
+    The rear hatch swings its pane 0.30 m aft of where bound_box still thinks
+    it is.  `lid_trunk` was NOT stale, because it is a freshly created mesh --
+    so the defect appears only on parts moved in place, which is exactly the
+    parts this revision moves.  Every _bounds() caller has been reading a
+    number that silently under-reports any hinged part.
+
+    WORSE, IT MADE THE LENGTH ROW PASS FOR THE WRONG REASON (rule 18).  The
+    row excluded `lid_*` and got 4.065 -- correct -- but only because the
+    stale boxes happened to hide `glass_rear`, `englid_handle` (aft-most
+    vertex -2.3204) and `plate_1963` (-2.2008), none of which match that
+    prefix.  Had Blender refreshed those boxes the row would have gone red on
+    a vehicle that had not moved.  A check that is right by accident is not a
+    check.
+
+    So: bounds are computed from VERTICES, and the exclusion reads
+    `t1_shell.SWUNG` -- the set every swung part registers itself in -- rather
+    than a prefix or an enumerated list that goes stale when somebody hangs a
+    new part on a lid.
     """
+    try:
+        import t1_shell as _S
+        swung = set(_S.SWUNG)
+    except Exception:
+        swung = set()
     lo = Vector((1e9, 1e9, 1e9)); hi = -lo
     for ob in bpy.data.objects:
         if ob.type != 'MESH' or ob.name in ("cyc", "counter", "counter_nosing",
                                             "counter_top"):
             continue
-        if exclude_lids and ob.name.startswith("lid_"):
+        if exclude_lids and (ob.name.startswith("lid_") or ob.name in swung):
             continue
-        for c in ob.bound_box:
-            v = ob.matrix_world @ Vector(c)
+        me = getattr(ob, "data", None)
+        if me is None or not len(me.vertices):
+            continue
+        mw = ob.matrix_world
+        for vt in me.vertices:
+            v = mw @ vt.co
             lo = Vector((min(lo[i], v[i]) for i in range(3)))
             hi = Vector((max(hi[i], v[i]) for i in range(3)))
     return lo, hi
@@ -643,8 +678,8 @@ def run(body, log=print):
 
     # 1. overall dimensions
     lo, hi = _bounds()
-    # LENGTH is measured over the vehicle WITHOUT its opened lids -- see
-    # _bounds.__doc__.  Everything else on this row keeps the old bound.
+    # LENGTH is measured over the vehicle WITHOUT its opened lids AND without
+    # anything that rode one open -- see _bounds.__doc__.
     lo_v, hi_v = _bounds(exclude_lids=True)
     bb = [body.matrix_world @ Vector(c) for c in body.bound_box]
     bw = max(v.y for v in bb) - min(v.y for v in bb)

@@ -1348,6 +1348,113 @@ def _components(me):
     return sorted(groups.values(), key=len, reverse=True)
 
 
+# ----------------------------------------------------- rev 48, JOB 1b
+# THE REAR HATCH, OPENED.  His correction, after seeing the trunk lid open:
+#
+#     "the main bay that should be open is the upper one"
+#
+# Asked with both apertures marked on a straight rear view of the build -- A
+# the rear window (z 1.284..1.616, built as `glass_rear`), B the engine lid
+# (z 0.603..1.103, opened above).  He chose A.  His earlier standing request,
+# "we're going to need the trunk open like it's in service", is NOT withdrawn
+# by that -- he said the upper one is the MAIN bay, not the only one -- so B
+# stays open and A is added.
+#
+# WHAT IS BUILT.  `glass_rear` is a 6 mm glazed pane sitting 20 mm inboard of
+# the tail skin, in an aperture `rear_cutter()` has always cut.  The aperture
+# is therefore already there; only the pane was closing it.  So this is the
+# same shape of job as the trunk lid -- swing what is already a separate part,
+# do not model anything new -- and it uses the SAME guard.
+#
+# WHAT IS NOT MEASURED, and it is more than for the trunk:
+#   * the ANGLE.  Same status as TRUNK_OPEN_DEG: no frame shows it.
+#   * WHETHER THE PANE IS THE HINGED PART AT ALL.  On a stock T1 the rear
+#     window is fixed glass.  On this converted vehicle `ref_rear34.jpg` shows
+#     the rear window still reading as GLAZED with the large open serving
+#     aperture BELOW it on the flank -- so hinging the pane is HIS INSTRUCTION
+#     applied to the part that occupies that station, not a reading of a
+#     photograph.  Recorded plainly so the next revision can undo it cheaply
+#     if a frame of the open tail contradicts it.
+
+REAR_OPEN_DEG = 64.0
+# NOT MEASURED.  A pose choice, like TRUNK_OPEN_DEG, and guarded to keep
+# saying so.  Wider than the trunk's 52 deg because this pane swings up over
+# the roof line where nothing fouls it, and because a serving hatch is propped
+# clear of the people under it.  Provenance: rev 48 JOB 1b, his instruction;
+# no frame.
+
+
+def open_rear_hatch(log=print):
+    """Swing the glazed rear pane up and aft, so the upper bay stands open.
+
+    Runs in build.py step 8c, AFTER the rake shear, for the same reason the
+    trunk lid does: a lateral hinge moves v.co.x and step 8b shears on
+    v.co.x.  Returns (hinge_x, hinge_z, deg) so anything mounted on the pane
+    could be carried through the identical call.  Nothing is, today.
+    """
+    ob = bpy.data.objects.get("glass_rear")
+    if ob is None:
+        log("!! rear hatch NOT opened: glass_rear absent")
+        return None
+    co = [v.co for v in ob.data.vertices]
+    hx = max(c.x for c in co)          # the pane's aft face, its hinge line
+    hz = max(c.z for c in co)          # top-hinged, like the trunk lid
+    _swing_open(ob, hx, hz, REAR_OPEN_DEG, "rear hatch", log=log)
+    log("rear hatch: glass_rear hinged (x %.4f, z %.4f) lateral, OPEN %.1f deg"
+        "  [angle NOT MEASURED -- no frame shows it]" % (hx, hz, REAR_OPEN_DEG))
+    return hx, hz, REAR_OPEN_DEG
+
+
+# Every part that has been swung out of the vehicle's closed envelope.
+# Populated at run time by _swing_open() and by build.py's carried hardware, so
+# verify.py can exclude them WITHOUT an enumerated list -- audit.py:96's stated
+# reason for excluding lids by prefix rather than by name.  A list goes stale
+# the moment somebody hangs a new part on a lid; this cannot.
+SWUNG = set()
+
+
+def _swing_open(ob, hx, hz, deg, what, log=print):
+    """Swing a top-hinged tail panel open, and PROVE it went the right way.
+
+    Shared by the trunk lid and the rear hatch so the two cannot drift apart:
+    a guard that is written twice is a guard that gets fixed once.
+
+    The panel's LOWEST vertex is its free edge -- the one that has to travel.
+    Measured before and after, so this tests the MOTION, not the code.
+
+    Capture the INDEX as a plain int, not the bpy struct.  _hinge_y mutates the
+    mesh and calls fix_normals, after which the struct is stale and `.index`
+    reads garbage -- the first version of this guard died with
+    `bpy_prop_collection[-1425949424]: out of range` instead of reporting the
+    defect it was written to catch.  A guard that crashes is not a guard.
+
+    WATCHED FAIL (rule 19), sign inverted, run and read:
+        AssertionError: trunk lid opened the WRONG WAY: its free edge moved
+        dx +0.3850 dz +0.1878
+    and the build stops.  The first draft of this comment GUESSED
+    "dx +0.1946 dz +0.0546" from arithmetic instead of running it -- wrong on
+    both figures.  Rule 4: never put a figure in an acceptance test unless you
+    watched it print.  This one is watched.
+    """
+    me = ob.data
+    low_i = int(min(me.vertices, key=lambda v: v.co.z).index)
+    x0, z0 = float(me.vertices[low_i].co.x), float(me.vertices[low_i].co.z)
+    _hinge_y(ob, hx, hz, deg)
+    T.fix_normals(ob)
+    dx = float(me.vertices[low_i].co.x) - x0
+    dz = float(me.vertices[low_i].co.z) - z0
+    if not (dx < -1e-4 and dz > -1e-4):
+        raise AssertionError(
+            "%s opened the WRONG WAY: its free edge moved dx %+.4f dz %+.4f. "
+            "A top-hinged tail panel's free edge swings AFT (dx negative) and "
+            "UP (dz non-negative). Check _hinge_y's sign -- it was inverted "
+            "once already and only a render caught it." % (what, dx, dz))
+    SWUNG.add(ob.name)
+    log("  %s free edge travelled dx %+.4f m (aft) dz %+.4f m (up) -- guard ok"
+        % (what, dx, dz))
+    return dx, dz
+
+
 def split_trunk_lid(body, log=print):
     """Separate the already-free engine-lid island out of the shell and OPEN it.
 
@@ -1413,39 +1520,11 @@ def split_trunk_lid(body, log=print):
 
     # The lid's LOWEST vertex is the free edge -- the one that has to travel.
     # Measured before and after, so the guard tests the motion, not the code.
-    # Capture the INDEX as a plain int, not the bpy struct.  _hinge_y mutates
-    # the mesh and calls fix_normals, after which the struct is stale and
-    # `low.index` reads garbage -- the first version of this guard died with
-    # `bpy_prop_collection[-1425949424]: out of range` instead of reporting the
-    # defect it was written to catch.  A guard that crashes is not a guard.
-    low_i = int(min(lm.vertices, key=lambda v: v.co.z).index)
-    x_before = float(lm.vertices[low_i].co.x)
-    z_before = float(lm.vertices[low_i].co.z)
-    _hinge_y(lid, hx, hz, TRUNK_OPEN_DEG)
-    T.fix_normals(lid)
-    x_after = float(lm.vertices[low_i].co.x)
-    z_after = float(lm.vertices[low_i].co.z)
-
-    # ---- THE GUARD, in the same edit as the change (rule 12), and it exists
-    # because the first version of _hinge_y failed EXACTLY here while every
-    # number in the project stayed green.  An open engine lid's free edge must
-    # go AFT and UP.  Watched fail: with the sign inverted this prints
-    #   dx +0.1946 (want negative)  dz +0.0546
-    # and stops the build.  Rule 19 -- the control has been seen to fail on
-    # the defect, not merely to pass on the fix.
-    dx, dz = x_after - x_before, z_after - z_before
-    if not (dx < -1e-4 and dz > -1e-4):
-        raise AssertionError(
-            "trunk lid opened the WRONG WAY: its free edge moved dx %+.4f "
-            "dz %+.4f. An engine lid's free edge swings AFT (dx negative) and "
-            "UP (dz non-negative). Check _hinge_y's sign -- it was inverted "
-            "once already and only a render caught it." % (dx, dz))
+    _swing_open(lid, hx, hz, TRUNK_OPEN_DEG, "trunk lid", log=log)
 
     log("trunk lid: separated %dv, hinge (x %.4f, z %.4f) lateral, "
         "OPEN %.1f deg  [angle NOT MEASURED -- no frame shows it]"
         % (len(lm.vertices), hx, hz, TRUNK_OPEN_DEG))
-    log("  free edge travelled dx %+.4f m (aft) dz %+.4f m (up) -- guard ok"
-        % (dx, dz))
     return lid, hx, hz, TRUNK_OPEN_DEG
 
 

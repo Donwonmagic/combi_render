@@ -905,6 +905,7 @@ if _lid_trunk is not None:
             log("!! trunk lid: %s absent, nothing to carry" % _nm)
             continue
         S._hinge_y(_o, _thx, _thz, _tdeg)
+        S.SWUNG.add(_nm)          # it now lives outside the closed envelope
         log("  carried %s through the lid's own swing" % _nm)
     # WHAT IS BEHIND IT IS NOT DECIDED HERE.  The aperture now shows the
     # shell's own inner skin -- the body is solidified with use_rim=True, so
@@ -913,6 +914,13 @@ if _lid_trunk is not None:
     # render, not from here.  Nothing is invented to fill the bay:
     # PHOTOS_WANTED_rev44 records that "the engine was scrapped and the
     # transmission sold", so its contents are unknown.
+
+# rev 48, JOB 1b -- "the main bay that should be open is the upper one".
+# Asked with both rear apertures marked by projection on a straight rear view;
+# he chose A, the rear window.  B (the engine lid, above) stays open: he called
+# the upper one the MAIN bay, not the only one, and his earlier request for the
+# trunk open is not withdrawn.
+S.open_rear_hatch(log=log)
 
 log(f"materials: {len(ASSIGN)} objects")
 
