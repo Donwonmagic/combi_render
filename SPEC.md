@@ -9597,3 +9597,134 @@ it fail on the defect.** `T1_HL_BOWL=0` exists so that stays cheap forever.
 The bore changes the body's manifold state, which is the same class of change as
 rev 12's roof hole, so `verify.py`'s non-manifold count and every shut-line probe
 were re-read at **both** subdivision levels rather than at one.
+
+---
+
+### 10.116  rev 45 — **`optics-6` CLOSED.** THE VEHICLE FLOATED FOR THIRTY-THREE REVISIONS AND EVERY MEASUREMENT OF IT WAS TAKEN SOMEWHERE THE SHADOW ISN'T
+
+#### 10.116.1  THREE PRIOR MEASUREMENTS, ALL IN THE WRONG PLACE
+
+| rev | what was measured | verdict |
+|---|---|---|
+| 12 | side **ortho**, `T1_BGW=1.0`: ground under the tyre 177.00 against open ground 177.00 | "the catcher contributes exactly nothing" |
+| 17 | matte tap on a **400×300** frame: alpha pool reaches 0.4980, but 0.0038 mean in the 4–30 px band below the silhouette | "a different symptom" |
+| 44 | none; the ledger carries rev 17's | — |
+
+**Two of the three read a side orthographic view.** In a side ortho the camera
+is level with the vehicle and the ground plane is edge-on, so "the band below
+the silhouette" is not ground at all — it is the three or four pixels where the
+ground vanishes to a line. There is no contact patch to see from there. The
+third read a matte in which a tyre is twelve pixels wide.
+
+**A contact shadow is a thing you look DOWN at.** `probe_rev45_ground.py`
+measures it in `hero34f`, the delivery frame, and finds the ground by
+**projecting the four contact patches through the render camera** — from
+`X_AXLE_F`, `X_AXLE_R`, `TRACK_F`, `TRACK_R` and z = 0, none of them typed.
+
+#### 10.116.2  THE PROBE CAUGHT ITSELF FOUR TIMES BEFORE IT CAUGHT THE DEFECT
+
+Every one is recorded at the code rather than tidied away, because each is a
+different way for an instrument to look healthy and be wrong.
+
+1. **A contaminated sample.** The first window was an annulus round the contact
+   patch keeping "neutral" pixels, on the reasoning that ground and backdrop
+   are neutral and the body is not. **The body is** — the cream renders
+   (192, 192, 188), max-minus-min 4. It reported G1 = 0.8639, a real-looking
+   number about the vehicle's own flank.
+2. **An inert kill control.** C4 sampled open ground 10 m ahead, which projects
+   off-screen; it returned `<no sample>` and **passed**. Then 4 m to the off
+   side — also off-screen, also passing. It now walks a list of candidates and
+   prints the one it used.
+3. **A blind level control.** C3 read the frame's top two corners and reported
+   "255.00, PURE WHITE" for `T1_CATCH=0` — a frame with a **hard horizon across
+   it** and a grey sweep filling the lower two-thirds. The horizon sits about
+   18 % down; the corners are above it.
+4. **The wrong window.** With all of the above fixed, G1 read 0.9975 — "it
+   floats" — while a shadow was plainly present. The window was 0.5–3.5
+   tyre-widths below the patch, 8 to 54 cm of ground. Profiled in 0.25 TW steps:
+
+   ```
+   fl   219 244 246 247 248 249 250 250 251 251 251 252 252 252 252 252
+   rl   236 251 252 253 254 255 255 255 255 255 255 255 255 255 255 255
+   ```
+
+   against open ground 252. **The whole shadow lives in the first ~0.35 TW —
+   about 5 cm — and the window started where it had already ended.** Rule 8: a
+   measurement's window is part of the measurement.
+
+#### 10.116.3  THE BASELINE, AND A PHOTOGRAPHED TARGET
+
+| | G1, tight contact | G3, under-body pool |
+|---|---|---|
+| built, before | **0.9756** | **0.9132** |
+
+Photographed on his own truck — ground at the tyre over open ground, same
+frame, which cancels exposure and surface:
+
+| frame | ratio |
+|---|---|
+| `ref_playa_34.png`, front wheel | 0.3049 |
+| `ref_playa_34.png`, rear wheel | 0.7300 |
+| `ref_nolita_front34.jpg` | 0.6950 |
+| `ref_nolita_flank.jpg` | **0.8713** ← the weakest |
+| **mean** | **0.6503 ± 0.2101** |
+
+**The target is the weakest reading, not the mean.** The sd is a third of the
+value and the boxes are hand-placed; what the four agree on is a **sign**, not
+a magnitude (rule 6). Every photograph of this vehicle has a substantial
+contact shadow and the render had none.
+
+#### 10.116.4  TWO LEVERS REFUTED BEFORE THE THIRD WORKED
+
+**`T1_CATCH=0` — refused again, and rev 12 was right.** Re-run with an
+instrument: it buys **G1 0.9756 → 0.6924** and pays with a backdrop whose
+row-to-row step goes **0.100 → 22.123 DN**, i.e. a hard horizon. SPEC §6 locks
+the backdrop to pure white. Refused, this time with both numbers.
+
+**A plain gain on the catcher's alpha — refuted by its own control.** The
+argument was that the backdrop is alpha 0 and `0 ** k == 0`, so it stays white
+*by construction*. C3 disagreed: the upper-margin level fell **254.97 →
+250.91** as the gain rose. Moving the node upstream of the bloom changed
+**nothing**, which is what refuted bloom as the cause. The real cause is that
+**the "sweep" is not empty space — it is the cyclorama, a shadow catcher, and
+it fills most of the frame.** A catcher's alpha far from the subject is not
+zero, it is a noise floor of a few thousandths, and a power function amplifies
+small numbers hardest (0.002 ** 0.31 = 0.13). So any gain greys the whole sweep
+before it deepens the contact shadow.
+
+#### 10.116.5  WHAT SHIPS
+
+Subtract the noise floor, **then** gain, then clamp:
+
+```
+    a'  = clamp( (a - T1_SHADOW_FLOOR) / (1 - T1_SHADOW_FLOOR) )
+    a'' = a' ** (1 / T1_SHADOW)
+```
+
+Below the floor the backdrop goes to **exactly** zero, which is what the
+`0 ** k == 0` argument needs to be true rather than nearly true. Applied on the
+raw render layer. **The cost is stated rather than hidden: it also erodes the
+faintest real shadow, so the floor is kept as small as C3 allows.**
+
+At `T1_SHADOW=9.0`, `T1_SHADOW_FLOOR=0.030`:
+
+| | before | after | photographed |
+|---|---|---|---|
+| G1 tight contact | 0.9756 | **0.8729** | 0.8713 ← the weakest reading |
+| G3 under-body pool | 0.9132 | **0.8406** | — |
+| G2 backdrop | 254.97 | **254.45** | must stay ~255 |
+
+Pushed to `T1_SHADOW=20` the backdrop finally goes and C3 fires. **It is not
+pushed there.**
+
+**DECLARED AND ABLATABLE**, which is §10.105's template for a presentation
+device: `T1_SHADOW=1.0` restores the floating arm exactly.
+
+#### 10.116.6  THE RULE THIS EARNS
+
+> **AN INSTRUMENT THAT HAS NEVER BEEN WRONG HAS NEVER BEEN TESTED.** This probe
+> was wrong four times in one sitting — contaminated sample, inert kill, blind
+> level, wrong window — and every one of the four produced a plausible number
+> that would have been published. Three prior revisions measured `optics-6` and
+> none of them found the defect, not because they were careless but because
+> **nobody ever asked what their instrument would still pass on.**

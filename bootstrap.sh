@@ -228,9 +228,20 @@ if [ $GUARDS -eq 1 ]; then
     [ "$R" = "1" ] && ck "T1_SUB=$S  VERIFY 0 fail 0 warn" ok \
                    || ck "T1_SUB=$S  VERIFY 0 fail 0 warn" "did not print it"
   done
+  # rev 45: 7 -> 8.  RE-BASED, and the reason is that this row caught its own
+  # author.  bootstrap.sh was written expecting 7 controls; SPEC 10.115 then
+  # added C8 to probe_rev45_nose and the expectation was not updated, so the
+  # first --guards run after that reported a FAIL that was entirely mine.  It
+  # is rev 13's rule -- never put a figure in an acceptance test unless you
+  # watched it print -- caught by the acceptance test itself, one turn later.
+  # The count is kept rather than loosened to "0 FAILED": a control silently
+  # disappearing is exactly what this row is for.
   R="$(/tmp/blender/blender -b -P probe_rev45_nose.py 2>&1 | grep 'CONTROLS:' | tail -1)"
-  [ "$R" = "CONTROLS: 7 checked, 0 FAILED" ] \
-    && ck "probe_rev45_nose  7/0" ok || ck "probe_rev45_nose  7/0" "got '$R'"
+  [ "$R" = "CONTROLS: 8 checked, 0 FAILED" ] \
+    && ck "probe_rev45_nose  8/0" ok || ck "probe_rev45_nose  8/0" "got '$R'"
+  R="$(/tmp/blender/blender -b -P probe_rev45_ground.py 2>&1 | grep 'CONTROLS:' | tail -1)"
+  [ "$R" = "CONTROLS: 4 checked, 0 FAILED" ] \
+    && ck "probe_rev45_ground  4/0" ok || ck "probe_rev45_ground  4/0" "got '$R'"
   R="$(/tmp/blender/blender -b -P probe_rev44_lampmove.py 2>&1 | grep 'CONTROLS:' | tail -1)"
   [ "$R" = "CONTROLS: 6 checked, 0 FAILED" ] \
     && ck "probe_rev44_lampmove  6/0" ok || ck "probe_rev44_lampmove  6/0" "got '$R'"

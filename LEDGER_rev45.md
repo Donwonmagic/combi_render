@@ -69,6 +69,7 @@ rev 45's drape wins, both guards kept. SPEC §10.113.4.
 | D | **"100 % Calidad" rendered peach.** The gradient's 0.42 bias started the ramp 42 % along, so the core evaluated to 84 % ORANGE and *nothing in the texture was the RED the generator declares nine lines above*. | Sampled `tex/calidad.png` straight off disk: core (237, 120, 22), G/R 0.508, against `RED = (214, 46, 30)`, G/R 0.215. | **FIXED**, §10.112. Bias → 0. Core now (216.6, 55.1, 28.2), G/R **0.255**, against the body red's 0.250. |
 | E | **The sign props stood in the hole.** Both feet at y = +0.44, *inside* the roof aperture (−0.545…+0.565), so each prop rose out of thin air and ran a metre across the board's face. | Built-mesh bbox of `lid_strut*` against `lid_board`. **Rev 44b found it independently (§10.108).** | **FIXED — by rev 44b's patch, not rev 45's.** Rev 45's typed offset is discarded in favour of walking `roof_z` to the roof's own edge. Rev 45 keeps only its complementary Y guard. |
 | F | **The reference frames were never committed.** | `git ls-files`. | **RECOVERED**, and the two identifications published as *unproven* were then found md5-identical to rev 44b's. `verify_clone.sh` now counts them. |
+| H | **`optics-6` — the vehicle floated, open since rev 12.** G1 tight contact 0.9756, G3 under-body pool 0.9132, against a photographed 0.650 ± 0.210. | `probe_rev45_ground` — the first instrument that can read a contact shadow at all. The three prior measurements were taken in a side ORTHO or on a 400×300 matte, where the ground plane is edge-on. | **CLOSED, §10.116.** G1 **0.8729**, G3 **0.8406**, backdrop unmoved at 254.45. Two levers refuted first. `T1_SHADOW=1.0` restores the floating arm. |
 | G | **The body red renders 3.5 σ too pale, and it is the studio, not the paint.** | Illuminant-free red/cream chroma over **four** photographs + a five-arm ablation. | **INSTRUMENTED, NOT APPLIED.** See §3 — it needs the owner. |
 
 ---
@@ -144,6 +145,7 @@ samples, not the mottle map. Render heroes at more samples; change nothing.
 | probe | own summary line | expected |
 |---|---|---|
 | `probe_rev45_nose` | `CONTROLS: 8 checked, 0 FAILED` | 8/0 — **C5 is a KILL**, see below |
+| `probe_rev45_ground` | `CONTROLS: 4 checked, 0 FAILED` | 4/0 — **C4 is a KILL**. Reports G1 (tight contact), G3 (under-body pool) and G2 (backdrop). §10.116 |
 
 `probe_rev45_nose` is the instrument this project was missing: **it does not type crop boxes.** Every
 other crop box in this repository is a hand-typed literal that goes stale when a camera or a constant
@@ -161,8 +163,15 @@ would pass every other control.
   measurement predated §10.111.1's convex lens. Re-written to require that no `T1_body` face lies
   *between* the lens and the bowl, and then **watched to fail** under `T1_HL_BOWL=0`.
 
-*A ratio that is right for the wrong reason is not a control. And a control is not finished when it
-passes — it is finished when you have watched it fail on the defect.*
+**And `probe_rev45_ground` was wrong FOUR TIMES in one sitting** — a contaminated sample (the cream
+reads "neutral"), an inert kill control (sampled off-screen, returned `<no sample>`, passed), a blind
+level control (read the top corners, reported "PURE WHITE" for a frame with a horizon across it), and
+the wrong window (0.5–3.5 tyre-widths, when the whole shadow lives in the first 0.35). Every one
+produced a plausible number that would have been published.
+
+*A ratio that is right for the wrong reason is not a control. A control is not finished when it
+passes — it is finished when you have watched it fail on the defect. **And an instrument that has
+never been wrong has never been tested.***
 
 ---
 
@@ -203,12 +212,14 @@ Carried from `LEDGER_rev44.md` with rev 45's changes marked. **Findings 1–37 k
 | 25 | `AUDIT_rev43.md` §2 still lists the retracted tilde finding | open |
 | 26 | `ROUNDEL_Z_AG = 1.0170` tuned against a moved datum | open — instrumented, geometry not moved, all three chains inside 1 σ |
 | 27 | SPEC's *"`V_POW` ≈ 0.30–0.48"* does not reproduce from its own measurement | open |
+| ~~optics-6~~ | ~~the vehicle floats — open since rev 12~~ | **CLOSED, rev 45, §10.116.** And note what it cost to close: the probe was wrong **four times** before it was right — contaminated sample, inert kill control, blind level control, wrong window — each producing a plausible number that would have been published. |
 | **38** | **NEW, rev 45 — the body red renders 3.5 σ too pale and it is the STUDIO, not the paint.** Same root cause as `optics-6`. | **INSTRUMENTED, NOT APPLIED — needs the owner.** §3 above; Q6 of `mark_rev45_ba.py`. |
 | **39** | **NEW, rev 45 — the roof sign board's artwork is a flower mural; every photograph shows a hand-chalked BLACKBOARD** in a cream frame with TACOMBI across the top and BIENVENIDOS down the side. | **NOT TOUCHED — art direction.** Q5 of `mark_rev45_ba.py`. |
 | **40** | **NEW, rev 45 — the emblem's backing disc is buried.** `roundel()`'s `disc_prof` puts its front surface *on* the mounting plane at r = 0, so with the ring's bead 13.5 mm proud the disc's centre sits behind the nose. Harmless (cream on cream) but it is dead geometry that z-fights. | open, low severity |
 | ~~41~~ | ~~there is no headlamp aperture cut in the nose~~ | **CLOSED, rev 45, §10.115.** Bored in step 3 with the other apertures. Raycast down the lamp axis goes `hl_lens -> T1_body -> T1_body -> hl_bowl` un-bored and `hl_lens -> hl_bowl` bored. lens/cream **0.423 -> 0.549** against 0.565 photographed; chroma **+0.069 -> +0.027** against −0.024. The bore's DEPTH and SECTION are authored, not measured. `T1_HL_BOWL=0` restores the un-bored arm. |
 
-**Closed this revision: 4, 5, 41. Opened: 38, 39, 40, 41. Open from the record: 24.**
+**Closed this revision: 4, 5, 41, and `optics-6` after thirty-three revisions. Opened: 38, 39, 40, 41.
+Open from the record: 24.**
 
 ---
 

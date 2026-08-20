@@ -164,6 +164,9 @@ ck "amtrak (HIS word)"              2 "$(grep -c 'amtrak' SPEC.md)"
 # carried four of this revision's findings (10.102, 10.105, 10.106, 10.107),
 # so SPEC names them nine more times.  This row is a REMINDER THAT THE
 # NOLITA FRAMES ARE ADMISSIBLE, not a cap on how often they are used.
+# rev 45: 29 -> 31.  SPEC 10.116 cites ref_nolita_flank.jpg and ref_playa_34.png
+# as two of the four frames that supply the PHOTOGRAPHED contact-shadow target
+# (0.650 +- 0.210).  Third bump this revision; still not a cap.
 # rev 45: 28 -> 29 within the same revision -- SPEC 10.115 (the headlamp bowls)
 # cites ref_nolita_front34.jpg as one of the two frames that show the bowl as a
 # shadowed ring round the bezel.  Same reading again: not a cap.
@@ -171,7 +174,7 @@ ck "amtrak (HIS word)"              2 "$(grep -c 'amtrak' SPEC.md)"
 # more times -- it is the frame that settled the headlamp bezel's chroma and
 # the frame rev 45's badge work was checked against.  Same reading as rev 44b's:
 # THIS ROW IS A REMINDER THAT THE NOLITA FRAMES ARE ADMISSIBLE, not a cap.
-ck "nolita, any case"              29 "$(grep -ic 'nolita' SPEC.md)"
+ck "nolita, any case"              31 "$(grep -ic 'nolita' SPEC.md)"
 ck "TEN flower heads"               1 "$(grep -c 'TEN flower heads' SPEC.md)"
 
 # ------------------------------------------------------------------ build files

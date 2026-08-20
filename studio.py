@@ -677,6 +677,116 @@ def composite_on_white(scene, rgb=None, optics=True):
 
     on = optics and _envi("T1_FX", 1)
 
+    # --- deepen the contact shadow, rev 45, SPEC 10.116 ------------------
+    # `optics-6`, open since rev 12: THE VEHICLE FLOATS.
+    #
+    # MEASURED at rev 45 by probe_rev45_ground, in `hero34f` -- a raised
+    # three-quarter, which is the only kind of frame a contact shadow can be
+    # read in at all.  The three previous measurements were all taken in a side
+    # ORTHO or on a 400x300 matte, where the ground plane is edge-on and there
+    # is no contact patch to see:
+    #
+    #     ground just in front of the camera-side tyres / open ground, built
+    #         0.9975      <- 0.25 % darkening.  It floats.
+    #     the same ratio, PHOTOGRAPHED, four readings on his own truck
+    #         0.3049  ref_playa_34, front wheel
+    #         0.7300  ref_playa_34, rear wheel
+    #         0.6950  ref_nolita_front34
+    #         0.8713  ref_nolita_flank
+    #         mean 0.6503, sd 0.2101
+    #
+    # THE SPREAD IS LARGE AND THE TARGET IS THEREFORE THE WEAK END, NOT THE
+    # MEAN.  Different frames, different light, hand-placed boxes.  What the
+    # four agree on is a SIGN, not a magnitude (rule 6): every photograph of
+    # this vehicle has a substantial contact shadow and the render has none.
+    # So this is set to land on 0.871 -- THE WEAKEST PHOTOGRAPHED READING --
+    # rather than on 0.650, because moving anything to a mean whose sd is a
+    # third of its value is what this project calls laundering.  Watched print
+    # at T1_SHADOW=9.0, T1_SHADOW_FLOOR=0.030:
+    #     G1 0.9756 -> 0.8729   against ref_nolita_flank's photographed 0.8713
+    #     G3 0.9132 -> 0.8406   (the under-body pool, which is what reads as
+    #                            "planted"; G1 is the tight contact darkening
+    #                            and the two move at very different rates)
+    #     G2 254.97 -> 254.45   the backdrop, unmoved
+    # Pushed to T1_SHADOW=20 the backdrop finally goes and C3 fires.  It is not
+    # pushed there.
+    #
+    # WHY IT IS DONE HERE AND NOT IN THE RIG.  Rev 12 tested the obvious lever,
+    # T1_CATCH=0, and refused it: a real lit sweep does produce a shadow but it
+    # brings a HARD HORIZON across the frame, and SPEC sec.6 locks the backdrop
+    # to PURE WHITE.  Rev 45 re-ran that A/B with an instrument and REV 12 IS
+    # RIGHT -- T1_CATCH=0 buys G1 0.9975 -> 0.6924 and pays with a margin whose
+    # row-to-row step goes 0.100 -> 22.123 DN.  Refused again.
+    #
+    # A gain on the shadow catcher's ALPHA cannot make that trade.  The
+    # backdrop is alpha == 0 and 0 ** k == 0 for every k, so it stays exactly
+    # white BY CONSTRUCTION, not by tuning; the subject is alpha == 1 and
+    # 1 ** k == 1, so it is untouched too.  Only the partial-alpha shadow moves.
+    #
+    # AND IT MUST RUN BEFORE THE BLOOM.  The first placement was immediately
+    # above the AlphaOver, i.e. AFTER the FOG_GLOW -- and C3 caught it: the
+    # backdrop's level fell 254.97 -> 250.91 as the gain rose, on a control
+    # that reads only the upper margins where nothing but backdrop can be.
+    # Bloom spreads a little energy AND a little alpha across the whole frame,
+    # so downstream of it the backdrop is no longer alpha == 0, and a power
+    # function amplifies tiny alpha enormously (0.001 ** 0.31 = 0.11).  Moved
+    # to the raw render layer, where the backdrop's alpha is exactly zero and
+    # the "0 ** k == 0" argument above is true rather than nearly true.
+    #
+    # DECLARED AND ABLATABLE, which is SPEC 10.105's template for a
+    # presentation device: T1_SHADOW=1.0 restores the floating arm exactly.
+    _sh = _envf("T1_SHADOW", 9.0)
+    if on and _sh > 1.0:
+        try:
+            sep = nt.nodes.new("CompositorNodeSeparateColor")
+            sep.location = (x - 200, 260)
+            nt.links.new(src, sep.inputs[0])
+            # SUBTRACT THE CATCHER'S NOISE FLOOR FIRST, and this is the whole
+            # reason the first two attempts leaked onto the backdrop.
+            #
+            # The "sweep" is not empty space -- it is the cyclorama, a SHADOW
+            # CATCHER, and it fills most of the frame.  A catcher's alpha far
+            # from the subject is not zero, it is a noise floor of a few
+            # thousandths.  A power function amplifies small numbers hardest
+            # (0.002 ** 0.31 = 0.13), so ANY gain greys the entire sweep before
+            # it meaningfully deepens the contact shadow.  Measured: C3's
+            # upper-margin level fell 254.97 -> 250.91 across the sweep, and
+            # moving the node upstream of the bloom changed NOTHING, which is
+            # what refuted the bloom as the cause.
+            #
+            # So the floor is removed before the gain and the result clamped:
+            #     a' = clamp((a - T1_SHADOW_FLOOR) / (1 - T1_SHADOW_FLOOR))
+            #     a'' = a' ** (1 / T1_SHADOW)
+            # Below the floor the backdrop goes to EXACTLY zero, which is what
+            # the "0 ** k == 0" argument needs to be true rather than nearly
+            # true.  The cost is stated rather than hidden: it also erodes the
+            # faintest real shadow, so the floor is kept as small as C3 allows.
+            _fl = _envf("T1_SHADOW_FLOOR", 0.030)
+            sub = nt.nodes.new("CompositorNodeMath"); sub.location = (x - 130, 340)
+            sub.operation = 'SUBTRACT'
+            nt.links.new(sep.outputs["Alpha"], sub.inputs[0])
+            sub.inputs[1].default_value = _fl
+            dv = nt.nodes.new("CompositorNodeMath"); dv.location = (x - 130, 200)
+            dv.operation = 'DIVIDE'
+            dv.use_clamp = True
+            nt.links.new(sub.outputs[0], dv.inputs[0])
+            dv.inputs[1].default_value = max(1.0 - _fl, 1e-6)
+            pw = nt.nodes.new("CompositorNodeMath"); pw.location = (x - 20, 260)
+            pw.operation = 'POWER'
+            pw.use_clamp = True
+            nt.links.new(dv.outputs[0], pw.inputs[0])
+            pw.inputs[1].default_value = 1.0 / _sh
+            sa = nt.nodes.new("CompositorNodeSetAlpha"); sa.location = (x, 140)
+            sa.mode = 'REPLACE_ALPHA'
+            nt.links.new(src, sa.inputs["Image"])
+            nt.links.new(pw.outputs[0], sa.inputs["Alpha"])
+            src = sa.outputs[0]
+            log.append("contact shadow: alpha floor %.4f then ** %.4f "
+                       "(T1_SHADOW=%.2f)" % (_fl, 1.0 / _sh, _sh))
+            x += 250
+        except Exception as e:
+            log.append("contact shadow SKIPPED (%s)" % e)
+
     # --- bloom, on the transparent linear render -------------------------
     if on and _envf("T1_BLOOM", 1.0) > 0:
         try:

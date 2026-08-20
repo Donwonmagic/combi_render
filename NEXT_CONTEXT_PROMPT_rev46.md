@@ -132,7 +132,8 @@ T1_PREVIEW=hero34f,side,detail_f T1_PFX=r T1_RX=1400 T1_RY=960 T1_SAMP=56 \
 Useful env: `T1_SUB` (**2 is the guarded case**), `T1_SAMP`, `T1_RX`/`T1_RY`, `T1_PFX`, `T1_OUT`,
 `T1_SAVE`, `T1_KEY`, `T1_SCENE=playa`, `T1_CLAY`, and the ablation switches `T1_NOBEVEL`,
 `T1_NOCABFILL`, `T1_CATCH`, `T1_GRAIN`, `T1_BPILLAR`, `T1_SPEC`, `T1_VT`, plus rev 45's
-`T1_HL_BEZEL`, `T1_HL_LENS_RG`, `T1_HL_REFL_RG`, `T1_HL_REFL_MET`, `T1_HL_BOWL`.
+`T1_HL_BEZEL`, `T1_HL_LENS_RG`, `T1_HL_REFL_RG`, `T1_HL_REFL_MET`, `T1_HL_BOWL`,
+`T1_SHADOW`, `T1_SHADOW_FLOOR`.
 
 **A build at `T1_SUB=2` takes ~80–100 s. A 3200×2133 hero at 192 samples takes ~55 min. A 4800×3200
 at 300 samples was quoted at 4½ hours and was killed — do not start one.** He has twice said *"Kill
@@ -144,7 +145,7 @@ it. Don't waste the computer."* Render small and often; render big once.
 
 1. **`LEDGER_rev45.md`** — the burn-down, four classes. **This is the spine.** §1 is the merge, §3 is
    the one finding rev 45 measured and refused to apply.
-2. **`SPEC.md`** — ~9600 lines, §10.1 … §10.115. Each §10.x is a dated record of one revision's
+2. **`SPEC.md`** — ~9800 lines, §10.1 … §10.116. Each §10.x is a dated record of one revision's
    reasoning. **Sections are never deleted**; a retracted one gets a banner pointing at its
    retraction.
 3. **`REFERENCE_FRAMES_rev45.md`** — what each of the nine frames can and cannot carry. **Read this
@@ -258,7 +259,14 @@ new 38–41.
     **passed in both arms**, because that measurement predated §10.111.1's convex lens. Every ablation
     switch in this repo exists to make that check cheap: `T1_HL_BOWL=0`, `T1_HL_BEZEL=brass`,
     `T1_CATCH=0`, `T1_SPEC=0`. Use them on your own controls.
-20. **NEW, §10.115.4 — RULE 10 CUTS BOTH WAYS.** A detail you cannot see is not a detail, **and a
+20. **NEW, §10.116.6 — AN INSTRUMENT THAT HAS NEVER BEEN WRONG HAS NEVER BEEN TESTED.**
+    `probe_rev45_ground` was wrong four times in one sitting and each error produced a plausible
+    number: a sample contaminated by the body (the cream reads "neutral"), a kill control that
+    sampled off-screen and passed on `<no sample>`, a level control that read the frame's top corners
+    and called a frame with a horizon across it "PURE WHITE", and a window that started where the
+    shadow had already ended. Three prior revisions measured `optics-6` and none found the defect —
+    not through carelessness, but because **nobody asked what their instrument would still pass on.**
+21. **NEW, §10.115.4 — RULE 10 CUTS BOTH WAYS.** A detail you cannot see is not a detail, **and a
     detail you looked at badly is not looked at.** The headlamp bore was very nearly reverted on a
     48-sample `T1_SUB=1` crop that read as "worse"; the A/B at 64 samples against the photograph
     overturned it outright.
@@ -274,6 +282,7 @@ verify.py        VERIFY: 0 fail, 0 warn  at T1_SUB=1 and T1_SUB=2
 audit.py         0 fail, 0 warn, 221 meshes
 verify_clone.sh  ALL PASS on a clean tree
 probes           probe_rev45_nose      8 checked, 0 FAILED  (C5 a KILL, red by design)
+                 probe_rev45_ground    4 checked, 0 FAILED  (C4 a KILL)
                  probe_rev44_lampmove  6 checked, 0 FAILED
 branch           claude/project-improvement-id3a9o
 SPEC             sec.10.1 .. sec.10.115
