@@ -1,50 +1,74 @@
-Please act as my expert. You are picking up a 42-revision project mid-stream,
-not starting one. Do these five things in this order, and do not skip ahead.
+Please act as my expert. You are picking up a 46-revision project mid-stream,
+not starting one. Do these six things in this order, and do not skip ahead.
 
-1. Get the repo and prove it is the right one.
+1. Get the repo, get the RIGHT BRANCH, and prove it is the right one.
 
    git clone https://github.com/Donwonmagic/combi_render tacombi && cd tacombi
+   git checkout claude/new-session-3tof54
    ./verify_clone.sh
 
-   It must print ALL 66 PASS and exit 0. If it exits 1, STOP, tell me the
-   failing line with its actual value, and do not build. Do not edit the script
-   to make it pass — a failing check is a finding, not a broken instrument.
+   THE BRANCH MATTERS. Rev 46's five commits are on claude/new-session-3tof54
+   and are NOT on main. Clone main and you will silently be working a revision
+   behind, re-finding things that are already fixed and re-breaking things that
+   are already guarded. A REVISION THAT IS NOT MERGED DID NOT HAPPEN, and this
+   one is not merged yet. Run this before you start and again before you finish:
 
-2. Read NEXT_CONTEXT_PROMPT_rev43.md IN FULL before you touch anything else.
-   It is the live brief: 846 lines, and every one of them was earned. Read it
-   start to finish, not by grep. It tells you what the project is, what is
-   already settled, what is deliberately left failing, and what NOT to touch.
+   git rev-list --count origin/main..HEAD     # 5 at handoff
 
-3. Do its Step 0.5 inside twenty minutes — while Blender is still downloading.
-   That means: send me the opening status message in the exact shape the brief
-   gives, fire the two questions item 1 is blocked on, and launch the seven
-   read-only subagents on the record. Do not wait for the guards to finish
-   before contacting me.
+   verify_clone.sh must print ALL 83 PASS and exit 0. If it exits 1, STOP, tell
+   me the failing line with its actual value, and do not build. Do not edit the
+   script to make it pass — a failing check is a finding, not a broken
+   instrument.
 
-4. Grade the brief before you trust it. Rev 40 refused its brief's item 1;
-   rev 41 graded its item 1 sound, did it, and refused item 3; rev 42 did two
-   items and corrected a wording error in its own brief. The brief shipped
-   with a wrong number in it that an adversary agent caught, not the author.
+2. Read NEXT_CONTEXT_PROMPT_rev47.md IN FULL before you touch anything else.
+   Then read LEDGER_rev46.md, which is the record of what was actually
+   measured. Read them start to finish, not by grep. Between them they tell you
+   what the project is, what is already settled, what is deliberately left
+   failing, and what NOT to touch.
+
+3. Your first job is already named and its cause is already found — do not
+   re-investigate it, fix it. The "Señor Tacombi" script on the flank is
+   BLURRED, not low-contrast, and three revisions chased a contrast number for
+   a sharpness fault before rev 46 caught it. script_gen.py draws the lettering
+   at 3552 px across, box-downsamples that to 271 px, then upscales those 271
+   px back to 4096. The texture is 4096 px wide carrying 271 px of real detail.
+   Section 1 of the brief has the three-step fix drafted. Measure the 10-90
+   alpha edge width over the mean stroke width, before and after, and put the
+   result beside ref_side.jpg at matched magnification and LOOK at it.
+
+4. Grade the brief before you trust it. Rev 40 refused its brief's item 1; rev
+   41 graded its item 1 sound and refused item 3; rev 46 RETRACTED TWO NUMBERS
+   OUT OF ITS OWN BRIEF — one photographed target whose estimator turned out to
+   report the same answer whether the defect was present or absent, and one
+   landmark that was a built value transcribed into the photograph's column.
    Where the brief and the machine disagree, THE MACHINE IS RIGHT — say so and
-   correct the brief in the same revision. Agent A6 in Step 0.5 exists for
-   exactly this; point it at the brief first.
+   correct the brief in the same revision. Put an agent on the brief first
+   whose only job is to refute it.
 
-5. Use your orchestration properly. Every parallelism rule in that record was
-   written against a 2-core cloud box; you are on my Mac with at least 8 cores
-   and you can run real multi-agent work. One rule survives: do NOT fan out
-   Blender, it is CPU-bound and two instances make both slower. Everything else
-   is open to you — adversarial verifiers instructed to refute, independent
-   measurement routes on the same question, a completeness critic, and one
-   agent whose only job is to refute the brief itself.
+5. Use your orchestration properly, but measure the box before you plan. Rev 46
+   ran on a 4-core cloud container; earlier revisions ran on my 8-core Mac. One
+   rule survives every box: do NOT fan out Blender, it is CPU-bound and two
+   instances make both slower. Fan out everything that is not a render —
+   measuring the reference frames, cross-checking the record, and adversarial
+   verifiers instructed to REFUTE a finding before it ships. Run renders in the
+   background while you analyse in the foreground; an 8-minute render should
+   never be 8 minutes of idle.
 
-   In particular: workflows/tacombi-rev11-audit.js is the comprehensive
-   specialist audit I asked for and never got. It was put on ice for one reason
-   — that old box had two cores and could not run it. The file's own header
-   says "on a wider box it is a normal fan-out." You are the wider box. Update
-   its four stale dimension briefs and RUN IT. It is unblocked and it needs
-   nothing from me.
+   And read section 6 of the brief before you build any instrument. This
+   project measures beautifully and its instruments keep being wrong — rev 46
+   caught five, four of them its own, and every one produced a plausible number
+   that would have been published. The cheapest defence is the one that caught
+   the worst of them: displace the thing you are measuring by a KNOWN amount,
+   at the real data's resolution, and check your instrument tracks it. An
+   estimator that returns the same answer for a defect and its absence is blind
+   and will look healthy forever.
 
-6. Then work its section 6 list, in order, and tell me what you find.
+6. Then work the brief's list in order and tell me what you find. Two of those
+   items are mine from this week and both are still open: the two words in the
+   "100% Calidad" decal COLLIDE — they share 1110 pixels, it is measured, it is
+   not fixed — and the lettering on that decal looks wrong to me, which nobody
+   can evaluate yet because the only frame we hold shows it at 23 by 39 pixels.
+   PHOTOS_WANTED_rev46.md ranks what I need to send you. Ask me for number one.
 
 The standard, in my words, and it is not rhetorical: we are recreating a photo
 realistic version of that exact bus, and any single measurement off is
@@ -56,6 +80,12 @@ iterate. Never build before grounding. Never call it done off self-review.
 Report the measurement against the reference WITH ITS CEILING, never a
 self-assigned score. Do not tell me anything is ready — tell me what is fixed,
 what is still wrong, and what you measured. Keep visible cadence on long work.
+
+RENDER IT, CROP IT, AND LOOK AT IT, before and after every change. Every real
+finding in rev 46 came from looking at an image, not from a number — the
+blurred script, the fifteen bunting triangles that no photograph supports, the
+vent slats the model was painting on in red, and the two colliding words were
+all invisible in the metrics and obvious on screen.
 
 And when you need something from me, ask as MULTIPLE CHOICE with the reference
 material attached: one crop, one mark, one sentence. If I do not understand the
