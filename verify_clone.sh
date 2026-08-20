@@ -239,7 +239,15 @@ ck "tex/nose.png"    b31ea156c15d2d8e38ba390d9e151706 "$(md5of tex/nose.png)"
 # each word sits on:  Tacombi 0.4673 photographed / 0.4480 built (right), Senor
 # 0.1922 photographed / 0.0711 built (2.7x too dark).  'Tacombi' was never the
 # problem.  The tarnish lift is DERIVED from the photographed target, not typed.
-ck "tex/senor.png"   411ade90df4fdbb696bbcdb1a481f1d4 "$(md5of tex/senor.png)"
+# rev 47, SPEC 10.121: RE-BASED because the texture legitimately changed.  The
+# generator no longer LANCZOS-magnifies the 271-px mask-space crop 15.11x to
+# OUT_W; it crops and resizes the raster Canvas actually drew, 3252 px -> 4096,
+# a 1.260x resize.  The 10-90 alpha edge width over the mean stroke width went
+# 0.0924 -> 0.0062.  MASK SPACE IS BIT-IDENTICAL ACROSS THIS CHANGE -- build()
+# and senor_only() hash 4a6f4e8cd0489fa1 / 82d6cf56dd660b47 before and after --
+# so every mask-space figure in this project still holds.  Only the emitted
+# texture moved, and this row is re-based, never relaxed.
+ck "tex/senor.png"   92ff38554d61947528904e113cf657f0 "$(md5of tex/senor.png)"
 # rev 45, SPEC 10.112: RE-BASED because the texture legitimately changed.
 # cal_gen.gradient's bias was 0.42 and `t` is zero at the burst's own centre by
 # construction, so the core evaluated to 84 % ORANGE and NOTHING in the shipped
@@ -255,7 +263,16 @@ ck "tex/senor.png"   411ade90df4fdbb696bbcdb1a481f1d4 "$(md5of tex/senor.png)"
 # that same point, and CARRIES ITS OWN GUARD: it refuses to write a decal whose
 # type is more than 0.004 off centre.  Watched fail at (-0.1099, +0.1127) on the
 # rev-45 layout and at (-0.0132, +0.0134) on 12 % of the correction.
-ck "tex/calidad.png" d8c27a4a31ffdb7f750e8d7d1b41eaaf "$(md5of tex/calidad.png)"
+# rev 47, W4: RE-BASED because the artwork legitimately changed.  "100%" and
+# "Calidad" shared 1110 pixels; they now share 0, with a clear gap of 0.0258 of
+# the canvas height.  Re-based, never relaxed.
+# rev 47b: RE-BASED again, and this time against a PHOTOGRAPH.  He looked at
+# LINE_GAP 0.26 and said the words still did not read as two.  IMG_2073.jpeg
+# arrived and shows the burst at 44x61 px instead of ref_playa_34's 23x39, and
+# the words separate under a mask.  Measured as a RATIO against the same
+# estimator run on the build (its +34% absolute bias divides out): photographed
+# 0.244 vs built 0.149 => 1.64x, so LINE_GAP 0.26 -> 0.43.
+ck "tex/calidad.png" 6330c6e5a811ada11bd5be568172b80a "$(md5of tex/calidad.png)"
 ck "tex/lidmural.png" 2d62159dba663c90b5ae3746383c15d1 "$(md5of tex/lidmural.png)"
 ck "tex/lidsign.png" bcd3da2dbec0276fabd7d8f8ee03f27b "$(md5of tex/lidsign.png)"
 ck "tex/emblem.png"  574ba2d733353387568b412da48fd436 "$(md5of tex/emblem.png)"
@@ -285,7 +302,35 @@ ck "signboard default is OFF"       1 "$(grep -c 'T1_SIGNBOARD\", \"0\"' t1_shel
 # centre -- rotating about anything else swings a correctly-laid-out block back
 # off centre, which is exactly what (0.500, 0.600) was doing.
 ck "calidad burst centre is 0.505/0.575"  1 "$(grep -c '^BURST_CX, BURST_CY = 0.505, 0.575' cal_gen.py)"
-ck "calidad TYPE_SHIFT is DERIVED"        1 "$(grep -c '^TYPE_SHIFT = (BURST_CX - TYPE_PRE_CENTROID\[0\],' cal_gen.py)"
+# rev 47.  THE RATIONALE IS KEPT AND THE SHAPE IS REPLACED -- rule 5, do not
+# inherit a guard's rationale along with its shape.  rev 46 satisfied "derived"
+# by expressing TYPE_SHIFT against a FROZEN measured centroid,
+# TYPE_PRE_CENTROID = (0.3735, 0.6309).  That is derived only for rev 46's
+# spacing.  W4 had to open the gap between the two words, the pre-rotation
+# centroid moved to 0.6607, and a frozen figure would have swung the block back
+# off the burst -- the exact trap the rev-47 brief names.  TYPE_SHIFT is now
+# COMPUTED at generation time from the centroid of the actual laid-out type, so
+# it re-derives after any glyph, size or spacing change.
+# THESE ROWS ARE STRICTLY STRONGER THAN THE GREP THEY REPLACE: the derivation
+# must be PRESENT and the frozen literal must be GONE.  A revision that goes
+# back to a typed centroid now fails on row two even if it keeps row one.
+ck "calidad TYPE_SHIFT is DERIVED at run time" 1 "$(grep -c 'TYPE_SHIFT = (BURST_CX - _pre\[0\], BURST_CY - _pre\[1\])' cal_gen.py)"
+ck "calidad centroid is NOT a frozen literal"  0 "$(grep -c '^TYPE_PRE_CENTROID' cal_gen.py)"
+# rev 47b: THIS ROW DID ITS JOB AND WENT RED, so it is restated rather than
+# deleted.  At rev 47 LINE_GAP was a placeholder and the row required it to SAY
+# SO, so that nobody could quietly promote a guess into a measurement.  It was
+# then promoted -- but not quietly: he sent IMG_2073.jpeg, the burst is 44x61 px
+# there instead of 23x39, and probe_rev47_gap measured the gap as a RATIO
+# against the same estimator run on the build.  The row now requires the
+# PROVENANCE to be cited in the source, which is the same protection one step
+# on: a future revision cannot retune LINE_GAP by eye without deleting a
+# reference to the probe and the frame it was measured from.
+# PRESENCE, not occurrence count.  A `grep -c` here is a latent false positive:
+# it went red at "got 2, want 1" purely because the provenance is cited on two
+# lines, which is not a defect.  A row that fires on a harmless duplicate is the
+# cry-wolf failure bootstrap.sh's stranded-branch check already had to fix once.
+ck "calidad LINE_GAP cites its provenance"     1 "$(grep -q 'probe_rev47_gap' cal_gen.py && echo 1 || echo 0)"
+ck "calidad LINE_GAP names its frame"          1 "$(grep -q 'IMG_2073' cal_gen.py && echo 1 || echo 0)"
 ck "calidad type rotates about the burst" 1 "$(grep -c 'center=(w \* BURST_CX, h \* BURST_CY)' cal_gen.py)"
 ck "calidad generator carries its guard"  1 "$(grep -c 'cal_gen GUARD FAILED' cal_gen.py)"
 # rev 46, at the OWNER'S instruction, in two stages.  The Calidad decal drew two

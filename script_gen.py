@@ -202,13 +202,35 @@ class Canvas:
                 d.ellipse([(p[0] - r) * SS, (p[1] + YPAD - r) * SS,
                            (p[0] + r) * SS, (p[1] + YPAD + r) * SS], fill=255)
 
-    def alpha(self):
-        """Coverage in [0,255], MH_TOT rows.  Row i is mask-space y = i - YPAD."""
+    def alpha_box(self, k):
+        """Coverage in [0,255], box-downsampled by k rather than by SS.
+
+        SPEC 10.121 (rev 47).  THE RASTER IS DRAWN AT SS AND WAS THROWN AWAY AT
+        SS.  Canvas draws at MW*SS = 3480 px across; alpha() reduced that to MW
+        = 290 px, of which the ink spans 271; main() then LANCZOS-upscaled those
+        271 px to OUT_W = 4096 -- a 15.11x magnification of a raster that had
+        already discarded twelve times its own detail.  Every edge in the
+        shipped texture was a 14.1 px ramp for that reason alone, and three
+        revisions read the resulting mush as a CONTRAST fault and chased an
+        amplitude number for a spatial-frequency defect.
+
+        k = SS reproduces the historic mask space EXACTLY -- alpha() below is
+        that call and nothing else, so every mask-space comparison, every
+        threshold and every stored figure in this project is bit-identical
+        across this change.  k = 1 returns the drawn raster untouched.
+        """
+        if (MW * SS) % k or (MH_TOT * SS) % k:
+            raise ValueError("alpha_box: k=%d does not divide the raster" % k)
         a = np.array(self.ink, np.uint8).astype(np.float32)
         h = np.array(self.hole, np.uint8).astype(np.float32)
         m = np.clip(a - h, 0, 255)
-        m = m.reshape(MH_TOT, SS, MW, SS).mean(axis=(1, 3))
-        return m
+        if k == 1:
+            return m
+        return m.reshape(MH_TOT * SS // k, k, MW * SS // k, k).mean(axis=(1, 3))
+
+    def alpha(self):
+        """Coverage in [0,255], MH_TOT rows.  Row i is mask-space y = i - YPAD."""
+        return self.alpha_box(SS)
 
 
 # ---------------------------------------------------------------- the lockup
@@ -590,11 +612,32 @@ def build():
     return c.alpha()
 
 
+def _lockup(c):
+    draw_T(c); draw_a(c); draw_c(c); draw_o(c)
+    draw_m(c); draw_b(c); draw_i(c); draw_senor(c)
+
+
+def build_hi():
+    """The lockup at the DRAWN resolution, MW*SS x MH_TOT*SS.  Same strokes as
+    build(); only the reduction differs.  SPEC 10.121."""
+    c = Canvas()
+    _lockup(c)
+    return c.alpha_box(1)
+
+
 def senor_only():
     """Coverage of the 'Senor' word alone -- used as a tarnish zone mask."""
     c = Canvas()
     draw_senor(c)
     return c.alpha()
+
+
+def senor_only_hi():
+    """senor_only() at the drawn resolution.  The tarnish zone has to be cropped
+    and resized on the SAME grid as the ink or the tarnish slides off the word."""
+    c = Canvas()
+    draw_senor(c)
+    return c.alpha_box(1)
 
 
 # ------------------------------------------------------------------- ink colour
@@ -774,12 +817,24 @@ def main():
              (INK_BBOX[2] - INK_BBOX[0] + 1) / (INK_BBOX[3] - INK_BBOX[1] + 1)))
 
     # crop to the generated ink bbox and emit at OUT_W
-    x0, x1, y0, y1 = xs.min(), ys.max(), ys.min(), ys.max()
+    #
+    # SPEC 10.121 (rev 47).  THE BBOX IS STILL FOUND IN MASK SPACE -- it must
+    # be, because every stored figure, threshold and comparison in this project
+    # is in mask space -- but the raster that gets CROPPED AND RESIZED is now
+    # the one Canvas actually drew, at SS.  Before this, the 271-px-wide mask
+    # crop was LANCZOS-magnified 15.11x to 4096; now the 3252-px-wide drawn
+    # crop is resized 1.260x.  Same geometry, same bbox, same output size --
+    # twelve times the real detail.
     x0, x1 = xs.min(), xs.max()
-    sub = a[y0:y1 + 1, x0:x1 + 1]
+    y0, y1 = ys.min(), ys.max()
+    sub = a[y0:y1 + 1, x0:x1 + 1]                    # mask space: ppm, prints
+    hi = build_hi()[y0 * SS:(y1 + 1) * SS, x0 * SS:(x1 + 1) * SS]
     h = int(round(OUT_W * sub.shape[0] / sub.shape[1]))
-    al = np.array(Image.fromarray(sub.astype(np.uint8))
+    al = np.array(Image.fromarray(hi.astype(np.uint8))
                   .resize((OUT_W, h), Image.LANCZOS))
+    print("emit: mask crop %dx%d (%.2fx to OUT_W) -> drawn crop %dx%d (%.3fx)"
+          % (sub.shape[1], sub.shape[0], OUT_W / sub.shape[1],
+             hi.shape[1], hi.shape[0], OUT_W / hi.shape[1]))
 
     # ---- ink colour: measured silver, mottled, with the tarnish where the
     #      photograph puts it.  See the block above main() for provenance.
@@ -797,7 +852,8 @@ def main():
     #    thresholded inside the measured zones, so the tarnish reads as patches
     #    of a different material rather than as a darker paint.
     from scipy import ndimage as nd
-    sen = senor_only()[y0:y1 + 1, x0:x1 + 1]
+    # SPEC 10.121: cropped and resized on the SAME grid as the ink above.
+    sen = senor_only_hi()[y0 * SS:(y1 + 1) * SS, x0 * SS:(x1 + 1) * SS]
     sen = np.array(Image.fromarray(sen.astype(np.uint8))
                    .resize((OUT_W, h), Image.LANCZOS)).astype(np.float32) / 255.0
     tw = np.clip(sen * 1.15, 0, 1)               # 'Senor': full strength

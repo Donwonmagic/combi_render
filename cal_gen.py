@@ -91,9 +91,58 @@ ANG = math.radians(-19.7)        # measured type / bunting angle
 # layout was right.  Rotating about the point the block is centred ON makes the
 # centring EXACT and independent of ANG: a rotation fixes its own centre.
 BURST_CX, BURST_CY = 0.505, 0.575
-TYPE_PRE_CENTROID = (0.3735, 0.6309)     # watched print, rev 46, pre-rotation
-TYPE_SHIFT = (BURST_CX - TYPE_PRE_CENTROID[0],
-              BURST_CY - TYPE_PRE_CENTROID[1])      # (+0.1315, -0.0559)
+
+# ---------------------------------------------------------------- rev 47, W4
+# THE TWO WORDS COLLIDED.  "100%" and "Calidad" shared 1110 pixels and their
+# boxes overlapped by 0.0337 of the canvas height -- 14.5% of the "100%" cap
+# height.  The owner reported it; rev 46 measured it and did not fix it.
+#
+# LINE_GAP OPENS THAT GAP, AND ITS MAGNITUDE IS NOT A MEASUREMENT.  Say so
+# plainly (rule 6: an ordinal fact licenses a SIGN, never a SHAPE).  What
+# ref_playa_34.png supports is that the two words are SEPARATE -- visible at
+# 16x, and that is all.  A de-rotated row profile of the type inside the burst
+# is a single broad smear with no trough between the words: at 4-6 px per word
+# the bright/low-saturation rule that finds the type also finds the cream, the
+# same failure LEDGER_rev46 sec.1 retracted a number for.  So this constant is
+# the SMALLEST separation that clears the collision with a visible gap, and it
+# is a placeholder for a photographed value.  PHOTOS_WANTED #1 settles it.
+#
+# It is expressed as a fraction of the "100%" cap height rather than of the
+# canvas, so it survives a change of type size (SPEC 10.25 / rule 2).
+CAP_100 = 0.228                  # "100%" size, as passed to glyph_100 below
+# rev 47b: NOW MEASURED, from IMG_2073.jpeg, which he sent after seeing 0.26 and
+# reporting that the words STILL did not read as two.  He was right.  The gap is
+# carried as a RATIO against the same estimator run on the build, because the
+# estimator has a +34% absolute bias that DIVIDES OUT of a ratio and does not
+# divide out of a reading (probe_rev47_gap.py C1).  Photographed 0.244 against
+# built 0.149 on the identical instrument => the photograph's gap is 1.64x the
+# build's, so 0.26 * 1.64 = 0.43.  NOT MEASURED absolutely -- see probe.
+LINE_GAP = 0.43                  # of CAP_100.  Ratio-measured; see probe_rev47_gap.
+LINE_SEP_BASE = 0.250            # rev 46's anchor separation, 0.645 - 0.395
+LINE_SEP = LINE_SEP_BASE + LINE_GAP * CAP_100
+
+# TYPE_SHIFT IS NOW DERIVED AT RUN TIME, NOT TRANSCRIBED.
+# rev 46 froze TYPE_PRE_CENTROID = (0.3735, 0.6309) as a watched-print figure.
+# That is correct only for rev 46's exact layout: change the gap -- which W4
+# requires -- and the frozen centroid silently becomes wrong, the block slides
+# off the burst, and the W1 guard fires.  The brief names this as the trap.
+# Measuring the centroid of the actual laid-out type removes the trap instead
+# of stepping around it, and it re-derives itself after ANY future glyph, size
+# or spacing change.  SPEC 10.25: a constant tuned against another constant
+# must be EXPRESSED in terms of it.
+def _type_centroid(shift=(0.0, 0.0)):
+    """Centroid of the two words as laid out, pre-rotation, in canvas units."""
+    t = TypeMask(w, h)
+    _place(t, shift)
+    m = np.array(t.m) > 127
+    ys, xs = np.nonzero(m)
+    return (xs.mean() / w, ys.mean() / h)
+
+
+def _place(t, shift):
+    sx, sy = shift
+    glyph_100(t, w * (0.150 + sx), h * (0.395 + sy), h * CAP_100)
+    glyph_calidad(t, w * (0.180 + sx), h * (0.395 + LINE_SEP + sy), h * 0.196)
 
 
 def rot(px, py, cx, cy, a):
@@ -313,9 +362,11 @@ def main():
     # type on its own mask so the counters punch through, then rotated as one
     # block so the two lines stay parallel at the measured -19.7 degrees
     t = TypeMask(w, h)
-    sx, sy = TYPE_SHIFT
-    glyph_100(t, w * (0.150 + sx), h * (0.395 + sy), h * 0.228)
-    glyph_calidad(t, w * (0.180 + sx), h * (0.645 + sy), h * 0.196)
+    _pre = _type_centroid()
+    TYPE_SHIFT = (BURST_CX - _pre[0], BURST_CY - _pre[1])
+    print("  type: pre-rotation centroid (%.4f, %.4f) -> TYPE_SHIFT (%+.4f, %+.4f)"
+          % (_pre + TYPE_SHIFT))
+    _place(t, TYPE_SHIFT)
     lay = Image.merge("RGBA", (
         Image.new("L", (w, h), WHITE[0]), Image.new("L", (w, h), WHITE[1]),
         Image.new("L", (w, h), WHITE[2]), t.m))
