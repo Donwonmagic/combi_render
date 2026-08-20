@@ -316,7 +316,17 @@ ck "calidad burst centre is 0.505/0.575"  1 "$(grep -c '^BURST_CX, BURST_CY = 0.
 # back to a typed centroid now fails on row two even if it keeps row one.
 ck "calidad TYPE_SHIFT is DERIVED at run time" 1 "$(grep -c 'TYPE_SHIFT = (BURST_CX - _pre\[0\], BURST_CY - _pre\[1\])' cal_gen.py)"
 ck "calidad centroid is NOT a frozen literal"  0 "$(grep -c '^TYPE_PRE_CENTROID' cal_gen.py)"
-ck "calidad LINE_GAP is declared UNMEASURED"   1 "$(grep -c 'NOT MEASURED -- see above' cal_gen.py)"
+# rev 47b: THIS ROW DID ITS JOB AND WENT RED, so it is restated rather than
+# deleted.  At rev 47 LINE_GAP was a placeholder and the row required it to SAY
+# SO, so that nobody could quietly promote a guess into a measurement.  It was
+# then promoted -- but not quietly: he sent IMG_2073.jpeg, the burst is 44x61 px
+# there instead of 23x39, and probe_rev47_gap measured the gap as a RATIO
+# against the same estimator run on the build.  The row now requires the
+# PROVENANCE to be cited in the source, which is the same protection one step
+# on: a future revision cannot retune LINE_GAP by eye without deleting a
+# reference to the probe and the frame it was measured from.
+ck "calidad LINE_GAP cites its provenance"     1 "$(grep -c 'probe_rev47_gap' cal_gen.py)"
+ck "calidad LINE_GAP names its frame"          1 "$(grep -c 'IMG_2073' cal_gen.py)"
 ck "calidad type rotates about the burst" 1 "$(grep -c 'center=(w \* BURST_CX, h \* BURST_CY)' cal_gen.py)"
 ck "calidad generator carries its guard"  1 "$(grep -c 'cal_gen GUARD FAILED' cal_gen.py)"
 # rev 46, at the OWNER'S instruction, in two stages.  The Calidad decal drew two
