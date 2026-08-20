@@ -301,3 +301,89 @@ bulge constant.
 * **W6 — the paint and the studio.** Body red G/R 0.455 built vs 0.223 ± 0.066 photographed
   (**3.5 σ**); hubcap red 3.4 σ; cream right to 0.4 σ. **ONE finding, not three.** ~Half the excess
   is the white cyclorama's own specular. **His call**, and **it gates the rest of W3.**
+
+---
+
+## §10. REV 47b — HE REPEATED IT, HE SENT A BETTER FRAME, AND THE GAP BECAME MEASURABLE
+
+**He looked at §3's fix and said: "It still does not read as two separate words."** He was right, and
+§3 already records why: **I proved CLEARANCE and reported it as LEGIBILITY.**
+
+**Then he sent `IMG_2073.jpeg` (1400 × 933), and it changes several things at once.** It is the best
+frame in the project by a wide margin. It shows a green/cream T1 **in service**, roof lids **open**,
+and it resolves four things no previous frame could.
+
+### 10a. THE WORD GAP — measured, and carried as a RATIO
+
+`ref_playa_34.png` shows this decal at 23 × 39 px, which is why rev 46 refused to measure it and rev
+47 shipped a placeholder. **`IMG_2073.jpeg` shows it at 44 × 61 px** and the two words separate
+cleanly under a mask.
+
+```
+    photographed gap   0.244 of cap height
+    built gap          0.149 of cap height    <- THE SAME estimator, the same scale
+    ratio              1.64x       ->   LINE_GAP 0.26 -> 0.43
+```
+
+**THE RATIO IS QUOTED AND THE ABSOLUTE IS NOT, DELIBERATELY.** `probe_rev47_gap.py` C1 runs the
+estimator on the **built** decal downsampled to the photograph's own size, where the answer is known
+by construction: it reads **0.149 against a built 0.111**, a **+34 % absolute bias** from the angle
+sweep. That bias **divides out of a ratio** and does not divide out of a reading. Rule 14, and the
+same cancellation argument as SPEC 10.107.2.
+
+`probe_rev47_gap.py` — **3 controls, 0 FAILED.** C1 recovers the built gap at the photograph's scale;
+C2 recovers a wide synthetic gap; **C3 KILL — words that TOUCH produce no two-band split, so the
+estimator refuses rather than inventing a gap.** Without C3 an estimator that always finds two bands
+would have "confirmed" the fix at `LINE_GAP` 0.26 and been blind.
+
+**A first attempt was discarded rather than published.** It took the type mask's **principal axis**
+as the reading angle and reported a **0.75 px cap height at 102°**. Two stacked words make a roughly
+square block whose principal axis means nothing. The angle is now found by **sweeping** it.
+
+### 10b. FOUR NEW DEFECTS IN THE DECAL, VISIBLE ONLY NOW *(NOT FIXED — rev 48)*
+
+Beside `IMG_2073` at matched magnification, all four were invisible at 23 × 39 px:
+
+1. **The spikes are wrong.** The photograph has **many short, fine, near-uniform needle spikes** on a
+   nearly circular core. The build has **~20 long, broad, irregular** spikes. Different character,
+   not a different tuning.
+2. **The burst colour is wrong.** The photograph is a fairly **uniform deep crimson**. The build runs
+   a strong **RED → ORANGE → YELLOW** gradient. There is little or no orange in the photograph.
+3. **The stars are wrong.** The photograph has **several small magenta stars scattered around the
+   decal, outside the burst**. The build has **one** pink star to the left.
+4. **The type fills too much of the burst.** In the photograph the type sits in the middle with a
+   clear red margin all round; in the build it nearly touches the spikes.
+
+### 10c. THE VENT SLATS — the rev-46 ledger's colour reading is CORRECTED
+
+`LEDGER_rev46.md` §5 says the slats "are **dark grey** in the photograph". **In `IMG_2073` they are
+body colour** — green, the same paint as the panel — and they read dark only because **each pressed
+slot self-shadows**. The rev-46 reading came from a frame where the shadow was all that survived.
+
+**This strengthens rather than weakens rev 46's conclusion.** A louvre whose darkness *is* its
+self-shadow is precisely a thing that cannot be painted into a texture, and it is exactly the
+standard the owner set with the school-bus render.
+
+**Measured:** the shadow lines are **regularly spaced at 8.02 ± 0.42 native px** (5 % scatter) on the
+rear flank panel. **THE COUNT IS NOT SETTLED and is not published**: a bounded detector found 6 in a
+50-px-tall crop that may not span the whole panel, while reading the magnified crop by eye suggests
+~10. The pitch is a real measurement; the count is not. **Rev 48: bound the panel first, then count.**
+
+### 10d. THE LIDS OPEN "LIKE IT'S IN SERVICE" — the reference now exists
+
+His new requirement (§5) has a frame. `IMG_2073` shows the vehicle **in service** with the roof lids
+raised on visible struts/cables and lit strip lighting along the lid edge. **This is the pose he
+wants.** §5's open question — whether the *trunk* lid is a separate openable part or only a seam —
+is unchanged and still must be confirmed against the build, not the source.
+
+### 10e. `verify_clone.sh` — a row went red BECAUSE IT WORKED, twice
+
+* `calidad LINE_GAP is declared UNMEASURED` fired the moment `LINE_GAP` became measured. **That is
+  the row doing its job.** It is **restated, not deleted**: the source must now cite
+  `probe_rev47_gap` **and** name `IMG_2073`, so `LINE_GAP` cannot be retuned by eye without deleting
+  a reference to the probe and the frame it came from.
+* Those provenance rows were first written with `grep -c` and went red at **"got 2, want 1"** because
+  the provenance is cited on two lines — **a cry-wolf false positive, the same failure mode
+  `bootstrap.sh`'s stranded-branch row had to fix once.** Changed to a presence test.
+
+**`verify_clone.sh` ALL 86 PASS.**
