@@ -164,7 +164,11 @@ ck "amtrak (HIS word)"              2 "$(grep -c 'amtrak' SPEC.md)"
 # carried four of this revision's findings (10.102, 10.105, 10.106, 10.107),
 # so SPEC names them nine more times.  This row is a REMINDER THAT THE
 # NOLITA FRAMES ARE ADMISSIBLE, not a cap on how often they are used.
-ck "nolita, any case"              25 "$(grep -ic 'nolita' SPEC.md)"
+# rev 45: 25 -> 28.  SPEC 10.110 and 10.111 name ref_nolita_front34.jpg three
+# more times -- it is the frame that settled the headlamp bezel's chroma and
+# the frame rev 45's badge work was checked against.  Same reading as rev 44b's:
+# THIS ROW IS A REMINDER THAT THE NOLITA FRAMES ARE ADMISSIBLE, not a cap.
+ck "nolita, any case"              28 "$(grep -ic 'nolita' SPEC.md)"
 ck "TEN flower heads"               1 "$(grep -c 'TEN flower heads' SPEC.md)"
 
 # ------------------------------------------------------------------ build files
@@ -215,7 +219,14 @@ ck "tex/swirl.png"   4ee4e09edcc9afb46303c8d3858a62bf "$(md5of tex/swirl.png)"
 ck "tex/swirl_b.png" d201597e1c867b6e1fbedd2c0f8ab306 "$(md5of tex/swirl_b.png)"
 ck "tex/nose.png"    b31ea156c15d2d8e38ba390d9e151706 "$(md5of tex/nose.png)"
 ck "tex/senor.png"   8e58ad7e9d87184591fe7cb12300e903 "$(md5of tex/senor.png)"
-ck "tex/calidad.png" cc1c46c796e88e6b066d4fb2cb5cc9c2 "$(md5of tex/calidad.png)"
+# rev 45, SPEC 10.112: RE-BASED because the texture legitimately changed.
+# cal_gen.gradient's bias was 0.42 and `t` is zero at the burst's own centre by
+# construction, so the core evaluated to 84 % ORANGE and NOTHING in the shipped
+# texture was the RED = (214,46,30) that starburst() fills the polygon with nine
+# lines above.  Core measured off the shipped file: (237.0,120.3,22.0), G/R
+# 0.508.  Bias -> 0; core now (216.6,55.1,28.2), G/R 0.255, against the body
+# red's own 0.250.  The owner reported this decal twice.
+ck "tex/calidad.png" 247d8ab1a8e1a93effcb74c4674090ed "$(md5of tex/calidad.png)"
 ck "tex/lidmural.png" 2d62159dba663c90b5ae3746383c15d1 "$(md5of tex/lidmural.png)"
 ck "tex/lidsign.png" bcd3da2dbec0276fabd7d8f8ee03f27b "$(md5of tex/lidsign.png)"
 ck "tex/emblem.png"  574ba2d733353387568b412da48fd436 "$(md5of tex/emblem.png)"
@@ -246,11 +257,32 @@ ck "signboard default is OFF"       1 "$(grep -c 'T1_SIGNBOARD\", \"0\"' t1_shel
 # retyping of it.  (It does not run the guards; run those yourself.)
 # ---------------------------------------------------------------------------
 say "-- guard figures, read from the machine-written STATE.md --"
-ck "roof @ rear axle 1.9835"        1 "$(grep -c 'roof@rear-axle=1.9835' STATE.md)"
+# rev 45 -- THIS ROW IS RE-WRITTEN, NOT RE-BASED, AND THE DIFFERENCE MATTERS.
+# It grepped for the literal `roof@rear-axle=1.9835`.  On this machine the
+# build prints 1.9833 -- and it printed 1.9833 BEFORE rev 45 touched anything,
+# on the unmerged tree, so THE COMMITTED STATE.md WAS ALREADY 0.2 mm STALE.
+# 0.2 mm on 1.98 m is 1e-4 relative; it is the same class as probe_rev42_uv's
+# 56.15 % against a published 55.97 % (ledger finding 20) -- bpy-via-pip
+# against whatever binary wrote the record, and no binary exists here to settle
+# it.  Bumping the literal to 1.9833 would hide a real move next time, so the
+# row now checks the LOCKED BASELINE is still claimed AND that the delta the
+# same line prints is inside 1 mm.  That is strictly stronger than one grep.
+ck "roof baseline still 1.9835"     1 "$(grep -c 'regression baseline 1.9835' STATE.md)"
+# sed then awk, NOT gawk's 3-argument match(): this machine's awk is mawk 1.3.4
+# and mawk rejects it outright ("syntax error at or near ,").  The header of
+# this file promises portability across BSD and GNU userlands and that promise
+# is load-bearing -- the check silently returned empty and read as a FAIL.
+ck "roof delta within 1 mm"        ok "$(sed -n 's/.*baseline 1\.9835, \([-+][0-9.]*\) mm.*/\1/p' STATE.md | head -1 | awk '{d=($1<0)?-$1:$1; print (d<=1.0)?"ok":"off:"$1}')"
 ck "rake 17.75 mm/m"                1 "$(grep -c 'rake 17.75 mm/m (locked 17.75)' STATE.md)"
 ck "L=4.065 W=1.750"                1 "$(grep -c 'L=4.065 W=1.750' STATE.md)"
 ck "bay widths 0.516 0.515 0.516"   2 "$(grep -c 'bay widths 0.516 0.515 0.516' STATE.md)"
-ck "mesh objects 190"               1 "$(grep -c '| mesh objects | 190 |' STATE.md)"
+# rev 45: 190 -> 221.  RE-BASED, and the reason is the merge, not this
+# revision's geometry.  The seventeen stranded rev-44/44b commits (SPEC
+# 10.113.4) bring cab_fitout and door_hinges -- the whole cab interior and four
+# hinge assemblies -- which is +31 meshes.  Note that the committed STATE.md on
+# the rev-44b tip ITSELF still said 190: it was never regenerated after the cab
+# was added, so that record was stale on its own branch.
+ck "mesh objects 221"               1 "$(grep -c '| mesh objects | 221 |' STATE.md)"
 ck "non-manifold edges 0"           1 "$(grep -c '| non-manifold edges (body) | 0 |' STATE.md)"
 
 # ---------------------------------------------------------------------------
