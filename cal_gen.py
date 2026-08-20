@@ -61,6 +61,37 @@ BUNT = (198, 40, 36)
 
 ANG = math.radians(-19.7)        # measured type / bunting angle
 
+# ------------------------------------------------------- rev 46, W1, SPEC 10.118
+# THE BURST'S CENTRE, PROMOTED TO A CONSTANT, AND THE TYPE EXPRESSED AGAINST IT.
+#
+# The owner reported "the 100% calidad off center" and he is right.  It is NOT
+# the defect rev 44 closed: that one was the decal PANEL'S PLACEMENT ON THE
+# VEHICLE (Report 7, 0.180 of texture width).  This is the TYPE'S PLACEMENT
+# INSIDE THE DECAL, which nobody had ever measured.  Both are true and they are
+# different things.
+#
+# Measured on this generator's own output, before the block is rotated: the
+# type's centroid sat at (0.3735, 0.6309) of the canvas while starburst()'s
+# centre is (0.5050, 0.5750).  The block was 0.1315 w LEFT and 0.0559 h BELOW
+# the burst it is supposed to sit on -- and it showed, with "100%" hanging off
+# the burst onto bare cream and "Calidad" running off the panel's bottom edge.
+#
+# TYPE_SHIFT is EXACTLY that measured miss (SPEC 10.25: a constant tuned against
+# another constant is expressed in terms of it).  It is not a re-tuned pair of
+# absolutes -- re-run the pre-rotation centroid measurement after any glyph
+# change and it re-derives.  The two lines keep their relative offset; only the
+# block moves, which is what "off center" means.
+#
+# AND THE ROTATION CENTRE MOVES TO THE BURST'S CENTRE.  It was (0.500, 0.600) --
+# near the burst's centre but not equal to it, so the -19.7 deg rotation swung
+# the block off centre again by a further (+0.0148, +0.0558) even when the
+# layout was right.  Rotating about the point the block is centred ON makes the
+# centring EXACT and independent of ANG: a rotation fixes its own centre.
+BURST_CX, BURST_CY = 0.505, 0.575
+TYPE_PRE_CENTROID = (0.3735, 0.6309)     # watched print, rev 46, pre-rotation
+TYPE_SHIFT = (BURST_CX - TYPE_PRE_CENTROID[0],
+              BURST_CY - TYPE_PRE_CENTROID[1])      # (+0.1315, -0.0559)
+
 
 def rot(px, py, cx, cy, a):
     s, c = math.sin(a), math.cos(a)
@@ -76,7 +107,7 @@ def starburst(d):
     burst, so the tips wander. The sequence is fixed, not random, so the file
     is reproducible.
     """
-    cx, cy = w * 0.505, h * 0.575
+    cx, cy = w * BURST_CX, h * BURST_CY
     RO, RI = h * 0.435, h * 0.255
     N = 27
     jitter = [0.94, 1.06, 0.88, 1.11, 0.97, 1.04, 0.91, 1.08, 1.00, 0.93,
@@ -270,14 +301,39 @@ def main():
     # type on its own mask so the counters punch through, then rotated as one
     # block so the two lines stay parallel at the measured -19.7 degrees
     t = TypeMask(w, h)
-    glyph_100(t, w * 0.150, h * 0.395, h * 0.228)
-    glyph_calidad(t, w * 0.180, h * 0.645, h * 0.196)
+    sx, sy = TYPE_SHIFT
+    glyph_100(t, w * (0.150 + sx), h * (0.395 + sy), h * 0.228)
+    glyph_calidad(t, w * (0.180 + sx), h * (0.645 + sy), h * 0.196)
     lay = Image.merge("RGBA", (
         Image.new("L", (w, h), WHITE[0]), Image.new("L", (w, h), WHITE[1]),
         Image.new("L", (w, h), WHITE[2]), t.m))
     lay = lay.rotate(-math.degrees(ANG), resample=Image.BICUBIC,
-                     center=(w * 0.5, h * 0.60))
+                     center=(w * BURST_CX, h * BURST_CY))
     img = Image.alpha_composite(img, lay)
+
+    # ------------------------------------------------- rev 46, W1: THE GUARD
+    # Added in the SAME EDIT as the change it guards (SPEC 10.117 / rule 12).
+    # A claim in prose is not a guard: this one MEASURES the shipped raster and
+    # refuses to write a decal whose type has drifted off the burst.  It is the
+    # check that did not exist for forty-five revisions, which is why "100%
+    # calidad off center" survived every one of them.
+    _ck = np.array(img).astype(float)
+    _al = _ck[:, :, 3] / 255.0
+    _wm = (_al > 0.5) & (_ck[:, :, 0] > 200) & (_ck[:, :, 1] > 195) & (_ck[:, :, 2] > 190)
+    _ys, _xs = np.nonzero(_wm)
+    _tc = (_xs.mean() / _ck.shape[1], _ys.mean() / _ck.shape[0])
+    _off = (_tc[0] - BURST_CX, _tc[1] - BURST_CY)
+    print("  guard: type centroid (%.4f, %.4f) vs burst centre (%.4f, %.4f) "
+          "-> off (%+.4f, %+.4f)" % (_tc + (BURST_CX, BURST_CY) + _off))
+    # 0.004 is ~10 px on the 2400-wide master: below the LANCZOS/BICUBIC
+    # resampling floor, far under the 0.1167 miss this replaced.
+    if abs(_off[0]) > 0.004 or abs(_off[1]) > 0.004:
+        raise SystemExit(
+            "cal_gen GUARD FAILED: the type is off the burst's centre by "
+            "(%+.4f, %+.4f) of the decal, tolerance 0.004.  This is the defect "
+            "the owner reported as \"100%% calidad off center\".  Re-derive "
+            "TYPE_SHIFT from the pre-rotation centroid; do not widen the "
+            "tolerance." % _off)
 
     img = img.resize((W, H), Image.LANCZOS)
     os.makedirs(TEX, exist_ok=True)

@@ -241,7 +241,15 @@ ck "tex/senor.png"   8e58ad7e9d87184591fe7cb12300e903 "$(md5of tex/senor.png)"
 # lines above.  Core measured off the shipped file: (237.0,120.3,22.0), G/R
 # 0.508.  Bias -> 0; core now (216.6,55.1,28.2), G/R 0.255, against the body
 # red's own 0.250.  The owner reported this decal twice.
-ck "tex/calidad.png" 247d8ab1a8e1a93effcb74c4674090ed "$(md5of tex/calidad.png)"
+# rev 46, SPEC 10.118: RE-BASED AGAIN, and again because the texture legitimately
+# changed.  The owner reported "the 100% calidad off center".  The type's
+# centroid sat 0.1167 w LEFT and 0.1117 h BELOW starburst()'s centre -- "100%"
+# hung off the burst onto bare cream and "Calidad" ran off the panel's bottom
+# edge.  cal_gen now anchors the block to BURST_CX/BURST_CY and rotates it about
+# that same point, and CARRIES ITS OWN GUARD: it refuses to write a decal whose
+# type is more than 0.004 off centre.  Watched fail at (-0.1099, +0.1127) on the
+# rev-45 layout and at (-0.0132, +0.0134) on 12 % of the correction.
+ck "tex/calidad.png" dae697a591dd90b404dfd76524ca20fa "$(md5of tex/calidad.png)"
 ck "tex/lidmural.png" 2d62159dba663c90b5ae3746383c15d1 "$(md5of tex/lidmural.png)"
 ck "tex/lidsign.png" bcd3da2dbec0276fabd7d8f8ee03f27b "$(md5of tex/lidsign.png)"
 ck "tex/emblem.png"  574ba2d733353387568b412da48fd436 "$(md5of tex/emblem.png)"
@@ -263,6 +271,17 @@ ck "DOOR_H art datum is 1.013467"   1 "$(grep -c '1.013467 m' folk_gen.py)"
 # the default to "1" leaves the occurrence count at 3 and puts a panel he
 # removed into every hero.
 ck "signboard default is OFF"       1 "$(grep -c 'T1_SIGNBOARD\", \"0\"' t1_shell.py)"
+# rev 46, W1.  VALUE, NOT OCCURRENCE, and the DERIVATION, not the result:
+# TYPE_SHIFT must stay EXPRESSED as (burst centre - measured pre-rotation
+# centroid) (SPEC 10.25).  Freezing the arithmetic result +0.1315/-0.0559 as a
+# literal would pass this grep and silently decouple the type from the burst the
+# next time a glyph moves.  The block must also rotate about the burst's own
+# centre -- rotating about anything else swings a correctly-laid-out block back
+# off centre, which is exactly what (0.500, 0.600) was doing.
+ck "calidad burst centre is 0.505/0.575"  1 "$(grep -c '^BURST_CX, BURST_CY = 0.505, 0.575' cal_gen.py)"
+ck "calidad TYPE_SHIFT is DERIVED"        1 "$(grep -c '^TYPE_SHIFT = (BURST_CX - TYPE_PRE_CENTROID\[0\],' cal_gen.py)"
+ck "calidad type rotates about the burst" 1 "$(grep -c 'center=(w \* BURST_CX, h \* BURST_CY)' cal_gen.py)"
+ck "calidad generator carries its guard"  1 "$(grep -c 'cal_gen GUARD FAILED' cal_gen.py)"
 
 # ---------------------------------------------------------------------------
 # THE GUARD TABLE, EXECUTABLE.
