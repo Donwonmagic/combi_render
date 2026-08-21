@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-20 02:23:18 UTC |
-| git commit | `fc4596b` |
-| git subject | rev 45: verify_clone -- four rows adjudicated, two of them PRE-EXISTING staleness |
+| generated | 2026-08-21 08:53:39 UTC |
+| git commit | `e19b46f` |
+| git subject | rev 49e: the survey's record audit caught THREE of my own defects |
 | working tree | **DIRTY** — this state is not committed |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=2 (applied, destructive, before booleans) |
@@ -25,7 +25,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 > revisions. Run both.
 
 ```
-x range [-1.905, 2.160]   full-Y [-1.064, 1.150]
+length excludes opened lids: 4.311 with them, 4.065 without (the open trunk lid projects aft of X_TAIL)
+bounds EXCLUDE 9 non-bodywork part(s): counter, counter_nosing, counter_top, tail_board, tail_board_stay, tb_bulbflex, tb_bulbs, tb_edge_dark, tb_edge_red
+x range [-2.151, 2.160]   full-Y [-1.064, 1.150]
 dims  L=4.065 W=1.750 roof@rear-axle=1.9833 (regression baseline 1.9835, -0.2 mm; dome deficit +0 mm still unmodelled) (bbox top 3.017)
 H_ROOF 1.960 is RETIRED as an accuracy target (rev 22, owner's call): its only ground-line-free support was withdrawn by SPEC 10.34. The model reads 1.9833; the real vehicle's absolute roof height is OPEN and UNMEASURED. The +23 mm warn is gone because THE TEST WAS WITHDRAWN, not because the model improved -- the mesh did not move.
 rear overhang 0.7730 m = 0.3221 of the wheelbase (measured 0.773 +- 0.022 m)
@@ -54,7 +56,7 @@ VERIFY: 0 fail, 0 warn
 |---|---|
 | cutters rolled back | none |
 | non-manifold edges (body) | 0 |
-| body faces | 238333 quad, 1272 tri, 5453 ngon |
+| body faces | 230087 quad, 1032 tri, 5187 ngon |
 
 ## Measured dimensions
 
@@ -64,10 +66,10 @@ Shaders read the dropped frame, so `Z_BELT`/`V_APEX` are already AG.
 
 | dimension | measured | SPEC | delta |
 |---|---|---|---|
-| overall length (ex counter) | 4.0648 | 4.0550 | +9.8 mm ok |
-| counter tail overhang past body | 0.2902 | — | — |
+| overall length (ex counter) | 4.5800 | 4.0550 | +525.0 mm **OUT** |
+| counter tail overhang past body | 0.0000 | — | — |
 | overall width (body) | 1.7497 | 1.7500 | -0.3 mm ok |
-| overall height (vehicle max, lids excluded) | 1.9888 | — *(no target: this is a max over all stations, and since rev 22 there is no roof-height target at all — H_ROOF 1.960 is RETIRED, see verify.py. Regression-caught by verify row 1a and the roof line below)* | at x = -1.569 |
+| overall height (vehicle max, lids excluded) | 2.2268 | — *(no target: this is a max over all stations, and since rev 22 there is no roof-height target at all — H_ROOF 1.960 is RETIRED, see verify.py. Regression-caught by verify row 1a and the roof line below)* | at x = -2.401 |
 | wheelbase | 2.4000 | 2.4000 | +0.0 mm ok |
 | track front | 1.3690 | 1.3690 | +0.0 mm ok |
 | track rear | 1.3590 | 1.3590 | +0.0 mm ok |
@@ -140,9 +142,9 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 
 | | |
 |---|---|
-| mesh objects | 221 |
-| vertices (all meshes) | 330496 |
-| faces (all meshes) | 321279 |
+| mesh objects | 231 |
+| vertices (all meshes) | 330804 |
+| faces (all meshes) | 321443 |
 
 | prefix | n |
 |---|---|
@@ -183,6 +185,7 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 | `hl_ring` | 2 |
 | `lid_rail` | 2 |
 | `lid_strut` | 2 |
+| `louvbay` | 2 |
 | `louvres` | 2 |
 | `mir_arm` | 2 |
 | `mir_head` | 2 |
@@ -249,6 +252,7 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 | `iron1F` | 1 |
 | `lid_board` | 1 |
 | `lid_main` | 1 |
+| `lid_trunk` | 1 |
 | `mirror_int` | 1 |
 | `mirror_stem` | 1 |
 | `pedal_a` | 1 |
@@ -269,6 +273,13 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 | `speedo_bezel` | 1 |
 | `speedo_face` | 1 |
 | `speedo_glass` | 1 |
+| `tail_board` | 1 |
+| `tail_board_stay` | 1 |
+| `tb_bulbflex` | 1 |
+| `tb_bulbs` | 1 |
+| `tb_edge_dark` | 1 |
+| `tb_edge_red` | 1 |
+| `trunk_bay` | 1 |
 | `van_floor` | 1 |
 | `vw_disc` | 1 |
 | `vw_ring` | 1 |
