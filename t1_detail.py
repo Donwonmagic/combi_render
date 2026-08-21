@@ -1858,14 +1858,71 @@ def handles():
     """SPEC sec.4 / 2.3: ICE-PICK pull-lever cab handles.  Push-button
     handles are Dec 1963+, so the lever is the correct part for this bus."""
     obs = []
+    # *** rev 50, A11 -- THE HANDLE WAS ON THE WRONG SIDE OF THE BELT. ***
+    #
+    # z = 1.330 was typed THREE times here with no citation anywhere in the repo
+    # (grep finds 1.330 nowhere else).  S.Z_BELT_AUTH is 1.2720 in the same
+    # un-dropped frame, so the handle was placed 58 mm ABOVE the two-tone break
+    # BY CONSTRUCTION and rendered on the CREAM.  Both photographed vehicles put
+    # it below the break, on the RED.
+    #
+    # MEASURED ON THE RED TARGET BUS IN ITS CURRENT ARTWORK -- not on the green
+    # one.  ref_side.jpg has the cab door swung open, and a door swings about a
+    # VERTICAL axis, so every z is preserved and the frame is admissible for the
+    # STATION even though the door has moved.  Column band x 168..200, clear of
+    # the leaning man (he starts at x ~210), 32-column means:
+    #     cream/red break   row 438.1   (L 203.1 -> 81.3, R-G 7.6 -> 93.5)
+    #     glazing sill      row 419.8   (L ~100 -> 208.7)
+    #     the handle        row 477     (L 66.7 -> 162.9 -> 90.9 with R-G
+    #                                    COLLAPSING 119.5 -> 30.3 -- achromatic,
+    #                                    i.e. chrome, not paint and not a shadow)
+    # QUOTED AS A RATIO, NOT A READING (rule 14), because the door is at its own
+    # depth and no px/m on the flank applies to it:
+    #     drop / band = (477 - 438.1) / (438.1 - 419.8) = 38.9 / 18.3 = 2.126
+    # The GREEN bus gives 2.24 band-heights by the same construction -- 5 % away,
+    # on a different vehicle, a different camera and a different artwork state.
+    #
+    # WHY THIS IS A RATIO AND NOT 0.289 m.  I nearly published a metric drop and
+    # it does not survive: the band is 0.136 m if you take the survey's render
+    # reading and 0.100 m if you take S.Z_SILL - S.Z_BELT_AUTH, a 32 % swing that
+    # moves the answer from 0.219 m to 0.289 m.  I cannot adjudicate that from
+    # the frames we hold, so the metric value is DERIVED FROM THE MODEL'S OWN
+    # BAND at run time.  Whatever that band turns out to be, the handle follows
+    # it, and the photograph contributes only the dimensionless 2.126.
+    #
+    # STILL WRONG, MEASURED, NOT BUILT: the SECTION.  ref_side.jpg at 7x
+    # (probe_scratch/rev50/E1_ref_cabdoor_x7.png) shows a chrome pull lever lying
+    # in an elliptical dish PRESSED INTO the door skin -- upper arc shadowed,
+    # lower arc lit, which is a recess and not a proud part under top light.  The
+    # build makes an rrect prism standing 12 mm PROUD with an 18 mm lever on top,
+    # and it renders as a featureless white blob.  That is a separate change with
+    # its own boolean, and it is NOT made here; this edit moves the station only.
+    HANDLE_DROP_BANDS = 2.126        # MEASURED, ref_side.jpg, dimensionless
+    # imported INSIDE the function on purpose: build.py loads t1_mats AFTER this
+    # module, so a top-level import would be circular.  handles() is only ever
+    # called at build time, by which point both are loaded.
+    import t1_shell as _S, t1_mats as _MT
+    _belt = _MT.Z_BELT_AUTH
+    _band = _S.Z_SILL - _belt
+    HANDLE_Z = _belt - HANDLE_DROP_BANDS * _band
+    # GUARD, SAME EDIT (rule 12).  The handle must be BELOW the belt.  That is
+    # the whole of what both photographs settle without any scale, and it is the
+    # half that was wrong.  WATCHED FAIL on T1_HANDLEHI=1, which restores 1.330.
+    if os.environ.get("T1_HANDLEHI"):
+        HANDLE_Z = 1.330
+    assert HANDLE_Z < _belt, (
+        "cab door handle at z=%.4f is ABOVE the two-tone break at %.4f, so it "
+        "renders on the CREAM.  Both photographed vehicles put it on the RED, "
+        "below the break (ref_side.jpg, the RED target bus, at 7x)."
+        % (HANDLE_Z, _belt))
     for s in (1, -1):
-        y = T.WX(1.100) * T.G(1.330)
-        base = T.solid_prism((1.075, s * (y + 0.006), 1.330), (1, 0, 0),
+        y = T.WX(1.100) * T.G(HANDLE_Z)
+        base = T.solid_prism((1.075, s * (y + 0.006), HANDLE_Z), (1, 0, 0),
                              (0, 0, 1), (0, s, 0),
                              T.rrect(0.115, 0.030, 0.012, seg=3), 0.012,
                              name=f"handle{s}")
         # the lever: a tapered pull standing 22 mm proud, pointed aft
-        lever = T.solid_prism((1.060, s * (y + 0.018), 1.330), (1, 0, 0),
+        lever = T.solid_prism((1.060, s * (y + 0.018), HANDLE_Z), (1, 0, 0),
                               (0, 0, 1), (0, s, 0),
                               [(-0.048, -0.0075), (0.030, -0.0090),
                                (0.046, -0.0020), (0.046, 0.0020),

@@ -402,7 +402,33 @@ A(D.door_hinges(), "chrome_d")
 # A(D.overrider_posts(), "bumpercream")
 A(D.gutter(), "paint")
 A(D.mirrors(), "chrome")
-A(D.wipers(), "chrome_d")
+# *** rev 50 -- THE WIPERS ARE WITHDRAWN BY THE OWNER, ARMS, BLADES AND
+# SPINDLES.  Asked with the evidence and the alternatives; he ruled "Remove all
+# of it including the spindles." ***
+#
+# WHY IT WAS PUT TO HIM.  `wipers()` built two 300 mm blades plus arms standing
+# 24 mm proud of the glass in light chrome -- among the most conspicuous objects
+# on the face in every front and front-3/4 frame -- and its ONLY warrant was
+# SPEC sec.4's inventory line, which sits under the heading "Stock 1963 T1".
+# That is what the model left the factory with, INFERRED, not measured on this
+# bus.  Three in-service photographs of this vehicle show the near pane legible
+# from top rail to sill with no arm and no blade: ref_playa_34.png (TARGET
+# artwork), ref_nolita_front34.jpg and ref_nolita_front34b.jpg.  At those
+# frames' 140-215 px/m a 300 mm arm is 42-65 px and a 13 mm blade is 1.8-2.8 px,
+# both well above the resolving floor -- the bobble-fringe balls in the same
+# frames are ~2 px and are unambiguous.  Same evidence class as the over-rider
+# bar he withdrew at rev 37 (three lines above) and the rear bumper SPEC 2.4
+# removed.
+#
+# THE SPINDLES GO TOO, AND THAT IS HIS CALL, NOT AN INFERENCE.  The survey
+# proposed keeping `wiper_pivot`/`wiper_boss` and deleting only the arm and
+# blade.  He overruled it: the two dark cowl stubs are ~3 px objects that could
+# equally be washer jets, so nothing is kept on that evidence.
+#
+# COMMENTED, NOT DELETED, exactly as the over-rider is, so the geometry and its
+# VISIBILITY_WATCH registration survive if he ever reverses this.  Re-enabling
+# is this one line.  DO NOT re-add it without his say-so.
+# A(D.wipers(), "chrome_d")
 A(D.handles(), "chrome")
 
 # ===================================================================== rev 44

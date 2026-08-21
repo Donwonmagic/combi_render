@@ -1074,7 +1074,7 @@ def ragtop():
 # RAG_X0 = +1.4800 is CONTRADICTED -- the cab roof dome is unbroken to X=+0.964.
 LID_X0, LID_X1 = 0.9640, -1.0700       # main lid opening, fore-aft
 LID_Y_HINGE = -0.5450                  # off-side edge of the opening
-LID_W = 1.1100                         # across, hinge -> free edge
+# LID_W is DERIVED below, immediately after LID_OPEN_DEG, because it depends on it.
 # rev 50 -- SURVEY_rev49 finding 49 ("LID_W is too narrow; the joint solve gives
 # W = 1.40-1.49 m") IS REFUTED, on this shell's own arithmetic, and the refutation
 # is recorded here so nobody re-derives it:
@@ -1122,6 +1122,59 @@ LID_W = 1.1100                         # across, hinge -> free edge
 # = (+0.970, -0.242) -- toward the counter and slightly DOWN, i.e. an awning.
 # At 104 it was (+0.970, +0.242), toward the counter and UP.
 LID_OPEN_DEG = float(os.environ.get("T1_LIDDEG", 76.0))
+
+# ---------------------------------------------------------------- LID_W, rev 50
+# WAS 1.1100, TYPED.  NOW DERIVED, AND ONLY BECAUSE THE OWNER RETIRED THE THING
+# THAT WAS HOLDING IT.  His settled "roughly 0.3 m of roof each side" was the
+# only constraint keeping the lid this narrow; put to him at rev 50 with all
+# three readings he ruled *"Retire the number."*  See the roof-aperture block.
+#
+# THE MEASUREMENT IS SCALE-FREE AND NEEDS NO CAMERA MODEL.  In ref_side.jpg the
+# yellow board rectangle's aspect is 418/244 = 1.713 (top edge fitted over 178
+# columns at 0.35 px rms; bottom edge read at six clean column stations, all
+# agreeing within 3 px).  The board's own length is LID_X0 - LID_X1, so
+#     W * sin(a) = (LID_X0 - LID_X1) / 1.713
+# and W follows from whatever a is.  Expressed that way, not as a number, so the
+# two cannot drift apart (rule 2): change the opening angle and the width
+# follows, which is the whole point -- they are one measurement, not two.
+#
+# CEILING, stated.  The fragile input is the bottom edge, which could not be
+# fitted (rms 16.3 px) because the vendor and the roof occlude it, so it is six
+# hand-read stations.  The survey's own refutation bounds that: five px of
+# systematic error moves the aspect to 1.749 and the width by ~25 mm, and the
+# SIGN does not turn over until the height is wrong by 28 px, which six readings
+# agreeing within 3 px exclude.  Take W as +- 0.03 m.
+# AND IT IS STILL NOT A FREE PARAMETER: the aperture starts at the hinge and the
+# roof is only Yt half-wide, so W is hard-bounded above by Yt - LID_Y_HINGE.
+# That bound is what refuted SURVEY_rev49 finding 49's W = 1.40-1.49 m, which
+# would have run the hole 178 mm off the roof.  The assert below is that bound,
+# and it is the reason this is a derivation and not a guess.
+# T1_LIDASPECT overrides the measured aspect so the roof bound below can be
+# WATCHED FAILING (rule 19).  T1_LIDASPECT=1.2 gives W = 1.747 m, which is
+# past the roof edge and reports by how much.
+LID_ASPECT = float(os.environ.get("T1_LIDASPECT", 1.7130))   # MEASURED, ref_side.jpg
+LID_W = (LID_X0 - LID_X1) / LID_ASPECT / math.sin(math.radians(LID_OPEN_DEG))
+
+def _lid_w_bound():
+    """The roof's own half-width at the lid station, walked off the body.
+
+    Deliberately a FUNCTION and not a constant: it is evaluated after the roof
+    profile is known, so it is a measurement of the shell rather than a number
+    about it.  Returns Yt at the lid's mid station.
+    """
+    x = (LID_X0 + LID_X1) * 0.5
+    zt = T.ZT_ALL(x) - T.rake_drop(x)
+    return T.WX(x) * T.G(zt - T.RT_ALL(x)) - T.RT_ALL(x)
+
+
+_LID_W_MAX = _lid_w_bound() - LID_Y_HINGE
+assert LID_W <= _LID_W_MAX + 1e-9, (
+    "LID_W = %.4f m runs the roof aperture %.1f mm PAST the roof edge: the "
+    "aperture starts at the hinge (y=%.4f) and the roof reaches only y=%.4f at "
+    "the lid station, so W <= %.4f m.  This is the bound that refutes "
+    "SURVEY_rev49 finding 49's W = 1.40-1.49 m."
+    % (LID_W, (LID_W - _LID_W_MAX) * 1000, LID_Y_HINGE,
+       _lid_w_bound(), _LID_W_MAX))
 LID_T = 0.0180                         # skin + rail thickness
 LID_PROUD = 0.0228                     # 26 +/- 7 mm measured proud height
 RAIL_PROUD = 0.0213
@@ -1137,9 +1190,25 @@ LID2_OPEN_DEG = SIGN_OPEN_DEG
 # in-service frames, before anything was measured from them:
 #   * ONE opening only, under the flower-mural lid.  Solid roof forward of it
 #     over the cab, and solid roof aft of it all the way to the tail.
-#   * a strip of roof survives on BOTH sides -- roughly 0.3 m on the off side
-#     where the lid hinges, roughly 0.3 m on the show side carrying the bulb
-#     string along the drip rail.  The 1.11 m transverse width stands.
+#   * a strip of roof survives on BOTH sides -- ~~roughly 0.3 m on the off side
+#     where the lid hinges, roughly 0.3 m on the show side~~ carrying the bulb
+#     string along the drip rail.  ~~The 1.11 m transverse width stands.~~
+#
+# *** rev 50 -- THE 0.3 m IS RETIRED BY THE OWNER, AND THE 1.11 m WITH IT. ***
+#
+# It was put to him with all three readings, because his own number had come to
+# disagree with a measurement.  The build gave 0.162 / 0.182 m in PLAN and
+# 0.286 / 0.306 m as ARC from the aperture edge to the drip rail; it passed only
+# on the second reading, and that re-expression happened AFTER the first one
+# failed, which is rule 29.2.  Separately, ref_side.jpg's scale-free lid aspect
+# demands a lid so wide that the show-side strip falls to 0-85 mm in plan under
+# either reading.  His ruling: *"Retire the number."*
+#
+# THE STRIPS STILL EXIST -- he is retiring the FIGURE, not the feature, and the
+# show-side one still has to carry the bulb string along the drip rail.  What is
+# gone is 0.3 m as an acceptance value, and with it the only thing that was
+# holding LID_W at 1.1100.  See the LID_W block above: the width is now derived
+# from the photographed aspect, bounded by the roof's own half-width.
 #
 # Why this had to be ASKED rather than measured: ref_side.jpg puts the camera
 # at roof height, so the roof plane is edge-on and the surviving strip between

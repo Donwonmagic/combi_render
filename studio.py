@@ -153,6 +153,43 @@ def cyclorama(size=90.0, **kw):
 # strip's unbroken shoulder streak -- the read that says "curved metal" --
 # loses definition.  That is the trade the owner was actually shown.
 # T1_SOFTEN=1.0 restores the rev-48 rig exactly.
+#
+# ============================ W6 IS CLOSED, rev 50 ============================
+# *** THE OWNER RULED: KEEP THE STUDIO RIG AS IT SHIPS.  T1_SOFTEN STAYS 1.0. ***
+#
+# He was shown the two frames side by side at last, with the cost measured on
+# those exact frames rather than quoted, and with the trade he had been offered
+# three times shown NOT TO EXIST:
+#
+#   window                       k = 1.0        k = 3.5      cost
+#   cream, cab roof              L 154.5        L 111.4      -27.9 %
+#   red flank, under the script  L 128.8        L  75.0      -41.7 %
+#   red G/R                      0.6322         0.5437       -0.0884
+#   backdrop, two 200x140 boxes  255.000        255.000      max|diff| 0.000
+#                                100.00 % at 255 in BOTH
+#
+# (windows stated because rule 8 requires it; these are hero34f, not the side
+# ortho probe_rev45_paint reads, so these ABSOLUTE G/R values are NOT comparable
+# to the published 0.455 / 0.351 -- only the direction and the size of the move
+# are.)
+#
+# TWO THINGS THE RECORD HAD WRONG AND THIS CLOSES.  First, the brief told him the
+# dome "costs 29 % of the brightness".  That is the CREAM.  The RED loses 42 %,
+# and that figure appears in neither LEDGER_rev49 nor the rev-50 brief -- he had
+# been choosing without it.  Second, three revisions refused lighting changes to
+# protect a clean white background that no lighting change can reach: the
+# backdrop is a compositor constant and the two arms are BIT-IDENTICAL.
+#
+# WHAT THIS RULING RETIRES.  The body red's G/R gap against the photographed
+# 0.223 +- 0.066 is no longer a DEFECT to be closed -- it is the accepted
+# consequence of a chosen lighting genre, and the street photographs are
+# dimensional references, not colour targets.  DO NOT re-open it, do not ablate
+# T1_SPEC against it, and do not read a G/R shortfall on any surface as a paint
+# error.  Anything still to be gained on the paint is in the MATERIAL (its coat
+# and roughness constants, which are separately undocumented), not in the rig.
+# T1_SOFTEN is KEPT, working and ablatable, because the measurement it supports
+# is worth keeping; it just does not ship.
+# =============================================================================
 SOFTEN = 1.0                              # set from T1_SOFTEN at call time
 
 
