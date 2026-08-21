@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-21 19:21:17 UTC |
-| git commit | `1d69aca` |
-| git subject | rev 50: the mural lid leaned AWAY from the counter for six revisions |
+| generated | 2026-08-21 21:56:51 UTC |
+| git commit | `78c94df` |
+| git subject | rev 50: three owner rulings landed -- W6 CLOSED on the studio, the 0.3 m roof figure retired, the wipers withdrawn entire |
 | working tree | clean |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=2 (applied, destructive, before booleans) |
@@ -25,10 +25,10 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 > revisions. Run both.
 
 ```
-length excludes opened lids: 4.311 with them, 4.065 without (the open trunk lid projects aft of X_TAIL)
+length excludes opened lids: 4.311 with them, 4.065 without (what projects: counter, counter_nosing, counter_top, tail_board, tail_board_stay, tb_bulbflex, tb_bulbs, tb_edge_dark, tb_edge_red)
 bounds EXCLUDE 9 non-bodywork part(s): counter, counter_nosing, counter_top, tail_board, tail_board_stay, tb_bulbflex, tb_bulbs, tb_edge_dark, tb_edge_red
 x range [-2.151, 2.160]   full-Y [-1.064, 1.150]
-dims  L=4.065 W=1.750 roof@rear-axle=1.9833 (regression baseline 1.9835, -0.2 mm; dome deficit +0 mm still unmodelled) (bbox top 3.021)
+dims  L=4.065 W=1.750 roof@rear-axle=1.9833 (regression baseline 1.9835, -0.2 mm; dome deficit +0 mm still unmodelled) (bbox top 3.132)
 H_ROOF 1.960 is RETIRED as an accuracy target (rev 22, owner's call): its only ground-line-free support was withdrawn by SPEC 10.34. The model reads 1.9833; the real vehicle's absolute roof height is OPEN and UNMEASURED. The +23 mm warn is gone because THE TEST WAS WITHDRAWN, not because the model improved -- the mesh did not move.
 rear overhang 0.7730 m = 0.3221 of the wheelbase (measured 0.773 +- 0.022 m)
 measured TRACK_F=1.3713  TRACK_R=1.3613  TYRE_D=0.6650
@@ -56,7 +56,7 @@ VERIFY: 0 fail, 0 warn
 |---|---|
 | cutters rolled back | none |
 | non-manifold edges (body) | 0 |
-| body faces | 230087 quad, 1032 tri, 5187 ngon |
+| body faces | 229493 quad, 1032 tri, 5191 ngon |
 
 ## Measured dimensions
 
@@ -142,9 +142,9 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 
 | | |
 |---|---|
-| mesh objects | 231 |
-| vertices (all meshes) | 330804 |
-| faces (all meshes) | 321443 |
+| mesh objects | 223 |
+| vertices (all meshes) | 329904 |
+| faces (all meshes) | 320601 |
 
 | prefix | n |
 |---|---|
@@ -195,11 +195,7 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 | `tail` | 2 |
 | `visor` | 2 |
 | `vwbar` | 2 |
-| `wblade` | 2 |
 | `wheel_spoke` | 2 |
-| `wiper_arm` | 2 |
-| `wiper_boss` | 2 |
-| `wiper_pivot` | 2 |
 | `T1_body` | 1 |
 | `bulb_string` | 1 |
 | `bumper_f` | 1 |
