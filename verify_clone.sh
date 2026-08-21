@@ -541,7 +541,21 @@ ck "bay widths 0.516 0.515 0.516"   2 "$(grep -c 'bay widths 0.516 0.515 0.516' 
 # hinge assemblies -- which is +31 meshes.  Note that the committed STATE.md on
 # the rev-44b tip ITSELF still said 190: it was never regenerated after the cab
 # was added, so that record was stale on its own branch.
-ck "mesh objects 221"               1 "$(grep -c '| mesh objects | 221 |' STATE.md)"
+# rev 49e: 221 -> 231.  RE-BASED, AND EVERY ONE OF THE TEN IS ACCOUNTED FOR --
+# no tolerance widened, no row deleted, and the row still pins an EXACT count.
+#   rev 48, +4:  lid_trunk, trunk_bay, louvbay1, louvbay-1
+#   rev 49, +6:  tail_board, tb_edge_red, tb_edge_dark, tail_board_stay,
+#                tb_bulbs, tb_bulbflex
+# 221 + 10 = 231.
+#
+# AND THE REASON THIS ROW ONLY WENT RED NOW IS ITSELF THE FINDING.  It reads its
+# figure from STATE.md, and STATE.md had not been regenerated since REV 45 --
+# from a tree it recorded as DIRTY.  So this row, and every other row in the
+# "guard figures, read from the machine-written STATE.md" block, was checking
+# the current build against a four-revision-old baseline and passing.  A control
+# that reads a stale baseline is not a control (rule 18).  Found by the rev-49
+# photorealism survey's record audit; STATE.md is regenerated at rev 49e.
+ck "mesh objects 231"               1 "$(grep -c '| mesh objects | 231 |' STATE.md)"
 ck "non-manifold edges 0"           1 "$(grep -c '| non-manifold edges (body) | 0 |' STATE.md)"
 
 # ---------------------------------------------------------------------------
@@ -558,6 +572,11 @@ else
 fi
 
 say "-- gitignore --"
+# rev 49e: this fired as a CRY-WOLF and the row is RIGHT -- a survey working crop
+# had been named rev50_nose-front_r49hero34f_nose2x.png and matched.  THE CROP
+# WAS RENAMED, THE ROW WAS NOT LOOSENED: weakening a guard to accommodate my own
+# file naming is how a guard stops guarding.  Working crops must not carry
+# "hero" in their names.
 ck "heroes are NOT tracked"         0 "$(git ls-files 2>/dev/null | grep -c 'hero.*\.png')"
 ck "out/ is NOT tracked"            0 "$(git ls-files 2>/dev/null | grep -c '^out/')"
 
