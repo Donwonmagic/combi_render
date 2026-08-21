@@ -23,7 +23,7 @@ not starting one. Do these six things in this order, and do not skip ahead.
    I upload reference photographs to main from the web UI, mid-revision,
    without telling you. Re-run that diff EVERY session, not once.
 
-   Then: ./bootstrap.sh must end ALL 10 PASS, and ./verify_clone.sh ALL 104
+   Then: ./bootstrap.sh must end ALL 10 PASS, and ./verify_clone.sh ALL 110
    PASS. If a line fails, STOP and tell me the failing line with its actual
    value. Do not edit the script to make it pass -- a failing check is a
    finding, not a broken instrument.

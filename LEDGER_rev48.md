@@ -74,9 +74,44 @@ The built block is bounded **by projection** through `studio.views()["side"]`, p
 
 **THE RATIO BOUNDS PROMINENCE, NOT DEPTH**, and the probe prints that ceiling every run. See §3.
 
-**Still open, and lighting-independent:** `t1_detail.louvres()` is *"A sweep, not a boolean … the
-shell is never touched"* — **closed ribs on an unbroken flank**, where a T1 louvre is an **aperture**.
-That is the `bus_model_ref.JPG` fidelity bar, and it is the real JOB 2.
+### AND IT WAS THEN FIXED, IN THIS REVISION
+
+`t1_detail.louvres()` is *"A sweep, not a boolean … the shell is never touched"* — **twenty closed
+ribs laid on unbroken metal**, since rev 16, where a T1 louvre is an **aperture**. That is the
+`bus_model_ref.JPG` bar, and it was the real JOB 2 that refuting the fake one uncovered.
+
+**ONE HOLE PER FLANK, NOT TWENTY**, on two measured grounds: `t1_core.py:230` records `gap_englid` as
+the model's most fragile boolean and thin cutters are what make booleans fragile; and a single 7 mm
+slot would sit *on* `CUTTER_VOL_MIN` (1.0e-4 m³) twenty times over, where the block aperture clears
+it by two orders (1.79e-2 m³). The blades span the hole; the gaps between them are the slots.
+
+```
+    photographed   -0.0383     the slats self-shadow
+    before         +0.0343     the ribs caught the key
+    after          -0.2559     the slots self-shadow
+```
+
+**THE FIRST CUT WAS VISIBLY WRONG WHILE EVERY NUMBER SAID IT HAD WORKED.** The signed modulation went
+the right way at the first attempt (+0.0343 → −0.0287) and `VERIFY` was clean. The **render** came
+back with **bright white bars among the slots** — `cabin_fill()` shining out through the new holes,
+in places straight through to the far flank. Behind a T1's rear-quarter louvres is the **engine
+bay**: shallow, unlit, boxed off. `louvre_backing()` puts it back. **Rule 28, fired on a change made
+in the same revision that wrote rule 28.**
+
+**A CONSTANT THAT COULD NOT BE WRONG UNTIL THE SHELL WAS CUT.** The authored blade section was
+**11.0 mm**; a measured 21.11 mm pitch and the file's own ~7 mm **inferred** aperture require
+**14.1 mm**. 11.0 leaves a slot 44 % too wide. **It never showed, because the "slot" was solid
+metal** — the number could be wrong without anything being visibly wrong. Now
+`LOUV_SECT = LOUV_PITCH − LOUV_APERTURE` (rule 2), with `LOUV_APERTURE` declaring itself INFERRED.
+
+**THE AMPLITUDE IS A CEILING, NOT A TARGET.** Built 0.385 against a photographed 0.206 — but the
+photographed block is in the counter's **shade** and the rendered one in open key. **Do not tune the
+pressing depth from it.** A raking-light frame settles depth directly.
+
+**C7 WAS RESTATED TWICE BEFORE IT WAS TRUE.** *"The rightmost non-white pixel is the tail cap"* is
+false on this vehicle: z 0.95–1.05 finds the **open trunk lid** (1365), z 1.20–1.30 the **counter
+shelf** (1396), z 0.81–1.10 the **tail lamp** (1315). Hunting for a clean band was the wrong
+response — the assumption was wrong, not the window.
 
 ---
 
@@ -300,15 +335,16 @@ body. Clamped, and the number dropped is printed every run. *A silent truncation
 
 ```
 bootstrap.sh      ALL 10 PASS   (the pip branch now genuinely discharged)
-verify_clone.sh   ALL 101 PASS  (86 at pickup; 15 added, none relaxed)
+verify_clone.sh   ALL 110 PASS  (86 at pickup; 24 added, none relaxed)
 build             T1_SUB=1, VERIFY: 0 fail, 0 warn
                   length 4.056 vs spec 4.055  (+1 mm, on a fixed instrument)
-probes            probe_rev48_louv    11 checked, 0 FAILED
+probes            probe_rev48_louv    11 checked, 0 FAILED  (C7 restated, C10 inverted)
                   probe_rev47_gap      3 checked, 0 FAILED  (was 1 FAILED)
                   probe_rev47_sharp    9 checked, 0 FAILED
                   probe_rev46_vw       5 checked, 0 FAILED
                   probe_rev46_reports  PARTLY RETRACTED -- do not quote
-renders           out/r48v_hero34r.png   both rear bays open
+renders           out/r48ship_*.png      both rear bays open, stars on the decal,
+                  louvres cut through and backed
 branch            claude/combi-render-rev48-ypkd3o
 ```
 
@@ -334,8 +370,8 @@ before this was written.** Their findings are §1, §2, §5 and §6.
 
 ## §11. WHAT THE NEXT REVISION SHOULD DO, IN ORDER
 
-1. **The louvres as APERTURES, not closed ribs.** The lighting-independent half of JOB 2, and the
-   `bus_model_ref.JPG` bar. §2.
+1. ~~The louvres as apertures.~~ **DONE in this revision** — see §2. What is left of it is the
+   pressing **depth**, and that needs the raking-light frame (`PHOTOS_WANTED_rev48` item 3).
 2. **The trunk bay.** He asked for it dressed as a service bay; this revision built the opening and
    stopped short of inventing contents, because no frame supports any. **Ask him for one frame of the
    open tail** — it settles the bay, the hinge, the open angle and the stay at once.

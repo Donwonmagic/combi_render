@@ -36,7 +36,7 @@ write four of them, see §8), `LEDGER_rev48.md`, and `LEDGER_rev47.md`.
 ```bash
 cd /home/user/combi_render
 ./bootstrap.sh            # ALL 10 PASS
-./verify_clone.sh         # ALL 104 PASS
+./verify_clone.sh         # ALL 110 PASS
 ```
 
 ### THE BRANCH INSTRUCTION HAS BEEN STALE THREE REVISIONS RUNNING
@@ -93,7 +93,23 @@ T-handle hanging inside the cavity. **One crop showed it in a second.**
 `_swing_open()` now guards direction, is shared by both lids, and has been **watched fail** on the
 inverted sign. **Read §9 before you build anything.**
 
-### 2c. The bay is LINED and its contents are NOT invented
+### 2c. The rear louvres became APERTURES
+
+They had been **closed ribs on unbroken metal** since rev 16 — `louvres()` says so itself: *"A sweep,
+not a boolean … the shell is never touched."* One hole per flank now spans the block, the blades
+span the hole, and a shallow dark bay sits behind. **Signed modulation +0.0343 → −0.2559**: they
+stopped catching the key and started shadowing themselves, which is the sign the photograph has.
+
+**AND THE FIRST CUT WAS VISIBLY WRONG WHILE EVERY NUMBER SAID IT HAD WORKED.** The modulation went
+the right way at the first attempt and `VERIFY` was clean; the *render* came back with **bright white
+bars among the slots** — cabin light shining out through the new holes. Rule 28, fired on a change
+made in the same revision that wrote rule 28.
+
+**A constant that could not be wrong until the shell was cut:** the blade section was 11.0 mm, but a
+21.11 mm pitch and a ~7 mm inferred aperture require **14.1 mm**. It never showed, because the "slot"
+was solid metal. Now `LOUV_SECT = LOUV_PITCH − LOUV_APERTURE`.
+
+### 2d. The bay is LINED and its contents are NOT invented
 
 He chose "fill it as a service bay" and then said "I trust your judgement". The void is fixed; crates
 and a gas bottle are not there, because no frame shows them. **Do not add them without §7 item 1.**
@@ -164,22 +180,27 @@ rectangle (on the vehicle they are painted on the body). *A silent truncation re
 
 ## §6. WHAT IS STILL WRONG — WORK THIS LIST IN ORDER
 
-1. **THE LOUVRES ARE CLOSED RIBS, NOT APERTURES.** `t1_detail.louvres()` is *"A sweep, not a boolean
-   … the shell is never touched"*. A T1 louvre is an **opening**. This is the `bus_model_ref.JPG`
-   fidelity bar — its own nose louvres are modelled slots that self-shadow — and it is the real JOB 2
-   that rev 48 uncovered by refuting the fake one. **Lighting-independent, so it needs no new frame.**
-   *Do not retune `LOUV_OFF` or the pressing depth from rev 48's 1.85× — that number bounds
-   PROMINENCE, not depth, and the probe prints that ceiling every run.*
-2. **THE BUILD IS ONE RAISED PANEL SHORT.** Both red frames show a thin bulb-lined board based on the
+> **THE LOUVRE APERTURES WERE ITEM 1 HERE AND REV 48 THEN BUILT THEM.** This file was written before
+> that work and said "closed ribs, not apertures — the real JOB 2". It is **done**: one hole per
+> flank, blades spanning it, a dark bay behind, signed modulation **+0.0343 → −0.2559**. The row is
+> struck rather than deleted, because a brief that tells you to do something already done is the
+> exact failure this project keeps having, and rev 48 caught it in its own handoff. **Do not rebuild
+> it. Check `probe_rev48_louv.py` and `verify_clone`'s six louvre rows first.**
+>
+> What is left of it is one number: **the pressing DEPTH**, which needs `PHOTOS_WANTED_rev48` item 3
+> (a raking-light frame). *Do not tune it from rev 48's amplitude figures — built 0.385 against a
+> photographed 0.206 is one lighting against another, and the probe prints that ceiling every run.*
+
+1. **THE BUILD IS ONE RAISED PANEL SHORT.** Both red frames show a thin bulb-lined board based on the
    drip rail at the tail, **z 1.78 ± 0.07 m**, tilted 39°, tip ~0.5 m past `X_TAIL` at z ≈ 2.26 m.
    Nothing in the model occupies that station. **`signboard()` will NOT do it** — wrong hinge axis
    (fore-aft, needs lateral), wrong extent (stops 93 mm short of `X_TAIL`), wrong presentation, and
    it was written for a different board in a different frame.
-3. **W6, and it gates W3.** Body red G/R 0.455 built vs 0.223 ± 0.066 photographed (3.5 σ); ~half the
+2. **W6, and it gates W3.** Body red G/R 0.455 built vs 0.223 ± 0.066 photographed (3.5 σ); ~half the
    excess is the white cyclorama's own specular (`T1_SPEC=0` moves it 0.455 → 0.347), and softening
    it trades the catalogue-clean background he set as the bar. **He was asked at rev 48 and answered
    a different question. Ask again — it has blocked W3 for three revisions.**
-4. **W4, the nose.** 14.3 mm over 0.70 m of half-width — a plane. Method 2, silhouette corner-wrap on
+3. **W4, the nose.** 14.3 mm over 0.70 m of half-width — a plane. Method 2, silhouette corner-wrap on
    `ref_workshop.jpg`, is still the live one, and it is the method that does not care about lighting.
    **`bulge = 0.019` IS the only forward bulge constant** — that check is finally done, statically and
    exhaustively, with one qualification: `step = -0.0062` also displaces nose vertices along their own
@@ -257,6 +278,10 @@ T1_SUB=1 T1_VERIFY=1 /tmp/blender/blender -b -P build.py     # -> "VERIFY: 0 fai
 T1_PREVIEW=side T1_PFX=r49 T1_RX=1600 T1_RY=1100 T1_SAMP=96 \
   /tmp/blender/blender -b -P build.py
 ```
+
+**Rendering the louvres:** `probe_rev48_louv.py` takes `T1_LOUV_FRAME` to pick which frame in
+`out/` it reads, so a BEFORE and an AFTER can be put through the identical instrument. It defaults
+to rev 48's pre-aperture render, so a bare run reproduces the figures it was written against.
 
 **14 views, and `hero` IS one of them** — `hero34f`, **`hero`**, `hero34r`, `front34`, `side`,
 `front`, `rear`, `detail_f`, `low34`, `topdown`, `playa`, `playa_ref`, `playa_w`, `counter`. *Three
@@ -343,7 +368,7 @@ do not close until it reports.**
 
 ```
 bootstrap.sh      ALL 10 PASS   (the pip branch is now genuinely discharged, in the source)
-verify_clone.sh   ALL 104 PASS  (86 at rev 48's pickup; 18 added, NONE relaxed)
+verify_clone.sh   ALL 110 PASS  (86 at rev 48's pickup; 24 added, NONE relaxed)
 build             T1_SUB=1  VERIFY: 0 fail, 0 warn
                   length 4.056 vs spec 4.055  (+1 mm, on a repaired instrument)
 probes            probe_rev48_louv    11 checked, 0 FAILED
@@ -351,7 +376,8 @@ probes            probe_rev48_louv    11 checked, 0 FAILED
                   probe_rev47_sharp    9 checked, 0 FAILED
                   probe_rev46_vw       5 checked, 0 FAILED
                   probe_rev46_reports  PARTLY RETRACTED -- do not quote
-renders           out/r48final_*.png   both rear bays open, stars on the decal
+renders           out/r48ship_*.png    both rear bays open, stars on the decal,
+                                       louvres cut through and backed
 NO DISPATCHED TASK IS OUTSTANDING.  Four ran; four reported; two changed the
 conclusions and are recorded as having done so.
 ```
