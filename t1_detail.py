@@ -941,21 +941,19 @@ def roundel(R=0.1680):
 
 
 # ================================================================== GUTTER
-def gutter():
-    prof = [(0.0000, 0.0000), (0.0135, -0.0025), (0.0160, -0.0100),
-            (0.0120, -0.0155), (0.0035, -0.0140), (0.0000, -0.0090)]
-    obs = []
-    xs = [0.442 + (1.806 - 0.442) * (i / 40) for i in range(41)]
-    for s in (1, -1):
-        path = []
-        for x in xs:
-            zt = T.ZT_CAB(x); rt = T.RT_CAB(x)
-            z = zt - rt * 0.72
-            y = T.WX(x) * T.G(z)
-            path.append((x, s * (y + 0.0015), z + 0.004))
-        pr = [(a * -s, b) for (a, b) in prof]
-        obs.append(T.sweep(path, pr, up=(0, 0, 1), name=f"gutter{s}"))
-    return obs
+# rev 50, A14 -- A SECOND `def gutter()` WAS DEFINED HERE AND IT WAS DEAD CODE.
+# Python binds the LAST definition, so `build.py:403 A(D.gutter(), "paint")` has
+# always called the rev-16 version at the bottom of this file, and this one has
+# never run.  It is DELETED rather than left in place because it was not an inert
+# stub: it still carried `z = zt - rt * 0.72`, the pre-rev-16 drip-rail form that
+# the live version's own comment says "would drag the drip rail 28 mm up the new
+# roll", and it swept only the cab (x 0.442..1.806) against the live run from
+# T._aft(-1.880) -- about 2.1 m short.  Anyone reading this file top-down read the
+# RETIRED formula as the live one, and anyone deleting the LATER copy to remove
+# the duplicate would have silently reverted rev 16 and taken the bulb string
+# with it (t1_detail.bulb_string hangs off the same roll start).
+# This is rule 15's failure shape: a retraction that landed in a ledger and not
+# in the source.  The live gutter() is unchanged and is the only one.
 
 
 # ============================================================ SIDE MOULDING

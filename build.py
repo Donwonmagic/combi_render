@@ -561,7 +561,56 @@ for s in (1, -1):
     # verify row 1's "length 4.291 vs spec 4.290" would have kept PASSING on a
     # phantom -- the same failure shape as the counter_top length row the
     # rev-12 audit found at audit.py:308.
-    D.place(tl, loc=(T.X_TAIL + 0.0040, s * 0.6200, 0.8250)); A(tl, "amber")
+    # *** rev 50, A10 -- THE 4.0 mm STANDOFF WAS BURYING THE LENS'S CENTRE. ***
+    #
+    # `small_lamp`'s profile STARTS ON THE AXIS -- its first point is
+    # (0.000, 0.0000) -- so the lamp's mounting plane and the deepest point of
+    # its dish are the SAME plane.  Inserting the lamp 4.0 mm into the skin
+    # therefore does not bed a flange, it buries the middle of the lens: the
+    # skin cuts the dish where its radius is
+    #     0.55 * r * (0.0040 / (0.45 * 0.0270)) = 0.1811 r
+    # so the innermost 18.1 % of each lamp is BEHIND the bodywork and the camera
+    # sees a Ø33.2 mm disc of BODY RED at the exact centre of each lens.
+    # Confirmed photometrically rather than by eye alone: the core reads
+    # G/R 0.299 / B/R 0.191 against the body paint 90 px above at 0.277 / 0.174
+    # and the amber lens itself at 0.584 / 0.287 -- the core IS the paint.
+    # A specular would move toward the source's white and RAISE B/R; it is lower.
+    #
+    # THE MAXIMUM ADMISSIBLE INSERTION IS ZERO, and that is not a choice -- it
+    # follows from the profile starting on the axis.  The mounting face goes ON
+    # the skin.  Expressed as X_TAIL so it still rides the tail re-space, which
+    # is what the rev-16 note below was protecting.
+    #
+    # NOT CHANGED, deliberately: the lamp's DEPTH (0.0270, unmeasured, see
+    # above), its lateral station (y 0.6200, correct to 2 px in ref_rear34.jpg)
+    # and its DIAMETER (1.1627 x PLATE_OUTER_H, confirmed against the rev-15
+    # measurement).  This edit moves one number, 4.0 mm, in one axis.
+    # ALSO NOT CHANGED, and it is a separate open item: SURVEY_rev49 finding 47
+    # measures the lens centre ~46 +- 12 mm too HIGH (photograph puts it BELOW
+    # the plate's centre, z 0.8250 sits 37.5 mm ABOVE PLATE_OUTER_CZ 0.787545).
+    # That is a photograph measurement coupled to the engine lid's own z station
+    # (finding 3), and moving one without the other would trade one internal
+    # contradiction for another.  Left, measured, and reported.
+    D.place(tl, loc=(T.X_TAIL, s * 0.6200, 0.8250)); A(tl, "amber")
+    # GUARD, SAME EDIT AS THE CHANGE (rule 12).  Rev 49 wrote rule 30 -- "a
+    # fixture's foot must be clear of the body it stands on, and something must
+    # check it" -- and wrote guards for the tail board's foot and the trunk
+    # bay's lining.  The tail lamps were not in scope, and they had the same
+    # defect.  This reads the BUILT lamp's own rearmost-forward vertex against
+    # X_TAIL, not the loc= that positioned it (rule 32).
+    # WATCHED FAIL on T1_LAMPSINK=1, which restores the 4.0 mm insertion.
+    if os.environ.get("T1_LAMPSINK"):
+        for _v in tl.data.vertices:
+            _v.co.x += 0.0040
+        tl.data.update()
+    _nose_most = max((tl.matrix_world @ _v.co).x for _v in tl.data.vertices)
+    if _nose_most > T.X_TAIL + 1e-6:
+        raise AssertionError(
+            "tail lamp %s reaches x %.4f, %.1f mm FORWARD of the tail skin at "
+            "%.4f -- small_lamp()'s profile starts ON THE AXIS, so any "
+            "insertion buries the CENTRE of the lens and the skin renders as a "
+            "disc of body red at the middle of the lamp."
+            % (tl.name, _nose_most, (_nose_most - T.X_TAIL) * 1000, T.X_TAIL))
 
 # SPEC r4 8.3: roundel ring + strokes are painted RED on the cream nose
 # MEASURED: ring outer diameter 0.370 (was 0.336), centre 1.130 above ground.

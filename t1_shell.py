@@ -1075,7 +1075,53 @@ def ragtop():
 LID_X0, LID_X1 = 0.9640, -1.0700       # main lid opening, fore-aft
 LID_Y_HINGE = -0.5450                  # off-side edge of the opening
 LID_W = 1.1100                         # across, hinge -> free edge
-LID_OPEN_DEG = 104.0                   # past vertical, leaning over the counter
+# rev 50 -- SURVEY_rev49 finding 49 ("LID_W is too narrow; the joint solve gives
+# W = 1.40-1.49 m") IS REFUTED, on this shell's own arithmetic, and the refutation
+# is recorded here so nobody re-derives it:
+#   the roof spans y -0.7273 .. +0.7273 and the aperture starts at the hinge,
+#   y = -0.5450, so W <= 0.7273 + 0.5450 = 1.2723 m OR THE HOLE RUNS OFF THE ROOF.
+#   At W = 1.45 the aperture would end at y = +0.905, i.e. 178 mm PAST the roof
+#   edge.  Geometrically impossible.  The finding's own hard floor, W >= 1.19 m,
+#   is admissible only in the last 85 mm of that range.
+# WHAT SURVIVES, and it is a real and still-open inconsistency:
+#   the photographed aspect is scale-free -- L / (W sin a) = 1.713 measured on
+#   ref_side.jpg against a built L = 2.034 -- so W*sin(a) = 1.1874 m against the
+#   built 1.0770.  With W <= 1.2723 that forces sin(a) >= 0.9333, i.e.
+#   a in [68.9, 90) once the taper fixes a < 90.  76.0 satisfies it.
+#   BUT any W in [1.187, 1.272] leaves a SHOW-SIDE surviving roof strip of only
+#   0.000-0.085 m in plan, against the owner's settled "roughly 0.3 m each side"
+#   -- and the OFF-side strip is already only 0.1823 m in plan today.  So the
+#   photographed lid aspect and the owner's roof-strip ruling cannot both hold.
+#   THAT IS AN OWNER QUESTION (rev 50 C3), NOT A CONSTANT TO TUNE.  W is left at
+#   1.1100 deliberately: moving it moves the roof aperture, which is his.
+# rev 50, A1 -- CORRECTED FROM 104.0.  THE SIGN WAS WRONG AND THE COMMENT SAID
+# SO FOR SIX REVISIONS.  `_hinge` maps the free edge to
+# y = LID_Y_HINGE + LID_W*cos(a), so a > 90 puts it on the OFF side of the
+# hinge.  At 104.0 it landed at y = -0.8135 -- 87 mm OUTBOARD of the off-side
+# roof edge (Yt = 0.7273) and 1.63 m from the counter -- i.e. leaning AWAY from
+# the counter, the exact opposite of this line's own comment and of SPEC 135.
+# Raised at AUDIT_rev43:117 and unfixed since.
+#
+# WHY 76.0 AND NOT 61-78 ANYWHERE:  sin(76) - sin(104) = 0.0 EXACTLY, so this
+# change moves NO z dimension of the lid, no bbox row, no roof-cutter extent and
+# no strut length -- it flips the lean and nothing else.  Every other candidate
+# angle would also change the projected width, which is a SEPARATE and still
+# open question (see the bound below), and changing two things at once is how
+# this project loses a revision.
+#
+# 76.0 is inside BOTH admissible windows:
+#   * the photographed taper solve, 61-78 deg (SURVEY_rev49 finding 5: the
+#     board's span shrinks -5.3 +- 0.6 % top-to-bottom in ref_side.jpg over
+#     4 row windows, so the TOP is nearer the show side); corroborated with no
+#     measurement at all -- the support rod passes IN FRONT of the painted face
+#     in ref_rear34.jpg and IMG_2073.
+#   * the roof's own width, 68.9-90 deg.  See the LID_W note below.
+#
+# The mural still faces the SHOW side: the face is built at z = off (negative)
+# in the hinge frame, so its normal (0,0,-1) maps to (dy,dz) = (+sin a, -cos a)
+# = (+0.970, -0.242) -- toward the counter and slightly DOWN, i.e. an awning.
+# At 104 it was (+0.970, +0.242), toward the counter and UP.
+LID_OPEN_DEG = float(os.environ.get("T1_LIDDEG", 76.0))
 LID_T = 0.0180                         # skin + rail thickness
 LID_PROUD = 0.0228                     # 26 +/- 7 mm measured proud height
 RAIL_PROUD = 0.0213
@@ -1253,7 +1299,8 @@ def _lid_face(x0, x1, w, name, inset=0.030, off=0.0):
 #   the connected-component count going 1 -> 6 "as each gap cutter frees a
 #   panel".  A T1_SUB=2 build gives exactly six, and one of them is
 #       7982 v   x -1.873..-1.870   y -0.467..+0.467   z 0.608..1.103
-#   which is gap_prism's own outline (y +-0.470, z 0.6025..1.1025) to 3 mm.
+#   which is gap_prism's own outline (y +-0.470, z 0.6200..1.1200) to 3 mm.
+#   (that z pair was published 0.6025..1.1025 for several revisions -- rrect is CENTRED, so the centre is the +0.8700 literal.  rev-50 corr.)
 #   WATCHED PRINT, not inferred from the source -- the brief's §9 trap about
 #   the sign props is exactly this failure mode, and this went the other way.
 #
@@ -1424,7 +1471,8 @@ REAR_OPEN_DEG = 64.0
 # tail turns this from a lining into a measurement.
 #
 # Sized off the aperture itself, never typed: gap_prism's outline is
-# y +-0.470, z 0.6025..1.1025 above ground, so the lining is inset one skin
+# y +-0.470, z 0.6200..1.1200 above ground, so the lining is inset one skin
+#   (that z pair was published 0.6025..1.1025 for several revisions -- rrect is CENTRED, so the centre is the +0.8700 literal.  rev-50 corr.)
 # thickness inside that and runs forward BAY_DEPTH from the tail cap.
 
 BAY_DEPTH = 0.42                 # forward of the tail skin.  NOT MEASURED --
@@ -1445,8 +1493,36 @@ def trunk_bay(log=print):
     BAY_INSET_X = 0.0020        # how far INBOARD of the tail skin the lining
                                 # sits.  POSITIVE = inside.  It was applied
                                 # with the wrong sign until rev 49; see below.
-    y = 0.4700 - BAY_INSET
-    z0, z1 = 0.6025 + BAY_INSET, 1.1025 - BAY_INSET
+    # rev 50 -- THESE WERE THREE TYPED LITERALS AND ONE OF THEM WAS STALE BY
+    # 17.5 mm.  They are now DERIVED FROM ENGLID_GAP AT RUN TIME (rule 2): this
+    # object LINES that aperture, so its extents are that aperture's extents
+    # inset by one skin, and typing them lets the two drift.  They had drifted.
+    #
+    # `T.rrect(w, h, r)` is "centred on origin" by its own docstring, so
+    # ENGLID_GAP = rrect(0.9400, 0.5000, ...) offset by v + 0.8700 spans
+    #     y +-0.4700   z 0.6200 .. 1.1200
+    # The repository published z 0.6025 .. 1.1025 in FOUR places -- same height
+    # (0.5000 exactly), centre 0.8525 against the built 0.8700, i.e. stale by
+    # 17.5 mm from an earlier value of that +0.8700 literal.  Three of the four
+    # are comments.  THE FOURTH WAS THIS LINE, live code, so the lining was
+    # actually built 17.5 mm below the aperture it lines.
+    # This is the third defect found in trunk_bay() in two revisions (rev 49
+    # found the missing material and the inverted 2 mm inset); all three are the
+    # same shape -- a number about another object, typed instead of derived.
+    _gy = [u for (u, v) in ENGLID_GAP]
+    _gz = [v for (u, v) in ENGLID_GAP]
+    y = max(_gy) - BAY_INSET
+    z0, z1 = min(_gz) + BAY_INSET, max(_gz) - BAY_INSET
+    if os.environ.get("T1_BAYSTALE"):
+        # rev-50 ablation (rule 19): restore the typed 0.6025..1.1025 pair this
+        # line carried until rev 50, so the guard below can be WATCHED FAILING
+        # on the real 17.5 mm defect.  It moves the LINING ONLY -- the guard's
+        # reference stays ENGLID_GAP, or it would move with it and prove nothing.
+        z0, z1 = 0.6025 + BAY_INSET, 1.1025 - BAY_INSET
+    # GUARD, SAME EDIT AS THE CHANGE (rule 12).  The lining must sit INSIDE the
+    # aperture on all four sides, by exactly one inset.  Compares the BUILT
+    # extents against ENGLID_GAP's own, which is two independently obtained
+    # quantities and not one expression checked against itself (rule 32).
     x_skin = T.X_TAIL
     pts = T.rrect((z1 - z0), (2 * y), 0.030, seg=6)
     pts = [(u + (z0 + z1) * 0.5, v) for (u, v) in pts]      # (z, y) frame
@@ -1482,6 +1558,28 @@ def trunk_bay(log=print):
                        (1, 0, 0), pts, BAY_DEPTH, name="trunk_bay")
     # THE GUARD, IN THE SAME EDIT (rule 12), against the CAUSE: the lining must
     # lie entirely INBOARD of the tail skin, whatever BAY_DEPTH or the inset do.
+    # rev 50 GUARD -- THE LINING'S OWN FACE AGAINST THE APERTURE IT LINES.
+    # MY FIRST VERSION OF THIS WAS A TAUTOLOGY AND I CAUGHT IT BY READING IT
+    # BACK, NOT BY RUNNING IT: it asserted `(z0 - min(ENGLID_GAP.z)) == BAY_INSET`
+    # two lines after setting `z0 = min(ENGLID_GAP.z) + BAY_INSET`.  Identically
+    # true by construction, rule 32, in the same edit that cites rule 32.
+    # This one reads the BUILT PRISM'S OWN VERTICES against ENGLID_GAP -- two
+    # independently obtained quantities -- so it also covers the rrect mapping,
+    # the (z,y) frame swap, solid_prism's centred extrusion and any transform.
+    # WATCHED FAIL on T1_BAYSTALE=1, which restores the 0.6025..1.1025 literals
+    # this line was built from until rev 50 and reports the 17.5 mm.
+    _bz = [(ob.matrix_world @ v.co).z for v in ob.data.vertices]
+    _by = [(ob.matrix_world @ v.co).y for v in ob.data.vertices]
+    for _nm, _got, _want in (("z lower", min(_bz), min(_gz) + BAY_INSET),
+                             ("z upper", max(_bz), max(_gz) - BAY_INSET),
+                             ("y half", max(_by), max(_gy) - BAY_INSET)):
+        if abs(_got - _want) > 5e-4:
+            raise AssertionError(
+                "trunk bay lining's %s is %.4f, %.1f mm from the ENGLID_GAP "
+                "aperture it lines inset by BAY_INSET (%.4f).  The lining and "
+                "the aperture must not be typed independently -- they drifted "
+                "17.5 mm before rev 50 derived one from the other."
+                % (_nm, _got, (_got - _want) * 1000, _want))
     _aft_face = min((ob.matrix_world @ v.co).x for v in ob.data.vertices)
     if _aft_face < x_skin + 1e-6:
         raise AssertionError(
@@ -1525,7 +1623,8 @@ def trunk_bay(log=print):
 #     this needs lateral, SIGN_X1 = -1.7800 stops 92.7 mm short of X_TAIL, and
 #     it overlaps only 0.058 m of this board's 0.559 m fore-aft run.
 #   * NOT the engine lid.  Refuted twice over.  Rev 48 measured the base at
-#     11 sigma from ENGLID_GAP's z 0.6025..1.1025.  Stronger, rev 49: the
+#     11 sigma from ENGLID_GAP's z 0.6200..1.1200.  Stronger, rev 49: the
+#   (that z pair was published 0.6025..1.1025 for several revisions -- rrect is CENTRED, so the centre is the +0.8700 literal.  rev-50 corr.)
 #     engine lid is top-hinged at z 1.103 over a 0.50 m panel, so NO opening
 #     angle puts any part of it above z 1.60.  This board's TIP is at 2.184.
 #     Unreachable, at any angle.  And the engine-lid band is directly visible
@@ -2099,6 +2198,30 @@ def roof_lids():
     _hinge(main, 0.0, LID_Y_HINGE, zh, LID_OPEN_DEG)
     skins.append(main)
 
+    # GUARD, SAME EDIT AS THE CHANGE (rule 12) -- rev 50, A1.
+    # THE BOARD MUST LEAN OVER THE COUNTER.  Measured on the BUILT panel, not on
+    # LID_OPEN_DEG, so it tests the shipped geometry and not the constant that
+    # produced it (rule 32): the free edge is the panel vertex furthest from the
+    # hinge in y, and it must lie on the SHOW side (+y) of the hinge.
+    # WATCHED FAIL on T1_LIDDEG=104 -- the pre-rev-50 pose -- which reports
+    #   "the mural lid leans AWAY from the counter: free edge at y=-0.8135,
+    #    0.2685 m on the OFF side of the hinge at y=-0.5450"
+    # The free edge is the panel's TOPMOST vertex: the lid rotates up about a
+    # fore-aft axis, so whichever end is highest is the end away from the hinge.
+    # Its y is the whole of the observable -- ref_side.jpg's taper says the TOP
+    # of the board is nearer the SHOW side, so this vertex's y must exceed the
+    # hinge's.  Reading z to find it and y to test it means the guard cannot be
+    # satisfied by the same expression that positioned it.
+    _top = max(main.data.vertices, key=lambda v: v.co.z)
+    assert _top.co.y > LID_Y_HINGE + 0.010, (
+        "SPEC 10.135 / AUDIT_rev43:117: the mural lid leans AWAY from the "
+        "counter -- its free edge is at y=%.4f, %.4f m on the OFF side of the "
+        "hinge at y=%.4f.  ref_side.jpg's board tapers -5.3 +- 0.6 %% "
+        "top-to-bottom, so the TOP is nearer the show side, and in "
+        "ref_rear34.jpg and IMG_2073 the stay passes IN FRONT of the painted "
+        "face.  LID_OPEN_DEG must be < 90."
+        % (_top.co.y, LID_Y_HINGE - _top.co.y, LID_Y_HINGE))
+
     # the flower mural + yellow menu strips, on the lid's UNDERSIDE -- which,
     # with the lid swung over, is the face presented to the counter. This is the
     # single most recognisable thing about the vehicle.
@@ -2191,10 +2314,43 @@ def roof_lids():
     #     by walking `roof_z` outboard until it stops changing rather than by
     #     typing a y.  The prop then stands at 3 degrees from vertical instead
     #     of 49, directly beneath the edge it carries.
-    def _roof_edge_y(xr, y0):
+    # rev 50, A1 -- AND THE FOOT HAD TO MOVE WITH THE LEAN.  This is recorded at
+    # length because it re-opens ground rev 44b settled ON THE OWNER'S WORDS, and
+    # the next context must be able to see exactly what was and was not re-opened.
+    #
+    # With LID_OPEN_DEG corrected from 104 to 76 the free edge moves from
+    # y = -0.8135 (beyond the OFF-side roof edge, where a near-vertical prop
+    # could stand under it) to y = -0.2765, which is INSIDE the roof aperture
+    # (-0.5450 .. +0.5650).  A prop dropped straight down from there stands on
+    # the open hatch, and rev 45's own guard below says so and fires.  So the
+    # foot must sit on one of the two surviving roof strips, and the prop rakes.
+    #
+    # WHICH STRIP: the SHOW side.  In ref_rear34.jpg (RED, target, current
+    # artwork) and IMG_2073.jpeg (GREEN -- geometry, so it transfers) the support
+    # rod passes IN FRONT OF the painted face, i.e. between the camera and the
+    # board, and both cameras are on the show side.  A rod in front of the face
+    # has its foot on the show side.  This needs no scale and no camera model.
+    #
+    # WHAT THIS DOES NOT RE-OPEN.  The owner's rev-37/44b complaint, verbatim,
+    # was *"the props for the sign seem to meet something from the SIDES of the
+    # sign, rather than the sign resting directly on the poles."*  Rev 44b
+    # diagnosed that correctly as a TIP problem -- the tip met the board at 0.86
+    # of its width, near its top edge -- and fixed it by moving the tip to 0.97,
+    # onto the FREE EDGE, the edge that actually bears.  THAT FIX IS KEPT
+    # UNCHANGED below.  What rev 44b also did, on its own initiative and not on
+    # his instruction, was move the FOOT outboard so the rod stood at 3 deg from
+    # vertical; that was only possible because the board was leaning the wrong
+    # way, and it is what is being undone here.  The rod still meets the board at
+    # the bearing edge, which is what he asked for.
+    def _roof_edge_y(xr, y0, step):
+        """Walk roof_z along y until it stops changing -- the roof's OWN edge.
+
+        `step` is signed, so this finds the OFF-side edge (negative) or the
+        SHOW-side edge (positive).  Measured off the body rather than typed.
+        """
         y = y0
-        for _ in range(400):
-            y2 = y - 0.002
+        for _ in range(600):
+            y2 = y + step
             if abs(roof_z(xr, y2) - roof_z(xr, y)) < 1e-6:
                 return y
             y = y2
@@ -2210,7 +2366,16 @@ def roof_lids():
         # roof is domed fore-and-aft.  Sharing the hinge origin makes the tip
         # land ON the lid's plane by construction rather than by luck.
         tipz = zh + w * math.sin(a) * 0.97
-        footy = max(tipy, _roof_edge_y(xs, LID_Y_HINGE))
+        # rev 50: the foot goes on whichever surviving roof strip the board
+        # LEANS OVER, walked out to the roof's own edge.  a < 90 -> the free
+        # edge is on the show side of the hinge -> show-side strip, walking +y
+        # from the aperture's show edge.  a > 90 (the pre-rev-50 pose) -> the
+        # off-side strip, walking -y from the hinge, which is what rev 44b did.
+        # DERIVED FROM THE POSE, not typed, so the foot follows the angle.
+        if math.cos(a) > 0.0:
+            footy = _roof_edge_y(xs, LID_Y_HINGE + w, +0.002)
+        else:
+            footy = max(tipy, _roof_edge_y(xs, LID_Y_HINGE, -0.002))
         foot = Vector((xs, footy, roof_z(xs, footy)))
         tip = Vector((xs, tipy, tipz))
         d = tip - foot
@@ -2231,15 +2396,84 @@ def roof_lids():
         dy = max(v.y for v in vs) - min(v.y for v in vs)
         dz = max(v.z for v in vs) - min(v.z for v in vs)
         lean = math.degrees(math.atan2(dy, dz))
-        assert lean < 20.0, (
-            "roof-lid prop leans %.1f deg from vertical -- it rakes across the "
-            "roof instead of standing under the board (SPEC 10.108)." % lean)
+        # rev 50 -- THIS GUARD IS RE-SCOPED, NOT RELAXED, AND HERE IS WHY.
+        #
+        # rev 44b wrote `lean < 20.0` to catch a prop that "rakes across the roof
+        # instead of standing under the board".  It was a PROXY.  The owner's
+        # actual words were about WHERE THE PROP MEETS THE BOARD -- "they meet
+        # something from the SIDES of the sign, rather than the sign resting
+        # directly on the poles" -- and the thing that fixed that was moving the
+        # TIP to 0.97 of the width, onto the bearing edge.  The lean was only
+        # ever small because the board was leaning the WRONG WAY (a = 104), which
+        # put its free edge outboard of the roof where a vertical rod could stand.
+        # With the lean corrected to a = 76 the free edge sits over the open
+        # aperture, so no admissible prop can be near-vertical: `lean < 20` and
+        # rev 45's foot-outside-the-aperture guard became jointly unsatisfiable.
+        # A guard that cannot be satisfied by any correct build is not a guard.
+        #
+        # MY FIRST ATTEMPT AT THIS REPLACEMENT WAS ITSELF A TAUTOLOGY AND THE
+        # BUILD CAUGHT IT.  I derived a bound `_lean_max` from the ROD'S OWN
+        # min/max y and z and then compared the rod's lean to it -- one
+        # expression checked against itself, rule 32, in the same edit that
+        # cites rule 32.  It aborted with "leans 42.2 deg, past the 5.3 deg its
+        # own foot and tip allow", because with the foot now on the show side
+        # `min(v.y)` is the TIP end, not the foot.  Recorded rather than quietly
+        # replaced: it is the fourth instrument defect this project has caught in
+        # its own guard-writing in five revisions.
+        #
+        # WHAT REPLACES IT READS THE BUILT BODY, not the rod's own extents.
+        # (1) THE FOOT MUST BE ON THE SIDE THE BOARD LEANS TOWARD.  This is what
+        #     actually forbids "raking across the roof", and it reproduces rev
+        #     44b's catch exactly: at a = 104 the free edge was at y -0.8135, the
+        #     OFF side of the hinge, while the offending foot was at y +0.44, the
+        #     show side -- opposite sides, so this fires.
+        _free_y = LID_Y_HINGE + w * math.cos(a)
+        _foot_v = min(vs, key=lambda v: v.z)
+        _tip_v = max(vs, key=lambda v: v.z)
+        assert ((_foot_v.y - LID_Y_HINGE) * (_free_y - LID_Y_HINGE)) > 0.0, (
+            "roof-lid prop foot at y=%.4f is on the OPPOSITE side of the hinge "
+            "(y=%.4f) from the board's free edge (y=%.4f) -- it reaches across "
+            "the opening instead of carrying the board (SPEC 10.108, owner rev "
+            "37/44b)." % (_foot_v.y, LID_Y_HINGE, _free_y))
+        # (2) THE ROD MUST NOT PASS THROUGH THE ROOF.  Sampled along the built
+        #     rod against `roof_z`, i.e. the rod against the body it stands on --
+        #     two independently obtained quantities.  This is the physical
+        #     content of "does not rake across the roof", and unlike a lean
+        #     threshold it stays correct at any opening angle.
+        _f = Vector((_foot_v.x, _foot_v.y, _foot_v.z))
+        _t = Vector((_tip_v.x, _tip_v.y, _tip_v.z))
+        for _i in range(1, 20):
+            _p = _f + (_t - _f) * (_i / 20.0)
+            assert _p.z > roof_z(_p.x, _p.y) - 0.0075, (
+                "roof-lid prop passes THROUGH the roof at (%.3f, %.3f, %.3f): "
+                "roof is at z=%.4f there (SPEC 10.108, re-scoped rev 50)."
+                % (_p.x, _p.y, _p.z, roof_z(_p.x, _p.y)))
+        # THE TIP MUST BEAR ON THE FREE EDGE.  This is the owner's rev-37/44b
+        # ruling expressed directly instead of through the lean proxy.
+        _free = Vector((xs_, LID_Y_HINGE + w * math.cos(a),
+                        zh + w * math.sin(a)))
+        _miss = (Vector((_tip_v.x, _tip_v.y, _tip_v.z)) - _free).length
+        assert _miss < 0.045, (
+            "roof-lid prop tip misses the board's FREE EDGE by %.1f mm -- the "
+            "board is not resting on the pole (owner, rev 37/44b)." % (_miss * 1e3))
     # GUARD, SAME EDIT AS THE CHANGE (rule 12).  Every prop foot must sit on
     # solid roof -- OUTSIDE the aperture's y band -- or the prop is standing in
     # the hatch again.  The band is the lid's own closed footprint.
+    #
+    # rev 50 -- ITS RATIONALE IS KEPT AND ITS SHAPE IS CORRECTED (rule 5).
+    # It identified the foot as `min(v.co.y)`, which is the foot ONLY while the
+    # prop stands on the OFF side, i.e. only while the board leans the wrong way.
+    # With a = 76 the foot is at y +0.7273 and the TIP is the minimum y (-0.2899),
+    # so the guard read the tip as the foot and aborted on a correct build:
+    #   "prop foot at y=-0.2899 is INSIDE the roof aperture (-0.5450..0.5650)"
+    # A foot is the LOWEST point of a rod, which is true at any opening angle, so
+    # that is what it now reads.  The test itself -- foot outside the aperture's
+    # y band -- is unchanged, and it still fires on the rev-45 defect it was
+    # written for (a foot at y +0.44 with the aperture -0.545..+0.565).
     _y_lo, _y_hi = LID_Y_HINGE, LID_Y_HINGE + LID_W
     for _st in struts:
-        _fy = min(v.co.y for v in _st.data.vertices)
+        _fv = min(_st.data.vertices, key=lambda v: v.co.z)
+        _fy = _fv.co.y
         assert not (_y_lo < _fy < _y_hi), (
             "SPEC 10.113: prop foot at y=%.4f is INSIDE the roof aperture "
             "(%.4f..%.4f) -- the strut is standing on nothing"
