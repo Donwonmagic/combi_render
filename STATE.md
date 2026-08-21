@@ -8,10 +8,10 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-21 08:53:39 UTC |
-| git commit | `e19b46f` |
-| git subject | rev 49e: the survey's record audit caught THREE of my own defects |
-| working tree | **DIRTY** — this state is not committed |
+| generated | 2026-08-21 19:21:17 UTC |
+| git commit | `1d69aca` |
+| git subject | rev 50: the mural lid leaned AWAY from the counter for six revisions |
+| working tree | clean |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=2 (applied, destructive, before booleans) |
 | geometry source | procedural, built this run |
@@ -28,7 +28,7 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 length excludes opened lids: 4.311 with them, 4.065 without (the open trunk lid projects aft of X_TAIL)
 bounds EXCLUDE 9 non-bodywork part(s): counter, counter_nosing, counter_top, tail_board, tail_board_stay, tb_bulbflex, tb_bulbs, tb_edge_dark, tb_edge_red
 x range [-2.151, 2.160]   full-Y [-1.064, 1.150]
-dims  L=4.065 W=1.750 roof@rear-axle=1.9833 (regression baseline 1.9835, -0.2 mm; dome deficit +0 mm still unmodelled) (bbox top 3.017)
+dims  L=4.065 W=1.750 roof@rear-axle=1.9833 (regression baseline 1.9835, -0.2 mm; dome deficit +0 mm still unmodelled) (bbox top 3.021)
 H_ROOF 1.960 is RETIRED as an accuracy target (rev 22, owner's call): its only ground-line-free support was withdrawn by SPEC 10.34. The model reads 1.9833; the real vehicle's absolute roof height is OPEN and UNMEASURED. The +23 mm warn is gone because THE TEST WAS WITHDRAWN, not because the model improved -- the mesh did not move.
 rear overhang 0.7730 m = 0.3221 of the wheelbase (measured 0.773 +- 0.022 m)
 measured TRACK_F=1.3713  TRACK_R=1.3613  TYRE_D=0.6650
