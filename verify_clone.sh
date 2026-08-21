@@ -432,13 +432,35 @@ ck "LOUV_APERTURE declares itself INFERRED" 1 "$(grep -A 3 '^LOUV_APERTURE' t1_d
 # THE TRUNK LID OPENS.  His newest requirement, built at rev 48.
 ck "trunk lid is separated and hinged"    1 "$(grep -qE '^def split_trunk_lid' t1_shell.py && echo 1 || echo 0)"
 ck "trunk lid has a LATERAL hinge"        1 "$(grep -qE '^def _hinge_y' t1_shell.py && echo 1 || echo 0)"
-ck "build.py opens the trunk lid"         1 "$(grep -q 'split_trunk_lid' build.py && echo 1 || echo 0)"
+ck "build.py separates the trunk lid"     1 "$(grep -q 'split_trunk_lid' build.py && echo 1 || echo 0)"
 # THE ROW THAT MATTERS MOST, and it is the LINE_GAP lesson applied before the
 # defect rather than after it.  No frame in this project shows the trunk open,
-# so TRUNK_OPEN_DEG is a POSE CHOICE and not a measurement.  This row requires
-# it to keep SAYING SO.  A later revision cannot quietly promote 52 deg into a
-# measured angle without deleting the words that admit it is not one.
-ck "TRUNK_OPEN_DEG declares itself NOT MEASURED" 1 "$(grep -A 3 '^TRUNK_OPEN_DEG' t1_shell.py | grep -q 'NOT MEASURED' && echo 1 || echo 0)"
+# so any NON-ZERO TRUNK_OPEN_DEG is a POSE CHOICE and not a measurement.  This
+# requires it to keep SAYING SO.  A later revision cannot quietly promote 52 deg
+# into a measured angle without deleting the words that admit it is not one.
+#
+# RESTATED AT REV 49, NOT RELAXED (rule 5: keep the rationale, replace the
+# shape).  The single row was `grep -A 3`, which assumed the declaration sits
+# within three lines of the constant.  The owner then ruled the lid SHUT --
+# "leave the lower bay shut, just have the back trunk window open for service"
+# -- and the citation of that ruling now sits between the constant and its
+# NOT-MEASURED declaration, so the row went red on a source that had become
+# MORE honest, not less.  A row that fires when the thing it guards improves is
+# the right row with the wrong window.
+#
+# WIDENING THE WINDOW ALONE WOULD BE A RELAXATION, so it does not happen alone.
+# The window widens to the constant's whole comment block AND a second row is
+# added requiring the shut state to keep citing the owner.  Net: strictly
+# stronger.  A future revision cannot reopen the lid without either restoring a
+# NOT-MEASURED declaration or deleting a reference to his words.
+ck "TRUNK_OPEN_DEG declares itself NOT MEASURED" 1 "$(grep -A 30 '^TRUNK_OPEN_DEG' t1_shell.py | grep -q 'NOT MEASURED' && echo 1 || echo 0)"
+ck "TRUNK_OPEN_DEG=0 cites the SHUT ruling" 1 "$(grep -A 30 '^TRUNK_OPEN_DEG' t1_shell.py | grep -q 'SHUT, BY THE OWNER' && echo 1 || echo 0)"
+# And the lid must not be SWUNG at zero: _swing_open() asserts the free edge
+# travels, so a shut lid run through it would fire a guard on a correct pose.
+ck "a SHUT trunk lid skips the swing, not runs it at zero" 1 "$(grep -q 'abs(TRUNK_OPEN_DEG) < 1e-6' t1_shell.py && echo 1 || echo 0)"
+# rev 49: the lining sat 2.0 mm PROUD of the tail skin and rendered THROUGH the
+# closed lid.  Invisible for a revision because the lid was open.  Guarded now.
+ck "the trunk bay lining is guarded INBOARD of the skin" 1 "$(grep -q 'is PROUD of the tail skin' t1_shell.py && echo 1 || echo 0)"
 # And the tail hardware must travel with the lid it is mounted on.  If a future
 # edit swings the lid and leaves the handle floating in mid-air at the closed
 # position, this row goes red before anyone renders it.
