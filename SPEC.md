@@ -10415,3 +10415,66 @@ arm. Rule 1.
   height row for 37 revisions. Corrected.
 * **§10.26's table** still published `| trunk lid | OPEN, at the tail |`.
   Annotated above — the fourth instance of the failure §10.122.5 names.
+
+#### 10.123.7  THE OWNER SHUT THE LOWER BAY — AND IT EXPOSED A LATENT REV-48 DEFECT
+
+> *"Leave the lower bay shut, just have the back trunk window open for service."*
+
+**This refutes an INFERENCE rev 48 made and shipped.** Asked at rev 48 which of
+the two rear apertures should be open — both marked by projection on a straight
+rear view — he chose **A, the rear window**. Rev 48 then reasoned *"he called
+the upper one the MAIN bay, not the ONLY one"*, kept the lower lid open as well,
+and wrote that reading into §10.122.4 and into `t1_shell.py`. **A choice between
+two things is not a licence to keep both.** Rule 6: an ordinal fact licenses a
+SIGN, never a SHAPE.
+
+`TRUNK_OPEN_DEG = 0.0` now means **SHUT**, and the swing is **skipped entirely
+rather than run at zero** — `_swing_open()` asserts the free edge actually
+travels, so calling it with 0.0 would fire a guard on a correctly closed lid. A
+guard must fire on the defect, not on a legitimate pose. The panel is still
+separated and named; the shut line already existed as `gap_englid`, so a closed
+free panel is geometrically identical to the un-separated body and keeps
+re-opening one constant away. The T-handle and the 1963 plate are **no longer
+carried and no longer join `SWUNG`** — they have not moved, and registering them
+would exclude two parts that *are* inside the closed envelope from the vehicle's
+own length. That is rule 18, the mirror image of rev 48's stale-`bound_box`
+defect. Length returns to **4.065**, the baseline `verify_clone` locks.
+
+**AND CLOSING THE LID EXPOSED A DEFECT THAT HAD BEEN INVISIBLE FOR A REVISION.**
+
+```
+lid_trunk   x -1.8730 .. -1.8702      the shut lid's outer face, at X_TAIL
+trunk_bay   x -1.8750 .. -1.4550      the lining's face, 2.0 mm AFT of it
+```
+
+`trunk_bay()` set its origin to `x_skin - 0.002 + BAY_DEPTH*0.5`. `solid_prism`
+extrudes ±depth/2 about its origin, so the aft face landed at `x_skin − 0.002`
+— **2 mm PROUD of the tail skin, not 2 mm inside it. The sign of the inset was
+inverted.** The comment above it explains, correctly, why the origin is advanced
+by half the depth so that changing `BAY_DEPTH` cannot reopen rev 48's +210 mm
+defect — and that reasoning is sound and does nothing whatever about the inset's
+own sign, because **nothing measured the lining's face against the skin it
+lines** (rule 16).
+
+**It was invisible while the lid was open**: nothing stood in front of the
+lining, so 2 mm poking past the tail read as the bay's own back wall. With the
+lid shut it sat 2 mm *in front of* a closed panel and won the depth test across
+the whole of it — **the tail rendered with a dark charcoal rectangle where the
+red engine lid belongs.** `VERIFY: 0 fail, 0 warn`; `verify_clone` ALL 110 PASS.
+One crop showed it. Rule 28.
+
+Fixed, expressed as a named positive inset, and guarded against the **cause** —
+the lining must lie entirely inboard of the skin whatever `BAY_DEPTH` or the
+inset do — and **watched fail** on `T1_BAYPROUD=1`:
+
+```
+AssertionError: trunk bay lining is PROUD of the tail skin: its aft face is at
+x -1.8750 against a skin at x -1.8730 (2.0 mm outside).  With the lid shut this
+renders THROUGH the closed panel.
+```
+
+Measured, same window, before and after: the lid panel reads **RGB 91.1/75.4/66.7
+→ 106.5/72.4/61.8** — from the bay's neutral grey bleeding through, to body red.
+
+**The bay lining is KEPT although it is now unseen**, because the compartment is
+real and reopening the lid is one constant away. The build says so every run.

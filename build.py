@@ -908,7 +908,14 @@ log(f"lowered {T.RAKE_Z0*1000:.1f} mm at x=0, rake {T.RAKE_DZDX*1000:.1f} mm/m "
 # with it through the identical transform -- not a copy of the angle, the same
 # call with the same hinge, so the two can never drift apart (rule 2).
 _lid_trunk, _thx, _thz, _tdeg = S.split_trunk_lid(body, log=log)
-if _lid_trunk is not None:
+# rev 49, THE OWNER'S RULING: "leave the lower bay shut, just have the back
+# trunk window open for service."  With the lid SHUT the T-handle and the 1963
+# plate must NOT be carried and must NOT join SWUNG -- they have not moved, so
+# registering them would exclude two parts that ARE inside the closed envelope
+# from the vehicle's own length and height, which is rule 18 exactly: a control
+# that is right for the wrong reason.  Rev 48's stale-bound_box defect was the
+# mirror image of this one.
+if _lid_trunk is not None and abs(_tdeg) > 1e-6:
     for _nm in ("englid_handle", "plate_1963"):
         _o = bpy.data.objects.get(_nm)
         if _o is None:

@@ -1286,10 +1286,32 @@ def _lid_face(x0, x1, w, name, inset=0.030, off=0.0):
 # THE OUTLINE.  The panel is separated after the fact; the boolean is
 # untouched, so that failure mode cannot be reopened by this change.
 
-TRUNK_OPEN_DEG = 52.0
-# NOT MEASURED.  No frame we hold shows this lid open, so this is a POSE
-# CHOICE, not a measurement, and it is written here rather than buried.  It
-# is the angle at which the lid reads as open and in service without the
+TRUNK_OPEN_DEG = 0.0
+# *** SHUT, BY THE OWNER'S RULING AT REV 49. ***
+#
+#     "Leave the lower bay shut, just have the back trunk window open for
+#      service."
+#
+# THIS REFUTES AN INFERENCE REV 48 MADE AND SHIPPED.  Asked at rev 48 which of
+# the two rear apertures should be open -- with both marked by projection on a
+# straight rear view -- he chose A, the rear window.  Rev 48 then reasoned that
+# "he called the upper one the MAIN bay, not the ONLY one", kept the lower lid
+# open too, and recorded that reading in SPEC 10.122.4 and in this file.  He has
+# now said plainly that only the window is open.  THE INFERENCE WAS THE DEFECT:
+# a choice between two things is not a licence to keep both.  Rule 6 -- an
+# ordinal fact ("the MAIN bay") licenses a SIGN, never a SHAPE.
+#
+# 0.0 MEANS SHUT AND THE SWING IS SKIPPED ENTIRELY, not run at zero: the
+# direction guard in _swing_open() asserts the free edge actually travels, so
+# calling it with 0.0 would fire it.  The panel is still SEPARATED and named --
+# the shut line already existed as gap_englid, so a closed free panel is
+# geometrically identical to the un-separated body and costs nothing, and it
+# keeps the capability one constant away.
+#
+# IF IT IS EVER REOPENED THE ANGLE IS **NOT MEASURED** -- no frame we hold
+# shows this lid open, so any non-zero value here is a POSE CHOICE, not a
+# measurement.  The previous pose choice was 52.0.  It is
+# the angle at which the lid reads as open and in service without the
 # lower edge fouling the rear valance.  Provenance: rev 48, JOB 1; no frame.
 # If a photograph of the open tail ever arrives, this is the first thing to
 # re-derive, and probe/verify_clone will still be requiring the declaration.
@@ -1420,6 +1442,9 @@ def trunk_bay(log=print):
     Runs in step 8c AFTER the shear, like the lids, so it lands in the final
     frame without being sheared twice.
     """
+    BAY_INSET_X = 0.0020        # how far INBOARD of the tail skin the lining
+                                # sits.  POSITIVE = inside.  It was applied
+                                # with the wrong sign until rev 49; see below.
     y = 0.4700 - BAY_INSET
     z0, z1 = 0.6025 + BAY_INSET, 1.1025 - BAY_INSET
     x_skin = T.X_TAIL
@@ -1431,12 +1456,45 @@ def trunk_bay(log=print):
     # the tail skin and the length row went red at +190 mm.  The origin is
     # therefore advanced by half the depth, expressed in terms of it rather
     # than typed, so changing BAY_DEPTH cannot reopen the same defect.
-    ob = T.solid_prism((x_skin - 0.002 + BAY_DEPTH * 0.5, 0, 0),
+    # *** rev 49: THE SIGN OF THIS INSET WAS INVERTED, AND IT SHIPPED. ***
+    #
+    # It read `x_skin - 0.002 + BAY_DEPTH * 0.5`.  solid_prism extrudes +-depth/2
+    # about its origin, so the aft face landed at x_skin - 0.002 -- 2.0 mm
+    # PROUD OF THE TAIL SKIN, not 2 mm inside it.  The comment above says the
+    # origin is advanced "so changing BAY_DEPTH cannot reopen the same defect",
+    # and it does prevent that one; it does not prevent the inset's own sign
+    # being wrong, and nothing measured the face against the skin it lines.
+    #
+    # IT WAS INVISIBLE FOR A WHOLE REVISION BECAUSE THE LID WAS OPEN.  Nothing
+    # stood in front of the lining, so 2 mm of it poking past the tail read as
+    # the bay's own back wall.  The owner's rev-49 ruling -- "leave the lower
+    # bay shut" -- put the lid back, and the lining then sat 2 mm IN FRONT of a
+    # closed panel and won the depth test across the whole of it: the tail
+    # rendered with a DARK CHARCOAL rectangle where the red engine lid belongs.
+    # VERIFY 0 fail / 0 warn, verify_clone ALL 110 PASS, and one crop showed it.
+    # Rule 28, and rule 16 -- a part measured in isolation from what it is
+    # fitted to is not measured.
+    # T1_BAYPROUD=1 restores the inverted sign so the guard below can be
+    # watched failing on the real defect (rule 19).
+    _ins = -BAY_INSET_X if os.environ.get("T1_BAYPROUD") else BAY_INSET_X
+    ob = T.solid_prism((x_skin + _ins + BAY_DEPTH * 0.5, 0, 0),
                        (0, 0, 1), (0, 1, 0),
                        (1, 0, 0), pts, BAY_DEPTH, name="trunk_bay")
+    # THE GUARD, IN THE SAME EDIT (rule 12), against the CAUSE: the lining must
+    # lie entirely INBOARD of the tail skin, whatever BAY_DEPTH or the inset do.
+    _aft_face = min((ob.matrix_world @ v.co).x for v in ob.data.vertices)
+    if _aft_face < x_skin + 1e-6:
+        raise AssertionError(
+            "trunk bay lining is PROUD of the tail skin: its aft face is at "
+            "x %.4f against a skin at x %.4f (%.1f mm outside).  With the lid "
+            "shut this renders THROUGH the closed panel."
+            % (_aft_face, x_skin, (x_skin - _aft_face) * 1000))
     log("trunk bay: lining %.3f m deep, y +-%.3f, z %.4f..%.4f  "
-        "[a LINING -- contents NOT invented, no frame shows them]"
-        % (BAY_DEPTH, y, z0, z1))
+        "[a LINING -- contents NOT invented, no frame shows them]%s"
+        % (BAY_DEPTH, y, z0, z1,
+           "  -- UNSEEN while TRUNK_OPEN_DEG is 0 (the owner's rev-49 ruling); "
+           "KEPT because the compartment is real and reopening it is one "
+           "constant away" if abs(TRUNK_OPEN_DEG) < 1e-6 else ""))
     return ob
 
 
@@ -1906,6 +1964,18 @@ def split_trunk_lid(body, log=print):
 
     # The lid's LOWEST vertex is the free edge -- the one that has to travel.
     # Measured before and after, so the guard tests the motion, not the code.
+    #
+    # SKIPPED WHEN SHUT, not run at zero.  _swing_open() asserts the free edge
+    # actually travelled (dx aft, dz up); at 0 deg nothing moves and the guard
+    # would fire on a lid that is correctly closed.  A guard must fire on the
+    # DEFECT, not on a legitimate pose.
+    if abs(TRUNK_OPEN_DEG) < 1e-6:
+        log("trunk lid: separated %dv, hinge (x %.4f, z %.4f) lateral, "
+            "**SHUT** -- the owner's ruling at rev 49: \"leave the lower bay "
+            "shut, just have the back trunk window open for service\".  Rev 48 "
+            "inferred the opposite from \"the MAIN bay\" and shipped it."
+            % (len(lm.vertices), hx, hz))
+        return lid, hx, hz, 0.0
     _swing_open(lid, hx, hz, TRUNK_OPEN_DEG, "trunk lid", log=log)
 
     log("trunk lid: separated %dv, hinge (x %.4f, z %.4f) lateral, "
