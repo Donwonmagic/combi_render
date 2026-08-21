@@ -2125,6 +2125,33 @@ def conform_panel_true(body, x0, x1, z0, z1, side, off=0.0016, nx=40, nz=14,
 #
 # MEASURED on ref_side.jpg, FRAME UN-DROPPED:
 #   block X            -1.285 ... -1.670   (+-0.03/0.04), length 0.385
+#
+#   *** rev 49 -- READ THIS BEFORE QUOTING THAT 0.385. THE BUILD SHIPS 0.2952. ***
+#
+#   Both endpoints are passed through T._aft() twenty lines below (:2144).  _aft
+#   is AFFINE with slope O_NEW / O_OLD = 0.773 / 1.008 = 0.7669, so it does not
+#   merely MOVE the block -- IT SCALES ITS LENGTH.  0.385 x 0.7669 = 0.2953,
+#   against the watched print of 0.2952 (probe_rev48_louv).  The arithmetic
+#   closes to 0.1 mm.
+#
+#   THE RE-SPACING IS CORRECT AND MUST STAY.  This header says FRAME UN-DROPPED,
+#   i.e. the 0.385 was read before the rear overhang was re-measured from
+#   O_OLD 1.008 to O_NEW 0.773, so the whole aft end moves and this block moves
+#   with it.  The BUILT 0.2952 is the value consistent with ref_side.jpg; a
+#   row-profile read of the three strongest slot rows gives 0.286.
+#
+#   WHAT IS WRONG IS THIS COMMENT.  It presents 0.385 as the measurement of
+#   record with nothing beside it, so anyone reading the header believes the
+#   block is 385 mm long when the machine ships 295 mm -- a 90 mm gap, 2.2 sigma
+#   outside the header's own stated +-0.03/0.04.  Rule 1: a claim in a source
+#   comment is not a measurement, and this one outlived the number it described.
+#   The block should be re-parameterised as (station, length) so the two cannot
+#   drift again -- NOT DONE, because the LENGTH itself is unverified: three
+#   independent estimators built at rev 49 to recover it from ref_side.jpg ALL
+#   FAILED THEIR OWN KILL OR POSITIVE CONTROLS, one of them on the render where
+#   the answer is exact.  PHOTOS_WANTED item 4 (the raking-light frame) is
+#   currently scoped to the pressing DEPTH; the LENGTH and the STATION need it
+#   too.
 #   10 slots, pitch    21.1 mm
 #   top slot centre    1.085  (1.020 above ground)
 #   bottom slot centre 0.895  (0.830 above ground)
