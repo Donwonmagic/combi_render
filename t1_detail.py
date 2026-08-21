@@ -941,21 +941,19 @@ def roundel(R=0.1680):
 
 
 # ================================================================== GUTTER
-def gutter():
-    prof = [(0.0000, 0.0000), (0.0135, -0.0025), (0.0160, -0.0100),
-            (0.0120, -0.0155), (0.0035, -0.0140), (0.0000, -0.0090)]
-    obs = []
-    xs = [0.442 + (1.806 - 0.442) * (i / 40) for i in range(41)]
-    for s in (1, -1):
-        path = []
-        for x in xs:
-            zt = T.ZT_CAB(x); rt = T.RT_CAB(x)
-            z = zt - rt * 0.72
-            y = T.WX(x) * T.G(z)
-            path.append((x, s * (y + 0.0015), z + 0.004))
-        pr = [(a * -s, b) for (a, b) in prof]
-        obs.append(T.sweep(path, pr, up=(0, 0, 1), name=f"gutter{s}"))
-    return obs
+# rev 50, A14 -- A SECOND `def gutter()` WAS DEFINED HERE AND IT WAS DEAD CODE.
+# Python binds the LAST definition, so `build.py:403 A(D.gutter(), "paint")` has
+# always called the rev-16 version at the bottom of this file, and this one has
+# never run.  It is DELETED rather than left in place because it was not an inert
+# stub: it still carried `z = zt - rt * 0.72`, the pre-rev-16 drip-rail form that
+# the live version's own comment says "would drag the drip rail 28 mm up the new
+# roll", and it swept only the cab (x 0.442..1.806) against the live run from
+# T._aft(-1.880) -- about 2.1 m short.  Anyone reading this file top-down read the
+# RETIRED formula as the live one, and anyone deleting the LATER copy to remove
+# the duplicate would have silently reverted rev 16 and taken the bulb string
+# with it (t1_detail.bulb_string hangs off the same roll start).
+# This is rule 15's failure shape: a retraction that landed in a ledger and not
+# in the source.  The live gutter() is unchanged and is the only one.
 
 
 # ============================================================ SIDE MOULDING
@@ -1860,14 +1858,71 @@ def handles():
     """SPEC sec.4 / 2.3: ICE-PICK pull-lever cab handles.  Push-button
     handles are Dec 1963+, so the lever is the correct part for this bus."""
     obs = []
+    # *** rev 50, A11 -- THE HANDLE WAS ON THE WRONG SIDE OF THE BELT. ***
+    #
+    # z = 1.330 was typed THREE times here with no citation anywhere in the repo
+    # (grep finds 1.330 nowhere else).  S.Z_BELT_AUTH is 1.2720 in the same
+    # un-dropped frame, so the handle was placed 58 mm ABOVE the two-tone break
+    # BY CONSTRUCTION and rendered on the CREAM.  Both photographed vehicles put
+    # it below the break, on the RED.
+    #
+    # MEASURED ON THE RED TARGET BUS IN ITS CURRENT ARTWORK -- not on the green
+    # one.  ref_side.jpg has the cab door swung open, and a door swings about a
+    # VERTICAL axis, so every z is preserved and the frame is admissible for the
+    # STATION even though the door has moved.  Column band x 168..200, clear of
+    # the leaning man (he starts at x ~210), 32-column means:
+    #     cream/red break   row 438.1   (L 203.1 -> 81.3, R-G 7.6 -> 93.5)
+    #     glazing sill      row 419.8   (L ~100 -> 208.7)
+    #     the handle        row 477     (L 66.7 -> 162.9 -> 90.9 with R-G
+    #                                    COLLAPSING 119.5 -> 30.3 -- achromatic,
+    #                                    i.e. chrome, not paint and not a shadow)
+    # QUOTED AS A RATIO, NOT A READING (rule 14), because the door is at its own
+    # depth and no px/m on the flank applies to it:
+    #     drop / band = (477 - 438.1) / (438.1 - 419.8) = 38.9 / 18.3 = 2.126
+    # The GREEN bus gives 2.24 band-heights by the same construction -- 5 % away,
+    # on a different vehicle, a different camera and a different artwork state.
+    #
+    # WHY THIS IS A RATIO AND NOT 0.289 m.  I nearly published a metric drop and
+    # it does not survive: the band is 0.136 m if you take the survey's render
+    # reading and 0.100 m if you take S.Z_SILL - S.Z_BELT_AUTH, a 32 % swing that
+    # moves the answer from 0.219 m to 0.289 m.  I cannot adjudicate that from
+    # the frames we hold, so the metric value is DERIVED FROM THE MODEL'S OWN
+    # BAND at run time.  Whatever that band turns out to be, the handle follows
+    # it, and the photograph contributes only the dimensionless 2.126.
+    #
+    # STILL WRONG, MEASURED, NOT BUILT: the SECTION.  ref_side.jpg at 7x
+    # (probe_scratch/rev50/E1_ref_cabdoor_x7.png) shows a chrome pull lever lying
+    # in an elliptical dish PRESSED INTO the door skin -- upper arc shadowed,
+    # lower arc lit, which is a recess and not a proud part under top light.  The
+    # build makes an rrect prism standing 12 mm PROUD with an 18 mm lever on top,
+    # and it renders as a featureless white blob.  That is a separate change with
+    # its own boolean, and it is NOT made here; this edit moves the station only.
+    HANDLE_DROP_BANDS = 2.126        # MEASURED, ref_side.jpg, dimensionless
+    # imported INSIDE the function on purpose: build.py loads t1_mats AFTER this
+    # module, so a top-level import would be circular.  handles() is only ever
+    # called at build time, by which point both are loaded.
+    import t1_shell as _S, t1_mats as _MT
+    _belt = _MT.Z_BELT_AUTH
+    _band = _S.Z_SILL - _belt
+    HANDLE_Z = _belt - HANDLE_DROP_BANDS * _band
+    # GUARD, SAME EDIT (rule 12).  The handle must be BELOW the belt.  That is
+    # the whole of what both photographs settle without any scale, and it is the
+    # half that was wrong.  WATCHED FAIL on T1_HANDLEHI=1, which restores 1.330.
+    if os.environ.get("T1_HANDLEHI"):
+        HANDLE_Z = 1.330
+    assert HANDLE_Z < _belt, (
+        "cab door handle at z=%.4f is ABOVE the two-tone break at %.4f, so it "
+        "renders on the CREAM.  Both photographed vehicles put it on the RED, "
+        "below the break (ref_side.jpg, the RED target bus, at 7x)."
+        % (HANDLE_Z, _belt))
     for s in (1, -1):
-        y = T.WX(1.100) * T.G(1.330)
-        base = T.solid_prism((1.075, s * (y + 0.006), 1.330), (1, 0, 0),
+        y = T.WX(1.100) * T.G(HANDLE_Z)
+        base = T.solid_prism((1.075, s * (y + 0.006), HANDLE_Z), (1, 0, 0),
                              (0, 0, 1), (0, s, 0),
                              T.rrect(0.115, 0.030, 0.012, seg=3), 0.012,
                              name=f"handle{s}")
         # the lever: a tapered pull standing 22 mm proud, pointed aft
-        lever = T.solid_prism((1.060, s * (y + 0.018), 1.330), (1, 0, 0),
+        lever = T.solid_prism((1.060, s * (y + 0.018), HANDLE_Z), (1, 0, 0),
                               (0, 0, 1), (0, s, 0),
                               [(-0.048, -0.0075), (0.030, -0.0090),
                                (0.046, -0.0020), (0.046, 0.0020),
@@ -2125,6 +2180,33 @@ def conform_panel_true(body, x0, x1, z0, z1, side, off=0.0016, nx=40, nz=14,
 #
 # MEASURED on ref_side.jpg, FRAME UN-DROPPED:
 #   block X            -1.285 ... -1.670   (+-0.03/0.04), length 0.385
+#
+#   *** rev 49 -- READ THIS BEFORE QUOTING THAT 0.385. THE BUILD SHIPS 0.2952. ***
+#
+#   Both endpoints are passed through T._aft() twenty lines below (:2144).  _aft
+#   is AFFINE with slope O_NEW / O_OLD = 0.773 / 1.008 = 0.7669, so it does not
+#   merely MOVE the block -- IT SCALES ITS LENGTH.  0.385 x 0.7669 = 0.2953,
+#   against the watched print of 0.2952 (probe_rev48_louv).  The arithmetic
+#   closes to 0.1 mm.
+#
+#   THE RE-SPACING IS CORRECT AND MUST STAY.  This header says FRAME UN-DROPPED,
+#   i.e. the 0.385 was read before the rear overhang was re-measured from
+#   O_OLD 1.008 to O_NEW 0.773, so the whole aft end moves and this block moves
+#   with it.  The BUILT 0.2952 is the value consistent with ref_side.jpg; a
+#   row-profile read of the three strongest slot rows gives 0.286.
+#
+#   WHAT IS WRONG IS THIS COMMENT.  It presents 0.385 as the measurement of
+#   record with nothing beside it, so anyone reading the header believes the
+#   block is 385 mm long when the machine ships 295 mm -- a 90 mm gap, 2.2 sigma
+#   outside the header's own stated +-0.03/0.04.  Rule 1: a claim in a source
+#   comment is not a measurement, and this one outlived the number it described.
+#   The block should be re-parameterised as (station, length) so the two cannot
+#   drift again -- NOT DONE, because the LENGTH itself is unverified: three
+#   independent estimators built at rev 49 to recover it from ref_side.jpg ALL
+#   FAILED THEIR OWN KILL OR POSITIVE CONTROLS, one of them on the render where
+#   the answer is exact.  PHOTOS_WANTED item 4 (the raking-light frame) is
+#   currently scoped to the pressing DEPTH; the LENGTH and the STATION need it
+#   too.
 #   10 slots, pitch    21.1 mm
 #   top slot centre    1.085  (1.020 above ground)
 #   bottom slot centre 0.895  (0.830 above ground)
@@ -2145,9 +2227,113 @@ LOUV_X0, LOUV_X1 = T._aft(-1.2850), T._aft(-1.6700)
 LOUV_N = 10
 LOUV_Z_TOP, LOUV_Z_BOT = 1.0850, 0.8950
 LOUV_PITCH = (LOUV_Z_TOP - LOUV_Z_BOT) / (LOUV_N - 1)          # 0.021111
-LOUV_PROFILE = [(0.0000, 0.0000), (0.0080, -0.0020),
-                (0.0080, -0.0090), (0.0000, -0.0110)]
+# rev 48 -- THE SECTION HEIGHT IS NOW DERIVED, AND THE OLD ONE DID NOT
+# RECONCILE.  The measured pitch is 21.11 mm and the header above records the
+# slot aperture as ~7 mm (INFERRED -- 1.5 px, below the photograph's
+# resolution).  Those two require a blade 21.11 - 7 = 14.1 mm tall.  The
+# authored section was 11.0 mm, which leaves a 10.1 mm slot -- 44 % wider than
+# the inferred aperture.  It never showed, because until this revision the
+# shell was not cut and the "slot" was solid metal: the number could be wrong
+# without anything being visibly wrong.
+#
+# With the aperture cut (louvre_cutters above) it shows immediately.  Measured
+# on the identical instrument at the identical scale, probe_rev48_louv:
+#     photographed |amp| 0.2059     built, 11.0 mm section  0.3506   1.70x TOO STRONG
+# Too much open area reads too dark.  Derived from the two measurements that
+# ARE grounded, so it cannot drift from them again (rule 2).
+LOUV_APERTURE = 0.0070           # INFERRED, not measured -- 1.5 px in
+                                 # ref_side.jpg, below its resolution.  It is
+                                 # the one soft number in this block and it is
+                                 # the one a raking-light photograph would fix
+                                 # (PHOTOS_WANTED_rev48 item 3).
+LOUV_SECT = LOUV_PITCH - LOUV_APERTURE            # 0.01411
+_LP = [(0.0000, 0.0000), (0.0080, -0.0020),
+       (0.0080, -0.0090), (0.0000, -0.0110)]      # authored 11.0 mm section
+LOUV_PROFILE = [(a, b * (LOUV_SECT / 0.0110)) for (a, b) in _LP]
 LOUV_OFF = 0.0020                       # ride 2 mm proud of the flank
+LOUV_BAY_D = 0.070                      # depth of the dark box behind the
+                                        # apertures.  NOT MEASURED -- it only
+                                        # has to stop the cabin light, and it
+                                        # must clear the wheel house.
+
+
+def louvre_cutters():
+    """ONE aperture per flank, behind the louvre blades.  rev 48.
+
+    WHY THIS EXISTS.  `louvres()` below is explicit that it is "A sweep, not a
+    boolean ... so the shell is never touched" -- which means the 20 blades
+    have always been CLOSED RIBS laid on an UNBROKEN flank.  A T1 louvre is an
+    APERTURE: the darkness in it is a cavity, not paint and not a shadow the
+    blade happens to cast.  That is the fidelity bar the owner set with
+    `bus_model_ref.JPG`, whose own nose louvres are modelled slots.
+
+    ONE HOLE PER SIDE, NOT TWENTY, and that is a deliberate choice on two
+    grounds, both measured:
+
+      * ROBUSTNESS.  t1_core.py:230-244 records gap_englid as the model's most
+        fragile boolean, and thin cutters are exactly what makes a boolean
+        fragile.  Two large rectangles are the safest shape available.
+      * THE VOLUME GUARD.  build.CUTTER_VOL_MIN is 1.0e-4 m3.  A single 7 mm
+        slot 0.295 m long needs a 48 mm deep cutter just to clear it -- it
+        would sit ON the limit, twenty times over.  The block aperture is
+        0.19 x 0.295 x 0.30 = 1.7e-2 m3, two orders clear.
+
+    The blades then span the hole and the gaps BETWEEN them are the slots, so
+    the aperture is real and the geometry that reads is still the measured
+    sweep.  Inset in x so the blade ends land on solid panel.
+
+    AUTHORED FRAME.  This runs in step 3, BEFORE the rake shear, so it uses
+    LOUV_Z_TOP/BOT as authored (0.8950/1.0850) and not the post-shear figures.
+    """
+    obs = []
+    half = LOUV_SECT * 0.5              # the blade section's own half-height
+    z0 = LOUV_Z_BOT - half - 0.0020
+    z1 = LOUV_Z_TOP + half + 0.0020
+    x0 = min(LOUV_X0, LOUV_X1) + 0.004
+    x1 = max(LOUV_X0, LOUV_X1) - 0.004
+    pts = T.rrect(x1 - x0, z1 - z0, 0.004, seg=4)
+    pts = [(u + (x0 + x1) * 0.5, v + (z0 + z1) * 0.5) for (u, v) in pts]
+    for s in (1, -1):
+        obs.append(T.solid_prism((0, s * 0.80, 0), (1, 0, 0), (0, 0, 1),
+                                 (0, s, 0), pts, 0.30, name=f"cut_louv{s}"))
+    return obs
+
+
+def louvre_backing():
+    """A shallow dark box behind each louvre aperture.  rev 48.
+
+    WITHOUT IT THE APERTURES LOOK STRAIGHT INTO THE LIT CABIN.  The first cut
+    was rendered and looked at, and the slots came back as hard black bands
+    with BRIGHT WHITE BARS among them -- `studio.cabin_fill()` shining out
+    through the new holes, and in places straight through to the far flank's
+    louvres.  Nothing in the numbers said so; the signed modulation went the
+    right way (+0.0343 -> -0.0287) while the frame was visibly wrong.  SPEC
+    10.105.7 and rule 28.
+
+    Behind a T1's rear-quarter louvres is the ENGINE BAY -- shallow, unlit and
+    boxed off from the cabin -- not the passenger compartment.  So the fix is
+    not to close the slots again; it is to put the bay back.
+
+    Sized off the aperture itself, never typed, and inset so it cannot poke
+    through the flank.  Depth is shallow on purpose: it only has to stop the
+    light, and a deep box would collide with the wheel house at x -1.29.
+    """
+    obs = []
+    half = LOUV_SECT * 0.5
+    z0 = LOUV_Z_BOT - half - 0.0060
+    z1 = LOUV_Z_TOP + half + 0.0060
+    x0 = min(LOUV_X0, LOUV_X1) - 0.006
+    x1 = max(LOUV_X0, LOUV_X1) + 0.006
+    pts = T.rrect(x1 - x0, z1 - z0, 0.004, seg=4)
+    pts = [(u + (x0 + x1) * 0.5, v + (z0 + z1) * 0.5) for (u, v) in pts]
+    for s in (1, -1):
+        # T.solid_prism extrudes CENTRED on its origin, so the origin is
+        # advanced half the depth to sit the box entirely INBOARD of the skin.
+        y_skin = 0.86
+        obs.append(T.solid_prism((0, s * (y_skin - LOUV_BAY_D * 0.5 - 0.004), 0),
+                                 (1, 0, 0), (0, 0, 1), (0, s, 0),
+                                 pts, LOUV_BAY_D, name=f"louvbay{s}"))
+    return obs
 
 
 def louvres(nx=13):
@@ -2169,7 +2355,7 @@ def louvres(nx=13):
                      s * (T.WX(LOUV_X1 + (LOUV_X0 - LOUV_X1) * i / nx)
                           * T.G(z) + LOUV_OFF), z)
                     for i in range(nx + 1)]
-            pr = [(a * -s, b + 0.0055) for (a, b) in LOUV_PROFILE]
+            pr = [(a * -s, b + LOUV_SECT * 0.5) for (a, b) in LOUV_PROFILE]
             parts.append(T.sweep(path, pr, up=(0, 0, 1),
                                  name=f"louvre{s}_{k}"))
         ob = join(parts, f"louvres{s}")

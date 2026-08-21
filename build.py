@@ -251,6 +251,16 @@ log(f"solidified {len(body.data.vertices)}v")
 cut(body, S.windscreen_cutters(), "windscreen")
 cut(body, S.side_cutters(), "side glazing + serving bays")
 cut(body, [S.rear_cutter()], "rear window")
+# rev 48 -- THE LOUVRES BECOME APERTURES.  t1_detail.louvres() has swept 20
+# pressed blades since rev 16, but onto an UNBROKEN flank: closed ribs, where a
+# T1 louvre is an opening.  One hole per side spans the block and the blades
+# span the hole, so the gaps between them are now real slots that self-shadow.
+# See t1_detail.louvre_cutters.__doc__ for why it is one hole and not twenty.
+cut(body, D.louvre_cutters(), "rear-quarter louvre apertures")
+# ... and the dark bay behind them.  Without it the new slots look straight
+# into the lit cabin -- rendered, looked at, and the frame came back with
+# BRIGHT WHITE BARS among the slots.  See louvre_backing.__doc__.
+A(D.louvre_backing(), "dark")
 cut(body, S.door_gaps() + S.cargo_door_gaps() + S.engine_lid_gap(), "gaps",
     kind="gap")
 
@@ -392,7 +402,33 @@ A(D.door_hinges(), "chrome_d")
 # A(D.overrider_posts(), "bumpercream")
 A(D.gutter(), "paint")
 A(D.mirrors(), "chrome")
-A(D.wipers(), "chrome_d")
+# *** rev 50 -- THE WIPERS ARE WITHDRAWN BY THE OWNER, ARMS, BLADES AND
+# SPINDLES.  Asked with the evidence and the alternatives; he ruled "Remove all
+# of it including the spindles." ***
+#
+# WHY IT WAS PUT TO HIM.  `wipers()` built two 300 mm blades plus arms standing
+# 24 mm proud of the glass in light chrome -- among the most conspicuous objects
+# on the face in every front and front-3/4 frame -- and its ONLY warrant was
+# SPEC sec.4's inventory line, which sits under the heading "Stock 1963 T1".
+# That is what the model left the factory with, INFERRED, not measured on this
+# bus.  Three in-service photographs of this vehicle show the near pane legible
+# from top rail to sill with no arm and no blade: ref_playa_34.png (TARGET
+# artwork), ref_nolita_front34.jpg and ref_nolita_front34b.jpg.  At those
+# frames' 140-215 px/m a 300 mm arm is 42-65 px and a 13 mm blade is 1.8-2.8 px,
+# both well above the resolving floor -- the bobble-fringe balls in the same
+# frames are ~2 px and are unambiguous.  Same evidence class as the over-rider
+# bar he withdrew at rev 37 (three lines above) and the rear bumper SPEC 2.4
+# removed.
+#
+# THE SPINDLES GO TOO, AND THAT IS HIS CALL, NOT AN INFERENCE.  The survey
+# proposed keeping `wiper_pivot`/`wiper_boss` and deleting only the arm and
+# blade.  He overruled it: the two dark cowl stubs are ~3 px objects that could
+# equally be washer jets, so nothing is kept on that evidence.
+#
+# COMMENTED, NOT DELETED, exactly as the over-rider is, so the geometry and its
+# VISIBILITY_WATCH registration survive if he ever reverses this.  Re-enabling
+# is this one line.  DO NOT re-add it without his say-so.
+# A(D.wipers(), "chrome_d")
 A(D.handles(), "chrome")
 
 # ===================================================================== rev 44
@@ -551,7 +587,56 @@ for s in (1, -1):
     # verify row 1's "length 4.291 vs spec 4.290" would have kept PASSING on a
     # phantom -- the same failure shape as the counter_top length row the
     # rev-12 audit found at audit.py:308.
-    D.place(tl, loc=(T.X_TAIL + 0.0040, s * 0.6200, 0.8250)); A(tl, "amber")
+    # *** rev 50, A10 -- THE 4.0 mm STANDOFF WAS BURYING THE LENS'S CENTRE. ***
+    #
+    # `small_lamp`'s profile STARTS ON THE AXIS -- its first point is
+    # (0.000, 0.0000) -- so the lamp's mounting plane and the deepest point of
+    # its dish are the SAME plane.  Inserting the lamp 4.0 mm into the skin
+    # therefore does not bed a flange, it buries the middle of the lens: the
+    # skin cuts the dish where its radius is
+    #     0.55 * r * (0.0040 / (0.45 * 0.0270)) = 0.1811 r
+    # so the innermost 18.1 % of each lamp is BEHIND the bodywork and the camera
+    # sees a Ø33.2 mm disc of BODY RED at the exact centre of each lens.
+    # Confirmed photometrically rather than by eye alone: the core reads
+    # G/R 0.299 / B/R 0.191 against the body paint 90 px above at 0.277 / 0.174
+    # and the amber lens itself at 0.584 / 0.287 -- the core IS the paint.
+    # A specular would move toward the source's white and RAISE B/R; it is lower.
+    #
+    # THE MAXIMUM ADMISSIBLE INSERTION IS ZERO, and that is not a choice -- it
+    # follows from the profile starting on the axis.  The mounting face goes ON
+    # the skin.  Expressed as X_TAIL so it still rides the tail re-space, which
+    # is what the rev-16 note below was protecting.
+    #
+    # NOT CHANGED, deliberately: the lamp's DEPTH (0.0270, unmeasured, see
+    # above), its lateral station (y 0.6200, correct to 2 px in ref_rear34.jpg)
+    # and its DIAMETER (1.1627 x PLATE_OUTER_H, confirmed against the rev-15
+    # measurement).  This edit moves one number, 4.0 mm, in one axis.
+    # ALSO NOT CHANGED, and it is a separate open item: SURVEY_rev49 finding 47
+    # measures the lens centre ~46 +- 12 mm too HIGH (photograph puts it BELOW
+    # the plate's centre, z 0.8250 sits 37.5 mm ABOVE PLATE_OUTER_CZ 0.787545).
+    # That is a photograph measurement coupled to the engine lid's own z station
+    # (finding 3), and moving one without the other would trade one internal
+    # contradiction for another.  Left, measured, and reported.
+    D.place(tl, loc=(T.X_TAIL, s * 0.6200, 0.8250)); A(tl, "amber")
+    # GUARD, SAME EDIT AS THE CHANGE (rule 12).  Rev 49 wrote rule 30 -- "a
+    # fixture's foot must be clear of the body it stands on, and something must
+    # check it" -- and wrote guards for the tail board's foot and the trunk
+    # bay's lining.  The tail lamps were not in scope, and they had the same
+    # defect.  This reads the BUILT lamp's own rearmost-forward vertex against
+    # X_TAIL, not the loc= that positioned it (rule 32).
+    # WATCHED FAIL on T1_LAMPSINK=1, which restores the 4.0 mm insertion.
+    if os.environ.get("T1_LAMPSINK"):
+        for _v in tl.data.vertices:
+            _v.co.x += 0.0040
+        tl.data.update()
+    _nose_most = max((tl.matrix_world @ _v.co).x for _v in tl.data.vertices)
+    if _nose_most > T.X_TAIL + 1e-6:
+        raise AssertionError(
+            "tail lamp %s reaches x %.4f, %.1f mm FORWARD of the tail skin at "
+            "%.4f -- small_lamp()'s profile starts ON THE AXIS, so any "
+            "insertion buries the CENTRE of the lens and the skin renders as a "
+            "disc of body red at the middle of the lamp."
+            % (tl.name, _nose_most, (_nose_most - T.X_TAIL) * 1000, T.X_TAIL))
 
 # SPEC r4 8.3: roundel ring + strokes are painted RED on the cream nose
 # MEASURED: ring outer diameter 0.370 (was 0.336), centre 1.130 above ground.
@@ -885,7 +970,112 @@ log(f"lowered {T.RAKE_Z0*1000:.1f} mm at x=0, rake {T.RAKE_DZDX*1000:.1f} mm/m "
     f"nose-down ({math.degrees(math.atan(T.RAKE_DZDX)):.2f} deg); "
     f"{_n_shear} sheared, {_n_wheel} wheel parts held level")
 
-log(f"materials: {len(ASSIGN)} objects")
+# ------------------------------------------------- 8c THE TRUNK LID, OPENED
+# rev 48, JOB 1.  "we're going to need the trunk open like it's in service."
+#
+# AFTER the shear, deliberately.  See t1_shell.split_trunk_lid.__doc__ and the
+# block above it: a tail lid hinges about a LATERAL axis, so the swing moves
+# v.co.x, and step 8b shears on v.co.x.  Swinging first would shear the open
+# lid at the wrong station and tilt it by the rake angle for nothing.  A ROOF
+# lid can be swung first only because _hinge() leaves x untouched.
+#
+# The T-handle and the 1963 plate are mounted ON the lid panel, so they travel
+# with it through the identical transform -- not a copy of the angle, the same
+# call with the same hinge, so the two can never drift apart (rule 2).
+_lid_trunk, _thx, _thz, _tdeg = S.split_trunk_lid(body, log=log)
+# rev 49, THE OWNER'S RULING: "leave the lower bay shut, just have the back
+# trunk window open for service."  With the lid SHUT the T-handle and the 1963
+# plate must NOT be carried and must NOT join SWUNG -- they have not moved, so
+# registering them would exclude two parts that ARE inside the closed envelope
+# from the vehicle's own length and height, which is rule 18 exactly: a control
+# that is right for the wrong reason.  Rev 48's stale-bound_box defect was the
+# mirror image of this one.
+if _lid_trunk is not None and abs(_tdeg) > 1e-6:
+    for _nm in ("englid_handle", "plate_1963"):
+        _o = bpy.data.objects.get(_nm)
+        if _o is None:
+            log("!! trunk lid: %s absent, nothing to carry" % _nm)
+            continue
+        S._hinge_y(_o, _thx, _thz, _tdeg)
+        S.SWUNG.add(_nm)          # it now lives outside the closed envelope
+        log("  carried %s through the lid's own swing" % _nm)
+    # WHAT IS BEHIND IT IS NOT DECIDED HERE.  The aperture now shows the
+    # shell's own inner skin -- the body is solidified with use_rim=True, so
+    # the slot has a 2.8 mm returned edge and the cavity is closed.  Whether
+    # that reads correctly is a LOOK-AT-IT question and is answered from the
+    # render, not from here.  Nothing is invented to fill the bay:
+    # PHOTOS_WANTED_rev44 records that "the engine was scrapped and the
+    # transmission sold", so its contents are unknown.
+
+# rev 48, JOB 1b -- "the main bay that should be open is the upper one".
+# Asked with both rear apertures marked by projection on a straight rear view;
+# he chose A, the rear window.  B (the engine lid, above) stays open: he called
+# the upper one the MAIN bay, not the only one, and his earlier request for the
+# trunk open is not withdrawn.
+S.open_rear_hatch(log=log)
+# The bay behind the engine lid, so the opening reads as a compartment and
+# not a hole.  A LINING only -- see t1_shell.trunk_bay.__doc__ and the block
+# above it for what is deliberately not in there.
+#
+# *** rev 49 -- THIS LINE SHIPPED THE BAY WITH NO MATERIAL AT ALL. ***
+#
+# `A()` only APPENDS to ASSIGN.  The loop that CONSUMES ASSIGN and actually
+# calls MT.assign() is step 9, at line 846 -- NINETY-ONE LINES ABOVE THIS ONE.
+# Step 8c has to run after step 9 because a lid hinged laterally moves v.co.x
+# and step 8b shears on v.co.x; so this is the one A() call in the whole file
+# that lands after its own consumer.  `trunk_bay` therefore rendered with
+# Blender's default ~0.8-albedo grey, and the bay came back as the BRIGHTEST
+# THING ON THE TAIL -- 1.28x the body red, 1.11x the cream -- where a T1's
+# engine bay is a dark cavity.
+#
+# NOTHING SAID SO.  VERIFY printed 0 fail / 0 warn, verify_clone was ALL 110
+# PASS, and the log line below printed "materials: 165 objects" WITH THIS
+# OBJECT COUNTED IN THE 165 -- len(ASSIGN) counts appends, not assignments,
+# so the one line that could have reported the gap asserted coverage instead.
+# Rule 27, inverted: a cap nobody logs reads as coverage; a COUNT THAT LOGS
+# THE WRONG QUANTITY reads as coverage too.  Rule 28 found it: one rear-3/4
+# render, one crop.  This is the same defect rev 48 fixed for the louvre
+# apertures (light where a dark bay belongs) IN THE SAME REVISION -- it was
+# missed here only because no frame in rev 48 showed the tail.
+# rev 49 -- THE TAIL BOARD.  The owner settled its identity this revision:
+# "That was referring to a different sign. This one is part of the vehicle."
+# The retirement he is being distinguished from is signboard()'s "La Santa"
+# board, which stands on the GROUND BEHIND the bus in the same frame.  See
+# t1_shell.tail_board.__doc__ for the three pieces of physical evidence that
+# this one is attached, and for every measurement with its ceiling.
+# T1_NOTAILBOARD=1 stands it down for an ablation.
+if not os.environ.get("T1_NOTAILBOARD"):
+    _tb, _tb_base, _tb_tip = S.tail_board(log=log)
+    A(_tb, "countercream")
+    MT.assign(_tb, M["countercream"])
+    for _o, _tag in S.tail_board_edge(_tb_base, log=log):
+        _k = "capred" if "RED" in _tag else "dark"
+        A(_o, _k)
+        MT.assign(_o, M[_k])
+    _tb_stay = S.tail_board_stay(_tb_base, log=log)
+    A(_tb_stay, "chrome")
+    MT.assign(_tb_stay, M["chrome"])
+    for _o in S.tail_board_bulbs(_tb_base, _tb_tip, log=log):
+        A(_o, "bulb")
+        MT.assign(_o, M["bulb"])
+
+_trunk_bay = S.trunk_bay(log=log)
+A(_trunk_bay, "dark")                 # keep it in ASSIGN, for the guard below
+if not os.environ.get("T1_BAREMAT"):  # T1_BAREMAT=1 reproduces the rev-48 defect
+    MT.assign(_trunk_bay, M["dark"])  # ...AND apply it, because step 9 is behind us
+
+# THE GUARD, IN THE SAME EDIT (rule 12), AND WATCHED FAIL (rule 19).
+# Written against the CAUSE, not the instance: any future A() call that lands
+# after step 9 fires this, whatever object it is.  T1_BAREMAT=1 skips the
+# repair above so the guard can be watched failing on the real defect.
+_bare = [o.name for o, _k in ASSIGN
+         if o.type == 'MESH' and not [m for m in o.data.materials if m]]
+if _bare:
+    raise AssertionError(
+        "objects were given a material key but never assigned one: %s"
+        "  -- an A() call landed AFTER step 9's ASSIGN loop (build.py:846)"
+        % ", ".join(sorted(_bare)))
+log(f"materials: {len(ASSIGN)} objects assigned, 0 bare (checked, not assumed)")
 
 # rev 44, SPEC 10.103 -- ROUNDED EDGES.  Runs LAST, after every material
 # datablock exists (t1_detail builds some of them at step 7, five steps

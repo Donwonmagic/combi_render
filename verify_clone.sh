@@ -183,7 +183,15 @@ ck "amtrak (HIS word)"              2 "$(grep -c 'amtrak' SPEC.md)"
 # more times -- it is the frame that settled the headlamp bezel's chroma and
 # the frame rev 45's badge work was checked against.  Same reading as rev 44b's:
 # THIS ROW IS A REMINDER THAT THE NOLITA FRAMES ARE ADMISSIBLE, not a cap.
-ck "nolita, any case"              31 "$(grep -ic 'nolita' SPEC.md)"
+# rev 48: 31 -> 32.  SPEC 10.122.3 cites ref_nolita_front34.jpg for the one
+# thing that frame settled this revision: it shows the REAL rear louvres
+# reading as BRIGHT highlight lines, which is what refuted rev 48's own
+# headline finding that the built slats have the wrong sign.  Sixth bump,
+# same reading as every one before it: THIS ROW IS A REMINDER THAT THE NOLITA
+# FRAMES ARE ADMISSIBLE, not a cap.  WATCHED PRINT at "got '32', want '31'"
+# before it was changed here (rule 4) -- the row went red first, and the bump
+# is the response to it, not a guess ahead of it.
+ck "nolita, any case"              32 "$(grep -ic 'nolita' SPEC.md)"
 ck "TEN flower heads"               1 "$(grep -c 'TEN flower heads' SPEC.md)"
 
 # ------------------------------------------------------------------ build files
@@ -272,8 +280,43 @@ ck "tex/senor.png"   92ff38554d61947528904e113cf657f0 "$(md5of tex/senor.png)"
 # the words separate under a mask.  Measured as a RATIO against the same
 # estimator run on the build (its +34% absolute bias divides out): photographed
 # 0.244 vs built 0.149 => 1.64x, so LINE_GAP 0.26 -> 0.43.
-ck "tex/calidad.png" 6330c6e5a811ada11bd5be568172b80a "$(md5of tex/calidad.png)"
-ck "tex/lidmural.png" 2d62159dba663c90b5ae3746383c15d1 "$(md5of tex/lidmural.png)"
+# rev 48: RE-BASED because the artwork legitimately changed, and because HE
+# settled what the marks above the burst are.  Shown a three-way crop -- the
+# RED bus (ref_side.jpg, the target vehicle), the GREEN bus (IMG_2073.jpeg)
+# and the build -- he ruled: "They are actually stars that were not properly
+# represented."  Rev 45 drew them as BUNTING; rev 46 retired them at his
+# instruction AND recorded the reason as "no frame we hold shows them", which
+# ref_side.jpg refutes at 7x.  Their PRESENCE was never the error.  Their
+# IDENTITY was, and only he could settle it.  Re-based, never relaxed.
+ck "tex/calidad.png" ffefd297a529adc9f2b0a319107429b1 "$(md5of tex/calidad.png)"
+# rev 50: RE-BASED because the TYPE legitimately changed, and the change is
+# checkable independently of the checksum -- see the clamp row below, added in
+# the same edit so this line cannot be re-based back without it.
+# lid_gen's top-strip fit was the file's ONLY unclamped text scale.  Two
+# measured quantities are in play, each word's x-run (read off ref_side.jpg)
+# and the cap height (0.46 of the strip, stated at lid_gen.py:184), and a
+# substitute face cannot meet both.  Unclamped, it silently sacrificed the CAP
+# HEIGHT.  Measured on the texture, against the declared 0.460:
+#     before   FRESH 0.421  JUICES, 0.553  GOURMET TACOS 0.386  TORTAS 0.421
+#              &  0.728   <- 1.58x its own recorded measurement
+#     after    the four words BIT-UNCHANGED, &  0.474  <- 1.03x
+# so the clamp bit only on the glyph that was being enlarged.  The photograph
+# sets the & at cap height with the rest of the line.  Re-based, never relaxed.
+ck "tex/lidmural.png" 39f523a3127c0fdc72aec6bd567e1c85 "$(md5of tex/lidmural.png)"
+# COMPENSATING ROW, same edit.  A checksum re-base is only honest if the reason
+# is separately testable; rev 49c set that precedent when it widened one grep
+# window and added three rows in the same commit.  This one asserts the clamp
+# itself, in the file's own idiom, so the texture cannot drift back silently.
+# NOTE the leading `^ *` on both greps.  Without it they count MENTIONS, not
+# call sites: my own comment two lines above quotes the sibling form verbatim,
+# so the sibling row read 3 against a typed 2 and went red on its first run.
+# Rule 4 -- never put a figure in an acceptance test unless you watched it
+# print -- caught by the instrument, on the instrument's author.
+ck "the header fit is CLAMPED, never enlarging" 1 \
+   "$(grep -cE '^ *k = min\(1\.0, \(x1 - x0\) / wpx\)' lid_gen.py)"
+# and its two siblings, which are where that idiom comes from
+ck "lid_gen's sibling text fits still clamp" 2 \
+   "$(grep -cE '^ *k = min\(1\.0, (wpx / tot|wid \* 0\.86 / wpx)\)' lid_gen.py)"
 ck "tex/lidsign.png" bcd3da2dbec0276fabd7d8f8ee03f27b "$(md5of tex/lidsign.png)"
 ck "tex/emblem.png"  574ba2d733353387568b412da48fd436 "$(md5of tex/emblem.png)"
 
@@ -331,18 +374,152 @@ ck "calidad centroid is NOT a frozen literal"  0 "$(grep -c '^TYPE_PRE_CENTROID'
 # cry-wolf failure bootstrap.sh's stranded-branch check already had to fix once.
 ck "calidad LINE_GAP cites its provenance"     1 "$(grep -q 'probe_rev47_gap' cal_gen.py && echo 1 || echo 0)"
 ck "calidad LINE_GAP names its frame"          1 "$(grep -q 'IMG_2073' cal_gen.py && echo 1 || echo 0)"
+# rev 48: TWO MORE, because the frame it names is the WRONG VEHICLE.  He has
+# ruled the RED bus is the target and that artwork may not transfer; 0.244 was
+# measured on the GREEN one.  0.43 is kept because the red bus can only bound
+# the gap to 0.25..0.47 and BOTH 0.43 and the corrected 0.376 sit inside that
+# -- but it must keep declaring what it is, and it must keep carrying the
+# retraction of the ratio argument that produced it.
+ck "LINE_GAP declares it is TRANSFERRED"  1 "$(grep -q 'TRANSFERRED FROM ANOTHER VEHICLE' cal_gen.py && echo 1 || echo 0)"
+ck "the +34% ratio argument stays retracted" 1 "$(grep -q 'FOUNDING CASE REFUTED' cal_gen.py && echo 1 || echo 0)"
 ck "calidad type rotates about the burst" 1 "$(grep -c 'center=(w \* BURST_CX, h \* BURST_CY)' cal_gen.py)"
 ck "calidad generator carries its guard"  1 "$(grep -c 'cal_gen GUARD FAILED' cal_gen.py)"
 # rev 46, at the OWNER'S instruction, in two stages.  The Calidad decal drew two
 # red bars with 15 triangular pennants hanging from them.  He asked for the
 # triangles to go -- no frame we hold shows them -- and then named what the
 # remaining lines are: VENT SLATS.  They are the T1's rear air-intake louvres,
-# DARK GREY shadowed slots in sheet metal, and cal_gen was painting them in
-# saturated red inside a decal texture.  The whole feature is retired.
+# and cal_gen was painting them in saturated red inside a decal texture.  The
+# whole feature is retired.
+# rev 48 CORRECTION, and it was overdue.  This comment said the slats are
+# "DARK GREY shadowed slots in sheet metal".  LEDGER_rev47.md sec.10c retracted
+# that at rev 47 -- they are BODY COLOUR, and read dark only because each
+# pressed slot SELF-SHADOWS -- but nobody updated this file, so the machine
+# went on handing the retracted reading to every context that read it.  A
+# retraction that lands in a ledger and not in the source is half a retraction
+# (rule 15).
+# rev 48, SECOND CORRECTION, larger.  LEDGER_rev46.md sec.5 concluded from the
+# retirement of these painted lines that "THE MODEL HAS NO REAR VENTS", and
+# rev 47 and this revision's brief both inherited it.  IT IS FALSE, and false
+# against the BUILD: t1_detail.louvres() has built 10 pressed louvres per
+# flank, 20 in all, for many revisions.  The painted bunting sat between the
+# roof and the burst; the real louvres are on the quarter panel half a metre
+# below.  Retiring the paint was right; concluding the geometry was missing
+# chained a second error onto the first.  Guarded below.
 # ABSENCE, checked three ways, because a feature that comes back halfway is
 # exactly how this one survived: the function, the pennant loop, and the colour
 # constant must all be gone.
 ck "calidad bunting function gone"   0 "$(grep -c '^def bunting' cal_gen.py)"
+# ------------------------------------------------------- rev 48: THE STARS
+# The bunting stays retired -- he never asked for pennants back, he said the
+# marks were always stars.  So the three absence rows above still stand AND
+# the stars must be present.  Both, not either.
+ck "calidad draws the star band"     1 "$(grep -qE '^def _stars' cal_gen.py && echo 1 || echo 0)"
+ck "calidad stars derive from the burst" 1 "$(grep -q 'bw = RO \* 2.0' cal_gen.py && echo 1 || echo 0)"
+# THE ROW THAT MATTERS.  Both red frames are BLOWN, so the mark band comes
+# back as ONE merged 1499-px component and the COUNT is not derivable from the
+# target vehicle at all.  STAR_N is a pose choice and must keep saying so --
+# the LINE_GAP precedent, applied before the defect rather than after it.
+ck "STAR_N declares itself NOT MEASURED" 1 "$(grep -A 3 '^STAR_N' cal_gen.py | grep -q 'NOT MEASURED' && echo 1 || echo 0)"
+# And the clamp must keep REPORTING what it drops.  The measured band runs to
+# +-1.64 RO and this decal's rectangle holds +-1.38 RO, so two band positions
+# fall outside the texture entirely.  A cap nobody logs reads as coverage.
+ck "the star clamp reports what it drops" 1 "$(grep -q 'fall OUTSIDE this decal' cal_gen.py && echo 1 || echo 0)"
+
+# ---------------------------------------------------- rev 48, JOB 2 and JOB 1
+# THE REAR LOUVRES EXIST.  Three documents said they did not.  These rows make
+# that un-sayable again: the builder, the count and the call site must all be
+# present.  PRESENCE tests, not occurrence counts -- the cry-wolf lesson above.
+ck "rear louvres are BUILT geometry"      1 "$(grep -qE '^def louvres\(' t1_detail.py && echo 1 || echo 0)"
+ck "rear louvre count is 10 per flank"    1 "$(grep -c '^LOUV_N = 10' t1_detail.py)"
+ck "rear louvres are called from the build" 1 "$(grep -q 'louvres()' t1_detail.py && echo 1 || echo 0)"
+# rev 48, the SECOND half of JOB 2 and the one that was actually open.  The
+# blades were never the problem; the UNBROKEN FLANK behind them was.  A T1
+# louvre is an aperture, and the fidelity bar he set (bus_model_ref.JPG) has
+# modelled slots that self-shadow.  Signed modulation +0.0343 -> -0.2559 on
+# probe_rev48_louv, i.e. the slats stopped catching the key and started
+# shadowing themselves, which is the sign the photograph has.
+ck "the louvre APERTURES are cut"    1 "$(grep -qE '^def louvre_cutters' t1_detail.py && echo 1 || echo 0)"
+ck "build.py cuts the louvre apertures" 1 "$(grep -q 'louvre_cutters' build.py && echo 1 || echo 0)"
+# AND THE BAY BEHIND THEM, WHICH IS NOT OPTIONAL.  Cut without it, the slots
+# look straight into the lit cabin: the first render came back with BRIGHT
+# WHITE BARS among the slots while every number said the change had worked.
+ck "the louvre apertures are BACKED" 1 "$(grep -qE '^def louvre_backing' t1_detail.py && echo 1 || echo 0)"
+ck "build.py builds the louvre bay"  1 "$(grep -q 'louvre_backing' build.py && echo 1 || echo 0)"
+# The blade section must stay DERIVED from the measured pitch and the inferred
+# aperture.  The authored 11.0 mm reconciled with neither, and could not show
+# it while the shell was solid behind it.
+ck "the blade section is DERIVED"    1 "$(grep -q 'LOUV_SECT = LOUV_PITCH - LOUV_APERTURE' t1_detail.py && echo 1 || echo 0)"
+ck "LOUV_APERTURE declares itself INFERRED" 1 "$(grep -A 3 '^LOUV_APERTURE' t1_detail.py | grep -q 'INFERRED' && echo 1 || echo 0)"
+# The count is not merely present, it is CONFIRMED against a photograph: 10
+# slats on IMG_2073.jpeg (rows 468-582, cols 1156-1188, de-sheared s = -0.180),
+# pitch 8.106 +/- 0.023 px.  That is GEOMETRY, and the owner has ruled geometry
+# transfers between his two vehicles ("the geometry appears the same"), so the
+# green frame is admissible here where it would not be for paint or artwork.
+
+# THE TRUNK LID OPENS.  His newest requirement, built at rev 48.
+ck "trunk lid is separated and hinged"    1 "$(grep -qE '^def split_trunk_lid' t1_shell.py && echo 1 || echo 0)"
+ck "trunk lid has a LATERAL hinge"        1 "$(grep -qE '^def _hinge_y' t1_shell.py && echo 1 || echo 0)"
+ck "build.py separates the trunk lid"     1 "$(grep -q 'split_trunk_lid' build.py && echo 1 || echo 0)"
+# THE ROW THAT MATTERS MOST, and it is the LINE_GAP lesson applied before the
+# defect rather than after it.  No frame in this project shows the trunk open,
+# so any NON-ZERO TRUNK_OPEN_DEG is a POSE CHOICE and not a measurement.  This
+# requires it to keep SAYING SO.  A later revision cannot quietly promote 52 deg
+# into a measured angle without deleting the words that admit it is not one.
+#
+# RESTATED AT REV 49, NOT RELAXED (rule 5: keep the rationale, replace the
+# shape).  The single row was `grep -A 3`, which assumed the declaration sits
+# within three lines of the constant.  The owner then ruled the lid SHUT --
+# "leave the lower bay shut, just have the back trunk window open for service"
+# -- and the citation of that ruling now sits between the constant and its
+# NOT-MEASURED declaration, so the row went red on a source that had become
+# MORE honest, not less.  A row that fires when the thing it guards improves is
+# the right row with the wrong window.
+#
+# WIDENING THE WINDOW ALONE WOULD BE A RELAXATION, so it does not happen alone.
+# The window widens to the constant's whole comment block AND a second row is
+# added requiring the shut state to keep citing the owner.  Net: strictly
+# stronger.  A future revision cannot reopen the lid without either restoring a
+# NOT-MEASURED declaration or deleting a reference to his words.
+ck "TRUNK_OPEN_DEG declares itself NOT MEASURED" 1 "$(grep -A 30 '^TRUNK_OPEN_DEG' t1_shell.py | grep -q 'NOT MEASURED' && echo 1 || echo 0)"
+ck "TRUNK_OPEN_DEG=0 cites the SHUT ruling" 1 "$(grep -A 30 '^TRUNK_OPEN_DEG' t1_shell.py | grep -q 'SHUT, BY THE OWNER' && echo 1 || echo 0)"
+# And the lid must not be SWUNG at zero: _swing_open() asserts the free edge
+# travels, so a shut lid run through it would fire a guard on a correct pose.
+ck "a SHUT trunk lid skips the swing, not runs it at zero" 1 "$(grep -q 'abs(TRUNK_OPEN_DEG) < 1e-6' t1_shell.py && echo 1 || echo 0)"
+# ---------------------------------------------------------------- THE TAIL BOARD
+# rev 49e.  The photorealism survey's record audit found the tail board had ZERO
+# rows in either verifier -- the project's NEWEST object, carrying the MOST pose
+# choices and the LEAST measurement, entirely unguarded.  These rows exist so a
+# later revision cannot quietly promote a pose choice into a measurement, and
+# cannot lose the station solve that dissolved rev 49b's declared 80 mm.
+ck "the tail board is built"                1 "$(grep -qE '^def tail_board' t1_shell.py && echo 1 || echo 0)"
+ck "build.py raises the tail board"         1 "$(grep -q 'S.tail_board(' build.py && echo 1 || echo 0)"
+# TB_WIDTH and the lateral centring cannot be measured from anything we hold --
+# parallax bounds the width above and gives NO lower bound.  They must keep
+# saying so.  This is the LINE_GAP lesson applied before the defect.
+ck "TB_WIDTH declares itself a POSE CHOICE" 1 "$(grep -A 2 '^TB_WIDTH' t1_shell.py | grep -q 'POSE CHOICE' && echo 1 || echo 0)"
+ck "TB_WIDTH keeps its parallax upper bound" 1 "$(grep -B 12 '^TB_WIDTH' t1_shell.py | grep -q '0.59' && echo 1 || echo 0)"
+ck "TB_Y_CENTRE declares itself a POSE CHOICE" 1 "$(grep -A 2 '^TB_Y_CENTRE' t1_shell.py | grep -q 'POSE CHOICE' && echo 1 || echo 0)"
+ck "TB_TILT_DEG states WHICH DATUM"         1 "$(grep -A 3 '^TB_TILT_DEG' t1_shell.py | grep -q 'HORIZONTAL' && echo 1 || echo 0)"
+# The station is SOLVED from T1_body's own vertices at run time.  A literal here
+# would go stale the moment the shell moves, and would silently re-open the
+# 97 mm burial.
+ck "the board station is SOLVED, not typed" 1 "$(grep -q 'station SOLVED from the skin' t1_shell.py && echo 1 || echo 0)"
+ck "the board foot is guarded against the SKIN" 1 "$(grep -q 'measured roof skin at z' t1_shell.py && echo 1 || echo 0)"
+# The guard rev 49b first wrote compared ZT_ALL against ZT_ALL and could never
+# fire.  This row refuses the return of a self-referential foot check.
+ck "the foot guard is NOT self-referential" 0 "$(grep -c '_crown = T.ZT_ALL' t1_shell.py)"
+
+# rev 49: the lining sat 2.0 mm PROUD of the tail skin and rendered THROUGH the
+# closed lid.  Invisible for a revision because the lid was open.  Guarded now.
+ck "the trunk bay lining is guarded INBOARD of the skin" 1 "$(grep -q 'is PROUD of the tail skin' t1_shell.py && echo 1 || echo 0)"
+# And the tail hardware must travel with the lid it is mounted on.  If a future
+# edit swings the lid and leaves the handle floating in mid-air at the closed
+# position, this row goes red before anyone renders it.
+ck "the trunk bay is a LINING, not contents" 1 "$(grep -q 'contents NOT invented' t1_shell.py && echo 1 || echo 0)"
+ck "the rear hatch opens"                 1 "$(grep -qE '^def open_rear_hatch' t1_shell.py && echo 1 || echo 0)"
+ck "REAR_OPEN_DEG declares itself NOT MEASURED" 1 "$(grep -A 3 '^REAR_OPEN_DEG' t1_shell.py | grep -q 'NOT MEASURED' && echo 1 || echo 0)"
+ck "the T-handle rides the trunk lid"     1 "$(grep -q 'englid_handle' build.py && echo 1 || echo 0)"
+ck "the 1963 plate rides the trunk lid"   1 "$(grep -q 'plate_1963\"' build.py && echo 1 || echo 0)"
 ck "calidad pennant loop gone"       0 "$(grep -c 'ay + by) / 2 + drop' cal_gen.py)"
 ck "calidad BUNT colour retired"     0 "$(grep -c '^BUNT = ' cal_gen.py)"
 # rev 46, W2.  The VW glyph's vertical proportions, SOLVED against the
@@ -391,7 +568,35 @@ ck "bay widths 0.516 0.515 0.516"   2 "$(grep -c 'bay widths 0.516 0.515 0.516' 
 # hinge assemblies -- which is +31 meshes.  Note that the committed STATE.md on
 # the rev-44b tip ITSELF still said 190: it was never regenerated after the cab
 # was added, so that record was stale on its own branch.
-ck "mesh objects 221"               1 "$(grep -c '| mesh objects | 221 |' STATE.md)"
+# rev 49e: 221 -> 231.  RE-BASED, AND EVERY ONE OF THE TEN IS ACCOUNTED FOR --
+# no tolerance widened, no row deleted, and the row still pins an EXACT count.
+#   rev 48, +4:  lid_trunk, trunk_bay, louvbay1, louvbay-1
+#   rev 49, +6:  tail_board, tb_edge_red, tb_edge_dark, tail_board_stay,
+#                tb_bulbs, tb_bulbflex
+# 221 + 10 = 231.
+#
+# AND THE REASON THIS ROW ONLY WENT RED NOW IS ITSELF THE FINDING.  It reads its
+# figure from STATE.md, and STATE.md had not been regenerated since REV 45 --
+# from a tree it recorded as DIRTY.  So this row, and every other row in the
+# "guard figures, read from the machine-written STATE.md" block, was checking
+# the current build against a four-revision-old baseline and passing.  A control
+# that reads a stale baseline is not a control (rule 18).  Found by the rev-49
+# photorealism survey's record audit; STATE.md is regenerated at rev 49e.
+#
+# rev 50, RE-BASED 231 -> 223, AND THE CAUSE IS AN OWNER RULING, NOT A DRIFT.
+#   rev 50, -8:  wiper_pivot x2, wiper_boss x2, wiper_arm x2, wblade x2
+# He was shown that the wipers' only warrant was SPEC sec.4's inventory line
+# under the heading "Stock 1963 T1" -- inferred from the factory build, not
+# measured on this bus -- against three in-service photographs of this vehicle
+# that show the near pane legible from top rail to sill with no arm and no
+# blade.  He ruled: "Remove all of it including the spindles."  build.py's call
+# is COMMENTED, not deleted, so re-enabling is one line and this row moves back.
+# 231 - 8 = 223, and the figure was watched printing out of audit.py before it
+# was typed here.
+ck "mesh objects 223"               1 "$(grep -c '| mesh objects | 223 |' STATE.md)"
+# and the wipers are gone for the stated reason, not by accident
+ck "the wipers are WITHDRAWN, not deleted" 1 \
+   "$(grep -c '^# A(D.wipers(), \"chrome_d\")' build.py)"
 ck "non-manifold edges 0"           1 "$(grep -c '| non-manifold edges (body) | 0 |' STATE.md)"
 
 # ---------------------------------------------------------------------------
@@ -408,6 +613,11 @@ else
 fi
 
 say "-- gitignore --"
+# rev 49e: this fired as a CRY-WOLF and the row is RIGHT -- a survey working crop
+# had been named rev50_nose-front_r49hero34f_nose2x.png and matched.  THE CROP
+# WAS RENAMED, THE ROW WAS NOT LOOSENED: weakening a guard to accommodate my own
+# file naming is how a guard stops guarding.  Working crops must not carry
+# "hero" in their names.
 ck "heroes are NOT tracked"         0 "$(git ls-files 2>/dev/null | grep -c 'hero.*\.png')"
 ck "out/ is NOT tracked"            0 "$(git ls-files 2>/dev/null | grep -c '^out/')"
 

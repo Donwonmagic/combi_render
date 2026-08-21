@@ -885,7 +885,29 @@ the observation that resolves everything:
 |---|---|---|---|
 | **front lid** | **CLOSED**, flat in the roof | **OPEN** | cream underside, red brush script + red star |
 | **main / mid lid** | OPEN | OPEN, seen from behind, aft of the cream one | flower mural + three yellow menu strips |
-| **trunk lid** | **OPEN**, at the tail | closed | none |
+| ~~**trunk lid**~~ **THE TAIL BOARD** | ~~**OPEN**, at the tail~~ **a raised BOARD, not a lid** | present, but its free edge runs off the frame at u=1199 | cream face, RED rim over the tip half, near-black over the base half, amber bulbs on the lower edge |
+
+> **RETRACTED rev 48, AND ANNOTATED HERE ONLY AT REV 49.** The raised thing at
+> the tail in `ref_side.jpg` is **not the trunk lid open**. §10.122 refuted it
+> and this table was never marked, so the machine went on publishing the
+> retired identification in a live row — the fourth instance of exactly the
+> failure §10.122.5 names. Two independent refutations:
+> **(1)** its base measures **1.747 ± 0.027 m** above ground (the drip rail)
+> against `ENGLID_GAP`'s z 0.6025–1.1025 — about 11 σ;
+> **(2)** stronger, the engine lid is top-hinged at z 1.103 over a 0.50 m
+> panel, so **no opening angle whatever** puts any part of it above z 1.60, and
+> this board's tip is at **z 2.184**. Unreachable. And the engine-lid band is
+> directly visible in `ref_side.jpg`, **closed**, red, carrying the yellow swirl.
+>
+> **NOR IS IT `signboard()`'s board.** That is the **"La Santa"** cream +
+> red-brush-script sign standing on the **ground behind** the bus in the same
+> frame, retired by the owner 2026-08-10 (§10.28, §10.49, §10.122.5). Two
+> different objects in one photograph, and the record conflated them.
+> **THE OWNER SETTLED IT AT REV 49:** *"That was referring to a different sign.
+> This one is part of the vehicle."* Three pieces of physical evidence agree:
+> the base sits on the drip rail to 1 px of the locked fit; the board's bulb
+> string is **continuous with the drip-rail run — one circuit**; and a power
+> cable descends from it into the body. Built as `t1_shell.tail_board()`.
 
 His words on the motion: there are two roof lids, front and back, "inward facing";
 the roof lid opens toward the **passengers' side**; the front one lifts toward the
@@ -9804,3 +9826,687 @@ this is neither, but it is still his call.
 **Gating on a number whose fix has not been sanctioned would turn a question
 into a fait accompli.** Only P3, which is already correct, is gated. When he
 answers, the gate goes in here.
+
+---
+
+### 10.118  rev 46 — W1, THE CALIDAD TYPE WAS OFF-CENTRE **INSIDE** THE DECAL
+
+**Written into `cal_gen.py` at rev 46 and cited there as SPEC 10.118 for two
+revisions before it existed here.** Recovered at rev 48 — see 10.122.4.
+
+Not the defect rev 44 closed. That one was the decal **panel's placement on the
+vehicle** (Report 7, 0.180 of texture width). This is the **type's placement
+within the decal**, which nobody had measured in forty-five revisions. Both are
+true and they are different things; the placement stays closed.
+
+Measured on the generator's own output, pre-rotation: the type block's centroid
+sat at (0.3735, 0.6309) of the canvas against `starburst()`'s centre
+(0.5050, 0.5750). In the shipped raster the miss was **(−0.1167, +0.1117)** —
+"100%" hung off the burst onto bare cream and "Calidad" ran off the panel's
+bottom edge (bbox reached y 0.953).
+
+**The fix is structural, not tuned.** `BURST_CX`/`BURST_CY` promoted to
+constants; `TYPE_SHIFT` expressed as (burst centre − measured pre-rotation
+centroid). And the block now rotates about the **burst's** centre instead of
+(0.500, 0.600) — those differ, so the −19.7° rotation was swinging a correctly
+laid-out block back off centre. A rotation fixes its own centre, so the
+centring is now exact and independent of `ANG`. Result **(+0.0001, −0.0001)**.
+
+**Guard, in the same edit (rule 12).** `cal_gen` refuses to write a decal whose
+type is more than 0.004 off centre. **Watched fail** at (−0.1099, +0.1127) on
+the rev-45 layout and at (−0.0132, +0.0134) on 12 % of the correction — it
+catches the residual, not just the gross miss.
+
+**RETRACTION carried with it.** The rev-46 brief's photographed target
+(+0.0455, +0.0746) is **withdrawn**. Calibrated against a synthetic decal at
+the photograph's own scale with a *known* displacement, the instrument that
+produced it reported ≈(−0.01, −0.04) for **every** truth value tried. It is
+blind to the quantity it names: the closed-and-filled burst mask traps cream
+between the spikes, and cream is bright and low-saturation. The photographed
+target is **"centred"**, established visually; the residual is not resolvable
+at 23 × 39 px.
+
+### 10.119  rev 46 — W2, THE VW GLYPH'S VERTICAL PROPORTIONS
+
+**Cited in `t1_core.py` since rev 46; recovered here at rev 48.**
+
+His fourth consecutive report of this emblem. **HIS REPEAT IS A MEASUREMENT.**
+
+Rev 44 set the **spine's** apex to 0.284 because that is 0.358 of the ring's
+diameter from the top and the photographed apex landmark reads 0.353. But the
+photographed landmark is the row where the V's two arms **merge into one run** —
+a property of the **outline** — and the strokes have width, so they merge well
+*above* the spine's apex. Setting a spine constant to an outline measurement put
+the built merge at 0.251 against 0.343. **This is 10.110.8 exactly.**
+
+Landmarks are run-count transitions, registered on the ring's own top and bottom
+edge rows so a crop margin cannot move them:
+
+| landmark | photo | rev 45 | rev 46 |
+|---|---|---|---|
+| L1 V arms clear the ring band | 0.1940 | 0.1455 | 0.1745 |
+| L2 V apex / the central knot | 0.3433 | 0.2509 | 0.3418 |
+| L3 W outer arms leave the band | 0.4776 | 0.5018 | 0.4764 |
+| L4 W troughs reach the lower band | 0.8060 | 0.8509 | 0.8073 |
+| L5 V arm separation / ring width | 0.2361 | 0.2248 | 0.2625 |
+| L6 V arm stroke / ring width | 0.1528 | 0.1514 | 0.1417 |
+| **residual** | — | **0.1167** | **0.0347** |
+
+**L5 and L6 are why the angles became touchable.** Rev 45 refused to move any
+angle because de-foreshortening a three-quarter view of a circle needs the
+ring's axis ratio and the two fits disagree by 10 %. That refusal was right *for
+rev 44's number*, which divides a **horizontal** arm separation by the ring's
+**vertical** diameter. **A horizontal divided by a horizontal at the same row is
+invariant to rotation about a vertical axis — the cosine cancels.** Same trick
+as 10.107.2, on the other axis. This is rule 23.
+
+**Three instrument errors, all caught by controls, all mine:** L4 landed on a
+threshold-transient and is the **last** 3-run row, not the first; registration
+was moved 0.088 by a two-pixel speck and is now the ring's own first and last
+non-empty row; and the solver's own console figure (0.0262) is **not quotable**
+because it reads a scene it has already built in — the clean number is 0.0347.
+
+**A hypothesis refuted rather than acted on.** Beside the photograph the built
+strokes *looked* too thick. Measured at the same structural row: photograph
+0.1528 ± 0.002, built 0.1514. **The stroke width was right**; the impression
+came from squashing a circular raster to the photograph's elliptical aspect.
+*(This illusion has now occurred three times. See 10.121.)*
+
+### 10.120  rev 46/47 — W3, THE SCRIPT WAS BLURRED, AND THE BLUR WAS ARITHMETIC
+
+**Cited in `script_gen.py` since rev 46; recovered here at rev 48.**
+
+Three revisions chased an **amplitude** metric for a **spatial-frequency** fault.
+
+`Canvas` draws at `SS = 12`. `Canvas.alpha()` box-downsamples that to mask
+space — **271 px of ink** — and `main()` then LANCZOS-magnifies those 271 px to
+`OUT_W = 4096`. **The shipped 4096-px texture carried exactly as much real
+information as the JPEG crop it was traced from, and not one bit more**: the
+script in `ref_side.jpg` is also 271 px wide.
+
+The fix, in three steps: add `Canvas.alpha_box(k)`; keep `alpha()` *as*
+`alpha_box(SS)` so the existing `_ref_mask()` equality guard stays
+bit-identical; and have `main()` crop the **drawn** raster before resizing,
+3252 px → 4096. A 15.11× upscale becomes 1.260×.
+
+| | rev 46 | rev 47 |
+|---|---|---|
+| 10–90 % alpha edge width | 14.077 px | **0.941 px** |
+| mean stroke width | 152.37 px | 151.21 px |
+| **edge / stroke** | **0.0924** | **0.0062** |
+| soft fraction | 0.2154 | 0.0160 |
+
+**MASK SPACE IS BIT-IDENTICAL** — `build()` `4a6f4e8cd0489fa1`, `senor_only()`
+`82d6cf56dd660b47`, before and after. No mask-space figure in this project moved.
+
+**THE CEILING, STATED.** 0.941 px is **at the instrument's floor** — an ideal
+antialiased edge measures **1.000 px** on the same estimator. The correct claim
+is that the residual blur is **≤ ~1 px and not resolvable by this instrument**.
+**Nobody may quote 0.0062 as an accuracy.**
+
+**The contrast half is NOT closed** and retires itself when W6 lands: *Señor* is
+legible with its tilde in both photographs and is still a formless blob in the
+build. `TARNISH_K`'s declared departure is 0.064, and the residue is the ground
+being 11 % too bright, not the ink.
+
+### 10.121  rev 47 — THE RESOLUTION BIAS, AND THE THIRD TIME IT FOOLED SOMEBODY
+
+**Cited in `script_gen.py` since rev 47; recovered here at rev 48.**
+
+With the blur gone the strokes *look* bloated beside the photograph. Measured at
+4096 px they are 0.84× the photograph: **7.9 σ**, a publishable-looking defect.
+
+**It is not there.** `probe_rev47_sharp` C7 shows the EDT stroke estimator
+carries a **16.6 % resolution bias** across that 15× gap. At the photograph's
+own 271 px: **built 0.04317 vs photo 0.04414 ± 0.00090 — 1.1 σ, agreement.**
+
+This is the same illusion 10.119 records about the VW glyph's strokes, and the
+same one 10.118's retraction records about the type centroid. **Three times, in
+three different quantities, always the same shape: a real estimator compared
+across two resolutions.** Expect a fourth.
+
+**The two defences, and they are cheap:**
+
+* **CALIBRATE AGAINST A KNOWN ANSWER AT THE REAL DATA'S RESOLUTION** (rule 22).
+* **QUOTE THE RATIO, NOT THE READING** (rule 24) — photographed ÷ built, on the
+  identical instrument at the identical scale, so the bias divides out.
+
+**And a harness that broke its own estimator's validity regime.** The first
+calibration drew 60-px bars blurred to σ = 20. At that σ the alpha at a bar's
+**centre** is 0.866 — it never reaches 0.9 — so the whole bar counted as "band"
+and the estimator over-reported by 26 %, then 44 %. **The synthetic violated the
+estimator's regime (edge ≪ stroke); the estimator did not fail.** The harness
+was fixed, the thresholds were **not** loosened, and C6 now watches the break
+happen. This is 10.116.6 and rule 19.
+---
+
+### 10.122  rev 48 — TWO JOBS, AND ONE OF THEM WAS ALREADY DONE
+
+#### 10.122.1  THE MODEL HAS HAD REAR VENT LOUVRES ALL ALONG
+
+`LEDGER_rev46.md` §5 recorded a "NEW FINDING — THE MODEL HAS NO REAR VENTS",
+`LEDGER_rev47.md` §10c repeated that "nothing replaced them", and
+`NEXT_CONTEXT_PROMPT_rev48.md` made building them JOB 2, "geometry the model
+does not have at all". **All three are false, and false against the BUILD:**
+
+```
+    louvres1 / louvres-1   560 v each   x -1.5371..-1.2419  (len 0.2952)
+                                        z  0.8636.. 1.0699
+                                        TEN slot rows, pitch 21.111 mm
+```
+
+watched print from a `T1_SUB=2` build. `t1_detail.louvres()` has swept 10
+pressed louvres per flank, 20 in all, since rev 16.
+
+**The grep those three documents cite as returning "nothing else" returns 140
+hits**, among them `t1_detail.py:2122  # ===== REAR-QUARTER AIR LOUVRES`,
+`t1_detail.py:2153  def louvres(nx=13)`, and `build.py:761  rear-quarter
+louvres (10 per side)`. The grep was never run, or was run and misread.
+
+**How it propagated, and this is the part worth keeping.** Rev 46 was right to
+retire the painted bunting from the decal — the owner said the lines were vent
+slats and he was right. But the painted lines sat **between the roof and the
+burst**; the real louvres are on the quarter panel **half a metre lower**. Rev
+46 concluded from retiring the paint that the geometry was absent, and then
+**wrote that conclusion into `cal_gen.py:339` as a source comment**, where
+every later context read it as machine truth. Rule 1 in reverse: a claim in
+prose is not a guard, and a claim in a *source* comment is not a measurement.
+Guarded now — see `verify_clone.sh`, "rear louvres are BUILT geometry".
+
+**The count is CONFIRMED, not inherited.** 10 slats on `IMG_2073.jpeg` (rows
+468–582, cols 1156–1188, de-sheared s = −0.180), pitch **8.106 ± 0.023 px**,
+gap scatter 2.3 %. That confirms rev 47's 8.02 ± 0.42 and tightens it ~18×.
+It is measured on the GREEN vehicle, which is admissible **because it is
+geometry** — see 10.122.5.
+
+#### 10.122.2  WHAT IS ACTUALLY WRONG WITH THEM IS THAT THEY DO NOT READ
+
+`probe_rev48_louv.py`, 11 checked 0 FAILED. The built block is bounded **by
+projection** through `studio.views()["side"]`, parsed out of `studio.py` at run
+time together with `t1_detail`'s own `LOUV_*` — nothing transcribed (rule 2).
+C6 lands the ground plane on the frame's last non-white row; C7 lands
+`X_TAIL` on the silhouette.
+
+```
+    ref_side.jpg   signed modulation  -0.0383   |amp| 0.2059
+    the render     signed modulation  +0.0343   |amp| 0.1112
+    RATIO   |photographed| / |built|   1.85x
+```
+
+**THE RATIO BOUNDS PROMINENCE, NOT DEPTH**, and the probe prints that ceiling
+beside it every run. See 10.122.3.
+
+#### 10.122.3  THREE INSTRUMENTS BUILT, WATCHED FAIL, AND THROWN AWAY
+
+10.116.6 says an instrument that has never been wrong has never been tested.
+Rev 48 tested three and all three were wrong.
+
+* **An automatic periodicity bounder** reported the built block at power 0.958
+  and looked authoritative. Blank painted panel reads up to **0.380**; the
+  block itself **0.405**. **Not separable.** It had locked onto the belt line.
+  Deleted, not re-thresholded: lowering the threshold would have made a blind
+  estimator quiet rather than making it see.
+* **A silhouette anchor for the projection.** "The rightmost non-white pixel"
+  over z 0.81–1.10 gives 1315 — **22 mm past the body's own rearmost vertex**,
+  because the TAIL LAMP protrudes. Moved up to z 1.20–1.50 it gives 1396,
+  because the SERVING COUNTER SHELF is there. Both plausible, both wrong.
+  Replaced by the camera dict, which has no such failure mode.
+* **A finding, retracted in the revision that found it** (rule 15). An earlier
+  draft concluded that the signs disagree *because* `LOUV_OFF = +0.0020` rides
+  the sweep proud, and would have had rev 49 recess it.
+  **`ref_nolita_front34.jpg` shows these same real louvres reading BRIGHT.**
+  Sign follows the key light, not the pressing. One lighting against another is
+  not a comparison of geometry (10.110.8).
+
+**The lighting-independent item, and it is still open.** `t1_detail.louvres()`
+is *"A sweep, not a boolean … the shell is never touched"* — the built louvres
+are **closed ribs laid on an unbroken flank**, where a T1 louvre is an
+**aperture**. That is the fidelity bar `bus_model_ref.JPG` sets, whose own nose
+louvres are modelled slots that self-shadow. Guarded as C10.
+
+#### 10.122.3b  AND THEN REV 48 FIXED IT — THE LOUVRES ARE APERTURES NOW
+
+The lighting-independent half of §10.122.2, closed in the same revision that
+found it. `t1_detail.louvres()` was *"A sweep, not a boolean … the shell is
+never touched"*: twenty **closed ribs laid on unbroken metal**, where a T1
+louvre is an **opening**. That is the bar `bus_model_ref.JPG` sets — its own
+nose louvres are modelled slots that self-shadow.
+
+**ONE HOLE PER FLANK, NOT TWENTY**, on two measured grounds. `t1_core.py:230`
+records `gap_englid` as the model's most fragile boolean and thin cutters are
+what make a boolean fragile; and `build.CUTTER_VOL_MIN` is 1.0e-4 m³, which a
+single 7 mm slot would sit *on* — twenty times over. The block aperture is
+1.79e-2 m³, two orders clear. The blades span the hole; the gaps between them
+are the slots.
+
+**THE SIGN MOVED, AND THE SIGN IS THE POINT.**
+
+```
+    photographed   -0.0383     the slats self-shadow
+    before         +0.0343     the ribs caught the key
+    after          -0.2559     the slots self-shadow
+```
+
+**AND THE FIRST CUT WAS VISIBLY WRONG WHILE EVERY NUMBER SAID IT HAD WORKED.**
+The signed modulation went the right way at the first attempt (+0.0343 →
+−0.0287) and `VERIFY` was clean. The **render** came back with **bright white
+bars among the slots** — `cabin_fill()` shining out through the new holes, and
+in places straight through to the far flank. Behind a T1's rear-quarter
+louvres is the **engine bay**: shallow, unlit, boxed off. `louvre_backing()`
+puts it back. **Rule 28, on a change made in the same revision that wrote
+rule 28.**
+
+**A CONSTANT THAT COULD NOT BE WRONG UNTIL THE SHELL WAS CUT.** The authored
+section was **11.0 mm**. The measured pitch is 21.11 mm and the header records
+the slot aperture as **~7 mm (INFERRED**, 1.5 px, below `ref_side.jpg`'s
+resolution**)**. Those require a **14.1 mm** blade; 11.0 mm leaves a 10.1 mm
+slot, 44 % wider than the inferred aperture. **It never showed, because the
+"slot" was solid metal** — the number could be wrong without anything being
+visibly wrong. `LOUV_SECT = LOUV_PITCH − LOUV_APERTURE`, derived (rule 2).
+
+**THE AMPLITUDE IS A CEILING, NOT A TARGET.** Built |amp| 0.385 against a
+photographed 0.206. The photographed block sits in the serving counter's
+**shade**; the rendered one is in open key. One lighting against another
+(§10.110.8). **Do not tune the pressing depth from it.** A raking-light frame
+of six slats settles depth directly — `PHOTOS_WANTED_rev48` item 3.
+
+**AND C7 WAS RESTATED TWICE BEFORE IT WAS TRUE.** "The rightmost non-white
+pixel is the tail cap" is false on this vehicle: at z 0.95–1.05 it finds the
+**open trunk lid** (1365), at z 1.20–1.30 the **counter shelf** (1396), at
+z 0.81–1.10 the **tail lamp** (1315). Hunting for a clean band was the wrong
+response — the assumption was wrong, not the window. It now asserts the
+invariant that *is* true: things may stick out past the tail, but nothing
+forward of the tail cap can be the silhouette's aft edge.
+
+#### 10.122.4  THE TRUNK LID WAS NEVER A SEAM — IT WAS ALREADY A FREE PANEL
+
+> *"we're going to need the trunk open like it's in service"*
+
+Confirmed against the build before anything was written, which is what §9's
+sign-props trap demands. Connected-component analysis of `T1_body` from a real
+`T1_SUB=2` build gives **six** components, one of them
+
+```
+    7982 v   x -1.873..-1.870   y -0.467..+0.467   z 0.608..1.103
+```
+
+— `gap_prism`'s outline (y ±0.470, z 0.6025..1.1025) to 3 mm. `build.py:69`
+had already recorded the count going *"1 → 6 as each gap cutter frees a
+panel"*. So this is **separate, name, hinge, back** — not a rebuild — and the
+fragile `gap_englid` boolean is untouched.
+
+**Why it swings AFTER the rake shear.** `_hinge()` rotates about a **fore-aft**
+axis: it moves y and z and leaves x alone, which is exactly why a roof lid can
+be swung before step 8b and still be sheared at its correct station. A tail lid
+hinges **laterally** and does move x. Swung first, step 8b would shear it at
+the wrong station and tilt the open lid by the rake angle for nothing.
+`_hinge_y()` is the sibling; 8c runs after the shear.
+
+**`TRUNK_OPEN_DEG = 52.0` IS A POSE CHOICE AND SAYS SO.** No frame in this
+project shows this lid open. **SPEC 10.26's row "trunk lid | OPEN, at the tail
+| `ref_side.jpg`" is REFUTED**: that raised panel is a thin board seen nearly
+edge-on, cream-faced, with a RED border and **a string of amber bulbs along its
+lower edge**, based at the **roof line** and not the engine deck.
+`LEDGER_rev47.md` §5 was right that no frame shows the trunk open. So the angle
+carries **NOT MEASURED** in its own comment and `verify_clone` requires that
+declaration to stay — the `LINE_GAP` lesson applied *before* the defect instead
+of after it. No strut and no counterbalance is built: an invented one would be
+a claim.
+
+#### 10.122.5  THERE ARE TWO VEHICLES, AND THE OWNER HAS RULED ON THEM
+
+The reference set holds **two** Señor Tacombi T1s, and no document before rev 48
+said so where it mattered:
+
+| | body G/R | raised lid carries |
+|---|---|---|
+| `ref_side.jpg` **RED** | 0.204 | flower mural + yellow menu strips |
+| `ref_rear34.jpg` **RED** | 0.269 | the mural board, plus the "La Santa" cream + red-script board — **two boards, not two faces of one** (see below) |
+| `IMG_2073.jpeg` **GREEN** | 1.378 | tufted damask panel, ornate green frame, bulbs |
+| `ref_workshop.jpg` **GREEN** | 1.304 | plain cream — mid-conversion |
+
+> **RETRACTION, within rev 48, caught by rev 48's own adversarial verifier.**
+> The row above first read *"mural outer / cream + red script inner"* — which
+> describes the "La Santa" board as the **inner face of the raised lid**. That
+> is precisely the §10.19/§10.26 identification the owner retired in §10.28
+> (*"I was wrong, I think it is a detached sign"*) and re-retired in §10.49.
+> **§10.49 exists because §10.38 re-adopted it once already; this was the
+> third re-adoption, and it was mine.** It is also not what the pixels show:
+> at 2× the cream board and the mural board sit on visibly different planes
+> with the roof aperture's maroon interior between them. Corrected above.
+> **A retired identification that keeps coming back unnamed is the same
+> failure mode as a feature that comes back halfway (§10.122.1), and it now
+> has three instances.**
+
+A G/R of 0.20 against 1.38 is not a white-balance artefact. **HIS RULING,
+rev 48, verbatim in substance:**
+
+* **the RED bus is the vehicle being recreated** — which is what the model is
+  already built as, and where W6's photographed target 0.223 ± 0.066 came from;
+* **"the geometry appears the same"**, so geometry may be measured from either;
+* **paint and artwork may NOT be transferred from the green frames.**
+
+**That ruling has teeth.** The louvre count above is geometry and stands. But
+`LINE_GAP` was re-based at rev 47b from the **green** bus's decal in
+`IMG_2073.jpeg` — that is **artwork**. It must be re-based onto the red bus's
+own decal or explicitly declared as transferred.
+
+**And it dissolves W5 rather than answering it.** The brief says of the raised
+sign board: *"The build paints a flower mural with menu strips; every frame
+shows a hand-chalked blackboard."* **`ref_side.jpg` — the frame `lid_gen.py` §A
+measured the mural from at rev 11 — shows the flower mural with yellow menu
+strips, exactly as built.** No frame in the repo shows a chalked blackboard on
+the vehicle's own raised lid; the chalked board in `IMG_2073.jpeg` is on a post
+beside the bus, as the brief itself says. W5 was never a defect.
+
+#### 10.122.6  THE FOUR SECTIONS THAT WERE CITED FOR TWO REVISIONS AND DID NOT EXIST
+
+`LEDGER_rev46.md` §7 recorded "SPEC sections 10.118 (W1), 10.119 (W2), 10.120
+(W3) **written into the sources**". That wording reads as "written into SPEC"
+and was not. Until rev 48, `SPEC.md` stopped at **10.117**, while `cal_gen.py`,
+`t1_core.py` and `script_gen.py` cited 10.118–10.121 as though they were here.
+The brief's own opening line sends the next context to `SPEC.md` for everything
+it needs to be correct. **Recovered above from the ledgers, at rev 48.**
+
+Also discharged here rather than in a ledger: `bootstrap.sh`'s header said the
+`pip install bpy==4.5.3` branch had **NEVER BEEN EXERCISED** while the rev-48
+brief claimed it was discharged at rev 47. It has now run on a cold container
+and returned ALL 10 PASS, watched print — and the header now says so.
+
+
+---
+
+### 10.123  rev 49 — THE TAIL BOARD, A BAY WITH NO MATERIAL, AND A TRADE THAT DID NOT EXIST
+
+#### 10.123.1  THE TAIL BOARD IS ON THE VEHICLE — AND THE RETIREMENT WAS ABOUT A DIFFERENT SIGN
+
+The rev-49 brief's job 1 was to build a raised board at the tail. This revision
+**refused it**, on the ground that §10.28 records the owner retiring that panel
+— and **the refusal was wrong, and he corrected it**:
+
+> *"That was referring to a different sign. This one is part of the vehicle."*
+
+He is right, and `ref_rear34.jpg` shows why in one frame. **There are two boards
+in it.**
+
+| | what it is | where it stands |
+|---|---|---|
+| **"La Santa"** | cream, **red brush script**, red star | on the **GROUND, BEHIND** the bus — retired 2026-08-10, §10.28 / §10.49 / §10.122.5. This is `signboard()`. |
+| **the tail board** | cream face, **red rim**, amber bulbs, tilted 38° | **ON the vehicle**, based on the drip rail at the tail |
+
+`signboard().__doc__` was written from a 3× crop of the **first**. Every later
+document read "the raised panel at the tail is retired" and applied it to the
+**second**. **A retirement inherits the object it was made about, not the
+station it was seen at.**
+
+**THREE PIECES OF PHYSICAL EVIDENCE, not another inference.** ~~§10.28 requires a
+photograph of the board's *footing* before this is revisited~~ **— WITHDRAWN, rev 50.
+IT DOES NOT. §10.28's footing sentence (`SPEC.md:1009`) is inside the paragraph
+headed "The detached sign", the object §10.28 itself says "is not part of this
+vehicle" — "La Santa". This section states RULE 29 three lines above and then
+inherits a REQUIREMENT from the very object Rule 29 exists to separate, which is
+the same error in the mirror. The mis-citation propagated to
+`PHOTOS_WANTED_rev49.md` §1, `NEXT_CONTEXT_PROMPT_rev50.md` §7.1 and the rev-50
+brief. The photograph is still WANTED — for the board's WIDTH, on the parallax
+argument (33.5 px/m, identical at base and tip, W <= 0.59 m with no lower bound)
+— but nothing about the board's ATTACHMENT ever depended on it, which is what
+the three pieces of evidence below establish.** The owner cannot supply one. He
+does not need to:
+
+1. the board's base sits **on the drip rail** — 1 px from the project's own
+   locked drip-rail fit (predicted v = 293.2 at that column; measured 292–294);
+2. its bulb string is **continuous with the drip-rail bulb run**, at a pitch
+   (28 ± 2 mm) statistically indistinguishable from the vehicle's own
+   `BULB_PITCH` 28.6 ± 1.0 mm — **one circuit**;
+3. a **power cable descends from it into the body**.
+
+A sign standing on the ground behind the bus shares no circuit with the bus and
+hangs no cable into it.
+
+**AND IT IS NOT THE ENGINE LID, refuted twice.** Rev 48 measured the base at
+1.747 ± 0.027 m against `ENGLID_GAP`'s 0.6025–1.1025 — ~11 σ. Stronger, and
+new at rev 49: the engine lid is **top-hinged at z 1.103 over a 0.50 m panel**,
+so **no opening angle whatever** lifts any part of it above **z 1.60**; the
+board's tip is at **2.184**. Unreachable. The engine-lid band is also directly
+visible in `ref_side.jpg`, **closed**, red, carrying the yellow swirl.
+
+#### 10.123.2  WHAT WAS MEASURED, AND THE ONE THING THAT CANNOT BE
+
+Measured on `ref_side.jpg` (**RED** — rule 26) through the project's own scale
+chain (§10.35's `X(u)` map + `LOFT_GROUND_rev15` §0.4's `k_t`), C0-checked at
+`X(242.84) = +1.3000`, `X(749.38) = −1.1000`, `X(922.2) = X_TAIL`. Uncertainties
+are Monte-Carlo over endpoint jitter, `k_t` 215.5 ± 3.0 and the datum ± 0.020.
+
+| quantity | value | ceiling |
+|---|---|---|
+| base station | `X_TAIL + 0.151` ± 0.022 | the map is the **near-flank** plane; re-seated at the centreline the sign flips |
+| base height | **1.747 ± 0.027 m** | tightens the brief's 1.78 ± 0.07 by 2.6× |
+| tilt | **38.0 ± 2.3° from HORIZONTAL** | **say which datum** — from vertical it is 52.0°, and a bare "39°" does not |
+| chord | **0.711 ± 0.028 m** | the *image-plane* chord is 0.745; one px/m over-reads by 4.8 % |
+| tip | `X_TAIL − 0.408` ± 0.017, z **2.184 ± 0.030** | the frame's right edge is at −0.441; a read of "0.5" saturates against it |
+| bulbs | pitch 28 ± 2 mm | **only 6 resolve**; an FFT finds no 6-px component. The **count is DERIVED**, never observed |
+| stay | ONE, endpoints measured, 78° | dia 9 ± 7 mm — **rod vs wire NOT RESOLVED**, it is the blur floor |
+
+**THE WIDTH ACROSS THE VEHICLE IS NOT MEASURED AND IS NOT MEASURABLE FROM
+ANYTHING WE HOLD.** The board's plane contains the lateral direction, so its
+width projects **only through parallax** — 33.5 px per metre, and, being a cross
+product, **identical at base and tip, so the projected width cannot taper**. The
+observed silhouette *does* taper (19.9 px at the base, 7.2 over the last 40
+columns), so the thickness also carries the board's own material and its rim
+band, and the two cannot be separated at 1024 px.
+
+> **§10.123.2a — THE 80 mm FOOT INCONSISTENCY IS WITHDRAWN, rev 49d.** It was never a conflict
+> between the photograph and the geometry: **the board was at the wrong station.** The rear roof
+> corner falls away fast — the skin reads **1.9608** at x −1.6982, **1.8607** at −1.800, **1.7497**
+> at −1.850 and **1.6696** at `X_TAIL` — and exactly one station satisfies both the photographed base
+> height and the roof's own surface: photographed **1.747 ± 0.027** against a skin at **1.7497**,
+> **2.7 mm**, with the chord then landing the tip at **2.2001** against a measured
+> **2.184 ± 0.030**, **16 mm**. Two independent heights close. The station is now solved from
+> `T1_body`'s own vertices at run time.
+>
+> **AND THE GUARD REV 49b WROTE FOR THIS WAS A TAUTOLOGY**, caught by the rev-49 photorealism survey:
+> `z0 = ZT_ALL − rake_drop + 0.005` against `_crown = ZT_ALL − rake_drop` differ by +0.005 **by
+> construction**, so it could not fire in the shipped path and was only ever testing its own escape
+> hatch. **Rule 20, on a guard written in the revision that quoted rule 20.** `ZT_ALL` is also not the
+> crown — it is the **roll start**, 93 mm low here, which is why the foot sat **97.1 mm inside the
+> roof**. The replacement measures the **built board** against the **built skin** and caught a further
+> **3.7 mm** on its first run (`solid_prism` extrudes centred; the standoff is now derived from the
+> section rather than typed).
+>
+> **What remains is one quantity, not two:** the fore-aft **depth plane**. The solved station sits
+> 128 mm aft of the near-flank silhouette read, and the stay lands at **72.1°** against a measured
+> **77.5°**. Same ambiguity as the width; same photograph closes both.
+
+* **upper bound, admissible: W ≤ 0.59 m.**
+* **lower bound: NONE.** 7 px of the tip half is fully accounted for by a 30 mm
+  board plus a border.
+
+That bound alone **refutes a full-width board**: the roof aperture is 1.11 m
+across and the body 1.750 m, both excluded by more than 2×. `ref_rear34.jpg`
+cannot close it — the candidate free edge **runs off the frame at u = 1199**,
+and §10.48 admits px/m there only on the plate plane. `TB_WIDTH` and the lateral
+centring are **POSE CHOICES and say so**.
+
+**Both GREEN frames also carry a board at this station** — admissible as
+*geometry* corroboration under the owner's ruling, and the record never said so.
+**No figure and no colour was taken off either.**
+
+#### 10.123.3  THE TRUNK BAY SHIPPED WITH NO MATERIAL, THROUGH EVERY GREEN CHECK
+
+```
+build.py:846   for ob, key in ASSIGN:            <- the loop that APPLIES materials
+build.py:937   A(S.trunk_bay(log=log), "dark")   <- appends 91 lines AFTER it ran
+build.py:939   log("materials: 165 objects")     <- counted trunk_bay in the 165
+```
+
+`A()` only **appends** to `ASSIGN`. Step 8c must run *after* step 9 because a
+lateral hinge moves `v.co.x` and step 8b shears on `v.co.x` — so this is the
+**only `A()` call in the file that lands after its own consumer**. The bay
+rendered at Blender's default ~0.8-albedo grey: **1.28× the body red, 1.11× the
+cream — the brightest thing on the tail**, where a T1's engine bay is a dark
+cavity. After: **0.51×**.
+
+**`VERIFY: 0 fail, 0 warn`. `verify_clone` ALL 110 PASS.** And the one line that
+could have reported it printed `len(ASSIGN)` — **appends, not assignments** — so
+it asserted coverage instead of measuring it. **Rule 27 inverted: a count that
+logs the wrong quantity reads as coverage too.** Rule 28 found it: one rear-3/4
+render, one crop.
+
+This is the **same defect rev 48 fixed for the louvre apertures** — light where
+a dark bay belongs — **in the same revision**. It was missed here only because
+no rev-48 frame showed the tail.
+
+Guarded against the **cause**, not the instance, and watched fail:
+
+```
+AssertionError: objects were given a material key but never assigned one: trunk_bay
+  -- an A() call landed AFTER step 9's ASSIGN loop (build.py:846)
+```
+
+#### 10.123.4  `_bounds()` EXCLUDED NON-BODYWORK BY THE SHAPE ITS OWN DOCSTRING ARGUES AGAINST
+
+`verify._bounds()` argues at length that excluding parts by an **enumerated
+list** is wrong because "a list goes stale the moment somebody hangs a new part
+on a lid" — and then excluded the counter by a **hard-coded tuple**. It went
+stale the moment the tail board was hung: **length red at +370 mm on sheet metal
+that had not moved.** Rule 5: the rationale was sound and the shape contradicted
+it. Parts now register in **`t1_shell.NOT_BODYWORK`**, and every drop is
+**printed by name every run** (rule 27):
+
+```
+bounds EXCLUDE 9 non-bodywork part(s): counter, counter_nosing, counter_top,
+  tail_board, tail_board_stay, tb_bulbflex, tb_bulbs, tb_edge_dark, tb_edge_red
+length excludes opened lids: 4.480 with them, 4.056 without   (spec 4.055)
+```
+
+#### 10.123.5  W6 — THE TRADE DID NOT EXIST, AND THE LEVER IS NOT WHAT THE RECORD SAYS
+
+**The owner has been asked for three revisions to choose between accurate paint
+and a catalogue-clean white background. THERE IS NO SUCH TRADE.** The white
+background is a **compositor constant** laid under a keyed render
+(`composite_on_white`, an unconditional `AlphaOver` on `bg_white_level()`), then
+renormalised to 252 DN by `post.py`. Measured, base against `T1_CYCALB=0.30`:
+
+```
+background mean 255.000 -> 255.000      %at255 100.00 -> 100.00
+max | difference |  =  0.000
+```
+
+**Nothing done to the lights can reach it.** And the owner **retired the
+pure-white backdrop lock himself at rev 15** — SPEC §6 carries "composited to
+pure white" *struck through*, marked *"RETIRED, §10.69 — THE OWNER'S DECISION"*.
+Three revisions have since refused lighting changes by citing it as live.
+
+**THE SWEEP** — `probe_rev45_paint.py`, 4 controls including its kill, 0 FAILED
+on every run:
+
+| lever | P1 body red G/R | verdict |
+|---|---|---|
+| base (rev-48 rig) | **0.455** (3.5 σ) | — |
+| `T1_CYCALB` 0.76 → 0.30 | ~0.45 (−2…5 %) | **DEAD** |
+| bigger softbox, **short axis** 3.5× area | **0.452** (−0.7 %) | **DEAD** |
+| `T1_SPEC = 0` | 0.347 | works — **but rev 8 made this fix and reverted it** |
+| sources 3.5× on **both** axes (12× area) | 0.351 (1.9 σ) | works — see below |
+| photographed target | 0.223 ± 0.066 | albedo is already right at 0.250 |
+
+**The short-axis row is the one that matters.** Growing the source 3.5× in the
+axis that *sets the streak* — literally "use a bigger softbox" — moves the red
+by **0.003**. So the gain in the both-axes row is **not the specular being
+softened**; it is the sources growing past the subject (a 56 m strip) until the
+rig stops being directional and becomes an **enveloping diffuse dome**.
+
+**`T1_SOFTEN` does not tune the studio. It progressively REPLACES it** — which
+is also why it works, since an overcast or shaded outdoor light *is* a dome and
+every reference frame was taken under one. It also drops the cream to 0.706 of
+base and the red flank to 0.545; the published G/R is normalised to the cream in
+the same frame and so is exposure-invariant, but the *picture* changes
+brightness too. **Default 1.0. Nothing ships changed. `P1 = 0.455` at k = 1.0
+reproduces rev 48 exactly, watched print.**
+
+**`LEDGER_rev45`'s "about half the excess is the specular response to the white
+cyclorama and its 0.76-albedo floor" is REFUTED.** It attributes an
+un-decomposed lever (`T1_SPEC`, which kills the paint's specular response to
+*every* white source) to the smallest of its four possible causes. `studio.py`'s
+"the floor … the single largest desaturator in the scene" appears **once in the
+whole repository — in that comment** — and cites a §10.9 that contains no such
+arm. Rule 1.
+
+#### 10.123.6  RETRACTIONS THAT HAD LANDED IN A LEDGER AND NOT IN THE SOURCE
+
+*A retraction that lands in a ledger and not in the source is half a retraction.*
+
+* **`cal_gen.py:385` still said "the model has NO REAR VENTS"** — **rule 1's own
+  founding case**, standing unannotated two revisions after rev 48 cut real
+  apertures. Annotated.
+* **`cal_gen.py`'s three "DARK GREY" slat readings**, retracted at rev 47 into
+  `verify_clone.sh` only. Annotated.
+* **`verify.py` called the ~3.0 m bbox top "the raised signboard" in two
+  places.** It is **`lid_main`** (zh 2.006 + `LID_W`·sin 104° − `RIDE_DROP` =
+  3.018, which is `STATE.md`'s own 3.017). `signboard()` has been gated off
+  since rev 12. A retired object's name living on in a live comment on the
+  height row for 37 revisions. Corrected.
+* **§10.26's table** still published `| trunk lid | OPEN, at the tail |`.
+  Annotated above — the fourth instance of the failure §10.122.5 names.
+
+#### 10.123.7  THE OWNER SHUT THE LOWER BAY — AND IT EXPOSED A LATENT REV-48 DEFECT
+
+> *"Leave the lower bay shut, just have the back trunk window open for service."*
+
+**This refutes an INFERENCE rev 48 made and shipped.** Asked at rev 48 which of
+the two rear apertures should be open — both marked by projection on a straight
+rear view — he chose **A, the rear window**. Rev 48 then reasoned *"he called
+the upper one the MAIN bay, not the ONLY one"*, kept the lower lid open as well,
+and wrote that reading into §10.122.4 and into `t1_shell.py`. **A choice between
+two things is not a licence to keep both.** Rule 6: an ordinal fact licenses a
+SIGN, never a SHAPE.
+
+`TRUNK_OPEN_DEG = 0.0` now means **SHUT**, and the swing is **skipped entirely
+rather than run at zero** — `_swing_open()` asserts the free edge actually
+travels, so calling it with 0.0 would fire a guard on a correctly closed lid. A
+guard must fire on the defect, not on a legitimate pose. The panel is still
+separated and named; the shut line already existed as `gap_englid`, so a closed
+free panel is geometrically identical to the un-separated body and keeps
+re-opening one constant away. The T-handle and the 1963 plate are **no longer
+carried and no longer join `SWUNG`** — they have not moved, and registering them
+would exclude two parts that *are* inside the closed envelope from the vehicle's
+own length. That is rule 18, the mirror image of rev 48's stale-`bound_box`
+defect. Length returns to **4.065**, the baseline `verify_clone` locks.
+
+**AND CLOSING THE LID EXPOSED A DEFECT THAT HAD BEEN INVISIBLE FOR A REVISION.**
+
+```
+lid_trunk   x -1.8730 .. -1.8702      the shut lid's outer face, at X_TAIL
+trunk_bay   x -1.8750 .. -1.4550      the lining's face, 2.0 mm AFT of it
+```
+
+`trunk_bay()` set its origin to `x_skin - 0.002 + BAY_DEPTH*0.5`. `solid_prism`
+extrudes ±depth/2 about its origin, so the aft face landed at `x_skin − 0.002`
+— **2 mm PROUD of the tail skin, not 2 mm inside it. The sign of the inset was
+inverted.** The comment above it explains, correctly, why the origin is advanced
+by half the depth so that changing `BAY_DEPTH` cannot reopen rev 48's +210 mm
+defect — and that reasoning is sound and does nothing whatever about the inset's
+own sign, because **nothing measured the lining's face against the skin it
+lines** (rule 16).
+
+**It was invisible while the lid was open**: nothing stood in front of the
+lining, so 2 mm poking past the tail read as the bay's own back wall. With the
+lid shut it sat 2 mm *in front of* a closed panel and won the depth test across
+the whole of it — **the tail rendered with a dark charcoal rectangle where the
+red engine lid belongs.** `VERIFY: 0 fail, 0 warn`; `verify_clone` ALL 110 PASS.
+One crop showed it. Rule 28.
+
+Fixed, expressed as a named positive inset, and guarded against the **cause** —
+the lining must lie entirely inboard of the skin whatever `BAY_DEPTH` or the
+inset do — and **watched fail** on `T1_BAYPROUD=1`:
+
+```
+AssertionError: trunk bay lining is PROUD of the tail skin: its aft face is at
+x -1.8750 against a skin at x -1.8730 (2.0 mm outside).  With the lid shut this
+renders THROUGH the closed panel.
+```
+
+Measured, same window, before and after: the lid panel reads **RGB 91.1/75.4/66.7
+→ 106.5/72.4/61.8** — from the bay's neutral grey bleeding through, to body red.
+
+**The bay lining is KEPT although it is now unseen**, because the compartment is
+real and reopening the lid is one constant away. The build says so every run.

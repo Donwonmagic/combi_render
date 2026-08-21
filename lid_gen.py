@@ -739,7 +739,29 @@ def mural(path=None):
                       (0.6908, 0.7383, "&"), (0.7529, 0.8938, "TORTAS")):
         x0, x1 = u0 * W, u1 * W
         wpx = d.textlength(s, font=ft) or 1.0
-        f = _font(max(8, int(cap_t / 0.72 * (x1 - x0) / wpx)))
+        # rev 50, A16 -- CLAMPED.  This was the file's ONLY unclamped text fit.
+        # Two measured quantities are in play, the word's x-run (u0..u1, read off
+        # ref_side.jpg) and the cap height (0.46 of the strip, stated at line 184
+        # of this file's own header).  A substitute face cannot satisfy both, and
+        # the unclamped form silently sacrificed the CAP HEIGHT -- which is the
+        # one of the two that is a property of the type rather than of the
+        # layout.  Measured on the shipped texture before this change, against
+        # the declared 0.460:  FRESH 0.421, JUICES, 0.553, GOURMET TACOS 0.386,
+        # TORTAS 0.421 -- and '&' 0.728, i.e. 1.58x its own recorded measurement,
+        # breaking below the baseline the caps sit on.  It is the loudest thing
+        # on the board in every side and hero frame.
+        # The two sibling fits in this same file already do exactly this:
+        #   _arched(), line 570:  k = min(1.0, wpx / tot)   "shrink to fit, never enlarge"
+        #   side strips, line 794: k = min(1.0, wid*0.86/wpx) "shrink to fit only"
+        # so this is the file's own idiom, not a new policy.
+        # WHAT THIS DOES NOT FIX, stated rather than hidden: the clamp only bites
+        # on '&' (every other word was already being shrunk, so k < 1 for them
+        # and they do not move at all).  The clamped '&' is then NARROWER than
+        # its measured run -- w/cap ~0.8 against the photograph's 114/64 = 1.78 --
+        # because the substitute face's ampersand is not the painted one.  That
+        # residual is a TYPEFACE difference and it is not closable from here.
+        k = min(1.0, (x1 - x0) / wpx)
+        f = _font(max(8, int(cap_t / 0.72 * k)))
         d.text(((x0 + x1) / 2, th * 0.50), s, font=f, fill=INK, anchor="mm")
     _star(d, 0.0938 * W, th * 0.50, th * 0.22, th * 0.22)
     _star(d, 0.9083 * W, th * 0.50, th * 0.22, th * 0.22)

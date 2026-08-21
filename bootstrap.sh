@@ -31,12 +31,22 @@
 #                       shims from nothing and returns ALL 10 PASS.  The argv
 #                       control, the exec-not-symlink check, the clone-depth
 #                       and stranded-branch rows all ran.
-#    NOT EXERCISED:     the `pip install bpy==4.5.3` branch.  bpy was already
-#                       installed in the container this was written in, so that
-#                       arm has never executed here.  It is the one line most
-#                       likely to behave differently on a fresh machine -- if it
-#                       fails, the row it fails on is "bpy installed", and the
-#                       fallback is START_HERE.md's venv recipe.
+#    PROVEN at rev 48:  the `pip install bpy==4.5.3` branch, which every header
+#                       before this one described as NEVER EXERCISED, RAN on a
+#                       cold container and returned ALL 10 PASS.  Watched print:
+#                           ..    installing bpy==4.5.3 (a few minutes, ~1 GB)
+#                           ok    bpy installed
+#                       It is discharged, and it is discharged HERE rather than
+#                       in a ledger.  NEXT_CONTEXT_PROMPT_rev48.md sec.1 already
+#                       claimed it was discharged at rev 47 while this file went
+#                       on saying the opposite -- so every context that did what
+#                       the project tells it to do, and believed the machine
+#                       over the prose, got the retracted answer.  A retraction
+#                       that lands in a ledger and not in the source is half a
+#                       retraction (rule 15).
+#                       If it ever does fail, the row it fails on is "bpy
+#                       installed", and the fallback is START_HERE.md's venv
+#                       recipe.
 #
 #  WHAT IT WILL NOT DO.  It will not edit any of the eight files that hard-code
 #  /tmp/blender.  That constraint has held since rev 43 and it holds here.

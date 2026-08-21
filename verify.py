@@ -426,16 +426,88 @@ BAND_SPEC = (1.3720, 1.7750)           # Z_SILL, Z_HEAD, UN-DROPPED
 SLOT_FRAC_MIN = 0.90
 
 
-def _bounds():
+def _bounds(exclude_lids=False):
+    """Overall bounds.  `exclude_lids` drops every `lid_*` part.
+
+    rev 48.  The height row below has said since rev 8 that "the roof lids are
+    modelled OPEN, so the bbox top is ~3.0 m, not the
+    vehicle", and works around it by measuring _roof_z_at() instead.  (rev 49:
+    that ~3.0 m top is `lid_main`, NOT the signboard -- signboard() has been
+    gated off since rev 12.  See the correction at the height row.)  THE SAME
+    THING HAS NOW HAPPENED ON THE LENGTH AXIS.  It never bit before because
+    the roof lid spans x -1.070..0.964, comfortably inside the body's
+    -1.873..2.127; rev 48's trunk lid opens AFT, past X_TAIL, and the length
+    row went red at +362 mm on a vehicle whose body had not moved.
+
+    An open lid is no more part of the vehicle's LENGTH than an open lid is
+    part of its HEIGHT.  Excluded BY PREFIX rather than by an enumerated list,
+    which is audit.py:96's stated reason for doing it the same way -- a list
+    goes stale the moment somebody adds a lid.
+
+    Default False, so every existing caller reads bit-identically in shape --
+    though NOT in value, and that is the second half of this rev-48 change:
+
+    IT READ `ob.bound_box`, AND bound_box GOES STALE AFTER AN IN-PLACE VERTEX
+    EDIT.  Measured, watched print:
+
+        glass_rear   bound_box x  -1.8560..-1.8500
+                     vertices  x  -2.1510..-1.8501   <-- 295 mm hidden
+
+    The rear hatch swings its pane 0.30 m aft of where bound_box still thinks
+    it is.  `lid_trunk` was NOT stale, because it is a freshly created mesh --
+    so the defect appears only on parts moved in place, which is exactly the
+    parts this revision moves.  Every _bounds() caller has been reading a
+    number that silently under-reports any hinged part.
+
+    WORSE, IT MADE THE LENGTH ROW PASS FOR THE WRONG REASON (rule 18).  The
+    row excluded `lid_*` and got 4.065 -- correct -- but only because the
+    stale boxes happened to hide `glass_rear`, `englid_handle` (aft-most
+    vertex -2.3204) and `plate_1963` (-2.2008), none of which match that
+    prefix.  Had Blender refreshed those boxes the row would have gone red on
+    a vehicle that had not moved.  A check that is right by accident is not a
+    check.
+
+    So: bounds are computed from VERTICES, and the exclusion reads
+    `t1_shell.SWUNG` -- the set every swung part registers itself in -- rather
+    than a prefix or an enumerated list that goes stale when somebody hangs a
+    new part on a lid.
+    """
+    try:
+        import t1_shell as _S
+        swung = set(_S.SWUNG)
+        not_body = set(getattr(_S, "NOT_BODYWORK", ()))
+    except Exception:
+        swung = set(); not_body = set()
+    # rev 49: the hard-coded tuple below is KEPT for the parts that predate the
+    # registry, and UNIONED with t1_shell.NOT_BODYWORK, which parts join
+    # themselves.  The tuple is exactly the enumerated list this docstring
+    # argues against, and it went stale the moment the tail board was hung off
+    # the drip rail -- the length row went red at +370 mm on a vehicle whose
+    # sheet metal had not moved.  New fixtures must register, not be listed.
+    _legacy = ("cyc", "counter", "counter_nosing", "counter_top")
+    skip = set(_legacy) | not_body
+    dropped = []
     lo = Vector((1e9, 1e9, 1e9)); hi = -lo
     for ob in bpy.data.objects:
-        if ob.type != 'MESH' or ob.name in ("cyc", "counter", "counter_nosing",
-                                            "counter_top"):
+        if ob.type != 'MESH':
             continue
-        for c in ob.bound_box:
-            v = ob.matrix_world @ Vector(c)
+        if ob.name in skip:
+            if ob.name != "cyc":
+                dropped.append(ob.name)
+            continue
+        if exclude_lids and (ob.name.startswith("lid_") or ob.name in swung):
+            continue
+        me = getattr(ob, "data", None)
+        if me is None or not len(me.vertices):
+            continue
+        mw = ob.matrix_world
+        for vt in me.vertices:
+            v = mw @ vt.co
             lo = Vector((min(lo[i], v[i]) for i in range(3)))
             hi = Vector((max(hi[i], v[i]) for i in range(3)))
+    # RULE 27: a cap nobody logs reads as coverage.  Say what was left out of
+    # the vehicle's own bounds, every run, by name.
+    _bounds.last_dropped = sorted(dropped)
     return lo, hi
 
 
@@ -624,14 +696,40 @@ def run(body, log=print):
 
     # 1. overall dimensions
     lo, hi = _bounds()
+    # LENGTH is measured over the vehicle WITHOUT its opened lids AND without
+    # anything that rode one open -- see _bounds.__doc__.
+    lo_v, hi_v = _bounds(exclude_lids=True)
     bb = [body.matrix_world @ Vector(c) for c in body.bound_box]
     bw = max(v.y for v in bb) - min(v.y for v in bb)
-    L, W, H = hi.x - lo.x, bw, hi.z
+    L, W, H = hi_v.x - lo_v.x, bw, hi.z
+    if abs((hi.x - lo.x) - L) > 1e-6:
+        # rev 50: this used to say "(the open trunk lid projects aft of X_TAIL)"
+        # unconditionally, and it PRINTS INTO STATE.md.  The owner shut that lid
+        # at rev 49 -- TRUNK_OPEN_DEG = 0.0 -- so the parenthesis asserted a pose
+        # the vehicle no longer has, in the file whose header says it outranks
+        # every other document.  Rule 15: retract in the source, not only in a
+        # ledger.  It now NAMES what actually projects, read off the mesh.
+        _why = ", ".join(sorted(getattr(_bounds, "last_dropped", []))) or \
+            "parts excluded as opened lids"
+        log("  length excludes opened lids: %.3f with them, %.3f without "
+            "(what projects: %s)" % (hi.x - lo.x, L, _why))
+    # RULE 27, rev 49: name what was left out of the vehicle's own bounds.
+    _drop = getattr(_bounds, "last_dropped", [])
+    log("  bounds EXCLUDE %d non-bodywork part(s): %s"
+        % (len(_drop), ", ".join(_drop) if _drop else "none"))
     log(f"  x range [{lo.x:.3f}, {hi.x:.3f}]   full-Y [{lo.y:.3f}, {hi.y:.3f}]")
     # rev 8: HEIGHT IS NOT A SCALAR ANY MORE, twice over. The vehicle is raked,
     # so the roof is a sloping line; and the roof lids are modelled OPEN, so the
-    # bbox top is the raised signboard at ~3.0 m, not the vehicle. Measure the
-    # ROOF at the rear-axle station -- the highest point of the fixed roof, and
+    # bbox top is ~3.0 m, not the vehicle.
+    #
+    # *** rev 49 CORRECTION.  This comment said that 3.0 m top was "the raised
+    # signboard", and so does verify.py's second copy of it.  IT IS NOT, AND
+    # HAS NOT BEEN SINCE REV 12 GATED signboard() OFF: t1_shell.py:1790 returns
+    # empty unless T1_SIGNBOARD=1, and verify_clone.sh:312 asserts that default
+    # stays off.  The ~3.0 m top is `lid_main` -- zh 2.006 + LID_W.sin(104 deg)
+    # - RIDE_DROP = 3.018, which is STATE.md's own 3.017.  A retired object's
+    # name living on in a live comment on the height row, for 37 revisions. ***
+    # Measure the ROOF at the rear-axle station -- the highest point of the fixed roof, and
     # the station REF_MEASUREMENTS sec.2.3 took its 1.960 at.
     Hroof = _roof_z_at(_T.X_AXLE_R)
     # The roof row carries REF_MEASUREMENTS sec.2.3's own +/- 0.030 stated band

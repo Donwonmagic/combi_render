@@ -1074,8 +1074,107 @@ def ragtop():
 # RAG_X0 = +1.4800 is CONTRADICTED -- the cab roof dome is unbroken to X=+0.964.
 LID_X0, LID_X1 = 0.9640, -1.0700       # main lid opening, fore-aft
 LID_Y_HINGE = -0.5450                  # off-side edge of the opening
-LID_W = 1.1100                         # across, hinge -> free edge
-LID_OPEN_DEG = 104.0                   # past vertical, leaning over the counter
+# LID_W is DERIVED below, immediately after LID_OPEN_DEG, because it depends on it.
+# rev 50 -- SURVEY_rev49 finding 49 ("LID_W is too narrow; the joint solve gives
+# W = 1.40-1.49 m") IS REFUTED, on this shell's own arithmetic, and the refutation
+# is recorded here so nobody re-derives it:
+#   the roof spans y -0.7273 .. +0.7273 and the aperture starts at the hinge,
+#   y = -0.5450, so W <= 0.7273 + 0.5450 = 1.2723 m OR THE HOLE RUNS OFF THE ROOF.
+#   At W = 1.45 the aperture would end at y = +0.905, i.e. 178 mm PAST the roof
+#   edge.  Geometrically impossible.  The finding's own hard floor, W >= 1.19 m,
+#   is admissible only in the last 85 mm of that range.
+# WHAT SURVIVES, and it is a real and still-open inconsistency:
+#   the photographed aspect is scale-free -- L / (W sin a) = 1.713 measured on
+#   ref_side.jpg against a built L = 2.034 -- so W*sin(a) = 1.1874 m against the
+#   built 1.0770.  With W <= 1.2723 that forces sin(a) >= 0.9333, i.e.
+#   a in [68.9, 90) once the taper fixes a < 90.  76.0 satisfies it.
+#   BUT any W in [1.187, 1.272] leaves a SHOW-SIDE surviving roof strip of only
+#   0.000-0.085 m in plan, against the owner's settled "roughly 0.3 m each side"
+#   -- and the OFF-side strip is already only 0.1823 m in plan today.  So the
+#   photographed lid aspect and the owner's roof-strip ruling cannot both hold.
+#   THAT IS AN OWNER QUESTION (rev 50 C3), NOT A CONSTANT TO TUNE.  W is left at
+#   1.1100 deliberately: moving it moves the roof aperture, which is his.
+# rev 50, A1 -- CORRECTED FROM 104.0.  THE SIGN WAS WRONG AND THE COMMENT SAID
+# SO FOR SIX REVISIONS.  `_hinge` maps the free edge to
+# y = LID_Y_HINGE + LID_W*cos(a), so a > 90 puts it on the OFF side of the
+# hinge.  At 104.0 it landed at y = -0.8135 -- 87 mm OUTBOARD of the off-side
+# roof edge (Yt = 0.7273) and 1.63 m from the counter -- i.e. leaning AWAY from
+# the counter, the exact opposite of this line's own comment and of SPEC 135.
+# Raised at AUDIT_rev43:117 and unfixed since.
+#
+# WHY 76.0 AND NOT 61-78 ANYWHERE:  sin(76) - sin(104) = 0.0 EXACTLY, so this
+# change moves NO z dimension of the lid, no bbox row, no roof-cutter extent and
+# no strut length -- it flips the lean and nothing else.  Every other candidate
+# angle would also change the projected width, which is a SEPARATE and still
+# open question (see the bound below), and changing two things at once is how
+# this project loses a revision.
+#
+# 76.0 is inside BOTH admissible windows:
+#   * the photographed taper solve, 61-78 deg (SURVEY_rev49 finding 5: the
+#     board's span shrinks -5.3 +- 0.6 % top-to-bottom in ref_side.jpg over
+#     4 row windows, so the TOP is nearer the show side); corroborated with no
+#     measurement at all -- the support rod passes IN FRONT of the painted face
+#     in ref_rear34.jpg and IMG_2073.
+#   * the roof's own width, 68.9-90 deg.  See the LID_W note below.
+#
+# The mural still faces the SHOW side: the face is built at z = off (negative)
+# in the hinge frame, so its normal (0,0,-1) maps to (dy,dz) = (+sin a, -cos a)
+# = (+0.970, -0.242) -- toward the counter and slightly DOWN, i.e. an awning.
+# At 104 it was (+0.970, +0.242), toward the counter and UP.
+LID_OPEN_DEG = float(os.environ.get("T1_LIDDEG", 76.0))
+
+# ---------------------------------------------------------------- LID_W, rev 50
+# WAS 1.1100, TYPED.  NOW DERIVED, AND ONLY BECAUSE THE OWNER RETIRED THE THING
+# THAT WAS HOLDING IT.  His settled "roughly 0.3 m of roof each side" was the
+# only constraint keeping the lid this narrow; put to him at rev 50 with all
+# three readings he ruled *"Retire the number."*  See the roof-aperture block.
+#
+# THE MEASUREMENT IS SCALE-FREE AND NEEDS NO CAMERA MODEL.  In ref_side.jpg the
+# yellow board rectangle's aspect is 418/244 = 1.713 (top edge fitted over 178
+# columns at 0.35 px rms; bottom edge read at six clean column stations, all
+# agreeing within 3 px).  The board's own length is LID_X0 - LID_X1, so
+#     W * sin(a) = (LID_X0 - LID_X1) / 1.713
+# and W follows from whatever a is.  Expressed that way, not as a number, so the
+# two cannot drift apart (rule 2): change the opening angle and the width
+# follows, which is the whole point -- they are one measurement, not two.
+#
+# CEILING, stated.  The fragile input is the bottom edge, which could not be
+# fitted (rms 16.3 px) because the vendor and the roof occlude it, so it is six
+# hand-read stations.  The survey's own refutation bounds that: five px of
+# systematic error moves the aspect to 1.749 and the width by ~25 mm, and the
+# SIGN does not turn over until the height is wrong by 28 px, which six readings
+# agreeing within 3 px exclude.  Take W as +- 0.03 m.
+# AND IT IS STILL NOT A FREE PARAMETER: the aperture starts at the hinge and the
+# roof is only Yt half-wide, so W is hard-bounded above by Yt - LID_Y_HINGE.
+# That bound is what refuted SURVEY_rev49 finding 49's W = 1.40-1.49 m, which
+# would have run the hole 178 mm off the roof.  The assert below is that bound,
+# and it is the reason this is a derivation and not a guess.
+# T1_LIDASPECT overrides the measured aspect so the roof bound below can be
+# WATCHED FAILING (rule 19).  T1_LIDASPECT=1.2 gives W = 1.747 m, which is
+# past the roof edge and reports by how much.
+LID_ASPECT = float(os.environ.get("T1_LIDASPECT", 1.7130))   # MEASURED, ref_side.jpg
+LID_W = (LID_X0 - LID_X1) / LID_ASPECT / math.sin(math.radians(LID_OPEN_DEG))
+
+def _lid_w_bound():
+    """The roof's own half-width at the lid station, walked off the body.
+
+    Deliberately a FUNCTION and not a constant: it is evaluated after the roof
+    profile is known, so it is a measurement of the shell rather than a number
+    about it.  Returns Yt at the lid's mid station.
+    """
+    x = (LID_X0 + LID_X1) * 0.5
+    zt = T.ZT_ALL(x) - T.rake_drop(x)
+    return T.WX(x) * T.G(zt - T.RT_ALL(x)) - T.RT_ALL(x)
+
+
+_LID_W_MAX = _lid_w_bound() - LID_Y_HINGE
+assert LID_W <= _LID_W_MAX + 1e-9, (
+    "LID_W = %.4f m runs the roof aperture %.1f mm PAST the roof edge: the "
+    "aperture starts at the hinge (y=%.4f) and the roof reaches only y=%.4f at "
+    "the lid station, so W <= %.4f m.  This is the bound that refutes "
+    "SURVEY_rev49 finding 49's W = 1.40-1.49 m."
+    % (LID_W, (LID_W - _LID_W_MAX) * 1000, LID_Y_HINGE,
+       _lid_w_bound(), _LID_W_MAX))
 LID_T = 0.0180                         # skin + rail thickness
 LID_PROUD = 0.0228                     # 26 +/- 7 mm measured proud height
 RAIL_PROUD = 0.0213
@@ -1091,9 +1190,25 @@ LID2_OPEN_DEG = SIGN_OPEN_DEG
 # in-service frames, before anything was measured from them:
 #   * ONE opening only, under the flower-mural lid.  Solid roof forward of it
 #     over the cab, and solid roof aft of it all the way to the tail.
-#   * a strip of roof survives on BOTH sides -- roughly 0.3 m on the off side
-#     where the lid hinges, roughly 0.3 m on the show side carrying the bulb
-#     string along the drip rail.  The 1.11 m transverse width stands.
+#   * a strip of roof survives on BOTH sides -- ~~roughly 0.3 m on the off side
+#     where the lid hinges, roughly 0.3 m on the show side~~ carrying the bulb
+#     string along the drip rail.  ~~The 1.11 m transverse width stands.~~
+#
+# *** rev 50 -- THE 0.3 m IS RETIRED BY THE OWNER, AND THE 1.11 m WITH IT. ***
+#
+# It was put to him with all three readings, because his own number had come to
+# disagree with a measurement.  The build gave 0.162 / 0.182 m in PLAN and
+# 0.286 / 0.306 m as ARC from the aperture edge to the drip rail; it passed only
+# on the second reading, and that re-expression happened AFTER the first one
+# failed, which is rule 29.2.  Separately, ref_side.jpg's scale-free lid aspect
+# demands a lid so wide that the show-side strip falls to 0-85 mm in plan under
+# either reading.  His ruling: *"Retire the number."*
+#
+# THE STRIPS STILL EXIST -- he is retiring the FIGURE, not the feature, and the
+# show-side one still has to carry the bulb string along the drip rail.  What is
+# gone is 0.3 m as an acceptance value, and with it the only thing that was
+# holding LID_W at 1.1100.  See the LID_W block above: the width is now derived
+# from the photographed aspect, bounded by the roof's own half-width.
 #
 # Why this had to be ASKED rather than measured: ref_side.jpg puts the camera
 # at roof height, so the roof plane is edge-on and the surviving strip between
@@ -1238,6 +1353,917 @@ def _lid_face(x0, x1, w, name, inset=0.030, off=0.0):
     return ob
 
 
+# ============================================================ rev 48, JOB 1
+# THE ENGINE / TRUNK LID, OPENED -- his newest requirement.
+#
+#     "we're going to need the trunk open like it's in service"
+#
+# WHAT IS MEASURED, AND WHAT IS NOT.  Stated before the constants, because
+# three revisions of this project have been spent unpicking a placeholder that
+# was quietly promoted to a measurement.
+#
+# MEASURED, and it is why this is a SEPARATION and not a rebuild:
+#   the lid ALREADY EXISTS as a free-floating closed island inside T1_body.
+#   engine_lid_gap() cuts a real 5.5 mm through-slot, and build.py:69 records
+#   the connected-component count going 1 -> 6 "as each gap cutter frees a
+#   panel".  A T1_SUB=2 build gives exactly six, and one of them is
+#       7982 v   x -1.873..-1.870   y -0.467..+0.467   z 0.608..1.103
+#   which is gap_prism's own outline (y +-0.470, z 0.6200..1.1200) to 3 mm.
+#   (that z pair was published 0.6025..1.1025 for several revisions -- rrect is CENTRED, so the centre is the +0.8700 literal.  rev-50 corr.)
+#   WATCHED PRINT, not inferred from the source -- the brief's §9 trap about
+#   the sign props is exactly this failure mode, and this went the other way.
+#
+# NOT MEASURED.  No frame in this project shows the trunk open:
+#   * the open ANGLE.  TRUNK_OPEN_DEG carries NOT MEASURED in its own comment
+#     and verify_clone.sh requires that declaration to stay present, so it
+#     cannot be silently promoted (the LINE_GAP precedent, rev 47).
+#   * stay-held vs counterbalanced.  NOTHING is built for it -- an invented
+#     strut would be a claim, and a claim in prose is not a guard (rule 1).
+#   * what the inner face carries.  Left as plain body paint.
+#
+# AND ONE THING THAT IS TYPE-LEVEL, NOT VEHICLE-LEVEL, SO IT IS LABELLED:
+#   a T1's engine lid is TOP-hinged, the lower edge swinging aft and up.  That
+#   is a property of the model of vehicle.  The owner has ruled that geometry
+#   transfers between his frames -- "the geometry appears the same" -- so this
+#   is admissible, but it is NOT a measurement of HIS bus and is not recorded
+#   as one.
+#
+# WHY THIS RUNS AFTER THE RAKE SHEAR (build.py step 8b), UNLIKE roof_lids().
+#   _hinge() rotates about a FORE-AFT axis, so it changes y and z and leaves
+#   x alone -- which is why a roof lid can be swung before the shear and still
+#   be sheared at its correct station.  A tail lid hinges about a LATERAL
+#   axis and DOES move x.  Swing it first and step 8b shears it by the wrong
+#   station, tilting the open lid by the rake angle for no reason.  So the
+#   swing happens after the shear, in the final frame.
+#
+# THE FRAGILITY THIS MUST NOT DISTURB (t1_core.py:230-244): gap_englid is the
+# model's most delicate boolean -- at NHALF=56 it is REJECTED at SUB=2 and
+# moving the cutter in x does not fix it.  NOTHING HERE TOUCHES THE CUTTER OR
+# THE OUTLINE.  The panel is separated after the fact; the boolean is
+# untouched, so that failure mode cannot be reopened by this change.
+
+TRUNK_OPEN_DEG = 0.0
+# *** SHUT, BY THE OWNER'S RULING AT REV 49. ***
+#
+#     "Leave the lower bay shut, just have the back trunk window open for
+#      service."
+#
+# THIS REFUTES AN INFERENCE REV 48 MADE AND SHIPPED.  Asked at rev 48 which of
+# the two rear apertures should be open -- with both marked by projection on a
+# straight rear view -- he chose A, the rear window.  Rev 48 then reasoned that
+# "he called the upper one the MAIN bay, not the ONLY one", kept the lower lid
+# open too, and recorded that reading in SPEC 10.122.4 and in this file.  He has
+# now said plainly that only the window is open.  THE INFERENCE WAS THE DEFECT:
+# a choice between two things is not a licence to keep both.  Rule 6 -- an
+# ordinal fact ("the MAIN bay") licenses a SIGN, never a SHAPE.
+#
+# 0.0 MEANS SHUT AND THE SWING IS SKIPPED ENTIRELY, not run at zero: the
+# direction guard in _swing_open() asserts the free edge actually travels, so
+# calling it with 0.0 would fire it.  The panel is still SEPARATED and named --
+# the shut line already existed as gap_englid, so a closed free panel is
+# geometrically identical to the un-separated body and costs nothing, and it
+# keeps the capability one constant away.
+#
+# IF IT IS EVER REOPENED THE ANGLE IS **NOT MEASURED** -- no frame we hold
+# shows this lid open, so any non-zero value here is a POSE CHOICE, not a
+# measurement.  The previous pose choice was 52.0.  It is
+# the angle at which the lid reads as open and in service without the
+# lower edge fouling the rear valance.  Provenance: rev 48, JOB 1; no frame.
+# If a photograph of the open tail ever arrives, this is the first thing to
+# re-derive, and probe/verify_clone will still be requiring the declaration.
+
+TRUNK_HINGE_INSET = 0.006      # the hinge sits 6 mm below the seam's top edge,
+                               # inside the metal, so the lid does not lift
+                               # clear of the aperture as it swings.
+
+
+def _hinge_y(ob, x_hinge, z_hinge, deg):
+    """Rotate a lid about a LATERAL (Y) hinge axis, in place, into world space.
+
+    The tail-lid sibling of _hinge().  _hinge() spins in the y-z plane about a
+    fore-aft axis; this spins in the x-z plane about a lateral one.  Positive
+    `deg` swings the lower edge AFT (-x) and UP, which is how a T1 engine lid
+    opens.  Baked into vertices, never an object transform: build.py step 8b
+    asserts every mesh carries identity, and reads v.co.x as world x.
+
+    THE SIGN WAS INVERTED ON THE FIRST CUT AND ONLY A RENDER CAUGHT IT.  The
+    first version used +sin/-sin in the order that reads naturally as a
+    rotation and swung the lower edge FORWARD, folding the lid down INTO the
+    engine bay -- with the 1963 plate and the T-handle riding it in, so they
+    hung inside the dark cavity.  `VERIFY: 0 fail, 0 warn` and all 95
+    verify_clone rows passed on that build.  Nothing in this project's numbers
+    could see it; one crop of one render could.  SPEC 10.105.7, and the reason
+    `_open_guard` below now exists.
+    """
+    a = math.radians(-deg)
+    ca, sa = math.cos(a), math.sin(a)
+    for v in ob.data.vertices:
+        x, z = v.co.x - x_hinge, v.co.z - z_hinge
+        v.co.x = x_hinge + (x * ca - z * sa)
+        v.co.z = z_hinge + (x * sa + z * ca)
+    ob.data.update()
+    T.fix_normals(ob)
+
+
+def _components(me):
+    """Vertex index sets of `me`'s connected components, largest first."""
+    n = len(me.vertices)
+    parent = list(range(n))
+
+    def find(a):
+        while parent[a] != a:
+            parent[a] = parent[parent[a]]
+            a = parent[a]
+        return a
+
+    for e in me.edges:
+        ra, rb = find(e.vertices[0]), find(e.vertices[1])
+        if ra != rb:
+            parent[rb] = ra
+    groups = {}
+    for i in range(n):
+        groups.setdefault(find(i), []).append(i)
+    return sorted(groups.values(), key=len, reverse=True)
+
+
+# ----------------------------------------------------- rev 48, JOB 1b
+# THE REAR HATCH, OPENED.  His correction, after seeing the trunk lid open:
+#
+#     "the main bay that should be open is the upper one"
+#
+# Asked with both apertures marked on a straight rear view of the build -- A
+# the rear window (z 1.284..1.616, built as `glass_rear`), B the engine lid
+# (z 0.603..1.103, opened above).  He chose A.  His earlier standing request,
+# "we're going to need the trunk open like it's in service", is NOT withdrawn
+# by that -- he said the upper one is the MAIN bay, not the only one -- so B
+# stays open and A is added.
+#
+# WHAT IS BUILT.  `glass_rear` is a 6 mm glazed pane sitting 20 mm inboard of
+# the tail skin, in an aperture `rear_cutter()` has always cut.  The aperture
+# is therefore already there; only the pane was closing it.  So this is the
+# same shape of job as the trunk lid -- swing what is already a separate part,
+# do not model anything new -- and it uses the SAME guard.
+#
+# WHAT IS NOT MEASURED, and it is more than for the trunk:
+#   * the ANGLE.  Same status as TRUNK_OPEN_DEG: no frame shows it.
+#   * WHETHER THE PANE IS THE HINGED PART AT ALL.  On a stock T1 the rear
+#     window is fixed glass.  On this converted vehicle `ref_rear34.jpg` shows
+#     the rear window still reading as GLAZED with the large open serving
+#     aperture BELOW it on the flank -- so hinging the pane is HIS INSTRUCTION
+#     applied to the part that occupies that station, not a reading of a
+#     photograph.  Recorded plainly so the next revision can undo it cheaply
+#     if a frame of the open tail contradicts it.
+
+REAR_OPEN_DEG = 64.0
+# NOT MEASURED.  A pose choice, like TRUNK_OPEN_DEG, and guarded to keep
+# saying so.  Wider than the trunk's 52 deg because this pane swings up over
+# the roof line where nothing fouls it, and because a serving hatch is propped
+# clear of the people under it.  Provenance: rev 48 JOB 1b, his instruction;
+# no frame.
+
+
+# ------------------------------------------------------- rev 48, the TRUNK BAY
+# With the engine lid open the aperture showed a flat black void, which is the
+# most visible defect in the whole tail.  He was asked how to leave it and
+# chose "fill it as a service bay", then said "I trust your judgement."
+#
+# WHAT IS BUILT: a LINING -- floor, back, two sides, roof -- so the opening
+# reads as a compartment rather than a hole cut in a shell.
+#
+# WHAT IS DELIBERATELY NOT BUILT: its CONTENTS.  No frame in this project
+# shows the trunk open at all, `PHOTOS_WANTED_rev44` records that "the engine
+# was scrapped and the transmission sold", and so what is in there is unknown.
+# Crates, a gas bottle and service kit would be invention -- exactly the class
+# of detail this project refuses without a photograph, and exactly what was
+# said to him when the option was offered.  Judgement exercised, and stated:
+# THE VOID IS FIXED, THE CONTENTS ARE NOT INVENTED.  One frame of the open
+# tail turns this from a lining into a measurement.
+#
+# Sized off the aperture itself, never typed: gap_prism's outline is
+# y +-0.470, z 0.6200..1.1200 above ground, so the lining is inset one skin
+#   (that z pair was published 0.6025..1.1025 for several revisions -- rrect is CENTRED, so the centre is the +0.8700 literal.  rev-50 corr.)
+# thickness inside that and runs forward BAY_DEPTH from the tail cap.
+
+BAY_DEPTH = 0.42                 # forward of the tail skin.  NOT MEASURED --
+                                 # deep enough that the back is not visible
+                                 # through the aperture at any camera in
+                                 # studio.views(), which is the only property
+                                 # it needs to have.
+BAY_INSET = 0.010                # inside the cut edge, so no z-fighting with
+                                 # the aperture's own returned rim.
+
+
+def trunk_bay(log=print):
+    """A plain lining behind the engine lid, so the bay is not a void.
+
+    Runs in step 8c AFTER the shear, like the lids, so it lands in the final
+    frame without being sheared twice.
+    """
+    BAY_INSET_X = 0.0020        # how far INBOARD of the tail skin the lining
+                                # sits.  POSITIVE = inside.  It was applied
+                                # with the wrong sign until rev 49; see below.
+    # rev 50 -- THESE WERE THREE TYPED LITERALS AND ONE OF THEM WAS STALE BY
+    # 17.5 mm.  They are now DERIVED FROM ENGLID_GAP AT RUN TIME (rule 2): this
+    # object LINES that aperture, so its extents are that aperture's extents
+    # inset by one skin, and typing them lets the two drift.  They had drifted.
+    #
+    # `T.rrect(w, h, r)` is "centred on origin" by its own docstring, so
+    # ENGLID_GAP = rrect(0.9400, 0.5000, ...) offset by v + 0.8700 spans
+    #     y +-0.4700   z 0.6200 .. 1.1200
+    # The repository published z 0.6025 .. 1.1025 in FOUR places -- same height
+    # (0.5000 exactly), centre 0.8525 against the built 0.8700, i.e. stale by
+    # 17.5 mm from an earlier value of that +0.8700 literal.  Three of the four
+    # are comments.  THE FOURTH WAS THIS LINE, live code, so the lining was
+    # actually built 17.5 mm below the aperture it lines.
+    # This is the third defect found in trunk_bay() in two revisions (rev 49
+    # found the missing material and the inverted 2 mm inset); all three are the
+    # same shape -- a number about another object, typed instead of derived.
+    _gy = [u for (u, v) in ENGLID_GAP]
+    _gz = [v for (u, v) in ENGLID_GAP]
+    y = max(_gy) - BAY_INSET
+    z0, z1 = min(_gz) + BAY_INSET, max(_gz) - BAY_INSET
+    if os.environ.get("T1_BAYSTALE"):
+        # rev-50 ablation (rule 19): restore the typed 0.6025..1.1025 pair this
+        # line carried until rev 50, so the guard below can be WATCHED FAILING
+        # on the real 17.5 mm defect.  It moves the LINING ONLY -- the guard's
+        # reference stays ENGLID_GAP, or it would move with it and prove nothing.
+        z0, z1 = 0.6025 + BAY_INSET, 1.1025 - BAY_INSET
+    # GUARD, SAME EDIT AS THE CHANGE (rule 12).  The lining must sit INSIDE the
+    # aperture on all four sides, by exactly one inset.  Compares the BUILT
+    # extents against ENGLID_GAP's own, which is two independently obtained
+    # quantities and not one expression checked against itself (rule 32).
+    x_skin = T.X_TAIL
+    pts = T.rrect((z1 - z0), (2 * y), 0.030, seg=6)
+    pts = [(u + (z0 + z1) * 0.5, v) for (u, v) in pts]      # (z, y) frame
+    # T.solid_prism EXTRUDES CENTRED ON ITS ORIGIN, not forward from it.
+    # Measured, watched print: origin x -1.875 with depth 0.42 produced a bay
+    # spanning -2.085..-1.665, i.e. +-depth/2 -- so half of it stood PROUD of
+    # the tail skin and the length row went red at +190 mm.  The origin is
+    # therefore advanced by half the depth, expressed in terms of it rather
+    # than typed, so changing BAY_DEPTH cannot reopen the same defect.
+    # *** rev 49: THE SIGN OF THIS INSET WAS INVERTED, AND IT SHIPPED. ***
+    #
+    # It read `x_skin - 0.002 + BAY_DEPTH * 0.5`.  solid_prism extrudes +-depth/2
+    # about its origin, so the aft face landed at x_skin - 0.002 -- 2.0 mm
+    # PROUD OF THE TAIL SKIN, not 2 mm inside it.  The comment above says the
+    # origin is advanced "so changing BAY_DEPTH cannot reopen the same defect",
+    # and it does prevent that one; it does not prevent the inset's own sign
+    # being wrong, and nothing measured the face against the skin it lines.
+    #
+    # IT WAS INVISIBLE FOR A WHOLE REVISION BECAUSE THE LID WAS OPEN.  Nothing
+    # stood in front of the lining, so 2 mm of it poking past the tail read as
+    # the bay's own back wall.  The owner's rev-49 ruling -- "leave the lower
+    # bay shut" -- put the lid back, and the lining then sat 2 mm IN FRONT of a
+    # closed panel and won the depth test across the whole of it: the tail
+    # rendered with a DARK CHARCOAL rectangle where the red engine lid belongs.
+    # VERIFY 0 fail / 0 warn, verify_clone ALL 110 PASS, and one crop showed it.
+    # Rule 28, and rule 16 -- a part measured in isolation from what it is
+    # fitted to is not measured.
+    # T1_BAYPROUD=1 restores the inverted sign so the guard below can be
+    # watched failing on the real defect (rule 19).
+    _ins = -BAY_INSET_X if os.environ.get("T1_BAYPROUD") else BAY_INSET_X
+    ob = T.solid_prism((x_skin + _ins + BAY_DEPTH * 0.5, 0, 0),
+                       (0, 0, 1), (0, 1, 0),
+                       (1, 0, 0), pts, BAY_DEPTH, name="trunk_bay")
+    # THE GUARD, IN THE SAME EDIT (rule 12), against the CAUSE: the lining must
+    # lie entirely INBOARD of the tail skin, whatever BAY_DEPTH or the inset do.
+    # rev 50 GUARD -- THE LINING'S OWN FACE AGAINST THE APERTURE IT LINES.
+    # MY FIRST VERSION OF THIS WAS A TAUTOLOGY AND I CAUGHT IT BY READING IT
+    # BACK, NOT BY RUNNING IT: it asserted `(z0 - min(ENGLID_GAP.z)) == BAY_INSET`
+    # two lines after setting `z0 = min(ENGLID_GAP.z) + BAY_INSET`.  Identically
+    # true by construction, rule 32, in the same edit that cites rule 32.
+    # This one reads the BUILT PRISM'S OWN VERTICES against ENGLID_GAP -- two
+    # independently obtained quantities -- so it also covers the rrect mapping,
+    # the (z,y) frame swap, solid_prism's centred extrusion and any transform.
+    # WATCHED FAIL on T1_BAYSTALE=1, which restores the 0.6025..1.1025 literals
+    # this line was built from until rev 50 and reports the 17.5 mm.
+    _bz = [(ob.matrix_world @ v.co).z for v in ob.data.vertices]
+    _by = [(ob.matrix_world @ v.co).y for v in ob.data.vertices]
+    for _nm, _got, _want in (("z lower", min(_bz), min(_gz) + BAY_INSET),
+                             ("z upper", max(_bz), max(_gz) - BAY_INSET),
+                             ("y half", max(_by), max(_gy) - BAY_INSET)):
+        if abs(_got - _want) > 5e-4:
+            raise AssertionError(
+                "trunk bay lining's %s is %.4f, %.1f mm from the ENGLID_GAP "
+                "aperture it lines inset by BAY_INSET (%.4f).  The lining and "
+                "the aperture must not be typed independently -- they drifted "
+                "17.5 mm before rev 50 derived one from the other."
+                % (_nm, _got, (_got - _want) * 1000, _want))
+    _aft_face = min((ob.matrix_world @ v.co).x for v in ob.data.vertices)
+    if _aft_face < x_skin + 1e-6:
+        raise AssertionError(
+            "trunk bay lining is PROUD of the tail skin: its aft face is at "
+            "x %.4f against a skin at x %.4f (%.1f mm outside).  With the lid "
+            "shut this renders THROUGH the closed panel."
+            % (_aft_face, x_skin, (x_skin - _aft_face) * 1000))
+    log("trunk bay: lining %.3f m deep, y +-%.3f, z %.4f..%.4f  "
+        "[a LINING -- contents NOT invented, no frame shows them]%s"
+        % (BAY_DEPTH, y, z0, z1,
+           "  -- UNSEEN while TRUNK_OPEN_DEG is 0 (the owner's rev-49 ruling); "
+           "KEPT because the compartment is real and reopening it is one "
+           "constant away" if abs(TRUNK_OPEN_DEG) < 1e-6 else ""))
+    return ob
+
+
+# ===========================================================================
+# rev 49 -- THE TAIL BOARD.  SPEC 10.123.
+#
+# WHAT IT IS.  A thin bulb-lined board standing off the aft end of the drip
+# rail and leaning back over the tail.  Both RED frames carry it; both GREEN
+# frames carry one at the same station (geometry corroboration only -- no
+# figure and no colour was taken off a green frame, rule 26).
+#
+# THE OWNER SETTLED ITS IDENTITY, rev 49: "That was referring to a different
+# sign. This one is part of the vehicle."  He is right, and the frames prove
+# it rather than merely permitting it:
+#   * the board's base sits ON the drip rail -- 1 px from the project's own
+#     locked drip-rail fit;
+#   * its bulb string is CONTINUOUS with the drip-rail bulb run.  One circuit.
+#   * a power cable descends from it into the body.
+# A sign standing on the ground behind the bus does none of those.
+#
+# WHAT IT IS NOT, AND WHY THAT MATTERED FOR FOUR REVISIONS.
+#   * NOT signboard().  That is the "La Santa" CREAM + RED BRUSH SCRIPT board
+#     which stands on the GROUND BEHIND the bus in ref_rear34.jpg, retired by
+#     the owner 2026-08-10 (SPEC 10.28, re-affirmed 10.49 and 10.122.5).  Two
+#     different objects in the SAME frame; the record conflated them, and the
+#     rev-49 brief inherited the conflation and then contradicted it.
+#     signboard() also could not do this: fore-aft hinge (_hinge, :1201) where
+#     this needs lateral, SIGN_X1 = -1.7800 stops 92.7 mm short of X_TAIL, and
+#     it overlaps only 0.058 m of this board's 0.559 m fore-aft run.
+#   * NOT the engine lid.  Refuted twice over.  Rev 48 measured the base at
+#     11 sigma from ENGLID_GAP's z 0.6200..1.1200.  Stronger, rev 49: the
+#   (that z pair was published 0.6025..1.1025 for several revisions -- rrect is CENTRED, so the centre is the +0.8700 literal.  rev-50 corr.)
+#     engine lid is top-hinged at z 1.103 over a 0.50 m panel, so NO opening
+#     angle puts any part of it above z 1.60.  This board's TIP is at 2.184.
+#     Unreachable, at any angle.  And the engine-lid band is directly visible
+#     in ref_side.jpg, CLOSED, red, carrying the yellow swirl.
+#
+# EVERY NUMBER, AND WHERE IT CAME FROM.  Measured on ref_side.jpg (RED) through
+# the project's own scale chain (SPEC 10.35's X(u) map + LOFT_GROUND_rev15
+# sec.0.4's k_t, renormalised and C0-checked against X(242.84)=+1.3000,
+# X(749.38)=-1.1000, X(922.2)=X_TAIL).  Uncertainties are Monte-Carlo over
+# endpoint jitter, k_t 215.5+-3.0 and the datum +-0.020.
+TB_TILT_DEG = 38.0        # MEASURED +-2.3, FROM HORIZONTAL.  Say which datum:
+                          # from VERTICAL this is 52.0, and the rev-49 brief's
+                          # bare "39 degrees" does not state which it meant.
+TB_CHORD    = 0.7110      # MEASURED +-0.028, in the vehicle's XZ plane.
+                          # The IMAGE-PLANE chord is 0.745 m; reading it with a
+                          # single px/m over-reads by 4.8 % because the map's x
+                          # and z scales differ at that station.
+TB_T        = 0.0220      # NOT MEASURED.  Board thickness is at the frame's
+                          # blur floor and cannot be separated from the painted
+                          # border bands at 1024 px.  A pose choice.
+TB_BORDER   = 0.0210      # the red edge band, 4-5 px at ~215 px/m.  ARTWORK,
+                          # and RED-frame only.
+# THE WIDTH ACROSS THE VEHICLE IS NOT MEASURED, AND IT IS NOT MEASURABLE FROM
+# ANYTHING WE HOLD.  The board's plane contains the lateral direction, so its
+# width projects ONLY through parallax -- 33.5 px per metre, and (being a cross
+# product) IDENTICAL at base and tip, so the projected width cannot taper.  The
+# observed silhouette DOES taper (19.9 px at the base, 7.2 over the last 40
+# columns), so the thickness carries the board's own material and border too,
+# and the two cannot be separated at this resolution.
+#   UPPER BOUND, admissible:  W <= 19.9/33.5 = 0.59 m.
+#   LOWER BOUND:              NONE.  7 px of the tip half is fully accounted
+#                             for by a 30 mm board plus a border.
+# That bound alone REFUTES a full-width board: the roof aperture is 1.11 m
+# across and the body 1.750 m, both excluded by more than 2x.  ref_rear34.jpg
+# cannot close it -- the candidate free edge runs off the frame at u=1199, and
+# SPEC 10.48 admits px/m there only on the plate plane.
+TB_WIDTH    = 0.5500      # POSE CHOICE, NOT MEASURED.  Inside the 0.59 bound.
+# The lateral CENTRING is a pose choice too: a broadside frame cannot see it.
+TB_Y_CENTRE = 0.0000      # POSE CHOICE, NOT MEASURED.
+
+
+def tail_board(log=print):
+    """The bulb-lined board at the tail.  Runs in step 8c, after the shear.
+
+    AFTER THE SHEAR, DELIBERATELY.  Every figure above was measured off a
+    photograph of the vehicle in its own raked stance, and the drip-rail datum
+    z = 1.7485 is quoted ABOVE GROUND.  So they are final-frame coordinates and
+    the board must be placed in the final frame, exactly as the lids and
+    trunk_bay are.  Placed before step 8b it would be sheared a second time.
+    """
+    a = math.radians(TB_TILT_DEG)
+    # THE BASE STATION IS DERIVED, NOT TYPED (rule 2).  Measured X_TAIL+0.151
+    # +-0.022; t1_detail.gutter() ends at T._aft(-1.880) = X_TAIL+0.1745.  They
+    # agree to 24 mm, inside the measurement's own +-0.022 stat and +-0.035
+    # depth-plane uncertainty -- so the board is hung on the gutter's own aft
+    # end and moves with it, rather than carrying a literal that would go stale
+    # the moment the gutter is re-spaced.
+    # THE BASE: WHAT IS MEASURED, WHAT IS NOT, AND THE ONE INCONSISTENCY THAT
+    # THE FRAMES WE HOLD CANNOT RESOLVE.  Read this before moving it.
+    #
+    # THREE READINGS, AND THEY DO NOT ALL CLOSE:
+    #  (1) the board's near lower corner sits ON the drip-rail line -- 1 px from
+    #      cream_rms.py:91's locked fit (predicted v 293.1 at u 890, reads 294);
+    #  (2) the station is X_TAIL + 0.151 +- 0.022 IN THE NEAR-FLANK PLANE, and
+    #      that carries a +-0.035 DEPTH ceiling: at the drip-rail plane it is
+    #      +0.193, AT THE CENTRELINE IT IS -0.095 -- the sign flips;
+    #  (3) the stay's own triangle -- top 0.13 m up the chord, 77-78 deg, landing
+    #      z 1.578 on the tail skin -- closes only for a base NEAR the roof's
+    #      rear corner.  Re-seated to the centreline it lands 144 mm AFT of
+    #      X_TAIL, in mid-air.  So (3) refutes the centreline re-seating of (2).
+    #
+    # AND (1) AND (3) TOGETHER STILL DO NOT CLOSE.  A board based at RAIL height
+    # and spanning laterally is buried in the roof, because the crown at this
+    # station is 1.8851 against a rail at 1.8052 -- 80 mm of roof over the
+    # inboard span.  The near-edge read and a clear foot are 80 mm apart and
+    # nothing we hold separates them: the frames are broadside, so the near edge
+    # is all they see, and whether the foot is bracketed, stepped or sits aft of
+    # the roof corner is exactly the FOOTING detail SPEC 10.28 has required a
+    # photograph for since rev 12.
+    #
+    # SO THE BOARD IS BUILT STANDING CLEAR ON THE ROOF AT THE REAR CORNER, and
+    # the 80 mm is DECLARED rather than hidden.  That choice is the one that
+    # makes the stay's measured triangle land on the body (X_TAIL + 0.153
+    # against a measured +0.106) and keeps the foot out of the sheet metal.
+    # The alternative -- honouring the near-edge read exactly -- buries it.
+    # BOTH numbers are recorded so the next context re-seats rather than
+    # re-measures, and neither is presented as settled.
+    TB_BASE_DX_NEARFLANK  = +0.1510     # MEASURED, near-flank plane, +-0.022
+    TB_BASE_DX_CENTRELINE = -0.0950     # the same measurement re-seated; REFUTED
+                                        # by the stay triangle, kept as a record
+    TB_BASE_Z_NEAREDGE    = 1.7470      # MEASURED +-0.027, the near lower corner
+    # *** rev 49c -- THE 80 mm FOOT INCONSISTENCY DISSOLVES.  It was never a
+    # conflict between the photograph and the geometry; the board was at the
+    # WRONG STATION. ***
+    #
+    # The station is now SOLVED, not chosen: it is the station where the roof's
+    # own skin is at the photographed base height.  Both facts were already in
+    # hand and nobody had put them together (rule 16 -- a part measured in
+    # isolation from what it is fitted to is not measured):
+    #
+    #     photographed base height           1.747 +- 0.027   (near lower corner,
+    #                                                          on the drip-rail
+    #                                                          line, 1 px fit)
+    #     roof skin at x = -1.8500           1.7497
+    #                                        -> AGREE TO 2.7 mm
+    #
+    # and the chord then lands the tip at z 2.200 against a measured
+    # 2.184 +- 0.030 -- 16 mm, inside the band.  TWO INDEPENDENT HEIGHTS CLOSE.
+    #
+    # The previous cut put the base at the gutter's aft end (-1.6982), 175 mm
+    # forward of X_TAIL, where the roof is still 1.9608 -- so seating it on the
+    # skin threw the tip 227 mm high, and seating it at the photographed height
+    # buried the foot 97 mm.  Neither was a real dilemma.  The rear roof corner
+    # falls away fast: 1.9608 at -1.6982, 1.8607 at -1.800, 1.7497 at -1.850,
+    # 1.6696 at X_TAIL.  There is exactly one station that satisfies both.
+    #
+    # WHAT IS STILL NOT MEASURED is the FORE-AFT DEPTH PLANE (the solved station
+    # sits 128 mm aft of the near-flank silhouette read) and the WIDTH.  Those
+    # are the same unmeasurable quantity the parallax argument identifies, and
+    # they close with the same photograph.  The HEIGHT chain no longer needs one.
+    _bx, _bs, _bd = None, None, 1e9
+    _b0 = bpy.data.objects.get("T1_body")
+    if _b0 is not None:
+        _m0 = _b0.matrix_world
+        _wv = [_m0 @ vv.co for vv in _b0.data.vertices]
+        _n = 0
+        for _i in range(61):
+            _xc = T.X_TAIL + 0.300 * _i / 60.0
+            _sel = [w.z for w in _wv if abs(w.x - _xc) < 0.030
+                    and abs(w.y - TB_Y_CENTRE) <= TB_WIDTH * 0.5]
+            if not _sel:
+                _n += 1
+                continue
+            _sz = max(_sel)
+            if abs(_sz - TB_BASE_Z_NEAREDGE) < _bd:
+                _bd, _bx, _bs = abs(_sz - TB_BASE_Z_NEAREDGE), _xc, _sz
+        if _n:
+            log("  station solve: %d of 61 candidate stations had no skin over "
+                "the footprint and were DROPPED" % _n)
+    if _bx is None:                       # body absent -- say so, do not guess
+        _bx, _bs = T._aft(-1.8800), None
+        log("  !! tail board: T1_body absent, falling back to the gutter's aft "
+            "end -- the station is NOT solved")
+    else:
+        log("  station SOLVED from the skin: x %.4f (X_TAIL %+.3f), roof there "
+            "%.4f against a photographed base %.4f -- %.1f mm"
+            % (_bx, _bx - T.X_TAIL, _bs, TB_BASE_Z_NEAREDGE, _bd * 1000))
+    x0 = _bx
+    # THE FOOT IS SEATED ON THE ACTUAL BODY MESH, NOT ON A PROFILE FUNCTION.
+    #
+    # *** rev 49b: THE FIRST CUT USED THE WRONG SURFACE, AND THE GUARD WRITTEN
+    # TO CATCH THAT COMPARED AGAINST THE SAME WRONG SURFACE, SO IT COULD NEVER
+    # NOTICE. ***
+    #
+    # It read  z0 = ZT_ALL(x0) - rake_drop(x0) + 0.005  and then guarded with
+    # _crown = ZT_ALL(x0) - rake_drop(x0), so z0 - _crown was IDENTICALLY
+    # +0.005 BY CONSTRUCTION and `z0 < _crown` could not fire in the shipped
+    # path.  It only ever fired because T1_TBFOOT=1 substitutes a different z0
+    # -- so it was testing the escape hatch, not the construction.  Rule 20: an
+    # instrument that has never been wrong has never been tested, and this one
+    # was written in the same revision that quoted the rule.
+    #
+    # AND ZT_ALL IS NOT THE CROWN.  It is the ROLL START -- the top of the flank
+    # before the roof curves over; t1_detail.bulb_string() uses ZT_ALL - RT_ALL
+    # for the drip rail, which is the tell.  Measured on a real T1_SUB=1 build:
+    #     ZT_ALL(x0) - rake_drop(x0)                 = 1.8673
+    #     ACTUAL body top over the board's footprint = 1.9608   <- 93 mm higher
+    # so the board's lowest vertex sat 97.1 mm INSIDE the roof, and the render
+    # showed a board growing out of solid sheet metal.
+    #
+    # THE FIX IS TO STOP ASKING A FUNCTION AND MEASURE THE THING IT IS FITTED TO
+    # (rule 16).  The seat is the maximum z of T1_body's own vertices over the
+    # board's own footprint, in the final frame, which cannot be wrong about the
+    # skin because it IS the skin.
+    _seat = _bs
+    if _seat is None:                     # body absent -- say so, do not guess
+        _seat = T.ZT_ALL(x0) - T.rake_drop(x0)
+        log("  !! tail board: T1_body absent, seating on ZT_ALL -- NOT the skin")
+    # THE STANDOFF IS DERIVED FROM THE BOARD'S OWN SECTION, NOT TYPED.
+    # T.solid_prism extrudes CENTRED on its origin, so the board hangs
+    # TB_T/2 * cos(tilt) BELOW z0 along its own normal.  A typed 5 mm standoff
+    # left the foot 3.7 mm inside the skin -- caught by the new guard below on
+    # its first run, which is the whole point of measuring the built thing
+    # against the built skin instead of a function against itself.
+    _hang = TB_T * 0.5 * math.cos(a)
+    z0 = _seat + _hang + 0.0040        # 4 mm of daylight under the lowest corner
+    # T1_TBFOOT=1 restores the ORIGINAL buried value so the guard below can be
+    # watched failing on the real defect rather than on an injected one.
+    if os.environ.get("T1_TBFOOT"):
+        z0 = T.ZT_ALL(x0) - T.rake_drop(x0) + 0.0050
+    u = (-math.cos(a), 0.0, math.sin(a))          # up the chord, aft and up
+    v = (0.0, 1.0, 0.0)                           # across the vehicle
+    w = (-math.sin(a), 0.0, -math.cos(a))         # the board's own normal
+    pts = T.rrect(TB_CHORD, TB_WIDTH, 0.012, seg=4)
+    pts = [(uu + TB_CHORD * 0.5, vv) for (uu, vv) in pts]   # run from the base
+    board = T.solid_prism((x0, TB_Y_CENTRE, z0), u, v, w, pts, TB_T,
+                          name="tail_board")
+    NOT_BODYWORK.add(board.name)      # on the vehicle; not its sheet metal
+    # THE REAL GUARD (rule 12, rule 30).  It measures the BUILT BOARD against
+    # the BUILT SKIN -- two independent things -- so it cannot be satisfied by
+    # construction the way its predecessor was.  Watched failing on T1_TBFOOT=1.
+    _lo = min((board.matrix_world @ vv.co).z for vv in board.data.vertices)
+    if _lo < _seat - 1e-6:
+        raise AssertionError(
+            "tail board foot is BURIED: its lowest vertex is at z %.4f against a "
+            "measured roof skin at z %.4f over its own footprint -- %.1f mm inside "
+            "the body.  A fixture's foot must be clear of the body it stands on."
+            % (_lo, _seat, (_seat - _lo) * 1000))
+    log("  foot: lowest vertex z %.4f on a MEASURED skin seat of %.4f "
+        "(+%.1f mm clear) -- seat read from T1_body's own vertices, not from a "
+        "profile function" % (_lo, _seat, (_lo - _seat) * 1000))
+    tip = (x0 + u[0] * TB_CHORD, TB_Y_CENTRE, z0 + u[2] * TB_CHORD)
+    log("tail board: base x %.4f (SOLVED from the skin) z %.4f (standing CLEAR on "
+        "the roof AND at the photographed base height -- rev 49b's 80 mm "
+        "inconsistency DISSOLVED, it was a wrong station), %.1f deg from "
+        "HORIZONTAL, chord %.3f m -> tip x %.4f z %.4f"
+        % (x0, z0, TB_TILT_DEG, TB_CHORD, tip[0], tip[2]))
+    log("  width %.3f m and lateral centring are POSE CHOICES -- NOT MEASURED; "
+        "parallax bounds the width at <= 0.590 m and gives NO lower bound"
+        % TB_WIDTH)
+    return board, (x0, z0), tip
+
+
+def tail_board_edge(base, log=print):
+    """The board's painted rim band.  MEASURED as artwork, RED frame only.
+
+    WHAT WAS MEASURED, on ref_side.jpg at 8x, 11-16 samples per band:
+        over the TIP half   a saturated RED band, (210,55,55), 4-5 px
+        over the BASE half  a cool near-black, (85,76,88), B > R
+        immediately below the red, a warm near-black (69,40,40), ~5 px
+    At ~215 px/m a 4-5 px band is TB_BORDER = 21 mm.
+
+    WHY IT IS BUILT ON THE RIM.  The board is seen almost edge-on in every
+    frame we hold, so the "boundary band" the measurement found IS the board's
+    own rim -- that is what an edge-on panel presents.  Building it as a face
+    border instead would be a claim about a face no frame resolves.
+
+    THE COLOURS ARE CEILINGS, NOT MATCHES.  ref_side.jpg is clipped: the bulbs
+    read (255,251,99) and the roof cream (255,243,232), BOTH R-clipped.  The
+    board's own cream at (227,220,198) is NOT clipped and is usable; the red
+    band sits between them and cannot be separated from its own highlight.  So
+    the existing capred / interior_dark materials are used rather than new ones
+    mixed to a clipped sample.  Rule 26: nothing here came off a green frame.
+
+    WHICH LONG EDGE.  The bulbs are on the lower / near (show-side) edge, so
+    this is the other one.  That much the frame does settle.
+    """
+    a = math.radians(TB_TILT_DEG)
+    ey = TB_Y_CENTRE - TB_WIDTH * 0.5           # the far / upper long edge
+    u = (-math.cos(a), 0.0, math.sin(a))
+    out = []
+    for name, t0, t1, tag in (("tb_edge_red", 0.5, 1.0, "RED, tip half"),
+                              ("tb_edge_dark", 0.0, 0.5, "near-black, base half")):
+        mid = (t0 + t1) * 0.5
+        cx = base[0] + u[0] * TB_CHORD * mid
+        cz = base[1] + u[2] * TB_CHORD * mid
+        pts = T.rrect(TB_CHORD * (t1 - t0), TB_T + 0.004, 0.004, seg=3)
+        ob = T.solid_prism((cx, ey, cz), u, (0.0, 0.0, 0.0) if False else
+                           (-math.sin(a), 0.0, -math.cos(a)),
+                           (0.0, 1.0, 0.0), pts, TB_BORDER, name=name)
+        NOT_BODYWORK.add(ob.name)
+        out.append((ob, tag))
+    log("  rim band %.0f mm: RED over the tip half, near-black over the base "
+        "half  [ARTWORK, ref_side.jpg only; colours are CLIPPED-frame ceilings]"
+        % (TB_BORDER * 1000))
+    return out
+
+
+def tail_board_stay(base, log=print):
+    """The single stay under the board.  MEASURED, and its TYPE is not.
+
+    ONE, and only one is visible, and every figure here is expressed AGAINST
+    THE BOARD rather than as a station, so it re-seats with the board's own
+    depth ambiguity instead of going stale the moment the board moves (rule 2).
+    What was measured on ref_side.jpg:
+
+        top      about 0.13 m UP THE CHORD from the base
+        landing  z 1.578, on the tail skin below the roof line
+        angle    77-78 deg from horizontal, running down and FORWARD
+        length   0.247 m visible
+
+    ITS APPARENT DIAMETER IS 1-4 px (median 2) = 9 +- 7 mm, WHICH IS THE
+    FRAME'S BLUR FLOOR.  A rod, a wire and the bulb string's own power cable
+    cannot be separated there, and it FADES rather than terminating, so the
+    landing point is where contrast is lost, not necessarily the foot.  It is
+    built as a slender rod and that choice is DECLARED, not measured.  In
+    IMG_2073 (GREEN -- geometry only) the member at this station is a
+    substantial white PROP: corroboration that something structural is there,
+    and NOT evidence for this vehicle's type.
+
+    A SECOND STAY ON THE OFF SIDE WOULD BE INVISIBLE IN EVERY FRAME WE HOLD.
+    None is built, because building one would be a claim.
+    """
+    a = math.radians(TB_TILT_DEG)
+    up = 0.1300                                   # MEASURED, up the chord
+    xa = base[0] - math.cos(a) * up
+    za = base[1] + math.sin(a) * up - math.cos(a) * TB_T * 0.5   # its lower face
+    ang = math.radians(77.5)                      # MEASURED 77-78 deg
+    # THE LANDING IS MEASURED AT z 1.578 ON THE TAIL SKIN -- but that reading
+    # belongs to a base at the near-edge height, and this board stands clear on
+    # the roof (see tail_board()).  Run at the measured ANGLE and stop
+    # *** rev 50: THE "80 mm" THAT USED TO STAND IN THAT SENTENCE IS WITHDRAWN
+    # AND IS REMOVED HERE.  It was withdrawn at rev 49d and in SPEC 10.123.2a,
+    # and rev 49d's commit says it "withdrew the declared 80 mm across the
+    # record, not just the source" -- but this site was missed, and it was the
+    # ONLY surviving one that stood as LIVE JUSTIFICATION rather than as record
+    # (the mentions at :1602-1620 sit inside the block that ends "THE 80 mm FOOT
+    # INCONSISTENCY DISSOLVES", so they read as history).  The built clearance is
+    # `z0 = _seat + _hang + 0.0040`, i.e. 4.0 mm under the lowest corner -- the
+    # withdrawn figure was 20x the real one, and it was the FIRST stated reason
+    # in a comment block a future context reads to decide whether to re-seat this
+    # stay.  Exactly the half-retraction shape rev 49's own ledger headlined. ***
+    # where the rod MEETS THE ROOF, rather than driving it to a z that is now
+    # inside the sheet metal.  A stay that ends inside the body is the same
+    # class of defect as a foot that starts inside it.
+    # THE LANDING IS THE TAIL SKIN, AND THE ANGLE IS WHAT IT COSTS.
+    #
+    # The measured stay runs 0.13 m up the chord, DOWN AND FORWARD at 77-78 deg,
+    # to z 1.578 on the tail skin.  With the base SOLVED at X_TAIL+0.020 the
+    # top sits 82 mm AFT of X_TAIL, and a 77.5 deg rod from there gains only
+    # 57 mm of forward reach -- it stops short and HANGS IN MID-AIR.  Driving it
+    # at the measured angle produced exactly that.
+    #
+    # THE TWO READINGS ARE IN DIFFERENT DEPTH PLANES (rule 16): the stay's
+    # endpoints were read in the NEAR-FLANK plane, the station is solved in the
+    # plane the board is built in.  Mixing them is the same error that put the
+    # foot 97 mm inside the roof.  So the LANDING -- a hard geometric fact, the
+    # rod ends ON the vehicle -- is honoured, and the ANGLE comes out and is
+    # REPORTED against the measurement rather than forced to match it.
+    zb = 1.5780                                   # MEASURED landing height
+    xb = T.X_TAIL                                 # the tail skin
+    _got = math.degrees(math.atan2(za - zb, abs(xb - xa)))
+    r = 0.0045                       # 9 mm dia, the median of the blur-floor read
+    wire = [(xa, TB_Y_CENTRE, za), (xb, TB_Y_CENTRE, zb)]
+    ob = T.sweep(wire, [(r, r), (r, -r), (-r, -r), (-r, r)],
+                 up=(0, 0, 1), name="tail_board_stay")
+    NOT_BODYWORK.add(ob.name)
+    log("  stay: (%.4f, %.3f) -> (%.4f, %.3f) ON THE TAIL SKIN, %.1f deg against a "
+        "MEASURED %.1f (%+.1f) -- the residual is the SAME depth-plane ambiguity "
+        "as the width, not a second defect; len %.3f m, dia %.0f mm [top DERIVED "
+        "%.3f m up the chord; ROD vs WIRE NOT RESOLVED -- blur floor]"
+        % (xa, za, xb, zb, _got, math.degrees(ang), _got - math.degrees(ang),
+           math.hypot(xb - xa, zb - za), r * 2000, up))
+    return ob
+
+
+def tail_board_bulbs(base, tip, log=print):
+    """The bulb string on the board's lower/show-side long edge.
+
+    THE PITCH IS MEASURED AND THE COUNT IS NOT.  Along the board's edge the
+    resolved bulbs give 6.15 +- 0.4 px = 28 +- 2 mm, which is statistically
+    INDISTINGUISHABLE from the vehicle's own measured BULB_PITCH (28.6 +- 1.0
+    mm) -- one circuit, one spacing, which is itself part of why this board is
+    on the vehicle.  So the pitch is TAKEN FROM t1_detail.BULB_PITCH rather
+    than retyped (rule 2), and the count falls out of it.
+
+    ONLY SIX BULBS ACTUALLY RESOLVE.  An FFT along the edge returns no 6-px
+    component -- the string is at the JPEG 4:2:0 Nyquist floor over most of its
+    length.  The positive control is the vehicle's own rail string, where the
+    same estimator returns 6.31 and 6.64 px against t1_detail sec.5.3's
+    published 6.05-6.30.  So the count below is DERIVED from a measured pitch,
+    and is NOT an observed count.  Rule 27: it prints what it derived.
+    """
+    import t1_detail as D
+    n = int(round(TB_CHORD / D.BULB_PITCH))
+    verts, faces, wire = [], [], []
+    a = math.radians(TB_TILT_DEG)
+    ey = TB_Y_CENTRE + TB_WIDTH * 0.5 + 0.004      # the show-side long edge
+    for i in range(n + 1):
+        t = i / n
+        x = base[0] - math.cos(a) * TB_CHORD * t
+        z = base[1] + math.sin(a) * TB_CHORD * t
+        # hung just below the board's lower edge, on its own normal
+        wire.append((x + math.sin(a) * 0.010, ey, z + math.cos(a) * 0.010))
+        D._ball(verts, faces,
+                (x + math.sin(a) * 0.020, ey, z + math.cos(a) * 0.020),
+                D.BULB_R, nu=8, nv=5)
+    me = bpy.data.meshes.new("tb_bulbs")
+    me.from_pydata(verts, [], faces); me.validate()
+    ob = bpy.data.objects.new("tb_bulbs", me)
+    bpy.context.collection.objects.link(ob)
+    T.fix_normals(ob)
+    flex = T.sweep(wire, [(0.0026, 0.0026), (0.0026, -0.0026),
+                          (-0.0026, -0.0026), (-0.0026, 0.0026)],
+                   up=(0, 0, 1), name="tb_bulbflex")
+    NOT_BODYWORK.update((ob.name, flex.name))
+    log("  bulbs: %d DERIVED from BULB_PITCH %.4f m over a %.3f m chord "
+        "[pitch MEASURED 28+-2 mm; COUNT NOT OBSERVED -- only 6 resolve]"
+        % (n + 1, D.BULB_PITCH, TB_CHORD))
+    return [ob, flex]
+
+
+def open_rear_hatch(log=print):
+    """Swing the glazed rear pane up and aft, so the upper bay stands open.
+
+    Runs in build.py step 8c, AFTER the rake shear, for the same reason the
+    trunk lid does: a lateral hinge moves v.co.x and step 8b shears on
+    v.co.x.  Returns (hinge_x, hinge_z, deg) so anything mounted on the pane
+    could be carried through the identical call.  Nothing is, today.
+    """
+    ob = bpy.data.objects.get("glass_rear")
+    if ob is None:
+        log("!! rear hatch NOT opened: glass_rear absent")
+        return None
+    co = [v.co for v in ob.data.vertices]
+    hx = max(c.x for c in co)          # the pane's aft face, its hinge line
+    hz = max(c.z for c in co)          # top-hinged, like the trunk lid
+    _swing_open(ob, hx, hz, REAR_OPEN_DEG, "rear hatch", log=log)
+    log("rear hatch: glass_rear hinged (x %.4f, z %.4f) lateral, OPEN %.1f deg"
+        "  [angle NOT MEASURED -- no frame shows it]" % (hx, hz, REAR_OPEN_DEG))
+    return hx, hz, REAR_OPEN_DEG
+
+
+# Every part that has been swung out of the vehicle's closed envelope.
+# Populated at run time by _swing_open() and by build.py's carried hardware, so
+# verify.py can exclude them WITHOUT an enumerated list -- audit.py:96's stated
+# reason for excluding lids by prefix rather than by name.  A list goes stale
+# the moment somebody hangs a new part on a lid; this cannot.
+SWUNG = set()
+
+# Every part that is ON the vehicle but is NOT BODYWORK, and projects beyond
+# the body's own envelope.  rev 49.
+#
+# WHY THIS EXISTS.  verify._bounds() excluded such parts with a HARD-CODED
+# TUPLE -- ("cyc", "counter", "counter_nosing", "counter_top") -- while the
+# same function's docstring argues at length that an enumerated list is the
+# wrong shape because "a list goes stale the moment somebody hangs a new part
+# on a lid".  It was right, and it went stale the moment rev 49 hung the tail
+# board off the drip rail: the length row went red at +370 mm on a vehicle
+# whose sheet metal had not moved.  Rule 5 -- do not inherit a guard's
+# rationale along with its shape; here the rationale was sound and the shape
+# contradicted it.
+#
+# The vehicle's SPEC length (4.055 m) is a measurement of its BODY.  A serving
+# counter and a sign board are on the vehicle and are not its bodywork, in
+# exactly the sense that an open lid is not its height.  Parts register
+# themselves here; nothing enumerates them.
+#
+# AND WHAT IS DROPPED IS PRINTED, EVERY RUN (rule 27).  A cap nobody logs
+# reads as coverage.
+NOT_BODYWORK = set()
+
+
+def _swing_open(ob, hx, hz, deg, what, log=print):
+    """Swing a top-hinged tail panel open, and PROVE it went the right way.
+
+    Shared by the trunk lid and the rear hatch so the two cannot drift apart:
+    a guard that is written twice is a guard that gets fixed once.
+
+    The panel's LOWEST vertex is its free edge -- the one that has to travel.
+    Measured before and after, so this tests the MOTION, not the code.
+
+    Capture the INDEX as a plain int, not the bpy struct.  _hinge_y mutates the
+    mesh and calls fix_normals, after which the struct is stale and `.index`
+    reads garbage -- the first version of this guard died with
+    `bpy_prop_collection[-1425949424]: out of range` instead of reporting the
+    defect it was written to catch.  A guard that crashes is not a guard.
+
+    WATCHED FAIL (rule 19), sign inverted, run and read:
+        AssertionError: trunk lid opened the WRONG WAY: its free edge moved
+        dx +0.3850 dz +0.1878
+    and the build stops.  The first draft of this comment GUESSED
+    "dx +0.1946 dz +0.0546" from arithmetic instead of running it -- wrong on
+    both figures.  Rule 4: never put a figure in an acceptance test unless you
+    watched it print.  This one is watched.
+    """
+    me = ob.data
+    low_i = int(min(me.vertices, key=lambda v: v.co.z).index)
+    x0, z0 = float(me.vertices[low_i].co.x), float(me.vertices[low_i].co.z)
+    _hinge_y(ob, hx, hz, deg)
+    T.fix_normals(ob)
+    dx = float(me.vertices[low_i].co.x) - x0
+    dz = float(me.vertices[low_i].co.z) - z0
+    if not (dx < -1e-4 and dz > -1e-4):
+        raise AssertionError(
+            "%s opened the WRONG WAY: its free edge moved dx %+.4f dz %+.4f. "
+            "A top-hinged tail panel's free edge swings AFT (dx negative) and "
+            "UP (dz non-negative). Check _hinge_y's sign -- it was inverted "
+            "once already and only a render caught it." % (what, dx, dz))
+    SWUNG.add(ob.name)
+    log("  %s free edge travelled dx %+.4f m (aft) dz %+.4f m (up) -- guard ok"
+        % (what, dx, dz))
+    return dx, dz
+
+
+def split_trunk_lid(body, log=print):
+    """Separate the already-free engine-lid island out of the shell and OPEN it.
+
+    Returns (lid, hinge_x, hinge_z, deg) so build.py can carry the tail
+    hardware -- the T-handle and the 1963 plate -- through the same swing.
+    Returns (None, ...) and says why if the island is not there, rather than
+    inventing one: if the boolean stopped freeing the panel that is a finding
+    about the boolean, not something to paper over here.
+    """
+    import bmesh
+    me = body.data
+    # The island we want is the one that matches gap_englid's own outline.
+    # Identified by GEOMETRY, never by index -- component order is not stable
+    # across subdivision levels.
+    want = dict(x=(-1.99, -1.80), y=(-0.52, 0.52), z=(0.50, 1.25))
+    comps = _components(me)
+    hit = []
+    for vs in comps:
+        if not (200 < len(vs) < len(me.vertices) * 0.25):
+            continue
+        co = [me.vertices[i].co for i in vs]
+        bb = [(min(c[k] for c in co), max(c[k] for c in co)) for k in range(3)]
+        if all(want[a][0] <= bb[k][0] and bb[k][1] <= want[a][1]
+               for k, a in enumerate("xyz")):
+            hit.append((vs, bb))
+    if len(hit) != 1:
+        log("!! trunk lid NOT separated: %d islands match the engine-lid "
+            "outline (want exactly 1). The gap boolean may have stopped "
+            "freeing the panel -- read FAILED_CUTS." % len(hit))
+        return None, 0.0, 0.0, 0.0
+    vs, bb = hit[0]
+
+    keep = set(vs)
+    bm = bmesh.new()
+    bm.from_mesh(me)
+    bm.verts.ensure_lookup_table()
+    lid_faces = [f for f in bm.faces if all(v.index in keep for v in f.verts)]
+
+    lm = bpy.data.meshes.new("lid_trunk")
+    lb = bmesh.new()
+    vmap = {}
+    for f in lid_faces:
+        for v in f.verts:
+            if v.index not in vmap:
+                vmap[v.index] = lb.verts.new(v.co)
+        try:
+            lb.faces.new([vmap[v.index] for v in f.verts])
+        except ValueError:
+            pass                       # duplicate face, already added
+    lb.to_mesh(lm)
+    lb.free()
+    lid = bpy.data.objects.new("lid_trunk", lm)
+    bpy.context.collection.objects.link(lid)
+    if me.materials:
+        lm.materials.append(me.materials[0])
+
+    bmesh.ops.delete(bm, geom=[bm.verts[i] for i in vs], context='VERTS')
+    bm.to_mesh(me)
+    bm.free()
+    me.update()
+
+    hx, hz = bb[0][1], bb[2][1] - TRUNK_HINGE_INSET
+
+    # The lid's LOWEST vertex is the free edge -- the one that has to travel.
+    # Measured before and after, so the guard tests the motion, not the code.
+    #
+    # SKIPPED WHEN SHUT, not run at zero.  _swing_open() asserts the free edge
+    # actually travelled (dx aft, dz up); at 0 deg nothing moves and the guard
+    # would fire on a lid that is correctly closed.  A guard must fire on the
+    # DEFECT, not on a legitimate pose.
+    if abs(TRUNK_OPEN_DEG) < 1e-6:
+        log("trunk lid: separated %dv, hinge (x %.4f, z %.4f) lateral, "
+            "**SHUT** -- the owner's ruling at rev 49: \"leave the lower bay "
+            "shut, just have the back trunk window open for service\".  Rev 48 "
+            "inferred the opposite from \"the MAIN bay\" and shipped it."
+            % (len(lm.vertices), hx, hz))
+        return lid, hx, hz, 0.0
+    _swing_open(lid, hx, hz, TRUNK_OPEN_DEG, "trunk lid", log=log)
+
+    log("trunk lid: separated %dv, hinge (x %.4f, z %.4f) lateral, "
+        "OPEN %.1f deg  [angle NOT MEASURED -- no frame shows it]"
+        % (len(lm.vertices), hx, hz, TRUNK_OPEN_DEG))
+    return lid, hx, hz, TRUNK_OPEN_DEG
+
+
 def roof_lids():
     """The ONE cut roof lid, OPEN. Returns (skins, rails, struts, boards).
 
@@ -1251,6 +2277,30 @@ def roof_lids():
     main = _lid_panel(LID_X0, LID_X1, LID_W, "lid_main")
     _hinge(main, 0.0, LID_Y_HINGE, zh, LID_OPEN_DEG)
     skins.append(main)
+
+    # GUARD, SAME EDIT AS THE CHANGE (rule 12) -- rev 50, A1.
+    # THE BOARD MUST LEAN OVER THE COUNTER.  Measured on the BUILT panel, not on
+    # LID_OPEN_DEG, so it tests the shipped geometry and not the constant that
+    # produced it (rule 32): the free edge is the panel vertex furthest from the
+    # hinge in y, and it must lie on the SHOW side (+y) of the hinge.
+    # WATCHED FAIL on T1_LIDDEG=104 -- the pre-rev-50 pose -- which reports
+    #   "the mural lid leans AWAY from the counter: free edge at y=-0.8135,
+    #    0.2685 m on the OFF side of the hinge at y=-0.5450"
+    # The free edge is the panel's TOPMOST vertex: the lid rotates up about a
+    # fore-aft axis, so whichever end is highest is the end away from the hinge.
+    # Its y is the whole of the observable -- ref_side.jpg's taper says the TOP
+    # of the board is nearer the SHOW side, so this vertex's y must exceed the
+    # hinge's.  Reading z to find it and y to test it means the guard cannot be
+    # satisfied by the same expression that positioned it.
+    _top = max(main.data.vertices, key=lambda v: v.co.z)
+    assert _top.co.y > LID_Y_HINGE + 0.010, (
+        "SPEC 10.135 / AUDIT_rev43:117: the mural lid leans AWAY from the "
+        "counter -- its free edge is at y=%.4f, %.4f m on the OFF side of the "
+        "hinge at y=%.4f.  ref_side.jpg's board tapers -5.3 +- 0.6 %% "
+        "top-to-bottom, so the TOP is nearer the show side, and in "
+        "ref_rear34.jpg and IMG_2073 the stay passes IN FRONT of the painted "
+        "face.  LID_OPEN_DEG must be < 90."
+        % (_top.co.y, LID_Y_HINGE - _top.co.y, LID_Y_HINGE))
 
     # the flower mural + yellow menu strips, on the lid's UNDERSIDE -- which,
     # with the lid swung over, is the face presented to the counter. This is the
@@ -1344,10 +2394,43 @@ def roof_lids():
     #     by walking `roof_z` outboard until it stops changing rather than by
     #     typing a y.  The prop then stands at 3 degrees from vertical instead
     #     of 49, directly beneath the edge it carries.
-    def _roof_edge_y(xr, y0):
+    # rev 50, A1 -- AND THE FOOT HAD TO MOVE WITH THE LEAN.  This is recorded at
+    # length because it re-opens ground rev 44b settled ON THE OWNER'S WORDS, and
+    # the next context must be able to see exactly what was and was not re-opened.
+    #
+    # With LID_OPEN_DEG corrected from 104 to 76 the free edge moves from
+    # y = -0.8135 (beyond the OFF-side roof edge, where a near-vertical prop
+    # could stand under it) to y = -0.2765, which is INSIDE the roof aperture
+    # (-0.5450 .. +0.5650).  A prop dropped straight down from there stands on
+    # the open hatch, and rev 45's own guard below says so and fires.  So the
+    # foot must sit on one of the two surviving roof strips, and the prop rakes.
+    #
+    # WHICH STRIP: the SHOW side.  In ref_rear34.jpg (RED, target, current
+    # artwork) and IMG_2073.jpeg (GREEN -- geometry, so it transfers) the support
+    # rod passes IN FRONT OF the painted face, i.e. between the camera and the
+    # board, and both cameras are on the show side.  A rod in front of the face
+    # has its foot on the show side.  This needs no scale and no camera model.
+    #
+    # WHAT THIS DOES NOT RE-OPEN.  The owner's rev-37/44b complaint, verbatim,
+    # was *"the props for the sign seem to meet something from the SIDES of the
+    # sign, rather than the sign resting directly on the poles."*  Rev 44b
+    # diagnosed that correctly as a TIP problem -- the tip met the board at 0.86
+    # of its width, near its top edge -- and fixed it by moving the tip to 0.97,
+    # onto the FREE EDGE, the edge that actually bears.  THAT FIX IS KEPT
+    # UNCHANGED below.  What rev 44b also did, on its own initiative and not on
+    # his instruction, was move the FOOT outboard so the rod stood at 3 deg from
+    # vertical; that was only possible because the board was leaning the wrong
+    # way, and it is what is being undone here.  The rod still meets the board at
+    # the bearing edge, which is what he asked for.
+    def _roof_edge_y(xr, y0, step):
+        """Walk roof_z along y until it stops changing -- the roof's OWN edge.
+
+        `step` is signed, so this finds the OFF-side edge (negative) or the
+        SHOW-side edge (positive).  Measured off the body rather than typed.
+        """
         y = y0
-        for _ in range(400):
-            y2 = y - 0.002
+        for _ in range(600):
+            y2 = y + step
             if abs(roof_z(xr, y2) - roof_z(xr, y)) < 1e-6:
                 return y
             y = y2
@@ -1363,7 +2446,16 @@ def roof_lids():
         # roof is domed fore-and-aft.  Sharing the hinge origin makes the tip
         # land ON the lid's plane by construction rather than by luck.
         tipz = zh + w * math.sin(a) * 0.97
-        footy = max(tipy, _roof_edge_y(xs, LID_Y_HINGE))
+        # rev 50: the foot goes on whichever surviving roof strip the board
+        # LEANS OVER, walked out to the roof's own edge.  a < 90 -> the free
+        # edge is on the show side of the hinge -> show-side strip, walking +y
+        # from the aperture's show edge.  a > 90 (the pre-rev-50 pose) -> the
+        # off-side strip, walking -y from the hinge, which is what rev 44b did.
+        # DERIVED FROM THE POSE, not typed, so the foot follows the angle.
+        if math.cos(a) > 0.0:
+            footy = _roof_edge_y(xs, LID_Y_HINGE + w, +0.002)
+        else:
+            footy = max(tipy, _roof_edge_y(xs, LID_Y_HINGE, -0.002))
         foot = Vector((xs, footy, roof_z(xs, footy)))
         tip = Vector((xs, tipy, tipz))
         d = tip - foot
@@ -1384,15 +2476,84 @@ def roof_lids():
         dy = max(v.y for v in vs) - min(v.y for v in vs)
         dz = max(v.z for v in vs) - min(v.z for v in vs)
         lean = math.degrees(math.atan2(dy, dz))
-        assert lean < 20.0, (
-            "roof-lid prop leans %.1f deg from vertical -- it rakes across the "
-            "roof instead of standing under the board (SPEC 10.108)." % lean)
+        # rev 50 -- THIS GUARD IS RE-SCOPED, NOT RELAXED, AND HERE IS WHY.
+        #
+        # rev 44b wrote `lean < 20.0` to catch a prop that "rakes across the roof
+        # instead of standing under the board".  It was a PROXY.  The owner's
+        # actual words were about WHERE THE PROP MEETS THE BOARD -- "they meet
+        # something from the SIDES of the sign, rather than the sign resting
+        # directly on the poles" -- and the thing that fixed that was moving the
+        # TIP to 0.97 of the width, onto the bearing edge.  The lean was only
+        # ever small because the board was leaning the WRONG WAY (a = 104), which
+        # put its free edge outboard of the roof where a vertical rod could stand.
+        # With the lean corrected to a = 76 the free edge sits over the open
+        # aperture, so no admissible prop can be near-vertical: `lean < 20` and
+        # rev 45's foot-outside-the-aperture guard became jointly unsatisfiable.
+        # A guard that cannot be satisfied by any correct build is not a guard.
+        #
+        # MY FIRST ATTEMPT AT THIS REPLACEMENT WAS ITSELF A TAUTOLOGY AND THE
+        # BUILD CAUGHT IT.  I derived a bound `_lean_max` from the ROD'S OWN
+        # min/max y and z and then compared the rod's lean to it -- one
+        # expression checked against itself, rule 32, in the same edit that
+        # cites rule 32.  It aborted with "leans 42.2 deg, past the 5.3 deg its
+        # own foot and tip allow", because with the foot now on the show side
+        # `min(v.y)` is the TIP end, not the foot.  Recorded rather than quietly
+        # replaced: it is the fourth instrument defect this project has caught in
+        # its own guard-writing in five revisions.
+        #
+        # WHAT REPLACES IT READS THE BUILT BODY, not the rod's own extents.
+        # (1) THE FOOT MUST BE ON THE SIDE THE BOARD LEANS TOWARD.  This is what
+        #     actually forbids "raking across the roof", and it reproduces rev
+        #     44b's catch exactly: at a = 104 the free edge was at y -0.8135, the
+        #     OFF side of the hinge, while the offending foot was at y +0.44, the
+        #     show side -- opposite sides, so this fires.
+        _free_y = LID_Y_HINGE + w * math.cos(a)
+        _foot_v = min(vs, key=lambda v: v.z)
+        _tip_v = max(vs, key=lambda v: v.z)
+        assert ((_foot_v.y - LID_Y_HINGE) * (_free_y - LID_Y_HINGE)) > 0.0, (
+            "roof-lid prop foot at y=%.4f is on the OPPOSITE side of the hinge "
+            "(y=%.4f) from the board's free edge (y=%.4f) -- it reaches across "
+            "the opening instead of carrying the board (SPEC 10.108, owner rev "
+            "37/44b)." % (_foot_v.y, LID_Y_HINGE, _free_y))
+        # (2) THE ROD MUST NOT PASS THROUGH THE ROOF.  Sampled along the built
+        #     rod against `roof_z`, i.e. the rod against the body it stands on --
+        #     two independently obtained quantities.  This is the physical
+        #     content of "does not rake across the roof", and unlike a lean
+        #     threshold it stays correct at any opening angle.
+        _f = Vector((_foot_v.x, _foot_v.y, _foot_v.z))
+        _t = Vector((_tip_v.x, _tip_v.y, _tip_v.z))
+        for _i in range(1, 20):
+            _p = _f + (_t - _f) * (_i / 20.0)
+            assert _p.z > roof_z(_p.x, _p.y) - 0.0075, (
+                "roof-lid prop passes THROUGH the roof at (%.3f, %.3f, %.3f): "
+                "roof is at z=%.4f there (SPEC 10.108, re-scoped rev 50)."
+                % (_p.x, _p.y, _p.z, roof_z(_p.x, _p.y)))
+        # THE TIP MUST BEAR ON THE FREE EDGE.  This is the owner's rev-37/44b
+        # ruling expressed directly instead of through the lean proxy.
+        _free = Vector((xs_, LID_Y_HINGE + w * math.cos(a),
+                        zh + w * math.sin(a)))
+        _miss = (Vector((_tip_v.x, _tip_v.y, _tip_v.z)) - _free).length
+        assert _miss < 0.045, (
+            "roof-lid prop tip misses the board's FREE EDGE by %.1f mm -- the "
+            "board is not resting on the pole (owner, rev 37/44b)." % (_miss * 1e3))
     # GUARD, SAME EDIT AS THE CHANGE (rule 12).  Every prop foot must sit on
     # solid roof -- OUTSIDE the aperture's y band -- or the prop is standing in
     # the hatch again.  The band is the lid's own closed footprint.
+    #
+    # rev 50 -- ITS RATIONALE IS KEPT AND ITS SHAPE IS CORRECTED (rule 5).
+    # It identified the foot as `min(v.co.y)`, which is the foot ONLY while the
+    # prop stands on the OFF side, i.e. only while the board leans the wrong way.
+    # With a = 76 the foot is at y +0.7273 and the TIP is the minimum y (-0.2899),
+    # so the guard read the tip as the foot and aborted on a correct build:
+    #   "prop foot at y=-0.2899 is INSIDE the roof aperture (-0.5450..0.5650)"
+    # A foot is the LOWEST point of a rod, which is true at any opening angle, so
+    # that is what it now reads.  The test itself -- foot outside the aperture's
+    # y band -- is unchanged, and it still fires on the rev-45 defect it was
+    # written for (a foot at y +0.44 with the aperture -0.545..+0.565).
     _y_lo, _y_hi = LID_Y_HINGE, LID_Y_HINGE + LID_W
     for _st in struts:
-        _fy = min(v.co.y for v in _st.data.vertices)
+        _fv = min(_st.data.vertices, key=lambda v: v.co.z)
+        _fy = _fv.co.y
         assert not (_y_lo < _fy < _y_hi), (
             "SPEC 10.113: prop foot at y=%.4f is INSIDE the roof aperture "
             "(%.4f..%.4f) -- the strut is standing on nothing"

@@ -119,11 +119,128 @@ def cyclorama(size=90.0, **kw):
 
 
 # ----------------------------------------------------------------- lighting
-def _softbox(name, loc, aim_at, size, power, colour=(1, 1, 1), spread=None):
+# rev 49 -- W6.  THE OWNER CHOSE "re-light to match your photographs".
+#
+# WHY THIS IS THE KNOB, AND WHY THE OBVIOUS ONES ARE NOT.
+# SPEC 10.9 decomposes the flank as  R_lin = a_R . E + A,  with A = 0.0592 a
+# NEUTRAL ADDITIVE term -- 12 % of the red channel.  A is the specular
+# reflection of large white sources.  The published G/R is the red normalised
+# to the cream IN THE SAME FRAME, so it is EXPOSURE-INVARIANT: scaling every
+# light together (T1_KEY) scales a_R.E and A alike and moves it by exactly
+# nothing.  Measured, rev 45: T1_W_FADESAT and T1_MOT_AMP are bit-identical.
+#
+# What DOES move it is the sources' RADIANCE.  Specular return goes with
+# radiance (power / area); diffuse return goes with total flux.  So enlarging
+# a source while HOLDING ITS POWER keeps the exposure and weakens the veil.
+# That is what a photographer does with a bigger box, and it is the one lever
+# that is not a lie about the paint.
+#
+# WHAT IT IS NOT.  It is NOT T1_SPEC.  t1_mats.py:1697 records that rev 8 set
+# the paint's Specular IOR Level to 0.21 to fix exactly this and it was
+# REVERTED: "Every dielectric paint is F0 ~ 0.04.  Fixing an environment
+# problem inside the BSDF cost the panels all their specular structure."  The
+# five-arm ablation's dominant arm is that same rejected fix, and three briefs
+# have quoted it as though it were available.
+#
+# AND IT IS NOT THE CYCLORAMA.  Measured rev 49, watched print: T1_CYCALB
+# 0.76 -> 0.30 moves the red by 2-5 % against a 51 % gap, and moves the
+# BACKGROUND BY 0.000 -- the white is a compositor constant laid under a keyed
+# render, not a photograph of the sweep.  LEDGER_rev45's "about half the excess
+# is the specular response to the white cyclorama and its 0.76-albedo floor"
+# attributes an un-decomposed lever to the smallest of its four causes.
+#
+# THE COST, STATED: a larger source has a broader, softer specular, so the
+# strip's unbroken shoulder streak -- the read that says "curved metal" --
+# loses definition.  That is the trade the owner was actually shown.
+# T1_SOFTEN=1.0 restores the rev-48 rig exactly.
+#
+# ============================ W6 IS CLOSED, rev 50 ============================
+# *** THE OWNER RULED: KEEP THE STUDIO RIG AS IT SHIPS.  T1_SOFTEN STAYS 1.0. ***
+#
+# He was shown the two frames side by side at last, with the cost measured on
+# those exact frames rather than quoted, and with the trade he had been offered
+# three times shown NOT TO EXIST:
+#
+#   window                       k = 1.0        k = 3.5      cost
+#   cream, cab roof              L 154.5        L 111.4      -27.9 %
+#   red flank, under the script  L 128.8        L  75.0      -41.7 %
+#   red G/R                      0.6322         0.5437       -0.0884
+#   backdrop, two 200x140 boxes  255.000        255.000      max|diff| 0.000
+#                                100.00 % at 255 in BOTH
+#
+# (windows stated because rule 8 requires it; these are hero34f, not the side
+# ortho probe_rev45_paint reads, so these ABSOLUTE G/R values are NOT comparable
+# to the published 0.455 / 0.351 -- only the direction and the size of the move
+# are.)
+#
+# TWO THINGS THE RECORD HAD WRONG AND THIS CLOSES.  First, the brief told him the
+# dome "costs 29 % of the brightness".  That is the CREAM.  The RED loses 42 %,
+# and that figure appears in neither LEDGER_rev49 nor the rev-50 brief -- he had
+# been choosing without it.  Second, three revisions refused lighting changes to
+# protect a clean white background that no lighting change can reach: the
+# backdrop is a compositor constant and the two arms are BIT-IDENTICAL.
+#
+# WHAT THIS RULING RETIRES.  The body red's G/R gap against the photographed
+# 0.223 +- 0.066 is no longer a DEFECT to be closed -- it is the accepted
+# consequence of a chosen lighting genre, and the street photographs are
+# dimensional references, not colour targets.  DO NOT re-open it, do not ablate
+# T1_SPEC against it, and do not read a G/R shortfall on any surface as a paint
+# error.  Anything still to be gained on the paint is in the MATERIAL (its coat
+# and roughness constants, which are separately undocumented), not in the rig.
+# T1_SOFTEN is KEPT, working and ablatable, because the measurement it supports
+# is worth keeping; it just does not ship.
+# =============================================================================
+SOFTEN = 1.0                              # set from T1_SOFTEN at call time
+
+
+def _soften():
+    return max(1e-3, float(os.environ.get("T1_SOFTEN", SOFTEN)))
+
+
+def _softbox(name, loc, aim_at, size, power, colour=(1, 1, 1), spread=None,
+             soften=False):
+    """soften=True opts this source into T1_SOFTEN.
+
+    OPT-IN, NOT OPT-OUT, AND THAT IS DELIBERATE.  `cabin_fill` is a 0.8 m box
+    sitting INSIDE the cabin and `fill_galley*` are 0.42 m boxes inside the
+    serving bays; studio.py's own note on cabin_fill records that moving it a
+    third of a metre made it "spill straight out through the three open serving
+    bays, which is exactly the kind of leak that makes a fill light a cheat".
+    Scaling those with the rig would reproduce that leak.  Only the six RIG
+    sources in lighting() opt in.
+    """
     d = bpy.data.lights.new(name, 'AREA')
     d.shape = 'RECTANGLE'
-    d.size, d.size_y = size
-    d.energy = power
+    k = _soften() if soften else 1.0
+    # BOTH AXES.  AND THE CAPPED VERSION WAS TRIED FIRST AND MEASURED DEAD.
+    #
+    # THE SWEEP, WATCHED PRINT, probe_rev45_paint.py, P1 = body red G/R:
+    #
+    #     both axes   k=1.0  0.455   k=2.5  0.379   k=3.5  0.351   k=5.0  0.322
+    #     short axis  k=3.5  0.452   <-- against a base of 0.455.  DEAD.
+    #
+    # The second row is the one that matters.  Growing only the short axis --
+    # 16 x 0.55 m -> 16 x 1.93 m, a 3.5x area, exactly what "use a bigger
+    # softbox" means -- moves the red by 0.003.  So the colour gain in the
+    # first row is NOT the specular being softened.  It is the sources growing
+    # past the subject (at k=3.5 the strip is 56 m long) until the rig stops
+    # being directional and becomes an ENVELOPING DIFFUSE DOME.
+    #
+    # THAT IS THE HONEST DESCRIPTION OF THIS KNOB.  It does not tune the
+    # studio; it progressively REPLACES it.  Which is also why it works: an
+    # overcast or shaded outdoor light is a dome, and every photograph in the
+    # reference set was taken under one.
+    #
+    # IT ALSO CHANGES EXPOSURE, MEASURED: at k=3.5 the cream falls to 0.706 of
+    # base and the red flank to 0.545.  The published G/R is normalised to the
+    # cream in the same frame and so is exposure-invariant -- P1's improvement
+    # is real -- but the PICTURE changes brightness too, and that is a look
+    # decision, not a fidelity one.  Restore it with T1_EXP if wanted.
+    #
+    # DEFAULT IS 1.0 AND NOTHING SHIPS CHANGED.  P1 = 0.455 at k=1.0
+    # reproduces rev 48's rig exactly, watched print.
+    d.size, d.size_y = (size[0] * k, size[1] * k)
+    d.energy = power                       # HELD -- area up, radiance down
     d.color = colour
     if spread is not None:                     # narrow spread = crisper streak
         d.spread = math.radians(spread)
@@ -194,19 +311,23 @@ def lighting(key=1.0):
 
     # --- the hero source ------------------------------------------------
     _softbox("strip", (0.85, 8.30, 5.90), (0.00, 0.55, 1.28),
-             (16.0, 0.55), 511.5 * key, (1.0, 0.998, 0.992), spread=78)
+             (16.0, 0.55), 511.5 * key, (1.0, 0.998, 0.992), spread=78,
+             soften=True)
     # a second, much shorter and lower strip picks out the counter lip and the
     # louvre block, which the high strip rakes straight over
     _softbox("strip_lo", (1.60, 7.40, 1.95), (-0.80, 0.60, 1.05),
-             (7.5, 0.34), 77.5 * key, (1.0, 0.995, 0.985), spread=92)
+             (7.5, 0.34), 77.5 * key, (1.0, 0.995, 0.985), spread=92,
+             soften=True)
 
     # --- support --------------------------------------------------------
-    _softbox("top",   (0.6, 1.2, 8.6), (0, 0, 1.3), (13.0, 8.5), 305.3 * key)
+    _softbox("top",   (0.6, 1.2, 8.6), (0, 0, 1.3), (13.0, 8.5), 305.3 * key,
+             soften=True)
     _softbox("fillR", (2.4, -9.0, 2.4), (0, 0, 1.1), (9.0, 3.6), 92.4 * key,
-             (0.975, 0.985, 1.0))
-    _softbox("rim",   (-9.2, 3.4, 4.2), c, (5.0, 4.0), 145.2 * key)
+             (0.975, 0.985, 1.0), soften=True)
+    _softbox("rim",   (-9.2, 3.4, 4.2), c, (5.0, 4.0), 145.2 * key,
+             soften=True)
     _softbox("nose",  (10.6, 1.6, 1.5), (1.6, 0.0, 1.05), (3.2, 2.6),
-             39.6 * key)
+             39.6 * key, soften=True)
     # SPEC r4 sec.6 (old D4): the galley is a closed 2.8 mm box lit only by
     # EXTERIOR sources, so the three serving hatches rendered as flat black
     # holes. This sits just outboard of the show flank and rakes into the bays

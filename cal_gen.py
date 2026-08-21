@@ -58,8 +58,11 @@ YELLOW = (247, 189, 46)
 WHITE = (252, 250, 246)
 PINK = (232, 96, 122)
 # BUNT is retired with the bunting: the lines it coloured are vent slats,
-# which are DARK GREY sheet-metal shadow, not red paint.  Kept as a record of
-# what the retired feature used to use, and referenced by nothing.
+# which are ~~DARK GREY~~ BODY-COLOUR sheet metal whose darkness IS its own
+# self-shadow (retracted rev 47, landed here rev 49 -- see the note at the
+# glyph_calidad bunting block).  Not red paint either way, which is why the
+# retirement stands.  Kept as a record of what the retired feature used to
+# use, and referenced by nothing.
 _RETIRED_BUNT = (198, 40, 36)
 
 ANG = math.radians(-19.7)        # measured type / bunting angle
@@ -117,7 +120,54 @@ CAP_100 = 0.228                  # "100%" size, as passed to glyph_100 below
 # divide out of a reading (probe_rev47_gap.py C1).  Photographed 0.244 against
 # built 0.149 on the identical instrument => the photograph's gap is 1.64x the
 # build's, so 0.26 * 1.64 = 0.43.  NOT MEASURED absolutely -- see probe.
-LINE_GAP = 0.43                  # of CAP_100.  Ratio-measured; see probe_rev47_gap.
+# ===================== rev 48: THE RATIO ARGUMENT ABOVE IS RETRACTED ========
+# It is wrong in three separate ways, and the value is KEPT anyway.  Both
+# halves of that need saying.
+#
+# 1.  THE "+34 % ABSOLUTE BIAS" IS NOT A BIAS.  Swept over LINE_GAP 0.20..0.50
+#     against cal_gen's own construction value, the estimator reads
+#         LG    0.20   0.26   0.32   0.38   0.43   0.50
+#         read  0.104  0.149  0.193  0.248  0.281  0.391
+#         r/t   2.00   1.34   1.13   1.08   1.01   1.13
+#     It is not multiplicative and not additive -- it is roughly AFFINE in
+#     LINE_GAP with a NEGATIVE INTERCEPT.  A ratio rescaling assumes
+#     proportionality THROUGH THE ORIGIN, and the intercept is exactly what
+#     makes the 1.64x step wrong.  On clean synthetics the estimator reads
+#     0.984 at every gap: there is no fixed bias to divide out.
+#
+# 2.  THE MECHANISM.  The estimator picks its reading angle by MAXIMISING the
+#     apparent gap.  On this decal it selects -37.5 deg where ANG is -19.7.
+#     Skewing two horizontally staggered words enlarges the apparent gap
+#     between them, so the search rotates away from the true reading angle,
+#     and it does so hardest when the gap is small.  That is the small-gap
+#     inflation the record read as a fixed bias.  It is an instrument defect.
+#     ==> NEXT_CONTEXT_PROMPT_rev48.md's NEW RULE 24 ("QUOTE THE RATIO, NOT
+#     THE READING -- the bias divides out") has its FOUNDING CASE REFUTED.
+#     The rule may still be good practice; this case does not support it.
+#
+# 3.  IT IS THE WRONG VEHICLE.  0.244 was measured on IMG_2073.jpeg -- the
+#     GREEN bus.  He has ruled that the RED bus is the target and that ARTWORK
+#     may not transfer between them, and their decals ARE different artwork
+#     (spike depth 0.133 / 0.239 against 0.044).  A word gap is artwork.
+#
+# SO WHY IS 0.43 STILL HERE?  Because the correction is inadmissible too.
+# Inverting the curve at the photographed 0.244 gives LINE_GAP 0.376 -- but
+# that is still the GREEN bus's number, so substituting it swaps one
+# inadmissible figure for another.  The RED bus's own decal bounds it and no
+# more: both red frames are BLOWN in the highlights, the white type does not
+# separate from the burst at any threshold, and a hand read of the de-rotated
+# saturation profile of ref_side.jpg gives gap/cap 0.25..0.47.
+#
+#     0.43 IS INSIDE THAT BAND.  0.376 is too.  The red bus cannot separate
+#     them, and this revision will not pretend otherwise.
+#
+# STATUS: TRANSFERRED FROM ANOTHER VEHICLE, ARTWORK CONFIRMED DIFFERENT,
+# MAGNITUDE UNVERIFIED ON THE TARGET.  What settles it is one UNBLOWN frame
+# of the red bus's decal -- ref_side.jpg already has the pixels, it does not
+# have the dynamic range.
+LINE_GAP = 0.43                  # of CAP_100.  TRANSFERRED, not measured on
+                                 # the target vehicle; see the block above and
+                                 # probe_rev47_gap.
 LINE_SEP_BASE = 0.250            # rev 46's anchor separation, 0.645 - 0.395
 LINE_SEP = LINE_SEP_BASE + LINE_GAP * CAP_100
 
@@ -327,7 +377,17 @@ def glyph_calidad(t, x, y, s):
 #
 # Then he named what the remaining lines are: VENT SLATS.  He is right, and the
 # generator's own palette is the evidence against itself -- BUNT was (198,40,36),
-# a saturated RED, and the lines in the photograph are DARK GREY.  They are the
+# a saturated RED, and the lines in the photograph are ~~DARK GREY~~.
+#
+#   RETRACTED rev 47, AND LANDED IN THIS SOURCE ONLY AT REV 49.  In IMG_2073 the
+#   slats are BODY COLOUR -- green, the same paint as the panel -- and read dark
+#   only because each pressed slot SELF-SHADOWS.  The rev-46 reading came from a
+#   frame where the shadow was all that survived.  LEDGER_rev47 sec.10c made this
+#   correction and it reached verify_clone.sh:366-367 at rev 48 and NOT this file,
+#   so the machine went on handing out the retracted reading for two revisions.
+#   A retraction that lands in a ledger and not in the source is half a retraction.
+#
+# They are the
 # T1's rear air-intake louvres: shadowed slots in sheet metal, not paint.  A
 # louvre drawn into a decal texture is wrong three times over -- wrong colour,
 # wrong material, and it cannot self-shadow or catch a highlight because it has
@@ -335,12 +395,106 @@ def glyph_calidad(t, x, y, s):
 #
 # So the whole feature is gone from the artwork rather than recoloured.
 #
-# AND IT LEAVES A FINDING, REPORTED RATHER THAN QUIETLY FIXED: the model has NO
+# AND IT LEAVES A FINDING, REPORTED RATHER THAN QUIETLY FIXED: ~~the model has NO
 # REAR VENTS.  `grep -rn 'vent|louvre|slat'` over the sources returns the cab
-# door's quarter-light and studio.py's lighting rig, and nothing else.  These
-# louvres were the only thing standing in for them, in the one place they could
-# not work.  Building them is bodywork geometry, not artwork, and it is not in
-# the scope of a decal fix.
+# door's quarter-light and studio.py's lighting rig, and nothing else.~~
+#
+#   *** REFUTED AT REV 48.  RETRACTED IN THIS SOURCE AT REV 49. ***
+#
+#   THIS SENTENCE IS THE FOUNDING CASE OF RULE 1 -- "a claim in a SOURCE COMMENT
+#   is not a measurement" -- AND IT WAS STILL STANDING HERE, UNANNOTATED, TWO
+#   REVISIONS AFTER IT WAS REFUTED.
+#
+#   The model HAS had rear vent louvres since rev 16.  Measured off a real
+#   T1_SUB=2 build: louvres1 / louvres-1, 560 v each, x -1.5371..-1.2419,
+#   z 0.8636..1.0699, TEN slot rows at 21.111 mm pitch.  The grep quoted above
+#   returns 140 hits, including t1_detail.py's own "REAR-QUARTER AIR LOUVRES".
+#
+#   How it propagated is the lesson.  Rev 46 was right to retire the painted
+#   lines from the decal -- but those lines sat between the roof and the burst,
+#   while the real louvres are on the quarter panel HALF A METRE LOWER.  Rev 46
+#   concluded from retiring the PAINT that the GEOMETRY was absent, wrote that
+#   conclusion HERE, and three revisions read it as machine truth.  LEDGER_rev46
+#   sec.5, LEDGER_rev47 sec.10c and the rev-48 brief's JOB 2 are all wrong, and
+#   all three trace to this comment.  SPEC 10.122.1; verify_clone rows 405-407.
+#
+#   Rev 48 then cut them as real APERTURES (they had been closed ribs on
+#   unbroken metal): one hole per flank, blades spanning it, a dark bay behind.
+#   Signed modulation +0.0343 -> -0.2559.
+#
+# Building them is bodywork geometry, not artwork, and it is not in
+# the scope of a decal fix -- which remains true, and is why it was done in
+# t1_detail.louvres() and not here.
+
+
+STAR_N = 7
+# NOT MEASURED.  The red bus's mark band is one merged 1499-px component in
+# every threshold tried -- the frames are blown.  Seven is a POSE CHOICE that
+# fills the measured band at the measured mark scale.  Provenance: rev 48, his
+# ruling "They are actually stars that were not properly represented"; no
+# count is derivable from any frame of the RED bus.
+
+# Band and scale, measured off ref_side.jpg and expressed against the burst.
+STAR_BAND_X = (-0.82, 0.82)      # of burst width, about its centre
+STAR_BAND_Y = (-0.82, -0.32)     # of burst height, about its centre
+STAR_R = 0.085                   # of burst radius; the isolated left-hand
+                                 # mark measures 6 x 4 px against a 103 px
+                                 # burst width -> 0.05..0.08.  Kept at the
+                                 # rev-45 value, which is inside that band.
+
+
+def _star(d, sx, sy, sr, fill, points=5, dent=0.42, phase=-math.pi / 2):
+    sp = []
+    for i in range(points * 2):
+        a = math.pi * i / points + phase
+        r = sr if i % 2 == 0 else sr * dent
+        sp.append((sx + r * math.cos(a), sy + r * math.sin(a)))
+    d.polygon(sp, fill=fill + (255,))
+
+
+def _stars(d, cx, cy, RO):
+    """The star band above the burst, plus the isolated lower-left mark.
+
+    Positions are DERIVED from the burst's own centre and radius at draw time
+    (rule 2), never typed in canvas units, so they follow the burst if it
+    moves -- which is exactly what W1 had to fix once already.
+    """
+    bw = RO * 2.0
+    r = STAR_R * RO
+    # THE MEASURED BAND IS WIDER THAN THE DECAL PANEL, AND THAT IS A FINDING,
+    # NOT A BUG.  +-0.82 of burst WIDTH about its centre is +-1.64 RO, and the
+    # canvas holds only ~+-1.0 RO either side of the burst.  On the vehicle
+    # those outermost marks are painted on the BODY, beyond this decal's own
+    # rectangle; this texture physically cannot carry them.  Clamped to the
+    # canvas with a margin, and the number that fell outside is REPORTED
+    # rather than silently dropped -- a cap nobody logs reads as coverage.
+    mx, my = w * 0.035 + r, h * 0.035 + r
+    x0 = max(mx, cx + STAR_BAND_X[0] * bw)
+    x1 = min(w - mx, cx + STAR_BAND_X[1] * bw)
+    y0 = max(my, cy + STAR_BAND_Y[0] * bw)
+    y1 = max(my, cy + STAR_BAND_Y[1] * bw)
+    want = [cx + (STAR_BAND_X[0] + (STAR_BAND_X[1] - STAR_BAND_X[0])
+                  * i / float(STAR_N - 1)) * bw for i in range(STAR_N)]
+    outside = sum(1 for v in want if v < mx or v > w - mx)
+    n = 0
+    for i in range(STAR_N):
+        t = i / float(STAR_N - 1)
+        sx = x0 + (x1 - x0) * t
+        # two staggered rows, which is how the band reads at 7x
+        sy = y0 + (y1 - y0) * (0.18 if i % 2 == 0 else 0.74)
+        _star(d, sx, sy, r * (1.0 if i % 2 == 0 else 0.82), PINK,
+              phase=-math.pi / 2 + 0.35 * i)
+        n += 1
+    # the one mark that IS separately resolved: components at x 702..713,
+    # y 381..391, i.e. below and LEFT of the burst.  rev 45 drew a star to the
+    # left and it was the only one; it stays, moved onto its measured station,
+    # clamped into the canvas on the same grounds as the band.
+    _star(d, max(mx, cx - 0.92 * bw), min(h - my, cy + 0.52 * bw),
+          r * 1.15, PINK)
+    print("  stars: %d drawn in the band + 1 isolated; the measured band runs "
+          "to +-%.2f RO and the canvas holds +-%.2f RO, so %d of the %d band "
+          "positions fall OUTSIDE this decal's own rectangle and are clamped"
+          % (n, abs(STAR_BAND_X[0]) * 2.0, (cx - mx) / RO, outside, STAR_N))
 
 
 def main():
@@ -350,14 +504,41 @@ def main():
     img = gradient(img, cx, cy)
     d = ImageDraw.Draw(img)
 
-    # small pink star to the left (SPEC sec.3)
-    sx, sy, sr = w * 0.075, h * 0.60, h * 0.085
-    sp = []
-    for i in range(10):
-        a = math.pi * i / 5 - math.pi / 2
-        r = sr if i % 2 == 0 else sr * 0.42
-        sp.append((sx + r * math.cos(a), sy + r * math.sin(a)))
-    d.polygon(sp, fill=PINK + (255,))
+    # ------------------------------------------------ rev 48: THEY ARE STARS
+    # HIS RULING, rev 48, verbatim: "They are actually stars that were not
+    # properly represented."
+    #
+    # He was answering a marked three-way crop of this decal on the RED bus
+    # (ref_side.jpg, the target vehicle), the GREEN bus (IMG_2073.jpeg) and
+    # the build.  Above the burst the red bus carries a band of marks that
+    # rev 45 drew as BUNTING -- two bars with triangular pennants -- and that
+    # rev 46 retired at his instruction.  Rev 46 also recorded the reason as
+    # "no frame we hold shows them", WHICH IS FALSE: ref_side.jpg shows them
+    # plainly at 7x.  What was wrong was not their presence but their
+    # IDENTITY, and only he could settle that.  They are stars.
+    #
+    # WHAT IS MEASURED, on ref_side.jpg, window (700,280)-(870,400), red mask
+    # (R - G) > 26, watched print:
+    #     the burst        x 733..836  y 306..383   ->  103 x 77 px
+    #     the mark band    x 700..869  y 281..320   ->  169 x  39 px
+    # Expressed against the burst, so it is dimensionless (rule 14):
+    #     band x  -0.82 .. +0.82 of burst WIDTH about its centre
+    #     band y  -0.82 .. -0.32 of burst HEIGHT about its centre
+    # The band overlaps the burst's upper spikes, which is what the crop shows.
+    #
+    # WHAT IS NOT MEASURED, AND IT IS THE COUNT.  The band comes back as ONE
+    # connected component of 1499 px.  Both red frames are BLOWN in the
+    # highlights, so the individual stars do not separate at any threshold --
+    # the same failure that stopped this revision measuring the word gap off
+    # the red bus.  STAR_N is therefore a POSE CHOICE carrying NOT MEASURED in
+    # its own comment, and verify_clone requires that declaration to stay, so
+    # a later revision cannot quietly promote it (the LINE_GAP precedent).
+    #
+    # THE GREEN BUS RESOLVES THEM CLEANLY and is NOT used: he has ruled that
+    # artwork may not transfer between the two vehicles, and this revision has
+    # measured their decals to be different artwork (spike depth 0.133/0.239
+    # against 0.044).  The green frame is admissible for GEOMETRY only.
+    _stars(d, cx, cy, RO)
 
     # type on its own mask so the counters punch through, then rotated as one
     # block so the two lines stay parallel at the measured -19.7 degrees
