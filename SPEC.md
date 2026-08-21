@@ -10285,6 +10285,28 @@ observed silhouette *does* taper (19.9 px at the base, 7.2 over the last 40
 columns), so the thickness also carries the board's own material and its rim
 band, and the two cannot be separated at 1024 px.
 
+> **§10.123.2a — THE 80 mm FOOT INCONSISTENCY IS WITHDRAWN, rev 49d.** It was never a conflict
+> between the photograph and the geometry: **the board was at the wrong station.** The rear roof
+> corner falls away fast — the skin reads **1.9608** at x −1.6982, **1.8607** at −1.800, **1.7497**
+> at −1.850 and **1.6696** at `X_TAIL` — and exactly one station satisfies both the photographed base
+> height and the roof's own surface: photographed **1.747 ± 0.027** against a skin at **1.7497**,
+> **2.7 mm**, with the chord then landing the tip at **2.2001** against a measured
+> **2.184 ± 0.030**, **16 mm**. Two independent heights close. The station is now solved from
+> `T1_body`'s own vertices at run time.
+>
+> **AND THE GUARD REV 49b WROTE FOR THIS WAS A TAUTOLOGY**, caught by the rev-49 photorealism survey:
+> `z0 = ZT_ALL − rake_drop + 0.005` against `_crown = ZT_ALL − rake_drop` differ by +0.005 **by
+> construction**, so it could not fire in the shipped path and was only ever testing its own escape
+> hatch. **Rule 20, on a guard written in the revision that quoted rule 20.** `ZT_ALL` is also not the
+> crown — it is the **roll start**, 93 mm low here, which is why the foot sat **97.1 mm inside the
+> roof**. The replacement measures the **built board** against the **built skin** and caught a further
+> **3.7 mm** on its first run (`solid_prism` extrudes centred; the standoff is now derived from the
+> section rather than typed).
+>
+> **What remains is one quantity, not two:** the fore-aft **depth plane**. The solved station sits
+> 128 mm aft of the near-flank silhouette read, and the stay lands at **72.1°** against a measured
+> **77.5°**. Same ambiguity as the width; same photograph closes both.
+
 * **upper bound, admissible: W ≤ 0.59 m.**
 * **lower bound: NONE.** 7 px of the tip half is fully accounted for by a 30 mm
   board plus a border.

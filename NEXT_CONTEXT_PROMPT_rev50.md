@@ -135,12 +135,27 @@ the vehicle's own `BULB_PITCH`; and **a power cable descends from it into the bo
 **38.0 ± 2.3° FROM HORIZONTAL** (*say which datum* — from vertical it is 52.0°), chord 0.711 ± 0.028 m,
 bulb pitch 28 ± 2 mm, one stay.
 
-**NOT MEASURED, and NOT MEASURABLE from anything we hold:** the **width across the vehicle** (parallax
-bounds it at **W ≤ 0.59 m with NO lower bound**) and its **lateral position**. And the **foot carries a
-declared 80 mm inconsistency** — the near-edge read puts the base on the rail line, but a board based
-at rail height and spanning laterally is buried by the roof crown over its inboard span. **Both cannot
-be true.** It is built standing clear, and the 80 mm is declared rather than hidden. **§7 item 1 is the
-frame that closes it.**
+**THE FOOT IS SOLVED, AND REV 49's OWN DECLARED 80 mm IS WITHDRAWN.** It was never a conflict between
+the photograph and the geometry — the board was at the **wrong station**. The rear roof corner falls
+away fast, and exactly one station satisfies both the photographed base height and the roof's own skin:
+
+```
+photographed base height           1.747 +- 0.027
+roof skin at the solved station    1.7497           ->  2.7 mm
+tip lands at                       2.2001
+measured tip                       2.184 +- 0.030   ->  16 mm, inside the band
+```
+
+The station is **derived from `T1_body`'s own vertices at run time**, not typed, so it follows the
+shell. **And the guard rev 49 first wrote for this was a TAUTOLOGY** — `z0 − _crown ≡ +0.005` by
+construction — which the photorealism survey caught. The replacement measures the **built board**
+against the **built skin**, and caught a further 3.7 mm on its first run.
+
+**STILL NOT MEASURED, and NOT MEASURABLE from anything we hold:** the **width across the vehicle**
+(parallax bounds it at **W ≤ 0.59 m with NO lower bound**) and the **fore-aft depth plane** — the
+solved station sits 128 mm aft of the near-flank silhouette read, and the stay lands at 72.1° against
+a measured 77.5°. **That is ONE unmeasurable quantity showing up twice, not two defects**, and it
+closes with §7 item 1.
 
 ---
 

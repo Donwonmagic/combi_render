@@ -88,6 +88,8 @@ visible in `ref_side.jpg`, **closed**, red, carrying the yellow swirl.
 one stay with measured endpoints. Refuted mildly: the brief's tip "~0.5 m past `X_TAIL` at z ≈ 2.26"
 is **−0.408 ± 0.017** and **2.184 ± 0.030**.
 
+**AND THE 80 mm FOOT INCONSISTENCY THIS REVISION DECLARED IS WITHDRAWN — IT DISSOLVED.** §6a.
+
 **THE WIDTH IS NOT MEASURED AND IS NOT MEASURABLE FROM ANYTHING WE HOLD.** The board's plane contains
 the lateral direction, so its width projects **only through parallax** — 33.5 px/m, and (a cross
 product) **identical at base and tip, so the projected width cannot taper**. The observed silhouette
@@ -219,6 +221,57 @@ repository — in that comment** — citing a §10.9 that contains no such arm. 
 
 **Every one of these passed `VERIFY: 0 fail, 0 warn`. Every one was found by cropping a render and
 looking at it.** Rule 28 has now produced the headline finding in four consecutive revisions.
+
+---
+
+## §6a. THE 80 mm FOOT INCONSISTENCY DISSOLVED — AND A GUARD OF MINE WAS A TAUTOLOGY
+
+**The photorealism survey's roof agent caught the guard I wrote at §6 being unable to fire.**
+
+```
+z0     = ZT_ALL(x0) - rake_drop(x0) + 0.005
+_crown = ZT_ALL(x0) - rake_drop(x0)
+```
+
+`z0 − _crown` is **identically +0.005 by construction**, so `z0 < _crown` cannot be true in the
+shipped path. It fired only because `T1_TBFOOT=1` substitutes a different `z0` — **it was testing the
+escape hatch, not the construction.** Rule 20, on a guard written in the same revision that quoted
+rule 20.
+
+**AND `ZT_ALL` IS NOT THE CROWN.** It is the **roll start** — the top of the flank before the roof
+curves over; `bulb_string()` uses `ZT_ALL − RT_ALL` for the drip rail, which is the tell.
+
+```
+ZT_ALL - rake_drop at the old station      1.8673
+ACTUAL body top over the footprint         1.9608     <- 93 mm higher
+the board's lowest vertex                            -> 97.1 mm INSIDE the roof
+```
+
+**The rewritten guard measures the BUILT BOARD against the BUILT SKIN** — two independent things, so
+it cannot be satisfied by construction — and **on its first run it caught a further 3.7 mm** I had
+not seen: `solid_prism` extrudes centred, so the board hangs `TB_T/2·cos(tilt)` = 8.7 mm below its
+origin and my standoff was a typed 5 mm. Derived now.
+
+**AND THEN THE INCONSISTENCY DISSOLVED.** Seating on the skin threw the tip 227 mm high; seating at
+the photographed height buried the foot. **Neither was a real dilemma — the board was at the WRONG
+STATION.** The rear roof corner falls away fast (1.9608 at −1.6982, 1.8607 at −1.800, **1.7497 at
+−1.850**, 1.6696 at `X_TAIL`) and exactly one station satisfies both:
+
+```
+photographed base height           1.747 +- 0.027
+roof skin at the solved station    1.7497            ->  2.7 mm
+tip lands at                       2.2001
+measured tip                       2.184 +- 0.030    ->  16 mm, inside the band
+```
+
+**Two independent heights close.** The station is **SOLVED from the skin**, not chosen, and §2's
+declared 80 mm is **withdrawn**. Rule 16: both facts had been in hand for a day without being put
+together.
+
+**What remains is smaller and honest.** The stay now lands **on** the tail skin at **72.1°** against a
+measured **77.5°**; its endpoints were near-flank readings and the station is solved in the build
+plane, so **the −5.4° residual is the same depth-plane ambiguity as the width — one unmeasurable
+quantity, not two defects.**
 
 ---
 
