@@ -58,8 +58,11 @@ YELLOW = (247, 189, 46)
 WHITE = (252, 250, 246)
 PINK = (232, 96, 122)
 # BUNT is retired with the bunting: the lines it coloured are vent slats,
-# which are DARK GREY sheet-metal shadow, not red paint.  Kept as a record of
-# what the retired feature used to use, and referenced by nothing.
+# which are ~~DARK GREY~~ BODY-COLOUR sheet metal whose darkness IS its own
+# self-shadow (retracted rev 47, landed here rev 49 -- see the note at the
+# glyph_calidad bunting block).  Not red paint either way, which is why the
+# retirement stands.  Kept as a record of what the retired feature used to
+# use, and referenced by nothing.
 _RETIRED_BUNT = (198, 40, 36)
 
 ANG = math.radians(-19.7)        # measured type / bunting angle
@@ -374,7 +377,17 @@ def glyph_calidad(t, x, y, s):
 #
 # Then he named what the remaining lines are: VENT SLATS.  He is right, and the
 # generator's own palette is the evidence against itself -- BUNT was (198,40,36),
-# a saturated RED, and the lines in the photograph are DARK GREY.  They are the
+# a saturated RED, and the lines in the photograph are ~~DARK GREY~~.
+#
+#   RETRACTED rev 47, AND LANDED IN THIS SOURCE ONLY AT REV 49.  In IMG_2073 the
+#   slats are BODY COLOUR -- green, the same paint as the panel -- and read dark
+#   only because each pressed slot SELF-SHADOWS.  The rev-46 reading came from a
+#   frame where the shadow was all that survived.  LEDGER_rev47 sec.10c made this
+#   correction and it reached verify_clone.sh:366-367 at rev 48 and NOT this file,
+#   so the machine went on handing out the retracted reading for two revisions.
+#   A retraction that lands in a ledger and not in the source is half a retraction.
+#
+# They are the
 # T1's rear air-intake louvres: shadowed slots in sheet metal, not paint.  A
 # louvre drawn into a decal texture is wrong three times over -- wrong colour,
 # wrong material, and it cannot self-shadow or catch a highlight because it has
@@ -382,12 +395,36 @@ def glyph_calidad(t, x, y, s):
 #
 # So the whole feature is gone from the artwork rather than recoloured.
 #
-# AND IT LEAVES A FINDING, REPORTED RATHER THAN QUIETLY FIXED: the model has NO
+# AND IT LEAVES A FINDING, REPORTED RATHER THAN QUIETLY FIXED: ~~the model has NO
 # REAR VENTS.  `grep -rn 'vent|louvre|slat'` over the sources returns the cab
-# door's quarter-light and studio.py's lighting rig, and nothing else.  These
-# louvres were the only thing standing in for them, in the one place they could
-# not work.  Building them is bodywork geometry, not artwork, and it is not in
-# the scope of a decal fix.
+# door's quarter-light and studio.py's lighting rig, and nothing else.~~
+#
+#   *** REFUTED AT REV 48.  RETRACTED IN THIS SOURCE AT REV 49. ***
+#
+#   THIS SENTENCE IS THE FOUNDING CASE OF RULE 1 -- "a claim in a SOURCE COMMENT
+#   is not a measurement" -- AND IT WAS STILL STANDING HERE, UNANNOTATED, TWO
+#   REVISIONS AFTER IT WAS REFUTED.
+#
+#   The model HAS had rear vent louvres since rev 16.  Measured off a real
+#   T1_SUB=2 build: louvres1 / louvres-1, 560 v each, x -1.5371..-1.2419,
+#   z 0.8636..1.0699, TEN slot rows at 21.111 mm pitch.  The grep quoted above
+#   returns 140 hits, including t1_detail.py's own "REAR-QUARTER AIR LOUVRES".
+#
+#   How it propagated is the lesson.  Rev 46 was right to retire the painted
+#   lines from the decal -- but those lines sat between the roof and the burst,
+#   while the real louvres are on the quarter panel HALF A METRE LOWER.  Rev 46
+#   concluded from retiring the PAINT that the GEOMETRY was absent, wrote that
+#   conclusion HERE, and three revisions read it as machine truth.  LEDGER_rev46
+#   sec.5, LEDGER_rev47 sec.10c and the rev-48 brief's JOB 2 are all wrong, and
+#   all three trace to this comment.  SPEC 10.122.1; verify_clone rows 405-407.
+#
+#   Rev 48 then cut them as real APERTURES (they had been closed ribs on
+#   unbroken metal): one hole per flank, blades spanning it, a dark bay behind.
+#   Signed modulation +0.0343 -> -0.2559.
+#
+# Building them is bodywork geometry, not artwork, and it is not in
+# the scope of a decal fix -- which remains true, and is why it was done in
+# t1_detail.louvres() and not here.
 
 
 STAR_N = 7

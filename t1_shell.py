@@ -1440,6 +1440,191 @@ def trunk_bay(log=print):
     return ob
 
 
+# ===========================================================================
+# rev 49 -- THE TAIL BOARD.  SPEC 10.123.
+#
+# WHAT IT IS.  A thin bulb-lined board standing off the aft end of the drip
+# rail and leaning back over the tail.  Both RED frames carry it; both GREEN
+# frames carry one at the same station (geometry corroboration only -- no
+# figure and no colour was taken off a green frame, rule 26).
+#
+# THE OWNER SETTLED ITS IDENTITY, rev 49: "That was referring to a different
+# sign. This one is part of the vehicle."  He is right, and the frames prove
+# it rather than merely permitting it:
+#   * the board's base sits ON the drip rail -- 1 px from the project's own
+#     locked drip-rail fit;
+#   * its bulb string is CONTINUOUS with the drip-rail bulb run.  One circuit.
+#   * a power cable descends from it into the body.
+# A sign standing on the ground behind the bus does none of those.
+#
+# WHAT IT IS NOT, AND WHY THAT MATTERED FOR FOUR REVISIONS.
+#   * NOT signboard().  That is the "La Santa" CREAM + RED BRUSH SCRIPT board
+#     which stands on the GROUND BEHIND the bus in ref_rear34.jpg, retired by
+#     the owner 2026-08-10 (SPEC 10.28, re-affirmed 10.49 and 10.122.5).  Two
+#     different objects in the SAME frame; the record conflated them, and the
+#     rev-49 brief inherited the conflation and then contradicted it.
+#     signboard() also could not do this: fore-aft hinge (_hinge, :1201) where
+#     this needs lateral, SIGN_X1 = -1.7800 stops 92.7 mm short of X_TAIL, and
+#     it overlaps only 0.058 m of this board's 0.559 m fore-aft run.
+#   * NOT the engine lid.  Refuted twice over.  Rev 48 measured the base at
+#     11 sigma from ENGLID_GAP's z 0.6025..1.1025.  Stronger, rev 49: the
+#     engine lid is top-hinged at z 1.103 over a 0.50 m panel, so NO opening
+#     angle puts any part of it above z 1.60.  This board's TIP is at 2.184.
+#     Unreachable, at any angle.  And the engine-lid band is directly visible
+#     in ref_side.jpg, CLOSED, red, carrying the yellow swirl.
+#
+# EVERY NUMBER, AND WHERE IT CAME FROM.  Measured on ref_side.jpg (RED) through
+# the project's own scale chain (SPEC 10.35's X(u) map + LOFT_GROUND_rev15
+# sec.0.4's k_t, renormalised and C0-checked against X(242.84)=+1.3000,
+# X(749.38)=-1.1000, X(922.2)=X_TAIL).  Uncertainties are Monte-Carlo over
+# endpoint jitter, k_t 215.5+-3.0 and the datum +-0.020.
+TB_TILT_DEG = 38.0        # MEASURED +-2.3, FROM HORIZONTAL.  Say which datum:
+                          # from VERTICAL this is 52.0, and the rev-49 brief's
+                          # bare "39 degrees" does not state which it meant.
+TB_CHORD    = 0.7110      # MEASURED +-0.028, in the vehicle's XZ plane.
+                          # The IMAGE-PLANE chord is 0.745 m; reading it with a
+                          # single px/m over-reads by 4.8 % because the map's x
+                          # and z scales differ at that station.
+TB_T        = 0.0220      # NOT MEASURED.  Board thickness is at the frame's
+                          # blur floor and cannot be separated from the painted
+                          # border bands at 1024 px.  A pose choice.
+TB_BORDER   = 0.0210      # the red edge band, 4-5 px at ~215 px/m.  ARTWORK,
+                          # and RED-frame only.
+# THE WIDTH ACROSS THE VEHICLE IS NOT MEASURED, AND IT IS NOT MEASURABLE FROM
+# ANYTHING WE HOLD.  The board's plane contains the lateral direction, so its
+# width projects ONLY through parallax -- 33.5 px per metre, and (being a cross
+# product) IDENTICAL at base and tip, so the projected width cannot taper.  The
+# observed silhouette DOES taper (19.9 px at the base, 7.2 over the last 40
+# columns), so the thickness carries the board's own material and border too,
+# and the two cannot be separated at this resolution.
+#   UPPER BOUND, admissible:  W <= 19.9/33.5 = 0.59 m.
+#   LOWER BOUND:              NONE.  7 px of the tip half is fully accounted
+#                             for by a 30 mm board plus a border.
+# That bound alone REFUTES a full-width board: the roof aperture is 1.11 m
+# across and the body 1.750 m, both excluded by more than 2x.  ref_rear34.jpg
+# cannot close it -- the candidate free edge runs off the frame at u=1199, and
+# SPEC 10.48 admits px/m there only on the plate plane.
+TB_WIDTH    = 0.5500      # POSE CHOICE, NOT MEASURED.  Inside the 0.59 bound.
+# The lateral CENTRING is a pose choice too: a broadside frame cannot see it.
+TB_Y_CENTRE = 0.0000      # POSE CHOICE, NOT MEASURED.
+
+
+def tail_board(log=print):
+    """The bulb-lined board at the tail.  Runs in step 8c, after the shear.
+
+    AFTER THE SHEAR, DELIBERATELY.  Every figure above was measured off a
+    photograph of the vehicle in its own raked stance, and the drip-rail datum
+    z = 1.7485 is quoted ABOVE GROUND.  So they are final-frame coordinates and
+    the board must be placed in the final frame, exactly as the lids and
+    trunk_bay are.  Placed before step 8b it would be sheared a second time.
+    """
+    a = math.radians(TB_TILT_DEG)
+    # THE BASE STATION IS DERIVED, NOT TYPED (rule 2).  Measured X_TAIL+0.151
+    # +-0.022; t1_detail.gutter() ends at T._aft(-1.880) = X_TAIL+0.1745.  They
+    # agree to 24 mm, inside the measurement's own +-0.022 stat and +-0.035
+    # depth-plane uncertainty -- so the board is hung on the gutter's own aft
+    # end and moves with it, rather than carrying a literal that would go stale
+    # the moment the gutter is re-spaced.
+    x0 = T._aft(-1.8800)
+    z0 = 1.7485                     # LOFT_GROUND_rev15 sec.1.2 drip-rail datum
+    u = (-math.cos(a), 0.0, math.sin(a))          # up the chord, aft and up
+    v = (0.0, 1.0, 0.0)                           # across the vehicle
+    w = (-math.sin(a), 0.0, -math.cos(a))         # the board's own normal
+    pts = T.rrect(TB_CHORD, TB_WIDTH, 0.012, seg=4)
+    pts = [(uu + TB_CHORD * 0.5, vv) for (uu, vv) in pts]   # run from the base
+    board = T.solid_prism((x0, TB_Y_CENTRE, z0), u, v, w, pts, TB_T,
+                          name="tail_board")
+    NOT_BODYWORK.add(board.name)      # on the vehicle; not its sheet metal
+    tip = (x0 + u[0] * TB_CHORD, TB_Y_CENTRE, z0 + u[2] * TB_CHORD)
+    log("tail board: base x %.4f (gutter aft end) z %.4f, %.1f deg from "
+        "HORIZONTAL, chord %.3f m -> tip x %.4f z %.4f"
+        % (x0, z0, TB_TILT_DEG, TB_CHORD, tip[0], tip[2]))
+    log("  width %.3f m and lateral centring are POSE CHOICES -- NOT MEASURED; "
+        "parallax bounds the width at <= 0.590 m and gives NO lower bound"
+        % TB_WIDTH)
+    return board, (x0, z0), tip
+
+
+def tail_board_stay(log=print):
+    """The single stay under the board.  MEASURED, and its TYPE is not.
+
+    ONE, and only one is visible: from the board's lower edge at
+    (X_TAIL+0.049, z 1.818) -- about 0.13 m up the chord from the base -- down
+    and slightly FORWARD, fading at (X_TAIL+0.106, z 1.578) on the tail skin.
+    Visible length 0.247 m, 77 deg from horizontal.
+
+    ITS APPARENT DIAMETER IS 1-4 px (median 2) = 9 +- 7 mm, WHICH IS THE
+    FRAME'S BLUR FLOOR.  A rod, a wire and the bulb string's own power cable
+    cannot be separated there, and it FADES rather than terminating, so the
+    landing point is where contrast is lost, not necessarily the foot.  It is
+    built as a slender rod and that choice is declared, not measured.  In
+    IMG_2073 (GREEN -- geometry only) the member at this station is a
+    substantial white PROP, which is corroboration that something structural
+    is there and is NOT evidence for this vehicle's type.
+
+    A SECOND STAY ON THE OFF SIDE WOULD BE INVISIBLE IN EVERY FRAME WE HOLD.
+    None is built, because building one would be a claim.
+    """
+    xa, za = T.X_TAIL + 0.049, 1.818
+    xb, zb = T.X_TAIL + 0.106, 1.578
+    r = 0.0045                       # 9 mm dia, the median of the blur-floor read
+    wire = [(xa, TB_Y_CENTRE, za), (xb, TB_Y_CENTRE, zb)]
+    ob = T.sweep(wire, [(r, r), (r, -r), (-r, -r), (-r, r)],
+                 up=(0, 0, 1), name="tail_board_stay")
+    NOT_BODYWORK.add(ob.name)
+    log("  stay: (%.4f, %.3f) -> (%.4f, %.3f), %.0f deg from horizontal, "
+        "dia %.0f mm  [ROD vs WIRE NOT RESOLVED -- at the frame's blur floor]"
+        % (xa, za, xb, zb,
+           math.degrees(math.atan2(za - zb, abs(xb - xa))), r * 2000))
+    return ob
+
+
+def tail_board_bulbs(base, tip, log=print):
+    """The bulb string on the board's lower/show-side long edge.
+
+    THE PITCH IS MEASURED AND THE COUNT IS NOT.  Along the board's edge the
+    resolved bulbs give 6.15 +- 0.4 px = 28 +- 2 mm, which is statistically
+    INDISTINGUISHABLE from the vehicle's own measured BULB_PITCH (28.6 +- 1.0
+    mm) -- one circuit, one spacing, which is itself part of why this board is
+    on the vehicle.  So the pitch is TAKEN FROM t1_detail.BULB_PITCH rather
+    than retyped (rule 2), and the count falls out of it.
+
+    ONLY SIX BULBS ACTUALLY RESOLVE.  An FFT along the edge returns no 6-px
+    component -- the string is at the JPEG 4:2:0 Nyquist floor over most of its
+    length.  The positive control is the vehicle's own rail string, where the
+    same estimator returns 6.31 and 6.64 px against t1_detail sec.5.3's
+    published 6.05-6.30.  So the count below is DERIVED from a measured pitch,
+    and is NOT an observed count.  Rule 27: it prints what it derived.
+    """
+    import t1_detail as D
+    n = int(round(TB_CHORD / D.BULB_PITCH))
+    verts, faces, wire = [], [], []
+    a = math.radians(TB_TILT_DEG)
+    ey = TB_Y_CENTRE + TB_WIDTH * 0.5 + 0.004      # the show-side long edge
+    for i in range(n + 1):
+        t = i / n
+        x = base[0] - math.cos(a) * TB_CHORD * t
+        z = base[1] + math.sin(a) * TB_CHORD * t
+        # hung just below the board's lower edge, on its own normal
+        wire.append((x + math.sin(a) * 0.010, ey, z + math.cos(a) * 0.010))
+        D._ball(verts, faces,
+                (x + math.sin(a) * 0.020, ey, z + math.cos(a) * 0.020),
+                D.BULB_R, nu=8, nv=5)
+    me = bpy.data.meshes.new("tb_bulbs")
+    me.from_pydata(verts, [], faces); me.validate()
+    ob = bpy.data.objects.new("tb_bulbs", me)
+    bpy.context.collection.objects.link(ob)
+    T.fix_normals(ob)
+    flex = T.sweep(wire, [(0.0026, 0.0026), (0.0026, -0.0026),
+                          (-0.0026, -0.0026), (-0.0026, 0.0026)],
+                   up=(0, 0, 1), name="tb_bulbflex")
+    NOT_BODYWORK.update((ob.name, flex.name))
+    log("  bulbs: %d DERIVED from BULB_PITCH %.4f m over a %.3f m chord "
+        "[pitch MEASURED 28+-2 mm; COUNT NOT OBSERVED -- only 6 resolve]"
+        % (n + 1, D.BULB_PITCH, TB_CHORD))
+    return [ob, flex]
+
+
 def open_rear_hatch(log=print):
     """Swing the glazed rear pane up and aft, so the upper bay stands open.
 
@@ -1467,6 +1652,28 @@ def open_rear_hatch(log=print):
 # reason for excluding lids by prefix rather than by name.  A list goes stale
 # the moment somebody hangs a new part on a lid; this cannot.
 SWUNG = set()
+
+# Every part that is ON the vehicle but is NOT BODYWORK, and projects beyond
+# the body's own envelope.  rev 49.
+#
+# WHY THIS EXISTS.  verify._bounds() excluded such parts with a HARD-CODED
+# TUPLE -- ("cyc", "counter", "counter_nosing", "counter_top") -- while the
+# same function's docstring argues at length that an enumerated list is the
+# wrong shape because "a list goes stale the moment somebody hangs a new part
+# on a lid".  It was right, and it went stale the moment rev 49 hung the tail
+# board off the drip rail: the length row went red at +370 mm on a vehicle
+# whose sheet metal had not moved.  Rule 5 -- do not inherit a guard's
+# rationale along with its shape; here the rationale was sound and the shape
+# contradicted it.
+#
+# The vehicle's SPEC length (4.055 m) is a measurement of its BODY.  A serving
+# counter and a sign board are on the vehicle and are not its bodywork, in
+# exactly the sense that an open lid is not its height.  Parts register
+# themselves here; nothing enumerates them.
+#
+# AND WHAT IS DROPPED IS PRINTED, EVERY RUN (rule 27).  A cap nobody logs
+# reads as coverage.
+NOT_BODYWORK = set()
 
 
 def _swing_open(ob, hx, hz, deg, what, log=print):

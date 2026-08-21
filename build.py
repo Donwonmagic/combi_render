@@ -934,9 +934,62 @@ S.open_rear_hatch(log=log)
 # The bay behind the engine lid, so the opening reads as a compartment and
 # not a hole.  A LINING only -- see t1_shell.trunk_bay.__doc__ and the block
 # above it for what is deliberately not in there.
-A(S.trunk_bay(log=log), "dark")
+#
+# *** rev 49 -- THIS LINE SHIPPED THE BAY WITH NO MATERIAL AT ALL. ***
+#
+# `A()` only APPENDS to ASSIGN.  The loop that CONSUMES ASSIGN and actually
+# calls MT.assign() is step 9, at line 846 -- NINETY-ONE LINES ABOVE THIS ONE.
+# Step 8c has to run after step 9 because a lid hinged laterally moves v.co.x
+# and step 8b shears on v.co.x; so this is the one A() call in the whole file
+# that lands after its own consumer.  `trunk_bay` therefore rendered with
+# Blender's default ~0.8-albedo grey, and the bay came back as the BRIGHTEST
+# THING ON THE TAIL -- 1.28x the body red, 1.11x the cream -- where a T1's
+# engine bay is a dark cavity.
+#
+# NOTHING SAID SO.  VERIFY printed 0 fail / 0 warn, verify_clone was ALL 110
+# PASS, and the log line below printed "materials: 165 objects" WITH THIS
+# OBJECT COUNTED IN THE 165 -- len(ASSIGN) counts appends, not assignments,
+# so the one line that could have reported the gap asserted coverage instead.
+# Rule 27, inverted: a cap nobody logs reads as coverage; a COUNT THAT LOGS
+# THE WRONG QUANTITY reads as coverage too.  Rule 28 found it: one rear-3/4
+# render, one crop.  This is the same defect rev 48 fixed for the louvre
+# apertures (light where a dark bay belongs) IN THE SAME REVISION -- it was
+# missed here only because no frame in rev 48 showed the tail.
+# rev 49 -- THE TAIL BOARD.  The owner settled its identity this revision:
+# "That was referring to a different sign. This one is part of the vehicle."
+# The retirement he is being distinguished from is signboard()'s "La Santa"
+# board, which stands on the GROUND BEHIND the bus in the same frame.  See
+# t1_shell.tail_board.__doc__ for the three pieces of physical evidence that
+# this one is attached, and for every measurement with its ceiling.
+# T1_NOTAILBOARD=1 stands it down for an ablation.
+if not os.environ.get("T1_NOTAILBOARD"):
+    _tb, _tb_base, _tb_tip = S.tail_board(log=log)
+    A(_tb, "countercream")
+    MT.assign(_tb, M["countercream"])
+    _tb_stay = S.tail_board_stay(log=log)
+    A(_tb_stay, "chrome")
+    MT.assign(_tb_stay, M["chrome"])
+    for _o in S.tail_board_bulbs(_tb_base, _tb_tip, log=log):
+        A(_o, "bulb")
+        MT.assign(_o, M["bulb"])
 
-log(f"materials: {len(ASSIGN)} objects")
+_trunk_bay = S.trunk_bay(log=log)
+A(_trunk_bay, "dark")                 # keep it in ASSIGN, for the guard below
+if not os.environ.get("T1_BAREMAT"):  # T1_BAREMAT=1 reproduces the rev-48 defect
+    MT.assign(_trunk_bay, M["dark"])  # ...AND apply it, because step 9 is behind us
+
+# THE GUARD, IN THE SAME EDIT (rule 12), AND WATCHED FAIL (rule 19).
+# Written against the CAUSE, not the instance: any future A() call that lands
+# after step 9 fires this, whatever object it is.  T1_BAREMAT=1 skips the
+# repair above so the guard can be watched failing on the real defect.
+_bare = [o.name for o, _k in ASSIGN
+         if o.type == 'MESH' and not [m for m in o.data.materials if m]]
+if _bare:
+    raise AssertionError(
+        "objects were given a material key but never assigned one: %s"
+        "  -- an A() call landed AFTER step 9's ASSIGN loop (build.py:846)"
+        % ", ".join(sorted(_bare)))
+log(f"materials: {len(ASSIGN)} objects assigned, 0 bare (checked, not assumed)")
 
 # rev 44, SPEC 10.103 -- ROUNDED EDGES.  Runs LAST, after every material
 # datablock exists (t1_detail builds some of them at step 7, five steps
