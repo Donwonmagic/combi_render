@@ -289,7 +289,34 @@ ck "tex/senor.png"   92ff38554d61947528904e113cf657f0 "$(md5of tex/senor.png)"
 # ref_side.jpg refutes at 7x.  Their PRESENCE was never the error.  Their
 # IDENTITY was, and only he could settle it.  Re-based, never relaxed.
 ck "tex/calidad.png" ffefd297a529adc9f2b0a319107429b1 "$(md5of tex/calidad.png)"
-ck "tex/lidmural.png" 2d62159dba663c90b5ae3746383c15d1 "$(md5of tex/lidmural.png)"
+# rev 50: RE-BASED because the TYPE legitimately changed, and the change is
+# checkable independently of the checksum -- see the clamp row below, added in
+# the same edit so this line cannot be re-based back without it.
+# lid_gen's top-strip fit was the file's ONLY unclamped text scale.  Two
+# measured quantities are in play, each word's x-run (read off ref_side.jpg)
+# and the cap height (0.46 of the strip, stated at lid_gen.py:184), and a
+# substitute face cannot meet both.  Unclamped, it silently sacrificed the CAP
+# HEIGHT.  Measured on the texture, against the declared 0.460:
+#     before   FRESH 0.421  JUICES, 0.553  GOURMET TACOS 0.386  TORTAS 0.421
+#              &  0.728   <- 1.58x its own recorded measurement
+#     after    the four words BIT-UNCHANGED, &  0.474  <- 1.03x
+# so the clamp bit only on the glyph that was being enlarged.  The photograph
+# sets the & at cap height with the rest of the line.  Re-based, never relaxed.
+ck "tex/lidmural.png" 39f523a3127c0fdc72aec6bd567e1c85 "$(md5of tex/lidmural.png)"
+# COMPENSATING ROW, same edit.  A checksum re-base is only honest if the reason
+# is separately testable; rev 49c set that precedent when it widened one grep
+# window and added three rows in the same commit.  This one asserts the clamp
+# itself, in the file's own idiom, so the texture cannot drift back silently.
+# NOTE the leading `^ *` on both greps.  Without it they count MENTIONS, not
+# call sites: my own comment two lines above quotes the sibling form verbatim,
+# so the sibling row read 3 against a typed 2 and went red on its first run.
+# Rule 4 -- never put a figure in an acceptance test unless you watched it
+# print -- caught by the instrument, on the instrument's author.
+ck "the header fit is CLAMPED, never enlarging" 1 \
+   "$(grep -cE '^ *k = min\(1\.0, \(x1 - x0\) / wpx\)' lid_gen.py)"
+# and its two siblings, which are where that idiom comes from
+ck "lid_gen's sibling text fits still clamp" 2 \
+   "$(grep -cE '^ *k = min\(1\.0, (wpx / tot|wid \* 0\.86 / wpx)\)' lid_gen.py)"
 ck "tex/lidsign.png" bcd3da2dbec0276fabd7d8f8ee03f27b "$(md5of tex/lidsign.png)"
 ck "tex/emblem.png"  574ba2d733353387568b412da48fd436 "$(md5of tex/emblem.png)"
 
