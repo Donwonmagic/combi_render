@@ -1617,24 +1617,105 @@ def tail_board(log=print):
     TB_BASE_DX_CENTRELINE = -0.0950     # the same measurement re-seated; REFUTED
                                         # by the stay triangle, kept as a record
     TB_BASE_Z_NEAREDGE    = 1.7470      # MEASURED +-0.027, the near lower corner
-    x0 = T._aft(-1.8800)                # the gutter's own aft end -- DERIVED
-                                        # (rule 2); agrees with (2) to 24 mm
-    # standing ON the roof at that station, in the FINAL frame (step 8c is after
-    # the shear, so this station's own rake drop comes off).
-    z0 = T.ZT_ALL(x0) - T.rake_drop(x0) + 0.0050
-    # THE GUARD THAT WAS MISSING, IN THE SAME EDIT (rule 12), AND IT HAS BEEN
-    # WATCHED FAILING on the near-edge value: a fixture's foot must be CLEAR of
-    # the body it stands on.  Nothing in this project checked that, which is why
-    # the first cut rendered as a board growing out of solid sheet metal through
-    # a clean VERIFY.  T1_TBFOOT=1 restores the buried value to re-watch it.
+    # *** rev 49c -- THE 80 mm FOOT INCONSISTENCY DISSOLVES.  It was never a
+    # conflict between the photograph and the geometry; the board was at the
+    # WRONG STATION. ***
+    #
+    # The station is now SOLVED, not chosen: it is the station where the roof's
+    # own skin is at the photographed base height.  Both facts were already in
+    # hand and nobody had put them together (rule 16 -- a part measured in
+    # isolation from what it is fitted to is not measured):
+    #
+    #     photographed base height           1.747 +- 0.027   (near lower corner,
+    #                                                          on the drip-rail
+    #                                                          line, 1 px fit)
+    #     roof skin at x = -1.8500           1.7497
+    #                                        -> AGREE TO 2.7 mm
+    #
+    # and the chord then lands the tip at z 2.200 against a measured
+    # 2.184 +- 0.030 -- 16 mm, inside the band.  TWO INDEPENDENT HEIGHTS CLOSE.
+    #
+    # The previous cut put the base at the gutter's aft end (-1.6982), 175 mm
+    # forward of X_TAIL, where the roof is still 1.9608 -- so seating it on the
+    # skin threw the tip 227 mm high, and seating it at the photographed height
+    # buried the foot 97 mm.  Neither was a real dilemma.  The rear roof corner
+    # falls away fast: 1.9608 at -1.6982, 1.8607 at -1.800, 1.7497 at -1.850,
+    # 1.6696 at X_TAIL.  There is exactly one station that satisfies both.
+    #
+    # WHAT IS STILL NOT MEASURED is the FORE-AFT DEPTH PLANE (the solved station
+    # sits 128 mm aft of the near-flank silhouette read) and the WIDTH.  Those
+    # are the same unmeasurable quantity the parallax argument identifies, and
+    # they close with the same photograph.  The HEIGHT chain no longer needs one.
+    _bx, _bs, _bd = None, None, 1e9
+    _b0 = bpy.data.objects.get("T1_body")
+    if _b0 is not None:
+        _m0 = _b0.matrix_world
+        _wv = [_m0 @ vv.co for vv in _b0.data.vertices]
+        _n = 0
+        for _i in range(61):
+            _xc = T.X_TAIL + 0.300 * _i / 60.0
+            _sel = [w.z for w in _wv if abs(w.x - _xc) < 0.030
+                    and abs(w.y - TB_Y_CENTRE) <= TB_WIDTH * 0.5]
+            if not _sel:
+                _n += 1
+                continue
+            _sz = max(_sel)
+            if abs(_sz - TB_BASE_Z_NEAREDGE) < _bd:
+                _bd, _bx, _bs = abs(_sz - TB_BASE_Z_NEAREDGE), _xc, _sz
+        if _n:
+            log("  station solve: %d of 61 candidate stations had no skin over "
+                "the footprint and were DROPPED" % _n)
+    if _bx is None:                       # body absent -- say so, do not guess
+        _bx, _bs = T._aft(-1.8800), None
+        log("  !! tail board: T1_body absent, falling back to the gutter's aft "
+            "end -- the station is NOT solved")
+    else:
+        log("  station SOLVED from the skin: x %.4f (X_TAIL %+.3f), roof there "
+            "%.4f against a photographed base %.4f -- %.1f mm"
+            % (_bx, _bx - T.X_TAIL, _bs, TB_BASE_Z_NEAREDGE, _bd * 1000))
+    x0 = _bx
+    # THE FOOT IS SEATED ON THE ACTUAL BODY MESH, NOT ON A PROFILE FUNCTION.
+    #
+    # *** rev 49b: THE FIRST CUT USED THE WRONG SURFACE, AND THE GUARD WRITTEN
+    # TO CATCH THAT COMPARED AGAINST THE SAME WRONG SURFACE, SO IT COULD NEVER
+    # NOTICE. ***
+    #
+    # It read  z0 = ZT_ALL(x0) - rake_drop(x0) + 0.005  and then guarded with
+    # _crown = ZT_ALL(x0) - rake_drop(x0), so z0 - _crown was IDENTICALLY
+    # +0.005 BY CONSTRUCTION and `z0 < _crown` could not fire in the shipped
+    # path.  It only ever fired because T1_TBFOOT=1 substitutes a different z0
+    # -- so it was testing the escape hatch, not the construction.  Rule 20: an
+    # instrument that has never been wrong has never been tested, and this one
+    # was written in the same revision that quoted the rule.
+    #
+    # AND ZT_ALL IS NOT THE CROWN.  It is the ROLL START -- the top of the flank
+    # before the roof curves over; t1_detail.bulb_string() uses ZT_ALL - RT_ALL
+    # for the drip rail, which is the tell.  Measured on a real T1_SUB=1 build:
+    #     ZT_ALL(x0) - rake_drop(x0)                 = 1.8673
+    #     ACTUAL body top over the board's footprint = 1.9608   <- 93 mm higher
+    # so the board's lowest vertex sat 97.1 mm INSIDE the roof, and the render
+    # showed a board growing out of solid sheet metal.
+    #
+    # THE FIX IS TO STOP ASKING A FUNCTION AND MEASURE THE THING IT IS FITTED TO
+    # (rule 16).  The seat is the maximum z of T1_body's own vertices over the
+    # board's own footprint, in the final frame, which cannot be wrong about the
+    # skin because it IS the skin.
+    _seat = _bs
+    if _seat is None:                     # body absent -- say so, do not guess
+        _seat = T.ZT_ALL(x0) - T.rake_drop(x0)
+        log("  !! tail board: T1_body absent, seating on ZT_ALL -- NOT the skin")
+    # THE STANDOFF IS DERIVED FROM THE BOARD'S OWN SECTION, NOT TYPED.
+    # T.solid_prism extrudes CENTRED on its origin, so the board hangs
+    # TB_T/2 * cos(tilt) BELOW z0 along its own normal.  A typed 5 mm standoff
+    # left the foot 3.7 mm inside the skin -- caught by the new guard below on
+    # its first run, which is the whole point of measuring the built thing
+    # against the built skin instead of a function against itself.
+    _hang = TB_T * 0.5 * math.cos(a)
+    z0 = _seat + _hang + 0.0040        # 4 mm of daylight under the lowest corner
+    # T1_TBFOOT=1 restores the ORIGINAL buried value so the guard below can be
+    # watched failing on the real defect rather than on an injected one.
     if os.environ.get("T1_TBFOOT"):
-        z0 = TB_BASE_Z_NEAREDGE
-    _crown = T.ZT_ALL(x0) - T.rake_drop(x0)
-    if x0 > T.X_TAIL and z0 < _crown - 1e-6:
-        raise AssertionError(
-            "tail board foot is BURIED: base z %.4f is %.1f mm below the roof "
-            "crown %.4f at x %.4f -- a fixture's foot must be clear of the body"
-            % (z0, (_crown - z0) * 1000, _crown, x0))
+        z0 = T.ZT_ALL(x0) - T.rake_drop(x0) + 0.0050
     u = (-math.cos(a), 0.0, math.sin(a))          # up the chord, aft and up
     v = (0.0, 1.0, 0.0)                           # across the vehicle
     w = (-math.sin(a), 0.0, -math.cos(a))         # the board's own normal
@@ -1643,10 +1724,23 @@ def tail_board(log=print):
     board = T.solid_prism((x0, TB_Y_CENTRE, z0), u, v, w, pts, TB_T,
                           name="tail_board")
     NOT_BODYWORK.add(board.name)      # on the vehicle; not its sheet metal
+    # THE REAL GUARD (rule 12, rule 30).  It measures the BUILT BOARD against
+    # the BUILT SKIN -- two independent things -- so it cannot be satisfied by
+    # construction the way its predecessor was.  Watched failing on T1_TBFOOT=1.
+    _lo = min((board.matrix_world @ vv.co).z for vv in board.data.vertices)
+    if _lo < _seat - 1e-6:
+        raise AssertionError(
+            "tail board foot is BURIED: its lowest vertex is at z %.4f against a "
+            "measured roof skin at z %.4f over its own footprint -- %.1f mm inside "
+            "the body.  A fixture's foot must be clear of the body it stands on."
+            % (_lo, _seat, (_seat - _lo) * 1000))
+    log("  foot: lowest vertex z %.4f on a MEASURED skin seat of %.4f "
+        "(+%.1f mm clear) -- seat read from T1_body's own vertices, not from a "
+        "profile function" % (_lo, _seat, (_lo - _seat) * 1000))
     tip = (x0 + u[0] * TB_CHORD, TB_Y_CENTRE, z0 + u[2] * TB_CHORD)
-    log("tail board: base x %.4f (gutter aft end) z %.4f (standing CLEAR on the roof; "
-        "the near-edge read is 80 mm lower and is DECLARED, not hidden), "
-        "%.1f deg from "
+    log("tail board: base x %.4f (SOLVED from the skin) z %.4f (standing CLEAR on "
+        "the roof AND at the photographed base height -- rev 49b's 80 mm "
+        "inconsistency DISSOLVED, it was a wrong station), %.1f deg from "
         "HORIZONTAL, chord %.3f m -> tip x %.4f z %.4f"
         % (x0, z0, TB_TILT_DEG, TB_CHORD, tip[0], tip[2]))
     log("  width %.3f m and lateral centring are POSE CHOICES -- NOT MEASURED; "
@@ -1736,26 +1830,33 @@ def tail_board_stay(base, log=print):
     # where the rod MEETS THE ROOF, rather than driving it to a z that is now
     # inside the sheet metal.  A stay that ends inside the body is the same
     # class of defect as a foot that starts inside it.
-    zb, xb = 1.5780, xa + (za - 1.5780) / math.tan(ang)
-    for _i in range(240):
-        _t = _i / 239.0
-        _x = xa + (xb - xa) * _t
-        _z = za + (zb - za) * _t
-        if _x >= T.X_TAIL and _z <= T.ZT_ALL(_x) - T.rake_drop(_x):
-            xb, zb = _x, _z
-            break
-    else:
-        pass                                      # never reached the roof
+    # THE LANDING IS THE TAIL SKIN, AND THE ANGLE IS WHAT IT COSTS.
+    #
+    # The measured stay runs 0.13 m up the chord, DOWN AND FORWARD at 77-78 deg,
+    # to z 1.578 on the tail skin.  With the base SOLVED at X_TAIL+0.020 the
+    # top sits 82 mm AFT of X_TAIL, and a 77.5 deg rod from there gains only
+    # 57 mm of forward reach -- it stops short and HANGS IN MID-AIR.  Driving it
+    # at the measured angle produced exactly that.
+    #
+    # THE TWO READINGS ARE IN DIFFERENT DEPTH PLANES (rule 16): the stay's
+    # endpoints were read in the NEAR-FLANK plane, the station is solved in the
+    # plane the board is built in.  Mixing them is the same error that put the
+    # foot 97 mm inside the roof.  So the LANDING -- a hard geometric fact, the
+    # rod ends ON the vehicle -- is honoured, and the ANGLE comes out and is
+    # REPORTED against the measurement rather than forced to match it.
+    zb = 1.5780                                   # MEASURED landing height
+    xb = T.X_TAIL                                 # the tail skin
+    _got = math.degrees(math.atan2(za - zb, abs(xb - xa)))
     r = 0.0045                       # 9 mm dia, the median of the blur-floor read
     wire = [(xa, TB_Y_CENTRE, za), (xb, TB_Y_CENTRE, zb)]
     ob = T.sweep(wire, [(r, r), (r, -r), (-r, -r), (-r, r)],
                  up=(0, 0, 1), name="tail_board_stay")
     NOT_BODYWORK.add(ob.name)
-    log("  stay: (%.4f, %.3f) -> (%.4f, %.3f), %.1f deg, len %.3f m, dia %.0f mm "
-        "[top DERIVED %.3f m up the chord; foot TERMINATED ON the roof, not "
-        "driven to the measured z 1.578 which is now inside the metal; "
-        "ROD vs WIRE NOT RESOLVED -- blur floor]"
-        % (xa, za, xb, zb, math.degrees(ang),
+    log("  stay: (%.4f, %.3f) -> (%.4f, %.3f) ON THE TAIL SKIN, %.1f deg against a "
+        "MEASURED %.1f (%+.1f) -- the residual is the SAME depth-plane ambiguity "
+        "as the width, not a second defect; len %.3f m, dia %.0f mm [top DERIVED "
+        "%.3f m up the chord; ROD vs WIRE NOT RESOLVED -- blur floor]"
+        % (xa, za, xb, zb, _got, math.degrees(ang), _got - math.degrees(ang),
            math.hypot(xb - xa, zb - za), r * 2000, up))
     return ob
 
