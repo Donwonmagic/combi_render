@@ -304,7 +304,39 @@ close colour arguments across the gap; (b) make `playa_ref` the deliverable; (c)
 judge **fidelity** only on `playa_ref`, **presentation** only on the studio; (d) drop the heroes to
 ~7 m / 50 mm.
 
-> **WHICHEVER HE PICKS, RENDER `playa_ref` — rev 49 did, and the frame is in `out/`.** `playa_env.py`
+> **REV 49 RENDERED IT, AND THE RESULT IS THE STRONGEST W6 EVIDENCE THE PROJECT HAS —
+> BUT IT IS NOT CONFIRMED, AND THE DIFFERENCE MATTERS.**
+>
+> ```
+> body red G/R, normalised to the cream in the SAME frame
+>   PLAYA (diffuse dome, real ground)   0.2736   ->  0.77 sigma
+>   STUDIO (the shipped rig)            0.5081   ->  4.32 sigma
+>   photographed target                 0.223 +- 0.066
+>   the paint's own albedo              0.250
+> ```
+>
+> **In the playa environment the red lands essentially on its own albedo.** Ceiling, stated: those
+> are flat-patch windows on two different views and two different rigs, **not**
+> `probe_rev45_paint.py`'s projected-and-raycast landmarks. The absolute numbers are NOT comparable to
+> the published 0.455; the **direction and the order of the gap** are.
+>
+> **AND THE CALIBRATED PROBE COULD NOT CONFIRM IT.** `T1_SCENE=playa` + `probe_rev45_paint.py`
+> returns:
+>
+> ```
+> [FAIL] C1  cap 0, cream 0, red 0 candidates survived visibility
+> P1=nan  P2=nan  P3=+nan        CONTROLS: 4 checked, 3 FAILED
+> ```
+>
+> Every landmark is occluded from `hero34f`'s camera station once the environment exists — the C4
+> kill sampled `[28, 33, 0]`, foliage. **The instrument does not transfer.** Rule 3: read its own
+> summary line. **W6 IS NOT CLOSED. Do not report it as closed.**
+>
+> **THIS IS REV 50's CHEAPEST HIGH-VALUE TASK: adapt `probe_rev45_paint.py` to the playa camera** —
+> project its landmarks through `playa_ref` rather than `hero34f`, or exclude the environment from the
+> visibility raycast — and re-run. Four revisions of argument settle on one number.
+>
+> **WHICHEVER HE PICKS, THE FRAME IS IN `out/r49playa_playa_ref.png`.** `playa_env.py`
 > is **1695 lines**, every mass placed by inverting that camera, **dormant since rev 10, referenced by
 > NO verifier and NO dimension.** It is the only frame this project can compare pixel-registered
 > against a photograph of its own subject; it **is** the diffuse-dome rig rev 49 concluded is W6's
