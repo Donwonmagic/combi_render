@@ -703,8 +703,16 @@ def run(body, log=print):
     bw = max(v.y for v in bb) - min(v.y for v in bb)
     L, W, H = hi_v.x - lo_v.x, bw, hi.z
     if abs((hi.x - lo.x) - L) > 1e-6:
+        # rev 50: this used to say "(the open trunk lid projects aft of X_TAIL)"
+        # unconditionally, and it PRINTS INTO STATE.md.  The owner shut that lid
+        # at rev 49 -- TRUNK_OPEN_DEG = 0.0 -- so the parenthesis asserted a pose
+        # the vehicle no longer has, in the file whose header says it outranks
+        # every other document.  Rule 15: retract in the source, not only in a
+        # ledger.  It now NAMES what actually projects, read off the mesh.
+        _why = ", ".join(sorted(getattr(_bounds, "last_dropped", []))) or \
+            "parts excluded as opened lids"
         log("  length excludes opened lids: %.3f with them, %.3f without "
-            "(the open trunk lid projects aft of X_TAIL)" % (hi.x - lo.x, L))
+            "(what projects: %s)" % (hi.x - lo.x, L, _why))
     # RULE 27, rev 49: name what was left out of the vehicle's own bounds.
     _drop = getattr(_bounds, "last_dropped", [])
     log("  bounds EXCLUDE %d non-bodywork part(s): %s"

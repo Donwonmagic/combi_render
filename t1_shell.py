@@ -1924,8 +1924,19 @@ def tail_board_stay(base, log=print):
     za = base[1] + math.sin(a) * up - math.cos(a) * TB_T * 0.5   # its lower face
     ang = math.radians(77.5)                      # MEASURED 77-78 deg
     # THE LANDING IS MEASURED AT z 1.578 ON THE TAIL SKIN -- but that reading
-    # belongs to a base at the near-edge height, and this board stands 80 mm
-    # clear on the roof (see tail_board()).  Run at the measured ANGLE and stop
+    # belongs to a base at the near-edge height, and this board stands clear on
+    # the roof (see tail_board()).  Run at the measured ANGLE and stop
+    # *** rev 50: THE "80 mm" THAT USED TO STAND IN THAT SENTENCE IS WITHDRAWN
+    # AND IS REMOVED HERE.  It was withdrawn at rev 49d and in SPEC 10.123.2a,
+    # and rev 49d's commit says it "withdrew the declared 80 mm across the
+    # record, not just the source" -- but this site was missed, and it was the
+    # ONLY surviving one that stood as LIVE JUSTIFICATION rather than as record
+    # (the mentions at :1602-1620 sit inside the block that ends "THE 80 mm FOOT
+    # INCONSISTENCY DISSOLVES", so they read as history).  The built clearance is
+    # `z0 = _seat + _hang + 0.0040`, i.e. 4.0 mm under the lowest corner -- the
+    # withdrawn figure was 20x the real one, and it was the FIRST stated reason
+    # in a comment block a future context reads to decide whether to re-seat this
+    # stay.  Exactly the half-retraction shape rev 49's own ledger headlined. ***
     # where the rod MEETS THE ROOF, rather than driving it to a z that is now
     # inside the sheet metal.  A stay that ends inside the body is the same
     # class of defect as a foot that starts inside it.

@@ -354,6 +354,16 @@ a live artwork lead, though it comes off the same unstable mask and is **provisi
 
 ## §10. THE STATE OF THE MACHINE
 
+> **CORRECTED, rev 50 — THREE OF THE FOUR FIGURES IN THIS BLOCK ARE CONTRADICTED BY THE MACHINE,**
+> and this block is on the required reading list, so it was propagating.
+> * `ALL 113 PASS` was true at rev **49c** and was never updated when rev 49e added nine more rows.
+>   The clean-tree value at rev 49's tip is **122**. (Rev 50 adds two and ends at 124.)
+> * `171 objects` — `audit.py` measures **231** meshes, and rev 49e's own commit re-based
+>   `verify_clone`'s row from 221 to 231. The 171 and the 231 count different things and nothing in
+>   the repo says which, which is the defect, not the difference.
+> * `19 ahead / 0 behind` — the rev-49 tip measures **29 ahead** of `origin/main`.
+> * `ALL 10 PASS` and `VERIFY: 0 fail, 0 warn` reproduce exactly.
+
 ```
 bootstrap.sh      ALL 10 PASS
 verify_clone.sh   ALL 113 PASS   (110 at pickup; 4 added, 1 relabelled, NONE relaxed)

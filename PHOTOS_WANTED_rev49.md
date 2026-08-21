@@ -48,8 +48,27 @@ board based at rail height and spanning laterally is buried by the **80 mm of ro
 inboard span**. Both cannot be true. Rev 49 built it standing clear — the choice that makes the stay's
 measured triangle land on the body — and **declared the 80 mm rather than hiding it**.
 
-**`SPEC.md:937` §10.28 has demanded exactly this frame since rev 12** — *"if it is revisited, it needs
-a photograph that shows its footing, not another inference"* — **and nobody ever asked him for it.**
+> **CORRECTED, rev 50 — THAT PROVENANCE IS WRONG, AND IT IS RULE 29 AGAIN, IN THE MIRROR.**
+> §10.28 does NOT demand this frame. Its footing sentence — *"if it is revisited, it needs a
+> photograph that shows its footing, not another inference"* — is at `SPEC.md:1009`, INSIDE the
+> paragraph headed **"The detached sign"**, of which the same section says *"**It is not part of this
+> vehicle**"*. That is **"La Santa"**, the ground-standing sign — the very object Rule 29 was written
+> to separate from the tail board. The cited `SPEC.md:937` is a **blank line**.
+>
+> Rev 49 stated Rule 29 (*"a retirement inherits the object it was made about, not the station it was
+> seen at"*) at `SPEC.md:10238` and then, **four lines later at `:10241`**, wrote *"§10.28 requires a
+> photograph of the board's footing"*. It refused to inherit a RETIREMENT from the wrong object and
+> then inherited a REQUIREMENT from the same paragraph. From there it propagated into this file, into
+> `NEXT_CONTEXT_PROMPT_rev50.md` §7.1, and into the owner's own brief for rev 50.
+>
+> **THE REQUEST ITSELF STANDS, ON ITS OWN EVIDENCE.** Nothing above depends on §10.28: the board's
+> width projects only through parallax at 33.5 px/m, identical at base and tip, which bounds it at
+> **W ≤ 0.59 m with no lower bound**. That is why the frame is wanted. Only the citation was borrowed,
+> and it is struck.
+>
+> *(And the 80 mm this item's third clause offers to close was itself withdrawn at rev 49d — the foot
+> inconsistency dissolved when the board's station was re-solved. What the frame still closes is the
+> WIDTH and the LATERAL POSITION. Two unknowns, not three.)*
 
 *The shot:* the tail from **slightly off the centreline and slightly BELOW the board**, so its
 underside and its mounting are visible, with the roof in frame for scale. A frame with the roof lid

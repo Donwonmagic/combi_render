@@ -10239,9 +10239,19 @@ document read "the raised panel at the tail is retired" and applied it to the
 **second**. **A retirement inherits the object it was made about, not the
 station it was seen at.**
 
-**THREE PIECES OF PHYSICAL EVIDENCE, not another inference.** §10.28 requires a
-photograph of the board's *footing* before this is revisited, and the owner
-cannot supply one. He does not need to:
+**THREE PIECES OF PHYSICAL EVIDENCE, not another inference.** ~~§10.28 requires a
+photograph of the board's *footing* before this is revisited~~ **— WITHDRAWN, rev 50.
+IT DOES NOT. §10.28's footing sentence (`SPEC.md:1009`) is inside the paragraph
+headed "The detached sign", the object §10.28 itself says "is not part of this
+vehicle" — "La Santa". This section states RULE 29 three lines above and then
+inherits a REQUIREMENT from the very object Rule 29 exists to separate, which is
+the same error in the mirror. The mis-citation propagated to
+`PHOTOS_WANTED_rev49.md` §1, `NEXT_CONTEXT_PROMPT_rev50.md` §7.1 and the rev-50
+brief. The photograph is still WANTED — for the board's WIDTH, on the parallax
+argument (33.5 px/m, identical at base and tip, W <= 0.59 m with no lower bound)
+— but nothing about the board's ATTACHMENT ever depended on it, which is what
+the three pieces of evidence below establish.** The owner cannot supply one. He
+does not need to:
 
 1. the board's base sits **on the drip rail** — 1 px from the project's own
    locked drip-rail fit (predicted v = 293.2 at that column; measured 292–294);

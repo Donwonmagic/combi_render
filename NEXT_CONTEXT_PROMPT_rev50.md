@@ -380,9 +380,15 @@ DIFFERENT / MAGNITUDE UNVERIFIED); `STAR_N` (both red frames blown); the off-fla
 Full text in `PHOTOS_WANTED_rev49.md`. **He answered at rev 49: "Neither is possible right now." STOP
 ASKING** — record what each frame unblocks and work on what the frames we hold can settle.
 
-1. **THE TAIL BOARD'S FOOTING — NEW, AND NOW THE TOP ITEM.** Closes the board's **width**, its
-   **lateral position** and the **80 mm foot inconsistency** together. **`SPEC.md:937` §10.28 has
-   demanded it since rev 12 and nobody ever asked him for it.**
+1. **THE TAIL BOARD'S FOOTING — NEW, AND NOW THE TOP ITEM.** Closes the board's **width** and its
+   **lateral position**. ~~and the 80 mm foot inconsistency~~ ~~`SPEC.md:937` §10.28 has demanded it
+   since rev 12~~ — **BOTH WITHDRAWN, rev 50.** The 80 mm dissolved at rev 49d when the board's
+   station was re-solved, so this frame closes TWO unknowns, not three. And §10.28 never demanded it:
+   its footing sentence is at `SPEC.md:1009`, inside the paragraph headed *"The detached sign"* — the
+   ground-standing "La Santa" board that §10.28 says *"is not part of this vehicle"*. `SPEC.md:937` is
+   a blank line. **Rule 29 in the mirror: rev 49 refused to inherit a RETIREMENT from that object and
+   then inherited a REQUIREMENT from it, four lines after stating the rule.** The request stands on
+   the parallax argument alone (33.5 px/m, identical at base and tip → W ≤ 0.59 m, no lower bound).
 2. **THE DECAL, DARKER — NOT CLOSER.** Five items. **Rev 49 tried to dissolve this request and failed
    its own calibration**: at `ref_side.jpg`'s exact resolution *and* 4:2:2 subsampling the estimator
    recovers a known gap to **2 % with a flat plateau**, and on the real frame it has **no plateau and
