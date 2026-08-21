@@ -582,7 +582,21 @@ ck "bay widths 0.516 0.515 0.516"   2 "$(grep -c 'bay widths 0.516 0.515 0.516' 
 # the current build against a four-revision-old baseline and passing.  A control
 # that reads a stale baseline is not a control (rule 18).  Found by the rev-49
 # photorealism survey's record audit; STATE.md is regenerated at rev 49e.
-ck "mesh objects 231"               1 "$(grep -c '| mesh objects | 231 |' STATE.md)"
+#
+# rev 50, RE-BASED 231 -> 223, AND THE CAUSE IS AN OWNER RULING, NOT A DRIFT.
+#   rev 50, -8:  wiper_pivot x2, wiper_boss x2, wiper_arm x2, wblade x2
+# He was shown that the wipers' only warrant was SPEC sec.4's inventory line
+# under the heading "Stock 1963 T1" -- inferred from the factory build, not
+# measured on this bus -- against three in-service photographs of this vehicle
+# that show the near pane legible from top rail to sill with no arm and no
+# blade.  He ruled: "Remove all of it including the spindles."  build.py's call
+# is COMMENTED, not deleted, so re-enabling is one line and this row moves back.
+# 231 - 8 = 223, and the figure was watched printing out of audit.py before it
+# was typed here.
+ck "mesh objects 223"               1 "$(grep -c '| mesh objects | 223 |' STATE.md)"
+# and the wipers are gone for the stated reason, not by accident
+ck "the wipers are WITHDRAWN, not deleted" 1 \
+   "$(grep -c '^# A(D.wipers(), \"chrome_d\")' build.py)"
 ck "non-manifold edges 0"           1 "$(grep -c '| non-manifold edges (body) | 0 |' STATE.md)"
 
 # ---------------------------------------------------------------------------
