@@ -1384,6 +1384,62 @@ REAR_OPEN_DEG = 64.0
 # no frame.
 
 
+# ------------------------------------------------------- rev 48, the TRUNK BAY
+# With the engine lid open the aperture showed a flat black void, which is the
+# most visible defect in the whole tail.  He was asked how to leave it and
+# chose "fill it as a service bay", then said "I trust your judgement."
+#
+# WHAT IS BUILT: a LINING -- floor, back, two sides, roof -- so the opening
+# reads as a compartment rather than a hole cut in a shell.
+#
+# WHAT IS DELIBERATELY NOT BUILT: its CONTENTS.  No frame in this project
+# shows the trunk open at all, `PHOTOS_WANTED_rev44` records that "the engine
+# was scrapped and the transmission sold", and so what is in there is unknown.
+# Crates, a gas bottle and service kit would be invention -- exactly the class
+# of detail this project refuses without a photograph, and exactly what was
+# said to him when the option was offered.  Judgement exercised, and stated:
+# THE VOID IS FIXED, THE CONTENTS ARE NOT INVENTED.  One frame of the open
+# tail turns this from a lining into a measurement.
+#
+# Sized off the aperture itself, never typed: gap_prism's outline is
+# y +-0.470, z 0.6025..1.1025 above ground, so the lining is inset one skin
+# thickness inside that and runs forward BAY_DEPTH from the tail cap.
+
+BAY_DEPTH = 0.42                 # forward of the tail skin.  NOT MEASURED --
+                                 # deep enough that the back is not visible
+                                 # through the aperture at any camera in
+                                 # studio.views(), which is the only property
+                                 # it needs to have.
+BAY_INSET = 0.010                # inside the cut edge, so no z-fighting with
+                                 # the aperture's own returned rim.
+
+
+def trunk_bay(log=print):
+    """A plain lining behind the engine lid, so the bay is not a void.
+
+    Runs in step 8c AFTER the shear, like the lids, so it lands in the final
+    frame without being sheared twice.
+    """
+    y = 0.4700 - BAY_INSET
+    z0, z1 = 0.6025 + BAY_INSET, 1.1025 - BAY_INSET
+    x_skin = T.X_TAIL
+    pts = T.rrect((z1 - z0), (2 * y), 0.030, seg=6)
+    pts = [(u + (z0 + z1) * 0.5, v) for (u, v) in pts]      # (z, y) frame
+    # T.solid_prism EXTRUDES CENTRED ON ITS ORIGIN, not forward from it.
+    # Measured, watched print: origin x -1.875 with depth 0.42 produced a bay
+    # spanning -2.085..-1.665, i.e. +-depth/2 -- so half of it stood PROUD of
+    # the tail skin and the length row went red at +190 mm.  The origin is
+    # therefore advanced by half the depth, expressed in terms of it rather
+    # than typed, so changing BAY_DEPTH cannot reopen the same defect.
+    ob = T.solid_prism((x_skin - 0.002 + BAY_DEPTH * 0.5, 0, 0),
+                       (0, 0, 1), (0, 1, 0),
+                       (1, 0, 0), pts, BAY_DEPTH, name="trunk_bay")
+    log("trunk bay: lining %.3f m deep, y +-%.3f, z %.4f..%.4f  "
+        "[a LINING -- contents NOT invented, no frame shows them]"
+        % (BAY_DEPTH, y, z0, z1))
+    return ob
+
+
 def open_rear_hatch(log=print):
     """Swing the glazed rear pane up and aft, so the upper bay stands open.
 

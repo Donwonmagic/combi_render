@@ -424,6 +424,9 @@ ck "TRUNK_OPEN_DEG declares itself NOT MEASURED" 1 "$(grep -A 3 '^TRUNK_OPEN_DEG
 # And the tail hardware must travel with the lid it is mounted on.  If a future
 # edit swings the lid and leaves the handle floating in mid-air at the closed
 # position, this row goes red before anyone renders it.
+ck "the trunk bay is a LINING, not contents" 1 "$(grep -q 'contents NOT invented' t1_shell.py && echo 1 || echo 0)"
+ck "the rear hatch opens"                 1 "$(grep -qE '^def open_rear_hatch' t1_shell.py && echo 1 || echo 0)"
+ck "REAR_OPEN_DEG declares itself NOT MEASURED" 1 "$(grep -A 3 '^REAR_OPEN_DEG' t1_shell.py | grep -q 'NOT MEASURED' && echo 1 || echo 0)"
 ck "the T-handle rides the trunk lid"     1 "$(grep -q 'englid_handle' build.py && echo 1 || echo 0)"
 ck "the 1963 plate rides the trunk lid"   1 "$(grep -q 'plate_1963\"' build.py && echo 1 || echo 0)"
 ck "calidad pennant loop gone"       0 "$(grep -c 'ay + by) / 2 + drop' cal_gen.py)"

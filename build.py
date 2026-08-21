@@ -921,6 +921,10 @@ if _lid_trunk is not None:
 # the upper one the MAIN bay, not the only one, and his earlier request for the
 # trunk open is not withdrawn.
 S.open_rear_hatch(log=log)
+# The bay behind the engine lid, so the opening reads as a compartment and
+# not a hole.  A LINING only -- see t1_shell.trunk_bay.__doc__ and the block
+# above it for what is deliberately not in there.
+A(S.trunk_bay(log=log), "dark")
 
 log(f"materials: {len(ASSIGN)} objects")
 
