@@ -966,7 +966,11 @@ if not os.environ.get("T1_NOTAILBOARD"):
     _tb, _tb_base, _tb_tip = S.tail_board(log=log)
     A(_tb, "countercream")
     MT.assign(_tb, M["countercream"])
-    _tb_stay = S.tail_board_stay(log=log)
+    for _o, _tag in S.tail_board_edge(_tb_base, log=log):
+        _k = "capred" if "RED" in _tag else "dark"
+        A(_o, _k)
+        MT.assign(_o, M[_k])
+    _tb_stay = S.tail_board_stay(_tb_base, log=log)
     A(_tb_stay, "chrome")
     MT.assign(_tb_stay, M["chrome"])
     for _o in S.tail_board_bulbs(_tb_base, _tb_tip, log=log):

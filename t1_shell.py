@@ -1525,8 +1525,58 @@ def tail_board(log=print):
     # depth-plane uncertainty -- so the board is hung on the gutter's own aft
     # end and moves with it, rather than carrying a literal that would go stale
     # the moment the gutter is re-spaced.
-    x0 = T._aft(-1.8800)
-    z0 = 1.7485                     # LOFT_GROUND_rev15 sec.1.2 drip-rail datum
+    # THE BASE: WHAT IS MEASURED, WHAT IS NOT, AND THE ONE INCONSISTENCY THAT
+    # THE FRAMES WE HOLD CANNOT RESOLVE.  Read this before moving it.
+    #
+    # THREE READINGS, AND THEY DO NOT ALL CLOSE:
+    #  (1) the board's near lower corner sits ON the drip-rail line -- 1 px from
+    #      cream_rms.py:91's locked fit (predicted v 293.1 at u 890, reads 294);
+    #  (2) the station is X_TAIL + 0.151 +- 0.022 IN THE NEAR-FLANK PLANE, and
+    #      that carries a +-0.035 DEPTH ceiling: at the drip-rail plane it is
+    #      +0.193, AT THE CENTRELINE IT IS -0.095 -- the sign flips;
+    #  (3) the stay's own triangle -- top 0.13 m up the chord, 77-78 deg, landing
+    #      z 1.578 on the tail skin -- closes only for a base NEAR the roof's
+    #      rear corner.  Re-seated to the centreline it lands 144 mm AFT of
+    #      X_TAIL, in mid-air.  So (3) refutes the centreline re-seating of (2).
+    #
+    # AND (1) AND (3) TOGETHER STILL DO NOT CLOSE.  A board based at RAIL height
+    # and spanning laterally is buried in the roof, because the crown at this
+    # station is 1.8851 against a rail at 1.8052 -- 80 mm of roof over the
+    # inboard span.  The near-edge read and a clear foot are 80 mm apart and
+    # nothing we hold separates them: the frames are broadside, so the near edge
+    # is all they see, and whether the foot is bracketed, stepped or sits aft of
+    # the roof corner is exactly the FOOTING detail SPEC 10.28 has required a
+    # photograph for since rev 12.
+    #
+    # SO THE BOARD IS BUILT STANDING CLEAR ON THE ROOF AT THE REAR CORNER, and
+    # the 80 mm is DECLARED rather than hidden.  That choice is the one that
+    # makes the stay's measured triangle land on the body (X_TAIL + 0.153
+    # against a measured +0.106) and keeps the foot out of the sheet metal.
+    # The alternative -- honouring the near-edge read exactly -- buries it.
+    # BOTH numbers are recorded so the next context re-seats rather than
+    # re-measures, and neither is presented as settled.
+    TB_BASE_DX_NEARFLANK  = +0.1510     # MEASURED, near-flank plane, +-0.022
+    TB_BASE_DX_CENTRELINE = -0.0950     # the same measurement re-seated; REFUTED
+                                        # by the stay triangle, kept as a record
+    TB_BASE_Z_NEAREDGE    = 1.7470      # MEASURED +-0.027, the near lower corner
+    x0 = T._aft(-1.8800)                # the gutter's own aft end -- DERIVED
+                                        # (rule 2); agrees with (2) to 24 mm
+    # standing ON the roof at that station, in the FINAL frame (step 8c is after
+    # the shear, so this station's own rake drop comes off).
+    z0 = T.ZT_ALL(x0) - T.rake_drop(x0) + 0.0050
+    # THE GUARD THAT WAS MISSING, IN THE SAME EDIT (rule 12), AND IT HAS BEEN
+    # WATCHED FAILING on the near-edge value: a fixture's foot must be CLEAR of
+    # the body it stands on.  Nothing in this project checked that, which is why
+    # the first cut rendered as a board growing out of solid sheet metal through
+    # a clean VERIFY.  T1_TBFOOT=1 restores the buried value to re-watch it.
+    if os.environ.get("T1_TBFOOT"):
+        z0 = TB_BASE_Z_NEAREDGE
+    _crown = T.ZT_ALL(x0) - T.rake_drop(x0)
+    if x0 > T.X_TAIL and z0 < _crown - 1e-6:
+        raise AssertionError(
+            "tail board foot is BURIED: base z %.4f is %.1f mm below the roof "
+            "crown %.4f at x %.4f -- a fixture's foot must be clear of the body"
+            % (z0, (_crown - z0) * 1000, _crown, x0))
     u = (-math.cos(a), 0.0, math.sin(a))          # up the chord, aft and up
     v = (0.0, 1.0, 0.0)                           # across the vehicle
     w = (-math.sin(a), 0.0, -math.cos(a))         # the board's own normal
@@ -1536,7 +1586,9 @@ def tail_board(log=print):
                           name="tail_board")
     NOT_BODYWORK.add(board.name)      # on the vehicle; not its sheet metal
     tip = (x0 + u[0] * TB_CHORD, TB_Y_CENTRE, z0 + u[2] * TB_CHORD)
-    log("tail board: base x %.4f (gutter aft end) z %.4f, %.1f deg from "
+    log("tail board: base x %.4f (gutter aft end) z %.4f (standing CLEAR on the roof; "
+        "the near-edge read is 80 mm lower and is DECLARED, not hidden), "
+        "%.1f deg from "
         "HORIZONTAL, chord %.3f m -> tip x %.4f z %.4f"
         % (x0, z0, TB_TILT_DEG, TB_CHORD, tip[0], tip[2]))
     log("  width %.3f m and lateral centring are POSE CHOICES -- NOT MEASURED; "
@@ -1545,37 +1597,108 @@ def tail_board(log=print):
     return board, (x0, z0), tip
 
 
-def tail_board_stay(log=print):
+def tail_board_edge(base, log=print):
+    """The board's painted rim band.  MEASURED as artwork, RED frame only.
+
+    WHAT WAS MEASURED, on ref_side.jpg at 8x, 11-16 samples per band:
+        over the TIP half   a saturated RED band, (210,55,55), 4-5 px
+        over the BASE half  a cool near-black, (85,76,88), B > R
+        immediately below the red, a warm near-black (69,40,40), ~5 px
+    At ~215 px/m a 4-5 px band is TB_BORDER = 21 mm.
+
+    WHY IT IS BUILT ON THE RIM.  The board is seen almost edge-on in every
+    frame we hold, so the "boundary band" the measurement found IS the board's
+    own rim -- that is what an edge-on panel presents.  Building it as a face
+    border instead would be a claim about a face no frame resolves.
+
+    THE COLOURS ARE CEILINGS, NOT MATCHES.  ref_side.jpg is clipped: the bulbs
+    read (255,251,99) and the roof cream (255,243,232), BOTH R-clipped.  The
+    board's own cream at (227,220,198) is NOT clipped and is usable; the red
+    band sits between them and cannot be separated from its own highlight.  So
+    the existing capred / interior_dark materials are used rather than new ones
+    mixed to a clipped sample.  Rule 26: nothing here came off a green frame.
+
+    WHICH LONG EDGE.  The bulbs are on the lower / near (show-side) edge, so
+    this is the other one.  That much the frame does settle.
+    """
+    a = math.radians(TB_TILT_DEG)
+    ey = TB_Y_CENTRE - TB_WIDTH * 0.5           # the far / upper long edge
+    u = (-math.cos(a), 0.0, math.sin(a))
+    out = []
+    for name, t0, t1, tag in (("tb_edge_red", 0.5, 1.0, "RED, tip half"),
+                              ("tb_edge_dark", 0.0, 0.5, "near-black, base half")):
+        mid = (t0 + t1) * 0.5
+        cx = base[0] + u[0] * TB_CHORD * mid
+        cz = base[1] + u[2] * TB_CHORD * mid
+        pts = T.rrect(TB_CHORD * (t1 - t0), TB_T + 0.004, 0.004, seg=3)
+        ob = T.solid_prism((cx, ey, cz), u, (0.0, 0.0, 0.0) if False else
+                           (-math.sin(a), 0.0, -math.cos(a)),
+                           (0.0, 1.0, 0.0), pts, TB_BORDER, name=name)
+        NOT_BODYWORK.add(ob.name)
+        out.append((ob, tag))
+    log("  rim band %.0f mm: RED over the tip half, near-black over the base "
+        "half  [ARTWORK, ref_side.jpg only; colours are CLIPPED-frame ceilings]"
+        % (TB_BORDER * 1000))
+    return out
+
+
+def tail_board_stay(base, log=print):
     """The single stay under the board.  MEASURED, and its TYPE is not.
 
-    ONE, and only one is visible: from the board's lower edge at
-    (X_TAIL+0.049, z 1.818) -- about 0.13 m up the chord from the base -- down
-    and slightly FORWARD, fading at (X_TAIL+0.106, z 1.578) on the tail skin.
-    Visible length 0.247 m, 77 deg from horizontal.
+    ONE, and only one is visible, and every figure here is expressed AGAINST
+    THE BOARD rather than as a station, so it re-seats with the board's own
+    depth ambiguity instead of going stale the moment the board moves (rule 2).
+    What was measured on ref_side.jpg:
+
+        top      about 0.13 m UP THE CHORD from the base
+        landing  z 1.578, on the tail skin below the roof line
+        angle    77-78 deg from horizontal, running down and FORWARD
+        length   0.247 m visible
 
     ITS APPARENT DIAMETER IS 1-4 px (median 2) = 9 +- 7 mm, WHICH IS THE
     FRAME'S BLUR FLOOR.  A rod, a wire and the bulb string's own power cable
     cannot be separated there, and it FADES rather than terminating, so the
     landing point is where contrast is lost, not necessarily the foot.  It is
-    built as a slender rod and that choice is declared, not measured.  In
+    built as a slender rod and that choice is DECLARED, not measured.  In
     IMG_2073 (GREEN -- geometry only) the member at this station is a
-    substantial white PROP, which is corroboration that something structural
-    is there and is NOT evidence for this vehicle's type.
+    substantial white PROP: corroboration that something structural is there,
+    and NOT evidence for this vehicle's type.
 
     A SECOND STAY ON THE OFF SIDE WOULD BE INVISIBLE IN EVERY FRAME WE HOLD.
     None is built, because building one would be a claim.
     """
-    xa, za = T.X_TAIL + 0.049, 1.818
-    xb, zb = T.X_TAIL + 0.106, 1.578
+    a = math.radians(TB_TILT_DEG)
+    up = 0.1300                                   # MEASURED, up the chord
+    xa = base[0] - math.cos(a) * up
+    za = base[1] + math.sin(a) * up - math.cos(a) * TB_T * 0.5   # its lower face
+    ang = math.radians(77.5)                      # MEASURED 77-78 deg
+    # THE LANDING IS MEASURED AT z 1.578 ON THE TAIL SKIN -- but that reading
+    # belongs to a base at the near-edge height, and this board stands 80 mm
+    # clear on the roof (see tail_board()).  Run at the measured ANGLE and stop
+    # where the rod MEETS THE ROOF, rather than driving it to a z that is now
+    # inside the sheet metal.  A stay that ends inside the body is the same
+    # class of defect as a foot that starts inside it.
+    zb, xb = 1.5780, xa + (za - 1.5780) / math.tan(ang)
+    for _i in range(240):
+        _t = _i / 239.0
+        _x = xa + (xb - xa) * _t
+        _z = za + (zb - za) * _t
+        if _x >= T.X_TAIL and _z <= T.ZT_ALL(_x) - T.rake_drop(_x):
+            xb, zb = _x, _z
+            break
+    else:
+        pass                                      # never reached the roof
     r = 0.0045                       # 9 mm dia, the median of the blur-floor read
     wire = [(xa, TB_Y_CENTRE, za), (xb, TB_Y_CENTRE, zb)]
     ob = T.sweep(wire, [(r, r), (r, -r), (-r, -r), (-r, r)],
                  up=(0, 0, 1), name="tail_board_stay")
     NOT_BODYWORK.add(ob.name)
-    log("  stay: (%.4f, %.3f) -> (%.4f, %.3f), %.0f deg from horizontal, "
-        "dia %.0f mm  [ROD vs WIRE NOT RESOLVED -- at the frame's blur floor]"
-        % (xa, za, xb, zb,
-           math.degrees(math.atan2(za - zb, abs(xb - xa))), r * 2000))
+    log("  stay: (%.4f, %.3f) -> (%.4f, %.3f), %.1f deg, len %.3f m, dia %.0f mm "
+        "[top DERIVED %.3f m up the chord; foot TERMINATED ON the roof, not "
+        "driven to the measured z 1.578 which is now inside the metal; "
+        "ROD vs WIRE NOT RESOLVED -- blur floor]"
+        % (xa, za, xb, zb, math.degrees(ang),
+           math.hypot(xb - xa, zb - za), r * 2000, up))
     return ob
 
 
