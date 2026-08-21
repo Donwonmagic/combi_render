@@ -251,6 +251,16 @@ log(f"solidified {len(body.data.vertices)}v")
 cut(body, S.windscreen_cutters(), "windscreen")
 cut(body, S.side_cutters(), "side glazing + serving bays")
 cut(body, [S.rear_cutter()], "rear window")
+# rev 48 -- THE LOUVRES BECOME APERTURES.  t1_detail.louvres() has swept 20
+# pressed blades since rev 16, but onto an UNBROKEN flank: closed ribs, where a
+# T1 louvre is an opening.  One hole per side spans the block and the blades
+# span the hole, so the gaps between them are now real slots that self-shadow.
+# See t1_detail.louvre_cutters.__doc__ for why it is one hole and not twenty.
+cut(body, D.louvre_cutters(), "rear-quarter louvre apertures")
+# ... and the dark bay behind them.  Without it the new slots look straight
+# into the lit cabin -- rendered, looked at, and the frame came back with
+# BRIGHT WHITE BARS among the slots.  See louvre_backing.__doc__.
+A(D.louvre_backing(), "dark")
 cut(body, S.door_gaps() + S.cargo_door_gaps() + S.engine_lid_gap(), "gaps",
     kind="gap")
 

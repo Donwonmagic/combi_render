@@ -2145,9 +2145,113 @@ LOUV_X0, LOUV_X1 = T._aft(-1.2850), T._aft(-1.6700)
 LOUV_N = 10
 LOUV_Z_TOP, LOUV_Z_BOT = 1.0850, 0.8950
 LOUV_PITCH = (LOUV_Z_TOP - LOUV_Z_BOT) / (LOUV_N - 1)          # 0.021111
-LOUV_PROFILE = [(0.0000, 0.0000), (0.0080, -0.0020),
-                (0.0080, -0.0090), (0.0000, -0.0110)]
+# rev 48 -- THE SECTION HEIGHT IS NOW DERIVED, AND THE OLD ONE DID NOT
+# RECONCILE.  The measured pitch is 21.11 mm and the header above records the
+# slot aperture as ~7 mm (INFERRED -- 1.5 px, below the photograph's
+# resolution).  Those two require a blade 21.11 - 7 = 14.1 mm tall.  The
+# authored section was 11.0 mm, which leaves a 10.1 mm slot -- 44 % wider than
+# the inferred aperture.  It never showed, because until this revision the
+# shell was not cut and the "slot" was solid metal: the number could be wrong
+# without anything being visibly wrong.
+#
+# With the aperture cut (louvre_cutters above) it shows immediately.  Measured
+# on the identical instrument at the identical scale, probe_rev48_louv:
+#     photographed |amp| 0.2059     built, 11.0 mm section  0.3506   1.70x TOO STRONG
+# Too much open area reads too dark.  Derived from the two measurements that
+# ARE grounded, so it cannot drift from them again (rule 2).
+LOUV_APERTURE = 0.0070           # INFERRED, not measured -- 1.5 px in
+                                 # ref_side.jpg, below its resolution.  It is
+                                 # the one soft number in this block and it is
+                                 # the one a raking-light photograph would fix
+                                 # (PHOTOS_WANTED_rev48 item 3).
+LOUV_SECT = LOUV_PITCH - LOUV_APERTURE            # 0.01411
+_LP = [(0.0000, 0.0000), (0.0080, -0.0020),
+       (0.0080, -0.0090), (0.0000, -0.0110)]      # authored 11.0 mm section
+LOUV_PROFILE = [(a, b * (LOUV_SECT / 0.0110)) for (a, b) in _LP]
 LOUV_OFF = 0.0020                       # ride 2 mm proud of the flank
+LOUV_BAY_D = 0.070                      # depth of the dark box behind the
+                                        # apertures.  NOT MEASURED -- it only
+                                        # has to stop the cabin light, and it
+                                        # must clear the wheel house.
+
+
+def louvre_cutters():
+    """ONE aperture per flank, behind the louvre blades.  rev 48.
+
+    WHY THIS EXISTS.  `louvres()` below is explicit that it is "A sweep, not a
+    boolean ... so the shell is never touched" -- which means the 20 blades
+    have always been CLOSED RIBS laid on an UNBROKEN flank.  A T1 louvre is an
+    APERTURE: the darkness in it is a cavity, not paint and not a shadow the
+    blade happens to cast.  That is the fidelity bar the owner set with
+    `bus_model_ref.JPG`, whose own nose louvres are modelled slots.
+
+    ONE HOLE PER SIDE, NOT TWENTY, and that is a deliberate choice on two
+    grounds, both measured:
+
+      * ROBUSTNESS.  t1_core.py:230-244 records gap_englid as the model's most
+        fragile boolean, and thin cutters are exactly what makes a boolean
+        fragile.  Two large rectangles are the safest shape available.
+      * THE VOLUME GUARD.  build.CUTTER_VOL_MIN is 1.0e-4 m3.  A single 7 mm
+        slot 0.295 m long needs a 48 mm deep cutter just to clear it -- it
+        would sit ON the limit, twenty times over.  The block aperture is
+        0.19 x 0.295 x 0.30 = 1.7e-2 m3, two orders clear.
+
+    The blades then span the hole and the gaps BETWEEN them are the slots, so
+    the aperture is real and the geometry that reads is still the measured
+    sweep.  Inset in x so the blade ends land on solid panel.
+
+    AUTHORED FRAME.  This runs in step 3, BEFORE the rake shear, so it uses
+    LOUV_Z_TOP/BOT as authored (0.8950/1.0850) and not the post-shear figures.
+    """
+    obs = []
+    half = LOUV_SECT * 0.5              # the blade section's own half-height
+    z0 = LOUV_Z_BOT - half - 0.0020
+    z1 = LOUV_Z_TOP + half + 0.0020
+    x0 = min(LOUV_X0, LOUV_X1) + 0.004
+    x1 = max(LOUV_X0, LOUV_X1) - 0.004
+    pts = T.rrect(x1 - x0, z1 - z0, 0.004, seg=4)
+    pts = [(u + (x0 + x1) * 0.5, v + (z0 + z1) * 0.5) for (u, v) in pts]
+    for s in (1, -1):
+        obs.append(T.solid_prism((0, s * 0.80, 0), (1, 0, 0), (0, 0, 1),
+                                 (0, s, 0), pts, 0.30, name=f"cut_louv{s}"))
+    return obs
+
+
+def louvre_backing():
+    """A shallow dark box behind each louvre aperture.  rev 48.
+
+    WITHOUT IT THE APERTURES LOOK STRAIGHT INTO THE LIT CABIN.  The first cut
+    was rendered and looked at, and the slots came back as hard black bands
+    with BRIGHT WHITE BARS among them -- `studio.cabin_fill()` shining out
+    through the new holes, and in places straight through to the far flank's
+    louvres.  Nothing in the numbers said so; the signed modulation went the
+    right way (+0.0343 -> -0.0287) while the frame was visibly wrong.  SPEC
+    10.105.7 and rule 28.
+
+    Behind a T1's rear-quarter louvres is the ENGINE BAY -- shallow, unlit and
+    boxed off from the cabin -- not the passenger compartment.  So the fix is
+    not to close the slots again; it is to put the bay back.
+
+    Sized off the aperture itself, never typed, and inset so it cannot poke
+    through the flank.  Depth is shallow on purpose: it only has to stop the
+    light, and a deep box would collide with the wheel house at x -1.29.
+    """
+    obs = []
+    half = LOUV_SECT * 0.5
+    z0 = LOUV_Z_BOT - half - 0.0060
+    z1 = LOUV_Z_TOP + half + 0.0060
+    x0 = min(LOUV_X0, LOUV_X1) - 0.006
+    x1 = max(LOUV_X0, LOUV_X1) + 0.006
+    pts = T.rrect(x1 - x0, z1 - z0, 0.004, seg=4)
+    pts = [(u + (x0 + x1) * 0.5, v + (z0 + z1) * 0.5) for (u, v) in pts]
+    for s in (1, -1):
+        # T.solid_prism extrudes CENTRED on its origin, so the origin is
+        # advanced half the depth to sit the box entirely INBOARD of the skin.
+        y_skin = 0.86
+        obs.append(T.solid_prism((0, s * (y_skin - LOUV_BAY_D * 0.5 - 0.004), 0),
+                                 (1, 0, 0), (0, 0, 1), (0, s, 0),
+                                 pts, LOUV_BAY_D, name=f"louvbay{s}"))
+    return obs
 
 
 def louvres(nx=13):
@@ -2169,7 +2273,7 @@ def louvres(nx=13):
                      s * (T.WX(LOUV_X1 + (LOUV_X0 - LOUV_X1) * i / nx)
                           * T.G(z) + LOUV_OFF), z)
                     for i in range(nx + 1)]
-            pr = [(a * -s, b + 0.0055) for (a, b) in LOUV_PROFILE]
+            pr = [(a * -s, b + LOUV_SECT * 0.5) for (a, b) in LOUV_PROFILE]
             parts.append(T.sweep(path, pr, up=(0, 0, 1),
                                  name=f"louvre{s}_{k}"))
         ob = join(parts, f"louvres{s}")

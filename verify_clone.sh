@@ -405,6 +405,24 @@ ck "the star clamp reports what it drops" 1 "$(grep -q 'fall OUTSIDE this decal'
 ck "rear louvres are BUILT geometry"      1 "$(grep -qE '^def louvres\(' t1_detail.py && echo 1 || echo 0)"
 ck "rear louvre count is 10 per flank"    1 "$(grep -c '^LOUV_N = 10' t1_detail.py)"
 ck "rear louvres are called from the build" 1 "$(grep -q 'louvres()' t1_detail.py && echo 1 || echo 0)"
+# rev 48, the SECOND half of JOB 2 and the one that was actually open.  The
+# blades were never the problem; the UNBROKEN FLANK behind them was.  A T1
+# louvre is an aperture, and the fidelity bar he set (bus_model_ref.JPG) has
+# modelled slots that self-shadow.  Signed modulation +0.0343 -> -0.2559 on
+# probe_rev48_louv, i.e. the slats stopped catching the key and started
+# shadowing themselves, which is the sign the photograph has.
+ck "the louvre APERTURES are cut"    1 "$(grep -qE '^def louvre_cutters' t1_detail.py && echo 1 || echo 0)"
+ck "build.py cuts the louvre apertures" 1 "$(grep -q 'louvre_cutters' build.py && echo 1 || echo 0)"
+# AND THE BAY BEHIND THEM, WHICH IS NOT OPTIONAL.  Cut without it, the slots
+# look straight into the lit cabin: the first render came back with BRIGHT
+# WHITE BARS among the slots while every number said the change had worked.
+ck "the louvre apertures are BACKED" 1 "$(grep -qE '^def louvre_backing' t1_detail.py && echo 1 || echo 0)"
+ck "build.py builds the louvre bay"  1 "$(grep -q 'louvre_backing' build.py && echo 1 || echo 0)"
+# The blade section must stay DERIVED from the measured pitch and the inferred
+# aperture.  The authored 11.0 mm reconciled with neither, and could not show
+# it while the shell was solid behind it.
+ck "the blade section is DERIVED"    1 "$(grep -q 'LOUV_SECT = LOUV_PITCH - LOUV_APERTURE' t1_detail.py && echo 1 || echo 0)"
+ck "LOUV_APERTURE declares itself INFERRED" 1 "$(grep -A 3 '^LOUV_APERTURE' t1_detail.py | grep -q 'INFERRED' && echo 1 || echo 0)"
 # The count is not merely present, it is CONFIRMED against a photograph: 10
 # slats on IMG_2073.jpeg (rows 468-582, cols 1156-1188, de-sheared s = -0.180),
 # pitch 8.106 +/- 0.023 px.  That is GEOMETRY, and the owner has ruled geometry

@@ -10042,6 +10042,60 @@ are **closed ribs laid on an unbroken flank**, where a T1 louvre is an
 **aperture**. That is the fidelity bar `bus_model_ref.JPG` sets, whose own nose
 louvres are modelled slots that self-shadow. Guarded as C10.
 
+#### 10.122.3b  AND THEN REV 48 FIXED IT — THE LOUVRES ARE APERTURES NOW
+
+The lighting-independent half of §10.122.2, closed in the same revision that
+found it. `t1_detail.louvres()` was *"A sweep, not a boolean … the shell is
+never touched"*: twenty **closed ribs laid on unbroken metal**, where a T1
+louvre is an **opening**. That is the bar `bus_model_ref.JPG` sets — its own
+nose louvres are modelled slots that self-shadow.
+
+**ONE HOLE PER FLANK, NOT TWENTY**, on two measured grounds. `t1_core.py:230`
+records `gap_englid` as the model's most fragile boolean and thin cutters are
+what make a boolean fragile; and `build.CUTTER_VOL_MIN` is 1.0e-4 m³, which a
+single 7 mm slot would sit *on* — twenty times over. The block aperture is
+1.79e-2 m³, two orders clear. The blades span the hole; the gaps between them
+are the slots.
+
+**THE SIGN MOVED, AND THE SIGN IS THE POINT.**
+
+```
+    photographed   -0.0383     the slats self-shadow
+    before         +0.0343     the ribs caught the key
+    after          -0.2559     the slots self-shadow
+```
+
+**AND THE FIRST CUT WAS VISIBLY WRONG WHILE EVERY NUMBER SAID IT HAD WORKED.**
+The signed modulation went the right way at the first attempt (+0.0343 →
+−0.0287) and `VERIFY` was clean. The **render** came back with **bright white
+bars among the slots** — `cabin_fill()` shining out through the new holes, and
+in places straight through to the far flank. Behind a T1's rear-quarter
+louvres is the **engine bay**: shallow, unlit, boxed off. `louvre_backing()`
+puts it back. **Rule 28, on a change made in the same revision that wrote
+rule 28.**
+
+**A CONSTANT THAT COULD NOT BE WRONG UNTIL THE SHELL WAS CUT.** The authored
+section was **11.0 mm**. The measured pitch is 21.11 mm and the header records
+the slot aperture as **~7 mm (INFERRED**, 1.5 px, below `ref_side.jpg`'s
+resolution**)**. Those require a **14.1 mm** blade; 11.0 mm leaves a 10.1 mm
+slot, 44 % wider than the inferred aperture. **It never showed, because the
+"slot" was solid metal** — the number could be wrong without anything being
+visibly wrong. `LOUV_SECT = LOUV_PITCH − LOUV_APERTURE`, derived (rule 2).
+
+**THE AMPLITUDE IS A CEILING, NOT A TARGET.** Built |amp| 0.385 against a
+photographed 0.206. The photographed block sits in the serving counter's
+**shade**; the rendered one is in open key. One lighting against another
+(§10.110.8). **Do not tune the pressing depth from it.** A raking-light frame
+of six slats settles depth directly — `PHOTOS_WANTED_rev48` item 3.
+
+**AND C7 WAS RESTATED TWICE BEFORE IT WAS TRUE.** "The rightmost non-white
+pixel is the tail cap" is false on this vehicle: at z 0.95–1.05 it finds the
+**open trunk lid** (1365), at z 1.20–1.30 the **counter shelf** (1396), at
+z 0.81–1.10 the **tail lamp** (1315). Hunting for a clean band was the wrong
+response — the assumption was wrong, not the window. It now asserts the
+invariant that *is* true: things may stick out past the tail, but nothing
+forward of the tail cap can be the silhouette's aft edge.
+
 #### 10.122.4  THE TRUNK LID WAS NEVER A SEAM — IT WAS ALREADY A FREE PANEL
 
 > *"we're going to need the trunk open like it's in service"*

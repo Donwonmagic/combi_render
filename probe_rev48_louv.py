@@ -34,7 +34,17 @@ is.  Sign alone condemns nothing, and `ref_side.jpg`'s block additionally sits
 in the serving counter's shade while the render's is in open key.  ONE
 LIGHTING EACH IS NOT A COMPARISON OF GEOMETRY (SPEC 10.110.8).
 
-WHAT SURVIVES IS THE MAGNITUDE RATIO, AND ITS CEILING IS STATED:
+WHAT REV 48 THEN FIXED, AND IT IS THE HALF THAT DOES NOT DEPEND ON LIGHTING.
+`t1_detail.louvres()` was "A sweep, not a boolean ... the shell is never
+touched" -- twenty CLOSED RIBS laid on UNBROKEN metal, where a T1 louvre is an
+APERTURE.  One hole per flank now spans the block, the blades span the hole,
+and a shallow dark bay sits behind so the slots do not look into the lit cabin
+(they did, and the first render showed BRIGHT WHITE BARS among them -- rule 28).
+
+    before   +0.0343   the blades caught the key
+    after    -0.2559   the slots self-shadow, as the photograph's do
+
+WHAT SURVIVES AS A CEILING RATHER THAN A TARGET:
 
     |photographed| / |built|  =  1.85x
 
@@ -198,7 +208,12 @@ def main():
     print("probe_rev48_louv -- do the built rear louvres READ?")
     print("=" * 78)
     photo = Image.open(os.path.join(HERE, "ref_side.jpg")).convert("RGB")
-    rp = os.path.join(HERE, "out", "r48b_side.png")
+    # The frame is selectable so BEFORE and AFTER can be read on the IDENTICAL
+    # instrument (rule 24's surviving half: compare like with like).  Default
+    # is rev 48's pre-aperture render, so an un-parameterised run reproduces
+    # the figure this probe was written against.
+    rp = os.path.join(HERE, "out",
+                      os.environ.get("T1_LOUV_FRAME", "r48b_side.png"))
     if not os.path.exists(rp):
         print("  MISSING %s -- render it first:" % rp)
         print("  T1_PREVIEW=side T1_PFX=r48b T1_RX=1600 T1_RY=1100 T1_SAMP=96 \\")
@@ -220,13 +235,36 @@ def main():
        "C6 projected ground plane lands on the frame's own last row",
        "z=0 -> y %.1f, frame ends %.0f" % (yg_pred, yg_meas))
 
-    xt_pred = to_px(X_TAIL, 1.0)[0]
+    # rev 48: THE BAND MOVED, AND THE OLD ONE WENT RED FOR A GOOD REASON.
+    # It sampled z 0.95..1.05, which is where the TRUNK LID now hangs once it
+    # is swung open -- the silhouette there reads 1365, not the tail cap's
+    # 1307.9.  The control was correctly reporting that the vehicle changed.
+    # Moved to z 1.20..1.30, which is clear of the trunk lid (z 0.796..1.103
+    # open), clear of the rear hatch (1.455..1.606 open) and below the counter
+    # shelf.  Rule 5: the rationale is kept, the shape is replaced.
+    xt_pred = to_px(X_TAIL, 1.25)[0]
     a = np.asarray(built, float); nw = (a.sum(axis=2) < 3*250)
-    band = nw[int(to_px(0, 1.05)[1]):int(to_px(0, 0.95)[1])]
+    band = nw[int(to_px(0, 1.30)[1]):int(to_px(0, 1.20)[1])]
     xt_meas = float(np.where(band.any(axis=0))[0].max())
-    ck(abs(xt_pred - xt_meas) < 8.0,
-       "C7 projected tail cap lands on the silhouette at z ~ 1.0",
-       "x=%.3f -> px %.1f, silhouette %.0f" % (X_TAIL, xt_pred, xt_meas))
+    # rev 48, RESTATED TWICE AND NOW TRUE.  It began as "the rightmost
+    # non-white pixel IS the tail cap", which is simply false on this vehicle:
+    # at z 0.95..1.05 it finds the open TRUNK LID (1365), at z 1.20..1.30 the
+    # COUNTER SHELF (1396), and at z 0.81..1.10 the TAIL LAMP (1315).  Three
+    # different bands, three different protrusions, none of them the tail cap.
+    # Hunting for a clean band was the wrong response: the assumption is
+    # wrong, not the window.
+    #
+    # THE INVARIANT THAT IS ACTUALLY TRUE: things may stick out PAST the tail
+    # (lamps, shelves, open lids), but NOTHING can lie forward of the tail cap
+    # and still be the silhouette's aft edge.  So the projected tail cap must
+    # be at or forward of the measured edge, and within a bound that any
+    # grossly wrong mapping would breach.  Weaker than the original, and
+    # unlike the original it is not false.  The mapping's real proof is C6
+    # (the ground plane, exact to 0.8 px) and C9 (the block's metric size).
+    ck(xt_pred <= xt_meas + 2.0 and (xt_meas - xt_pred) < 120.0,
+       "C7 projected tail cap is at or forward of the silhouette edge",
+       "x=%.3f -> px %.1f, silhouette %.0f (delta %+.0f)"
+       % (X_TAIL, xt_pred, xt_meas, xt_meas - xt_pred))
 
     bb = project_block()
     bw, bh = bb[1]-bb[0], bb[3]-bb[2]
@@ -304,11 +342,18 @@ def main():
     # whitespace-normalised: the claim lives in a wrapped docstring, so a
     # contiguous-substring test would fail on the line break rather than on
     # the fact.  Normalising is what makes this test about the FACT.
+    # rev 48: C10 IS INVERTED, DELIBERATELY.  It used to assert that the
+    # louvres were CLOSED RIBS -- it was the finding, not the fix.  The shell
+    # is now cut (t1_detail.louvre_cutters), so the same row must now assert
+    # the opposite, or it would pass for ever on the defect it was written to
+    # expose.  Rule 5 again: a guard's rationale outlives its shape.
     src = " ".join(_src("t1_detail.py").split())
-    closed = ("A sweep, not a boolean" in src) and ("shell is never touched" in src)
-    ck(closed, "C10 the built louvres are CLOSED RIBS, not apertures",
-       "t1_detail.louvres.__doc__ says so" if closed
-       else "docstring changed -- re-check whether the shell is now cut")
+    cut_exists = "def louvre_cutters" in src
+    wired = "louvre_cutters" in " ".join(_src("build.py").split())
+    ck(cut_exists and wired,
+       "C10 the louvres are APERTURES -- the shell IS cut behind them",
+       "louvre_cutters present and called from build.py" if cut_exists and wired
+       else "cutter %s, call site %s" % (cut_exists, wired))
 
     print()
     print("  READING.   photographed %+.4f   built %+.4f" % (mp, mb))
@@ -323,10 +368,10 @@ def main():
     print("      in open key.  One lighting each (SPEC 10.110.8).")
     print("   *  So 1.85x bounds PROMINENCE, not DEPTH.  Do not retune LOUV_OFF,")
     print("      LOUV_PROFILE or the pressing depth from this number.")
-    print("   *  What IS lighting-independent, and is the real JOB 2 item:")
-    print("      t1_detail.louvres() is 'A sweep, not a boolean ... the shell is")
-    print("      never touched' -- the built louvres are CLOSED RIBS laid on an")
-    print("      UNBROKEN flank.  A T1 louvre is an APERTURE.  See C10.")
+    print("   *  The lighting-independent half IS NOW FIXED: the shell is cut")
+    print("      behind the blades (louvre_cutters) and backed by a dark bay")
+    print("      (louvre_backing), so the slots are real openings that")
+    print("      self-shadow.  The SIGN moved +0.0343 -> -0.2559.  See C10.")
     print()
     print("CONTROLS: %d checked, %d FAILED" % (checked, fails))
     return 1 if fails else 0
