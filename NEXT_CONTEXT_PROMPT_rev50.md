@@ -222,11 +222,124 @@ the exposure cost stated** — that is a look decision and it is his.
 
 ## §6. WHAT IS STILL WRONG — WORK THIS LIST IN ORDER
 
-*(This section is written from a 19-agent coordinated survey run at the owner's request at the close of
-rev 49: twelve subsystem surveys → five adversarial refuters → a completeness critic → one ranked
-synthesis. The full output is `SURVEY_rev49_photoreal.md`. **Read it before starting item 1.**)*
+*Written from a **19-agent coordinated survey** run at the owner's request at the close of rev 49:
+twelve subsystem surveys → five adversarial refuters → a completeness critic → one ranked synthesis.
+19 agents, 0 errors, ~5 h, 1632 tool calls, 600+ working crops. **78 findings: 15 blocking, 42 major,
+21 minor.** The full output is **`SURVEY_rev49_photoreal.md` (464 KB, tracked)** — every finding with
+its evidence, its ceiling and its own attempted self-refutation, plus 130+ **ALREADY RIGHT** items so
+you do not re-litigate settled ground. **READ IT BEFORE STARTING ITEM 1.**
 
-**PLACEHOLDER — filled below from the survey.**
+### THE HEADLINE, IN THE SYNTHESIS'S OWN WORDS
+
+> **THE GEOMETRY IS NOW CLOSER THAN THE PRESENTATION.** The residual shape errors are mostly tens of
+> millimetres on parts nobody looks at twice — but four things that have nothing to do with
+> measurement are what make every shipped frame read as a render: **the vehicle barely darkens the
+> ground it stands on**; **its largest surface delivers chalk where every photograph shows polished
+> enamel**; **every duplicated part is a bit-identical clone at the same clock angle carrying the same
+> dirt**; and **every specular surface has a white void and six rectangles to reflect.**
+
+**AND TWO SHAPE DEFECTS ARE VISIBLE ACROSS THE ROOM, EACH ONE CONSTANT.**
+
+**W4 AND W6 ARE NOT GOING TO CLOSE THIS REVISION AND THE BRIEF SHOULD STOP IMPLYING OTHERWISE.** A
+homography test settles that **no camera at any focal length** can put `ref_workshop.jpg`'s roundel
+(axis ratio 0.657) and headlamp aperture (0.92) on one plane — flat-plane best fit **13.24 px rms**
+against a **0.22 px** control on the render. **W4 is real, quantified and CONFIRMED**; apportioning it
+between panel crown, lamp splay and a proud aperture flange still needs §7 item 3.
+
+---
+
+### A. DO NOW — unblocked, measurable from frames we already hold
+
+Ranked by `(visible impact 1-5) × (post-adversarial confidence) ÷ (effort: small 1, medium 2, large 4)`,
+judged on the frames he actually looks at.
+
+| # | item | sev | effort | the ONE measurement that settles it |
+|---|---|---|---|---|
+| **A1** | **`LID_OPEN_DEG = 104.0` tips the mural lid AWAY from the counter.** Free edge lands 87 mm outboard of the roof edge and 1.63 m from the counter; photographs give α = 61–78°, leaning 12–29° **over** it. Its own comment and SPEC §135 say the opposite. **Raised at `AUDIT_rev43:117` and unfixed for six revisions.** | blocking | small | the scale-free taper: the board's span shrinks **−5.3 ± 0.6 %** top-to-bottom in `ref_side.jpg` (4 windows, rms 0.41–1.69 px). Corroborated with no measurement at all — **the support rod passes IN FRONT of the painted face** in `ref_rear34.jpg` and `IMG_2073` |
+| **A2** | **Every hubcap renders a FIVE-PETAL FLOWER, not a dome.** `rim()` scales the disc radially by 1.1538 and leaves its **axial** coordinates alone, so the disc stands proud of the cap from r = 0.120 m out: visible **Ø239 mm** against a built **Ø274 mm**, with the five vent holes the only places the cap still shows. **Found independently by two agents.** | blocking | small | m=5 angular harmonic of the hub radius profile: render **0.050–0.056** (m2,m3,m4,m6,m7 all ≤ 0.008) vs `ref_side.jpg` **0.012–0.022**. Controls: perfect circle **0.0000**, synthetic 5-petal **0.0399**. `CAP_R` is correct — **do not shrink the cap** |
+| **A3** | **EVERY DUPLICATED PART IS A BIT-IDENTICAL CLONE.** All four wheels are placed with no rotation about the axle, and `WEATHER`/`MOTTLE` are fed **Object** coordinates, so the wear field clones too. Same class: both headlamps, both indicators, both tail lamps, both hinges, three bay seals, two lid struts. **No dimension owned this — the critic found it.** | blocking | small | front-vs-rear wheel high-pass correlation on `r49board_side.png`: **0.675** whole, **0.708** tyre annulus, **0.695** hubcap. Controls: front vs itself at +5 px **−0.012**; two plain flank patches **+0.000**. **Fix is two lines and `MOTTLE_OFS` already exists as a declared no-op at (0,0,0)** |
+| **A4** | **THE VEHICLE REMOVES ALMOST NO LIGHT FROM THE FLOOR IT STANDS ON, and there is nothing under it to remove any.** `van_floor` is `FLOOR_W = 1.200` — **AUTHORED**, 550 mm narrower than the body — with no chassis, exhaust, axle beam or tank. `studio.py:429` sets the world to **0.05 to fight W6**, so a crevice is lit or black with no gradient; `t1_mats.py:903` uses **only the convex half of Pointiness**, so no shut line, drip rail, arch lip or badge junction carries grime. **`optics-6` has been open since REV 12.** | blocking | medium | the crop pair read as images. Numerically, verified windows: fidelity bar under-body mean **133.1**, p05 **42**, 32 % pure white; `r49s_hero34f` **162.5**, p05 **72**, 2.6 % pure white |
+| **A5** | **The body's three finish constants have no derivation** — Coat Weight **0.02**, Coat Roughness **0.300** (10× out of family with every other coated material: `cream` 0.030, `bumpercream` 0.030), on the vehicle's **largest** surface, with `t1_mats.py:178` declaring "the body is diffuse-dominated". Delivered cream reads as unpolished chalk with no crown highlight. | major | small | crop pair, render cab roof vs `ref_rear34.jpg` same panel. **Must be A/B'd against W6's G/R in the same run — a clearcoat is exactly the achromatic-veil mechanism W6 blames** |
+| **A6** | **The edge-wear system degenerates into an all-over grey speckle on every un-subdivided panel** — **22.4 %** coverage where the *same material* renders **0.01 %** on the shell, because Pointiness saturates to 1.0 on flat detail meshes and **both** gates saturate. Same mechanism gives the counter fascia a chip field at **19.1 %** of area against the photograph's **0.66 %**, and `countertan` still carries **WEAR 0.7** on a surface **the owner ruled CLEAN at rev 28**. | blocking | medium | analytic Monte-Carlo of the chip/core clamp chain predicts 25.4–26.1 %; measured 20.9 %. Downsampling to the photograph's 211.5 px/m leaves it unchanged, so it is **texture, not sharpness**. `T1_CTAN_WEAR=0` already exists |
+| **A7** | **The rear serving aperture — the ONLY one his rev-49 ruling leaves open — renders as a black cavity.** `gal_end_a` stops at x = −1.300, leaving **573 mm** of undressed, unlit box to the tail skin. **CONFIRMED by the adversary, and worse than reported.** | blocking | medium | geometrically masked to the strip of true open interior (camera validated to 2 px on the 1963 plate): **median L 14.3, p2 1.5, min 0.0**, against the model's own side bays at **184.5** and **126.6** — **8.8× and 12.9× darker**, not 4.5× |
+| **A8** | **The T-handle is mounted on the fixed body, not on the engine lid its docstring and SPEC §4 put it on** — 46.8 mm below `ENGLID_GAP`'s lower shut line, 49.5 mm below the lid panel's own lower edge; even the top of its escutcheon is 21.8 mm clear. **A photograph-free internal contradiction.** | major | small | pixels in `r49s_rear.png`: seam y 962.5, handle y 984 → 21.5 px = 46 mm at the plate's own 463.6 px/m |
+| **A9** | **EVERY galley feature and counter-top prop is ~106 mm too far AFT** — the header documents a fraction-of-aperture conversion that **is not the one used**. Plus: three of six S-hooks hang in mid-air; `gal_caddy_fill`'s inset has the **wrong sign**; the condiment rank is **2 boxes where `ref_side.jpg` has 5**. | blocking | small | one additive constant on the X of `galley_dressing()`'s objects |
+| **A10** | **The tail skin protrudes through both tail lamps** — a disc of body red at the exact centre of each lens — and the lamps sit **~46 mm too high**: the photograph puts the lens centre **below** the plate's centre, the model puts it **above**. A sign flip. | major | small | `small_lamp()`'s profile starts on the axis; `build.py:564` places it 4.0 mm **inside** the tail skin |
+| **A11** | **The cab door handle is on the wrong side of the belt line** — a raised white lozenge **above** the two-tone break where both vehicles carry it below. `z = 1.330` typed twice, uncited, against `Z_BELT_AUTH = 1.2720`. | blocking | small | both reference vehicles, unambiguous by eye |
+| **A12** | **W3's remaining half is TOPOLOGY, not contrast** — the built "Señor" does not resolve as a word at the identical measured ink bbox, and **the remedy is already written in `senor_trace.py`**. Four revisions have carried this as a contrast problem gated on W6. | blocking | large | held against the photograph at mask x 5..275, y −12..102 |
+| **A13** | **The isolated star is built BELOW the burst from a blob that is not a star.** `cal_gen._stars()` cites "components at x 702..713, y 381..391"; that region of `ref_side.jpg` is **the door edge and the counter boxes**. Both red current frames put the star **above**, and ~2.4× larger. | major | small | threshold-stable in both admissible red frames |
+| **A14** | **Both `lid_rail` objects are ZERO-AREA** — `_rag_grid` is called with `x0 == x1`, so the lid's proud perimeter rail **has never rendered**. And **`def gutter()` is defined twice**; the dead first copy still carries the drip-rail constant rev 16 retired. | major | small | read straight off the source |
+| **A15** | **The wipers are a stock-part inference and three in-service frames of THIS bus show a bare spindle** — no arm, no blade — while they are among the most conspicuous objects on the face in every render. **Same evidence class as the over-rider bar he withdrew at rev 37.** → **C2** | major | small | `build.py:405`, warranted only by SPEC §4's "Stock 1963 T1" inventory line |
+| **A16** | **Every flank rosette is drawn at the diameter of its GOLD CORE**, so the flowers are **half size**; and the **menu-board `&` ships 58 % too tall** because `lid_gen.py:742` rescales each word independently, discarding the cap height the same file states at line 184. | major | medium | measured on the shipped texture against figures the same files declare |
+| **A17** | **The windscreen has no split** — both panes are built from one origin plane and one basis, `WS_N` with a hard-zero y component. It is **one flat screen with a 52 mm slot in it** where a T1 has two flat panes vee'd about the centre pillar. The vee **angle** needs B5; the **fact** does not. | major | medium | `t1_shell.py:12-18`, `:22-30`, read straight off the source |
+| **A18** | **The delivered frames have NO CONTACT SHADOW AT ALL.** `hero.py:112` sets `T1_FX=0` for every strip and `studio.py:825` gates the **entire** contact-shadow subgraph on that flag; `post.py` has no shadow stage. **SPEC §10.116's work never reaches the images he receives.** And `bg_white_level`'s 24.87 **clips to 255**, annihilating the vignette (0.000) and grain (0.0000) **he chose at rev 15**. | blocking | small | 57 % of the shipped frame is bit-exact (255,255,255) |
+| **A19** | **Both headlamps and both indicators are placed with ZERO ROTATION** — translation only, no `rot=` anywhere — so both axes are exactly parallel to the centreline. Wrong even against the model's **own** nose, whose normal at y = 0.545 is 1.2° off +X. And the headlamp **bore is cut at the LENS radius**, so the bore rim silhouettes rather than the bezel, whose widest ring sits 14 mm behind the skin. | major | small | `build.py:506`, `:520-521`; `t1_shell.py:466-475` vs `t1_detail.py:853-859` |
+
+**Also do now, cheap and already diagnosed:** re-publish the **open-findings register** abandoned at
+rev 45 (21 open rows, four revisions with no successor); restore the **"§7. INSTRUCTIONS OF MINE STILL
+OUTSTANDING, IN NO OTHER CARRIER"** section **deleted at rev 44**, which carried fourteen standing
+items in the owner's own voice; strike SPEC §0.2's two rev-4 corrections that were themselves later
+refuted; and re-derive SPEC §8's colour locks — **they come off `ref_source.jpeg`, a 246 × 197
+thumbnail that is the SAME PHOTOGRAPH as `ref_playa_34.png` at 4× the area.**
+
+### B. BLOCKED ON A PHOTOGRAPH — he has said neither is possible now, so RECORD, do not queue
+
+| | the frame | what it closes |
+|---|---|---|
+| **B1** | **A darker exposure of `ref_side.jpg`** | the whole decal cluster — word gap, spike count and character, star count, burst colour, "the lettering looks off". **5–7 items, one frame.** 60.8 % of the white lettering is clipped |
+| **B2** | **A raking-light frame of the rear quarter** | louvre **pressing depth, block length AND block station** — three estimators were built and **all three failed their own controls** — and, same frame class at the nose, the **V swage's section** (6.2 mm / 16 mm, both invented). **Widen `PHOTOS_WANTED` item 4's scope** |
+| **B3** | **One frame from beside the front corner at nose height, looking ACROSS the face** | apportions **W4** between panel crown, lamp splay and a proud aperture flange. **A head-on frame does NOT do it**: head-on, a 15° splay compresses the bezel by 3.4 %, which is 1 px |
+| **B4** | **The open rear window's jamb** | its seal, hinge and stay — **the only aperture on the vehicle with none of the three** |
+| **B5** | *(cheap, may need no photograph)* a bottom-rail trace on `ref_workshop.jpg` | the windscreen **vee angle** (A17's second half) |
+| **B6** | **The tail board's FOOTING** | its **width** and **fore-aft depth plane** — one unmeasurable quantity showing up twice (§3) |
+
+### C. BLOCKED ON AN OWNER RULING — put each as MULTIPLE CHOICE with a crop
+
+**C1 — THE DELIVERY GENRE. THIS IS THE HIGHEST-VALUE QUESTION ON THE PAGE.** Every reference frame is
+a 3–6 m phone snapshot; every delivered frame is a **78 mm lens at 15 m** on a white sweep. Far/near
+depth ratio: `hero34f` **1.279**; `playa_ref` — the only camera this project ever recovered from a
+photograph of this bus — **2.323**. **Forty-nine revisions of colour and level arguments have been
+fought across that unacknowledged gap.** Options: (a) keep the studio as the deliverable and formally
+close colour arguments across the gap; (b) make `playa_ref` the deliverable; (c) deliver both and
+judge **fidelity** only on `playa_ref`, **presentation** only on the studio; (d) drop the heroes to
+~7 m / 50 mm.
+
+> **WHICHEVER HE PICKS, RENDER `playa_ref` — rev 49 did, and the frame is in `out/`.** `playa_env.py`
+> is **1695 lines**, every mass placed by inverting that camera, **dormant since rev 10, referenced by
+> NO verifier and NO dimension.** It is the only frame this project can compare pixel-registered
+> against a photograph of its own subject; it **is** the diffuse-dome rig rev 49 concluded is W6's
+> only surviving lever; and its ground is a **real lit surface**, so it closes `optics-6` and **A4**
+> for free — no `T1_SHADOW` gain, no floor, no `T1_FX` gate.
+
+**C2 — THE WIPERS.** (a) remove arms and blades, keep the spindles — what the photographs show;
+(b) keep as built; (c) remove entirely.
+
+**C3 — THE ROOF APERTURE'S SIDE STRIPS.** He settled *"roughly 0.3 m each side"*. The build gives
+**0.162 / 0.182 m in plan** and **0.286 / 0.306 m as arc**; it passes only on the second reading, and
+the re-expression happened **after** the first failed. (a) he meant arc — close it; (b) he meant plan
+— the aperture is ~120 mm too wide each side; (c) retire the number from the verifier.
+
+**C4 — WHAT THE GLASS AND CHROME SEE.** Ten panes, both mirrors, every bezel and the bumper reflect a
+compositor fill at world 0.05. (a) add a reflection-only environment, invisible to camera; (b) leave
+it; (c) solve it by choosing **C1(b)**.
+
+### D. DECLARED AND HONEST — correctly labelled, NOT defects
+
+`TB_WIDTH` and `TB_Y_CENTRE` (pose choices, guarded, parallax-bounded); `REAR_OPEN_DEG` (no frame
+shows it); `LOUV_APERTURE` (INFERRED and says so); `LINE_GAP` (TRANSFERRED / ARTWORK CONFIRMED
+DIFFERENT / MAGNITUDE UNVERIFIED); `STAR_N` (both red frames blown); the off-flank apertures (graded
+**E**, explicitly not a correctness claim); the trunk bay's contents (deliberately not invented).
+
+### WHAT THE ADVERSARY KILLED — do not chase these
+
+* **"The rocker is not modelled."** **REFUTED.** `t1_core.section()` run B builds a bottom roll of
+  radius `RB_ALL` = 0.122 m over the whole main run, and `audit.py` publishes **`rocker to ground
+  0.3177`** into `STATE.md` every build. **Grepping for an object NAME is not a test for whether a
+  feature is BUILT — a lofted feature has no name.** (Rule 31.)
+* **"W4 has a photographed handle at last."** **NARROWED.** The observable stands and is now
+  quantitative; it does **not** unblock the fix. It is W4's symptom made measurable, not its magnitude.
+* **"The engine-lid outline is 65 mm too high."** **NARROWED** to A8, which is stronger: an internal
+  contradiction needing no photograph.
 
 ---
 
@@ -384,6 +497,20 @@ its author's own headline finding.** That is what they are for.
     AT.**
 30. **NEW, rev 49 — A FIXTURE'S FOOT MUST BE CLEAR OF THE BODY IT STANDS ON, AND SOMETHING MUST CHECK
     IT.**
+31. **NEW, rev 49 — GREPPING FOR AN OBJECT NAME IS NOT A TEST FOR WHETHER A FEATURE IS BUILT.**
+    Lofted and swept features have no object name. The survey reported "the rocker is not modelled"
+    on a `grep` for `name="rocker"`, and rev 49 reproduced the error before the adversary killed it:
+    `t1_core.section()` builds it as a bottom roll inside the loft, and **`audit.py` publishes
+    `rocker to ground 0.3177` into `STATE.md` on every build.** Ask the mesh, or ask `STATE.md`.
+32. **NEW, rev 49 — A GUARD THAT DERIVES ITS THRESHOLD FROM THE SAME EXPRESSION IT CHECKS IS A
+    TAUTOLOGY.** `z0 = f(x) + 0.005` guarded by `z0 < f(x)` cannot fire. It passed as "watched fail"
+    only because an escape hatch substituted a different `z0` — **it was testing the hatch, not the
+    construction.** A guard must compare two INDEPENDENTLY OBTAINED quantities: the built thing
+    against the built thing it is fitted to.
+33. **NEW, rev 49 — A CONTROL THAT READS A STALE BASELINE IS NOT A CONTROL.** `verify_clone`'s
+    "guard figures, read from the machine-written `STATE.md`" block was checking the current build
+    against a **rev-45** baseline written from a tree recorded as **DIRTY** — and passing. Four
+    revisions. **Regenerate `STATE.md` before trusting any row that reads it.**
 
 ---
 
@@ -391,9 +518,11 @@ its author's own headline finding.** That is what they are for.
 
 ```
 bootstrap.sh      ALL 10 PASS
-verify_clone.sh   ALL 113 PASS  (110 at rev 49's pickup; 4 added, 1 relabelled, NONE relaxed)
+verify_clone.sh   ALL 122 PASS  (110 at rev 49's pickup; 13 added, 1 re-based, 1 relabelled,
+                  NONE relaxed).  STATE.md REGENERATED at rev 49e -- it had not been
+                  written since rev 45, from a tree it recorded as DIRTY.
 build             T1_SUB=1  VERIFY: 0 fail, 0 warn
-                  length 4.065 vs spec 4.055     171 objects, 0 bare materials
+                  length 4.065 vs spec 4.055     231 mesh objects, 0 bare materials
 probes            probe_rev45_paint   4 checked, 0 FAILED   (P1 0.455 reproduced exactly)
                   probe_rev47_gap     3 checked, 0 FAILED
                   probe_rev47_sharp   9 checked, 0 FAILED
