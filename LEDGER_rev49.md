@@ -406,5 +406,35 @@ was written.** Three of them changed the conclusions:
 * the decal refuter **killed my own headline finding** and with it two of the record's claims;
 * the tail-board measurer tightened five figures and flagged the depth-plane ceiling I then ignored.
 
-A fifth, larger effort — a **19-agent coordinated survey** of what remains before photorealism — was
-run at the owner's request and its output is the rev-50 work list.
+**AND A FIFTH, LARGER EFFORT: a 19-agent coordinated survey** of what remains before photorealism,
+run at the owner's request. Twelve subsystem surveys → five adversarial refuters → a completeness
+critic → one ranked synthesis. **19 agents, 0 errors, ~5 hours, 1632 tool calls, 600+ working crops,
+78 findings (15 blocking, 42 major, 21 minor).** Output: **`SURVEY_rev49_photoreal.md`**, 464 KB, and
+`NEXT_CONTEXT_PROMPT_rev50.md` §6.
+
+**Its headline: *"the geometry is now closer than the presentation."*** Four things unrelated to
+measurement are what make every shipped frame read as a render — the vehicle barely darkens the
+ground it stands on (`optics-6`, open since **rev 12**, and there is **no undercarriage at all**); its
+largest surface delivers chalk where every photograph shows polished enamel; **every duplicated part
+is a bit-identical clone** at the same clock angle carrying the same dirt (front-rear wheel high-pass
+correlation **0.675** against a +5 px control of **−0.012**); and every specular surface has a white
+void and six rectangles to reflect.
+
+**THE ADVERSARIAL PHASE EARNED ITS KEEP: 1 CONFIRMED, 3 PARTIALLY_STANDS, 1 REFUTED.** It killed a
+**blocking** finding — *"the rocker is not modelled"* — which **this session had already relayed as
+confirmed after reproducing the surveyor's own error**: I grepped for an object *named* rocker. It is
+built inside the loft by `t1_core.section()` and `audit.py` publishes `rocker to ground 0.3177` into
+`STATE.md` on every build. **Rule 31.** It also narrowed the W4 nose claim from "a photographed handle
+at last" to "the symptom made quantitative, which unblocks nothing" — **that overstatement was mine.**
+
+**AND IT CAUGHT THREE MORE OF MY OWN DEFECTS**, all fixed this revision: the tail-board foot guard was
+a **tautology** (rule 32); `verify_clone`'s `STATE.md` block had been reading a **rev-45 baseline from
+a tree recorded DIRTY** for four revisions (rule 33); and rule 13's rev-49 discharge was itself
+incomplete — **nine frames, not ten**, because a checksum cannot see a resized duplicate.
+
+**The single highest-value thing it surfaced:** `playa_env.py` is **1695 lines**, every mass placed by
+inverting a camera recovered from a photograph of *this* bus, **dormant since rev 10 and referenced by
+no verifier and no dimension.** It is the only frame this project can compare pixel-registered against
+a photograph of its own subject; it **is** the diffuse-dome rig §5 concluded is W6's only surviving
+lever; and its ground is a **real lit surface**, so it closes `optics-6` and the ground finding for
+free.

@@ -85,6 +85,23 @@ not starting one. Do these six things in this order, and do not skip ahead.
 
 6. Then work section 6 of the brief in order and tell me what you find.
 
+   Section 6 is not a sketch this time. At the close of rev 49 I asked for a
+   large coordinated workflow to establish what remains before photorealism,
+   and it ran 19 agents over five hours: twelve subsystem surveys, five
+   adversarial refuters, a completeness critic and one ranked synthesis. 78
+   findings, 15 of them blocking. It is all in SURVEY_rev49_photoreal.md, with
+   every finding carrying its evidence, its ceiling and its own attempted
+   self-refutation -- and 130+ ALREADY RIGHT items so you do not spend a
+   revision re-litigating settled ground. READ IT BEFORE ITEM 1.
+
+   Its headline is worth having in your head before you start: THE GEOMETRY IS
+   NOW CLOSER THAN THE PRESENTATION. The shape errors left are mostly tens of
+   millimetres on parts nobody looks at twice. What makes every frame read as a
+   render is that the bus barely darkens the ground it stands on, its paint
+   delivers chalk where my photographs show polished enamel, every duplicated
+   part is a bit-identical clone carrying the same dirt, and every shiny
+   surface has a white void to reflect.
+
 The standard, in my words, and it is not rhetorical: we are recreating a photo
 realistic version of that exact bus, and any single measurement off is
 unacceptable. That is per-measurement, not on average. A model right in ninety
