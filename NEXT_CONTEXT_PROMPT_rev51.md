@@ -62,8 +62,9 @@ by the roof's own half-width walked off the body (**≤ 1.2797 m**). The menu he
 ## §4. WHAT REV 50 REFUTED — DO NOT REBUILD THESE
 
 * **`SURVEY_rev49` finding 49, `LID_W` = 1.40–1.49 m.** The aperture starts at the hinge and the roof
-  reaches only `Yt`, so **W ≤ 1.2797 m**, measured at run time. At 1.45 the hole would run **178 mm
-  past the roof edge.** There is now an assert that says so, watched failing.
+  reaches only `Yt`, so **W ≤ 1.2797 m**, measured at run time. At 1.45 the hole would run **170 mm
+  past the roof edge**, measured by an assert that walks `roof_z` (Yt = 0.7347 at the lid station).
+  *(Rev 50 first published 178 mm from the record's Yt = 0.7273; quote the machine's own walk.)* There is now an assert that says so, watched failing.
 * **§6 A3's material half, "the wear field clones".** Refuted from the source (`build.py:867` *asserts*
   every mesh carries an identity transform, so Object coords are world coords, and the wheels are
   2.400 m apart in a 143 mm field) **and** by measurement with the control the original never had

@@ -99,7 +99,9 @@ move of the foot.
 **`SURVEY_rev49` FINDING 49 IS REFUTED ON THIS SHELL'S OWN ARITHMETIC.** It wants `LID_W` = 1.40–1.49 m.
 The aperture starts at the hinge and the roof reaches only `Yt`, so **W ≤ 1.2797 m** — measured at run
 time by walking `roof_z` outboard, not typed — or the hole runs off the roof. At 1.45 it would end
-**178 mm past the roof edge.**
+**170 mm past the roof edge** — measured by the assert, which walks `roof_z` and finds Yt =
+0.7347 at the lid station.  *(I first published 178 mm here from the record's Yt = 0.7273; the
+machine's own walk is the one to quote.)*
 
 **AND THEN HE RETIRED THE FIGURE THAT WAS HOLDING IT.** `LID_W` is now **derived**:
 `W·sin a = (LID_X0 − LID_X1) / 1.713`, from ref_side.jpg's scale-free board aspect → **1.2237 m**
