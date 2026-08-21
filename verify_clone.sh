@@ -458,6 +458,30 @@ ck "TRUNK_OPEN_DEG=0 cites the SHUT ruling" 1 "$(grep -A 30 '^TRUNK_OPEN_DEG' t1
 # And the lid must not be SWUNG at zero: _swing_open() asserts the free edge
 # travels, so a shut lid run through it would fire a guard on a correct pose.
 ck "a SHUT trunk lid skips the swing, not runs it at zero" 1 "$(grep -q 'abs(TRUNK_OPEN_DEG) < 1e-6' t1_shell.py && echo 1 || echo 0)"
+# ---------------------------------------------------------------- THE TAIL BOARD
+# rev 49e.  The photorealism survey's record audit found the tail board had ZERO
+# rows in either verifier -- the project's NEWEST object, carrying the MOST pose
+# choices and the LEAST measurement, entirely unguarded.  These rows exist so a
+# later revision cannot quietly promote a pose choice into a measurement, and
+# cannot lose the station solve that dissolved rev 49b's declared 80 mm.
+ck "the tail board is built"                1 "$(grep -qE '^def tail_board' t1_shell.py && echo 1 || echo 0)"
+ck "build.py raises the tail board"         1 "$(grep -q 'S.tail_board(' build.py && echo 1 || echo 0)"
+# TB_WIDTH and the lateral centring cannot be measured from anything we hold --
+# parallax bounds the width above and gives NO lower bound.  They must keep
+# saying so.  This is the LINE_GAP lesson applied before the defect.
+ck "TB_WIDTH declares itself a POSE CHOICE" 1 "$(grep -A 2 '^TB_WIDTH' t1_shell.py | grep -q 'POSE CHOICE' && echo 1 || echo 0)"
+ck "TB_WIDTH keeps its parallax upper bound" 1 "$(grep -B 12 '^TB_WIDTH' t1_shell.py | grep -q '0.59' && echo 1 || echo 0)"
+ck "TB_Y_CENTRE declares itself a POSE CHOICE" 1 "$(grep -A 2 '^TB_Y_CENTRE' t1_shell.py | grep -q 'POSE CHOICE' && echo 1 || echo 0)"
+ck "TB_TILT_DEG states WHICH DATUM"         1 "$(grep -A 3 '^TB_TILT_DEG' t1_shell.py | grep -q 'HORIZONTAL' && echo 1 || echo 0)"
+# The station is SOLVED from T1_body's own vertices at run time.  A literal here
+# would go stale the moment the shell moves, and would silently re-open the
+# 97 mm burial.
+ck "the board station is SOLVED, not typed" 1 "$(grep -q 'station SOLVED from the skin' t1_shell.py && echo 1 || echo 0)"
+ck "the board foot is guarded against the SKIN" 1 "$(grep -q 'measured roof skin at z' t1_shell.py && echo 1 || echo 0)"
+# The guard rev 49b first wrote compared ZT_ALL against ZT_ALL and could never
+# fire.  This row refuses the return of a self-referential foot check.
+ck "the foot guard is NOT self-referential" 0 "$(grep -c '_crown = T.ZT_ALL' t1_shell.py)"
+
 # rev 49: the lining sat 2.0 mm PROUD of the tail skin and rendered THROUGH the
 # closed lid.  Invisible for a revision because the lid was open.  Guarded now.
 ck "the trunk bay lining is guarded INBOARD of the skin" 1 "$(grep -q 'is PROUD of the tail skin' t1_shell.py && echo 1 || echo 0)"

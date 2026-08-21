@@ -50,7 +50,7 @@ not starting one. Do these six things in this order, and do not skip ahead.
    decal off the green bus and applied it to the red one and nothing caught it
    for a revision. Checking "which bus" is NOT enough -- check which STATE.
    Also: five of the reference files are byte-identical duplicates of five
-   others. There are TEN distinct frames, not fifteen. Do not count a duplicate
+   others. There are NINE distinct frames, not fifteen. Do not count a duplicate
    as corroboration.
 
 4. Grade the brief before you trust it -- AND KNOW THAT IT CUTS BOTH WAYS. Rev

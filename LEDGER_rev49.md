@@ -305,8 +305,20 @@ wrong-artwork measurement. The check has to be **which artwork state**.
 
 **And five reference files are byte-identical duplicates** — `IMG_3842.png` = `ref_playa_34.png`,
 `IMG_2054` = `ref_nolita_flank`, `IMG_2053` = `ref_nolita_front34b`, `IMG_2060` = `ref_nolita_front34`,
-`IMG_3840` = `ref_nolita_doorshut`. **Ten distinct vehicle frames, not fifteen.** Rule 13 was never
+`IMG_3840` = `ref_nolita_doorshut`. **NINE distinct vehicle frames, not fifteen** (see the correction below). Rule 13 was never
 discharged.
+
+> **CORRECTED, rev 49e — IT IS NINE, NOT TEN.** The rev-49 discharge was itself incomplete. Checksums
+> find byte-identical files; they cannot see a **resized** duplicate. `ref_source.jpeg` (246 × 197) and
+> `ref_playa_34.png` (500 × 400) are **the same photograph** — normalised cross-correlation **0.9768**
+> after resampling to a common size, which is the JPEG-artefact floor, not a coincidence. So the
+> reference set is **NINE distinct vehicle frames**. *Ceiling: correlation on a 246 × 197 thumbnail
+> cannot distinguish "the same frame" from "two frames one second apart on a tripod"; the reading is
+> that they are the same IMAGE, and 0.9768 will not separate those two hypotheses.*
+> **And it matters beyond counting:** SPEC §8's colour locks are derived from `ref_source.jpeg`, a
+> 246 × 197 thumbnail the record calls retired. They can be re-derived on `ref_playa_34.png` at **4×
+> the area**, today, with no new photograph.
+
 
 ---
 
