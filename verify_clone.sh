@@ -25,6 +25,32 @@
 cd "$(dirname "$0")" || exit 1
 QUIET=0; [ "$1" = "--quiet" ] && QUIET=1
 PASS=0; FAIL=0; FAILED_LINES=""
+# rev 51 -- THE SCORE IS SPLIT, and the split is the finding.
+# An intake audit this revision extracted every executed `ck` call site and
+# classified it.  THE RESULT: 0 of 125 rows name a reference frame AND a pixel
+# window; 125 of 125 compare the model, or the record, to itself.  Five rows
+# touch a photograph at all and every one is an `ls | wc -l` existence count --
+# none opens an image.  The count was validated against this script's own output
+# at two points in history (113 at rev 49c, 125 at HEAD).
+#
+# SURVEY_rev49 sec.4 prescribed exactly this nine revisions ago -- "must name the
+# reference frame and the pixel window ... or be tagged SELF-CONSISTENCY, NOT
+# FIDELITY ... they must stop counting toward '113 PASS'" -- and it never reached
+# the machine.  This is that, in the machine.
+#
+# `ckf` is the FIDELITY entry point: use it ONLY for a row whose executed
+# expression measures against a NAMED FRAME and a NAMED PIXEL WINDOW.  There are
+# none yet, and the banner says so out loud rather than letting "ALL 125 PASS" be
+# pasted into a handoff as evidence about the vehicle.
+#
+# NOTE THE STRUCTURAL LIMIT, so nobody wastes a revision on it: this script has no
+# build, no render and no image library, and out/ is untracked and starts EMPTY.
+# It CANNOT host a fidelity row as written.  The fidelity lane already exists and
+# is DECOMMISSIONED -- flank_compare.py is a render-vs-photograph gate that exits
+# non-zero and has been dormant since rev 40 with zero ledger mentions.  Reviving
+# THAT is the job; adding image rows here is not.
+FID=0
+ckf () { FID=$((FID+1)); ck "$@"; }
 
 say () { [ $QUIET -eq 1 ] || printf '%s\n' "$*"; }
 
@@ -632,8 +658,17 @@ fi
 say
 say "=============================================================="
 if [ $FAIL -eq 0 ]; then
-  printf '  ALL %d PASS.  Content matches the rev-42 measured baseline,\n' "$PASS"
-  printf '  which is still current at rev 44.\n'
+  printf '  ALL %d PASS -- %d FIDELITY, %d SELF-CONSISTENCY.\n' \
+         "$PASS" "$FID" "$((PASS-FID))"
+  if [ "$FID" -eq 0 ]; then
+    printf '  NO ROW IN THIS SCRIPT MEASURES THE VEHICLE AGAINST A PHOTOGRAPH.\n'
+    printf '  It checks that the RECORD is internally consistent, which is what it\n'
+    printf '  is for.  Every defect this project has shipped -- the lid that opened\n'
+    printf '  INWARDS, the board 120 mm inside the roof, the bay lining 17.5 mm low,\n'
+    printf '  the 33 mm disc of body red in every tail lamp, the five-petal hubcaps --\n'
+    printf '  passed this script and was found by LOOKING at a crop.  Do not quote\n'
+    printf '  this line as evidence about the bus.\n'
+  fi
   say "=============================================================="
   say
   exit 0
