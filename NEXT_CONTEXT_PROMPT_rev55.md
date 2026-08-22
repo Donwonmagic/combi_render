@@ -110,6 +110,20 @@ roughly 1.5 mm/px on this part. **Stated as a consequence, NOT acted on.**
   vehicle; the marks above the burst are STARS. **Do not re-open or re-ask any of them.**
   `playa_env.py` is not on the table.
 
+### §2.2b HIS RULING AT REV 54 — W6 RE-AFFIRMED WITH THE COST ON THE TABLE
+
+He was shown the rev-54 delivery frame (`probe_scratch/rev54_ASK_hero.png`) and a crop of the cream
+roof (`rev54_ASK_cream_flat.png`), told in terms that **the largest photorealism lever on that frame
+is the featureless white surround, that the flatness is the ENVIRONMENT and not the shaders**
+(`STATE.md`: 5 constant-roughness materials, all legitimately exempt), and offered four routes
+including a second environment-lit hero that would have left every past measurement untouched.
+
+> **HE RULED: "Keep studio, fix the model."**
+
+**So W6 is re-affirmed KNOWING the cost, and the studio frame stays.** Rev 55 spends itself on
+measurable model defects, not on lighting. **Do not re-open this and do not propose an environment
+frame again** — it was offered explicitly, with the gain stated, and declined.
+
 ### §2.4 THE SOURCE ASSERTED BOTH DEFAULTS AT ONCE, AND THE GUARD PASSED THROUGHOUT
 
 `t1_mats.py`'s chip block carried `# DEFAULT IS STILL POINTINESS.` and, 38 lines later,
@@ -215,6 +229,13 @@ WRITE THE REV-56 BRIEF, `cp` IT OVER `PASTE_INTO_CLAUDE_CODE.txt` IN THE SAME CO
 ---
 
 ## §3. THE WORK LIST FOR REV 55
+
+**0. NOT A DEFECT — DO NOT REBUILD IT.** Rev 54 read the nose roundel's V arms as stopping short of
+the ring in the hero crop and **was wrong**. A 720-ray reach profile with the glyph, the ring and
+both band circles PAINTED shows **all six stroke ends landing on the band** in both badges
+(`probe_scratch/rev54_reach_nose.png`, `rev54_reach_hubcap.png`); the rev-44b fixed-point solver
+works. The ring stands **2.5 mm proud** of the glyph plane, so an oblique view can open an apparent
+gap that is not in the geometry. **The badge's REACH is settled; its STROKE WEIGHT is not (item 1).**
 
 **1. THE TWO VW BADGES — HIS REPORT AT REV 51, STILL THE TOP JOB.**
 **The DIAMETER route on `ref_side.jpg` is EXHAUSTED** (0.3474 vs the built 0.3170 — 9.6 % small but

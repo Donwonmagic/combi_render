@@ -378,11 +378,44 @@ five are legitimately exempt, so the flatness is the ENVIRONMENT, not the shader
 rig and `playa_env.py` is off the table**, so the largest photorealism lever on the delivery frame
 is closed by two standing rulings. Stated for the owner rather than worked around.
 
-**AND A CANDIDATE THAT IS NOT A RESULT:** the nose roundel's V arms look short of the ring in the
-hero crop. A first measurement bucketed glyph vertices into six angular sectors and returned
-**0.8394 for the W's left arm tip and 0.5537 for its mirror** — a symmetric glyph cannot do that, so
-**the sector windows are wrong and neither number is publishable.** Recorded as the top visual
-candidate for rev 55, with the instrument explicitly marked untrustworthy. Rule 8, once more.
+### §7.2.1 I CALLED A DEFECT OFF A CROP AND THE PAINTED WINDOW REFUTED ME
+
+From the hero crop I read the nose roundel's **V arms as stopping short of the ring** — which would
+have matched his rev-51 report and the `cap_emblem` docstring's own account of a V that reaches only
+0.7154 of the fit radius. **It is not there.**
+
+Two instruments, and only the second is trustworthy:
+
+* **First:** glyph vertices bucketed into six HAND-CHOSEN angular sectors. It returned **0.8394 for
+  the W's left arm tip and 0.5537 for its mirror.** A glyph that is symmetric by construction cannot
+  do that, so the sectors were the defect, not the mesh. Discarded, not patched.
+* **Second:** a 720-ray angular reach profile with the terminals found from the data, **and the
+  glyph, the ring and both band circles painted** (`probe_scratch/rev54_reach_nose.png`,
+  `rev54_reach_hubcap.png`). **LOOKED AT: all six stroke ends land on the band circle.** The rev-44b
+  fixed-point solver is doing exactly what its comment claims.
+
+The profile still reported **14 peaks where six were expected** — the extra ones are the finder
+tripping on gaps between strokes (16.0° and 36.5° sit in the empty wedge between the V's and the W's
+right arms), not stroke ends. **That over-detection is why the picture, not the peak list, is the
+result here.**
+
+**RETRACTED: there is no planar reach defect in either badge.** Whatever the hero crop shows is not
+this — the ring stands 2.5 mm proud of the glyph plane (`t1_detail`: *"ring x 2.1155..2.1290, glyph
+x 2.1155..2.1265"*), so an oblique view can open an apparent gap that does not exist in the plane.
+**Not chased further, and NOT left in the work list as a defect.** Second time this revision that
+painting the window overturned a plausible claim before it was published.
+
+## §7.3 HIS RULING AT REV 54
+
+Asked with the question tool, with the rendered delivery frame and a cream-roof crop attached, and
+with the cost stated plainly: the surround is featureless white, so the paint has nothing to
+reflect; the flatness is the environment, not the shaders; W6 and `playa_env` close that lever. Four
+routes were offered, including one that adds an environment hero as a SECOND frame and moves nothing
+already measured.
+
+> **"Keep studio, fix the model."**
+
+**W6 re-affirmed with the cost on the table.** Rev 55 is a model revision, not a lighting one.
 
 ## §8. WHAT IS STILL OPEN
 
