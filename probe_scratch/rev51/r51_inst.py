@@ -105,7 +105,8 @@ def _radial_res(fit, x, y):
     return loc*(1 - 1/np.maximum(rr, 1e-9))
 
 
-def refine(score, fit0, angles, rho_lo=0.80, rho_hi=1.22, iters=6, trim=2.5):
+def refine(score, fit0, angles, rho_lo=0.80, rho_hi=1.22, iters=6, trim=2.5,
+           clip='both'):
     from r51_geom import fit_ellipse
     fit = dict(fit0); pts = None
     for it in range(iters):
@@ -114,7 +115,13 @@ def refine(score, fit0, angles, rho_lo=0.80, rho_hi=1.22, iters=6, trim=2.5):
             return None, pts
         if it >= 2:
             res = _radial_res(fit, pts[:, 0], pts[:, 1])
-            keep = np.abs(res) < trim*max(np.std(res), 1e-6)
+            sd = max(np.std(res), 1e-6)
+            if clip == 'low':          # reject only INWARD outliers (vent notches)
+                keep = res > -trim*sd
+            elif clip == 'high':
+                keep = res < trim*sd
+            else:
+                keep = np.abs(res) < trim*sd
             if keep.sum() >= 15:
                 pts = pts[keep]
         f = fit_ellipse(pts[:, 0], pts[:, 1])
@@ -127,3 +134,24 @@ def refine(score, fit0, angles, rho_lo=0.80, rho_hi=1.22, iters=6, trim=2.5):
     fit['ratio'] = fit['b']/fit['a']
     fit['sig_ratio'] = fit['ratio']*fit['rms']/max(fit['a'], 1)/np.sqrt(max(fit['n'], 1))*np.sqrt(2)
     return fit, pts
+
+
+def bootstrap_ratio(score, fit, angles, rho_lo, rho_hi, nboot=40, frac=0.6,
+                    clip='both', seed=0):
+    """1-sigma on the axis ratio, from resampling the boundary rays."""
+    from r51_geom import fit_ellipse
+    pts = edge_points(score, fit, angles, rho_lo, rho_hi)
+    if len(pts) < 20:
+        return np.nan
+    res = _radial_res(fit, pts[:, 0], pts[:, 1])
+    sd = max(np.std(res), 1e-6)
+    keep = (res > -2.5*sd) if clip == 'low' else (np.abs(res) < 2.5*sd)
+    pts = pts[keep]
+    rng = np.random.default_rng(seed)
+    out = []
+    for _ in range(nboot):
+        i = rng.choice(len(pts), int(frac*len(pts)), replace=False)
+        f = fit_ellipse(pts[i, 0], pts[i, 1])
+        if f is not None:
+            out.append(f['b']/f['a'])
+    return float(np.std(out)*np.sqrt(frac)) if len(out) > 5 else np.nan

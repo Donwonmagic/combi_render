@@ -58,7 +58,7 @@ def seed_disc(shape, cx, cy, a, b, th=0.0):
     u = c*(xx-cx) - s*(yy-cy); v = s*(xx-cx) + c*(yy-cy)
     return (u/a)**2 + (v/b)**2 <= 1.0
 
-def run(fn, box, pt, capmode='red', ang_excl=None, t_cream=None,
+def run(fn, box, pt, capmode='red', ang_excl=None, t_cream=None, clip_cap='both',
         rho=(0.86, 1.16), rho_cap=(0.80, 1.22)):
     img, off = load(fn, box)
     cs = sc_cream(img)
@@ -71,7 +71,8 @@ def run(fn, box, pt, capmode='red', ang_excl=None, t_cream=None,
         ang = ang[keep]
     fseed, kseed, tc = auto_seed(cs, pt, t_cream)
     
-    r = P.analyze(cs, ks, fseed, kseed, angles=ang, rho=rho, rho_cap=rho_cap)
+    r = P.analyze(cs, ks, fseed, kseed, angles=ang, rho=rho, rho_cap=rho_cap,
+                  clip_cap=clip_cap)
     if r is None: return None
     r['img'] = img; r['off'] = off; r['cs'] = cs; r['ks'] = ks
     r['fseed'] = fseed; r['kseed'] = kseed; r['t_cream'] = tc
