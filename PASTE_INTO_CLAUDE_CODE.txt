@@ -17,8 +17,8 @@ per-measurement and not on average.** A model right in ninety places and wrong i
 done, because he will look straight at the one. This paragraph is first because every revision has
 drifted toward whatever was measurable that week, and the goal is not "add rows".
 
-**AND HERE IS THE HONEST DISTANCE, MEASURED AT REV 55.** `verify_clone.sh` ends **ALL 201 PASS** and
-its own verdict block says what that is worth: **0 FIDELITY, 201 SELF-CONSISTENCY. Not one of those
+**AND HERE IS THE HONEST DISTANCE, MEASURED AT REV 55.** `verify_clone.sh` ends **ALL 202 PASS** and
+its own verdict block says what that is worth: **0 FIDELITY, 202 SELF-CONSISTENCY. Not one of those
 rows compares the vehicle to a photograph.** The whole parity question rests on **two** scripts:
 
 | gate | state at rev 55 |
@@ -29,7 +29,7 @@ rows compares the vehicle to a photograph.** The whole parity question rests on 
 
 **So parity is still measured by ONE working gate — and rev 55's result is that the gate's two
 failures cannot be attributed to the vehicle until one number is established (§3.0 item A).**
-Adding a 202nd self-consistency row is not progress toward the goal; making a second gate run is.
+Adding a 203rd self-consistency row is not progress toward the goal; making a second gate run is.
 
 **A WORD ON REV 55'S OWN TEN ROWS, AGAINST THAT SENTENCE.** Rev 55 added ten `verify_clone` rows and
 they ARE self-consistency. They were not row-padding: rule 13 requires the guard in the same edit as
@@ -92,7 +92,7 @@ for b in $(git branch -r | grep -v HEAD); do
 done
 git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 ./bootstrap.sh          # ALL 10 PASS  -- THE BRANCH CHECK IS ROW 9
-./verify_clone.sh       # ALL 201 PASS -- and read what its verdict block says
+./verify_clone.sh       # ALL 202 PASS -- and read what its verdict block says
 ```
 
 **AT PICKUP, REV 55 MEASURED:** rev 54 **was merged**, through **PR #11** — so of the two shapes
@@ -455,7 +455,23 @@ independent evidence that the lockup is short; the reference is placed by the sa
 
 ---
 
-## §4. WHAT ONLY HE CAN GIVE
+## §4. WHAT WAS ASKED OF HIM — A CARRIER, NOT A LIST OF BLOCKERS
+
+> **READ §0.1 FIRST.** At rev 54 he ruled that **the reference set on the repo is complete**. This
+> section is kept in full because `CLAUDE.md` rule 16 forbids dropping a carrier, and because it
+> records what was asked and what was refused — which is why items 1–5 must never be re-asked.
+> **But it is no longer a licence to park work.** Nothing below blocks an item; it only says what a
+> new frame would have made easier. Work every item from what we hold, or close it with
+> *"it cannot be recovered from what we hold"* and its ceiling.
+>
+> **THIS HEADING WAS "WHAT ONLY HE CAN GIVE" IN THE REV-55 BRIEF THE REV-55 CONTEXT WAS LAUNCHED
+> WITH, AND IT WAS RE-FRAMED ON `main` BEFORE REV 55 ENDED.** Rev 55 merged that change but carried
+> the OLD heading into its own outgoing brief — the re-framing lived in rev 55's §4 and never
+> propagated. Caught by re-reading the retired `HANDOFF_rev55_ADDENDUM.md` delta list against this
+> file, AFTER rev 55's own rule-17 audit had passed it: **that audit checked paths, quoted strings,
+> `T1_*` switches and figures, and it did not check whether a re-framing had been carried forward.**
+> Add that to the sweep.
+
 
 **`PHOTOS_WANTED_rev52.md` is the carrier for item 7 (ONE HUBCAP, SQUARE ON AND CLOSE)**. Items
 **1–5** keep their full text in `PHOTOS_WANTED_rev49.md`: the tail board's footing; the decal darker;
@@ -485,8 +501,12 @@ none closes the **NOSE** badge, which is the same design — the record says so 
   (b) The badge is **strongly oblique** — 62.7/91.7 = **0.684 axis ratio** — so it must be
   de-projected and only vertical extents are trustworthy. (c) The RED bus's own nose roundel is in
   `ref_nolita_front34.jpg` at a **41 × 66 px** bbox — the right vehicle, but a 700×467 JPEG.
-* **Scoped as a revision's work, not a spare hour.** Rev 51 spent a whole revision on the diameter
-  by this kind of route and reached 1.8 sigma.
+* **NOT ATTEMPTED AT REV 54, AND NOT AT REV 55 EITHER.** Rev 51 spent a whole revision on the
+  diameter by this kind of route and reached 1.8 sigma, so it is a revision's work rather than a
+  spare hour — **but that is a statement of COST, not a reason to defer it, and §0.1 forbids reading
+  it as one.** It is the live route to the top job's open constant and it uses frames already on
+  this repo. **Rev 56: take it, or close it with its ceiling.** Rev 55's failure to take it is the
+  clearest thing it did against §0.1.
 
 ---
 

@@ -1020,6 +1020,32 @@ ck "cream_rms cites no undefined depth_correct" 0 \
    "$(grep -c 'See depth_correct()' cream_rms.py)"
 ck "mottle_measure binds PHOT exactly once"    1 "$(grep -c '^PHOT = ' mottle_measure.py)"
 
+# --------------------------------------------------- rev 55: A RE-FRAMING
+# THE OWNER RETIRED A HEADING AND IT CAME BACK ONE BRIEF LATER.
+# At rev 54 he ruled "we have all references that we need on repo", and sec.4
+# was re-framed on main from "WHAT ONLY HE CAN GIVE" to "A CARRIER, NOT A LIST
+# OF BLOCKERS" -- because the old heading is what licensed four revisions of
+# parking the top job behind a photograph.  The rev-55 context merged that
+# change and then carried the OLD heading into its own outgoing brief: the
+# re-framing lived in rev 55's sec.4 and never propagated to rev 56's.
+#
+# IT SURVIVED RULE 17.  Rev 55's outgoing audit stat'ed every path, grepped
+# every quoted string, resolved every T1_ switch and recomputed every figure --
+# and none of that asks "was a re-framing carried forward".  A sweep over
+# CONTENT cannot see a heading that should no longer exist, so the guard has to
+# name it.  This row is the sweep's missing question, made testable.
+#
+# WATCHED FAILING on the rev-56 brief before it was fixed (got 1, want 0).
+# ANCHORED ON THE LINE THAT *IS* THE HEADING, NOT ON THE PHRASE.  A brief that
+# explains why the heading was retired has to be able to QUOTE it -- and the
+# rev-56 brief does, in the note under its own sec.4.  This repo already
+# learned that on the `DEFAULT IS STILL POINTINESS` row, whose whole point is
+# that it must not fire on a comment that merely quotes the claim.  BOTH halves
+# watched: it fires when the heading is real (got 2) and passes with the phrase
+# quoted twice in prose.
+ck "newest brief drops the retired sec.4 heading" 0 \
+   "$(if [ -n "$_LATEST_BRIEF" ]; then grep -cE '^#+ .*WHAT ONLY HE CAN GIVE' "$_LATEST_BRIEF"; else echo 99; fi)"
+
 _BRIEF_TOTAL="$(if [ -n "$_LATEST_BRIEF" ]; then grep -E '\./verify_clone\.sh' "$_LATEST_BRIEF" 2>/dev/null | grep -oE 'ALL [0-9]+ PASS' | grep -oE '[0-9]+' | head -1; else echo 0; fi)"
 ck "newest brief states THIS script's row count" "$((PASS+1))" "${_BRIEF_TOTAL:-0}"
 

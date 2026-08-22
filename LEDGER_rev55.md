@@ -382,3 +382,55 @@ instruments being wrong, and every one produced a plausible number.
 8. **I read the nose roundel as an "X"** in the half-size hero. At full size it is a proper
    V-over-W. The brief's own warning fired on me: crops generate leads, not findings.
 9. **My new comment collided with an existing guard's unique anchor** (§6).
+
+---
+
+## §8. THE RETIRED ADDENDUM, RE-READ AFTER THE FACT — AND THE ONE DELTA THAT HAD NOT LANDED
+
+`HANDOFF_rev55_ADDENDUM.md` was written for *"the rev-55 context that was started on the SUPERSEDED
+prompt"* — which is exactly what this context was. **It had already retired itself before it was
+re-read.** Its own condition:
+
+> *"This file RETIRES the moment `origin/main` carries the 191-row brief — check with
+> `grep -c 'ALL 191 PASS' PASTE_INTO_CLAUDE_CODE.txt` and delete it when that is 1 on main."*
+
+**Measured, not assumed:** that grep returns **2** on `origin/main`; the file was deleted there in
+commit `c5c01cd` (*"rev 54: retire the rev-55 addendum — its own condition is met"*); and the branch
+it told me to merge, `origin/claude/tacombi-rev-54-u7hvys`, is **0 ahead of main**. So its whole
+content arrived through the mid-revision merge (§0/§1), and it was spent.
+
+**BUT IT IS A DELTA DOCUMENT, SO EACH OF ITS FIVE DELTAS WAS CHECKED AGAINST THE OUTGOING BRIEF —
+AND FOUR OF FIVE HAD LANDED:**
+
+| delta | state in `NEXT_CONTEXT_PROMPT_rev56.md` |
+|---|---|
+| 1. `verify_clone.sh` is 191, not 173 | carried — and now **202** |
+| 2. §0, the GOAL stated before any work item | carried, updated to rev 55's measurements |
+| 3. §0.1, the owner's reference-set ruling | carried in full |
+| 4. **§4 re-framed** from *"WHAT ONLY HE CAN GIVE"* to *"A CARRIER, NOT A LIST OF BLOCKERS"* | **NOT CARRIED** |
+| 5. "keep studio, fix the model" | carried |
+
+**DELTA 4 IS THE ONE THAT MATTERS, because the old heading is what licensed four revisions of
+parking the top job behind a photograph.** `main` re-framed it inside rev 55's §4; this revision
+merged that change and then **wrote the OLD heading into its own outgoing brief.** The re-framing
+lived in a section of the *previous* brief and never propagated to the *next* one.
+
+**AND IT SURVIVED THIS REVISION'S OWN RULE-17 AUDIT.** That audit `stat`ed every path, grepped every
+quoted string, resolved every `T1_*` switch and recomputed every figure — and **none of those asks
+"was a re-framing carried forward".** A sweep over content cannot see a heading that should no
+longer exist. **That is the gap, and it is now a row**:
+
+```
+ck "newest brief drops the retired sec.4 heading" 0 \
+   "$(grep -cE '^#+ .*WHAT ONLY HE CAN GIVE' "$_LATEST_BRIEF")"
+```
+
+**ANCHORED ON THE LINE THAT *IS* THE HEADING, NOT ON THE PHRASE** — because a brief that explains why
+the heading was retired has to be able to quote it, and the rev-56 brief does. This repo had already
+earned that lesson on the `DEFAULT IS STILL POINTINESS` row. **Both halves watched: it passes with
+the phrase quoted twice in prose (0) and fires when the heading is real (got 1).**
+
+**The parking language went with it.** §4's badge route no longer reads *"scoped as a revision's
+work, not a spare hour"* as a deferral; it says that is a statement of COST, that §0.1 forbids
+reading it as a reason to defer, and that **rev 55's failure to take that route is the clearest
+thing it did against §0.1.**
