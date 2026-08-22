@@ -8,6 +8,12 @@ is right.**
 
 ## §0. THE HEADLINE
 
+> **A2 IS HALF CLOSED, AND SAY IT THAT WAY.** The DOME is fixed, measured three ways and
+> looked at. **THE BADGE ON IT IS NOT.** Seating the cap removed an error that had been
+> CANCELLING a second one, and the owner reported the exposed defect the same day:
+> *"The vw on the hubcap is not the right scale either, just like the front emblem."*
+> A future context reading "A2 closed" and moving on would be wrong. See §11.
+
 **Job 1 (A2, the five-petal hubcaps) was reframed before it was measured, and the reframing is the
 finding.** The record says two mechanisms produce the identical image and neither depth is measured.
 That is a false dilemma. The ~58 mm proudness is **forced by the cap's own authored section under
@@ -333,3 +339,65 @@ back; content diff against main **empty** (no photographs arrived, nothing lost)
 *"work from whichever ref is furthest ahead"* selects **this branch and nothing else**. The failure that
 has been stale for six revisions may not recur in the same shape — **but measure it, do not assume
 either way.**
+
+
+---
+
+## §11. THE OWNER'S REPORT, AND THE ERROR MY OWN FIX EXPOSED
+
+**His words, after seeing the fixed render:** *"The vw on the hubcap is not the right scale
+either, just like the front emblem."*
+
+**MY FIX CAUSED IT TO BECOME VISIBLE.** `CAP_EMBLEM_D` is a fraction of the cap's FULL
+geometric diameter and the emblem's absolute size never changed -- but what is VISIBLE did:
+
+```
+emblem absolute diameter                      0.08686 m   (unchanged)
+BEFORE seat: visible red disc 0.2360 m  ->  emblem / visible = 0.3680
+AFTER  seat: visible red disc 0.2748 m  ->  emblem / visible = 0.3161
+built ratio to the cap's FULL diameter                      = 0.3170
+```
+
+While the cap was buried the visible disc was 16 % too small, which made the emblem read
+16 % too **large** -- landing near what the photograph shows. **TWO ERRORS WERE CANCELLING.**
+Fixing one exposed the other. Same shape as rev 49's tail board (seating on the skin threw
+the tip 227 mm high; seating at the photographed height buried the foot) and rev 44's
+hubcap colour. **When a fix makes a neighbouring feature look worse, suspect a cancelling
+pair before suspecting the fix.**
+
+**HIS COMPARISON TO THE FRONT EMBLEM IS STRUCTURALLY CORRECT.** Both badges are built by ONE
+generator, `T.vw_bars(R, w, ...)`, each passing its own stroke-width fraction:
+
+| badge | fraction | provenance |
+|---|---|---|
+| nose roundel | `vw_logo_fit(..., wfrac=0.1986)` | not measured |
+| hubcap emblem | `CAP_EMBLEM_WFRAC = 0.2087` | `# w/R as authored (0.0072 / 0.0345), kept` |
+
+`0.0345` was the **OLD** emblem radius -- the one rev 14 found **7 sigma wrong** and corrected
+to 0.3170 of the cap. The DIAMETER was fixed and the STROKE RATIO WAS KEPT from the
+wrong-sized object, and the comment says "kept" in as many words. **A ratio inherited from an
+object that was later corrected, live on two parts.**
+
+**WHAT IS NOT SETTLED, AND WHY I AM NOT PUBLISHING A NUMBER.**
+
+```
+my threshold read of ref_side.jpg   emblem 21.95 px / cap 59.97 px  ->  0.3660
+the record's hand-read, same frame  emblem 18-19 px / cap 58.370 px ->  0.3170
+```
+
+The CAPS agree to 2.7 %. The **entire 19 % disagreement is in the emblem** -- a ~19 px object
+in a frame whose own quoted PSF sigma is **1.625 px**. A threshold method broadens a small
+bright object by roughly the PSF, which is exactly the right size to explain the whole gap.
+So *"the emblem is 15 % too small"* and *"my instrument over-reads by 15 %"* **are not
+separated**, and rule 29.3 forbids attributing a cause until a control separates them.
+
+**KNOWN-CLOSED ROUTE, do not re-try blind:** the rev-49 survey already attempted the NOSE
+stroke width on `ref_workshop.jpg` and dropped it -- *"too oblique to measure a perpendicular
+width from"* -- after an impression that the build's bars looked ~1.7x **fat**, which is the
+OPPOSITE direction to the hubcap impression. Two badges, two directions, neither measured.
+
+**THE JOB FOR REV 52, and it goes ABOVE the remaining §5 list:** a PSF-aware estimator,
+**calibrated on a synthetic emblem at KNOWN size and KNOWN blur** before it touches a
+photograph -- the same discipline that made the dome measurement trustworthy. Measure
+**DIAMETER and STROKE WEIGHT separately**; they are two constants and only one has ever been
+compared to a photograph. Do both badges.
