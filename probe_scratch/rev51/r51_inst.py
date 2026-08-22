@@ -1,23 +1,25 @@
-"""REV51 A2 -- THE INSTRUMENT.  Same code path for synthetic and photograph.
+"""REV51 A2 -- THE INSTRUMENT (v2).
 
-Estimator (first principles, no fitted constants):
-  cosphi = b/a of the CREAM-RING outer ellipse   (a true circle in the wheel plane)
-  s      = a_cream / R_CREAM      px per metre, derived ON the frame
-  Delta  = (C_feature - C_cream) . that   px, that = outboard unit vector
-  dy     = Delta / (sin(phi) * s)          metres of AXIAL offset
-  h_apex = dy + DOME_H + (Y_CREAM - Y_FLANGE)          [cap-silhouette route]
-  h_apex = dy + (Y_CREAM - Y_FLANGE) - EMB_PROUD       [emblem route]
+Two estimators, both fed by the same sub-pixel elliptical-ray edge finder:
+
+  E1  AXIS-RATIO DIFFERENCE (primary).  A flat circle on the wheel plane
+      projects with axis ratio cos(phi).  A dome standing h proud silhouettes
+      on its own girth, so its outline is pushed out along the MINOR axis and
+      reads rounder.  q = ratio(cap) - ratio(cream ring) is then a monotone
+      function of h that needs no px/m, no centre and no obliquity estimate.
+
+  E2  CENTRE OFFSET (cross-check).  The emblem sits on the crown; its image
+      offset from the cream-ring ellipse centre along the minor axis is
+      (y_emblem - y_cream)*sin(phi)*(px/m).
+
+  R   RADIUS RATIO (scale-free, no depth model at all):  a_cap / a_cream.
 """
 import numpy as np
-from r51_geom import fit_ellipse, ellipse_resid
 
-R_CREAM   = 0.2198        # flange OD/2 = t1_core RIM_R -- radius of the visible
-                          # cream outer boundary (tyre bead sits on it)
-Y_CREAM   = 0.0620        # axial plane of that boundary (barrel prof 0.0600 at
-                          # r=0.1905*S ... 0.0640 at 0.1885*S)  +/- 0.0020
+R_CREAM   = 0.2198        # t1_core RIM_R -- flange OD/2
 Y_FLANGE  = 0.0640        # rim() barrel prof max y  -- THE DATUM
-DOME_H    = 0.0705        # cap apex 0.0745 - cap max-r plane 0.0040
 EMB_PROUD = 0.0060        # CAP_EMBLEM_PLANE 0.0805 - apex 0.0745
+LIP_R     = 0.1370        # hubcap() max r
 R_TYRE    = 0.3325
 
 
@@ -30,82 +32,98 @@ def bilinear(img, x, y):
             + img[y0+1, x0]*(1-fx)*fy + img[y0+1, x0+1]*fx*fy)
 
 
-def outer_edge(score, cx, cy, rmin, rmax, angles, thresh, step=0.25):
-    """last inside->outside crossing of `thresh` along each ray; subpixel."""
-    rs = np.arange(rmin, rmax, step)
-    pts = []
-    for a in angles:
-        x = cx + rs*np.cos(a); y = cy + rs*np.sin(a)
-        v = bilinear(score, x, y)
-        inside = v > thresh
-        idx = np.where(inside[:-1] & ~inside[1:])[0]
-        if len(idx) == 0:
-            continue
-        k = idx[-1]
-        v0, v1 = v[k], v[k+1]
-        f = (v0 - thresh)/(v0 - v1) if v0 != v1 else 0.5
-        r = rs[k] + f*step
-        pts.append((cx + r*np.cos(a), cy + r*np.sin(a), a, r))
-    return np.array(pts) if pts else np.zeros((0, 4))
+def ell_radius(fit, ang):
+    """radius of the ellipse at image-plane angle ang"""
+    c = np.cos(ang - fit['theta']); s = np.sin(ang - fit['theta'])
+    return 1.0/np.sqrt((c/fit['a'])**2 + (s/fit['b'])**2)
 
 
-def fit_boundary(score, c0, rmin, rmax, angles, thresh, iters=4):
-    cx, cy = c0
-    fit = None; pts = None
-    for _ in range(iters):
-        pts = outer_edge(score, cx, cy, rmin, rmax, angles, thresh)
-        if len(pts) < 12:
+def ell_point(fit, ang):
+    r = ell_radius(fit, ang)
+    return fit['cx'] + r*np.cos(ang), fit['cy'] + r*np.sin(ang)
+
+
+def init_from_mask(mask):
+    """second moments of a filled ellipse -> ellipse estimate (blind)"""
+    ys, xs = np.nonzero(mask)
+    if len(xs) < 60:
+        return None
+    cx, cy = xs.mean(), ys.mean()
+    cov = np.cov(np.stack([xs - cx, ys - cy]))
+    lam, V = np.linalg.eigh(cov)
+    lam = np.maximum(lam, 1e-9)
+    L = 2.0*np.sqrt(lam)
+    i = int(np.argmax(L))
+    return dict(cx=cx, cy=cy, a=float(L[i]), b=float(L[1-i]),
+                theta=float(np.arctan2(V[1, i], V[0, i])))
+
+
+def edge_points(score, fit, angles, rho_lo, rho_hi, step=0.2, min_step=0.05):
+    """OUTERMOST half-level step edge on each elliptical ray.  Vectorised.
+
+    Sampling is normalised to the current ellipse: each ray runs from
+    rho_lo*R(a) to rho_hi*R(a), so the window follows the foreshortening
+    instead of fighting it.  The level is set PER RAY, half way between the
+    inner plateau and the outer floor -- a fixed threshold is defeated by
+    shading, a half-level is not.
+    """
+    angles = np.asarray(angles, float)
+    R = ell_radius(fit, angles)
+    nsamp = max(int(np.ceil((rho_hi - rho_lo)*float(np.median(R))/step)), 24)
+    frac = np.linspace(rho_lo, rho_hi, nsamp)[None, :]
+    rs = R[:, None]*frac
+    xs = fit['cx'] + rs*np.cos(angles)[:, None]
+    ys = fit['cy'] + rs*np.sin(angles)[:, None]
+    v = bilinear(score, xs, ys)
+    n = nsamp
+    hi = np.percentile(v[:, :max(int(0.35*n), 3)], 80, axis=1)
+    lo = np.percentile(v[:, int(0.75*n):], 20, axis=1)
+    contrast = hi - lo
+    lvl = 0.5*(hi + lo)
+    inside = v > lvl[:, None]
+    cross = inside[:, :-1] & ~inside[:, 1:]
+    idx = np.where(cross.any(axis=1),
+                   n - 2 - np.argmax(cross[:, ::-1], axis=1), -1)
+    good = (idx >= 0) & (contrast >= min_step)
+    if not np.any(good):
+        return np.zeros((0, 5))
+    gi = np.nonzero(good)[0]; k = idx[gi]
+    v0 = v[gi, k]; v1 = v[gi, k+1]; lv = lvl[gi]
+    f = np.where(v0 != v1, (v0 - lv)/(v0 - v1 + 1e-12), 0.5)
+    r = rs[gi, k] + f*(rs[gi, k+1] - rs[gi, k])
+    a = angles[gi]
+    return np.stack([fit['cx'] + r*np.cos(a), fit['cy'] + r*np.sin(a),
+                     a, r, contrast[gi]], axis=1)
+
+
+def _radial_res(fit, x, y):
+    ct, st = np.cos(-fit['theta']), np.sin(-fit['theta'])
+    dx = np.asarray(x) - fit['cx']; dy = np.asarray(y) - fit['cy']
+    u = ct*dx - st*dy; v = st*dx + ct*dy
+    rr = np.sqrt((u/fit['a'])**2 + (v/fit['b'])**2)
+    loc = np.sqrt(u*u + v*v)
+    return loc*(1 - 1/np.maximum(rr, 1e-9))
+
+
+def refine(score, fit0, angles, rho_lo=0.80, rho_hi=1.22, iters=6, trim=2.5):
+    from r51_geom import fit_ellipse
+    fit = dict(fit0); pts = None
+    for it in range(iters):
+        pts = edge_points(score, fit, angles, rho_lo, rho_hi)
+        if len(pts) < 15:
             return None, pts
+        if it >= 2:
+            res = _radial_res(fit, pts[:, 0], pts[:, 1])
+            keep = np.abs(res) < trim*max(np.std(res), 1e-6)
+            if keep.sum() >= 15:
+                pts = pts[keep]
         f = fit_ellipse(pts[:, 0], pts[:, 1])
         if f is None:
             return None, pts
-        fit = f; cx, cy = f['cx'], f['cy']
-    fit['rms'] = ellipse_resid(fit, pts[:, 0], pts[:, 1])
-    fit['n'] = len(pts)
+        fit = f
+    res = _radial_res(fit, pts[:, 0], pts[:, 1])
+    fit['rms'] = float(np.sqrt(np.mean(res**2)))
+    fit['n'] = int(len(pts))
+    fit['ratio'] = fit['b']/fit['a']
+    fit['sig_ratio'] = fit['ratio']*fit['rms']/max(fit['a'], 1)/np.sqrt(max(fit['n'], 1))*np.sqrt(2)
     return fit, pts
-
-
-def outboard_unit(fit, hint):
-    """unit vector along the ellipse MINOR axis, signed to agree with `hint`
-    (a rough (dx,dy) pointing outboard in image coords)."""
-    th = fit['theta']                      # major-axis angle
-    t = np.array([-np.sin(th), np.cos(th)])   # minor axis
-    if np.dot(t, np.asarray(hint, float)) < 0:
-        t = -t
-    return t
-
-
-def measure(cream_fit, feat_fit, outboard_hint, route='cap',
-            feat_centre=None):
-    """returns dict with phi, s, delta_px, dy, h"""
-    a, b = cream_fit['a'], cream_fit['b']
-    ratio = b/a
-    phi = np.arccos(np.clip(ratio, -1, 1))
-    s = a / R_CREAM
-    t = outboard_unit(cream_fit, outboard_hint)
-    if feat_centre is None:
-        feat_centre = (feat_fit['cx'], feat_fit['cy'])
-    d = np.array([feat_centre[0]-cream_fit['cx'], feat_centre[1]-cream_fit['cy']])
-    delta_px = float(np.dot(d, t))
-    perp_px = float(np.dot(d, np.array([np.cos(cream_fit['theta']),
-                                        np.sin(cream_fit['theta'])])))
-    sp = np.sin(phi)
-    dy = delta_px/(sp*s) if sp > 1e-6 else np.nan
-    if route == 'cap':
-        h = dy + DOME_H + (Y_CREAM - Y_FLANGE)
-    else:
-        h = dy + (Y_CREAM - Y_FLANGE) - EMB_PROUD
-    return dict(ratio=ratio, phi_deg=float(np.degrees(phi)), s=float(s),
-                delta_px=delta_px, perp_px=perp_px, dy=float(dy), h=float(h))
-
-
-def sigma_h(res, sig_centre_px=0.5, sig_ratio=0.010, sig_a_frac=0.005):
-    """1-sigma on h from: centre localisation, axis-ratio, scale."""
-    phi = np.radians(res['phi_deg']); sp = np.sin(phi); s = res['s']
-    if sp < 1e-6:
-        return np.inf
-    t1 = (np.sqrt(2)*sig_centre_px)/(sp*s)                 # two centres
-    dphi = sig_ratio/max(sp, 1e-6)                          # d phi from d(b/a)
-    t2 = abs(res['dy'])*abs(np.cos(phi)/max(sp, 1e-6))*dphi
-    t3 = abs(res['dy'])*sig_a_frac
-    return float(np.sqrt(t1*t1 + t2*t2 + t3*t3))

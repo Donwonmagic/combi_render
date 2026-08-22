@@ -118,3 +118,36 @@ def render(prims, phi_deg, eps_deg=0.0, dist=4.0, f_px=1800.0, W=520, H=520,
         img=gaussian_filter(img,(blur,blur,0))
     img=img+rng.normal(0,noise,img.shape)
     return np.clip(img,0,1), m, t
+
+
+# ---------------------------------------------------------------- rev51 A2
+def disc_y_at(r, dish=0.0):
+    import numpy as _np
+    front = disc_profile(dish)[:8]
+    fr = _np.array([rr for yy, rr in front]); fy = _np.array([yy for yy, rr in front])
+    o = _np.argsort(fr)
+    return float(_np.interp(r, fr[o], fy[o]))
+
+LIP_R = 0.1370
+LIP_Y_AUTHORED = 0.0040
+DOME_DEPTH_AUTHORED = CAP_APEX_AUTHORED - LIP_Y_AUTHORED      # 0.0705
+
+def cap_profile_seated(dome_depth, dish=0.0, extra_dy=0.0):
+    """cap with its LIP SEATED on the disc face at r=LIP_R, dome depth scaled."""
+    k = dome_depth/DOME_DEPTH_AUTHORED
+    lip_target = disc_y_at(LIP_R, dish) + extra_dy
+    prof = cap_profile(0.0)
+    return [(lip_target + (y - LIP_Y_AUTHORED)*k, r) for (y, r) in prof]
+
+def scene_seated(dome_depth, dish=0.0, emblem=True, extra_dy=0.0):
+    prims = []
+    prims += revolve_profile(tyre_profile(), M_TYRE)
+    prims += revolve_profile(barrel_profile(), M_RIM)
+    prims += revolve_profile(disc_profile(dish), M_RIM)
+    cp = cap_profile_seated(dome_depth, dish, extra_dy)
+    prims += revolve_profile(cp, M_CAP)
+    apex = max(y for y, r in cp)
+    if emblem:
+        ro = 0.3170*CAP_D/2
+        prims.append(Disc(apex + 0.0060, 0.0, ro, M_EMB))
+    return prims, apex - FLANGE_FACE_Y, apex
