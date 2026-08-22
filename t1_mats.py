@@ -1009,7 +1009,13 @@ def weather_group(name="WEATHER"):
     ng.links.new(col.outputs[2], hs.inputs["Color"])
 
     # ---- 2b curvature edge wear -----------------------------------------
-    # DEFAULT IS STILL POINTINESS.  The Bevel gate below MEASURES BETTER on the
+    # rev 54: "DEFAULT IS STILL POINTINESS" STOOD HERE AND WAS FALSE.  Rev 53
+    # flipped the default to the ray-traced edge signal (see the OWNER'S RULING
+    # further down this same block) and left this sentence behind, so this block
+    # asserted BOTH defaults at once for a whole revision while the
+    # verify_clone row that guards the flip went on passing -- it is anchored on
+    # the code, and the code was right.  A guard on the code does not guard the
+    # comment beside it.  The Bevel gate MEASURES BETTER on the
     # one surface that has a photographic target, and rev 53 measured both
     # against ref_side.jpg THROUGH THAT FRAME'S OWN OPTICS (blurred to its
     # measured PSF, decimated to its 4.728 mm/px, given its 0.99 DN noise --
@@ -1034,13 +1040,53 @@ def weather_group(name="WEATHER"):
     #
     # REV 52'S EXPLANATION OF WHY THE BEVEL GATE LOOKS EMPTY IS RETRACTED HERE.
     # It said GAPW/2 = 2.75 mm is 0.75 px and therefore SUB-PIXEL at every
-    # scale.  Rev 53 rendered T1_EDGERAD=12 (3.3 px at 271.2 px/m, well above a
-    # pixel) and the fascia is UNCHANGED at 0.000 %.  A butt joint is refuted
+    # scale.  Rev 53 rendered T1_EDGERAD=12 (3.25 px at 271.2 px/m, well above a
+    # pixel) and the fascia READ 0.000 % BOTH TIMES.  A butt joint is refuted
     # too: `counter` is a closed mesh, 0 boundary edges, asked of the mesh.
     # And the gate is NOT inert -- the 2.75 mm vs 12 mm difference image lights
     # up every window frame, shut line, arch lip and gutter line and nothing in
     # between, so the lever works and is edge-confined exactly as designed.
-    # WHY THIS ONE FOLD PRODUCES NO SIGNAL IS OPEN.  Stated, not guessed.
+    #
+    # rev 54 -- "WHY THIS ONE FOLD PRODUCES NO SIGNAL IS OPEN" IS ANSWERED, AND
+    # ITS PREMISE IS RETRACTED: THE FOLD PRODUCES A SIGNAL.  The brief asked for
+    # the EDGE value rendered as an emission AOV instead of a fourth hypothesis;
+    # probe_rev54_aov.py does that, tapping this graph by walking it from the
+    # Bevel node.  Measured on the fascia at 5333 px/m, the fold tracked PER
+    # COLUMN because it SLOPES 5.25 mm across a 300 mm window (a single min(z)
+    # puts it 134 px = 25 mm wrong):
+    #
+    #     EDGE at the fold          0.28992   against W_EDGE_90 = 0.29289
+    #     hard>0.5, 0-1 mm up      11.833 %
+    #     hard>0.5, 1-2 mm up       0.000 %
+    #
+    # The gate fires at essentially its full theoretical value.  What it makes
+    # is a chip band ONE MILLIMETRE tall, and 1 mm at the shipped side render's
+    # own 271.2 px/m is 0.27 px -- so every estimator ever pointed at it has
+    # integrated it away.  That is what the 0.000 % readings were measuring.
+    #
+    # AND THE RADIUS LEVER IS LIVE HERE TOO, which is the part rev 53 could not
+    # see at 271 px/m.  Swept at 5333 px/m (probe_rev54_aov.py, arm "RADIUS
+    # SWEEP"), chip coverage on the fascia against Bevel radius:
+    #
+    #     1.00 mm -> 0.0995 %      6.00 mm -> 0.6769 %
+    #     2.75 mm -> 0.3084 %     12.00 mm -> 1.3717 %
+    #
+    # i.e. 0.114 % per mm of radius, linear.  Two renders of the 2.75 mm case at
+    # different sample counts read 0.3084 and 0.3140, so the sampling floor is
+    # ~1.8 % and the 4.45x rise is far above it.  SO "the fascia is UNCHANGED at
+    # 0.000 %" WAS A TRUE READING AND A FALSE INFERENCE: the shader changed by
+    # 4.45x and the instrument could not resolve it.
+    #
+    # CONFIRMED BY LOOKING, not only by the AOV.  probe_rev54_look.py renders
+    # this same window through the studio rig at four real scales.  At
+    # 0.1875 mm/px the AOV's seven predicted chip sites each show a dark ragged
+    # bite in the cream, and four control tiles on the same fold where the AOV
+    # predicts nothing are clean.  By 3.687 mm/px they are gone.  Peak `wear`
+    # falls 0.634 -> 0.107 across that ladder.
+    #
+    # CEILING: this says the band is unresolvable at the scales this project
+    # ships, NOT that it is absent.  Any future close view of the counter puts
+    # it back on screen -- at 1 mm/px the peak is still 0.416.
     #
     # SPEC sec.3 locks the finish as WEATHERED and the photograph shows the
     # cream NOT chipped.  ASKED AND ANSWERED at rev 53 -- he ruled "Follow the
