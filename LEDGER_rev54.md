@@ -342,6 +342,48 @@ is the per-wheel **placement** that follows, which is exactly where the rev-51 f
 defect lived. Re-aimed there, the clause fires at 0.4343 mm. **A guard that does not fire is not
 automatically a bad guard — check the injection first.**
 
+## §7.2 THE FIDELITY GATES, RUN — AND ONE OF THEM IS DEAD, NOT DORMANT
+
+Everything above this line is self-consistency. `verify_clone.sh` says so in its own verdict: **173
+rows, 0 fidelity.** So the two gates that DO compare the render to a photograph were run on fresh
+rev-54 renders (`out/r54_side.png` at 1600×1100 and `out/r54c_side.png` at 1248×858, 96 spp).
+
+**`flank_compare.py` — 2 of 4 still fail, and rev 53's figures reproduce to <1 %:**
+
+| | rev 53 | rev 54 | |
+|---|---|---|---|
+| ink area ratio | 0.9417 | **0.9425** | PASS |
+| ink aspect | 2.3689 | **2.3689** | **FAIL** (vs reference 2.2512, +5.2 %) |
+| IoU vs ceiling | 0.7608 | **0.7618** | PASS |
+| worst region (Senor) | 0.471 | **0.476** | **FAIL** |
+
+**The ink LEVEL, never quoted in a brief before:** reference untarnished ink
+**(126.8, 118.7, 122.2)** against the render's **(168.0, 157.3, 158.5)** — **+41.2 / +38.6 / +36.3 DN**.
+**The hue is exactly right** — G/R is **0.936** in both — so this is not W6's G/R shortfall; it is a
+level. **NOT ATTRIBUTED**: it is not yet separated from the rig's own exposure. If the cream around
+the ink is also ~39 DN high, this is the studio lighting and his call, not the artwork. Rule 29.3.
+
+**`cream_rms.py` IS DEAD, NOT DORMANT.** Three briefs carried *"it was not run"*. Run, it **refuses
+to emit a number** and prints why: `ref_side.jpg` holds **1799 body-cream pixels (0.23 % of frame)**,
+its best 60×20 window is **33.8 % pure**, and the legacy patch is **100 % inside the guarded
+serving-aperture band** — the galley seen through bay 3, not paint. Its own remedy is *"Re-base on
+`ref_rear34.jpg` (rev 17)"*. **The re-base is the task and it has been open since rev 17.** One run
+established this; three briefs of *"run it"* did not.
+
+**AND THE DELIVERY FRAME WAS LOOKED AT** (`out/r54_hero.png`, first hero render of the revision —
+`out/` starts empty and nobody had rendered one). It reads as clay rather than photograph, and the
+dominant cause is not a material: **the studio rig is a featureless white cyclorama, so there is
+nothing for the paint to reflect.** `STATE.md` records only 5 constant-roughness materials and all
+five are legitimately exempt, so the flatness is the ENVIRONMENT, not the shaders. **W6 locks the
+rig and `playa_env.py` is off the table**, so the largest photorealism lever on the delivery frame
+is closed by two standing rulings. Stated for the owner rather than worked around.
+
+**AND A CANDIDATE THAT IS NOT A RESULT:** the nose roundel's V arms look short of the ring in the
+hero crop. A first measurement bucketed glyph vertices into six angular sectors and returned
+**0.8394 for the W's left arm tip and 0.5537 for its mirror** — a symmetric glyph cannot do that, so
+**the sector windows are wrong and neither number is publishable.** Recorded as the top visual
+candidate for rev 55, with the instrument explicitly marked untrustworthy. Rule 8, once more.
+
 ## §8. WHAT IS STILL OPEN
 
 * **`Normal` vs `True Normal` in the chip gate.** The comment says true normal,

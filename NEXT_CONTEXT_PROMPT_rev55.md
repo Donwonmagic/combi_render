@@ -273,14 +273,41 @@ standing-instructions carrier deleted at rev 44, which took the **die-cut sticke
 original deliverable** — with it, **still open**; SPEC §0.2's two rev-4 corrections later refuted;
 rev 48's refuted *"B stays open"* still live in `build.py` and, **split across two lines so a flat
 grep misses it**, in `t1_shell.py`; the tail board still has **zero rows in either verifier**.
-**AND `cream_rms.py` IS STILL A DORMANT RENDER-VS-PHOTOGRAPH GATE with zero rows in either
-acceptance script. It was NOT run at rev 52, NOT at rev 53 and NOT at rev 54.**
-**`flank_compare.py` WAS re-run at rev 53** and still fails 2 of 4 — read its own summary line, not
-its exit code: `ink area ratio 0.9417 PASS`, `ink aspect 2.3689 FAIL`, `IoU 0.7608 PASS`,
-`worst region 0.471 (Senor) FAIL`. **It was NOT re-run at rev 54** — nothing this revision touched
-the artwork it reads, so those four figures are INHERITED, not re-measured. `Senor` is 0.471, not
-the 0.479 rev 52 measured — the same instrument on a different render, so do not read the drop as a
-regression in the artwork.
+**`cream_rms.py` IS NOT DORMANT — IT IS DEAD, AND REV 54 RAN IT TO FIND OUT.** Three briefs have
+carried *"it was not run"* as if running it were the task. Run on `out/r54c_side.png` (a 1248 px side
+ortho, the 211.5 px/m scale the script's own defaults expect), it **refuses to emit a number** and
+says why: `ref_side.jpg` holds **1799 body-cream pixels = 0.23 % of the frame**, its best 60×20
+window is **33.8 % pure**, and the legacy patch is **100 % inside the guarded serving-aperture band**
+— the galley interior seen through bay 3, not paint. Its own printed remedy is
+*"Re-base on `ref_rear34.jpg` (rev 17)"*. **THAT re-base is the task, and it has been open since
+rev 17.** Still zero rows in either acceptance script.
+**`flank_compare.py` WAS RE-RUN AT REV 54** on a fresh `out/r54_side.png`, and still fails 2 of 4 —
+read its own summary line, not its exit code:
+
+| | rev 53 | **rev 54** | |
+|---|---|---|---|
+| ink area ratio | 0.9417 | **0.9425** | PASS |
+| ink aspect | 2.3689 | **2.3689** | **FAIL** — 2.3689 vs a reference 2.2512, +5.2 % |
+| IoU vs ceiling | 0.7608 | **0.7618** | PASS |
+| worst region (Senor) | 0.471 | **0.476** | **FAIL** — target ≥ 0.75 of its own ceiling |
+
+The rev-53 figures reproduce to <1 %, so they were sound and the small moves are render-to-render,
+not regression.
+
+**AND THE COLOUR BLOCK UNDER THAT SUMMARY HAS NEVER BEEN QUOTED IN A BRIEF.** Same run:
+
+```
+reference untarnished ink  mean (126.8, 118.7, 122.2)  sd (13.6, 14.7, 16.6)  luma p5-p95  94-133
+render     all ink         mean (168.0, 157.3, 158.5)  sd ( 9.4, 17.2, 20.6)  luma p5-p95 128-176
+```
+
+**The render's flank ink is +41.2 / +38.6 / +36.3 DN brighter on the three channels.** Its **HUE is
+right**: G/R is **0.936 in the photograph and 0.936 in the render**, so this is NOT the G/R shortfall
+W6 ruled on — it is a LEVEL difference, and it is large. **What it is NOT yet separated from is the
+rig's own exposure**: if the cream around the ink is also ~39 DN high then this is the studio
+lighting, which is his settled call, and not an artwork defect. **That separation is one painted
+window away and rev 54 did not do it. Do it before touching any ink constant** (rule 29.3: no finding
+is attributed to a cause until a control separates it).
 
 ### §3.1 `lid_rail` — STILL MEASURED AT ZERO AREA, STILL GUARDED, STILL DELIBERATE
 
