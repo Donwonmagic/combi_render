@@ -18,7 +18,7 @@ for b in $(git branch -r | grep -v HEAD); do
 done
 git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 ./bootstrap.sh          # ALL 10 PASS  -- THE BRANCH CHECK IS ROW 9
-./verify_clone.sh       # ALL 138 PASS -- and read what its verdict block says
+./verify_clone.sh       # ALL 140 PASS -- and read what its verdict block says
 ```
 
 **THE DESIGNATED BRANCH'S REMOTE COPY WAS DELETED AGAIN AT REV 52** — `fetch --prune` printed
@@ -87,7 +87,7 @@ of the three FAILs were one cause.**
 | carriers | `PHOTOS_WANTED_rev52.md` created for §7 item 7, which had none. `START_HERE.md` / `README.md` pointers fixed. |
 
 **Ablations added, every one watched failing:** `T1_TARNCONTAM`, `T1_EDGEBEVEL`, `T1_RAILSTALE`,
-`T1_ENDSHORT`. **`verify_clone.sh` 127 → 138 rows; `verify.py` gained a zero-area sweep.**
+`T1_ENDSHORT`. **`verify_clone.sh` 127 → 140 rows; `verify.py` gained a zero-area sweep.**
 
 ### §2.3 THIS FILE WAS AUDITED AGAINST THE MACHINE, AND THE AUDIT FOUND THREE THINGS IN IT
 
@@ -106,11 +106,18 @@ the ledger is corrected in place and the commit message cannot be, so the correc
 there instead. **Two of the three were transcription, not measurement** — in a file whose own §1
 tells you not to transcribe.
 
+**AND THE STEP IS NOW MACHINE-CHECKED, SO IT CANNOT BE FORGOTTEN AGAIN.** Prose did not hold it —
+the standing-instructions carrier and the open-findings register were both prose and both were lost.
+`CLAUDE.md` gains the method rule, and **two `verify_clone.sh` rows** hold that the rule survives and
+that **the highest-numbered brief actually carries its audit result**. Both were watched failing,
+including on a newly written brief with no audit section, which is the real failure mode. **If you
+write a rev-54 brief without auditing it, `verify_clone.sh` fails and tells you so.**
+
 Verified clean by the same audit: all 14 cited files exist; the rev-50 canon block, and rules 34 and
 35 in `LEDGER_rev50.md`, are all still where this file says they are; **all 13 named ablation
 switches exist in the source**; `LID_X1 = -1.0700`, `REAR_W = 1.0400`, `GAPW = 0.0055` and
 `W_EDGE_90 = 0.29289` all check; the 803 mm reproduces exactly off a live `X_TAIL = -1.8730`; and
-`verify_clone.sh` reports **ALL 138 PASS** with the branch check on **row 9**.
+`verify_clone.sh` reports **ALL 140 PASS** with the branch check on **row 9** (138 at the time of the audit; two process rows were added by it).
 
 ---
 
