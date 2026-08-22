@@ -349,6 +349,18 @@ for (x, tr) in ((T.X_AXLE_F, T.TRACK_F), (T.X_AXLE_R, T.TRACK_R)):
         br, dc = D.rim(f"rim{x:.1f}{s}");  A([br, dc], "wheelcream")
         hc = D.hubcap(f"cap{x:.1f}{s}");   A(hc, "capred")
         emb = D.cap_emblem(0.0, 1);        A(emb, "capwhite")
+        # rev 51: THE CAP AND ITS EMBLEM ARE SEATED, THE ROAD PARTS ARE NOT.
+        # Until now all five were placed at one y, so the cap's lip floated
+        # 47.7 mm inboard of the disc it clips onto and every wheel rendered a
+        # five-petal flower.  D.CAP_SEAT_DY is DERIVED from the two profiles
+        # (t1_detail._cap_seat_dy) -- not typed -- and is outboard on both
+        # sides: for s < 0 the vertices are mirrored, so cap-local +y already
+        # points outboard there, and s * (tr/2 + DY) carries it the right way.
+        # T1_CAPSINK=1 restores the old un-seated placement so the guard in
+        # t1_detail can be WATCHED FAILING on the real defect (rule 19).
+        _dy = 0.0 if os.environ.get("T1_CAPSINK") else D.CAP_SEAT_DY
+        if s > 0 and x == T.X_AXLE_F:
+            D.cap_clearance_check(_dy, log=log)
         for o in [t, br, dc, hc] + emb:
             if s < 0:
                 for v in o.data.vertices:
@@ -357,7 +369,8 @@ for (x, tr) in ((T.X_AXLE_F, T.TRACK_F), (T.X_AXLE_R, T.TRACK_R)):
             # rev 8: step 8b SKIPS wheel parts, so this is the FINAL height.
             # The wheel is a circle resting on flat ground: centre at exactly
             # TIRE_R, contact patch on z = 0, no tilt. It does not rake.
-            D.place(o, loc=(x, s * tr / 2, T.TIRE_R))
+            _seat = _dy if o in ([hc] + emb) else 0.0
+            D.place(o, loc=(x, s * (tr / 2 + _seat), T.TIRE_R))
 
 # SPEC r4 8.2: bumpers are PAINTED CREAM, not chrome
 A(D.bumper(True, name="bumper_f"), "bumpercream")
