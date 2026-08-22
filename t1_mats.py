@@ -256,6 +256,14 @@ W_PT_LO, W_PT_HI = 0.520, 0.600
 # On a flat face the two normals are identical and edge == 0 BY CONSTRUCTION.
 # That is the property Pointiness does not have and the whole reason for this.
 #
+# rev 55 -- READ THAT LINE AS THE DESIGN, NOT AS THE CODE.  Until this
+# revision the code read `Normal` (the SHADING normal), not `True Normal`,
+# and nothing said so.  On FLAT geometry the two are the same vector, which
+# is why every counter result stands; on the SMOOTH 61 737-poly `T1_body` the
+# detector is DEAD -- 0.000000 of the rear arch lip clears W_EDGE_LO as
+# shipped against 0.208 on the true normal.  See the retraction and the
+# T1_TRUENORM lever at the dot product itself, and probe_rev55_truenorm.py.
+#
 # THE SCALE IS EXPRESSED, NOT TYPED.  A dihedral fold of interior angle theta
 # turns the shaded normal by at most (180-theta)/2, so a 90 deg fold that lies
 # fully inside the radius reads 1-cos(45 deg).  The window is quoted as
@@ -948,7 +956,72 @@ def weather_group(name="WEATHER"):
     _dot = ng.nodes.new("ShaderNodeVectorMath"); _dot.location = (-2420, -1220)
     _dot.operation = 'DOT_PRODUCT'
     ng.links.new(_bev.outputs[0], _dot.inputs[0])
-    ng.links.new(geo.outputs["Normal"], _dot.inputs[1])
+    # rev 55 -- RETRACTION, IN THE SOURCE AND NOT ONLY IN A LEDGER (rule 15).
+    # The design note above W_EDGE_90 says, verbatim, "edge = 1 - dot(
+    # bevel_normal, true_normal)" and "On a flat face the two normals are
+    # identical and edge == 0 BY CONSTRUCTION".  THE CODE HAS NEVER DONE THAT.
+    # It reads `Normal`, the SHADING normal.  On FLAT-shaded geometry the two
+    # sockets are the same vector, so every counter-fascia number rev 53 and
+    # rev 54 published is untouched -- measured, not assumed: on `counter`
+    # (26 polys, 0 smooth) the two arms agree to 0.00 % against a null-arm
+    # floor of 0.10 %.
+    #
+    # ON `T1_body` IT IS FATAL, AND IT IS MEASURED (probe_rev55_truenorm.py).
+    # T1_body is 61 737 polys, 100 % SMOOTH, so its shading normal is already
+    # interpolated across every fold -- which is very nearly what the Bevel
+    # node computes -- and the dot product sits at 1:
+    #
+    #   crop            frac > W_EDGE_LO   as shipped     True Normal
+    #   flank                              0.002668       0.134578   (50x)
+    #   rear arch lip                      0.000000       0.208417   (dead)
+    #
+    # THE PAINTED WINDOWS SAY IT PLAINLY (probe_scratch/rev55_tn_flank.png,
+    # rev55_tn_arch.png): as shipped the whole red shell is BLACK -- no edge
+    # signal at any arch lip, panel aperture or shut line.  So the RED CARRIES
+    # NO EDGE CHIPPING AT ALL, while SPEC sec.3 and the owner's own rev-53
+    # narrowing ("WEATHERED is NARROWED to the red and the running gear")
+    # both require that it should.
+    #
+    # AND `True Normal` IS NOT THE FIX.  THAT WAS THIS REVISION'S OWN FIRST
+    # CONCLUSION AND IT IS RETRACTED HERE, ON TWO MEASUREMENTS AND A LOOK.
+    #
+    # On a SMOOTH-shaded mesh the true normal is PIECEWISE CONSTANT -- one
+    # value per polygon -- while the bevel normal is smooth, so
+    # 1 - dot(bevel_n, true_n) is non-zero across EVERY FACET BOUNDARY of a
+    # curved panel.  It detects TESSELLATION, not folds.  That is exactly the
+    # defect the design note says this construction exists to escape ("an
+    # edge detector that does not know the vertex count"), so the true normal
+    # reintroduces Pointiness's flaw by another route.
+    #
+    # MEASURED, by running probe_rev55_truenorm.py at both subdivision levels
+    # -- which is the direct test of that claim, because T1_SUB is what
+    # changes the vertex count:
+    #
+    #   frac > W_EDGE_LO      T1_SUB=1        T1_SUB=2 (3.8x the polys)
+    #   flank, arm T          0.134578        0.112530     -16 %
+    #   arch,  arm T          0.208417        0.100381     -52 %
+    #   flank, arm S          0.002668        0.002675     +0.3 %  (stable)
+    #
+    # The true-normal arm LOSES up to half its coverage when the mesh is
+    # refined.  A quantity that halves when you subdivide is not measuring
+    # the vehicle.
+    #
+    # AND LOOK AT IT (probe_scratch/rev55_ASK_truenorm.png): under
+    # T1_TRUENORM=1 the trunk lid -- CREAM -- comes up blotched across its
+    # whole face, not chipped along its edges.  The owner's rev-53 ruling on
+    # that exact surface is "Follow the photograph -- clean cream".  So the
+    # flip would also break a settled ruling.
+    #
+    # WHERE THAT LEAVES THE GATE, STATED PLAINLY: on FLAT geometry it works
+    # and the counter results stand; on the SMOOTH red shell NEITHER socket
+    # is right -- `Normal` is dead and `True Normal` counts facets -- so the
+    # red's edge wear is UNBUILT and cannot be built by changing this link.
+    # T1_TRUENORM=1 is kept as the lever that demonstrates it.  DO NOT make
+    # it the default.  A construction that works on both would have to come
+    # off the geometry (a real crease/angle attribute), and that is a
+    # revision's work, not a link.
+    _tn = "True Normal" if os.environ.get("T1_TRUENORM") == "1" else "Normal"
+    ng.links.new(geo.outputs[_tn], _dot.inputs[1])
     EDGE = _math(nt, 'SUBTRACT', 1.0, _dot.outputs["Value"], -2240, -1220,
                  clamp=True)
 
