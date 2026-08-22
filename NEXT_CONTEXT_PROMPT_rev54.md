@@ -18,7 +18,7 @@ for b in $(git branch -r | grep -v HEAD); do
 done
 git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 ./bootstrap.sh          # ALL 10 PASS  -- THE BRANCH CHECK IS ROW 9
-./verify_clone.sh       # ALL 159 PASS -- and read what its verdict block says
+./verify_clone.sh       # ALL 160 PASS -- and read what its verdict block says
 ```
 
 **THE DESIGNATED BRANCH'S REMOTE COPY WAS DELETED AGAIN AT REV 53** — `fetch --prune` printed
@@ -106,8 +106,9 @@ against `probe_rev53_chip.py`'s own printout and against the source. **What it f
 | `LID_X1 = -1.0700` cited as a greppable string | **it is not one** — the source line is `LID_X0, LID_X1 = 0.9640, -1.0700`. Rule 18's exact defect, inherited from the rev-53 brief and corrected here |
 | *"`T1_EDGEBEVEL` is GONE"* | gone from the **shader**; it survives in one `probe_rev53_chip.py` comment as history — and that mention is what keeps the ablation-sweep row green while this brief names it |
 | `T1_EDGERAD=12` is **3.3 px** | **3.25 px** (12 × 271.2 / 1000), recomputed |
+| `verify_clone.sh` **ALL 159 PASS** | **160.** Caught only by running it on a CLEAN tree at the very end — before the commit the clean-tree row itself fails, so the banner reads "159 PASSED, 1 FAILED" and 159 is the number that gets transcribed. **Run it clean before you quote its total.** `LEDGER_rev53` §7 carried the same 159 and is corrected too |
 
-**All seven are corrected above.** Four of the seven were **transcription**, not measurement, in a
+**All eight are corrected above.** Five of the eight were **transcription**, not measurement, in a
 document whose own §1 says not to transcribe.
 
 **VERIFIED CLEAN BY THE SAME AUDIT** — recomputed or grepped, not re-read: all 22 cited files exist;

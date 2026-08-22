@@ -215,7 +215,7 @@ not**. Caught only by watching them fail:
 
 ## §7. GUARDS ADDED — nine rows, EVERY ONE WATCHED FAILING
 
-`verify_clone.sh` **151 → 159**. Watched failing on: a silently flipped default;
+`verify_clone.sh` **151 → 160**. Watched failing on: a silently flipped default;
 **an APPENDED override after the derived fallback** (not merely a deletion —
 §4.2's stated failure mode); a removed radius lever; a removed `T1_PTWEAR`; a
 dropped null control; an un-retracted retraction; a typed literal replacing the
