@@ -21,12 +21,24 @@ git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 ./verify_clone.sh       # ALL 173 PASS -- and read what its verdict block says
 ```
 
-**THE DESIGNATED BRANCH'S REMOTE COPY WAS DELETED A FOURTH TIME AT REV 54.**
-`fetch --prune` printed `- [deleted] (none) -> origin/claude/tacombi-rev-54-u7hvys` — rev 51, 52, 53
-and now 54. HEAD measured **0 ahead / 0 behind** `origin/main`, every remote branch measured
-**0 ahead**, and rev 53's work had landed in `main` through **PR #10** (not #9 — #9 was rev 52's,
-and the rev-54 brief's §1 said #9; corrected here off `git log`). MEASURED at pickup, not
-transcribed. **Expect this shape a fifth time and measure it.**
+**AT PICKUP, REV 54 MEASURED:** the designated branch's remote copy **deleted a fourth time**
+(`fetch --prune` printed `- [deleted] (none) -> origin/claude/tacombi-rev-54-u7hvys`; rev 51, 52, 53
+and now 54), HEAD **0 ahead / 0 behind** `origin/main`, every remote branch **0 ahead**, and rev 53's
+work landed in `main` through **PR #10** — not #9, which was rev 52's; the rev-54 brief's §1 said #9
+and that is corrected here off `git log`.
+
+**WHAT YOU WILL MEASURE IS PROBABLY NOT THAT, AND THE DIFFERENCE MATTERS.** Rev 54 closed with its
+work **pushed to `claude/tacombi-rev-54-u7hvys` and NOT MERGED** — no PR was opened, because none was
+asked for. So expect one of two shapes and **measure which**:
+
+* **rev 54 was merged** → HEAD 0 ahead / 0 behind, and the branch may have been deleted a fifth time.
+  This is the shape every brief since rev 51 describes.
+* **rev 54 was NOT merged** → `origin/claude/tacombi-rev-54-u7hvys` carries commits `main` does not
+  have, and **`bootstrap.sh` ROW 9 WILL FAIL** if you are sitting on `main`, naming that branch.
+  **That failure is the handoff, not a defect.** Check that branch out (or merge it) before anything
+  else, and re-run both scripts from there. Do not "fix" row 9 by ignoring it — it is doing its job.
+
+**Either way, believe the output and not this paragraph.**
 
 > **ROW 9, NOT ROW 10** — confirmed again at rev 54 by reading the machine's own output:
 > row 8 clone depth, **row 9 "no branch carries work HEAD does not have"**, row 10 `verify_clone.sh`.
@@ -113,7 +125,7 @@ roughly 1.5 mm/px on this part. **Stated as a consequence, NOT acted on.**
 ### §2.2b HIS RULING AT REV 54 — W6 RE-AFFIRMED WITH THE COST ON THE TABLE
 
 He was shown the rev-54 delivery frame (`probe_scratch/rev54_ASK_hero.png`) and a crop of the cream
-roof (`rev54_ASK_cream_flat.png`), told in terms that **the largest photorealism lever on that frame
+roof (`probe_scratch/rev54_ASK_cream_flat.png`), told in terms that **the largest photorealism lever on that frame
 is the featureless white surround, that the flatness is the ENVIRONMENT and not the shaders**
 (`STATE.md`: 5 constant-roughness materials, all legitimately exempt), and offered four routes
 including a second environment-lit hero that would have left every past measurement untouched.
@@ -203,7 +215,7 @@ against the probes' own printouts and against the source. **What it found:**
 | "not one row anywhere names a wheel, hub, cap, rim or vent" | **too strong** — track, tyre diameter and the arch-to-tyre gap are all guarded in `verify.py`. See §2.6 |
 | the two glyphs "differ by 25.32 % as built" | **5.09 %.** The 25 % was MY comparison error — the nose is fitted to 0.84 × its ring, the hubcap flush, so I divided by two different denominators. Recorded because it was wrong for a plausible reason |
 | `T1_EDGERAD=12` is **3.3 px** (rev 54's own audit said 3.25) | **3.25 px**, and this brief no longer quotes 3.3 |
-| the draft cited **`rev54_look_ladder.png`** | **the path does not resolve** — it is `probe_scratch/rev54_look_ladder.png`. Caught by a sweep that tries to `stat` every file the brief names; the other 33 all resolved. Rule 18's neighbourhood: a citation nobody can follow |
+| the draft cited **rev54_look_ladder.png**, with no directory | **the path does not resolve** — it is `probe_scratch/rev54_look_ladder.png`. Caught by a sweep that tries to `stat` every file the brief names; the other 33 all resolved. Rule 18's neighbourhood: a citation nobody can follow |
 | a paragraph said this brief *"deliberately does NOT name the retired `T1_EDGEBEVEL` switch"* | **false the moment it printed the name** — and it silently re-created the dependency it claimed to remove, because the `every T1_ switch the brief names exists` row sweeps every `T1_*` the brief mentions and only one surviving `probe_rev53_chip.py` comment keeps that row green. Rewritten to say so; **see §6** |
 
 **Two of the seven were found only by RUNNING the audit as a script rather than re-reading the
@@ -230,10 +242,35 @@ WRITE THE REV-56 BRIEF, `cp` IT OVER `PASTE_INTO_CLAUDE_CODE.txt` IN THE SAME CO
 
 ## §3. THE WORK LIST FOR REV 55
 
+### §3.0 START HERE — THE ORDER, AND WHY IT IS THIS ORDER
+
+**He ruled "keep studio, fix the model" (§2.2b), so rev 55 is a MODEL revision.** The list below is
+long and mostly inherited; this is the order to actually work it, and the reason for the order is
+that **the first three items each have a GATE that will tell you pass or fail** — which is what this
+project has been missing. 173 verify rows and 0 of them fidelity.
+
+| # | do this | why first | the gate that judges it |
+|---|---|---|---|
+| **A** | **Separate the ink LEVEL from the rig's exposure.** The render's flank ink is **+41.2/+38.6/+36.3 DN** on the photograph's, with **G/R 0.936 in BOTH**. Measure the CREAM either side of the ink in the same two frames, through one painted window. | **Cheapest and most decisive thing on the list.** If the cream is also ~39 DN high it is the studio lighting — **his call, W6, not a defect** — and the flank artwork is exonerated. If only the ink is high, it is the artwork. **Every other flank item depends on this answer, so do NOT touch an ink constant before it.** Rule 29.3. | `flank_compare.py`'s own colour block, re-run |
+| **B** | **Re-base `cream_rms.py` onto `ref_rear34.jpg`**, which is the remedy the script itself prints. | It turns a **dead** gate into a live one and gives the project a SECOND fidelity number. Open since **rev 17**. | the script's own guards — it refuses rather than lies |
+| **C** | **The two standing `flank_compare` failures**: ink aspect **2.3689 vs 2.2512 (+5.2 %)** and worst region **0.476 (Senor)**. | Both are measured, both are model-side, and a fix is confirmed or refuted by re-running one script. | `flank_compare.py`, 2 of 4 → 4 of 4 |
+| **D** | everything below, in the order given | items 1 and 5 are owner-blocked; 3, 4, 6 are unblocked but have **no gate**, so they cannot tell you whether they improved the photograph | — |
+
+**RENDER FIRST.** `out/` starts empty. `T1_PREVIEW=side` at **1600×1100** feeds `flank_compare.py`;
+`T1_PREVIEW=side` at **1248×858** is what `cream_rms.py`'s own defaults expect (211.5 px/m, the scale
+of `ref_side.jpg` itself). Rev 54 needed both. And render `hero` and **LOOK at it** — rev 54 opened
+with `out/` empty and no hero had been rendered at all.
+
+**A WARNING ABOUT LOOKING, EARNED TWICE THIS REVISION.** Rev 54 called two defects off crops and
+**both dissolved** when the window was painted — a "ring" that turned out to span all four wheels,
+and roundel V arms that turn out to reach the band perfectly. **Crops generate leads, not findings.**
+Take the lead, then paint the window, then believe the number.
+
+
 **0. NOT A DEFECT — DO NOT REBUILD IT.** Rev 54 read the nose roundel's V arms as stopping short of
 the ring in the hero crop and **was wrong**. A 720-ray reach profile with the glyph, the ring and
 both band circles PAINTED shows **all six stroke ends landing on the band** in both badges
-(`probe_scratch/rev54_reach_nose.png`, `rev54_reach_hubcap.png`); the rev-44b fixed-point solver
+(`probe_scratch/rev54_reach_nose.png`, `probe_scratch/rev54_reach_hubcap.png`); the rev-44b fixed-point solver
 works. The ring stands **2.5 mm proud** of the glyph plane, so an oblique view can open an apparent
 gap that is not in the geometry. **The badge's REACH is settled; its STROKE WEIGHT is not (item 1).**
 
@@ -497,8 +534,11 @@ control tiles proved it.**
 crop, one mark, one sentence — and ASK IT WITH THE QUESTION TOOL.** He has never stood in the bus: do
 not ask what the real vehicle looks like, ask what a PHOTOGRAPH shows. **Rev 53's whole A6 result
 turned on one such question, and the crop had all three states at the same mm/px so he could compare
-them by eye.** **Rev 54 asked him nothing** — everything it did was measurable without him, and that
-is stated rather than dressed up as consultation.
+them by eye.** **Rev 54 asked him exactly one question** — the delivery frame and a cream-roof crop, four
+routes, the cost of each stated — and he ruled **"Keep studio, fix the model"** (§2.2b). Everything
+else rev 54 did was measurable without him. **An earlier draft of this very sentence said "rev 54
+asked him nothing"; it was written before the question was put and the audit of this file caught
+it.**
 
 **`git rev-list --count origin/main..HEAD` before you start and again before you finish. And
 `git diff --name-only HEAD...origin/main` — that is where his photographs arrive. EVERY session.**
