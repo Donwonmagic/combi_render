@@ -175,7 +175,7 @@ window**, so a single global `min(z)` put the fold at row **373** while the mask
 **239** — **134 px = 25 mm wrong**. The fold is tracked **PER COLUMN** off the mask now. Rev 53's
 arm D had already learned this and I re-learned it. **Rule 7: ask the geometry, never the pose.**
 
-### §2.8 THIS FILE WAS AUDITED AGAINST THE MACHINE, AND THE AUDIT FOUND FIVE THINGS
+### §2.8 THIS FILE WAS AUDITED AGAINST THE MACHINE, AND THE AUDIT FOUND SEVEN THINGS
 
 Rule 17. Every file cited below was opened, every quoted string grepped, every figure recomputed
 against the probes' own printouts and against the source. **What it found:**
@@ -187,6 +187,13 @@ against the probes' own printouts and against the source. **What it found:**
 | "not one row anywhere names a wheel, hub, cap, rim or vent" | **too strong** — track, tyre diameter and the arch-to-tyre gap are all guarded in `verify.py`. See §2.6 |
 | the two glyphs "differ by 25.32 % as built" | **5.09 %.** The 25 % was MY comparison error — the nose is fitted to 0.84 × its ring, the hubcap flush, so I divided by two different denominators. Recorded because it was wrong for a plausible reason |
 | `T1_EDGERAD=12` is **3.3 px** (rev 54's own audit said 3.25) | **3.25 px**, and this brief no longer quotes 3.3 |
+| the draft cited **`rev54_look_ladder.png`** | **the path does not resolve** — it is `probe_scratch/rev54_look_ladder.png`. Caught by a sweep that tries to `stat` every file the brief names; the other 33 all resolved. Rule 18's neighbourhood: a citation nobody can follow |
+| a paragraph said this brief *"deliberately does NOT name the retired `T1_EDGEBEVEL` switch"* | **false the moment it printed the name** — and it silently re-created the dependency it claimed to remove, because the `every T1_ switch the brief names exists` row sweeps every `T1_*` the brief mentions and only one surviving `probe_rev53_chip.py` comment keeps that row green. Rewritten to say so; **see §6** |
+
+**Two of the seven were found only by RUNNING the audit as a script rather than re-reading the
+draft** — the unresolvable path and the self-refuting paragraph. Re-reading had already passed over
+both. **Five of the seven were transcription or self-contradiction, not measurement**, in a file
+whose own §1 says not to transcribe.
 
 **VERIFIED CLEAN BY THE SAME AUDIT** — recomputed or grepped, not re-read: every file cited below
 exists; `CAP_EMBLEM_WFRAC = 0.2087` and the new denominator note are both in `t1_detail.py`;
