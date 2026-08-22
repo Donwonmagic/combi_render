@@ -231,7 +231,12 @@ block: the fill's top is 3 mm *below* the caddy rim, so it was always meant to s
 
 ## §7.2 STILL OPEN — AND FIXING THE RAIL CANNOT CLOSE IT
 
-**The sixth hook, at X −0.907, lies 51.4 mm beyond `BAYS[2]`'s own aft edge (−0.85575).** It is
+**The sixth hook, at X −0.907, lies 51.25 mm beyond `BAYS[2]`'s own aft edge (−0.855750).**
+*(RETRACTED IN THE SAME REVISION THAT PUBLISHED IT: this was first written **51.4 mm**, in this
+file, in the rev-53 brief and in a commit message. Recomputed at the audit: 0.907 − 0.855750 =
+**51.250 mm**. The commit message cannot be edited and is wrong there; this is the correction.
+A second, DIFFERENT quantity is the distance beyond the RAIL END at u=0.02, which is **61.54 mm** —
+do not confuse them.)* It is
 outside bay 3 altogether, so it cannot hang from a rail that is measured as *"bay 3, u 0.02–0.98"*
 no matter where that rail is put. The six hook stations are six typed literals with irregular
 spacing (69, 105, 73, 79, 78 mm), i.e. read off a photograph; their own span centre is **−0.705**

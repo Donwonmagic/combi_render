@@ -23,8 +23,11 @@ git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 
 **THE DESIGNATED BRANCH'S REMOTE COPY WAS DELETED AGAIN AT REV 52** — `fetch --prune` printed
 `- [deleted] (none) -> origin/claude/new-session-sdoxpg`, exactly as at rev 51. HEAD measured
-**0 ahead / 0 behind** `origin/main` and **no branch carried work HEAD did not have**: rev 51's
-39 commits had landed in `main` through PR #8. Nothing was lost. **Expect this shape again and
+**0 ahead / 0 behind** `origin/main` and **no branch carried work HEAD did not have**: rev 51's work
+had landed in `main` through **PR #8, which carried 20 commits** (19 on the branch plus the merge —
+MEASURED at the rev-52 audit. An earlier draft of this file said *39*, transcribed from the rev-52
+brief's statement about a different measurement. That is exactly the mistake this section warns
+against, and it was caught by re-measuring, not by re-reading). **Expect this shape again and
 measure it; do not transcribe it.**
 
 > **ROW 9, NOT ROW 10** — confirmed again at rev 52 by reading the machine's own output:
@@ -86,6 +89,29 @@ of the three FAILs were one cause.**
 **Ablations added, every one watched failing:** `T1_TARNCONTAM`, `T1_EDGEBEVEL`, `T1_RAILSTALE`,
 `T1_ENDSHORT`. **`verify_clone.sh` 127 → 138 rows; `verify.py` gained a zero-area sweep.**
 
+### §2.3 THIS FILE WAS AUDITED AGAINST THE MACHINE, AND THE AUDIT FOUND THREE THINGS IN IT
+
+Rule 15 says put something on the incoming brief whose only job is to refute it. That was done to
+**this** file before it shipped — every cited file opened, every cited string grepped, every figure
+recomputed. It found:
+
+| what the draft said | what the machine says | how it got in |
+|---|---|---|
+| PR #8 carried **39 commits** | **20** (19 + the merge) | transcribed from the rev-52 brief's statement about a *different* measurement |
+| the sixth hook is **51.4 mm** beyond the bay edge | **51.25 mm** | arithmetic published without being re-checked |
+| `CAP_EMBLEM_WFRAC` cited with no file | it is in **`t1_detail.py`** | rule 17 — cite a string someone can grep |
+
+**All three are corrected above.** The 51.4 mm also reached `LEDGER_rev52.md` and a commit message;
+the ledger is corrected in place and the commit message cannot be, so the correction is recorded
+there instead. **Two of the three were transcription, not measurement** — in a file whose own §1
+tells you not to transcribe.
+
+Verified clean by the same audit: all 14 cited files exist; the rev-50 canon block, and rules 34 and
+35 in `LEDGER_rev50.md`, are all still where this file says they are; **all 13 named ablation
+switches exist in the source**; `LID_X1 = -1.0700`, `REAR_W = 1.0400`, `GAPW = 0.0055` and
+`W_EDGE_90 = 0.29289` all check; the 803 mm reproduces exactly off a live `X_TAIL = -1.8730`; and
+`verify_clone.sh` reports **ALL 138 PASS** with the branch check on **row 9**.
+
 ---
 
 ## §3. WHAT IS REFUTED OR DELIBERATELY NOT BUILT — DO NOT REDO THESE
@@ -117,9 +143,10 @@ of the three FAILs were one cause.**
 **Item 1 is blocked on a photograph. Items 2–4 are not. If you do one thing, do item 2.**
 
 **1. THE TWO VW BADGES — HIS REPORT AT REV 51, STILL THE TOP JOB, STILL BLOCKED.**
-Untouched at rev 52. The DIAMETER route on `ref_side.jpg` is **EXHAUSTED** (rev 51 got 0.3474 vs the
+Untouched at rev 52. **PROVENANCE, GRADED: every figure in this item is INHERITED from rev 51 / rev 15
+and was NOT re-measured at rev 52.** Treat them as the record's, not as freshly verified. The DIAMETER route on `ref_side.jpg` is **EXHAUSTED** (rev 51 got 0.3474 vs the
 built 0.3170 — 9.6 % small but only **1.8 sigma**; re-running gets the same). **The untouched
-constant is the STROKE WEIGHT**, `CAP_EMBLEM_WFRAC = 0.2087`, whose own comment says it kept its w/R
+constant is the STROKE WEIGHT**, `CAP_EMBLEM_WFRAC = 0.2087` **in `t1_detail.py`**, whose own comment says it kept its w/R
 from the rev-14 emblem that rev 15 found at 7.0 sigma and resized. **No frame has ever been compared
 against it.** Full text, and the four closed routes, in **`PHOTOS_WANTED_rev52.md` item 7**.
 **AND THE GUARD GAP ON THIS PART IS STILL TOTAL** — rev 52 added rows for the tarnish window, the
@@ -136,7 +163,9 @@ and the painted windows are all recorded there so the numbers are directly compa
 not when the statistic falls.
 
 **3. FINISH A9. Two of its four parts are done; the galley is still ~103 mm too far aft.**
-The offset is **NOT rigid** (−0.09574 at hook u=0.13 to −0.11035 at `gal_appliance` u=0.80, so one
+**PROVENANCE, GRADED: the per-feature deltas below are INHERITED from the rev-52 brief and were NOT
+re-measured at rev 52** — rev 52 measured `gal_rail`, `gal_caddy_fill` and the hooks, nothing else in
+A9. Re-measure before relying on them. The offset is **NOT rigid** (−0.09574 at hook u=0.13 to −0.11035 at `gal_appliance` u=0.80, so one
 additive constant leaves ±7.3 mm). Re-derive each X from `BAYS`, the way `gal_rail` now is.
 *(The brief's ~106 mm and its +0.096..+0.113 range are both wrong; the machine's twelve per-feature
 deltas mean 103.0 mm and none reaches 0.113.)*
@@ -144,12 +173,13 @@ deltas mean 103.0 mm and none reaches 0.113.)*
 **4. THE THREE HOLES REV 52 LEFT OPEN, all measured and all cheap to reach:**
 * `gal_end_f` sees past by **260.0 mm** on the show side and 20.0 mm on the off side. Needs its own
   sight line established first — do not inherit `REAR_W/2`.
-* The **sixth hook at X −0.907 lies 51.4 mm beyond `BAYS[2]`'s own aft edge**, so it is outside bay 3
+* The **sixth hook at X −0.907 lies 51.25 mm beyond `BAYS[2]`'s own aft edge (−0.855750)**, so it is outside bay 3
   altogether. The six hook stations are typed literals with irregular spacing whose span centre is
   **−0.705** against the rail's measured **−0.598**. **The hook stations and the bay measurement
   disagree and one of them is wrong.**
 * A7's real defect: `roof_cutters()`'s aft edge is `LID_X1 = -1.0700`, so **803 mm of roofed body**
-  sits between the last light inlet and the tail skin. Unbuilt.
+  sits between the last light inlet and the tail skin. Unbuilt. *(This one WAS re-derived at rev 52's
+  audit and reproduces exactly: `LID_X1 = -1.0700` against a live `X_TAIL = -1.8730` gives 803.0 mm.)*
 
 **5. A13 / A16 / A12** — the isolated star built BELOW the burst where both red frames put it above;
 every flank rosette drawn at the diameter of its **gold core**; *A12 is an OWNER RULING, not a

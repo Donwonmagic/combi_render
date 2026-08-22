@@ -721,6 +721,20 @@ ck "CLAUDE.md exists" 1 "$([ -f CLAUDE.md ] && echo 1 || echo 0)"
 # fallback fires on success and concatenates -- it reported `099`.  Capture stdout
 # and never branch on grep's status.
 ck "CLAUDE.md carries no measurements" 0 "$(if [ -f CLAUDE.md ]; then grep -cE '[0-9]+\.[0-9]' CLAUDE.md 2>/dev/null; else echo 99; fi)"
+# rev 52.  THE STEP THAT KEEPS GETTING FORGOTTEN, MADE MACHINE-CHECKED.
+# Rule 15 puts an adversary on the INCOMING brief.  The OUTGOING one has always
+# shipped unread -- and it becomes the next context's only map.  At rev 52 the
+# outgoing brief was audited for the first time and THREE defects were found in
+# it, TWO of them transcription rather than measurement, in a document whose own
+# first section says not to transcribe.  Prose did not stop that and would not
+# stop it again: the standing-instructions carrier and the open-findings register
+# were both PROSE, and both were lost.  So it is a row.
+# The two rows below hold that (a) the method rule still exists in CLAUDE.md and
+# (b) the HIGHEST-NUMBERED brief actually carries its audit result.
+# NOTE THE SHELL TRAP above: capture grep's stdout, never branch on its status.
+ck "CLAUDE.md keeps the outgoing-brief rule" 1 "$(if [ -f CLAUDE.md ]; then grep -c 'AUDIT THE BRIEF YOU WRITE' CLAUDE.md 2>/dev/null; else echo 99; fi)"
+_LATEST_BRIEF="$(ls NEXT_CONTEXT_PROMPT_rev*.md 2>/dev/null | sort -V | tail -1)"
+ck "newest brief records its own audit"      1 "$(if [ -n "$_LATEST_BRIEF" ]; then grep -c 'AUDITED AGAINST THE MACHINE' "$_LATEST_BRIEF" 2>/dev/null; else echo 99; fi)"
 ck "heroes are NOT tracked"         0 "$(git ls-files 2>/dev/null | grep -c 'hero.*\.png')"
 ck "out/ is NOT tracked"            0 "$(git ls-files 2>/dev/null | grep -c '^out/')"
 
