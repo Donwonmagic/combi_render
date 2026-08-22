@@ -258,6 +258,24 @@ ck "_assert_same_edge"              4 "$(grep -c '_assert_same_edge' flank_compa
 # FAILING.  Both were watched at rev 52.
 ck "tarnish endmember excludes claimed px" 1 "$(grep -cE 'smp = zm & ~raw$' flank_compare.py)"
 ck "T1_TARNCONTAM ablation exists"         3 "$(grep -c 'T1_TARNCONTAM' flank_compare.py)"
+# rev 52, A6.  SELF-CONSISTENCY, NOT FIDELITY -- this script cannot render.
+# THE DEFECT: the chip gate keys off Pointiness, which is PER-VERTEX, so on
+# unsubdivided detail geometry every vertex is a corner and the ramp saturates
+# over a whole FLAT FACE.  t1_mats.py has said so in prose since rev 44 ("the
+# counter slab reads pw = 1.0 across its entire top") and the gate was never
+# re-based.  MEASURED at rev 52 on painted, eye-verified windows: the counter
+# fascia's dark-chip coverage is 4.07 % against ref_side.jpg's 0.00 %.
+# T1_EDGEBEVEL=1 swaps in a ray-traced Bevel-vs-true-normal edge signal and
+# takes the same window to 0.10 % while a verified SHELL window holds at
+# 0.00 % -> 0.00 %: the chip gate moves ALONE, which T1_CTAN_WEAR never did
+# (it also drops Metallic).  IT IS NOT THE DEFAULT: its positive control
+# FAILED -- GAPW/2 is 0.75 px at 271.2 px/m, so the edge band is sub-pixel and
+# the chips are REMOVED rather than moved to the edges, and SPEC sec.3 locks
+# the finish WEATHERED.  These rows hold that BOTH paths and the derivation
+# survive; only rendering can say which is right.
+ck "chip gate: Pointiness still DEFAULT" 1 "$(grep -cE 'pw = _mr\(nt, PT, W_PT_LO' t1_mats.py)"
+ck "T1_EDGEBEVEL lever exists"           2 "$(grep -c 'T1_EDGEBEVEL' t1_mats.py)"
+ck "edge window DERIVED from a 90 deg fold" 2 "$(grep -c 'W_EDGE_90' t1_mats.py)"
 ck "build_selectors in rev42_uv"    2 "$(grep -c 'build_selectors' probe_rev42_uv.py)"
 ck "C_FOOT in rev42_uv"             7 "$(grep -c 'C_FOOT' probe_rev42_uv.py)"
 ck "571.71 in rev42_uv"             1 "$(grep -c '571.71' probe_rev42_uv.py)"

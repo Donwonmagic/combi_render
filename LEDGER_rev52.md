@@ -116,3 +116,83 @@ does not show"*, so this stays an OWNER RULING (brief §5 item 7, A12), not a do
    same shape: it is a question-figure generator, not a gate. **Neither was run this revision.**
 7. **NOT VERIFIED, carried forward:** `verify_clone.sh` now contains 132 `ck` lines against
    129 reported checks. The discrepancy was noticed, not chased.
+
+---
+
+# §6. A6 — THE CHIP GATE, RE-BASED AND MEASURED. **NOT SHIPPED AS THE DEFAULT.**
+
+Brief §5 item 3. `LEDGER_rev51` §6 left A6 *"diagnosed, not fixed"*, and said why: *"validating a
+shader change needs before/after renders at 6–15 min each."* Three full renders were run here.
+
+## §6.1 The instrument, built and calibrated BEFORE it measured anything
+
+Rev 51's estimator was never committed as a runnable probe, so this is a **reconstruction**, and it
+was calibrated on the record's own two controls first:
+
+| control | record | this estimator |
+|---|---|---|
+| flat cream + 0.5 DN noise | 0.00 % | **0.000 %** |
+| flat cream + known chips | 6.58 % (true 7.6) | **7.316 % (true 7.32)** |
+
+**CEILING:** absolute percentages are NOT comparable to rev 51's 17.06 % — different estimator,
+window and erosion. Only comparisons made *through this one estimator* are meaningful, and every
+comparison below is.
+
+## §6.2 THE WINDOWS — AND FOUR OF MY OWN WERE WRONG
+
+The class is defined **relative to each image's own cream**: the photograph's cream is warm
+(R−G median 22), the render's is neutral (R−G median 2), so a fixed cut keeps only the
+photograph's most neutral pixels — a ragged mask that would have excluded exactly the darker
+pixels a chip statistic counts. Caught by painting it. Then, on the second pass:
+
+* a "cab roof cream" window that was **on the white background**;
+* a "nose cream" window that was **on the white background**;
+* an "upper body cream" window that was **on the bulb string** — the identical defect rev 51
+  recorded;
+* a "cantrail" window that was **on the window glass**.
+
+**All four read a plausible 0.00 % and would have been published as evidence of confinement.**
+Every one was caught by PAINTING the selection and looking; none by reasoning. **A white studio
+background passes a "bright and neutral" cream test** — that is the trap specific to this delivery
+genre, and it is new to the record.
+
+## §6.3 THE MEASUREMENT, on painted and eye-verified windows only
+
+| window | pre-change | default after the edit | `T1_EDGEBEVEL=1` | photograph |
+|---|---|---|---|---|
+| counter fascia (detail geom) | dark **4.07 %** p2 −0.062 | dark 4.05 % p2 −0.062 | dark **0.10 %** p2 −0.003 | **0.00 %** p2 −0.009 |
+| cab lower cream (SHELL) | 0.00 % p2 −0.003 | 0.00 % p2 −0.003 | 0.00 % p2 −0.003 | — |
+
+**The default path is INERT:** 4.07 → 4.05 % with p2 unchanged. The whole-frame residual against
+the pre-change render is salt-and-pepper — 32 006 blobs averaging 1.8 px, **median difference
+0.000 DN** — i.e. Cycles sampling noise, not a structural change.
+
+**The lever moves the chip gate ALONE**, which is what the brief said A6 never had
+(`T1_CTAN_WEAR` also drops Metallic): the fascia falls 40×, the verified shell window does not move.
+
+## §6.4 WHY IT IS NOT THE DEFAULT — THE POSITIVE CONTROL FAILED
+
+`T1_EDGEBEVEL=1` does **not move the chips to the edges. It removes them.** Looked at, not inferred:
+at 8× on the counter lip the fascia comes back clean with **no chipping at the lip either**. The
+arithmetic says why, and it was predictable: the radius is `GAPW/2 = 2.75 mm`, and at the side
+view's **271.2 px/m that is 0.75 px** — the edge band is **sub-pixel at every scale this project
+renders**. SPEC §3 locks the finish WEATHERED, so making this the default on self-review would
+trade a measured defect for an unmeasured one.
+
+**The mechanism is right and the scale is not.** A Bevel node is mesh-density independent in
+exactly the way Pointiness is not, and `edge = 1 − dot(bevel_normal, true_normal)` is **0 on a flat
+face by construction**. What is missing is a radius grounded in **how big a real chip is in a
+photograph** — a measurement nobody in this project has made. The window is expressed as fractions
+of a 90° fold (`W_EDGE_90 = 1 − cos 45°`) so it moves with geometry, but **the 0.10 / 0.50 fractions
+are chosen, not measured, and no frame has ever been compared against them.** That is the ceiling.
+
+**OPEN, and it is an owner question, not a do-now:** the photograph's fascia reads **0.00 % dark** —
+on that one surface the real vehicle is *not* chipped, so removing the chips there is closer to the
+photograph than keeping them. Whether that holds across the vehicle cannot be settled from the
+frames held.
+
+## §6.5 Guards
+
+Three `verify_clone.sh` rows, **each watched failing on the defect it exists to catch** — a silently
+flipped default, a removed lever, and a typed window replacing the derivation — and passing when
+restored. They are SELF-CONSISTENCY rows: that script cannot render, so it cannot check any of §6.3.
