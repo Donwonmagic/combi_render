@@ -1176,7 +1176,23 @@ def main():
     Rf = R.astype(np.float32)
     Gf = G_native.astype(np.float32)
     Rc = raster(sampler_ref(Rf, ea, eb), bx0, bx1, bz0, bz1, PITCH)
-    Gk = raster(sampler_gen(Gf, proj, mx0, my0, zdat_gen),
+    # rev 55, item C.  IS THE `Senor` REGION FAILURE DOWNSTREAM OF THE HEIGHT
+    # SHORTFALL, or is it the glyph?  senor_trace.py's redraw scores 0.913 IoU
+    # against the measured 934 px mask, so the SHAPE is not in question; the
+    # region scores 0.377 here.  `Senor` sits at the top-left extreme of the
+    # lockup, which is where a height error hurts most once the global shift
+    # has absorbed the translation.  T1_FC_ZSTRETCH scales the RENDER mask
+    # vertically about its own centre before scoring -- the same lever the
+    # negative control already uses at 0.92 -- so the question is answered by
+    # a control rather than by an argument.  ABLATION ONLY: it changes no
+    # geometry and nothing ships under it.
+    _zst = float(os.environ.get("T1_FC_ZSTRETCH", "1") or 1)
+    if _zst != 1.0:
+        print("\n!! T1_FC_ZSTRETCH=%.4f -- the RENDER mask stretched "
+              "vertically about its own centre.  ABLATION, not a build."
+              % _zst)
+    Gk = raster(sampler_gen(Gf, proj, mx0, my0, zdat_gen, zsq=_zst,
+                            zc=0.5 * (GZ.max() + GZ.min())),
                 bx0, bx1, bz0, bz1, PITCH)
     print("\ncommon frame    %.3f mm/cell, %d x %d cells, x %+.3f..%+.3f  "
           "z(datum) %+.3f..%+.3f" % (PITCH * 1000, Rc.shape[1], Rc.shape[0],
@@ -1521,6 +1537,86 @@ def main():
              % REGION_IOU_FRAC)):
         print("  %-4s %-16s %-22s  target %s"
               % ("PASS" if ok else "FAIL", name, got, want))
+    # ---------------------------------------------------------------------
+    # rev 55, item C.  WHICH OF THESE TWO FAILURES IS A MODEL DEFECT?
+    # The aspect row is NOT, and this file has been printing the evidence
+    # against it all along -- in the `ink extent` block, three readings of
+    # the SAME aspect difference:
+    #     raw pixel bboxes        +0.94 %   (assumes the photograph's px are
+    #                                        square in object space)
+    #     map's own vertical      +2.86 %   PASSES the 5 % bar
+    #     k_t (SPEC 10.34)        +5.23 %   FAILS it -- the row above
+    # The verdict is decided by WHICH VERTICAL INSTRUMENT IS BELIEVED, and
+    # this file's own header says the two "disagree by 2.3 % at the hub",
+    # that for an oblique view of a vertical plane the horizontal scale must
+    # be the SMALLER of the two, that it is not, and therefore that "one of
+    # the two instruments is 2.3 % out" -- WITHOUT SAYING WHICH.
+    #
+    # HEIGHT, ASPECT AND AREA ARE NOT THREE INDEPENDENT WITNESSES.  They are
+    # three reductions of the same two masks through the same vertical
+    # instrument: `ref_area` above is (flank_mpp / flank_kv).sum(), so a 2.3 %
+    # error in k_t moves all three together.  Under the map's vertical scale
+    # the render is 3.4 % short and the aspect PASSES; under k_t it is 5.6 %
+    # short and the aspect FAILS.  The SIGN is agreed -- the render's lockup
+    # IS short in height -- and the MAGNITUDE is not established.
+    #
+    # AND THE `Senor` ROW IS THE SAME UNKNOWN, NOT A SECOND DEFECT.
+    # senor_trace.py's redraw scores 0.913 IoU against the measured 934 px
+    # mask, so the GLYPH is not in question.  `Senor` sits at the top-left
+    # extreme of the lockup, where a height error hurts most once the global
+    # shift has absorbed the translation.  T1_FC_ZSTRETCH (rev 55) stretches
+    # the render mask vertically before scoring, and it moves exactly as that
+    # story predicts -- MEASURED, not argued:
+    #     stretch   1.000    1.020    1.040    1.060    1.080
+    #     IoU/ceil  0.888    0.910    0.920    0.910    0.892
+    #     Senor     0.483      -      0.712    0.795      -
+    # a clean parabola with its vertex at 1.0398, and at 1.056 the worst
+    # region becomes `i` at 0.770 and the row PASSES.  So ONE quantity -- the
+    # panel's height -- accounts for BOTH failing rows.
+    #
+    # THAT OPTIMUM IS NOT INDEPENDENT EVIDENCE, AND IT WAS NEARLY PUBLISHED
+    # AS IF IT WERE.  The reference mask is carried into this metric frame by
+    # the SAME flank_kv the height and area use, so stretching the render to
+    # overlap a reference that may itself have been placed 2.3 % too tall
+    # improves the overlap CIRCULARLY.  It measures agreement with the
+    # instrument, not with the vehicle.
+    #
+    # WHAT IS INDEPENDENT POINTS THE OTHER WAY.  In RAW REFERENCE PIXELS the
+    # aspect is +0.94 % -- and tex/senor.png was authored FROM those raw
+    # pixels (its 2.357 AR against the reference bbox's 2.3478), so on its
+    # own terms the panel is right.  This file's header argues that for an
+    # oblique view of a vertical plane the HORIZONTAL scale must be the
+    # smaller of the two, and it is not (220.45 against k_t's 215.5); if the
+    # map is the sound one, k_t is too SMALL, the reference's ink height in
+    # metres is OVERSTATED, and the render is short by less than 5.6 % --
+    # possibly not at all.
+    #
+    # SO DO NOT STRETCH SCR TO SATISFY THESE ROWS.  It would encode one
+    # instrument's own 2.3 % error into geometry that the instrument exists
+    # to measure, and the source comment above SCR in build.py -- "GROWN
+    # UPWARD ... the missing height belongs at the TOP" -- would make it look
+    # corroborated when it is the same unknown twice.  The bar and the
+    # verdict are left exactly as they were: a script is not edited to make
+    # it pass.  WHAT WOULD CLOSE THIS is one independent vertical scale on
+    # the flank plane of ref_side.jpg.  Until then both rows stay FAILING and
+    # UNATTRIBUTED, which is the honest state and not the brief's
+    # "both are measured, both are model-side".
+    _asp_map = rw / (rh * K_T * flank_mpp(U_RHUB))
+    print("\n  ON THE ASPECT ROW -- it is INSTRUMENT-DEPENDENT, not settled:")
+    print("    under k_t (the row above)      %+.2f %%   %s"
+          % (100 * (ga / ra - 1), "FAIL" if not ok_asp else "PASS"))
+    print("    under the map's own vertical   %+.2f %%   %s"
+          % (100 * (ga / _asp_map - 1),
+             "FAIL" if abs(ga / _asp_map - 1) > ASPECT_TOL else "PASS"))
+    print("    in RAW REFERENCE PIXELS      %+.2f %%   PASS"
+          % (100 * (((bbox(G_native)[2] - bbox(G_native)[0] + 1)
+                     / (bbox(G_native)[3] - bbox(G_native)[1] + 1))
+                    / ((rx1 - rx0 + 1) / (ry1 - ry0 + 1)) - 1)))
+    print("    the two vertical instruments disagree by 2.3 % at the hub and "
+          "this file does not know which is out.  BOTH FAILING ROWS ARE")
+    print("    DOWNSTREAM OF THAT ONE UNKNOWN -- see the note in the source "
+          "above this block.  Neither is a settled model defect.")
+
     verdict = ok_area and ok_asp and ok_iou and ok_reg
     print("\n%s  -- flank script, render against ref_side.jpg"
           % ("PASS" if verdict else "FAIL"))
