@@ -244,6 +244,20 @@ ck "_arch_radial in t1_shell.py"    3 "$(grep -c '_arch_radial' t1_shell.py)"
 ck "T1_ABLATE in build.py"          5 "$(grep -c 'T1_ABLATE' build.py)"
 ck "FLOOR_W in t1_detail.py"        5 "$(grep -c 'FLOOR_W' t1_detail.py)"
 ck "_assert_same_edge"              4 "$(grep -c '_assert_same_edge' flank_compare.py)"
+# rev 52.  SELF-CONSISTENCY, NOT FIDELITY -- this script cannot render, so it
+# cannot check what the tarnish windows actually rescue.  What it CAN hold is
+# that the fix is still in the source and its ablation still exists.  THE
+# DEFECT IT PINS: a tarnish zone estimated its ink endmember over pixels the
+# silver rule had already claimed, so 16.5 % of `Tacombi`'s swash inside the
+# "enor" window drove the endmember NEUTRAL, the 50 %-mix threshold fell
+# 0.2192 -> 0.1086 and the window rescued +0 px.  `Senor` read 0.174 of its
+# own ceiling; with the sample restricted to unclaimed pixels it reads 0.480,
+# against 0.459 on the same instrument at rev 40 and 0.504 at rev 17.
+# RUN IT to see those numbers -- `python3 flank_compare.py out/<pfx>_side.png`
+# -- and `T1_TARNCONTAM=1` puts the defect back so the guard can be WATCHED
+# FAILING.  Both were watched at rev 52.
+ck "tarnish endmember excludes claimed px" 1 "$(grep -cE 'smp = zm & ~raw$' flank_compare.py)"
+ck "T1_TARNCONTAM ablation exists"         3 "$(grep -c 'T1_TARNCONTAM' flank_compare.py)"
 ck "build_selectors in rev42_uv"    2 "$(grep -c 'build_selectors' probe_rev42_uv.py)"
 ck "C_FOOT in rev42_uv"             7 "$(grep -c 'C_FOOT' probe_rev42_uv.py)"
 ck "571.71 in rev42_uv"             1 "$(grep -c '571.71' probe_rev42_uv.py)"
