@@ -227,7 +227,7 @@ not**. Caught only by watching them fail:
 
 ## §7. GUARDS ADDED — nine rows, EVERY ONE WATCHED FAILING
 
-`verify_clone.sh` **151 → 160**. Watched failing on: a silently flipped default;
+`verify_clone.sh` **151 → 164** across the revision. Watched failing on: a silently flipped default;
 **an APPENDED override after the derived fallback** (not merely a deletion —
 §4.2's stated failure mode); a removed radius lever; a removed `T1_PTWEAR`; a
 dropped null control; an un-retracted retraction; a typed literal replacing the
@@ -240,6 +240,25 @@ comment that merely names the symbol — a wording change failing a row meant to
 test a **derivation**. It is anchored on the derivation expression now, with a
 companion row *"edge window is not a typed literal"* making the thing it actually
 cares about separately testable. Both watched failing.
+
+---
+
+## §7.1 A TYPED COPY THAT HAD DRIFTED — AND MY OWN AUDIT CERTIFIED IT
+
+Caught only because the **rev-52 session's report was re-checked against the machine** instead of
+being read. It said the A7 gap reproduces off a live `X_TAIL = -1.8730`; rev 53's audit "verified"
+802.7 mm off **−1.8727**. **Rev 52 was right.**
+
+`t1_core.py` writes `X_TAIL = _aft(X_TAIL_OLD)` — a **call**, evaluating to **−1.873000**.
+`flank_compare.py` carried a **typed copy** at −1.8727, drifted 0.3 mm, harmless in that file (it is
+only printed in a diagnostic) but read as live by this revision's brief audit and published in its
+**"verified clean" list**. An audit that certifies a stale value is worse than no audit.
+
+Fixed in the tree's own idiom (`folk_gen.py` already derives it as `X_AXLE_R - O_NEW`, which equals
+`_aft(X_TAIL_OLD)` exactly because f = 1 at the tail). Two rows, three drift routes watched failing —
+re-typing the literal, drifting `O_NEW` (the silent case), drifting `LID_X1`.
+
+**`verify_clone.sh` 162 → 164.**
 
 ---
 

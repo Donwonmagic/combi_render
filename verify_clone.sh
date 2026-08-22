@@ -256,6 +256,31 @@ ck "_assert_same_edge"              4 "$(grep -c '_assert_same_edge' flank_compa
 # RUN IT to see those numbers -- `python3 flank_compare.py out/<pfx>_side.png`
 # -- and `T1_TARNCONTAM=1` puts the defect back so the guard can be WATCHED
 # FAILING.  Both were watched at rev 52.
+# rev 53.  A TYPED COPY OF A DERIVED CONSTANT, AND IT HAD DRIFTED.
+# flank_compare.py typed `X_TAIL = -1.8727` while t1_core derives -1.873000.
+# 0.3 mm, and harmless in that file (it is only printed in a diagnostic) -- but
+# rev 53's OWN brief audit read the copy as the live value and published the
+# A7 gap as 802.7 mm where it is 803.0.  The rev-52 session had it right; this
+# session got it wrong by reading a copy instead of asking the module, which is
+# rule 10 and rule 11 together.  `_const`'s own failure text already said
+# "fix the reader, do not re-copy the value".
+# Row 1: the literal must not come back.  Row 2: the figure it corrupted --
+# the A7 gap -- must reproduce from source, derived on BOTH sides.
+ck "flank_compare does NOT re-type X_TAIL" 0 "$(grep -cE '^X_TAIL = -?[0-9]' flank_compare.py)"
+ck "the A7 gap reproduces from source: 803 mm" 803 "$(python3 -c "
+import ast
+g={}
+for n in ast.parse(open('t1_core.py').read()).body:
+    if isinstance(n,ast.Assign):
+        for t in n.targets:
+            if isinstance(t,ast.Name) and t.id in ('X_AXLE_R','O_NEW'): g[t.id]=ast.literal_eval(n.value)
+for n in ast.parse(open('t1_shell.py').read()).body:
+    if isinstance(n,ast.Assign) and any(isinstance(t,ast.Tuple) for t in n.targets):
+        names=[e.id for t in n.targets for e in t.elts if isinstance(e,ast.Name)]
+        if 'LID_X1' in names:
+            g['LID_X1']=ast.literal_eval(n.value)[names.index('LID_X1')]
+print(round(abs(g['LID_X1']-(g['X_AXLE_R']-g['O_NEW']))*1000))
+" 2>/dev/null)"
 ck "tarnish endmember excludes claimed px" 1 "$(grep -cE 'smp = zm & ~raw$' flank_compare.py)"
 ck "T1_TARNCONTAM ablation exists"         3 "$(grep -c 'T1_TARNCONTAM' flank_compare.py)"
 # rev 52, A6.  SELF-CONSISTENCY, NOT FIDELITY -- this script cannot render.

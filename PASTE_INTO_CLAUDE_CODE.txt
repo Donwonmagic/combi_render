@@ -18,7 +18,7 @@ for b in $(git branch -r | grep -v HEAD); do
 done
 git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 ./bootstrap.sh          # ALL 10 PASS  -- THE BRANCH CHECK IS ROW 9
-./verify_clone.sh       # ALL 162 PASS -- and read what its verdict block says
+./verify_clone.sh       # ALL 164 PASS -- and read what its verdict block says
 ```
 
 **THE DESIGNATED BRANCH'S REMOTE COPY WAS DELETED AGAIN AT REV 53** — `fetch --prune` printed
@@ -109,14 +109,15 @@ against `probe_rev53_chip.py`'s own printout and against the source. **What it f
 | `verify_clone.sh` **ALL 159 PASS** | **160.** Caught only by running it on a CLEAN tree at the very end — before the commit the clean-tree row itself fails, so the banner reads "159 PASSED, 1 FAILED" and 159 is the number that gets transcribed. **Run it clean before you quote its total.** `LEDGER_rev53` §7 carried the same 159 and is corrected too |
 
 | the brief said nothing about `PASTE_INTO_CLAUDE_CODE.txt` | **it was a byte-identical copy of the rev-52 brief** — see §2.4. The most important intake door in the repo, and the audit found it only by asking what `CLAUDE.md` actually imports |
+| the A7 gap **verified** at **802.7 mm** off `X_TAIL = -1.8727` | **803.0 mm.** −1.8727 is a **typed copy in `flank_compare.py` that had drifted**; the live `t1_core.X_TAIL` is **−1.873000**. **The rev-52 session had this right and rev 53 got it wrong** — see §2.5 |
 
-**All nine are corrected above.** Five of the nine were **transcription**, not measurement, in a
+**All ten are corrected above.** Five of the ten were **transcription**, not measurement, in a
 document whose own §1 says not to transcribe.
 
 **VERIFIED CLEAN BY THE SAME AUDIT** — recomputed or grepped, not re-read: all 22 cited files exist;
 `CAP_EMBLEM_WFRAC = 0.2087` is in `t1_detail.py`; `T1_PTWEAR` and `T1_EDGERAD` are real levers in
 `t1_mats.py`; **`BAYS[2]`'s aft edge recomputes to exactly −0.855750 and the sixth hook to 51.25 mm
-beyond it**; `X_TAIL = -1.8727` against `LID_X1 = -1.0700` gives **802.7 mm**, so the 803 stands;
+beyond it**; the A7 gap **reproduces at exactly 803.0 mm** and is now a `verify_clone` row derived on both sides (see §2.5);
 1000/211.5 = **4.728 mm/px**; 2.589/0.165 = **15.7x**; `STATE.md`'s zero-area row is present; and
 **PR #9** is confirmed in the log.
 
@@ -139,6 +140,31 @@ brief**, so there is no second source of truth free to diverge — the same reas
 
 **SO: WHEN YOU WRITE THE REV-55 BRIEF, `cp` IT OVER `PASTE_INTO_CLAUDE_CODE.txt` IN THE SAME COMMIT,
 OR `verify_clone.sh` FAILS AND NAMES THE ROW.**
+
+### §2.5 A TYPED COPY OF A DERIVED CONSTANT, AND MY OWN AUDIT CERTIFIED THE STALE VALUE
+
+**The rev-52 session's audit reported the A7 gap reproducing off a live
+`X_TAIL = -1.8730`. Rev 53's audit "verified" it at −1.8727 → 802.7 mm. REV 52 WAS RIGHT.**
+
+`t1_core.py` writes `X_TAIL = _aft(X_TAIL_OLD)` — **a call, not a literal** — and it evaluates to
+**−1.873000**. `flank_compare.py` carried a **typed copy** reading **−1.8727**, drifted by 0.3 mm.
+Rev 53 read the copy, believed it, and published it **inside the brief's own "verified clean" list**
+— an audit certifying a stale value as checked. That is rule 10 and rule 11 together: *a duplicate
+is not corroboration*, and *ask the module, not a script that quotes it*.
+
+**`_const`'s own failure text had already said it** — *"fix the reader, do not re-copy the value"* —
+and the file's neighbouring lines pull `RAKE_Z0`, `RAKE_DZDX` and `X_AXLE_R` live through exactly
+that helper. `X_TAIL` alone was typed, because `_const` reads literals and this one is derived.
+
+**Fixed in the idiom the tree already uses.** `folk_gen.py` line `X_TAIL = _C["X_AXLE_R"] - _C["O_NEW"]`
+does it correctly; at the tail `_aft()`'s f is 1 by construction, so `_aft(X_TAIL_OLD)` is exactly
+`X_AXLE_R - O_NEW`. `flank_compare.py` derives it that way now and prints **−1.8730**; its four
+verdicts are unchanged.
+
+**Two rows, all three drift routes watched failing:** re-typing the literal; drifting the
+derivation's own input `O_NEW` (**the silent case** — 810); and drifting `LID_X1`, the other side of
+the same figure (793). **The A7 gap is derived on BOTH sides now**, so no typed copy can quietly
+disagree with it again.
 
 ---
 
