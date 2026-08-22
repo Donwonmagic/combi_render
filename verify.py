@@ -839,6 +839,54 @@ def run(body, log=print):
     log("  SPEC 10.91 ban-exemption control: %d exempt names, %d planted "
         "near-misses all still banned" % (len(BANNED_EXEMPT), len(_planted)))
 
+    # rev 52.  NO MESH MAY BE BUILT WITH ZERO AREA -- and this guard exists
+    # because TWO WERE.  `lid_rail` is called as
+    #   for (xa, xb) in ((LID_X0, LID_X0), (LID_X1, LID_X1)):
+    #       _rag_grid(RAG_HW, xa, xb, RAIL_PROUD, bows=False, nx=1, ny=18)
+    # and `_rag_grid` interpolates x = x0 + (x1-x0)*ix/nx, so x0 == x1 puts
+    # every vertex at one station: MEASURED, both objects are 0.000000000 m2
+    # with 18 of 18 faces degenerate and a bbox dx of exactly 0.000000.  The
+    # "perimeter rail the skin sits on, standing proud of the roof" that the
+    # source describes IS NOT IN ANY RENDER, and nothing caught it because
+    # nothing ever asked a mesh for its area.  Grepping for the object name
+    # finds it -- it is built, it is just empty.
+    #
+    # IT IS EXEMPT, NOT FIXED, AND DELIBERATELY SO: the rail's WIDTH is
+    # measured NOWHERE in this project, and inventing one puts a visible
+    # member on the roof at a size no photograph supports.  That is an owner
+    # question (LEDGER_rev52 SS9), not a thing to guess at 3 a.m.
+    #
+    # THE EXEMPTION IS TWO-SIDED so it cannot outlive the defect: if lid_rail
+    # is ever given a real width, the stale-exemption arm FAILS and forces
+    # this block to be removed.  Local polygon area is used, which is zero
+    # exactly when world area is, unless an object carries a singular scale --
+    # stated, not hidden.
+    ZERO_AREA_EXEMPT = ("lid_rail", "lid_rail.001")
+    _zero = []
+    for ob in bpy.data.objects:
+        if ob.type != 'MESH' or not ob.data.polygons:
+            continue
+        _a = 0.0
+        for _p in ob.data.polygons:
+            _a += _p.area
+            if _a > 1e-7:
+                break
+        if _a <= 1e-7:
+            _zero.append(ob.name)
+    _unexp = [n for n in _zero if n not in ZERO_AREA_EXEMPT]
+    if _unexp:
+        fails.append("mesh object(s) built with ZERO area: %s" % _unexp)
+    _stale = [n for n in ZERO_AREA_EXEMPT if n not in _zero]
+    if _stale:
+        fails.append("ZERO_AREA_EXEMPT is STALE -- these are no longer "
+                     "zero-area, so remove them from the exemption: %s"
+                     % _stale)
+    log("  zero-area sweep: %d of %d meshes have zero area; %d exempt and "
+        "KNOWN OPEN (lid_rail x2 -- width unmeasured, see LEDGER_rev52)"
+        % (len(_zero), sum(1 for o in bpy.data.objects
+                           if o.type == 'MESH' and o.data.polygons),
+           len(ZERO_AREA_EXEMPT)))
+
     # 4. exactly three OPEN apertures on the show side — tested on the shell
     import t1_shell as _S
     # rev 8: the probe height is now per-bay, because the shear moves the

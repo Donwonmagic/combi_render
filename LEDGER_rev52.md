@@ -271,3 +271,48 @@ could not change that. The mechanism the brief names — `roof_cutters()`'s aft 
 `LID_X1 = -1.0700`, leaving 803 mm of roofed body between the last light inlet and the tail skin —
 was **not built**, and the brief's own instruction not to extend the aft wall to the tail station
 was followed.
+
+---
+
+# §9. `lid_rail` — BUILT WITH ZERO AREA. GUARDED, **NOT FIXED**, AND THAT IS DELIBERATE.
+
+Brief §5 item 6, *"both `lid_rail` objects zero-area via `_rag_grid` called with `x0 == x1`"*.
+**Confirmed by asking the mesh, not the source:**
+
+```
+lid_rail       verts 38  faces 18  AREA 0.000000000 m2  degenerate 18/18  bbox dx 0.000000
+lid_rail.001   verts 38  faces 18  AREA 0.000000000 m2  degenerate 18/18  bbox dx 0.000000
+```
+
+A sweep of the whole build found **exactly these two and no others** (2 of 223 meshes).
+
+The cause is one line: `for (xa, xb) in ((LID_X0, LID_X0), (LID_X1, LID_X1))`, and `_rag_grid`
+interpolates `x = x0 + (x1-x0)*ix/nx`, so `x0 == x1` puts every vertex at one station. **The
+"perimeter rail the skin sits on, standing proud of the roof by the measured 26 ± 7 mm" that the
+source describes is in no render this project has ever made.** Nothing caught it because **nothing
+ever asked a mesh for its area**, and grepping for the object name finds it — it is built, it is
+just empty. That is `CLAUDE.md` rule 10 in its purest form.
+
+## §9.1 WHY IT IS NOT FIXED
+
+**The rail's WIDTH is measured nowhere.** `RAIL_PROUD = 0.0213` is its proudness and `LID_T = 0.0180`
+is documented as *"skin + rail thickness"* — a **thickness**, and a combined one, which is not the
+member's width in X. Giving it a width puts a **visible new member on the roof at a size no
+photograph supports**, on a vehicle whose standard is *"any single measurement off is
+unacceptable"*. **This is an owner question, not a thing to guess overnight**, and it is the one
+item in this revision where the right answer was to stop.
+
+## §9.2 WHAT WAS BUILT INSTEAD — A GUARD THAT WOULD HAVE CAUGHT IT
+
+`verify.py` now sweeps every mesh for zero area, in the same **two-sided exemption** idiom SPEC
+10.91 already uses here. Both arms **watched failing**:
+
+* empty the exemption → `FAIL mesh object(s) built with ZERO area: ['lid_rail', 'lid_rail.001']`
+* give `lid_rail` a real width → `FAIL ZERO_AREA_EXEMPT is STALE … remove them from the exemption`
+
+**The second arm is the point: the exemption cannot outlive the defect.** The moment anyone gives
+the rail a width, the guard fails until the exemption is deleted. It also proves the diagnosis —
+a 20 mm width does produce non-zero area.
+
+*Ceiling, stated:* local polygon area is used, which is zero exactly when world area is **unless an
+object carries a singular scale**. Not hidden.
