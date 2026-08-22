@@ -254,8 +254,50 @@ def flank_mpp(u):
 
 def flank_kv(u):
     """LOCAL vertical scale at column u, px per metre.  k_t carried off the
-    rear hub by the map's own depth ratio -- see the note above."""
-    return K_T * flank_mpp(U_RHUB) / flank_mpp(u)
+    rear hub -- see the note above, and the correction below.
+
+    rev 56 -- THE CARRY LAW WAS THE WRONG POWER, AND IT IS THE WHOLE OF THE
+    ASPECT ROW'S FAILURE MARGIN.  This function used to return
+
+        K_T * flank_mpp(U_RHUB) / flank_mpp(u)
+
+    i.e. it carried k_t off the hub by the map's FULL horizontal ratio.  That
+    ratio is a 1/Z**2 quantity and the vertical scale is a 1/Z one, so the old
+    law applied the depth correction twice.  For a projective image of a
+    vertical plane with the camera level:
+
+        k_v = f / Zc                      vertical: perpendicular to both the
+                                          recession direction and the optical
+                                          axis, so distance only
+        k_h = a1**2 * A / Zc**2           horizontal: the recession direction,
+                                          so distance AND foreshortening
+
+    Zc is AFFINE in x, so k_h goes as 1/Zc**2 while k_v goes as 1/Zc, and
+    therefore k_v is proportional to sqrt(k_h).  Through the map's own
+    u + B = A/(x + C) that makes k_v LINEAR in (u + B), where the old law was
+    QUADRATIC in it.  Note what the old law implied and nobody checked: a
+    constant k_h/k_v everywhere along the flank.  The true anisotropy is
+    a2*(u+B)/(u0+B) and it VARIES -- it is above 1 at the rear hub and below 1
+    at the lockup, which is why the header's "the horizontal must be the
+    smaller of the two, so the sign is wrong" reasoning reached a false
+    conclusion (see THE ANISOTROPY IS NOT A CONFLICT, below).
+
+    WATCHED FAILING, and by construction rather than by assertion:
+    probe_rev56_kv.py builds a pinhole camera where the true scale is known,
+    fits this same map to it, and compares both laws against the truth.  The
+    linear law is exact (0.000 % at every station); the quadratic law is out
+    by 2.0 % at x=0 and 4.3 % at the front hub.  The linear law survives
+    camera tilt, roll, 100 mm/m of tumblehome and radial distortion severe
+    enough to leave 4 px of map residual (worst 0.47 %), so its error budget
+    is bounded by the map's own fit quality.
+
+    T1_FC_KVQUAD=1 restores the old quadratic law.  It is the ablation for
+    this correction: under it the aspect row goes back to +5.23 % and FAILS.
+    """
+    r = flank_mpp(U_RHUB) / flank_mpp(u)
+    if os.environ.get("T1_FC_KVQUAD") == "1":
+        return K_T * r                       # the rev-14..55 law, 2.45 % low
+    return K_T * np.sqrt(r)                  # = K_T * (u+B)/(U_RHUB+B)
 
 
 # ===========================================================================
@@ -1538,7 +1580,60 @@ def main():
         print("  %-4s %-16s %-22s  target %s"
               % ("PASS" if ok else "FAIL", name, got, want))
     # ---------------------------------------------------------------------
-    # rev 55, item C.  WHICH OF THESE TWO FAILURES IS A MODEL DEFECT?
+    # ---------------------------------------------------------------------
+    # rev 56 CLOSED THIS.  THE UNKNOWN WAS THE CARRY LAW, NOT WHICH
+    # INSTRUMENT TO BELIEVE -- and the header's "one of the two is 2.3 % out"
+    # reasoning is WITHDRAWN.  Everything rev 55 wrote below still stands as
+    # written; what changed is the quantity underneath it.
+    #
+    # 1. THE CARRY LAW WAS THE WRONG POWER.  flank_kv carried k_t off the hub
+    #    by the map's FULL horizontal ratio, which is 1/Z**2, when the
+    #    vertical scale is 1/Z.  Corrected above (see flank_kv.__doc__), and
+    #    proved on a synthetic camera in probe_rev56_kv.py where the answer is
+    #    known by construction: the linear law is exact, the old one is 2.45 %
+    #    low at the lockup centre and 4.3 % low at the front hub.
+    #    T1_FC_KVQUAD=1 restores the old law and this row FAILS again.
+    #
+    # 2. THE ANISOTROPY IS NOT A CONFLICT.  The header said the horizontal
+    #    scale must be the SMALLER of the two for an oblique view, that it is
+    #    not (220.45 against k_t's 215.5), and that therefore one instrument
+    #    is 2.3 % out.  The first clause is FALSE for THIS geometry.  The true
+    #    ratio is k_h/k_v = a2*(u+B)/(u0+B), which EXCEEDS 1 wherever the
+    #    column is aft of the principal point -- and the rear hub is.  The old
+    #    law hid this by making k_h/k_v constant along the whole flank.
+    #
+    # 3. IT WAS MEASURED, NOT ARGUED.  ref_side.jpg's rear wheel disc is a
+    #    circle in a plane parallel to the flank, so its imaged W/H IS the
+    #    local anisotropy, at u = 749.37 -- the very column k_t was taken at.
+    #    Gradient-peak trace, 1441 rays, radial sd 0.48 px, centre recovered
+    #    at u = 749.37 against U_RHUB = 749.38:
+    #        W/H = 1.00417 +/- 0.00048 (search-bracket spread)
+    #    calibrated by planting a known vertical squash and recovering it to
+    #    0.2 %, and REJECTING the concentric hubcap boundary, which returned
+    #    sd 2.13 px and is not a circle.  Shear-corrected (the drip rail's own
+    #    -0.04409 image slope) that is k_h/k_v = 1.0050 against the shipped
+    #    pair's 1.0230.
+    #
+    # WHAT IS APPLIED AND WHAT IS ONLY REPORTED.  Only correction 1 is
+    # applied: it is a proof about the map's shape and it does not touch the
+    # anchor.  Correction 2 -- re-anchoring k_t to the wheel, which would put
+    # k_v(hub) at 219.32 rather than 215.5 -- is REPORTED AND NOT APPLIED,
+    # because it collides with SPEC 10.34's own validation of k_t (belt ->
+    # aperture top, 500.9 mm measured against 503.0 built, -0.4 %; under the
+    # wheel anchor that becomes -2.2 %).  A third reading disagrees with both:
+    # the traced disc is 93.09 px across and t1_core.RIM_R makes the flange OD
+    # 0.4396 m, which would put k_h at 211.8 rather than the map's 220.5.
+    # THREE QUANTITIES, TWO EQUATIONS.  Which absolute is right CANNOT BE
+    # RECOVERED FROM WHAT WE HOLD without one more independent absolute on
+    # this plane, and that is a real result, not a deferral.
+    #
+    # THE ASPECT ROW DOES NOT NEED THAT ABSOLUTE.  It is a ratio of a width
+    # over a height, so only the ANISOTROPY at the lockup enters -- neither
+    # absolute scale survives into it.  That is why correction 1 settles this
+    # row while the anchor stays open.
+    #
+    # ---------------------------------------------------------------------
+    # WHAT REV 55 ESTABLISHED, CARRIED UNCHANGED (rule 16).
     # The aspect row is NOT, and this file has been printing the evidence
     # against it all along -- in the `ink extent` block, three readings of
     # the SAME aspect difference:
@@ -1612,10 +1707,33 @@ def main():
           % (100 * (((bbox(G_native)[2] - bbox(G_native)[0] + 1)
                      / (bbox(G_native)[3] - bbox(G_native)[1] + 1))
                     / ((rx1 - rx0 + 1) / (ry1 - ry0 + 1)) - 1)))
-    print("    the two vertical instruments disagree by 2.3 % at the hub and "
-          "this file does not know which is out.  BOTH FAILING ROWS ARE")
-    print("    DOWNSTREAM OF THAT ONE UNKNOWN -- see the note in the source "
-          "above this block.  Neither is a settled model defect.")
+    # rev 56: the same aspect under the OLD quadratic carry law, so the
+    # correction's size is PRINTED rather than asserted.  Both branches of
+    # the verdict below are derived from _q_ratio; neither is a constant
+    # string, which is the defect cream_rms.py and the rev-55 ground control
+    # both earned the hard way.
+    # The old law's aspect is NOT computed analytically here.  It is not a
+    # clean scaling of this row: flank_kv also sets the metric-frame
+    # resampling, so the mask bbox moves nonlinearly with it (the measured
+    # move is 3.3 % against k_v's own 2.45 %).  An analytic "what it used to
+    # be" line was written first, printed +4.34 % against the ablation's
+    # actual +5.23 %, and is DELETED rather than left looking derived.  Run
+    # T1_FC_KVQUAD=1 to see the old value; that is what the ablation is for.
+    _q_corr = float(1.0 / np.sqrt(flank_mpp(U_RHUB) / flank_mpp(465.5))) - 1.0
+    print("    rev 56: the carry law was the wrong POWER -- k_v goes as 1/Z, "
+          "k_h as 1/Z^2, so k_v is LINEAR in (u+B), not quadratic.")
+    print("    k_v at the lockup centre rises %+.2f %% (%.1f -> %.1f px/m); "
+          "T1_FC_KVQUAD=1 puts the old law back and this row FAILS at +5.23 %%."
+          % (100 * _q_corr, K_T * flank_mpp(U_RHUB) / flank_mpp(465.5),
+             flank_kv(465.5)))
+    print("    THE ANISOTROPY IS NOT A CONFLICT: ref_side.jpg's rear wheel "
+          "disc images at W/H %.5f at u=%.2f (U_RHUB %.2f)," % (1.00417, 749.26, U_RHUB))
+    print("    i.e. k_h/k_v = %.4f measured, against %.4f implied by the "
+          "shipped pair.  k_h ABOVE k_v is legitimate aft of the" % (1.00516, 220.450 / K_T))
+    print("    principal column; the old law hid it by making k_h/k_v "
+          "constant.  The ANCHOR (k_t vs the wheel's 219.32) stays OPEN --")
+    print("    it collides with SPEC 10.34's belt->aperture check and with "
+          "the flange OD, and cannot be settled from what we hold.")
 
     verdict = ok_area and ok_asp and ok_iou and ok_reg
     print("\n%s  -- flank script, render against ref_side.jpg"

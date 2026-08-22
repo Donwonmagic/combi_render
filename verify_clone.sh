@@ -1017,6 +1017,47 @@ ck "T1_FC_ZSTRETCH ablation exists"           1 \
 # Item C: the aspect FAIL must never again be read as a settled model defect.
 ck "the aspect row carries its instrument note" 1 \
    "$(grep -c 'ON THE ASPECT ROW -- it is INSTRUMENT-DEPENDENT' flank_compare.py)"
+# ---------------------------------------------------------------------------
+# rev 56 item A.  THE VERTICAL CARRY LAW.  flank_kv carried k_t off the rear
+# hub by the map's FULL horizontal ratio -- a 1/Z^2 quantity used to move a
+# 1/Z one -- so it applied the depth correction twice and read 2.45 % low at
+# the lockup centre.  These rows hold the correction, its retraction and its
+# ablation in the SOURCE, not only in a ledger (rule 15).
+#
+# ANCHORED ON THE ARITHMETIC, NOT ON A STRING.  A grep for "sqrt" would pass
+# on a comment.  This row RUNS flank_kv at two columns and checks the ratio is
+# the LINEAR one (u+B)/(U_RHUB+B) = 0.976122 and not the quadratic 0.952814 --
+# so it fails if the law is reverted however the file is worded.
+ck "flank_kv carries k_t LINEARLY in (u+B)"  "OK" \
+   "$(python3 -c "
+import flank_compare as F
+r = F.flank_kv(465.5) / F.flank_kv(F.U_RHUB)
+print('OK' if abs(r - 0.976122) < 5e-5 else 'GOT %.6f' % r)" 2>&1 | tail -1)"
+# and the ablation must still be able to put the old law back, or the
+# correction can never be watched failing again.
+ck "T1_FC_KVQUAD ablation restores the old law" "OK" \
+   "$(python3 -c "
+import os, importlib, flank_compare as F
+os.environ['T1_FC_KVQUAD'] = '1'; importlib.reload(F)
+r = F.flank_kv(465.5) / F.flank_kv(F.U_RHUB)
+print('OK' if abs(r - 0.952814) < 5e-5 else 'GOT %.6f' % r)" 2>&1 | tail -1)"
+# The header's refuted physics claim must not come back: it said the
+# horizontal scale must be the SMALLER of the two, which is false aft of the
+# principal column and is what produced the phantom "one instrument is 2.3 %
+# out".  The withdrawal has to stay in the source.
+# Anchored on the PRINTED line, which occurs once, not on the bare phrase --
+# that appears three times (docstring, comment block, print) and a row that
+# wants exactly 1 of it breaks the moment the note is cross-referenced.
+ck "the anisotropy withdrawal is PRINTED"      1 \
+   "$(grep -c 'THE ANISOTROPY IS NOT A CONFLICT: ref_side.jpg' flank_compare.py)"
+# The anchor is OPEN and must not be quietly closed by a later revision
+# adopting the wheel number: three readings, two equations.
+ck "the open anchor keeps its three readings"  1 \
+   "$(grep -c 'THREE QUANTITIES, TWO EQUATIONS' flank_compare.py)"
+# The probe that proves the law must exist and must still separate the two
+# laws when RUN -- not merely be present.
+ck "probe_rev56_kv separates the two laws"     "OK" \
+   "$(python3 probe_rev56_kv.py 2>&1 | grep -q 'the LINEAR law is exact' && echo OK || echo NO)"
 # Item 2: the retraction lives in the SOURCE, not only in a ledger (rule 15),
 # and it must keep BOTH halves -- that the shipped socket is dead on smooth
 # geometry AND that the true normal counts facets.  Either half alone is a
