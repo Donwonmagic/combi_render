@@ -17,8 +17,8 @@ per-measurement and not on average.** A model right in ninety places and wrong i
 done, because he will look straight at the one. This paragraph is first because every revision has
 drifted toward whatever was measurable that week, and the goal is not "add rows".
 
-**AND HERE IS THE HONEST DISTANCE, MEASURED AT REV 55.** `verify_clone.sh` ends **ALL 202 PASS** and
-its own verdict block says what that is worth: **0 FIDELITY, 202 SELF-CONSISTENCY. Not one of those
+**AND HERE IS THE HONEST DISTANCE, MEASURED AT REV 55.** `verify_clone.sh` ends **ALL 203 PASS** and
+its own verdict block says what that is worth: **0 FIDELITY, 203 SELF-CONSISTENCY. Not one of those
 rows compares the vehicle to a photograph.** The whole parity question rests on **two** scripts:
 
 | gate | state at rev 55 |
@@ -29,7 +29,7 @@ rows compares the vehicle to a photograph.** The whole parity question rests on 
 
 **So parity is still measured by ONE working gate — and rev 55's result is that the gate's two
 failures cannot be attributed to the vehicle until one number is established (§3.0 item A).**
-Adding a 203rd self-consistency row is not progress toward the goal; making a second gate run is.
+Adding a 204th self-consistency row is not progress toward the goal; making a second gate run is.
 
 **A WORD ON REV 55'S OWN TEN ROWS, AGAINST THAT SENTENCE.** Rev 55 added ten `verify_clone` rows and
 they ARE self-consistency. They were not row-padding: rule 13 requires the guard in the same edit as
@@ -92,7 +92,7 @@ for b in $(git branch -r | grep -v HEAD); do
 done
 git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 ./bootstrap.sh          # ALL 10 PASS  -- THE BRANCH CHECK IS ROW 9
-./verify_clone.sh       # ALL 202 PASS -- and read what its verdict block says
+./verify_clone.sh       # ALL 203 PASS -- and read what its verdict block says
 ```
 
 **AT PICKUP, REV 55 MEASURED:** rev 54 **was merged**, through **PR #11** — so of the two shapes
@@ -286,7 +286,7 @@ against the probes' own printouts. **What it found:**
 | rev 54's work landed through **PR #10** | **PR #11.** #10 was rev 53's. Read off `git log`, not carried |
 | the ink offsets are **+41.2/+38.6/+36.3** | **+41.3/+38.6/+36.2** on this revision's own fresh render; the rev-54 figures reproduce to <0.3 DN, so they were sound |
 | `Senor` is at **0.476** of its ceiling | **0.483** on the fresh render (rev 54 read 0.476). Render-to-render, not regression |
-| a draft named **`T1_EDGEBEVEL`** while calling it retired | **dropped from this brief entirely.** The `every T1_ switch the brief names exists` row sweeps every `T1_*` the brief mentions, and that one survives only in a `probe_rev53_chip.py` comment. Not naming it removes the dependency instead of re-creating it — which is what the rev-55 draft did |
+| a draft named **the retired Bevel-selection switch** while calling it retired | **dropped from this brief, and this row does not name it either.** It is dead: it reads no environment variable anywhere and survives only in a `probe_rev53_chip.py` comment. Naming it ANYWHERE in this file — *including in a row explaining why it was dropped* — re-creates the dependency it was dropped to remove, because the `every T1_ switch the brief names exists` row would then hang on that one comment. Rev 54's audit caught exactly this paragraph, the rev-55 brief wrote it down, and **the first draft of THIS file did it again anyway** (§2.7) |
 | §2.3 cited the arch tile **with no directory** | **that path did not resolve.** It is `probe_scratch/rev55_tn_arch.png`, and the sibling one clause earlier was already fully qualified. **THIS IS THE SAME DEFECT REV 54'S AUDIT CAUGHT** — its ladder tile, also directory-less, also beside a qualified sibling — so it is a recurring failure mode of these briefs, not a one-off. Caught only by the `stat` sweep; re-reading passed over it twice. The other **37** paths resolved. *(Bare filenames are deliberately NOT quoted in this row: a brief that prints a broken path as an example makes its own sweep fail.)* |
 
 **FOUR OF THE SIX WERE TRANSCRIPTION OR STALE CARRY-FORWARD, NOT MEASUREMENT**, in a file whose
@@ -301,6 +301,38 @@ exists (a `stat` sweep over every path this brief names); `CAP_EMBLEM_WFRAC = 0.
 **0.804 / 1.135 / 1.455 / 2.201 / 3.183**, which is exactly `mottle_measure.py`'s `TARGET`;
 `_BODY = (885, 968, 292, 388)`; `PXM_REF = 337.0`; `T1_body` is 61 737 polys at `T1_SUB=1` and
 235 716 at `T1_SUB=2`, both read off the mesh.
+
+### §2.7 AND THEN IT WAS ADVERSARIALLY AUDITED, WHICH THE RULE-17 SWEEP IS NOT
+
+Rule 15 wants something whose **only job is to refute the brief**. §2.6's sweep is not that: it
+confirms — it stats paths, greps quoted strings and recomputes figures the file already asserts. A
+confirmation pass cannot find a claim that is true of the text and false of the machine. So a second
+pass was run that tried to **break** the file. **It found one defect and it is a RECURRENCE.**
+
+**THE DEFECT.** *"Does every `T1_*` the brief names actually READ THE ENVIRONMENT?"* — the existing
+row only greps the **string**, so a switch surviving in a comment passes it while being a dead lever.
+Run that way, the retired Bevel-selection switch came back **NO environ read, appears only in
+`probe_rev53_chip.py`** — and it was in the file because **§2.6's own row printed its name while
+claiming it had been dropped.** Rev 54 caught that paragraph; the rev-55 brief documented it; this
+file re-committed it. **Now a row** (§6), anchored on the environment read rather than the string,
+and **watched failing** by naming the dead switch.
+
+**WHAT THE ADVERSARIAL PASS COULD NOT BREAK** — reported because a control that finds nothing is
+still a result, and because these are the figures the next context will lean on:
+
+* the inherited galley cluster **recomputes exactly from the source**: `BAYS[2]`'s aft edge
+  **−0.855750**, the sixth hook **51.25 mm** beyond it, the hook span centre **−0.705** against the
+  rail's **−0.598** — a **107.0 mm** disagreement, still real, still unresolved;
+* `flank_compare.py` really does print all three aspect readings (**+5.23 / +2.86 / +0.94 %**) — the
+  §2.2 claim is not a paraphrase of a number computed elsewhere;
+* every script named in §6 exists; the poly counts **61 737 / 235 716** are read off the probe's own
+  logs; **1248/5.90 = 211.53** and **1600/5.90 = 271.19** px/m as stated;
+* nothing is claimed DONE that is not — item B says so in its own heading.
+
+**THE LESSON FOR REV 56, AND IT IS THE POINT OF THIS SECTION:** the rule-17 sweep and an adversarial
+pass are **different instruments**, and this project has been running only the first. Run both. The
+sweep asks *"is what the file says true?"*; the adversary asks *"what would make it false?"* — and
+only the second one found this.
 
 **THIS FILE MUST STAY BYTE-IDENTICAL TO `PASTE_INTO_CLAUDE_CODE.txt`.** `CLAUDE.md` imports that
 file into every session as the entry procedure. **WHEN YOU WRITE THE REV-57 BRIEF, `cp` IT OVER
