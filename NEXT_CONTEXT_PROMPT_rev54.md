@@ -302,7 +302,8 @@ python3 probe_rev53_chip.py                                  # the chip measurem
 
 **ABLATIONS — every one exists to WATCH A GUARD FAIL.** New at rev 53: **`T1_PTWEAR=1`** (restores
 the Pointiness chip gate and moves nothing else — **rev 52 claimed this switch existed; it did not,
-and rev 53 built it**) and **`T1_EDGERAD`** (the Bevel radius in **millimetres**; unset keeps the
+and rev 53 built it**. **PROVEN BY RENDER, not by a grep:** the fascia reads **8.795 %** under
+`T1_PTWEAR=1` against **8.826 %** when Pointiness was the default and **0.000 %** shipped) and **`T1_EDGERAD`** (the Bevel radius in **millimetres**; unset keeps the
 derived `GAPW/2`). Carried from before: `T1_TARNCONTAM=1`, `T1_RAILSTALE=1`, `T1_ENDSHORT=1`,
 `T1_CAPSINK=1`, `T1_LIDDEG=104`, `T1_BAYSTALE=1`, `T1_LAMPSINK=1`, `T1_LIDASPECT=1.2`,
 `T1_HANDLEHI=1`, `T1_BAREMAT=1`, `T1_TBFOOT=1`, `T1_BAYPROUD=1`.

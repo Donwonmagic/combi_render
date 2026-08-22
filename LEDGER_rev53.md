@@ -170,6 +170,18 @@ the flip rather than a restatement of it.
 window in the same two renders: **0.527 % → 0.537 %**, unmoved. The red lives on
 the subdivided shell, where Pointiness never saturated.
 
+**AND THE ABLATION IS PROVEN END-TO-END, NOT ASSERTED.** A row that greps for a lever only shows the
+string is there. Rendered:
+
+| | counter fascia, render's own scale |
+|---|---|
+| `r53base` — Pointiness, when it was the default | **8.826 %** |
+| `r53ptw` — `T1_PTWEAR=1`, restoring it | **8.795 %** |
+| `r53final` — the shipped default | **0.000 %** |
+
+The 0.031 pp between the first two is Cycles sampling noise between two renders, not a difference in
+the gate. **The lever restores what it claims to restore.**
+
 **`T1_PTWEAR` DID NOT EXIST UNTIL THIS REVISION, THOUGH THE SOURCE SAID IT DID.**
 `t1_mats.py` has claimed since rev 52 that *"T1_PTWEAR=1 restores the Pointiness
 gate and moves NOTHING ELSE"*; the string appeared in **no other line of the
