@@ -333,6 +333,24 @@ def cap_clearance_check(seat_dy, log=print):
 # sits on, never a fresh absolute.  0.0345 was absolute.
 CAP_EMBLEM_D = 0.3170 * CAP_D
 CAP_EMBLEM_WFRAC = 0.2087           # w/R as authored (0.0072 / 0.0345), kept
+# rev 54 -- WHAT THIS CONSTANT DENOMINATES IS NOT WHAT A PHOTOGRAPH MEASURES,
+# and the top job is about to compare the two.  MEASURED, probe_rev54_wfrac.py:
+# `vw_bars` is called with R=1.0 and the finished outline is then scaled by
+# `_fit_glyph`, which reads the outline's OWN extreme corner.  That corner sits
+# at rmax = 0.81400 of the nominal unit, not at 1.0 -- measured on isolated
+# glyphs at four widths, and the same 0.814 at every one of them.  So
+#
+#     built stroke / OUTER RADIUS  =  wfrac / 0.81400
+#         hubcap  0.2087 / 0.814 = 0.25639     (mesh, via the built caps: 0.2587)
+#         nose    0.1986 / 0.814 = 0.24398     (vw_logo_fit's wfrac, the REAL
+#                                               call site -- vw_logo's own
+#                                               signature default is not used)
+#
+# A frame measures the SECOND column.  Comparing a frame against 0.2087 itself
+# understates by 18.6 %.  The estimator was calibrated before it was believed:
+# it recovers a known width to +0.33..+0.52 % over w = 0.12..0.28.
+# The two badge DESIGNS differ by 5.09 %, and NEITHER has been compared to any
+# frame.  That comparison is still the open half -- see PHOTOS_WANTED item 7.
 
 # The emblem plate: ONE plane, ONE thickness, shared by the ring and the glyph.
 # Named because rev 17 added the ring and the two must never drift apart -- the

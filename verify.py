@@ -1703,6 +1703,77 @@ def run(body, log=print):
            _S.Z_HEAD - _T.RIDE_DROP,
            " ".join("%.3f" % (b[1] - b[0]) for b in _S.BAYS)))
 
+    # 13. THE HUBCAP ASSEMBLY.  rev 54.
+    #
+    # THE GAP THIS CLOSES, MEASURED AT REV 54 AND NOT INHERITED: no row in
+    # either verifier named `capvw`, `capring`, `wheel_spoke`, `wheel_rim`,
+    # `wheel_hub`, `rim1`, `rim-1`, `wheelhouse`, `vw_disc`, `vw_ring`, or
+    # either badge constant.  (The rev-54 brief says "not one row anywhere
+    # names a wheel, hub, cap, rim or vent"; that is too strong -- section 2
+    # above guards TRACK_F, TRACK_R and TYRE_D and section 10 guards the
+    # arch-to-tyre gap.  It is the BADGE and the CAP that had nothing.)
+    #
+    # The owner reported at rev 51 that "the vw on the hubcap is not the right
+    # scale", and the part carried no guard of any kind while three revisions
+    # of rows were added elsewhere.  These rows are SELF-CONSISTENCY, not
+    # fidelity: they cannot say the badge matches the vehicle, only that the
+    # build still means what its constants say.  Grounding it needs
+    # PHOTOS_WANTED item 7.
+    import t1_detail as _D
+    _rings = [o for o in bpy.data.objects
+              if o.type == 'MESH' and o.name.startswith("capring")]
+    _glyphs = [o for o in bpy.data.objects
+               if o.type == 'MESH' and o.name.startswith("capvw")]
+    if len(_rings) != 4 or len(_glyphs) != 8:
+        fails.append(f"hubcap assembly: {len(_rings)} capring and "
+                     f"{len(_glyphs)} capvw objects; expected 4 and 8 "
+                     "(one ring and two mitred prisms per wheel)")
+    _rr, _rc = [], []
+    for o in _rings:
+        vs = [o.matrix_world @ v.co for v in o.data.vertices]
+        cx = 0.5 * (min(v.x for v in vs) + max(v.x for v in vs))
+        cz = 0.5 * (min(v.z for v in vs) + max(v.z for v in vs))
+        cy = sum(v.y for v in vs) / len(vs)
+        _rr.append(0.5 * max(max(v.x for v in vs) - min(v.x for v in vs),
+                             max(v.z for v in vs) - min(v.z for v in vs)))
+        _rc.append((cx, cy, cz))
+    if _rr:
+        # DERIVED ON BOTH SIDES: the ring's built radius against the constant
+        # the glyph is fitted to.  A typed copy of either cannot pass quietly.
+        _want = _D.CAP_EMBLEM_D / 2.0
+        if abs(max(_rr) - _want) > 1e-5 or abs(min(_rr) - _want) > 1e-5:
+            fails.append(f"hubcap emblem ring radius {min(_rr):.6f}..{max(_rr):.6f} "
+                         f"vs CAP_EMBLEM_D/2 = {_want:.6f}")
+        if max(_rr) - min(_rr) > 1e-6:
+            fails.append(f"the four hubcap rings disagree by "
+                         f"{(max(_rr)-min(_rr))*1000:.4f} mm -- they are one part")
+        # each cap must sit ON a hub: z at the tyre radius, x at an axle.
+        for cx, cy, cz in _rc:
+            if abs(cz - _T.TIRE_R) > 1e-4:
+                fails.append(f"a hubcap centre sits at z {cz:.4f}, not on the "
+                             f"hub at TIRE_R {_T.TIRE_R:.4f}")
+            if min(abs(cx - _T.X_AXLE_F), abs(cx - _T.X_AXLE_R)) > 1e-3:
+                fails.append(f"a hubcap centre sits at x {cx:.4f}, on neither "
+                             f"axle ({_T.X_AXLE_F:.3f} / {_T.X_AXLE_R:.3f})")
+        # the glyph is fitted FLUSH to the ring -- that is what
+        # _fit_glyph(glyph, CAP_EMBLEM_D/2) promises, and nothing checked it.
+        _gm = []
+        for o in _glyphs:
+            vs = [o.matrix_world @ v.co for v in o.data.vertices]
+            cx = sum(v.x for v in vs) / len(vs)
+            near = min(_rc, key=lambda c: abs(c[0] - cx) + abs(c[1] - sum(
+                v.y for v in vs) / len(vs)))
+            _gm.append(max(((v.x - near[0]) ** 2 + (v.z - near[2]) ** 2) ** 0.5
+                           for v in vs))
+        if _gm and abs(max(_gm) - _want) > 2e-4:
+            fails.append(f"hubcap glyph extreme {max(_gm):.6f} is not fitted "
+                         f"flush to the ring radius {_want:.6f} -- _fit_glyph")
+        log("  hubcap badge: %d rings R %.6f (= CAP_EMBLEM_D/2), glyph extreme "
+            "%.6f, spread %.2e m" % (len(_rr), _rr[0], max(_gm) if _gm else -1,
+                                     max(_rr) - min(_rr)))
+        log("  hubcap badge is SELF-CONSISTENCY ONLY -- CAP_EMBLEM_WFRAC has "
+            "never been compared to a frame; see PHOTOS_WANTED item 7")
+
     # Buried detail must never pass again: both wipers shipped for six
     # revisions fully enclosed in the nose skin. Casts camera -> object, not
     # object -> camera; the outward cast scores a buried part 100 % visible.

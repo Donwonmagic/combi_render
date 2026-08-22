@@ -343,6 +343,35 @@ ck "rev52's sub-pixel reason is RETRACTED in the source" 1 "$(grep -c 'IS RETRAC
 ck "rev53 chip probe exists"             1 "$(ls probe_rev53_chip.py 2>/dev/null | wc -l)"
 ck "chip probe keeps its NULL control"   1 "$(grep -c 'nul = np.full_like' probe_rev53_chip.py)"
 ck "chip probe keeps the record's controls" 1 "$(grep -c 'record 7.316' probe_rev53_chip.py)"
+
+# --------------------------------------------------------------------- rev 54
+# BRIEF sec.3 ITEM 2, ANSWERED.  The fold is NOT silent: it carries a chip band
+# ~1 mm tall that is 0.27 px at the shipped render's own 271.2 px/m.  Three
+# things must not quietly come back, and each has its own row.
+#
+#   1. the RETRACTION of the premise.  Rule 15: a retraction that lands in a
+#      ledger and not in the source is half a retraction.
+#   2. the STALE SECOND DEFAULT.  For a whole revision this block asserted both
+#      "DEFAULT IS STILL POINTINESS" and "THE DEFAULT IS NOW THE RAY-TRACED EDGE
+#      SIGNAL".  The row above that guards the flip is anchored on the CODE and
+#      went on passing, because the code was right and only the prose lied.
+#      This row is the missing half: it counts the stale sentence and wants 0.
+#   3. the AOV probe's own instrument.  It tracks the fold PER COLUMN because
+#      the fascia SLOPES 5.25 mm across a 300 mm window; a single min(z) put the
+#      fold 134 px = 25 mm wrong and would have measured the wrong rows.
+ck "rev54: the fold's PREMISE is retracted in the source" 1 "$(grep -c 'ITS PREMISE IS RETRACTED: THE FOLD PRODUCES A SIGNAL' t1_mats.py)"
+ck "no stale SECOND default is asserted"  0 "$(grep -cE '^ *# DEFAULT IS STILL POINTINESS' t1_mats.py)"
+ck "rev54 EDGE-AOV probe exists"          1 "$(ls probe_rev54_aov.py 2>/dev/null | wc -l)"
+ck "AOV probe tracks the fold PER COLUMN" 1 "$(grep -c 'def fold_per_column' probe_rev54_aov.py)"
+ck "AOV probe keeps its radius sweep"     1 "$(grep -c 'RADIUS SWEEP AT 5333 px/m' probe_rev54_aov.py)"
+ck "rev54 look probe renders a scale ladder" 1 "$(grep -c '(\"shipped\", 271.2)' probe_rev54_look.py)"
+# THE BADGE DENOMINATOR TRAP.  CAP_EMBLEM_WFRAC is documented as w/R but the
+# BUILT stroke/outer-radius is wfrac/0.814, because _fit_glyph rescales off the
+# outline's own rmax.  A photograph measures the built ratio.  The note that
+# says so must stay beside the constant, and the probe that measured it must
+# keep the CALIBRATION that makes it believable.
+ck "badge: the wfrac denominator trap is recorded" 1 "$(grep -c 'built stroke / OUTER RADIUS' t1_detail.py)"
+ck "badge: wfrac probe keeps its calibration" 1 "$(grep -c 'recover a KNOWN stroke width before trusting' probe_rev54_wfrac.py)"
 ck "chip probe reads the frame through its OWN optics" 1 "$(grep -c 'THROUGH THE PHOTOGRAPH' probe_rev53_chip.py)"
 # rev 52, A9 / SURVEY_rev49 finding 28.  SELF-CONSISTENCY, not fidelity.
 # gal_rail was TYPED at centre -0.3800 length 0.660 and measured on the mesh at
