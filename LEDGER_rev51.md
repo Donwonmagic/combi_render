@@ -28,6 +28,45 @@ mounting.
 The measurement that settles it converts straight onto the profile: **required dome depth = measured
 proudness + 12.3 mm.**
 
+**MEASURED, THEN FIXED, THEN LOOKED AT.** Recovered from photographs by a **shape-free** estimator --
+the emblem sits on the axle axis, so its projected offset from the cream-ring ellipse centre in an
+obliquely-seen wheel carries h with no dome profile entering:
+
+```
+IMG_2073.jpeg      (GREEN, chrome cap)   phi 49.6   49.8 +- 8.7 mm
+ref_rear34.jpg     (RED, current)        phi 70.2   62.1 +- 16.0 mm
+ref_nolita_front34 (RED, earlier)        phi 58.3   49.4 +- 20.5 mm
+weighted                                            52.2, 1sd ~7 mm
+
+as built, 10.5 mm  ->  EXCLUDED at 5.8 sigma
+seated,   58.2 mm  ->  CONSISTENT at 0.8 sigma
+```
+
+Controls all passed: side ORTHO at phi = 0 returns q = +0.0002 +- 0.0025 (the dome term must vanish);
+low34, where the answer is KNOWN to be 10.5 mm, reads back 12.6 +- 9.2; ref_side.jpg at phi = 10.5
+correctly returns UNRECOVERABLE. **AND IT REFUTES THE THIRD-MECHANISM HYPOTHESIS ABOVE** -- implied
+dome depth 64.5 mm against the authored 70.5, inside 1 sigma. The profile is NOT touched. The brief's
+claim that the photographs refute fix (a) is WRONG; they support it.
+
+**AFTER THE FIX, on fresh renders:**
+
+```
+m5 harmonic, the survey's OWN instrument, 4 thresholds
+  before   0.0487 .. 0.0565      after   0.0005 .. 0.0019      circle control 0.0000
+5-fold in the band the vents cleared (r 0.1345-0.1415)
+  before   0.1295 / 0.1314       after   0.0055 / 0.0148       photographs 0.0024-0.0150
+cap edge / rim radius, from the max red radius
+  before   0.5369                after   0.625                 built INTENT 0.6233, photos 0.60-0.65
+```
+
+**TWO CEILINGS, STATED.** (1) A residual 5-fold persists on the FRONT wheel in a band moved clear of
+both the vents and the cap lip: A5 0.0100 at SNR 5.4, where the rear is clean at 0.0047 / SNR 1.8.
+The amplitude is inside the photographs' own range so it is not a visible defect, but it is
+statistically distinct and **I have not explained it**. (2) The median visible-red radius reads 35.00
+px against a geometric lip at 37.25 px, because the dome's own shading darkens toward the rim and the
+red gate loses it before the geometry ends -- the survey predicted exactly this bias. Quote the max,
+not the median, for the edge.
+
 ---
 
 ## §1. THE BRIEF, GRADED — WRONG IN TEN PLACES, IMPRECISE IN SEVEN
@@ -130,7 +169,7 @@ which is what `T1_TBFOOT=1` substitutes.
 
 ---
 
-## §4. FOUR INSTRUMENTS OF MY OWN WERE WRONG, AND EVERY ONE WAS CAUGHT BY RUNNING IT
+## §4. SEVEN INSTRUMENTS OF MY OWN WERE WRONG, AND EVERY ONE WAS CAUGHT BY RUNNING IT
 
 * **Two dead measurement windows**, both caught by marking them and looking. A *"cab roof cream"* box
   that was not on the roof at all — it straddled the mural lid and the white background (17.15 % dark /
@@ -151,6 +190,25 @@ which is what `T1_TBFOOT=1` substitutes.
   analytic route to cross-check `_seat` against**, so reading it off the body mesh is not the better
   choice but the only correct one — which is the deeper reason rev 49b went wrong, and a trap for
   anyone who later tidies it into a profile function.
+* **The A2 clearance guard's first version fired on a CORRECTLY SEATED cap.** The hubcap profile is
+  **not monotonic in r** -- it runs out to the lip and RETURNS along the back face -- so sorting the
+  whole list by radius read the return point `(-0.0035, R + 0.0010)` where the front surface belonged,
+  reporting -7.1 mm at r = 0.1355. Corrected to the front half only. Once corrected, the ablation
+  fires at **r = 0.11974**, matching the analytic crossover 0.11973 to 0.01 mm.
+* **A notch-band window that measured the wrong annulus.** I sampled r 0.140-0.160 for the 5-fold null
+  and got a null in BOTH frames -- because the notches physically spanned 0.1345-0.1415, outside my
+  band. Caught by checking the band against the vent geometry instead of trusting the number.
+* **AND A SEVENTH, WHICH IS THE THIRD OF EXACTLY ONE SHAPE.** I predicted that a seated cap would
+  displace the emblem from 4.98 px to 15.79 px off the wheel centre in low34, and measured 18.79 ->
+  17.67 px, i.e. no change. **The instrument was wrong.** Its "emblem" mask selected 2827 px -- the
+  whole upper CREAM RIM RING -- because my "inside the red blob" restriction was a RECTANGLE, and the
+  rim ring falls inside that rectangle above the cap. Caught only by PAINTING THE MASK AND LOOKING AT
+  IT (`probe_scratch/rev51/MASK_check.png`). **The cross-check is WITHDRAWN**; A2 rests on the three
+  confirmations above, not on it.
+  **THE PATTERN, NAMED:** three of this revision's seven instrument defects are the same defect --
+  a mask or window that selected the wrong pixels. I wrote the rule for myself after the first two
+  and then broke it again on the seventh. **NEVER PUBLISH A NUMBER FROM A MASK OR WINDOW YOU HAVE NOT
+  PAINTED AND LOOKED AT.** Not "marked and looked at afterwards" -- painted, before the number.
 * **A process defect:** I ran `git add -A` on a directory a live dispatched agent owned, staging two of
   its in-progress files, which made `verify_clone` read 124/1 and briefly confused the adversarial
   agent. Not a content failure. Do not `git add -A` a directory an agent is writing.

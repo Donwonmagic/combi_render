@@ -1,0 +1,121 @@
+A_repo_git	86	modified tracked files
+A_repo_git	621	heroes are NOT tracked
+A_repo_git	622	out/ is NOT tracked
+B_repo_layout	104	docs/ must NOT exist
+B_repo_layout	109	source photographs (.jpg)
+B_repo_layout	117	annotated derivatives (grids)
+B_repo_layout	125	nolita + playa frames
+B_repo_layout	126	upload provenance kept
+C_spec_doc	131	^### 10.100
+C_spec_doc	132	^#### 10.100
+C_spec_doc	133	^### 10.101
+C_spec_doc	134	^#### 10.101
+C_spec_doc	135	^### 10.99
+C_spec_doc	136	^#### 10.99
+C_spec_doc	137	^#### 10.98
+C_spec_doc	140	AN ORDINAL FACT NEEDS NO RULER
+C_spec_doc	141	A LINE YOU DREW IS NOT EVIDENCE
+C_spec_doc	142	0.7770 (the BUILT arch crown)
+C_spec_doc	143	55.97 (self-overlap)
+C_spec_doc	149	0.024426 (DOOR_ARCH_G)
+C_spec_doc	150	COMMON-MODE (case matters)
+C_spec_doc	152	THE COUNTER'S FRONT FACE
+C_spec_doc	153	CLOSED BY HIM (case matters)
+C_spec_doc	154	CNT_NOSE_F
+C_spec_doc	155	cab_floor
+C_spec_doc	156	amtrak (HIS word)
+C_spec_doc	194	nolita, any case
+C_spec_doc	195	TEN flower heads
+D_texture_md5	241	tex/swirl.png
+D_texture_md5	242	tex/swirl_b.png
+D_texture_md5	243	tex/nose.png
+D_texture_md5	258	tex/senor.png
+D_texture_md5	291	tex/calidad.png
+D_texture_md5	305	tex/lidmural.png
+D_texture_md5	320	tex/lidsign.png
+D_texture_md5	321	tex/emblem.png
+E_state_md	556	roof baseline still 1.9835
+E_state_md	561	roof delta within 1 mm
+E_state_md	562	rake 17.75 mm/m
+E_state_md	563	L=4.065 W=1.750
+E_state_md	564	bay widths 0.516 0.515 0.516
+E_state_md	596	mesh objects 223
+E_state_md	600	non-manifold edges 0
+F_source_grep	204	DOOR_ARCH_G in t1_shell.py
+F_source_grep	210	_G_BUILD in t1_shell.py
+F_source_grep	214	_arch_radial in t1_shell.py
+F_source_grep	215	T1_ABLATE in build.py
+F_source_grep	216	FLOOR_W in t1_detail.py
+F_source_grep	217	_assert_same_edge
+F_source_grep	218	build_selectors in rev42_uv
+F_source_grep	219	C_FOOT in rev42_uv
+F_source_grep	220	571.71 in rev42_uv
+F_source_grep	221	190 in probe_dust_scope
+F_source_grep	225	V_POW_Z defined once
+F_source_grep	226	V_POW defined once
+F_source_grep	227	DOOR_H in folk_gen.py
+F_source_grep	228	signboard gated on T1_SIGNBOARD
+F_source_grep	229	lidsign IS bound in build.py
+F_source_grep	315	the header fit is CLAMPED, never enlarging
+F_source_grep	318	lid_gen's sibling text fits still clamp
+F_source_grep	332	V_POW is 0.60
+F_source_grep	333	V_POW_Z is 0.60
+F_source_grep	334	V_POW and V_POW_Z agree
+F_source_grep	335	DOOR_H art datum is 1.013467
+F_source_grep	339	signboard default is OFF
+F_source_grep	347	calidad burst centre is 0.505/0.575
+F_source_grep	360	calidad TYPE_SHIFT is DERIVED at run time
+F_source_grep	361	calidad centroid is NOT a frozen literal
+F_source_grep	375	calidad LINE_GAP cites its provenance
+F_source_grep	376	calidad LINE_GAP names its frame
+F_source_grep	383	LINE_GAP declares it is TRANSFERRED
+F_source_grep	384	the +34% ratio argument stays retracted
+F_source_grep	385	calidad type rotates about the burst
+F_source_grep	386	calidad generator carries its guard
+F_source_grep	411	calidad bunting function gone
+F_source_grep	416	calidad draws the star band
+F_source_grep	417	calidad stars derive from the burst
+F_source_grep	422	STAR_N declares itself NOT MEASURED
+F_source_grep	426	the star clamp reports what it drops
+F_source_grep	432	rear louvres are BUILT geometry
+F_source_grep	433	rear louvre count is 10 per flank
+F_source_grep	434	rear louvres are called from the build
+F_source_grep	441	the louvre APERTURES are cut
+F_source_grep	442	build.py cuts the louvre apertures
+F_source_grep	446	the louvre apertures are BACKED
+F_source_grep	447	build.py builds the louvre bay
+F_source_grep	451	the blade section is DERIVED
+F_source_grep	452	LOUV_APERTURE declares itself INFERRED
+F_source_grep	460	trunk lid is separated and hinged
+F_source_grep	461	trunk lid has a LATERAL hinge
+F_source_grep	462	build.py separates the trunk lid
+F_source_grep	483	TRUNK_OPEN_DEG declares itself NOT MEASURED
+F_source_grep	484	TRUNK_OPEN_DEG=0 cites the SHUT ruling
+F_source_grep	487	a SHUT trunk lid skips the swing, not runs it at zero
+F_source_grep	494	the tail board is built
+F_source_grep	495	build.py raises the tail board
+F_source_grep	499	TB_WIDTH declares itself a POSE CHOICE
+F_source_grep	500	TB_WIDTH keeps its parallax upper bound
+F_source_grep	501	TB_Y_CENTRE declares itself a POSE CHOICE
+F_source_grep	502	TB_TILT_DEG states WHICH DATUM
+F_source_grep	506	the board station is SOLVED, not typed
+F_source_grep	507	the board foot is guarded against the SKIN
+F_source_grep	510	the foot guard is NOT self-referential
+F_source_grep	514	the trunk bay lining is guarded INBOARD of the skin
+F_source_grep	518	the trunk bay is a LINING, not contents
+F_source_grep	519	the rear hatch opens
+F_source_grep	520	REAR_OPEN_DEG declares itself NOT MEASURED
+F_source_grep	521	the T-handle rides the trunk lid
+F_source_grep	522	the 1963 plate rides the trunk lid
+F_source_grep	523	calidad pennant loop gone
+F_source_grep	524	calidad BUNT colour retired
+F_source_grep	530	VW_APEX_Z is 0.1250
+F_source_grep	531	VW_V_TIP_X is 0.3806
+F_source_grep	532	VW_W_ARM_X is 0.9200
+F_source_grep	533	VW_W_ARM_Z is 0.0019
+F_source_grep	534	VW_W_TROUGH_X is 0.4925
+F_source_grep	535	VW_W_TROUGH_Z is -0.6200
+F_source_grep	536	vw_bars reads the constants
+F_source_grep	598	the wipers are WITHDRAWN, not deleted
+Z_other	102	HANDOFF_*.md at root >= 37
+Z_other	106	probe_*.py >= 31

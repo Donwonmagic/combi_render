@@ -1,0 +1,126 @@
+# CLAUDE.md — standing rules. This file is the CARRIER. Do not rewrite it per revision.
+
+THIS FILE CONTAINS NO MEASUREMENTS AND NO NUMBERS THAT CAN GO STALE. Every figure
+in this project lives in `STATE.md` (machine-written) or `verify_clone.sh` (runs).
+`verify_clone.sh`'s own header states the doctrine: "a number in a paragraph goes
+stale silently ... a number in a script that runs cannot." Obey it here.
+
+Rules 1-15 below are the subset of the 35-rule canon that applies to EVERY session
+regardless of task. The full canon, and the narrow instrument-craft rules, are in
+the imports at the bottom.
+
+---
+
+## Before you touch anything
+
+**1. MEASURE THE MERGE STATE; NEVER TRANSCRIBE IT.** (canon rule 17.) The branch
+instruction in the brief has been stale six revisions running. Run the ahead/behind
+loop and `git diff --name-only HEAD...origin/main` — his photographs arrive on main
+mid-revision without notice. Re-run that diff EVERY session, not once. `bootstrap.sh`
+row 10, "no branch carries work HEAD does not have", outranks any sentence about
+which branch to use, including this one.
+
+**2. WHERE THE MACHINE AND THE PROSE DISAGREE, THE MACHINE IS RIGHT** — say so and
+correct the prose in the same revision. Order of authority: the machine, then the
+owner, then the record. Before relying on any "the record requires X", check WHICH
+OBJECT the sentence is about and check that the cited line even exists.
+
+**3. CITE STRINGS, NOT LINE NUMBERS.** Line numbers rot here and half the stale
+citations in this repository are that. Quote the code and let the reader grep.
+
+**4. FREEZE THE TREE WHILE A RENDER QUEUE RUNS.** Do not edit source while renders
+are in flight. And make the runner report Blender's status, not the last command's —
+`rc=$?` after a redirect reports `echo`'s status and will print rc=0 over three
+aborted renders.
+
+---
+
+## Measuring
+
+**5. RENDER IT, CROP IT, AND LOOK AT IT** — before and after every change. (canon
+rule 28.) Every headline finding for five revisions running came from looking at an
+image, and every one of them came through a clean VERIFY with all checks green.
+VERIFY passing is not evidence that the thing looks right.
+
+**6. MARK THE WINDOW AND LOOK AT IT BEFORE YOU COMPUTE A NUMBER, NOT AFTER.** A
+measurement's window is part of the measurement (canon rule 8). Three dead windows
+in one revision returned plausible percentages from boxes that were not on the part.
+
+**7. A MEASUREMENT FROM THE WRONG ARTWORK STATE IS NOT A MEASUREMENT.** (canon rule
+26.) Geometry transfers between the reference frames; PAINT AND ARTWORK DO NOT.
+Check which state, not just which bus. Byte-identical duplicate files are not
+corroboration.
+
+**8. REPORT THE MEASUREMENT AGAINST THE REFERENCE, WITH ITS CEILING. NEVER A SCORE
+YOU ASSIGNED YOURSELF, AND NEVER "READY."** Tell him what is fixed, what is still
+wrong, and what you measured. "It cannot be recovered from what we hold" is a real
+result — it turns a guess into a photograph request.
+
+---
+
+## Before you trust any instrument you built
+
+**9. A CONTROL IS NOT FINISHED WHEN IT PASSES. IT IS FINISHED WHEN YOU HAVE WATCHED
+IT FAIL ON THE DEFECT.** (canon rule 19.) A guard that CRASHES reports nothing. An
+instrument that has never been wrong has never been tested (canon rule 20).
+
+**10. NEVER PUT A FIGURE IN AN ACCEPTANCE TEST UNLESS YOU WATCHED IT PRINT.**
+(canon rule 4.)
+
+**11. A GUARD THAT DERIVES ITS THRESHOLD FROM THE SAME EXPRESSION IT CHECKS IS A
+TAUTOLOGY.** (canon rule 32.) It must compare two INDEPENDENTLY OBTAINED
+quantities: the built thing against the built thing it is fitted to.
+
+**12. READ EACH PROBE'S OWN SUMMARY LINE, NEVER ITS EXIT CODE.** (canon rule 3.)
+
+**13. A CLAIM IN PROSE IS NOT A GUARD, AND A CLAIM IN A SOURCE COMMENT IS NOT A
+MEASUREMENT.** (canon rule 1.) Grepping for an object name is not a test for whether
+a feature is built — lofted and swept features have no object name (canon rule 31).
+Ask the mesh, or ask `STATE.md`.
+
+---
+
+## Running the revision
+
+**14. GRADE THE BRIEF BEFORE YOU TRUST IT, AND PUT AN AGENT ON IT WHOSE ONLY JOB IS
+TO REFUTE IT. DO NOT CLOSE UNTIL IT REPORTS.** Every brief for six revisions has
+been wrong in single digits to low teens of places. This cuts both ways: the brief
+is also where his rulings live.
+
+**15. THREE THINGS IN THE SAME EDIT AS THE THING THEY ARE ABOUT.** Add the guard in
+the same edit as the change (canon rule 12). Retract in the same revision you find
+the error — in SPEC, in the source, and to him (canon rule 15). And FINISH WHAT YOU
+DISPATCH: closing with one effort outstanding has cost a whole revision twice.
+
+---
+
+## Machine facts that are not rules but bite every session
+
+- `lid_gen.py` IS NOT CALLED BY `build.py`. It is run by hand and its output is
+  tracked and checksummed. Change it and regenerate, or the render silently uses
+  the old texture.
+- `out/` is NOT tracked and starts EMPTY on a clone. Render before quoting any
+  probe that reads a frame.
+- Do NOT fan out Blender. It is CPU-bound; two instances make both slower. Run
+  renders sequentially from one script in the background, analyse in the foreground.
+- Do not `git add -A` a directory a live agent is writing.
+- `verify_clone.sh` needs a CLEAN tree — commit first, then verify. Do not edit the
+  script to make a row pass. A re-base is allowed only with the cause NAMED and a
+  companion row that makes the cause separately testable.
+- Ask him as MULTIPLE CHOICE with the crop attached, using the question tool. Ask
+  what a PHOTOGRAPH shows — he has never stood in the bus.
+
+---
+
+## Progressive disclosure — load only what the task needs
+
+@RULES_CANON.md          <- all 35 rules verbatim, the instrument-craft ones included
+@STATE.md                <- machine-written; outranks every prose file here
+@NEXT_CONTEXT_PROMPT_rev52.md  <- THIS revision's brief: work list, refutations, what is blocked on him
+
+Narrow, load on demand, do NOT auto-import:
+  SPEC.md (672 KB), SURVEY_rev49_photoreal.md (464 KB), REF_MEASUREMENTS.md,
+  PHOTOS_WANTED_rev*.md, LEDGER_rev*.md, HANDOFF_rev*.md
+
+START_HERE.md and README.md ARE STALE ENTRY DOORS — START_HERE is rev-7 era and
+README points at the rev-43 brief as "live". Fix or retire them; do not follow them.
