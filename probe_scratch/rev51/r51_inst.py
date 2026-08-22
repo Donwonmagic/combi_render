@@ -155,3 +155,16 @@ def bootstrap_ratio(score, fit, angles, rho_lo, rho_hi, nboot=40, frac=0.6,
         if f is not None:
             out.append(f['b']/f['a'])
     return float(np.std(out)*np.sqrt(frac)) if len(out) > 5 else np.nan
+
+
+def refine_staged(score, fit0, angles, stages=((0.50, 1.55), (0.72, 1.30),
+                                               (0.84, 1.18)), clip='both'):
+    """coarse-to-fine: a circular seed cannot see a flattened ellipse's minor
+    axis through a narrow window, so open the window wide first."""
+    fit = dict(fit0); pts = None
+    for (lo, hi) in stages:
+        f, p = refine(score, fit, angles, lo, hi, iters=5, clip=clip)
+        if f is None:
+            return fit if pts is not None else None, pts
+        fit, pts = f, p
+    return fit, pts

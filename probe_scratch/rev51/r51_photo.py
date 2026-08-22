@@ -59,7 +59,7 @@ def seed_disc(shape, cx, cy, a, b, th=0.0):
     return (u/a)**2 + (v/b)**2 <= 1.0
 
 def run(fn, box, pt, capmode='red', ang_excl=None, t_cream=None, clip_cap='both',
-        rho=(0.86, 1.16), rho_cap=(0.80, 1.22)):
+        rho=(0.86, 1.16), rho_cap=(0.80, 1.22), seed=None):
     img, off = load(fn, box)
     cs = sc_cream(img)
     ks = sc_red(img) if capmode == 'red' else sc_chromecap(img)
@@ -69,11 +69,19 @@ def run(fn, box, pt, capmode='red', ang_excl=None, t_cream=None, clip_cap='both'
         for (a0, a1) in ang_excl:
             keep &= ~((ang >= np.radians(a0)) & (ang <= np.radians(a1)))
         ang = ang[keep]
-    fseed, kseed, tc = auto_seed(cs, pt, t_cream)
-    
-    r = P.analyze(cs, ks, fseed, kseed, angles=ang, rho=rho, rho_cap=rho_cap,
-                  clip_cap=clip_cap)
+    if seed is None:
+        fseed, kseed, tc = auto_seed(cs, pt, t_cream)
+        f0 = IN.init_from_mask(fseed); k0 = IN.init_from_mask(kseed)
+    else:
+        cx, cy, aa, bb, th = seed
+        f0 = dict(cx=cx, cy=cy, a=max(aa, bb), b=min(aa, bb),
+                  theta=(th if aa >= bb else th+np.pi/2))
+        k0 = dict(f0); k0['a'] = f0['a']*0.62; k0['b'] = f0['b']*0.62
+        tc = np.nan; fseed = kseed = None
+    r = P.analyze2(cs, ks, f0, k0, angles=ang, rho=rho, rho_cap=rho_cap,
+                   clip_cap=clip_cap)
     if r is None: return None
+    
     r['img'] = img; r['off'] = off; r['cs'] = cs; r['ks'] = ks
     r['fseed'] = fseed; r['kseed'] = kseed; r['t_cream'] = tc
     return r
