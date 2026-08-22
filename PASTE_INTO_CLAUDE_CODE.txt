@@ -267,7 +267,7 @@ window**, so a single global `min(z)` put the fold at row **373** while the mask
 **239** — **134 px = 25 mm wrong**. The fold is tracked **PER COLUMN** off the mask now. Rev 53's
 arm D had already learned this and I re-learned it. **Rule 7: ask the geometry, never the pose.**
 
-### §2.8 THIS FILE WAS AUDITED AGAINST THE MACHINE, AND THE AUDIT FOUND SEVEN THINGS
+### §2.8 THIS FILE WAS AUDITED AGAINST THE MACHINE, AND THE AUDIT FOUND TWELVE THINGS
 
 Rule 17. Every file cited below was opened, every quoted string grepped, every figure recomputed
 against the probes' own printouts and against the source. **What it found:**
@@ -282,7 +282,18 @@ against the probes' own printouts and against the source. **What it found:**
 | the draft cited **rev54_look_ladder.png**, with no directory | **the path does not resolve** — it is `probe_scratch/rev54_look_ladder.png`. Caught by a sweep that tries to `stat` every file the brief names; the other 33 all resolved. Rule 18's neighbourhood: a citation nobody can follow |
 | a paragraph said this brief *"deliberately does NOT name the retired `T1_EDGEBEVEL` switch"* | **false the moment it printed the name** — and it silently re-created the dependency it claimed to remove, because the `every T1_ switch the brief names exists` row sweeps every `T1_*` the brief mentions and only one surviving `probe_rev53_chip.py` comment keeps that row green. Rewritten to say so; **see §6** |
 
-**Two of the seven were found only by RUNNING the audit as a script rather than re-reading the
+**AND FIVE MORE ON A SECOND AUDIT PASS, RUN AFTER THE DAY'S LATER WORK — which is the point: a
+brief audited once is audited against the state it had then.**
+
+| what the draft said | what the machine says |
+|---|---|
+| three bare filenames — `rev54_ASK_cream_flat.png`, `rev54_reach_hubcap.png`, and the audit table's own quoted example | **none resolve.** The table's example is now quoted WITHOUT backticks so it stops tripping the sweep that found it |
+| *"Rev 54 asked him nothing"* | **false** — written before the question was put. He ruled *"keep studio, fix the model"* (§2.2b). Corrected in place |
+| §1 predicted *"expect this shape a fifth time"* — branch deleted, HEAD 0 ahead | **rev 54 closed UNMERGED** on `claude/tacombi-rev-54-u7hvys`. §1 now names BOTH shapes and warns that **bootstrap row 9 FAILS by design** if you sit on `main` with it unmerged. That failure is the handoff |
+| the work list led with an item logged *"blocked on a photograph"* | **a poor first instruction for a context told to fix the model**, and §0.1 says it is not blocked. §3.0 now orders the work by which items have a GATE |
+| the new reference count floor read **111** | **a typed guess I never watched print**, against a count including probe_scratch's ~1000 images — so dropping `ref_rear34.jpg` left it PASSING. Rule 5, broken by the session quoting rule 5. Scoped and re-based on the measured **54**, then watched failing |
+
+**Two of the first seven were found only by RUNNING the audit as a script rather than re-reading the
 draft** — the unresolvable path and the self-refuting paragraph. Re-reading had already passed over
 both. **Five of the seven were transcription or self-contradiction, not measurement**, in a file
 whose own §1 says not to transcribe.
@@ -470,7 +481,15 @@ have said that.
 
 ---
 
-## §4. WHAT ONLY HE CAN GIVE
+## §4. WHAT WAS ASKED OF HIM — A CARRIER, NOT A LIST OF BLOCKERS
+
+> **READ §0.1 FIRST.** At rev 54 he ruled that **the reference set on the repo is complete**. This
+> section is kept in full because `CLAUDE.md` rule 16 forbids dropping a carrier, and because it
+> records what was asked and what was refused — which is why items 1–5 must never be re-asked.
+> **But it is no longer a licence to park work.** Nothing below blocks an item; it only says what a
+> new frame would have made easier. Work every item from what we hold, or close it with
+> *"it cannot be recovered from what we hold"* and its ceiling.
+
 
 **`PHOTOS_WANTED_rev52.md` is the carrier for item 7 (ONE HUBCAP, SQUARE ON AND CLOSE)**. Items
 **1–5** keep their full text in `PHOTOS_WANTED_rev49.md`: the tail board's footing; the decal darker;
