@@ -6,6 +6,70 @@ session), then `LEDGER_rev54.md` — which is where every number below comes fro
 
 ---
 
+## §0. THE GOAL, AND HOW FAR OFF IT WE ACTUALLY ARE
+
+**PHOTO-REALISTIC PARITY WITH THAT EXACT BUS.** Not "a convincing VW bus" — *that one*, the red
+Señor Tacombi combi in the frames on this repo. **Any single measurement off is unacceptable,
+per-measurement and not on average.** A model right in ninety places and wrong in one is not 99 %
+done, because he will look straight at the one. This paragraph is first because every revision has
+drifted toward whatever was measurable that week, and the goal is not "add rows".
+
+**AND HERE IS THE HONEST DISTANCE, MEASURED AT REV 54.** `verify_clone.sh` ends **ALL 191 PASS** and
+its own verdict block says what that is worth: **0 FIDELITY, 191 SELF-CONSISTENCY. Not one of those
+rows compares the vehicle to a photograph.** The whole parity question rests on **two** scripts:
+
+| gate | state at rev 54 |
+|---|---|
+| `flank_compare.py` | **runs, and FAILS 2 of 4** — ink aspect 2.3689 vs 2.2512, worst region 0.476 (Senor) |
+| `cream_rms.py` | **DEAD** — refuses to emit a number until it is re-based on `ref_rear34.jpg` (open since rev 17) |
+| everything else | self-consistency |
+
+**So parity is currently measured by ONE working gate that fails half its checks.** Closing that is
+the project, and §3.0 orders the work by it. Adding a 192nd self-consistency row is not progress
+toward the goal; making a second gate run is.
+
+**A rendered frame was looked at for the first time in the revision at rev 54** (`out/` starts empty
+and no hero existed). It reads as clay, and **the cause is the environment, not the shaders** — the
+surround is a featureless white cyclorama, so the paint has nothing to reflect. **He was shown that,
+told the cost, offered four routes, and ruled "keep studio, fix the model"** (§2.2b). So parity is to
+be won on the MODEL, with that rig. Do not re-litigate it.
+
+### §0.1 THE REFERENCE SET IS COMPLETE, AND IT IS NOW GUARDED FRAME BY FRAME
+
+> *[owner, rev 54]* **"we have all references that we need on repo and I want to make sure that is
+> never forgotten."**
+
+**Read that as two instructions and obey both.**
+
+**ONE: WHAT WE HOLD IS WHAT WE GET. STOP PARKING WORK BEHIND A PHOTOGRAPH.** For four revisions the
+top job has been logged as *"blocked on a photograph"*. It is not blocked; it is **hard**.
+`PHOTOS_WANTED_*` is a wish list, not a gate — carry it (rule 16, and items 1–5 are still not to be
+re-asked) but **do not let it license parking an item.** Rev 54 found a live route to the badge
+stroke weight in frames already on this repo and did not take it (§4); **take it.** Where a frame
+genuinely cannot answer, the result is *"it cannot be recovered from what we hold"* — a real result,
+stated with its ceiling — **not an item deferred to a photograph that is not coming.**
+
+**TWO: THEY CANNOT BE RE-SHOT, SO THEY ARE NOW CHECKSUMMED INDIVIDUALLY.** Until rev 54 **not one row
+named a reference photograph** — the only image ever checksummed was `tex/emblem.png`, a build input.
+Every measurement of the real vehicle traces to these frames and nothing stopped one being deleted,
+replaced, or silently re-compressed. **18 rows now name them one at a time**, so a loss says *which*:
+
+* **the RED target bus** — `ref_side.jpg`, `ref_rear34.jpg`, `ref_playa_34.png`,
+  `ref_nolita_front34.jpg`, `ref_nolita_front34b.jpg`, `ref_nolita_flank.jpg`,
+  `ref_nolita_doorshut.jpg`, `IMG_2073.jpeg`
+* **NOT the target, geometry only** — `ref_workshop.jpg` is the **GREEN** vehicle (`SPEC.md`:
+  *"the same 'Señor Tacombi' script on the green body"*); `bus_model_ref.JPG` is a **SCHOOL BUS**, a
+  fidelity bar only. **Paint and artwork do not transfer between vehicles; geometry does (rule 11).**
+* **retired** — `ref_source.jpeg`, a 246×197 thumbnail the record itself retired
+* **derived/annotated** — `ref_grid.png`, `ref_side_grid.png`, `ref_nose_grid.png`,
+  `ref_band_grid.png`, `ref_x6_lanczos.png`
+* a **floor of 54** reference-class tracked images (new frames welcome, losing one is not), and
+* **the five byte-identical pairs are asserted to stay five** — every `IMG_*` original equals a
+  `ref_*` name. **A sixth group means a frame arrived that duplicates one we already hold, which is
+  not corroboration** and has fooled this project before (rule 11) — and it fires on exactly that.
+
+---
+
 ## §1. START HERE — MEASURE THE BRANCH, DO NOT TRANSCRIBE IT
 
 ```bash
@@ -18,7 +82,7 @@ for b in $(git branch -r | grep -v HEAD); do
 done
 git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 ./bootstrap.sh          # ALL 10 PASS  -- THE BRANCH CHECK IS ROW 9
-./verify_clone.sh       # ALL 173 PASS -- and read what its verdict block says
+./verify_clone.sh       # ALL 191 PASS -- and read what its verdict block says
 ```
 
 **AT PICKUP, REV 54 MEASURED:** the designated branch's remote copy **deleted a fourth time**
@@ -203,7 +267,7 @@ window**, so a single global `min(z)` put the fold at row **373** while the mask
 **239** — **134 px = 25 mm wrong**. The fold is tracked **PER COLUMN** off the mask now. Rev 53's
 arm D had already learned this and I re-learned it. **Rule 7: ask the geometry, never the pose.**
 
-### §2.8 THIS FILE WAS AUDITED AGAINST THE MACHINE, AND THE AUDIT FOUND SEVEN THINGS
+### §2.8 THIS FILE WAS AUDITED AGAINST THE MACHINE, AND THE AUDIT FOUND TWELVE THINGS
 
 Rule 17. Every file cited below was opened, every quoted string grepped, every figure recomputed
 against the probes' own printouts and against the source. **What it found:**
@@ -218,7 +282,18 @@ against the probes' own printouts and against the source. **What it found:**
 | the draft cited **rev54_look_ladder.png**, with no directory | **the path does not resolve** — it is `probe_scratch/rev54_look_ladder.png`. Caught by a sweep that tries to `stat` every file the brief names; the other 33 all resolved. Rule 18's neighbourhood: a citation nobody can follow |
 | a paragraph said this brief *"deliberately does NOT name the retired `T1_EDGEBEVEL` switch"* | **false the moment it printed the name** — and it silently re-created the dependency it claimed to remove, because the `every T1_ switch the brief names exists` row sweeps every `T1_*` the brief mentions and only one surviving `probe_rev53_chip.py` comment keeps that row green. Rewritten to say so; **see §6** |
 
-**Two of the seven were found only by RUNNING the audit as a script rather than re-reading the
+**AND FIVE MORE ON A SECOND AUDIT PASS, RUN AFTER THE DAY'S LATER WORK — which is the point: a
+brief audited once is audited against the state it had then.**
+
+| what the draft said | what the machine says |
+|---|---|
+| three bare filenames — `rev54_ASK_cream_flat.png`, `rev54_reach_hubcap.png`, and the audit table's own quoted example | **none resolve.** The table's example is now quoted WITHOUT backticks so it stops tripping the sweep that found it |
+| *"Rev 54 asked him nothing"* | **false** — written before the question was put. He ruled *"keep studio, fix the model"* (§2.2b). Corrected in place |
+| §1 predicted *"expect this shape a fifth time"* — branch deleted, HEAD 0 ahead | **rev 54 closed UNMERGED** on `claude/tacombi-rev-54-u7hvys`. §1 now names BOTH shapes and warns that **bootstrap row 9 FAILS by design** if you sit on `main` with it unmerged. That failure is the handoff |
+| the work list led with an item logged *"blocked on a photograph"* | **a poor first instruction for a context told to fix the model**, and §0.1 says it is not blocked. §3.0 now orders the work by which items have a GATE |
+| the new reference count floor read **111** | **a typed guess I never watched print**, against a count including probe_scratch's ~1000 images — so dropping `ref_rear34.jpg` left it PASSING. Rule 5, broken by the session quoting rule 5. Scoped and re-based on the measured **54**, then watched failing |
+
+**Two of the first seven were found only by RUNNING the audit as a script rather than re-reading the
 draft** — the unresolvable path and the self-refuting paragraph. Re-reading had already passed over
 both. **Five of the seven were transcription or self-contradiction, not measurement**, in a file
 whose own §1 says not to transcribe.
@@ -254,7 +329,7 @@ project has been missing. 173 verify rows and 0 of them fidelity.
 | **A** | **Separate the ink LEVEL from the rig's exposure.** The render's flank ink is **+41.2/+38.6/+36.3 DN** on the photograph's, with **G/R 0.936 in BOTH**. Measure the CREAM either side of the ink in the same two frames, through one painted window. | **Cheapest and most decisive thing on the list.** If the cream is also ~39 DN high it is the studio lighting — **his call, W6, not a defect** — and the flank artwork is exonerated. If only the ink is high, it is the artwork. **Every other flank item depends on this answer, so do NOT touch an ink constant before it.** Rule 29.3. | `flank_compare.py`'s own colour block, re-run |
 | **B** | **Re-base `cream_rms.py` onto `ref_rear34.jpg`**, which is the remedy the script itself prints. | It turns a **dead** gate into a live one and gives the project a SECOND fidelity number. Open since **rev 17**. | the script's own guards — it refuses rather than lies |
 | **C** | **The two standing `flank_compare` failures**: ink aspect **2.3689 vs 2.2512 (+5.2 %)** and worst region **0.476 (Senor)**. | Both are measured, both are model-side, and a fix is confirmed or refuted by re-running one script. | `flank_compare.py`, 2 of 4 → 4 of 4 |
-| **D** | everything below, in the order given | items 1 and 5 are owner-blocked; 3, 4, 6 are unblocked but have **no gate**, so they cannot tell you whether they improved the photograph | — |
+| **D** | everything below, in the order given | **item 1 is NOT blocked — see §0.1**: the badge stroke weight has a live route in frames already on this repo, it is merely hard, and rev 54 declined it. Item 5 is an owner ruling. 3, 4, 6 are unblocked but have **no gate**, so they cannot tell you whether they improved the photograph | — |
 
 **RENDER FIRST.** `out/` starts empty. `T1_PREVIEW=side` at **1600×1100** feeds `flank_compare.py`;
 `T1_PREVIEW=side` at **1248×858** is what `cream_rms.py`'s own defaults expect (211.5 px/m, the scale
@@ -274,7 +349,9 @@ both band circles PAINTED shows **all six stroke ends landing on the band** in b
 works. The ring stands **2.5 mm proud** of the glyph plane, so an oblique view can open an apparent
 gap that is not in the geometry. **The badge's REACH is settled; its STROKE WEIGHT is not (item 1).**
 
-**1. THE TWO VW BADGES — HIS REPORT AT REV 51, STILL THE TOP JOB.**
+**1. THE TWO VW BADGES — HIS REPORT AT REV 51, STILL THE TOP JOB, AND NO LONGER "BLOCKED".**
+§0.1 is his ruling that the reference set is complete. **So this item is worked from what we hold,
+or it is closed with "it cannot be recovered from what we hold" and its ceiling — it is not parked.**
 **The DIAMETER route on `ref_side.jpg` is EXHAUSTED** (0.3474 vs the built 0.3170 — 9.6 % small but
 only **1.8 sigma**; rev 51's figure, INHERITED, do not re-run it). **The open constant is the STROKE
 WEIGHT**, and rev 54 established what it actually denominates (§2.5) — **compare a frame against
@@ -404,7 +481,15 @@ have said that.
 
 ---
 
-## §4. WHAT ONLY HE CAN GIVE
+## §4. WHAT WAS ASKED OF HIM — A CARRIER, NOT A LIST OF BLOCKERS
+
+> **READ §0.1 FIRST.** At rev 54 he ruled that **the reference set on the repo is complete**. This
+> section is kept in full because `CLAUDE.md` rule 16 forbids dropping a carrier, and because it
+> records what was asked and what was refused — which is why items 1–5 must never be re-asked.
+> **But it is no longer a licence to park work.** Nothing below blocks an item; it only says what a
+> new frame would have made easier. Work every item from what we hold, or close it with
+> *"it cannot be recovered from what we hold"* and its ceiling.
+
 
 **`PHOTOS_WANTED_rev52.md` is the carrier for item 7 (ONE HUBCAP, SQUARE ON AND CLOSE)**. Items
 **1–5** keep their full text in `PHOTOS_WANTED_rev49.md`: the tail board's footing; the decal darker;
