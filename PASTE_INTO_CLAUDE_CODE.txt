@@ -158,8 +158,10 @@ checksums `tex/emblem.png`.
 `verify.py` **section 13** now measures off the mesh: the assembly's object counts; the ring radius
 against `CAP_EMBLEM_D/2` **derived on both sides**; that the four rings agree; that each cap centre
 sits on a hub (`z == TIRE_R`, `x` at an axle); and that the glyph is fitted **flush** to the ring,
-which is what `_fit_glyph` promises and nothing checked. **It is SELF-CONSISTENCY, not fidelity**,
-and it says so in its own log line.
+which is what `_fit_glyph` promises and nothing checked. All six clauses **watched failing on an
+injected defect and passing through a refactor** — `LEDGER_rev54.md` §7.1 lists each injection and
+the exact line it produced. **It is SELF-CONSISTENCY, not fidelity**, and it says so in its own log
+line.
 
 ### §2.7 A PAINTED WINDOW CAUGHT MY OWN PROBE, AGAIN — the project's most-repeated defect
 
@@ -294,7 +296,15 @@ windows this way and neither by reasoning: the four-wheel "ring" (§2.7) and the
 (§2.7). Both produced a plausible number that would have been published.
 
 **A GUARD NEEDS BOTH HALVES — watch it FAIL on the defect AND PASS through a legitimate re-wording,
-on a CLEAN tree.** All eight rev-54 rows were watched both ways (`LEDGER_rev54.md` §7). The one that
+on a CLEAN tree.** Rev 54 added **fourteen** guards: eight `verify_clone.sh` rows and six
+`verify.py` section-13 mesh clauses. All fourteen were watched both ways — **but the six were only
+watched AFTER the revision had once been reported as finished** (`LEDGER_rev54.md` §7.1). The eight
+grep-rows were exercised the same hour they were written and the six mesh clauses were not, because
+`VERIFY: 0 fail, 0 warn` reads like evidence and is only the PASS half. **If you add a clause to
+`verify.py`, injecting its defect is not optional and `VERIFY: 0 fail` does not stand in for it.**
+And when an injection does NOT fire, suspect the injection first: one of mine patched a shared
+builder that `build.py` calls with the same arguments four times, so the branch never ran (§7.1).
+The one that
 matters most: the row banning the stale `DEFAULT IS STILL POINTINESS` sentence must not fire on a
 comment that merely **quotes** it — and the shipped tree contains exactly such a quote, so that half
 is live, not hypothetical. It is anchored on the line **starting** with the claim.

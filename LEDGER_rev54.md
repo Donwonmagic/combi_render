@@ -285,7 +285,10 @@ compared to a frame; see PHOTOS_WANTED item 7
 
 ---
 
-## §7. GUARDS ADDED — eight rows, BOTH HALVES WATCHED ON A CLEAN TREE
+## §7. GUARDS ADDED — eight `verify_clone` rows AND six `verify.py` mesh clauses
+
+**Fourteen in total. The eight are below; the six are in §7.1, and they were added to
+this ledger LATE — see that section, it is the honest part.**
 
 `verify_clone.sh` **165 → 173**. Rule 3 says watch a guard FAIL on the defect;
 rev 53's §7.2.1 added that this is necessary and **not sufficient**. Both halves
@@ -307,6 +310,37 @@ contains `# rev 54: "DEFAULT IS STILL POINTINESS" STOOD HERE AND WAS FALSE.` and
 the row reads 0, because it is anchored on the line **starting** with the claim.
 
 ---
+
+### §7.1 THE SIX MESH CLAUSES WERE NOT WATCHED FAILING UNTIL I WAS ASKED TO AUDIT THE HANDOFF
+
+**This section did not exist when the revision was first closed, and that is the finding.** §7 above
+documented the eight `verify_clone.sh` rows both ways and I reported it as if the guard work were
+done. `verify.py` **section 13 has six `fails.append` clauses and I had watched none of them fail** —
+only the `VERIFY: 0 fail, 0 warn` that says they pass. Rule 3 is the rule I had just quoted.
+
+Injected one at a time into a clean tree, rebuilt at `T1_SUB=1 T1_VERIFY=1`, restored after each:
+
+| injected defect | what section 13 said |
+|---|---|
+| `_fit_glyph` target × 0.90 | `hubcap glyph extreme 0.039086 is not fitted flush to the ring radius 0.043429 -- _fit_glyph` |
+| ring built at a **typed** `ro = 0.0450` instead of `CAP_EMBLEM_D/2` | `hubcap emblem ring radius 0.045000..0.045000 vs CAP_EMBLEM_D/2 = 0.043429` |
+| one wheel's emblem scaled 1 % **after** placement | three at once: radius, `the four hubcap rings disagree by 0.4343 mm -- they are one part`, and the flush check |
+| one wheel's emblem lifted 10 mm | `a hubcap centre sits at z 0.3425, not on the hub at TIRE_R 0.3325` |
+| one wheel's emblem moved 40 mm along x | `a hubcap centre sits at x 1.3400, on neither axle (1.300 / -1.100)` |
+| the glyph tag renamed `capvw` -> `vwcap` | `hubcap assembly: 4 capring and 0 capvw objects; expected 4 and 8` |
+
+**6 of 6.** And the PASS half: renaming `cap_ring`'s locals and adding a comment leaves
+`VERIFY: 0 fail, 0 warn` with the badge line unchanged.
+
+**ONE INJECTION DID NOT FIRE, AND THE GUARD WAS NOT THE REASON.** The first attempt at the
+four-rings-agree clause patched `cap_ring` to read
+`ro = CAP_EMBLEM_D / 2 * (1.001 if y > 0 else 1.0)`. `VERIFY` stayed at **0 fail** and for a moment
+that looked like a tautological guard. It is not: **`build.py` calls `D.cap_emblem(0.0, 1)` for all
+four wheels** — `y` is always 0.0 and `side` always 1 — so the injection's branch was never taken.
+The four caps are four independent builds of *identical* arguments, and the only way they can drift
+is the per-wheel **placement** that follows, which is exactly where the rev-51 five-petal-flower
+defect lived. Re-aimed there, the clause fires at 0.4343 mm. **A guard that does not fire is not
+automatically a bad guard — check the injection first.**
 
 ## §8. WHAT IS STILL OPEN
 
