@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-22 16:07:55 UTC |
-| git commit | `a342661` |
-| git subject | rev 54: the fascia fold is NOT silent -- the band is 1 mm and 0.27 px, and the radius lever is live at 4.45x |
+| generated | 2026-08-22 19:33:28 UTC |
+| git commit | `8ae9eac` |
+| git subject | rev 55: carry the rev-54 GOAL and REFERENCE-SET sections into the rev-56 brief |
 | working tree | clean |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=2 (applied, destructive, before booleans) |

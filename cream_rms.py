@@ -455,7 +455,17 @@ def spectrum(box=_BODY, path="ref_rear34.jpg", label="bus cream", quiet=False):
                   % (sg, 100 * t, 100 * lk, 100 * cf, 100 * real))
     if not quiet:
         print("  SCALE: px/m on THIS plane is not 344.1.  344.1 +- 6.7 is the")
-        print("    PLATE plane (SPEC 10.48).  See depth_correct() before any mm.")
+        # rev 55: `depth_correct()` IS NOT DEFINED ANYWHERE IN THIS REPO.
+        # It was cited here as if it were the remedy for the scale caveat and
+        # a reader following it finds nothing.  The citation is corrected
+        # rather than removed, because the CAVEAT is real and still stands.
+        # What actually carries the mm axis today is mottle_measure.py's
+        # PXM_REF (337.0 px/m, "flank plane, bracketed 330-344; NOT the
+        # plate's 344.1") -- a bracket, not a measurement.
+        print("    PLATE plane (SPEC 10.48).  The mm axis on THIS plane is "
+              "NOT established:")
+        print("    mottle_measure.py uses PXM_REF = 337.0 px/m, itself only "
+              "bracketed 330-344.")
     return out, mask, Y
 
 

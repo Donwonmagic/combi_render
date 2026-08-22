@@ -144,10 +144,21 @@ print("  render patch mean L* %6.2f   mean C* %6.2f   -> C* ratio %.3f"
       % (Ls[m].mean(), Cs[m].mean(), Cs[m].mean() / REF_C))
 print("  --- character on the render, same statistics as the photograph ---")
 print("  sigma_mm   corr(dL*,dC*)   dL* rms   dC* rms      [photograph]")
-PHOT = {5.9: (-0.159, 0.377, 0.756), 11.9: (-0.497, 0.531, 1.162),
-        23.7: (-0.698, 0.659, 1.721)}
+# rev 55 -- THIS NAME WAS ASSIGNED TWICE, TWO LINES APART, AND THE FIRST DICT
+# WAS DEAD CODE.  The file therefore carried TWO different sets of "the
+# photograph's" figures and silently discarded one, with nothing to say which
+# had been measured on what.  NEITHER IS DELETED (rule 16: a figure that lives
+# in only one place is not mine to drop) -- the dead one is carried below as
+# data, plainly labelled, and only the live one is bound to the name.
+#
+# WHICH IS WHICH IS NOT ESTABLISHED HERE.  Both were typed into this file by
+# an earlier revision without provenance; the LIVE row is simply the one
+# Python was using, which is the second.  Re-deriving them is a job for
+# whoever next re-runs the photograph side -- see LEDGER_rev55 SS4.
+_PHOT_SUPERSEDED = {5.9: (-0.159, 0.377, 0.756), 11.9: (-0.497, 0.531, 1.162),
+                    23.7: (-0.698, 0.659, 1.721)}      # DEAD since it was written
 PHOT = {5.9: (0.042, 0.385, 0.744), 11.9: (-0.106, 0.493, 1.015),
-        23.7: (-0.294, 0.735, 1.295)}
+        23.7: (-0.294, 0.735, 1.295)}                  # the one that was LIVE
 for mm, (pc, pl, pcm) in PHOT.items():
     sg = mm * PXM / 1000.0
     hl = Ls - SS.gblur(Ls, sg); hc = Cs - SS.gblur(Cs, sg)
