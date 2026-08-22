@@ -931,6 +931,48 @@ ck "out/ is NOT tracked"            0 "$(git ls-files 2>/dev/null | grep -c '^ou
 # this row cannot see a newly added row until it is committed.  That is
 # acceptable only because the clean-tree row is itself failing at that moment
 # and the script already says STOP.  It is NOT a row you can trust mid-edit.
+# --------------------------------------------------------------- rev 55
+# THE INSTRUMENTS THIS REVISION ADDED, AND THE RETRACTIONS IT LANDED.
+# Every one of these was watched FAILING (by deleting the anchor line) and
+# PASSING again on a clean tree, in the same hour it was written.
+#
+# Item A's ground control: without it, flank_compare prints a level
+# difference and nothing that says whose it is.
+ck "flank_compare carries the ground control" 1 \
+   "$(grep -c 'ground control -- the UNINKED paint' flank_compare.py)"
+# ... and its verdict must be DERIVED.  The first draft printed "the ink is
+# NOT painted light" as a CONSTANT STRING and said it under the ablation too.
+# BOTH branches have to exist or the conclusion cannot fail.
+ck "that control's verdict has both branches" 2 \
+   "$(grep -cE 'INSIDE the photograph|OUTSIDE it: the ink IS off' flank_compare.py)"
+# The two ablations that made those controls mean something.
+ck "T1_FC_INKGAIN ablation exists"            1 \
+   "$(grep -c 'os.environ.get("T1_FC_INKGAIN"' flank_compare.py)"
+ck "T1_FC_ZSTRETCH ablation exists"           1 \
+   "$(grep -c 'os.environ.get("T1_FC_ZSTRETCH"' flank_compare.py)"
+# Item C: the aspect FAIL must never again be read as a settled model defect.
+ck "the aspect row carries its instrument note" 1 \
+   "$(grep -c 'ON THE ASPECT ROW -- it is INSTRUMENT-DEPENDENT' flank_compare.py)"
+# Item 2: the retraction lives in the SOURCE, not only in a ledger (rule 15),
+# and it must keep BOTH halves -- that the shipped socket is dead on smooth
+# geometry AND that the true normal counts facets.  Either half alone is a
+# claim that would get the default flipped.
+ck "t1_mats carries the true-normal retraction" 1 \
+   "$(grep -c 'True Normal. IS NOT THE FIX' t1_mats.py)"
+ck "t1_mats keeps the facet-counting half"     1 \
+   "$(grep -c 'It detects TESSELLATION, not folds' t1_mats.py)"
+ck "T1_TRUENORM lever exists in the shader"    1 \
+   "$(grep -c 'os.environ.get("T1_TRUENORM")' t1_mats.py)"
+# Two citations this revision found rotten.  `depth_correct()` was cited in
+# cream_rms.py as the remedy for the scale caveat and is DEFINED NOWHERE in
+# this repo; `PHOT` was bound twice in mottle_measure.py, two lines apart, so
+# the file carried two different sets of "the photograph's" figures and threw
+# one away silently.  Both rows want the rotten form GONE and the live form
+# singular.
+ck "cream_rms cites no undefined depth_correct" 0 \
+   "$(grep -c 'See depth_correct()' cream_rms.py)"
+ck "mottle_measure binds PHOT exactly once"    1 "$(grep -c '^PHOT = ' mottle_measure.py)"
+
 _BRIEF_TOTAL="$(if [ -n "$_LATEST_BRIEF" ]; then grep -E '\./verify_clone\.sh' "$_LATEST_BRIEF" 2>/dev/null | grep -oE 'ALL [0-9]+ PASS' | grep -oE '[0-9]+' | head -1; else echo 0; fi)"
 ck "newest brief states THIS script's row count" "$((PASS+1))" "${_BRIEF_TOTAL:-0}"
 

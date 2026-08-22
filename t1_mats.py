@@ -983,7 +983,7 @@ def weather_group(name="WEATHER"):
     # both require that it should.
     #
     # AND `True Normal` IS NOT THE FIX.  THAT WAS THIS REVISION'S OWN FIRST
-    # CONCLUSION AND IT IS RETRACTED HERE, ON TWO MEASUREMENTS AND A LOOK.
+    # CONCLUSION AND IT IS WITHDRAWN HERE, ON TWO MEASUREMENTS AND A LOOK.
     #
     # On a SMOOTH-shaded mesh the true normal is PIECEWISE CONSTANT -- one
     # value per polygon -- while the bevel normal is smooth, so
