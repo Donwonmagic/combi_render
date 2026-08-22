@@ -18,7 +18,7 @@ for b in $(git branch -r | grep -v HEAD); do
 done
 git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 ./bootstrap.sh          # ALL 10 PASS  -- THE BRANCH CHECK IS ROW 9
-./verify_clone.sh       # ALL 160 PASS -- and read what its verdict block says
+./verify_clone.sh       # ALL 162 PASS -- and read what its verdict block says
 ```
 
 **THE DESIGNATED BRANCH'S REMOTE COPY WAS DELETED AGAIN AT REV 53** — `fetch --prune` printed
@@ -108,7 +108,9 @@ against `probe_rev53_chip.py`'s own printout and against the source. **What it f
 | `T1_EDGERAD=12` is **3.3 px** | **3.25 px** (12 × 271.2 / 1000), recomputed |
 | `verify_clone.sh` **ALL 159 PASS** | **160.** Caught only by running it on a CLEAN tree at the very end — before the commit the clean-tree row itself fails, so the banner reads "159 PASSED, 1 FAILED" and 159 is the number that gets transcribed. **Run it clean before you quote its total.** `LEDGER_rev53` §7 carried the same 159 and is corrected too |
 
-**All eight are corrected above.** Five of the eight were **transcription**, not measurement, in a
+| the brief said nothing about `PASTE_INTO_CLAUDE_CODE.txt` | **it was a byte-identical copy of the rev-52 brief** — see §2.4. The most important intake door in the repo, and the audit found it only by asking what `CLAUDE.md` actually imports |
+
+**All nine are corrected above.** Five of the nine were **transcription**, not measurement, in a
 document whose own §1 says not to transcribe.
 
 **VERIFIED CLEAN BY THE SAME AUDIT** — recomputed or grepped, not re-read: all 22 cited files exist;
@@ -117,6 +119,26 @@ document whose own §1 says not to transcribe.
 beyond it**; `X_TAIL = -1.8727` against `LID_X1 = -1.0700` gives **802.7 mm**, so the 803 stands;
 1000/211.5 = **4.728 mm/px**; 2.589/0.165 = **15.7x**; `STATE.md`'s zero-area row is present; and
 **PR #9** is confirmed in the log.
+
+### §2.4 THE INTAKE DOOR THAT AUTO-LOADS WAS TWO REVISIONS STALE, AND NOTHING GUARDED IT
+
+`CLAUDE.md`'s Imports carry **`@PASTE_INTO_CLAUDE_CODE.txt`**, so that file is pulled into **every
+session** as *"this revision's entry procedure"*. Measured at the end of rev 53: it was a
+**byte-identical copy of the rev-52 brief**.
+
+It was updated every revision from rev 47 through rev 51 and **rev 52 dropped it** — so rev 53 opened
+with the rev-52 brief auto-loaded while the real brief was rev 53, and nothing said so. Rev 52
+guarded `README` and `START_HERE`, **the two intake doors a human has to choose to open, and missed
+the one that opens itself.**
+
+**Now guarded by two rows**, both watched failing — on the previous brief left in place (rev 52's
+actual defect) and on a **one-character drift**: `the IMPORTED entry procedure IS the newest brief`
+and `CLAUDE.md still imports that entry procedure`. **It must stay byte-identical to the newest
+brief**, so there is no second source of truth free to diverge — the same reason the rev-52 brief
+§10 rejected a separate `RULES_CANON.md`.
+
+**SO: WHEN YOU WRITE THE REV-55 BRIEF, `cp` IT OVER `PASTE_INTO_CLAUDE_CODE.txt` IN THE SAME COMMIT,
+OR `verify_clone.sh` FAILS AND NAMES THE ROW.**
 
 ---
 
@@ -149,7 +171,10 @@ re-measured at rev 52 or rev 53.** The offset is **NOT rigid** (−0.09574 at ho
 at `gal_appliance` u=0.80, so one additive constant leaves ±7.3 mm). Re-derive each X from `BAYS`,
 the way `gal_rail` now is. *(The survey's ~106 mm and its +0.096..+0.113 range are both wrong.)*
 
-**4. THE THREE HOLES REV 52 LEFT OPEN, all measured and all cheap to reach:**
+**4. THE THREE HOLES REV 52 LEFT OPEN, all cheap to reach.**
+**PROVENANCE, GRADED: the 260.0 mm and 20.0 mm sight lines are rev 52's and were NOT re-measured at
+rev 53.** The other two figures in this item WERE recomputed at rev 53's audit and reproduce exactly
+(see §2.3).
 * `gal_end_f` sees past by **260.0 mm** on the show side and 20.0 mm on the off side. Needs its own
   sight line established first — **do not inherit `REAR_W/2`** (rule 34: that figure belongs to the
   rear window, which is not what looks at it).
@@ -178,8 +203,11 @@ original deliverable** — with it, **still open**; SPEC §0.2's two rev-4 corre
 rev 48's refuted *"B stays open"* still live in `build.py` and, **split across two lines so a flat
 grep misses it**, in `t1_shell.py`; the tail board still has **zero rows in either verifier**.
 **AND `cream_rms.py` IS STILL A DORMANT RENDER-VS-PHOTOGRAPH GATE with zero rows in either
-acceptance script. It was NOT run at rev 52 and NOT run at rev 53.** `flank_compare.py` was revived
-at rev 52 and **still fails 2 of 4** (`Senor` 0.479, aspect 2.3689); it was not re-run at rev 53.
+acceptance script. It was NOT run at rev 52 and NOT run at rev 53.** **`flank_compare.py` WAS re-run at rev 53**, on the
+shipped render, and **still fails 2 of 4** — read its own summary line, not its exit code:
+`ink area ratio 0.9417 PASS`, `ink aspect 2.3689 FAIL`, `IoU 0.7608 PASS`,
+`worst region 0.471 (Senor) FAIL`. **`Senor` is 0.471 now, not the 0.479 rev 52 measured** — the
+same instrument on a different render, so do not read the drop as a regression in the artwork.
 
 ### §3.1 `lid_rail` — STILL MEASURED AT ZERO AREA, STILL GUARDED, STILL DELIBERATE
 

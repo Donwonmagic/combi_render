@@ -834,6 +834,17 @@ ck "every T1_ switch the brief names exists" 0 "$_ABL_MISSING"
 # revisions and START_HERE.md still said "rev 7" thirty revisions on.  Both are
 # the first thing a fresh context reads.
 _RN="$(echo "$_LATEST_BRIEF" | grep -oE '[0-9]+' | tail -1)"
+# rev 53.  THE INTAKE DOOR THAT ACTUALLY AUTO-LOADS, AND IT WAS THE ONE LEFT
+# UNGUARDED.  CLAUDE.md carries `@PASTE_INTO_CLAUDE_CODE.txt` in its Imports, so
+# that file is pulled into EVERY session as "this revision's entry procedure".
+# It was updated every revision from rev 47 through rev 51 and then REV 52
+# DROPPED IT: rev 53 opened with the rev-52 brief auto-loaded while the real
+# brief was rev 53, and nothing said so.  README and START_HERE were guarded at
+# rev 52; the file that loads itself was not.  It must BE the newest brief --
+# byte-identical, so there is no second source of truth free to diverge, which
+# is the same reason CLAUDE.md sec.10 rejected a separate RULES_CANON.md.
+ck "the IMPORTED entry procedure IS the newest brief" 1 "$(if [ -n "$_LATEST_BRIEF" ] && cmp -s PASTE_INTO_CLAUDE_CODE.txt "$_LATEST_BRIEF"; then echo 1; else echo 0; fi)"
+ck "CLAUDE.md still imports that entry procedure"     1 "$(grep -c '^@PASTE_INTO_CLAUDE_CODE.txt' CLAUDE.md)"
 ck "README points at the newest brief"       1 "$(if [ -n "$_RN" ] && grep -qE "rev $_RN\b" README.md 2>/dev/null; then echo 1; else echo 0; fi)"
 ck "START_HERE points at the newest brief"   1 "$(if [ -n "$_RN" ] && grep -qE "rev $_RN\b" START_HERE.md 2>/dev/null; then echo 1; else echo 0; fi)"
 ck "heroes are NOT tracked"         0 "$(git ls-files 2>/dev/null | grep -c 'hero.*\.png')"
