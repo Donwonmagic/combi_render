@@ -266,6 +266,14 @@ high-pass **STD** (8.57 DN, outlier-driven) instead of its **MAD** (0.99). The n
 **8.117 % on PURE NOISE** — every "detection" in that pass was noise. **Give every threshold
 statistic a null control at the real noise, or it will report noise as signal.**
 
+**AND A GUARD NEEDS BOTH HALVES, WHICH IS THE HALF OF RULE 3 THE CANON DOES NOT STATE.** Rev 53's
+row-count guard fired correctly on the defect from the first minute and was **still wrong**: nobody
+had watched it *NOT* fire on a legitimate edit. It took the largest `ALL n PASS` anywhere in the
+brief, so a brief merely **mentioning** a bigger historical figure made it read **900** and fail —
+and briefs quote old row counts constantly; this one quotes `ALL 159 PASS` in its own audit table.
+**Watch a guard FAIL on the defect AND PASS through a re-wording, and do it on a CLEAN tree** — a
+dirty tree shifts the tally by one and masks the answer.
+
 **AND TWO OF REV 53'S OWN GUARDS DID NOT FIRE WHEN FIRST WATCHED.** One was anchored on a line that
 appears in **both branches** of an if/else, so swapping the branches left it passing — while its own
 comment claimed it caught exactly that. The other was anchored on `Follow the$`, which matched a line

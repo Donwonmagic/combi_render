@@ -286,6 +286,33 @@ and a row added and **committed** without updating the brief (got 165, want 166)
 > only because the clean-tree row is failing at that same moment and the script already says STOP.
 > **It is not a row to trust mid-edit.**
 
+### §7.2.1 AND THE ROW WAS FRAGILE IN EXACTLY THE WAY ITS OWN BLOCK WARNS ABOUT
+
+The first version took the **largest** `ALL n PASS` anywhere in the brief, to dodge bootstrap's own
+`ALL 10 PASS`. **Watched failing on the wrong thing:** a brief that merely *mentions* a bigger
+historical figure in prose made the row read **900** and fail. Briefs quote old row counts routinely
+— **this one quotes `ALL 159 PASS` in its own audit table** — so the hazard is live, not
+hypothetical. *"Take the largest number"* is a guess, not a spec. Re-anchored on the line that
+actually invokes the script.
+
+**THE LESSON, AND IT IS THE HALF OF RULE 3 THE RECORD DOES NOT YET STATE.** Rule 3 says a control is
+finished when you have **watched it fail** on the defect. That is necessary and it is not
+sufficient. This row fired correctly on the defect from the first minute; it was still wrong,
+because nobody had watched it **NOT fire** on a legitimate edit. The carry-forward block already
+knew this — *"re-wording the brief must not fail these rows, only DROPPING the item must"* — and I
+wrote a row into that block that broke the rule the block is built on.
+
+**A guard needs both halves: watch it FAIL on the defect, and watch it PASS through a legitimate
+change.** Tested on a clean tree, because a dirty tree shifts the tally by one and masks the answer
+— which is how the first attempt at this test came back inconclusive:
+
+| | expected | measured |
+|---|---|---|
+| heavy re-wording of the brief | must not fail | **ok, 165** |
+| brief mentions a larger historical `ALL 900 PASS` | must not fail | **ok, 165** |
+| brief quotes rev 52's `ALL 151 PASS` | must not fail | **ok, 165** |
+| brief states the wrong total | **must fail** | **FAIL, got 164 want 165** |
+
 ---
 
 ## §8. WHAT IS STILL OPEN
