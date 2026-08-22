@@ -651,7 +651,11 @@ say "-- gitignore --"
 # door.  WATCHED FAILING: `mv CLAUDE.md x` reds it, and so does adding any
 # decimal figure to it.
 ck "CLAUDE.md exists" 1 "$([ -f CLAUDE.md ] && echo 1 || echo 0)"
-ck "CLAUDE.md carries no measurements" 0 "$(grep -cE '[0-9]+\.[0-9]' CLAUDE.md 2>/dev/null || echo 99)"
+# NOTE THE SHELL TRAP, because it bit this row on its first run: `grep -c` EXITS 1
+# when the count is ZERO, which is exactly the PASSING case, so a `|| echo 99`
+# fallback fires on success and concatenates -- it reported `099`.  Capture stdout
+# and never branch on grep's status.
+ck "CLAUDE.md carries no measurements" 0 "$(if [ -f CLAUDE.md ]; then grep -cE '[0-9]+\.[0-9]' CLAUDE.md 2>/dev/null; else echo 99; fi)"
 ck "heroes are NOT tracked"         0 "$(git ls-files 2>/dev/null | grep -c 'hero.*\.png')"
 ck "out/ is NOT tracked"            0 "$(git ls-files 2>/dev/null | grep -c '^out/')"
 
