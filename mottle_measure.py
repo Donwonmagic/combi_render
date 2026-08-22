@@ -113,6 +113,46 @@ n = int(m.sum())
 lin = SS.srgb_to_lin(sub)
 Y = lin @ np.array([0.2126, 0.7152, 0.0722])
 clip = float((sub.max(2) >= 0.995)[m].mean()) if n else float("nan")
+
+# rev 56 -- THE REFUSALS ARE HOISTED TO HERE, BEFORE ANYTHING IS PRINTED.
+# They used to sit at the very END of the file, after the BASE LEVEL block and
+# the character table had already printed their numbers.  So the dead beauty
+# arm printed "mean L* 100.00  mean C* 0.00" and a character table of nan and
+# 0.000 -- five lines of measurement-shaped output -- and only then refused.
+# A refusal that arrives after the numbers is not a refusal.
+if n < 2000:
+    print("  *** too few px -- refusing to report."); raise SystemExit(0)
+# rev 56 -- THE BEAUTY ARM IS DEAD, AND IT REPORTED 0.000 RATHER THAN SAYING SO.
+# The first time this file was ever RUN end to end (rev 56; nothing invoked it
+# for the 37 revisions it has existed) the beauty arm came back with the patch
+# 100.00 % CLIPPED -- mean L* exactly 100.00, mean C* exactly 0.00, every
+# high-pass RMS 0.000 and every ratio 0.00 against the target.  The cream band
+# renders PURE WHITE: shader_solve._render() never builds a studio rig, and
+# mottle_measure execs build.py without T1_PREVIEW, so nothing sets the
+# exposure the cream was balanced for.  LOOKED AT, not inferred --
+# probe_scratch/rev56_mottle_frame.png is the frame with the patch marked on
+# it, and the whole cream band is blown flat.
+#
+# A run that prints "ratio 0.00" five times looks like a MEASUREMENT of a
+# model with no mottle at all.  It is not: it is a measurement of nothing.
+# This guard makes it refuse, which is the same rule spectrum() already obeys.
+# WATCHED FAILING: the beauty arm (T1_MM_ALBEDO unset) trips it; the ALBEDO
+# arm passes it at 0.00 % clipped.
+#
+# NOT FIXED HERE, AND SAID SO: making the beauty arm live means building the
+# studio rig inside this file, which changes what it measures and is rev 57's
+# job.  The ALBEDO arm is the better instrument anyway -- this file's own
+# docstring says a beauty high-pass on a curved lit panel measures the form
+# shading and the sampler as well as the material.
+if clip > 0.02:
+    print("  *** %.2f %% of the patch is CLIPPED -- REFUSING TO REPORT."
+          % (100 * clip))
+    print("      A high-pass on a saturated patch is identically zero, and a")
+    print("      printed 0.000 would read as 'the model has no mottle'.")
+    print("      Cause: shader_solve._render() builds no studio rig, so the")
+    print("      cream blows out.  Run the ALBEDO arm instead:")
+    print("        T1_SUB=1 T1_MM_ALBEDO=1 blender -b -P mottle_measure.py")
+    raise SystemExit(0)
 # rev 19: CHROMA structure as well as luminance.  The target character is
 # corr(dL*,dC*) NEGATIVE with dC* of the same order as dL* -- so a LUMINANCE
 # high-pass alone cannot tell whether the map is working.  The fade path is a
@@ -170,8 +210,7 @@ print("RENDER MOTTLE  [%s]  MOTTLE_AMP %.3f  RGHK %.3f  M %.4f m  px/m %.2f (EXA
       % ("ALBEDO" if ALB else "beauty", AMP, MT.MOTTLE_RGH_K, MT.MOTTLE_M, PXM))
 print("  patch %d x %d, %d px after a 3 px erosion, clipped %.2f %%"
       % (bu1 - bu0, bv1 - bv0, n, 100 * clip))
-if n < 2000:
-    print("  *** too few px -- refusing to report."); raise SystemExit(0)
+
 # target: photograph, region 2, converted at the STATED flank px/m bracket
 PXM_REF = float(os.environ.get("T1_PXM_REF", 337.0))
 # rev 56 -- TARGET IS DERIVED NOW, NOT TRANSCRIBED.  These five numbers were

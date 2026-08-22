@@ -1111,6 +1111,21 @@ ck "mottle_measure derives TARGET, not typed" 1 \
    "$(grep -c '_CR.spectrum(quiet=True)' mottle_measure.py)"
 ck "mottle_measure refuses a None target"     1 \
    "$(grep -c 'Refusing to print a ratio against a literal' mottle_measure.py)"
+# rev 56: the beauty arm is DEAD -- the patch comes back 100 % clipped and the
+# file used to print five "ratio 0.00" rows, which read as "the model has no
+# mottle" when they are a measurement of nothing.  It must refuse.
+ck "mottle_measure refuses a clipped patch"   1 \
+   "$(grep -c 'if clip > 0.02:' mottle_measure.py)"
+# and it must refuse BEFORE it prints anything measurement-shaped.  This row
+# is an ORDERING test, not a grep: the guard used to sit at the end of the
+# file, after the BASE LEVEL block and the character table had already put
+# nan and 0.000 on the console.
+ck "that refusal precedes the first number"   "OK" \
+   "$(python3 -c "
+s = open('mottle_measure.py').read()
+g = s.index('if clip > 0.02:')
+b = s.index('--- BASE LEVEL')
+print('OK' if g < b else 'GUARD IS AFTER THE FIRST PRINTED NUMBER')" 2>&1 | tail -1)"
 ck "mottle_measure binds PHOT exactly once"    1 "$(grep -c '^PHOT = ' mottle_measure.py)"
 
 # --------------------------------------------------- rev 55: A RE-FRAMING
