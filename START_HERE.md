@@ -4,7 +4,7 @@
 > AS CURRENT INSTRUCTION.** It predates `bootstrap.sh`, `verify_clone.sh`,
 > `CLAUDE.md` and `lid_gen.py`, which it mentions ZERO times, and its paths and
 > core count below are wrong for this machine. **Current entry: `CLAUDE.md`, then
-> the highest-numbered `NEXT_CONTEXT_PROMPT_rev*.md` (find it with `ls`), then
+> the highest-numbered `NEXT_CONTEXT_PROMPT_rev*.md` (find it with `ls`; rev 53 at this edit), then
 > `./bootstrap.sh` and `./verify_clone.sh`.** Not deleted — it is the only carrier
 > of the rev-7 causal tests below (`CLAUDE.md` rule 16).
 >
