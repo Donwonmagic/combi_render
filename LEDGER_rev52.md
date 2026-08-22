@@ -316,3 +316,36 @@ a 20 mm width does produce non-zero area.
 
 *Ceiling, stated:* local polygon area is used, which is zero exactly when world area is **unless an
 object carries a singular scale**. Not hidden.
+
+---
+
+# §10. A19 — THE LAMP MOUNTING ANGLE, NOW A NUMBER. **MEASURED, NOT FIXED.**
+
+Brief §5 item 6. Both halves of its claim verified at the site:
+
+* **There is no symbol `IND_X`.** `D.place(ibase, loc=(2.0960, s * IND_Y, IND_Z))` — X is a **bare
+  literal, typed twice** (once for the base, once for the lens) while Y and Z are symbols. Confirmed.
+* **No rotation is applied.** The parts are `T.revolve(..., axis='X')` and `place()` is called with
+  no `rot=`, so their axis is exactly (1, 0, 0).
+
+**What the brief did not have is how wrong that is.** Measured against the nose skin's own
+area-weighted normal at each lamp's mounting station (forward-facing faces within 100 mm):
+
+| part | nose normal there | off the built X axis |
+|---|---|---|
+| indicators | (0.986, ±0.112, 0.123), 139 faces | **9.6°** (yaw ±6.5, pitch +7.1) |
+| headlamps | (0.997, ±0.069, −0.041), 59 faces | **4.6°** (yaw ±4.0, pitch −2.4) |
+
+**Internal control:** the +Y and −Y readings mirror to three decimals, which is what a symmetric
+shell must give and is evidence the sampling window is not picking up something incidental.
+
+**NOT FIXED, and the reason is specific.** The headlamp bore is cut into the nose; `SURVEY_rev49`
+finding 63 already has that seating open (*"the bore is cut at the lens radius while the bezel's
+widest ring sits 14 mm behind the skin"*). Rotating a lens without rotating its bore misaligns
+them, and validating that needs a render-and-look cycle per side. The measurement is the
+deliverable here: *"placed with zero rotation"* is now **9.6° and 4.6°**, which is what a decision
+can be made on.
+
+*Ceiling:* the normal is the shell's, sampled in a 100 mm ball. It is the surface the lamp sits on,
+not a photograph — no frame has been asked what angle the real lamps sit at, and `ref_workshop.jpg`
+cannot answer it because **the headlamps are not fitted in that frame**.
