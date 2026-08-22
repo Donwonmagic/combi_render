@@ -244,6 +244,68 @@ ck "_arch_radial in t1_shell.py"    3 "$(grep -c '_arch_radial' t1_shell.py)"
 ck "T1_ABLATE in build.py"          5 "$(grep -c 'T1_ABLATE' build.py)"
 ck "FLOOR_W in t1_detail.py"        5 "$(grep -c 'FLOOR_W' t1_detail.py)"
 ck "_assert_same_edge"              4 "$(grep -c '_assert_same_edge' flank_compare.py)"
+# rev 52.  SELF-CONSISTENCY, NOT FIDELITY -- this script cannot render, so it
+# cannot check what the tarnish windows actually rescue.  What it CAN hold is
+# that the fix is still in the source and its ablation still exists.  THE
+# DEFECT IT PINS: a tarnish zone estimated its ink endmember over pixels the
+# silver rule had already claimed, so 16.5 % of `Tacombi`'s swash inside the
+# "enor" window drove the endmember NEUTRAL, the 50 %-mix threshold fell
+# 0.2192 -> 0.1086 and the window rescued +0 px.  `Senor` read 0.174 of its
+# own ceiling; with the sample restricted to unclaimed pixels it reads 0.480,
+# against 0.459 on the same instrument at rev 40 and 0.504 at rev 17.
+# RUN IT to see those numbers -- `python3 flank_compare.py out/<pfx>_side.png`
+# -- and `T1_TARNCONTAM=1` puts the defect back so the guard can be WATCHED
+# FAILING.  Both were watched at rev 52.
+ck "tarnish endmember excludes claimed px" 1 "$(grep -cE 'smp = zm & ~raw$' flank_compare.py)"
+ck "T1_TARNCONTAM ablation exists"         3 "$(grep -c 'T1_TARNCONTAM' flank_compare.py)"
+# rev 52, A6.  SELF-CONSISTENCY, NOT FIDELITY -- this script cannot render.
+# THE DEFECT: the chip gate keys off Pointiness, which is PER-VERTEX, so on
+# unsubdivided detail geometry every vertex is a corner and the ramp saturates
+# over a whole FLAT FACE.  t1_mats.py has said so in prose since rev 44 ("the
+# counter slab reads pw = 1.0 across its entire top") and the gate was never
+# re-based.  MEASURED at rev 52 on painted, eye-verified windows: the counter
+# fascia's dark-chip coverage is 4.07 % against ref_side.jpg's 0.00 %.
+# T1_EDGEBEVEL=1 swaps in a ray-traced Bevel-vs-true-normal edge signal and
+# takes the same window to 0.10 % while a verified SHELL window holds at
+# 0.00 % -> 0.00 %: the chip gate moves ALONE, which T1_CTAN_WEAR never did
+# (it also drops Metallic).  IT IS NOT THE DEFAULT: its positive control
+# FAILED -- GAPW/2 is 0.75 px at 271.2 px/m, so the edge band is sub-pixel and
+# the chips are REMOVED rather than moved to the edges, and SPEC sec.3 locks
+# the finish WEATHERED.  These rows hold that BOTH paths and the derivation
+# survive; only rendering can say which is right.
+ck "chip gate: Pointiness still DEFAULT" 1 "$(grep -cE 'pw = _mr\(nt, PT, W_PT_LO' t1_mats.py)"
+ck "T1_EDGEBEVEL lever exists"           2 "$(grep -c 'T1_EDGEBEVEL' t1_mats.py)"
+ck "edge window DERIVED from a 90 deg fold" 2 "$(grep -c 'W_EDGE_90' t1_mats.py)"
+# rev 52, A9 / SURVEY_rev49 finding 28.  SELF-CONSISTENCY, not fidelity.
+# gal_rail was TYPED at centre -0.3800 length 0.660 and measured on the mesh at
+# X -0.050 .. -0.710: 165 mm too long, 218 mm too far forward, crossing the
+# pillar into BAYS[1], and THREE OF THE SIX HOOKS below it hung on nothing.
+# Its own measurement is "bay 3, u 0.02-0.98", so it is DERIVED from BAYS[2]
+# now and re-measures at centre -0.5980 length 0.4949.  Floating hooks 3 -> 1.
+# gal_caddy_fill's X inset had the WRONG SIGN -- (bx0, bx1) is authored
+# high-then-low, so the inset EXPANDED it: 24.0 mm longer than its caddy,
+# 12 mm proud of both ends; now 24.0 mm inset.  T1_RAILSTALE=1 restores the
+# typed rail.  STILL OPEN, carried: the sixth hook at -0.907 lies 51.4 mm
+# beyond BAYS[2]'s own aft edge, so the hook stations and the bay measurement
+# DISAGREE.  Fixing the rail cannot close that and it was not made to.
+ck "gal_rail DERIVED from its bay"       1 "$(grep -Fc 'min(S.BAYS[2])' t1_detail.py)"
+ck "gal_rail u-extent is named"          2 "$(grep -c '_RAIL_U0' t1_detail.py)"
+ck "T1_RAILSTALE ablation exists"        2 "$(grep -Fc 'T1_RAILSTALE' t1_detail.py)"
+ck "caddy fill inset cannot invert"      1 "$(grep -Fc '_fx0, _fx1 = min(bx0, bx1)' t1_detail.py)"
+# rev 52, A7 (brief SS5 item 4's "second hole, which stands").  SELF-CONSISTENCY.
+# gal_end_a exists to stop a camera seeing past the backdrop into unlit body
+# cavity -- the comment above it says exactly that -- and it did not reach far
+# enough.  MEASURED on the mesh: y -0.5000 .. +0.4000 against a rear aperture of
+# +-REAR_W/2 = +-0.5200, so 120.0 mm of the SHOW side and 20.0 mm of the off
+# side saw straight past it; now 0.0 mm both sides.  Confirmed by LOOKING at
+# hero34r: the ablated frame shows the wall's own vertical edge inside the
+# aperture, the fixed frame does not.  T1_ENDSHORT=1 restores the short wall.
+# NOT FIXED and NOT the same datum: gal_end_f (the FORWARD return) reaches only
+# +0.2600, i.e. 260.0 mm short of that same half-width -- but the rear window is
+# not what looks at it, so it needs its own sight line established first.
+# NOT FIXED either: A7's actual defect is ILLUMINATION, not dressing.
+ck "gal_end_a half-width DERIVED"        1 "$(grep -Fc 'S.REAR_W / 2.0' t1_detail.py)"
+ck "T1_ENDSHORT ablation exists"         2 "$(grep -Fc 'T1_ENDSHORT' t1_detail.py)"
 ck "build_selectors in rev42_uv"    2 "$(grep -c 'build_selectors' probe_rev42_uv.py)"
 ck "C_FOOT in rev42_uv"             7 "$(grep -c 'C_FOOT' probe_rev42_uv.py)"
 ck "571.71 in rev42_uv"             1 "$(grep -c '571.71' probe_rev42_uv.py)"
@@ -659,6 +721,78 @@ ck "CLAUDE.md exists" 1 "$([ -f CLAUDE.md ] && echo 1 || echo 0)"
 # fallback fires on success and concatenates -- it reported `099`.  Capture stdout
 # and never branch on grep's status.
 ck "CLAUDE.md carries no measurements" 0 "$(if [ -f CLAUDE.md ]; then grep -cE '[0-9]+\.[0-9]' CLAUDE.md 2>/dev/null; else echo 99; fi)"
+# rev 52.  THE STEP THAT KEEPS GETTING FORGOTTEN, MADE MACHINE-CHECKED.
+# Rule 15 puts an adversary on the INCOMING brief.  The OUTGOING one has always
+# shipped unread -- and it becomes the next context's only map.  At rev 52 the
+# outgoing brief was audited for the first time and THREE defects were found in
+# it, TWO of them transcription rather than measurement, in a document whose own
+# first section says not to transcribe.  Prose did not stop that and would not
+# stop it again: the standing-instructions carrier and the open-findings register
+# were both PROSE, and both were lost.  So it is a row.
+# The two rows below hold that (a) the method rule still exists in CLAUDE.md and
+# (b) the HIGHEST-NUMBERED brief actually carries its audit result.
+# NOTE THE SHELL TRAP above: capture grep's stdout, never branch on its status.
+ck "CLAUDE.md keeps the outgoing-brief rule" 1 "$(if [ -f CLAUDE.md ]; then grep -c 'AUDIT THE BRIEF YOU WRITE' CLAUDE.md 2>/dev/null; else echo 99; fi)"
+_LATEST_BRIEF="$(ls NEXT_CONTEXT_PROMPT_rev*.md 2>/dev/null | sort -V | tail -1)"
+ck "newest brief records its own audit"      1 "$(if [ -n "$_LATEST_BRIEF" ]; then grep -c 'AUDITED AGAINST THE MACHINE' "$_LATEST_BRIEF" 2>/dev/null; else echo 99; fi)"
+
+# ---- rev 52: THE CARRY-FORWARD BLOCK ------------------------------------
+# EVERY ROW HERE GUARDS SOMETHING THIS PROJECT HAS ACTUALLY LOST OR LET GO
+# STALE, and none of it was guarded before.  The failure mode is always the
+# same: a brief gets rewritten, a line does not survive the rewrite, and
+# nobody notices for revisions.  No carrier FILE has ever been deleted --
+# measured, `git log --diff-filter=D` over the LEDGER / NEXT_CONTEXT_PROMPT /
+# PHOTOS_WANTED / HANDOFF series is EMPTY -- so guarding files would guard the
+# wrong thing.  What was lost was CONTENT INSIDE a rewritten file.  So these
+# rows ask the NEWEST brief whether it still carries each item.
+#
+# Present/absent (1/0), never an exact count: re-wording the brief must not
+# fail these rows, only DROPPING the item must.
+_has(){ if [ -n "$_LATEST_BRIEF" ] && grep -qiE "$1" "$_LATEST_BRIEF" 2>/dev/null; then echo 1; else echo 0; fi; }
+
+# The two things the record says were actually lost, and how:
+#   rev 44 -- the standing-instructions carrier was deleted and took the
+#             DIE-CUT STICKER, the project's ORIGINAL DELIVERABLE, with it.
+#             Undetected for five revisions and STILL OPEN.
+#   rev 45 -- the open-findings register (21 rows) went the same way.
+ck "brief still names the die-cut sticker"   1 "$(_has 'die.?cut')"
+ck "brief still names the open-findings reg" 1 "$(_has 'open.?findings')"
+
+# The render-vs-photograph gates.  `flank_compare.py` sat unrun from rev 40 to
+# rev 52 while the acceptance surface GREPPED IT FOR A SYMBOL COUNT instead of
+# running it.  `cream_rms.py` is a second one and still has zero rows of its
+# own.  A gate nothing names is a gate nobody runs.
+ck "brief still names flank_compare"         1 "$(_has 'flank_compare')"
+ck "brief still names cream_rms"             1 "$(_has 'cream_rms')"
+
+# The photograph carrier.  PHOTOS_WANTED item 7 had NO carrier outside a single
+# brief until rev 52 wrote one; items 1-5 live only in PHOTOS_WANTED_rev49.md.
+ck "brief still points at PHOTOS_WANTED"     1 "$(_has 'PHOTOS_WANTED')"
+
+# The numbered canon does NOT live in CLAUDE.md and says so.  Rules 34 and 35
+# have never lived anywhere but briefs and LEDGER_rev50 SS0, so a brief that
+# drops them breaks the only chain they have.
+ck "brief carries the canon pointer"         1 "$(_has 'NEXT_CONTEXT_PROMPT_rev50')"
+ck "brief carries rule 34"                   1 "$(_has 'A REQUIREMENT INHERITS ITS OBJECT')"
+ck "brief carries rule 35"                   1 "$(_has 'A GUARD WRITTEN AGAINST A POSE')"
+
+# An ablation list that names a switch the source does not have is a list that
+# has gone stale without anyone running it.  Sweep every T1_* the brief names
+# and require that all of them exist somewhere in the source.
+_ABL_MISSING=0
+if [ -n "$_LATEST_BRIEF" ]; then
+  for _v in $(grep -oE 'T1_[A-Z0-9_]+' "$_LATEST_BRIEF" 2>/dev/null | sort -u); do
+    grep -lF "$_v" ./*.py >/dev/null 2>&1 || _ABL_MISSING=$((_ABL_MISSING+1))
+  done
+fi
+ck "every T1_ switch the brief names exists" 0 "$_ABL_MISSING"
+
+# THE INTAKE DOORS.  README.md pointed at NEXT_CONTEXT_PROMPT_rev43.md for NINE
+# revisions and START_HERE.md still said "rev 7" thirty revisions on.  Both are
+# the first thing a fresh context reads.
+_RN="$(echo "$_LATEST_BRIEF" | grep -oE '[0-9]+' | tail -1)"
+ck "README points at the newest brief"       1 "$(if [ -n "$_RN" ] && grep -qE "rev $_RN\b" README.md 2>/dev/null; then echo 1; else echo 0; fi)"
+ck "START_HERE points at the newest brief"   1 "$(if [ -n "$_RN" ] && grep -qE "rev $_RN\b" START_HERE.md 2>/dev/null; then echo 1; else echo 0; fi)"
 ck "heroes are NOT tracked"         0 "$(git ls-files 2>/dev/null | grep -c 'hero.*\.png')"
 ck "out/ is NOT tracked"            0 "$(git ls-files 2>/dev/null | grep -c '^out/')"
 

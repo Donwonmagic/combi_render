@@ -1,5 +1,13 @@
 # START HERE — read this before touching anything
 
+> **THIS FILE IS rev 7 (2026-08-09) AND IS KEPT AS A HISTORICAL INTAKE DOOR, NOT
+> AS CURRENT INSTRUCTION.** It predates `bootstrap.sh`, `verify_clone.sh`,
+> `CLAUDE.md` and `lid_gen.py`, which it mentions ZERO times, and its paths and
+> core count below are wrong for this machine. **Current entry: `CLAUDE.md`, then
+> the highest-numbered `NEXT_CONTEXT_PROMPT_rev*.md` (find it with `ls`; rev 53 at this edit), then
+> `./bootstrap.sh` and `./verify_clone.sh`.** Not deleted — it is the only carrier
+> of the rev-7 causal tests below (`CLAUDE.md` rule 16).
+>
 > **rev 7 (2026-08-09): read `HANDOFF_rev7.md` and `STATE.md` first.** Much of
 > the detail below is superseded. In particular: "guards green" was only ever
 > true at **SUB=1** — the production build was silently losing both cab-door
@@ -30,7 +38,7 @@ reference, never a number you assigned yourself. Never declare anything ready.
 ```bash
 curl -fsSL -o b.tar.xz https://download.blender.org/release/Blender4.5/blender-4.5.3-linux-x64.tar.xz
 tar -xf b.tar.xz && mv blender-4.5.3-linux-x64 /tmp/blender
-cd /home/claude/tacombi
+cd /home/user/combi_render        # rev 7 said /home/claude/tacombi -- WRONG PATH
 T1_SUB=1 T1_VERIFY=1 /tmp/blender/blender -b --python build.py
 T1_SUB=1 /tmp/blender/blender -b --python audit.py
 git checkout -- STATE.md
@@ -95,7 +103,8 @@ cab door. This produced a 6× error.
   must not cross the lip of another aperture.** See SPEC §10.6.
 - The body must stay a single continuous nose-to-tail loft. Separate cab and rear
   lofts leave a visible seam.
-- 2 CPU cores. Background every long render (`nohup … &`); the shell times out at
+- **4 CPU cores** (rev 7 said 2). Do NOT fan out Blender: it is CPU-bound and two
+  instances make both slower. Background every long render (`nohup … &`); the shell times out at
   two minutes. A 2400×1600 hero is 20–50 min. **Batch all changes into one
   rebuild** rather than rendering between fixes.
 - **`verify.py` runs AFTER the ride-height drop** — this file said "before" and

@@ -924,15 +924,36 @@ def main():
             print("           !! zone (%d,%d)-(%d,%d) maps off the crop"
                   % (tx0, ty0, tx1, ty1))
             continue
-        sub = crop[zm].reshape(-1, 1, 3)
-        _, _, _, Ei2, Eg2, _ = endmembers(sub, r[zm].reshape(-1, 1))
+        # rev 52: MEASURE THE TARNISH ENDMEMBER ON TARNISH, NOT ON SILVER.
+        # A zone exists to find ink the SILVER RULE COULD NOT SEE, so any
+        # pixel that rule already claimed is, by construction, not the
+        # population this zone is estimating.  Leaving them in is a mask
+        # selecting the wrong pixels, and it is not hypothetical: at rev 52
+        # the "enor" zone ran 16.5 % over the top of `Tacombi`'s swash, the
+        # redness valley split SILVER from {tarnish + red} instead of tarnish
+        # from red, `endmembers` returned a NEUTRAL ink (165,158,160) where
+        # the working zone returns a tarnish ink (160,108,96), the 50 %-mix
+        # threshold collapsed 0.2192 -> 0.1086 and the zone rescued +0 px of
+        # the 81.7 % of itself that IS tarnish.  `Senor` read 0.174 of its
+        # own ceiling against 0.459 on the same instrument at rev 40.
+        # `T1_TARNCONTAM=1` restores the contaminated sample: that is the
+        # ablation, and it is watched failing.
+        contam = float((zm & raw).sum()) / float(max(1, zm.sum()))
+        smp = zm & ~raw
+        if os.environ.get("T1_TARNCONTAM") == "1" or smp.sum() < 40:
+            smp = zm                      # ablation, or too little left to fit
+        sub = crop[smp].reshape(-1, 1, 3)
+        _, _, _, Ei2, Eg2, _ = endmembers(sub, r[smp].reshape(-1, 1))
         Tz = mix_threshold(Ei2, Eg2, 0.50)
         add = int((zm & (r < Tz) & ~raw & in_panel).sum())
         print("             ref (%3d,%3d)-(%3d,%3d) T_ref %.3f  ->  render "
               "(%3d,%3d)-(%3d,%3d)  ink (%3.0f,%3.0f,%3.0f) gnd "
-              "(%3.0f,%3.0f,%3.0f)  T %.4f  +%d px"
+              "(%3.0f,%3.0f,%3.0f)  T %.4f  +%d px  [silver-rule already "
+              "claimed %.1f %% of this zone; endmembers fitted on %s]"
               % (tx0, ty0, tx1, ty1, T, a0 + mx0, b0 + my0, a1 + mx0, b1 + my0,
-                 *Ei2, *Eg2, Tz, add))
+                 *Ei2, *Eg2, Tz, add, 100.0 * contam,
+                 "THE WHOLE ZONE -- T1_TARNCONTAM ablation"
+                 if smp is zm else "the rest"))
         raw = raw | (zm & (r < Tz))
 
     min_blob_gen = max(4, int(round(MIN_BLOB_MM2 * (ppm / 1000.0) ** 2)))

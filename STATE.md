@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-21 21:56:51 UTC |
-| git commit | `78c94df` |
-| git subject | rev 50: three owner rulings landed -- W6 CLOSED on the studio, the 0.3 m roof figure retired, the wipers withdrawn entire |
+| generated | 2026-08-22 03:26:35 UTC |
+| git commit | `74532f6` |
+| git subject | rev 52: lid_rail measured at ZERO AREA -- guarded with a self-expiring exemption, deliberately NOT fixed |
 | working tree | clean |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=2 (applied, destructive, before booleans) |
@@ -33,6 +33,7 @@ H_ROOF 1.960 is RETIRED as an accuracy target (rev 22, owner's call): its only g
 rear overhang 0.7730 m = 0.3221 of the wheelbase (measured 0.773 +- 0.022 m)
 measured TRACK_F=1.3713  TRACK_R=1.3613  TYRE_D=0.6650
 SPEC 10.91 ban-exemption control: 2 exempt names, 4 planted near-misses all still banned
+zero-area sweep: 2 of 223 meshes have zero area; 2 exempt and KNOWN OPEN (lid_rail x2 -- width unmeasured, see LEDGER_rev52)
 open serving apertures on +Y: 3
 roof at tail = 1.988
 rake 17.75 mm/m (locked 17.75); drop at x=0 47.9 mm; RIDE_DROP identity holds
@@ -143,8 +144,8 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 | | |
 |---|---|
 | mesh objects | 223 |
-| vertices (all meshes) | 329904 |
-| faces (all meshes) | 320601 |
+| vertices (all meshes) | 329920 |
+| faces (all meshes) | 320641 |
 
 | prefix | n |
 |---|---|

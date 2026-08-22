@@ -80,7 +80,13 @@ in the same revision.**
     deliverable with it, undetected for five revisions and still open. An open-findings register
     went the same way one revision later. If a document is the only home of something, it is not
     yours to compact, prune or summarise. Carry it or hand it on by name.
-17. **CITE STRINGS, NOT LINE NUMBERS.** Line numbers rot within the hour here — half the stale
+17. **AUDIT THE BRIEF YOU WRITE, NOT ONLY THE ONE YOU RECEIVE.** Rule 15 puts an agent on the
+    INCOMING brief. The outgoing one ships unread, and it becomes the next context's only map. Before
+    closing: open every file it cites, grep every string it quotes, and RECOMPUTE every figure in it.
+    The last audit of an outgoing brief found three defects in it, two of them TRANSCRIPTION rather
+    than measurement, in a document whose own first section says not to transcribe. Record what the
+    audit found IN the brief, so the next context knows it was tested and where it was weak.
+18. **CITE STRINGS, NOT LINE NUMBERS.** Line numbers rot within the hour here — half the stale
     citations in this repository are that, including a cited line that turned out to be blank.
     Quote the code and let the reader grep.
 

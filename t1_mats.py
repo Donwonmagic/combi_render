@@ -241,6 +241,38 @@ W_ART = float(os.environ.get("T1_W_ART", 1.00))   # folk-art opacity ceiling
 # before solidify and the arches / bumper / counter are unsubdivided detail
 # geometry.  The 0.520 / 0.600 window is kept: it clears the flank by 20 sigma.
 W_PT_LO, W_PT_HI = 0.520, 0.600
+
+# rev 52, A6.  THE CHIP GATE'S EDGE DETECTOR, RE-BASED OFF POINTINESS.
+# The paragraph above is this file's own record that Pointiness is PER-VERTEX
+# and saturates over a whole flat face on unsubdivided detail geometry -- "the
+# counter slab reads pw = 1.0 across its entire top".  The cluster gate below
+# was a MITIGATION of that, not a fix: the gate still keys off a quantity that
+# depends on how dense the mesh is.
+#
+# A Cycles Bevel node RAY-TRACES a real radius in WORLD UNITS, so the angle
+# between the bevel-shaded normal and the true geometric normal is an edge
+# detector that does not know the vertex count:
+#       edge = 1 - dot(bevel_normal, true_normal)
+# On a flat face the two normals are identical and edge == 0 BY CONSTRUCTION.
+# That is the property Pointiness does not have and the whole reason for this.
+#
+# THE SCALE IS EXPRESSED, NOT TYPED.  A dihedral fold of interior angle theta
+# turns the shaded normal by at most (180-theta)/2, so a 90 deg fold that lies
+# fully inside the radius reads 1-cos(45 deg).  The window is quoted as
+# FRACTIONS OF THAT, so it moves with the geometry rather than with a number
+# someone liked.  WHAT IT IS NOT GROUNDED IN is the size of a real chip: the
+# radius is a FOLD radius borrowed from round_edges(), and at 2.75 mm it is
+# sub-pixel in every view this project renders.  Grounding it needs a
+# measurement nobody has made -- how big the chips are in a photograph.
+W_EDGE_90 = 1.0 - math.cos(math.radians(45.0))       # a 90 deg fold: 0.29289
+W_EDGE_LO, W_EDGE_HI = 0.10 * W_EDGE_90, 0.50 * W_EDGE_90
+# CEILING, STATED: the 0.10 / 0.50 fractions are a CHOSEN window, not a
+# measured one.  No frame has ever been compared against them.  What IS
+# measured is the consequence -- the counter fascia's dark-chip coverage
+# against ref_side.jpg -- and that is what rev 52 reports.  T1_PTWEAR=1
+# restores the Pointiness gate and moves NOTHING ELSE, which is the
+# single-variable lever this defect never had (T1_CTAN_WEAR also drops
+# Metallic, so it was never a clean ablation of the chip gate).
 W_CHIP_SCALE, W_CHIP_DETAIL = 60.0, 3.0
 W_CHIP_LO, W_CHIP_HI = 0.42, 0.58
 W_CHIP_CUT = 0.35
@@ -902,6 +934,19 @@ def weather_group(name="WEATHER"):
     ng.links.new(geo.outputs["Normal"], nsep.inputs[0])
     PT = geo.outputs["Pointiness"]
 
+    # rev 52, A6: the ray-traced edge signal.  Radius is DERIVED -- the same
+    # GAPW/2 fold radius round_edges() already puts on every Principled Normal.
+    import t1_shell as _SH
+    _bev = ng.nodes.new("ShaderNodeBevel"); _bev.location = (-2600, -1220)
+    _bev.samples = BEVEL_SAMPLES
+    _bev.inputs["Radius"].default_value = _SH.GAPW / 2.0
+    _dot = ng.nodes.new("ShaderNodeVectorMath"); _dot.location = (-2420, -1220)
+    _dot.operation = 'DOT_PRODUCT'
+    ng.links.new(_bev.outputs[0], _dot.inputs[0])
+    ng.links.new(geo.outputs["Normal"], _dot.inputs[1])
+    EDGE = _math(nt, 'SUBTRACT', 1.0, _dot.outputs["Value"], -2240, -1220,
+                 clamp=True)
+
     # ---- 2a multi-octave roughness + albedo breakup ---------------------
     n1 = _noise(nt, OBJ, W_N1_SCALE, W_N1_DETAIL, -2200, 400, W_N1_ROUGH)
     n2 = _noise(nt, OBJ, W_N2_SCALE, W_N2_DETAIL, -2200, 120)
@@ -959,7 +1004,20 @@ def weather_group(name="WEATHER"):
     ng.links.new(col.outputs[2], hs.inputs["Color"])
 
     # ---- 2b curvature edge wear -----------------------------------------
-    pw = _mr(nt, PT, W_PT_LO, W_PT_HI, 0.0, 1.0, -2200, -420, smooth=True)
+    # DEFAULT IS STILL POINTINESS.  The Bevel gate below MEASURES BETTER on the
+    # one surface that has a photographic target -- counter fascia dark-chip
+    # coverage 4.07 % -> 0.10 % against ref_side.jpg's 0.00 % -- but its POSITIVE
+    # CONTROL FAILED and that is why it is not the default: it does not move the
+    # chips to the edges, it REMOVES them.  GAPW/2 = 2.75 mm is 0.75 px at the
+    # side view's 271.2 px/m, so the edge band is SUB-PIXEL and nothing survives
+    # at any render scale this project uses.  SPEC sec.3 locks the finish as
+    # WEATHERED, so shipping that on self-review would trade a measured defect
+    # for an unmeasured one.  T1_EDGEBEVEL=1 selects it; rev 52 reports both.
+    if os.environ.get("T1_EDGEBEVEL") == "1":
+        pw = _mr(nt, EDGE, W_EDGE_LO, W_EDGE_HI, 0.0, 1.0, -2200, -420,
+                 smooth=True)
+    else:
+        pw = _mr(nt, PT, W_PT_LO, W_PT_HI, 0.0, 1.0, -2200, -420, smooth=True)
     cn = _noise(nt, OBJ, W_CHIP_SCALE, W_CHIP_DETAIL, -2200, -700)
     cm = _mr(nt, cn.outputs["Fac"], W_CHIP_LO, W_CHIP_HI, 0.0, 1.0,
              -2000, -700)
