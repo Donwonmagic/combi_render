@@ -276,6 +276,16 @@ The **last row in the script** now compares the newest brief's stated total agai
 live `$PASS` tally. It must be last, because it counts every row before it. **It fails on a dirty
 tree by design**: that is the *"run it clean before you quote its total"* discipline made mechanical.
 
+**Watched failing on both real modes** — a brief carrying the pre-commit number (got 164, want 163),
+and a row added and **committed** without updating the brief (got 165, want 166).
+
+> **LIMITATION, FOUND BY WATCHING IT AND STATED RATHER THAN HIDDEN.** On a dirty tree the two
+> effects cancel: the clean-tree row fails (−1) while the added row adds (+1), so this row **cannot
+> see a newly added row until it is committed**. My first attempt to watch it fail that way reported
+> nothing and I nearly recorded the guard as working in a case it does not cover. It is acceptable
+> only because the clean-tree row is failing at that same moment and the script already says STOP.
+> **It is not a row to trust mid-edit.**
+
 ---
 
 ## §8. WHAT IS STILL OPEN

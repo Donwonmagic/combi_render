@@ -888,6 +888,14 @@ ck "out/ is NOT tracked"            0 "$(git ls-files 2>/dev/null | grep -c '^ou
 # counts this row itself, which is stable once set.
 # The brief also quotes bootstrap.sh's "ALL 10 PASS", so take the LARGEST
 # "ALL n PASS" in the file, not the first.
+# WATCHED FAILING ON BOTH REAL MODES: a brief carrying the pre-commit number
+# (got 164, want 163), and a row added and COMMITTED without updating the brief
+# (got 165, want 166).
+# STATED LIMITATION, found by watching it: on a DIRTY tree the two effects
+# cancel -- the clean-tree row fails (-1) while the added row adds (+1) -- so
+# this row cannot see a newly added row until it is committed.  That is
+# acceptable only because the clean-tree row is itself failing at that moment
+# and the script already says STOP.  It is NOT a row you can trust mid-edit.
 _BRIEF_TOTAL="$(if [ -n "$_LATEST_BRIEF" ]; then grep -oE 'ALL [0-9]+ PASS' "$_LATEST_BRIEF" 2>/dev/null | grep -oE '[0-9]+' | sort -n | tail -1; else echo 0; fi)"
 ck "newest brief states THIS script's row count" "$((PASS+1))" "${_BRIEF_TOTAL:-0}"
 
