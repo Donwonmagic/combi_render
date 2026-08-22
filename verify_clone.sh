@@ -931,6 +931,23 @@ if [ -n "$_LATEST_BRIEF" ]; then
 fi
 ck "every T1_ switch the brief names exists" 0 "$_ABL_MISSING"
 
+# rev 55, ADVERSARIAL PASS.  THE ROW ABOVE ONLY GREPS THE STRING, so a switch
+# that survives in a COMMENT passes it while being a DEAD LEVER -- which is
+# how the retired Bevel-selection switch kept a brief green for two revisions
+# while reading no environment variable at all.  Worse, the rev-56 brief's own
+# audit row printed that switch's name while claiming it had been dropped, so
+# the row above was hanging on one comment in probe_rev53_chip.py.
+# THIS ROW ASKS THE HARDER QUESTION: every T1_ the brief names must actually be
+# READ FROM THE ENVIRONMENT somewhere in the source.
+# WATCHED FAILING by putting the dead switch's name back in the brief.
+_ABL_DEAD=0
+if [ -n "$_LATEST_BRIEF" ]; then
+  for _v in $(grep -oE 'T1_[A-Z0-9_]+' "$_LATEST_BRIEF" 2>/dev/null | sort -u); do
+    grep -lE "environ.*$_v|$_v.*environ" ./*.py >/dev/null 2>&1 || _ABL_DEAD=$((_ABL_DEAD+1))
+  done
+fi
+ck "every T1_ switch the brief names is a LIVE lever" 0 "$_ABL_DEAD"
+
 # THE INTAKE DOORS.  README.md pointed at NEXT_CONTEXT_PROMPT_rev43.md for NINE
 # revisions and START_HERE.md still said "rev 7" thirty revisions on.  Both are
 # the first thing a fresh context reads.

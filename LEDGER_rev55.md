@@ -434,3 +434,46 @@ the phrase quoted twice in prose (0) and fires when the heading is real (got 1).
 work, not a spare hour"* as a deferral; it says that is a statement of COST, that §0.1 forbids
 reading it as a reason to defer, and that **rev 55's failure to take that route is the clearest
 thing it did against §0.1.**
+
+---
+
+## §9. THE ADVERSARIAL PASS — AND WHY §2.6'S SWEEP COULD NOT HAVE FOUND THIS
+
+Rule 15 wants an instrument whose **only job is to refute the brief**. The rule-17 sweep in §2.6 is
+not that instrument: it **confirms**. It stats the paths the file names, greps the strings it quotes
+and recomputes the figures it asserts — every one of those questions takes the file's own claims as
+the starting point. **A confirmation pass cannot find a claim that is true of the text and false of
+the machine.**
+
+An adversarial pass was run afterwards, asking what would make the file *false*. **It found one
+defect, and it is a recurrence.**
+
+**THE ATTACK THAT LANDED:** *"does every `T1_*` the brief names actually READ THE ENVIRONMENT?"* The
+existing row greps only the **string**, so a switch surviving in a comment passes it while being a
+dead lever. Run that way, the retired Bevel-selection switch came back **no `environ` read anywhere,
+present only in a `probe_rev53_chip.py` comment** — and it was in the brief at all because
+**§2.6's own audit row printed its name while claiming the name had been dropped.**
+
+Rev 54's audit caught that exact paragraph. The rev-55 brief wrote it down as a lesson. **The
+rev-56 draft did it again anyway.** Three revisions, same defect, and the second and third were both
+caught only by *running* something rather than re-reading.
+
+**Now a row**, anchored on the environment read rather than the string, and watched failing by
+putting the dead switch's name back into the brief (`got 1, want 0`).
+
+**WHAT THE ADVERSARY COULD NOT BREAK** — recorded because a control that finds nothing is still a
+result:
+
+| attacked | outcome |
+|---|---|
+| the inherited galley cluster | **recomputes exactly** from `BAY_W`/`BAY_CX`: `BAYS[2]` aft edge −0.855750, sixth hook 51.25 mm beyond it, span centre −0.705 vs the rail's −0.598 — a **107.0 mm** disagreement, still real |
+| §2.2's three aspect readings | `flank_compare.py` really prints **+5.23 / +2.86 / +0.94 %** — not a paraphrase |
+| every script named in §6 | all exist |
+| the poly counts | **61 737 / 235 716**, read off the probe's own logs |
+| the scale claims | 1248/5.90 = **211.53**, 1600/5.90 = **271.19** px/m |
+| "is anything claimed DONE that is not?" | no — item B says so in its own heading |
+
+**THE GENERAL LESSON, and it is the one worth carrying:** the rule-17 sweep and an adversarial pass
+are **different instruments**, and this project has been running only the first. The sweep asks
+*"is what the file says true?"*; the adversary asks *"what would make it false?"* Only the second
+found this, and it is the third revision running that the same defect has survived the first.
