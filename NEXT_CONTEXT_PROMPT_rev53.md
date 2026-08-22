@@ -18,7 +18,7 @@ for b in $(git branch -r | grep -v HEAD); do
 done
 git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 ./bootstrap.sh          # ALL 10 PASS  -- THE BRANCH CHECK IS ROW 9
-./verify_clone.sh       # ALL 140 PASS -- and read what its verdict block says
+./verify_clone.sh       # ALL 151 PASS -- and read what its verdict block says
 ```
 
 **THE DESIGNATED BRANCH'S REMOTE COPY WAS DELETED AGAIN AT REV 52** — `fetch --prune` printed
@@ -87,7 +87,7 @@ of the three FAILs were one cause.**
 | carriers | `PHOTOS_WANTED_rev52.md` created for §7 item 7, which had none. `START_HERE.md` / `README.md` pointers fixed. |
 
 **Ablations added, every one watched failing:** `T1_TARNCONTAM`, `T1_EDGEBEVEL`, `T1_RAILSTALE`,
-`T1_ENDSHORT`. **`verify_clone.sh` 127 → 140 rows; `verify.py` gained a zero-area sweep.**
+`T1_ENDSHORT`. **`verify_clone.sh` 127 → 151 rows; `verify.py` gained a zero-area sweep.**
 
 ### §2.3 THIS FILE WAS AUDITED AGAINST THE MACHINE, AND THE AUDIT FOUND THREE THINGS IN IT
 
@@ -117,7 +117,35 @@ Verified clean by the same audit: all 14 cited files exist; the rev-50 canon blo
 35 in `LEDGER_rev50.md`, are all still where this file says they are; **all 13 named ablation
 switches exist in the source**; `LID_X1 = -1.0700`, `REAR_W = 1.0400`, `GAPW = 0.0055` and
 `W_EDGE_90 = 0.29289` all check; the 803 mm reproduces exactly off a live `X_TAIL = -1.8730`; and
-`verify_clone.sh` reports **ALL 140 PASS** with the branch check on **row 9** (138 at the time of the audit; two process rows were added by it).
+`verify_clone.sh` reports **ALL 151 PASS** with the branch check on **row 9** (138 at the audit; the audit and the carry-forward block added the rest).
+
+### §2.4 THE CARRY-FORWARD BLOCK — ELEVEN ROWS THAT NOW GUARD THIS FILE ITSELF
+
+**Read this before you rewrite anything.** `verify_clone.sh` now checks that **the highest-numbered
+brief still carries each item this project has actually lost or let go stale.** They were added
+after sweeping the whole record — 45 briefs, 39 handoffs, 10 ledgers, 7 photograph lists.
+
+**Measured first, and it changed the design:** `git log --diff-filter=D` over the whole
+`LEDGER_*` / `NEXT_CONTEXT_PROMPT_*` / `PHOTOS_WANTED_*` / `HANDOFF_*` series is **EMPTY — no carrier
+file has ever been deleted.** Both recorded losses were **content dropped inside a rewritten file**,
+so a file-existence guard would have guarded the wrong thing.
+
+| the row | what it guards, and what happened |
+|---|---|
+| die-cut sticker | rev 44 deleted the standing-instructions carrier and took the **original deliverable** with it. Five revisions undetected. **Still open.** |
+| open-findings register | rev 45, 21 rows, went the same way |
+| `flank_compare` | unrun rev 40 → rev 52 while the acceptance surface **grepped it for a symbol count instead of running it** |
+| `cream_rms` | a second render-vs-photograph gate, **still zero rows of its own, still never run** |
+| `PHOTOS_WANTED` | item 7 had **no carrier outside one brief** until rev 52 wrote one |
+| canon pointer | rules 1–33 live **only** in `NEXT_CONTEXT_PROMPT_rev50.md` §11 |
+| rules 34 / 35 | have never lived anywhere but briefs and `LEDGER_rev50.md` §0 |
+| `T1_` ablation sweep | every switch a brief names must exist in the source, so the list cannot go stale unrun |
+| README / START_HERE | README pointed at rev 43 for **nine revisions**; START_HERE said *"rev 7"* thirty revisions on |
+
+They test **present/absent, never an exact count**, so re-wording is free and only **dropping** an
+item fails. **If you write a rev-54 brief that drops any of these, or that has no audit section,
+`verify_clone.sh` fails and names the row.** All eleven were watched failing on the real failure
+mode — a rewritten brief with a line removed — and passing when restored.
 
 ---
 
