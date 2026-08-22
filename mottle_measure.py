@@ -174,7 +174,28 @@ if n < 2000:
     print("  *** too few px -- refusing to report."); raise SystemExit(0)
 # target: photograph, region 2, converted at the STATED flank px/m bracket
 PXM_REF = float(os.environ.get("T1_PXM_REF", 337.0))
-TARGET = {1.0: 0.804, 2.0: 1.135, 4.0: 1.455, 8.0: 2.201, 12.0: 3.183}
+# rev 56 -- TARGET IS DERIVED NOW, NOT TRANSCRIBED.  These five numbers were
+# typed literals here and are the output of cream_rms.spectrum(_BODY) on
+# ref_rear34.jpg.  Rev 55 verified they still matched BY RUNNING spectrum()
+# and reading them off -- which is exactly the check a machine should be doing
+# every run, because a literal that agrees today is a literal that goes stale
+# silently.  The literals are KEPT as a WATCHED regression baseline (rule 16:
+# a figure that lives in one place is not mine to drop) and the delta against
+# the live call is PRINTED, so a divergence names itself instead of hiding.
+_TARGET_REGRESSION = {1.0: 0.804, 2.0: 1.135, 4.0: 1.455, 8.0: 2.201, 12.0: 3.183}
+import cream_rms as _CR
+_got = _CR.spectrum(quiet=True)
+if _got is None:
+    raise SystemExit("mottle_measure: cream_rms.spectrum() REFUSED to report a "
+                     "target.  There is no photograph side, so there is no "
+                     "comparison.  Refusing to print a ratio against a literal.")
+TARGET = {k: 100.0 * v for k, v in _got[0].items()}
+_worst = max(abs(TARGET[k] - _TARGET_REGRESSION[k]) for k in _TARGET_REGRESSION)
+print("  target DERIVED from cream_rms.spectrum(_BODY) on ref_rear34.jpg: "
+      "%s" % ", ".join("%.3f" % TARGET[k] for k in sorted(TARGET)))
+print("  worst drift against the rev-19 literals carried here: %.4f pp %s"
+      % (_worst, "(they still agree)" if _worst < 0.005 else
+         "*** THE LITERALS ARE STALE -- the live call is what is used ***"))
 print("  photograph px/m used for the mm axis: %.1f  (flank plane, bracketed"
       " 330-344; NOT the plate's 344.1)" % PXM_REF)
 print("   mm      target %    render %   ratio")

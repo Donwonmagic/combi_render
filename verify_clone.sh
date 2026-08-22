@@ -1076,6 +1076,41 @@ ck "T1_TRUENORM lever exists in the shader"    1 \
 # singular.
 ck "cream_rms cites no undefined depth_correct" 0 \
    "$(grep -c 'See depth_correct()' cream_rms.py)"
+# ---------------------------------------------------------------------------
+# rev 56 item B.  cream_rms had a LIVE re-based measurement and a DEAD entry
+# point, and three briefs carried the re-base as open because `run()` -- what
+# a reader actually runs -- still pointed at ref_side.jpg.  These rows are
+# BEHAVIOURAL: they RUN the thing.  A grep would have passed all along.
+ck "cream_rms.run() returns the live spectrum" "5" \
+   "$(python3 -c "
+import cream_rms as C, io, contextlib
+buf = io.StringIO()
+with contextlib.redirect_stdout(buf):
+    d = C.run()
+print(len(d) if isinstance(d, dict) else 0)" 2>&1 | tail -1)"
+# and it must NOT be the dead path any more -- that path returns {} and says so.
+ck "cream_rms.run() is not the dead path"     0 \
+   "$(python3 -c "
+import cream_rms as C, io, contextlib
+buf = io.StringIO()
+with contextlib.redirect_stdout(buf):
+    C.run()
+print(buf.getvalue().count('LEGACY PATH, RESULT IS NOT CREAM'))" 2>&1 | tail -1)"
+# The dead path is KEPT and must stay reachable, or the reason for the re-base
+# stops being watchable and becomes a claim in a comment (rule 15).
+ck "the dead ref_side path is still reachable" 1 \
+   "$(T1_CR_LEGACY=1 python3 cream_rms.py 2>&1 | grep -c 'LEGACY PATH, RESULT IS NOT CREAM')"
+# WATCHED FAILING: spectrum() must REFUSE rather than answer when the patch
+# cannot support the measurement.  Fed a deliberately tiny box it returns None.
+ck "cream_rms.spectrum REFUSES a tiny patch"  "None" \
+   "$(python3 -c "
+import cream_rms as C
+print(C.spectrum(box=(900, 910, 300, 310), quiet=True))" 2>&1 | tail -1)"
+# mottle_measure's target must be DERIVED from that spectrum, not transcribed.
+ck "mottle_measure derives TARGET, not typed" 1 \
+   "$(grep -c '_CR.spectrum(quiet=True)' mottle_measure.py)"
+ck "mottle_measure refuses a None target"     1 \
+   "$(grep -c 'Refusing to print a ratio against a literal' mottle_measure.py)"
 ck "mottle_measure binds PHOT exactly once"    1 "$(grep -c '^PHOT = ' mottle_measure.py)"
 
 # --------------------------------------------------- rev 55: A RE-FRAMING
