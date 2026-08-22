@@ -15,7 +15,11 @@ straight at the one.
 
 ## Start here
 
-1. **`NEXT_CONTEXT_PROMPT_rev43.md`** — the live brief. Read it first, in full.
+1. **The highest-numbered `NEXT_CONTEXT_PROMPT_rev*.md`** — the live brief. Read
+   it first, in full. **Find it with `ls`; do not trust a filename typed in any
+   document, including this line** (`CLAUDE.md`). It was rev 52 when this line was
+   last touched. Then `CLAUDE.md` (method, loads every session) and the
+   highest-numbered `LEDGER_rev*.md`.
 2. **`STATE.md`** — machine-written by `audit.py`. If it and any prose in this
    repo disagree, **it is right** — but check its provenance rows first,
    especially `working tree`. If that says DIRTY, the file records nothing.
@@ -97,7 +101,9 @@ Several are **deliberately left failing** and must not be "fixed":
 fails two controls, both expected; `probe_rev40_datum` C3, `probe_rev41_gate`
 C4 and `probe_rev42_uv` C3 are all supposed to fail. `probe_rev36_barend`
 prints *"REFUSING TO PRINT A RULING"* and that is correct. The expected tallies
-are listed in `NEXT_CONTEXT_PROMPT_rev43.md` §3.
+are listed in `NEXT_CONTEXT_PROMPT_rev43.md` §3 — **that citation is to rev 43
+deliberately, not a stale pointer: the tallies are in THAT brief's §3, and the
+highest-numbered brief's §3 is different content.**
 
 ## How this project works
 
@@ -173,7 +179,9 @@ comment, which is why the historical documents could be foldered.
   /                     81 files   the runnable project: 71 .py, the 4 source
                                    photographs, SPEC.md, STATE.md,
                                    REF_MEASUREMENTS.md, README.md, the live
-                                   brief NEXT_CONTEXT_PROMPT_rev43.md, .gitignore
+                                   brief NEXT_CONTEXT_PROMPT_rev*.md (highest
+                                   number wins -- rev 52 at this edit), CLAUDE.md,
+                                   .gitignore
   docs/                 83 files   37 handoffs, 37 superseded context prompts,
                                    the audit documents, START_HERE, SKEPTIC_PASS
   docs/figures/         19 files   the marked question crops and A/B figures
