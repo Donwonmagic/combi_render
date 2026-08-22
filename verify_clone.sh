@@ -280,9 +280,31 @@ ck "T1_TARNCONTAM ablation exists"         3 "$(grep -c 'T1_TARNCONTAM' flank_co
 # joint (`counter` is a closed mesh, 0 boundary edges).  The lever is NOT inert:
 # the 2.75 vs 12 mm difference lights up every window frame, shut line, arch lip
 # and gutter and nothing between them.  WHY THAT ONE FOLD IS SILENT IS OPEN.
-ck "chip gate: Pointiness still DEFAULT" 1 "$(grep -cE 'pw = _mr\(nt, PT, W_PT_LO' t1_mats.py)"
-ck "T1_EDGEBEVEL lever exists"           2 "$(grep -c 'T1_EDGEBEVEL' t1_mats.py)"
-ck "edge window DERIVED from a 90 deg fold" 2 "$(grep -c 'W_EDGE_90' t1_mats.py)"
+# rev 53, HIS RULING: "Follow the photograph -- clean cream", taken on the crop
+# probe_scratch/rev53_owner_fascia.png with the measured coverages beside it.
+# The EDGE signal is the default now and Pointiness is the ablation.  The row
+# below is anchored on the else-branch, so it fails if the default is flipped
+# back silently OR if the two branches are swapped.
+# BOTH ROWS BELOW WERE WRONG WHEN FIRST WRITTEN AND WERE CAUGHT BY WATCHING
+# THEM FAIL, WHICH IS THE ONLY REASON THIS COMMENT IS HERE.
+#   * the DEFAULT row was anchored on `pw = _mr(nt, EDGE, ...` at an 8-space
+#     indent -- but BOTH branches are that, so swapping the two branches left
+#     it passing.  It is anchored on the LINE AFTER the T1_PTWEAR test now, so
+#     it reads which branch the ABLATION takes and therefore which is default.
+#   * the RULING row was anchored on 'Follow the$' -- which matched a line that
+#     merely WRAPPED there, not the sentence recording the ruling.  A guard
+#     anchored on where a sentence happens to wrap tests nothing.
+ck "chip gate: the EDGE signal is the DEFAULT" 1 "$(grep -A1 'os.environ.get("T1_PTWEAR") == "1":' t1_mats.py | grep -c 'nt, PT, W_PT_LO')"
+ck "T1_PTWEAR restores the OLD gate"     1 "$(grep -c 'os.environ.get("T1_PTWEAR")' t1_mats.py)"
+ck "his cream ruling is recorded in the source" 1 "$(grep -c 'ASKED AND ANSWERED at rev 53' t1_mats.py)"
+# RE-BASED AT REV 53, CAUSE NAMED: this row counted MENTIONS of W_EDGE_90, so
+# it broke when rev 53 added a comment that merely names the symbol -- a wording
+# change failing a row that is supposed to test a DERIVATION.  It is anchored on
+# the derivation expression itself now, with a companion row below that makes
+# the thing it actually cares about -- that the window is not a typed literal --
+# separately testable.  Both watched failing.
+ck "edge window DERIVED from a 90 deg fold" 1 "$(grep -cE '^W_EDGE_LO, W_EDGE_HI = 0\.10 \* W_EDGE_90, 0\.50 \* W_EDGE_90$' t1_mats.py)"
+ck "edge window is not a typed literal"     0 "$(grep -cE '^W_EDGE_LO, W_EDGE_HI = 0\.[0-9]+, 0\.[0-9]+$' t1_mats.py)"
 # rev 53.  The radius is a SWEEPABLE lever now, and the DEFAULT MUST STAY
 # DERIVED: T1_EDGERAD unset has to fall back to GAPW/2 exactly, or a sweep
 # silently becomes the shipped radius.  Anchored on the fallback expression

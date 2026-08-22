@@ -1043,14 +1043,24 @@ def weather_group(name="WEATHER"):
     # WHY THIS ONE FOLD PRODUCES NO SIGNAL IS OPEN.  Stated, not guessed.
     #
     # SPEC sec.3 locks the finish as WEATHERED and the photograph shows the
-    # cream NOT chipped, so which of the two the delivery follows is an OWNER
-    # question (W6 makes appearance his call) and is NOT settled here.
-    # T1_EDGEBEVEL=1 selects the Bevel gate; T1_EDGERAD sets its radius in mm.
-    if os.environ.get("T1_EDGEBEVEL") == "1":
+    # cream NOT chipped.  ASKED AND ANSWERED at rev 53 -- he ruled "Follow the
+    # photograph -- clean cream" on the crop named above, so WEATHERED is
+    # NARROWED to the red and the running gear and the cream follows the frame.
+    # T1_PTWEAR=1 restores the Pointiness gate; T1_EDGERAD sets the radius in mm.
+    # rev 53: THE DEFAULT IS NOW THE RAY-TRACED EDGE SIGNAL.  OWNER'S RULING,
+    # taken on the crop in probe_scratch/rev53_owner_fascia.png with the
+    # measured coverages beside it: "Follow the photograph -- clean cream."
+    # T1_PTWEAR=1 restores the Pointiness gate and MOVES NOTHING ELSE.
+    #
+    # THAT LEVER DID NOT EXIST UNTIL NOW, THOUGH THIS FILE SAID IT DID.  The
+    # paragraph above W_EDGE_90 has claimed since rev 52 that "T1_PTWEAR=1
+    # restores the Pointiness gate and moves NOTHING ELSE"; it appeared in NO
+    # other line of the source.  A claim in a source comment is not a lever.
+    if os.environ.get("T1_PTWEAR") == "1":
+        pw = _mr(nt, PT, W_PT_LO, W_PT_HI, 0.0, 1.0, -2200, -420, smooth=True)
+    else:
         pw = _mr(nt, EDGE, W_EDGE_LO, W_EDGE_HI, 0.0, 1.0, -2200, -420,
                  smooth=True)
-    else:
-        pw = _mr(nt, PT, W_PT_LO, W_PT_HI, 0.0, 1.0, -2200, -420, smooth=True)
     cn = _noise(nt, OBJ, W_CHIP_SCALE, W_CHIP_DETAIL, -2200, -700)
     cm = _mr(nt, cn.outputs["Fac"], W_CHIP_LO, W_CHIP_HI, 0.0, 1.0,
              -2000, -700)

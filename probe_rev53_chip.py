@@ -194,9 +194,15 @@ print("  A size in mm would need a scale this probe has not established here.")
 
 # ===========================================================================
 hdr("ARM E -- THE RENDER, THROUGH THE PHOTOGRAPH'S OWN OPTICS")
-CAND = [('r53base', 'Pointiness gate (the DEFAULT)'),
-        ('r53bev',  'T1_EDGEBEVEL=1, radius GAPW/2 = 2.75 mm'),
-        ('r53bev12','T1_EDGEBEVEL=1, T1_EDGERAD=12 mm')]
+# r53base/r53bev/r53bev12 were rendered BEFORE his ruling, when Pointiness was
+# still the default and the Bevel gate was selected by T1_EDGEBEVEL=1.  r53final
+# is the SHIPPED build after the ruling, where the edge signal IS the default --
+# so r53final and r53bev must agree, and that agreement is a control on the flip
+# itself rather than a restatement of it.
+CAND = [('r53base',  'Pointiness gate  (was default, now T1_PTWEAR=1)'),
+        ('r53bev',   'edge signal, radius GAPW/2 = 2.75 mm'),
+        ('r53bev12', 'edge signal, T1_EDGERAD=12 mm'),
+        ('r53final', 'THE SHIPPED BUILD after his ruling')]
 print("  The render is 271.2 px/m and the photograph 211.5, so a fixed 9 px")
 print("  median radius is a DIFFERENT PHYSICAL SIZE in each.  Comparing the two")
 print("  raw is an instrument mismatch.  Each render below is therefore blurred")
