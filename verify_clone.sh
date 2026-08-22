@@ -276,6 +276,22 @@ ck "T1_TARNCONTAM ablation exists"         3 "$(grep -c 'T1_TARNCONTAM' flank_co
 ck "chip gate: Pointiness still DEFAULT" 1 "$(grep -cE 'pw = _mr\(nt, PT, W_PT_LO' t1_mats.py)"
 ck "T1_EDGEBEVEL lever exists"           2 "$(grep -c 'T1_EDGEBEVEL' t1_mats.py)"
 ck "edge window DERIVED from a 90 deg fold" 2 "$(grep -c 'W_EDGE_90' t1_mats.py)"
+# rev 52, A9 / SURVEY_rev49 finding 28.  SELF-CONSISTENCY, not fidelity.
+# gal_rail was TYPED at centre -0.3800 length 0.660 and measured on the mesh at
+# X -0.050 .. -0.710: 165 mm too long, 218 mm too far forward, crossing the
+# pillar into BAYS[1], and THREE OF THE SIX HOOKS below it hung on nothing.
+# Its own measurement is "bay 3, u 0.02-0.98", so it is DERIVED from BAYS[2]
+# now and re-measures at centre -0.5980 length 0.4949.  Floating hooks 3 -> 1.
+# gal_caddy_fill's X inset had the WRONG SIGN -- (bx0, bx1) is authored
+# high-then-low, so the inset EXPANDED it: 24.0 mm longer than its caddy,
+# 12 mm proud of both ends; now 24.0 mm inset.  T1_RAILSTALE=1 restores the
+# typed rail.  STILL OPEN, carried: the sixth hook at -0.907 lies 51.4 mm
+# beyond BAYS[2]'s own aft edge, so the hook stations and the bay measurement
+# DISAGREE.  Fixing the rail cannot close that and it was not made to.
+ck "gal_rail DERIVED from its bay"       1 "$(grep -Fc 'min(S.BAYS[2])' t1_detail.py)"
+ck "gal_rail u-extent is named"          2 "$(grep -c '_RAIL_U0' t1_detail.py)"
+ck "T1_RAILSTALE ablation exists"        2 "$(grep -Fc 'T1_RAILSTALE' t1_detail.py)"
+ck "caddy fill inset cannot invert"      1 "$(grep -Fc '_fx0, _fx1 = min(bx0, bx1)' t1_detail.py)"
 ck "build_selectors in rev42_uv"    2 "$(grep -c 'build_selectors' probe_rev42_uv.py)"
 ck "C_FOOT in rev42_uv"             7 "$(grep -c 'C_FOOT' probe_rev42_uv.py)"
 ck "571.71 in rev42_uv"             1 "$(grep -c '571.71' probe_rev42_uv.py)"

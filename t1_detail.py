@@ -3345,7 +3345,26 @@ def galley_dressing():
 
     # -------------------------------------- 4. bay 3: utensil rail and tools
     rail_z, rail_y = 1.7530, -0.3600
-    A(_gcyl("gal_rail", (-0.3800, rail_y, rail_z), (1, 0, 0), 0.0075, 0.660),
+    # rev 52, A9 / SURVEY_rev49 finding 28.  THE RAIL IS DERIVED FROM ITS OWN
+    # BAY NOW, NOT TYPED.  It was built centre -0.3800 length 0.660, spanning
+    # X -0.050 .. -0.710: 165 mm too LONG and 218 mm too far FORWARD, running
+    # across the pillar into BAYS[1] where a rail measured "bay 3" cannot be,
+    # and leaving THREE OF THE SIX HOOKS BELOW IT HANGING ON NOTHING (measured:
+    # -0.750, -0.829, -0.907 against a rail ending at -0.710).
+    # (The survey's own HEADLINE mis-signs this as "165 mm too short"; its body
+    # has built 0.660 against measured 0.495, which is too long.  Body is right.)
+    # Its measurement is "bay 3, u 0.02-0.98" -- so that is what it is built
+    # from, and BAYS[2] carries the 0.5155 bay width and the -0.5980 centre.
+    # T1_RAILSTALE=1 restores the typed rail so the guard can be watched failing.
+    _RAIL_U0, _RAIL_U1 = 0.02, 0.98          # the rail's own measured extent
+    _b3x0, _b3x1 = min(S.BAYS[2]), max(S.BAYS[2])
+    _rx0 = _b3x0 + (_b3x1 - _b3x0) * _RAIL_U0
+    _rx1 = _b3x0 + (_b3x1 - _b3x0) * _RAIL_U1
+    if os.environ.get("T1_RAILSTALE") == "1":
+        _rc, _rl = -0.3800, 0.660
+    else:
+        _rc, _rl = (_rx0 + _rx1) / 2.0, _rx1 - _rx0
+    A(_gcyl("gal_rail", (_rc, rail_y, rail_z), (1, 0, 0), 0.0075, _rl),
       m_steel)
     for hx in (-0.5030, -0.5720, -0.6770, -0.7500, -0.8290, -0.9070):
         A(_gcyl(f"gal_hook{hx:+.3f}", (hx, rail_y, rail_z - 0.0180),
@@ -3513,7 +3532,15 @@ def galley_dressing():
     for i, (bx0, bx1) in enumerate(((-1.0420, -1.1550), (-1.1600, -1.2730))):
         A(_gbox(f"gal_caddy{i}", bx0, bx1, cy0 + 0.010, cy1 - 0.010,
                 CNT_ZT, 1.4090, r=0.006), m_steel)
-        A(_gbox(f"gal_caddy_fill{i}", bx0 + 0.012, bx1 - 0.012, cy0 + 0.024,
+        # rev 52, A9: THE X INSET HAD THE WRONG SIGN.  (bx0, bx1) is authored
+        # HIGH-then-LOW (-1.0420, -1.1550), so "bx0 + 0.012, bx1 - 0.012"
+        # EXPANDED the fill instead of insetting it: measured 24.0 mm longer
+        # than the caddy it fills, standing 12 mm proud of BOTH ends.  Its own
+        # kill test is in the same block -- the fill's top is 3 mm BELOW the
+        # caddy rim, so it was always meant to sit inside.  Inset from the
+        # ordered edges so the sign cannot invert again.
+        _fx0, _fx1 = min(bx0, bx1) + 0.012, max(bx0, bx1) - 0.012
+        A(_gbox(f"gal_caddy_fill{i}", _fx0, _fx1, cy0 + 0.024,
                 cy1 - 0.024, 1.3600, 1.4060, r=0.004), m_pale)
     # ref_rear34.jpg: a rank of squeeze bottles with red and yellow caps
     # stands beside the caddies on the tail run of the counter.  Kept forward

@@ -196,3 +196,45 @@ frames held.
 Three `verify_clone.sh` rows, **each watched failing on the defect it exists to catch** — a silently
 flipped default, a removed lever, and a typed window replacing the derivation — and passing when
 restored. They are SELF-CONSISTENCY rows: that script cannot render, so it cannot check any of §6.3.
+
+---
+
+# §7. A9 — `gal_rail` AND `gal_caddy_fill`, MEASURED ON THE MESH AND FIXED
+
+Brief §5 item 5. Both were confirmed by **asking the mesh**, not by reading the source.
+
+| | built, measured | after, measured | the record's figure |
+|---|---|---|---|
+| `gal_rail` centre | **−0.3800** | **−0.5980** | −0.598 |
+| `gal_rail` length | **0.6600** | **0.4949** | 0.495 |
+| hooks hanging on nothing | **3 of 6** | **1 of 6** | survey finding 28 |
+| `gal_caddy_fill` vs its caddy | **+24.0 mm PROUD both ends** | **−24.0 mm inset** | inset |
+
+**The rail is DERIVED now, not typed.** Its own measurement is *"bay 3, u 0.02–0.98"*, so it is built
+from `BAYS[2]`, which carries the 0.5155 bay width and the −0.5980 centre. As built it spanned
+X −0.050 … −0.710 — running forward across the pillar into `BAYS[1]`, where a rail measured in bay 3
+cannot be. `T1_RAILSTALE=1` restores the typed rail.
+
+**`gal_caddy_fill`'s inset was inverted by authoring order.** `(bx0, bx1)` is written high-then-low
+(−1.0420, −1.1550), so `bx0 + 0.012, bx1 - 0.012` *expanded* the box instead of insetting it. It now
+insets from the ordered edges, so the sign cannot invert again. Its own kill test is in the same
+block: the fill's top is 3 mm *below* the caddy rim, so it was always meant to sit inside.
+
+## §7.1 CORRECTIONS TO THE RECORD
+
+1. **The brief dropped the headline finding.** `SURVEY_rev49` finding 28 is *"[MAJOR] Three of the
+   six S-hooks in bay 3 hang in mid-air"*; the rev-52 brief compressed this to the rail's length and
+   station and **lost the hooks entirely**. The hooks are the visible defect; the rail is the cause.
+2. **The survey's headline mis-signs it, and the brief was right to say so** — verified here at the
+   site: line 280 says *"165 mm too short"*, its own body says built 0.660 against measured 0.495,
+   which is 165 mm too **long**. The body is right. The brief inherited "too LONG" correctly.
+
+## §7.2 STILL OPEN — AND FIXING THE RAIL CANNOT CLOSE IT
+
+**The sixth hook, at X −0.907, lies 51.4 mm beyond `BAYS[2]`'s own aft edge (−0.85575).** It is
+outside bay 3 altogether, so it cannot hang from a rail that is measured as *"bay 3, u 0.02–0.98"*
+no matter where that rail is put. The six hook stations are six typed literals with irregular
+spacing (69, 105, 73, 79, 78 mm), i.e. read off a photograph; their own span centre is **−0.705**
+against the rail's measured **−0.598**. **The hook stations and the bay measurement disagree, and
+one of them is wrong.** This revision did not resolve it and did not pretend to: the rail was moved
+to the figure the record carries, and the residual is recorded here rather than absorbed.
