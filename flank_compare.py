@@ -404,6 +404,79 @@ def mix_threshold(ink, ground, cover=0.5):
     return float((mix[0] - 0.5 * (mix[1] + mix[2])) / mix.sum())
 
 
+# ===========================================================================
+# THE GROUND CONTROL (rev 55, item A).  See the long note at its call site.
+# ===========================================================================
+GROUND_BANDS_MM = ((20, 40), (40, 70), (70, 120))
+KV_REF = None            # set in main() from flank_kv(465.5); px/m, reference
+LUMA_W = np.array([0.2126, 0.7152, 0.0722])
+
+
+def ground_annuli(rgb, ink, pxm, bands=GROUND_BANDS_MM, min_px=200):
+    """Uninked paint around `ink`, at standoffs given in MILLIMETRES.
+
+    `pxm` is that frame's own px/m, so the two frames' windows are the same
+    PHYSICAL window and not the same pixel window.  Enclosed ground (the
+    letter counters) is dropped by a flood fill from the border -- geometry,
+    not a threshold -- because ground surrounded by ink carries the silver's
+    halo from every side.  Returns (lo, hi, n, mean, median) per band, with
+    mean/median None where the band cannot support a number.
+    """
+    d = nd.distance_transform_edt(~ink)
+    free = ~ink
+    seed = np.zeros_like(free)
+    seed[0, :] = free[0, :]
+    seed[-1, :] = free[-1, :]
+    seed[:, 0] = free[:, 0]
+    seed[:, -1] = free[:, -1]
+    outside = nd.binary_propagation(seed, mask=free)
+    out = []
+    for lo, hi in bands:
+        m = outside & (d > lo * pxm / 1000.0) & (d <= hi * pxm / 1000.0)
+        n = int(m.sum())
+        if n < min_px:
+            out.append((lo, hi, n, None, None))
+            continue
+        px = rgb[m]
+        out.append((lo, hi, n, px.mean(0), np.median(px, 0)))
+    return out
+
+
+def _ground_overlay(rgb, ink, pxm, scale):
+    """The annuli PAINTED on their own frame.  Rule 8: the window is part of
+    the measurement, so it is looked at before it is believed."""
+    d = nd.distance_transform_edt(~ink)
+    free = ~ink
+    seed = np.zeros_like(free)
+    seed[0, :] = free[0, :]
+    seed[-1, :] = free[-1, :]
+    seed[:, 0] = free[:, 0]
+    seed[:, -1] = free[:, -1]
+    outside = nd.binary_propagation(seed, mask=free)
+    vis = np.clip(rgb, 0, 255).astype(np.uint8).copy()
+    vis[ink] = (255, 255, 0)
+    for (lo, hi), c in zip(GROUND_BANDS_MM,
+                           ((0, 255, 0), (0, 160, 255), (255, 0, 255))):
+        vis[outside & (d > lo * pxm / 1000.0) & (d <= hi * pxm / 1000.0)] = c
+    k = max(1, int(round(scale)))
+    return np.kron(vis, np.ones((k, k, 1), np.uint8))
+
+
+def _paint_ground(ref_rgb, R, kv, crop, G, ppm_, path):
+    """Both painted windows on one canvas, at MATCHED mm/px so the bands can
+    be compared by eye rather than by trusting two captions."""
+    a = _ground_overlay(ref_rgb, R, kv, 4.0)
+    b = _ground_overlay(crop, G, ppm_, 4.0 * kv / ppm_)
+    h = max(a.shape[0], b.shape[0])
+    can = np.zeros((h + 4, a.shape[1] + b.shape[1] + 12, 3), np.uint8)
+    can[:, :] = 40
+    can[2:2 + a.shape[0], 4:4 + a.shape[1]] = a
+    can[2:2 + b.shape[0], 8 + a.shape[1]:8 + a.shape[1] + b.shape[1]] = b
+    Image.fromarray(can).save(path)
+    print("   painted window -> %s   (LEFT reference, RIGHT render, matched "
+          "mm/px; yellow = ink, green/blue/magenta = the three bands)" % path)
+
+
 def endmembers(rgb, redness):
     """Ink and ground endmembers, from the valley of the redness histogram.
 
@@ -796,6 +869,9 @@ def main():
     print("           LSF sigma %.2f px  FWHM %.2f px  10-90 rise %.2f px  "
           "= %.1f mm on the flank" % (sig, 2.3548 * sig, rise,
                                       1000 * 2.3548 * sig / flank_kv(465.5)))
+
+    global KV_REF
+    KV_REF = float(flank_kv(465.5))
 
     # ------------------------------------------------- reference ink mask
     R = CS.ref_mask()
@@ -1281,6 +1357,147 @@ def main():
               % (lab_, px_[:, 0].mean(), px_[:, 1].mean(), px_[:, 2].mean(),
                  px_[:, 0].std(), px_[:, 1].std(), px_[:, 2].std(),
                  np.percentile(lm, 5), np.percentile(lm, 95), len(px_)))
+
+    # -------------------------------------------- THE GROUND CONTROL
+    # rev 55, item A.  THE BLOCK ABOVE IS A LEVEL DIFFERENCE AND NOTHING IN
+    # IT SAYS WHOSE.  The render's ink runs ~40 DN brighter than the
+    # photograph's on all three channels while the HUE is right (G/R 0.936
+    # on both sides), and that cannot be attributed to the ARTWORK until the
+    # SAME two frames' UNINKED PAINT is measured through the same optics.
+    # Rule 29.3: no finding is attributed to a cause until a control
+    # separates it.  If the paint carries the ink's offset too, the offset
+    # is the RIG -- the owner's settled call, W6 -- and the ink artwork is
+    # exonerated; if only the ink carries it, it is the artwork.
+    #
+    # THE REV-55 BRIEF ASKED FOR "the CREAM either side of the ink".  THERE
+    # IS NO CREAM THERE, and the window this block paints shows it: the
+    # flank lockup is silver ink on the RED body, and the cream band is
+    # above the belt line, ~400 mm up and outside both crops.  The control
+    # is therefore the RED ground hugging the ink -- which is the stronger
+    # control anyway, being the same panel, the same paint and the same
+    # local lighting, and needing no second registration.
+    #
+    # THE WINDOW IS AN ANNULUS AROUND EACH FRAME'S OWN INK, at a matched
+    # PHYSICAL standoff, so neither window is placed by hand and both sides
+    # are the same rule.  Three things it has to survive, each REPORTED
+    # rather than assumed:
+    #   * the standoff must clear the reference's own PSF (FWHM printed
+    #     above, ~4 px = ~19 mm on the flank) or the silver's halo IS the
+    #     "paint" being measured;
+    #   * ENCLOSED red -- the letter counters -- is halo-contaminated from
+    #     every side at once, so only ground REACHABLE FROM OUTSIDE the
+    #     lockup is kept.  That is decided by a flood fill, not a threshold;
+    #   * THREE bands are reported.  If the answer moves with the band then
+    #     the window IS the measurement, and the number is not to be used.
+    # MEDIAN is printed beside MEAN so that no outlier threshold has to be
+    # invented for the gold artwork or the dark scroll at the crop's corner.
+    #
+    # CEILING.  The render's ground inside the SCR panel is the decal
+    # texture's own red, not necessarily the body shader's red; and the
+    # reference's is paint under a 2.32 bit/px JPEG.  This control separates
+    # INK from ITS OWN SURROUND.  It does not by itself separate the rig's
+    # exposure from the red's albedo -- that needs a second pigment, and the
+    # cream is not in this crop to supply one.
+    # ABLATION -- rule 3: this control is not finished until it has been
+    # WATCHED FAILING on the defect it exists to catch.  T1_FC_INKGAIN adds
+    # DN to the RENDER's ink pixels ONLY, leaving its ground untouched, i.e.
+    # exactly the "the artwork is painted too light" case.  The ink/ground
+    # ratio must then move off the photograph's; if it does not, this block
+    # is measuring nothing.  Unset, it changes nothing.
+    _ink_gain = float(os.environ.get("T1_FC_INKGAIN", "0") or 0)
+    if _ink_gain:
+        crop = crop.copy()
+        crop[G_native] = np.clip(crop[G_native] + _ink_gain, 0, 255)
+        print("\n!! T1_FC_INKGAIN=%+.1f DN -- the RENDER's ink pixels only, "
+              "its ground untouched.  ABLATION, not a build." % _ink_gain)
+
+    print("\nground control -- the UNINKED paint either side of the ink, "
+          "same rule both frames:")
+    print("   annulus around each frame's OWN ink, reachable from outside the "
+          "lockup, at a MATCHED PHYSICAL standoff.")
+    print("   reference scale flank_kv(465.5) = %.1f px/m (SPEC 10.34 carried "
+          "by the map); render %.1f px/m (ortho, exact)" % (KV_REF, ppm))
+    for tag, rgbf, inkm, pxm_ in (("reference", ref_rgb, R, KV_REF),
+                                  ("render", crop, G_native, ppm)):
+        for lo_, hi_, n_, mean_, med_ in ground_annuli(rgbf, inkm, pxm_):
+            if mean_ is None:
+                print("   %-9s %3d-%3d mm   n=%-6d  REFUSING: too few px for a "
+                      "mean" % (tag, lo_, hi_, n_))
+                continue
+            print("   %-9s %3d-%3d mm   n=%-6d  mean (%5.1f,%5.1f,%5.1f)  "
+                  "median (%5.1f,%5.1f,%5.1f)  G/R %.3f"
+                  % (tag, lo_, hi_, n_, mean_[0], mean_[1], mean_[2],
+                     med_[0], med_[1], med_[2], mean_[1] / max(mean_[0], 1e-9)))
+    gr_ = ground_annuli(ref_rgb, R, KV_REF)
+    gg_ = ground_annuli(crop, G_native, ppm)
+    if gr_[0][3] is not None and gg_[0][3] is not None:
+        dg = gg_[0][3] - gr_[0][3]
+        di = np.array([crop[G_native][..., k].mean() for k in range(3)]) - \
+             np.array([ref_rgb[untar][..., k].mean() for k in range(3)])
+        print("   ---")
+        print("   INK    render - reference  (%+5.1f,%+5.1f,%+5.1f) DN   "
+              "[render all ink vs reference UNTARNISHED ink]"
+              % tuple(di))
+        print("   GROUND render - reference  (%+5.1f,%+5.1f,%+5.1f) DN   "
+              "[the %d-%d mm annulus, the tightest band]"
+              % (dg[0], dg[1], dg[2], GROUND_BANDS_MM[0][0],
+                 GROUND_BANDS_MM[0][1]))
+        print("   the ground carries %.0f %% of the ink's own offset "
+              "(luma %+.1f DN against %+.1f DN)."
+              % (100.0 * float(dg @ LUMA_W) / max(float(di @ LUMA_W), 1e-9),
+                 float(dg @ LUMA_W), float(di @ LUMA_W)))
+        print("   READ IT THIS WAY: near 100 % means the whole level "
+              "difference is the SURROUND's too, i.e. the rig -- W6, the "
+              "owner's call, NOT an ink defect.")
+        print("   Near 0 % means the ink alone is bright and the artwork "
+              "owns it.  This line attributes nothing on its own; the "
+              "painted window below is what says the annulus is on paint.")
+        # THE STATISTIC THAT ACTUALLY SEPARATES THEM.  Two DN means taken
+        # from two frames differ by their EXPOSURE and by their ILLUMINANT
+        # before they differ by anything about the vehicle -- the photograph
+        # is an outdoor scene in low warm light, the render a neutral studio.
+        # Ink DIVIDED BY ITS OWN GROUND, in the same frame and the same
+        # pixels' neighbourhood, cancels both: a gain on the frame divides
+        # out, and a cast on the illuminant divides out per channel.  THIS is
+        # the number that says whether the ink is painted too light.
+        ri = np.array([ref_rgb[untar][..., k].mean() for k in range(3)]) / \
+            np.maximum(gr_[0][3], 1e-9)
+        gi = np.array([crop[G_native][..., k].mean() for k in range(3)]) / \
+            np.maximum(gg_[0][3], 1e-9)
+        print("   ---")
+        print("   INK / ITS OWN GROUND -- cancels exposure AND illuminant:")
+        print("     reference  R %.3f  G %.3f  B %.3f" % tuple(ri))
+        print("     render     R %.3f  G %.3f  B %.3f" % tuple(gi))
+        # DERIVED, NOT PRINTED.  cream_rms.py's own rule, earned there: a
+        # conclusion that cannot fail is not a measurement.  Under
+        # T1_FC_INKGAIN=30 this line has been WATCHED saying the opposite.
+        # The 6 % bar is the reference ink's own R-channel spread carried
+        # through the same ratio, printed beside it so it is not a taste.
+        _dis = 100 * abs(gi[0] / max(ri[0], 1e-9) - 1)
+        _bar = 100 * float(ref_rgb[untar][..., 0].std()
+                           / max(ref_rgb[untar][..., 0].mean(), 1e-9))
+        print("     RED channel differs by %.1f %%, against the reference "
+              "ink's own R spread of %.1f %% -- %s"
+              % (_dis, _bar,
+                 "INSIDE the photograph's own scatter: the ink is NOT painted "
+                 "light relative to the paint it sits on."
+                 if _dis <= _bar else
+                 "OUTSIDE it: the ink IS off relative to its own ground."))
+        print("     G and B do not, and that is the GROUND's doing, not the "
+              "ink's: the red reads G/R %.3f B/R %.3f in the photograph "
+              "against %.3f / %.3f in the render."
+              % (gr_[0][3][1] / gr_[0][3][0], gr_[0][3][2] / gr_[0][3][0],
+                 gg_[0][3][1] / gg_[0][3][0], gg_[0][3][2] / gg_[0][3][0]))
+        print("   CEILING ON THAT LAST LINE, AND IT IS A HARD ONE.  The one "
+              "near-neutral surface in this crop is the silver itself, and it "
+              "CANNOT be used as a grey card to split paint from illuminant: "
+              "script_gen.SILVER_CHROMA is the photograph's own measured "
+              "silver carried into the render, so its G/R agreeing on both "
+              "sides is BY CONSTRUCTION, not evidence.  Whether the red's "
+              "G/R gap is the paint or the light CANNOT BE RECOVERED FROM "
+              "WHAT WE HOLD, and W6 makes it the owner's call either way.")
+    _paint_ground(ref_rgb, R, KV_REF, crop, G_native, ppm,
+                  os.path.splitext(out)[0] + "_ground.png")
 
     # ============================================================= verdict
     print("\n" + "=" * 78)
