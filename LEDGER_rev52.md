@@ -238,3 +238,36 @@ spacing (69, 105, 73, 79, 78 mm), i.e. read off a photograph; their own span cen
 against the rail's measured **−0.598**. **The hook stations and the bay measurement disagree, and
 one of them is wrong.** This revision did not resolve it and did not pretend to: the rail was moved
 to the figure the record carries, and the residual is recorded here rather than absorbed.
+
+---
+
+# §8. A7 — THE SECOND HOLE, CLOSED. THE ILLUMINATION DEFECT IS NOT TOUCHED.
+
+Brief §5 item 4 carried *"a second hole, which stands"*. It stands, it is bigger than stated, and
+**there are four of them, not one.** Measured on the mesh:
+
+| wall | show side (+Y) | off side (−Y) |
+|---|---|---|
+| `gal_end_a` as built | **120.0 mm sees past** *(the brief's figure, exact)* | **20.0 mm** *(not in the brief)* |
+| `gal_end_a` now | **0.0 mm** | **0.0 mm** |
+| `gal_end_f` | **260.0 mm** *(not in the brief at all)* | **20.0 mm** *(not in the brief)* |
+
+`gal_end_a`'s half-width is **DERIVED** from `REAR_W / 2` — the aperture that actually looks at it —
+rather than typed. `REAR_W = 1.0400` in `t1_shell.py`, which is where the brief's ±0.520 comes from;
+checked, not assumed. `T1_ENDSHORT=1` restores the short wall.
+
+**Confirmed by LOOKING**, on `hero34r` rendered both ways from the same build: the ablated frame
+shows the end wall's **own vertical edge inside the aperture** with unlit cavity beyond it; the
+fixed frame does not.
+
+**`gal_end_f` IS NOT FIXED, deliberately.** It is the FORWARD return, and the rear window is not
+what looks at it — applying `REAR_W/2` there would be inheriting a requirement's figure across a
+change of object, which is rule 34 exactly. Its correct datum is a sight line nobody has
+established. Recorded here so it is not lost.
+
+**A7'S ACTUAL DEFECT IS UNTOUCHED.** The brief is right that this is **ILLUMINATION, not dressing**:
+both frames still render the rear aperture as a dark cavity, and closing the sight line did not and
+could not change that. The mechanism the brief names — `roof_cutters()`'s aft edge at
+`LID_X1 = -1.0700`, leaving 803 mm of roofed body between the last light inlet and the tail skin —
+was **not built**, and the brief's own instruction not to extend the aft wall to the tail station
+was followed.

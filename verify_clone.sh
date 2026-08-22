@@ -292,6 +292,20 @@ ck "gal_rail DERIVED from its bay"       1 "$(grep -Fc 'min(S.BAYS[2])' t1_detai
 ck "gal_rail u-extent is named"          2 "$(grep -c '_RAIL_U0' t1_detail.py)"
 ck "T1_RAILSTALE ablation exists"        2 "$(grep -Fc 'T1_RAILSTALE' t1_detail.py)"
 ck "caddy fill inset cannot invert"      1 "$(grep -Fc '_fx0, _fx1 = min(bx0, bx1)' t1_detail.py)"
+# rev 52, A7 (brief SS5 item 4's "second hole, which stands").  SELF-CONSISTENCY.
+# gal_end_a exists to stop a camera seeing past the backdrop into unlit body
+# cavity -- the comment above it says exactly that -- and it did not reach far
+# enough.  MEASURED on the mesh: y -0.5000 .. +0.4000 against a rear aperture of
+# +-REAR_W/2 = +-0.5200, so 120.0 mm of the SHOW side and 20.0 mm of the off
+# side saw straight past it; now 0.0 mm both sides.  Confirmed by LOOKING at
+# hero34r: the ablated frame shows the wall's own vertical edge inside the
+# aperture, the fixed frame does not.  T1_ENDSHORT=1 restores the short wall.
+# NOT FIXED and NOT the same datum: gal_end_f (the FORWARD return) reaches only
+# +0.2600, i.e. 260.0 mm short of that same half-width -- but the rear window is
+# not what looks at it, so it needs its own sight line established first.
+# NOT FIXED either: A7's actual defect is ILLUMINATION, not dressing.
+ck "gal_end_a half-width DERIVED"        1 "$(grep -Fc 'S.REAR_W / 2.0' t1_detail.py)"
+ck "T1_ENDSHORT ablation exists"         2 "$(grep -Fc 'T1_ENDSHORT' t1_detail.py)"
 ck "build_selectors in rev42_uv"    2 "$(grep -c 'build_selectors' probe_rev42_uv.py)"
 ck "C_FOOT in rev42_uv"             7 "$(grep -c 'C_FOOT' probe_rev42_uv.py)"
 ck "571.71 in rev42_uv"             1 "$(grep -c '571.71' probe_rev42_uv.py)"

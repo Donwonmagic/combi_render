@@ -3289,7 +3289,18 @@ def galley_dressing():
     # ends of the backdrop into unlit body cavity
     A(_gbox("gal_end_f", X1, X1 + 0.030, -0.5000, 0.2600, 1.2000, 1.8600),
       m_cream)
-    A(_gbox("gal_end_a", X0 - 0.030, X0, -0.5000, 0.4000, 1.2000, 1.8600),
+    # rev 52, A7 (brief SS5 item 4, "a second hole, which stands").  This wall
+    # exists to stop a camera seeing past the backdrop into unlit body cavity --
+    # the comment three lines up says so -- and it did not reach far enough to
+    # do it.  MEASURED on the mesh: it spanned y -0.5000 .. +0.4000 against a
+    # rear aperture of +-REAR_W/2 = +-0.5200, so 120.0 mm of the SHOW side and
+    # 20.0 mm of the off side saw straight past it.  The half-width is now
+    # DERIVED from the aperture that looks at it, not typed.
+    # NOT the same datum as gal_end_f: that is the FORWARD return and the
+    # rear window is not what looks at it (see LEDGER_rev52 SS8).
+    # T1_ENDSHORT=1 restores the short wall so the guard can be watched failing.
+    _ea_hw = 0.4000 if os.environ.get("T1_ENDSHORT") == "1" else S.REAR_W / 2.0
+    A(_gbox("gal_end_a", X0 - 0.030, X0, -_ea_hw, _ea_hw, 1.2000, 1.8600),
       m_white)
     # rev 13: `gal_ceiling` IS DELETED.  It was an emissive stand-in for a roof
     # opening that did not exist; the opening has existed since rev 12 and the
