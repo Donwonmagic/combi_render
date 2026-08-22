@@ -372,6 +372,53 @@ ck "rev54 look probe renders a scale ladder" 1 "$(grep -c '(\"shipped\", 271.2)'
 # keep the CALIBRATION that makes it believable.
 ck "badge: the wfrac denominator trap is recorded" 1 "$(grep -c 'built stroke / OUTER RADIUS' t1_detail.py)"
 ck "badge: wfrac probe keeps its calibration" 1 "$(grep -c 'recover a KNOWN stroke width before trusting' probe_rev54_wfrac.py)"
+
+# ------------------------------------------------- rev 54: THE REFERENCE SET
+# *[owner, rev 54]* "we have all references that we need on repo and I want to
+# make sure that is never forgotten."
+#
+# THAT IS A STANDING INSTRUCTION AND IT WAS UNGUARDED.  Not one row anywhere
+# named a reference photograph -- the only image ever checksummed was
+# tex/emblem.png, which is a BUILD INPUT, not a reference.  The frames these
+# rows name are the ENTIRE evidentiary basis of the project: every measurement
+# of the real vehicle traces to one of them, they cannot be re-shot, and
+# nothing stopped one being deleted, replaced or quietly re-compressed.
+#
+# EACH IS NAMED INDIVIDUALLY ON PURPOSE.  A single "the reference folder is
+# intact" row would say nothing about WHICH frame went; these say the name.
+ck "ref ref_side.jpg"            46e40bc2510090662549f9eefc57c362 "$(md5of ref_side.jpg)"
+ck "ref ref_rear34.jpg"          71597dabdc60c4268dd33ec39dc10076 "$(md5of ref_rear34.jpg)"
+ck "ref ref_workshop.jpg"        cdeb424a3de4b1369855d9a11ebc473a "$(md5of ref_workshop.jpg)"
+ck "ref ref_playa_34.png"        230a2a90df741cb4339092239da4f67d "$(md5of ref_playa_34.png)"
+ck "ref ref_nolita_front34.jpg"  ed2c33b0ec5e98b9130dc2b736480f19 "$(md5of ref_nolita_front34.jpg)"
+ck "ref ref_nolita_front34b.jpg" b8e7f7a44b4b4815249592fc71a3a413 "$(md5of ref_nolita_front34b.jpg)"
+ck "ref ref_nolita_flank.jpg"    a00c45b431b9bd008f05c78572bf1ade "$(md5of ref_nolita_flank.jpg)"
+ck "ref ref_nolita_doorshut.jpg" f1b6f98c6a12b6e9ea0ec3edc68e945a "$(md5of ref_nolita_doorshut.jpg)"
+ck "ref IMG_2073.jpeg"           f1ac467d5379b42fe3f5356039d996f4 "$(md5of IMG_2073.jpeg)"
+ck "ref ref_source.jpeg RETIRED" 03631c7ae35ea83a6a4cdcfad92f773f "$(md5of ref_source.jpeg)"
+ck "ref bus_model_ref.JPG BAR"   baef09ed9bff4b9fe6400573423a90dc "$(md5of bus_model_ref.JPG)"
+ck "ref ref_grid.png"            676249b4f81900760bfcd780d5827342 "$(md5of ref_grid.png)"
+ck "ref ref_side_grid.png"       6826283344065360eacaaec77c8a780c "$(md5of ref_side_grid.png)"
+ck "ref ref_nose_grid.png"       7d3ff9ca2605926f5e7ab5390e783fe8 "$(md5of ref_nose_grid.png)"
+ck "ref ref_band_grid.png"       4dd318c916bea5f245f2d8ac71b6bfcf "$(md5of ref_band_grid.png)"
+ck "ref ref_x6_lanczos.png"      3401d1157c2cb664b2318b107c9c6693 "$(md5of ref_x6_lanczos.png)"
+# A FLOOR, NOT AN EQUALITY: new frames are welcome, losing one is not.
+#
+# THE FIRST VERSION OF THIS ROW WAS A TYPED GUESS AND IT DID NOT FIRE.  It
+# counted EVERY tracked image -- including the ~1000 in probe_scratch/ -- against
+# a floor of 111 that I never watched print.  Dropping ref_rear34.jpg from the
+# index left it passing, which is how the defect surfaced: rule 5, a figure in
+# an acceptance test that nobody watched print, written by the same session that
+# quoted rule 5.  The count is SCOPED to the reference class now and the floor is
+# the measured 54.
+_REFN="$(git ls-files 2>/dev/null | grep -iE '\.(jpg|jpeg|png|JPG)$' | grep -vcE '^(probe_scratch|tex|marks)/' || echo 0)"
+ck "reference-class images never DROP below 54" 1 "$([ "${_REFN:-0}" -ge 54 ] && echo 1 || echo 0)"
+# RULE 11 MADE MECHANICAL.  Five byte-identical pairs are KNOWN (the IMG_*
+# originals and their ref_* names).  A SIXTH group means a frame arrived that
+# duplicates one we already hold -- which is not corroboration, and has fooled
+# this project before.  Adding a genuinely new frame leaves this at 5.
+_DUPG="$(md5sum ./*.jpg ./*.jpeg ./*.png ./*.JPG 2>/dev/null | awk '{print $1}' | sort | uniq -d | wc -l)"
+ck "byte-identical reference groups still 5" 5 "$_DUPG"
 ck "chip probe reads the frame through its OWN optics" 1 "$(grep -c 'THROUGH THE PHOTOGRAPH' probe_rev53_chip.py)"
 # rev 52, A9 / SURVEY_rev49 finding 28.  SELF-CONSISTENCY, not fidelity.
 # gal_rail was TYPED at centre -0.3800 length 0.660 and measured on the mesh at
