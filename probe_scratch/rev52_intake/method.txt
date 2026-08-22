@@ -1,0 +1,4 @@
+METHOD (validated): extract every `ck "..."` call site in verify_clone.sh,
+joining backslash-continuations, then collapse the six if/else pairs that share
+a label. Yields 125 at HEAD and 113 at e19b46f^ -- exactly reproducing the
+script's own printed "ALL 125 PASS" and the survey's quoted "113 PASS".

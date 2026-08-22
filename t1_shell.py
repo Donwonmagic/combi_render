@@ -1076,30 +1076,54 @@ LID_X0, LID_X1 = 0.9640, -1.0700       # main lid opening, fore-aft
 LID_Y_HINGE = -0.5450                  # off-side edge of the opening
 # LID_W is DERIVED below, immediately after LID_OPEN_DEG, because it depends on it.
 # rev 50 -- SURVEY_rev49 finding 49 ("LID_W is too narrow; the joint solve gives
-# W = 1.40-1.49 m") IS REFUTED, on this shell's own arithmetic, and the refutation
-# is recorded here so nobody re-derives it:
-#   the roof spans y -0.7273 .. +0.7273 and the aperture starts at the hinge,
+# W = 1.40-1.49 m") IS REFUTED, on this shell's own arithmetic.  THE REFUTATION
+# STANDS.  ITS FIGURES DO NOT, AND THE OWNER HAS SINCE CLOSED ITS LAST CLAUSE --
+# rev 51.  Struck through rather than deleted, per the wipers/over-rider
+# convention, so the propagation stays visible:
+#   ~~the roof spans y -0.7273 .. +0.7273 and the aperture starts at the hinge,
 #   y = -0.5450, so W <= 0.7273 + 0.5450 = 1.2723 m OR THE HOLE RUNS OFF THE ROOF.
 #   At W = 1.45 the aperture would end at y = +0.905, i.e. 178 mm PAST the roof
-#   edge.  Geometrically impossible.  The finding's own hard floor, W >= 1.19 m,
-#   is admissible only in the last 85 mm of that range.
-# WHAT SURVIVES, and it is a real and still-open inconsistency:
+#   edge.~~
+#   *** THOSE THREE NUMBERS COME FROM THE RECORD'S STALE Yt = 0.7273.  THE
+#   MACHINE WALKS ITS OWN ROOF AND DISAGREES.  Watched print, this revision,
+#   from the assert 80 lines below under T1_LIDASPECT=1.2:
+#       "the roof reaches only y=0.7347 at the lid station, so W <= 1.2797 m"
+#       "LID_W = 1.7469 m runs the roof aperture 467.2 mm PAST the roof edge"
+#   so at W = 1.45 the overrun is 1.45 - 1.2797 = 170.3 mm, NOT 178.  LEDGER_rev50
+#   sec.3 already said to quote the machine's walk and not the record's Yt; that
+#   correction reached the ledger and NOT this block, which is the half-retraction
+#   shape this project keeps finding.  DO NOT re-derive from 0.7273. ***
+#   The finding's own hard floor, W >= 1.19 m, is admissible only in the last
+#   90 mm of the corrected range.
+# WHAT SURVIVES:
 #   the photographed aspect is scale-free -- L / (W sin a) = 1.713 measured on
-#   ref_side.jpg against a built L = 2.034 -- so W*sin(a) = 1.1874 m against the
-#   built 1.0770.  With W <= 1.2723 that forces sin(a) >= 0.9333, i.e.
-#   a in [68.9, 90) once the taper fixes a < 90.  76.0 satisfies it.
-#   BUT any W in [1.187, 1.272] leaves a SHOW-SIDE surviving roof strip of only
+#   ref_side.jpg against a built L = 2.034 -- so W*sin(a) = 1.1874 m.  With
+#   W <= 1.2797 that forces sin(a) >= 0.9279, i.e. a in [68.1, 90) once the taper
+#   fixes a < 90.  76.0 satisfies it.  THAT is what still holds.
+# AND WHAT NO LONGER SURVIVES -- THE OWNER CLOSED IT AT REV 50:
+#   ~~any W in [1.187, 1.272] leaves a SHOW-SIDE surviving roof strip of only
 #   0.000-0.085 m in plan, against the owner's settled "roughly 0.3 m each side"
-#   -- and the OFF-side strip is already only 0.1823 m in plan today.  So the
-#   photographed lid aspect and the owner's roof-strip ruling cannot both hold.
-#   THAT IS AN OWNER QUESTION (rev 50 C3), NOT A CONSTANT TO TUNE.  W is left at
-#   1.1100 deliberately: moving it moves the roof aperture, which is his.
+#   ... THAT IS AN OWNER QUESTION (rev 50 C3), NOT A CONSTANT TO TUNE.  W is left
+#   at 1.1100 deliberately: moving it moves the roof aperture, which is his.~~
+#   *** HE ANSWERED rev 50 C3: "Retire the number."  The 0.3 m is GONE from the
+#   record, so there is no longer any inconsistency between the photographed lid
+#   aspect and a roof-strip ruling -- there is no roof-strip ruling.  And LID_W is
+#   no longer "left at 1.1100": it is DERIVED below, at 1.2237 m.  Every clause
+#   above was live and unannotated until rev 51 and would have re-opened a
+#   question he has closed.  Do not re-ask it (rule 34: check WHICH object, and
+#   check the cited line still exists). ***
 # rev 50, A1 -- CORRECTED FROM 104.0.  THE SIGN WAS WRONG AND THE COMMENT SAID
 # SO FOR SIX REVISIONS.  `_hinge` maps the free edge to
 # y = LID_Y_HINGE + LID_W*cos(a), so a > 90 puts it on the OFF side of the
 # hinge.  At 104.0 it landed at y = -0.8135 -- 87 mm OUTBOARD of the off-side
-# roof edge (Yt = 0.7273) and 1.63 m from the counter -- i.e. leaning AWAY from
-# the counter, the exact opposite of this line's own comment and of SPEC 135.
+# roof edge (Yt = 0.7347 -- a THIRD site that published the record's stale
+# 0.7273 until rev 51; the machine walks 0.7347, see the assert below) and
+# 1.63 m from the counter -- i.e. leaning AWAY from the counter, the exact
+# opposite of this line's own comment and of SPEC 135.
+# NOTE for anyone sweeping 0.7273: the remaining occurrence in this file, in
+# the prop-strut guard's rationale ("the foot is at y +0.7273"), is a NARRATIVE
+# OBSERVATION of where a foot landed at a DIFFERENT station, not a roof
+# constant. Yt varies with x. Do not "correct" it.
 # Raised at AUDIT_rev43:117 and unfixed since.
 #
 # WHY 76.0 AND NOT 61-78 ANYWHERE:  sin(76) - sin(104) = 0.0 EXACTLY, so this
@@ -1147,7 +1171,9 @@ LID_OPEN_DEG = float(os.environ.get("T1_LIDDEG", 76.0))
 # AND IT IS STILL NOT A FREE PARAMETER: the aperture starts at the hinge and the
 # roof is only Yt half-wide, so W is hard-bounded above by Yt - LID_Y_HINGE.
 # That bound is what refuted SURVEY_rev49 finding 49's W = 1.40-1.49 m, which
-# would have run the hole 178 mm off the roof.  The assert below is that bound,
+# would have run the hole 170.3 mm off the roof (1.45 - 1.2797, on the machine's
+# own walk; the 178 mm published here until rev 51 used the record's stale
+# Yt = 0.7273 -- the SAME stale figure the block above carried).  The assert below is that bound,
 # and it is the reason this is a derivation and not a guess.
 # T1_LIDASPECT overrides the measured aspect so the roof bound below can be
 # WATCHED FAILING (rule 19).  T1_LIDASPECT=1.2 gives W = 1.747 m, which is
@@ -1892,9 +1918,24 @@ def tail_board(log=print):
     board = T.solid_prism((x0, TB_Y_CENTRE, z0), u, v, w, pts, TB_T,
                           name="tail_board")
     NOT_BODYWORK.add(board.name)      # on the vehicle; not its sheet metal
-    # THE REAL GUARD (rule 12, rule 30).  It measures the BUILT BOARD against
-    # the BUILT SKIN -- two independent things -- so it cannot be satisfied by
-    # construction the way its predecessor was.  Watched failing on T1_TBFOOT=1.
+    # *** rev 51 -- THIS COMMENT USED TO CLAIM THE OPPOSITE OF THE TRUTH. ***
+    # It read: "It measures the BUILT BOARD against the BUILT SKIN -- two
+    # independent things -- so it cannot be satisfied by construction the way its
+    # predecessor was."  That is FALSE, and in the same direction as the rev-49b
+    # guard it was written to replace.  z0 = _seat + _hang + 0.0040, and
+    # T.solid_prism extrudes centred along w while T.rrect returns exact extremes
+    # with pts shifted so min u = 0, so the board's lowest vertex is IDENTICALLY
+    # z0 - _hang = _seat + 0.0040, whatever _seat is.  `_lo < _seat` therefore
+    # CANNOT FIRE in the shipped path, and the log prints "+4.0 mm clear" on
+    # every build because 4.0 mm is what was typed two lines up, not what was
+    # measured.  Rule 32, third occurrence on this one guard.  The owner's own
+    # rev-51 brief already says so ("pinned at exactly +4.0 mm by construction");
+    # the SOURCE said the reverse until now.
+    #
+    # WHAT IT ACTUALLY IS: a CONSTRUCTION-CONSISTENCY check.  Kept, because it
+    # still catches a z0 that is not built from _seat at all -- which is what
+    # T1_TBFOOT=1 substitutes, and why that ablation fires.  Relabelled, not
+    # deleted (rule 5: keep the rationale, correct the shape).
     _lo = min((board.matrix_world @ vv.co).z for vv in board.data.vertices)
     if _lo < _seat - 1e-6:
         raise AssertionError(
@@ -1903,8 +1944,31 @@ def tail_board(log=print):
             "the body.  A fixture's foot must be clear of the body it stands on."
             % (_lo, _seat, (_seat - _lo) * 1000))
     log("  foot: lowest vertex z %.4f on a MEASURED skin seat of %.4f "
-        "(+%.1f mm clear) -- seat read from T1_body's own vertices, not from a "
-        "profile function" % (_lo, _seat, (_lo - _seat) * 1000))
+        "(+%.1f mm clear -- CONSTRUCTION-CONSISTENCY, pinned by z0's own +4.0 mm; "
+        "NOT a free-running clearance)" % (_lo, _seat, (_lo - _seat) * 1000))
+    # *** rev 51 -- I TRIED TO ADD A FREE-RUNNING CHECK HERE AND IT FAILED ITS
+    # OWN CONTROL.  RECORDED, NOT SHIPPED, AND THE REASON IS USEFUL. ***
+    # The guard above cannot police _seat itself, and _seat is exactly what was
+    # wrong at rev 49b.  So I cross-checked the mesh read against what looked like
+    # an independent analytic route to the same surface --
+    #     _seat_analytic = roof_z(x0, TB_Y_CENTRE) - T.rake_drop(x0)
+    # -- with a 20 mm subdivision/solidify budget.  IT FIRED ON THE CLEAN BUILD:
+    #     mesh 1.7497  vs  roof_z analytic 1.6391   -- 110.6 mm apart
+    # and the instrument is what is wrong, not the build.  x0 = -1.8530 is 20 mm
+    # from X_TAIL, INSIDE THE TAIL ROLL-DOWN, and roof_z (zt + cr*(1-(y/Yt)^2)) is
+    # the main-run crown formula -- it does not describe the surface where the
+    # body turns down over the tail.  ZT_ALL is worse there still (1.6227).
+    # LEDGER_rev49 sec.6a's own walk of the skin agrees with the MESH and not with
+    # either formula: "1.9608 at -1.6982, 1.8607 at -1.800, 1.7497 at -1.850,
+    # 1.6696 at X_TAIL".
+    #
+    # SO THE HONEST STATEMENT IS: at the board's station there is NO analytic route
+    # to cross-check _seat against.  Reading it off the body mesh is not merely the
+    # better choice, it is the ONLY correct one -- which is also the deeper reason
+    # rev 49b went wrong, and a warning to anyone who tries to "tidy" this into a
+    # profile function.  I did NOT widen the tolerance to make my check pass; the
+    # check is withdrawn.  (Rule 4: an instrument that fails its control is not
+    # evidence.  Rule 19: watch it fail -- it failed, on the wrong thing.)
     tip = (x0 + u[0] * TB_CHORD, TB_Y_CENTRE, z0 + u[2] * TB_CHORD)
     log("tail board: base x %.4f (SOLVED from the skin) z %.4f (standing CLEAR on "
         "the roof AND at the photographed base height -- rev 49b's 80 mm "

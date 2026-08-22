@@ -1,0 +1,145 @@
+==============================================================================
+FLANK SCRIPT ACCEPTANCE TEST -- render against photograph
+==============================================================================
+render     out/r51c_side.png  1600x1100  2026-08-22 00:44:44
+reference  ref_side.jpg  1024x768  2.32 bits/px  JPEG DC quantiser 4
+           (ref_rear34.jpg 9.28 bits/px q1, ref_workshop.jpg 8.87 q1 -- this frame is 4x more compressed, and it is the only one the
+            script is visible in, so the cost is measured below rather than avoided)
+SCR        read from build.py  x0=0.7840 x1=-0.4940 z0=0.4453 z1=0.9896  (1.2780 x 0.5443 m, AR 2.3480)
+rake       read from t1_core.py  RAKE_Z0=0.047925  RAKE_DZDX=0.017750
+camera     read from studio.py views()['side']  ortho 5.900 m  target z 1.520
+
+rev-16 loft, against the windows this file uses:
+  SCR x 0.784..-0.494 is entirely FORWARD of X_AXLE_R=-1.100, and t1_core._aft() returns x unchanged there
+     -> the tail re-space (X_TAIL -2.108 -> -1.8727) cannot reach the panel: it moves nothing at x >= -1.100
+  rear arch half-width 0.3735 -> 0.460 moves its FORWARD foot -0.727 -> -0.640; the panel's aft edge is -0.494, still 146 mm clear
+  RT_ALL/CR_ALL changed the roof/side junction at z ~ 1.80-2.01; the panel's top is z=0.9896, 810 mm below it
+  CONCLUSION: no window here was fitted against the moved geometry.  What DID change is the INSTRUMENT SET -- see below.
+
+scale      render 271.1864 px/m (exact, ortho)
+reference  NOT a scalar.  SPEC 10.35 map local scale 205.21 px/m at the lockup's forward edge (u=331),
+           214.95 at its aft edge (u=600): a 4.7 % gradient across the lockup, which a flat 211.2 px/m misplaces by +-6.2 px
+           lockup 331..600 spans 1.2808 m by the map; a flat 211.2 px/m says 1.2737 m (-7.2 mm)
+           k_t = 215.5 +/- 3.0 px/m vertical at u=749.38, where the map gives 220.45 px/m horizontal:
+           the two instruments disagree by 2.3 % -- the floor on every height ratio below
+SCR x0/x1 were measured off this photograph with the SUPERSEDED flat scale.  The map puts
+           the lockup at x +0.8671 .. -0.4138 against the built +0.7840 .. -0.4940: +83 / +80 mm.
+           Width agrees to +2.8 mm, so this is a LONGITUDINAL PLACEMENT finding for build.py,
+           not a shape finding -- translation-only registration absorbs it and the four metrics below do not see it.
+
+rake drop  61.8 mm at x0=+0.784   39.2 mm at x1=-0.494   shear residual 22.7 mm = 6.15 px
+panel      projects to render px x 587-934  y 704-859  (347x155)
+projection self-check (render against itself, no photograph in it): z=0 predicted at row 962.2,
+           lowest dark row 961  (delta -1.2 px = -4.4 mm)  ok
+
+ref_side.jpg PSF, from the cream/red step edge over the lockup's own columns:
+           LSF sigma 1.69 px  FWHM 3.98 px  10-90 rise 4.05 px  = 19.4 mm on the flank
+
+reference mask: compare_script.ref_mask(), SPEC 10.20 rule (imported, not re-derived)
+           window 290x130 at ref_side.jpg (325,470); ink bbox (331,474)-(600,588) = 270x115 px
+           the mask is clipped to compare_script.LOCKUP (331, 474, 600, 588), the MEASURED lockup extent, and the ink reaches 4 of its 4 edges -- so the bbox above is that measurement, not a re-derivation
+           stroke width (2 x EDT ridge) median 7.2 px, p10 4.0 px -- against a 3.98 px FWHM PSF the median stroke is resolved (1.8x) and the p10 stroke is 1.0x
+
+reference datum: the counter fascia BOTTOM -- the beige->red step, fitted with the SAME redness estimator the render side uses (SPEC 10.98).  NOT the ground line.
+           v = -0.03412 u +466.632   rms 0.233 px  n=254/269   v(u=465.5) = 450.75
+           cross-check: the drip-rail fit's X vanishing point (u=-11140, v=823.5) predicts slope -0.03212 here,
+           measured -0.03412 -- 0.54 px over the lockup's 269 columns. The two independent flank lines agree.
+render datum:    the SAME cream/red break, fitted in the render over the same physical x range
+           y = -0.01782 x +679.151   rms 0.177 px  n=312/347
+   datum edge check [reference]: redness +0.0602 above -> +0.6211 below (step +0.5608, need >= +0.0300 over 269 cols)
+   datum edge check [render]: redness +0.0045 above -> +0.4683 below (step +0.4637, need >= +0.0300 over 347 cols)
+           at the lockup's mid column that edge is authored z = 1.1442 in the render (t1_detail.CNT_ZB = 1.1470, the counter fascia bottom, 1.1 mm).  Both sides are now fitted on THAT edge with the same redness estimator and both are checked above, so the datum's height cancels -- SPEC 10.98, where it did not.
+
+render crop box (l,t,r,b) = (577,694,944,869)  -- panel + 10 px; drawn on the output image so it can be looked at, not trusted
+render mask: same construction, endmembers measured IN THE RENDER
+           redness modes 0.0037 (ink) and 0.2863 (ground), valley 0.0987
+           endmembers  ink (169,164,167)  ground (193,88,76)
+           T(50% cover) 0.1103   band T(25%) 0.1873  T(75%) 0.0532
+           tarnish windows carried in through LOCKUP -> SCR (rev 14 had none of these):
+             ref (325,469)-(355,492) T_ref 0.541  ->  render (580,704)-(618,733)  ink (160,110, 97) gnd (162, 73, 65)  T 0.2154  +342 px
+             ref (359,488)-(428,519) T_ref 0.522  ->  render (623,728)-(712,767)  ink (165,158,160) gnd (192, 98, 87)  T 0.1086  +0 px
+             ref (523,487)-(555,519) T_ref 0.558  ->  render (835,723)-(876,764)  ink (182,172,174) gnd (202, 98, 86)  T 0.1105  +0 px
+             ref (565,497)-(583,514) T_ref 0.562  ->  render (889,735)-(912,757)  ink (162,151,154) gnd (198, 94, 83)  T 0.1281  +2 px
+           ink px in the render: 13792 silver-rule only, 14136 with the tarnish windows (+2.5 %), 44 outside the panel quad (rejected)
+           threshold sensitivity of the silver rule: +15.8 % at T(25%) / -6.7 % at T(75%) on the area
+           speckle filter 20 px at 271.2 px/m = the same 269.0 mm^2 compare_script removes at 211.2 px/m
+
+------------------------------------------------------------------------------
+MEASUREMENTS   both masks carried into ONE metric frame: model x and AUTHORED model z,
+               reference through SPEC 10.35 + k_t + its own cream/red line, render through
+               the exact ortho projection with the rake shear removed.  No image is resampled
+               onto the other, and no single px/m is used anywhere.
+------------------------------------------------------------------------------
+ink area        reference   9368 px =   219238 mm^2  (local scale; a flat 211.2 px/m would say 210019, -4.2 %)
+                render     14112 px =   191890 mm^2
+                ratio render/reference  0.8753 +/- 0.0244   (-12.5 %)
+                read against the render mask's own coverage band, +15.8 % / -6.7 %
+ink extent      reference  1280.7 x  568.9 mm   aspect 2.2512
+                render     1272.2 x  537.0 mm   aspect 2.3689
+                width  -8.5 mm (-0.7 %)   height -31.9 mm (-5.6 %)
+                ASPECT DIFFERENCE +0.1176 = +5.23 %   (dimensionless; +-2.3 % instrument floor)
+                the same aspect with the map's own scale used vertically instead of k_t: reference 2.3029, +2.86 %
+                for reference, the raw pixel bboxes -- which is what rev 14 compared -- are 2.3478 and 2.3699
+                panel height 155 px in this render against the reference lockup's 115 px: one row of mask edge is 0.65 % of the aspect.  adequately resolved
+
+vertical placement, against the cream/red break in each frame (the datum cancels):
+                reference ink top    96.7 mm below it, bottom   665.6 mm  -> height  568.9 mm
+                render    ink top   158.6 mm below it, bottom   695.6 mm  -> height  537.0 mm
+                render ink top sits +61.9 mm relative to the reference's; the counter stands 300 mm outboard and REF sec.3 puts that parallax at 16-21 mm, so this carries a +-20 mm systematic
+                ink top is +4.0 mm below the panel top z1=0.9896, and the ink bottom +3.3 mm above z0=0.4453
+                tex/senor.png's alpha runs to within 12 of its 4096 columns and 12 of its 1738 rows, so the texture itself accounts for only 3.8 mm of that.
+                with the SILVER RULE ALONE -- rev 14's mask -- the ink top reads +89.9 mm below the panel top.
+                The +95 mm rev 14 left open is that, and nothing else: not the loft, not the panel, 86 mm of missing tarnish.
+
+common frame    4.762 mm/cell, 327 x 168 cells, x -0.592..+0.965  z(datum) -0.796..+0.003
+                reference 9656 cells, render 8454 cells (native 9368 / 14112 px)
+registration    as-placed IoU 0.2514; best integer shift (-16, -7) cells = (+76.2 mm in x, -33.3 mm in z), search +-160 mm
+                that shift IS a measurement: the render's lockup has to move +76.2 mm forward and -33.3 mm down to sit where the
+                calibrated map puts the photograph's.  Independent cross-check, sharing no step with it: SCR's own x extents are
+                +83 / +80 mm aft of flank_X(LOCKUP), and the cream/red differential puts the ink top +61.9 mm high.
+ceiling         reference against itself at 1 of ITS OWN px, through the same warp: 0.8651 0.8648 0.8531 0.8535 -> mean 0.8591  (MEASURED)
+                inherited, AUDIT_rev11: 0.90, or 0.87 with 1 px of registration slop
+IoU             0.7362  =  0.857 of the measured ceiling  (0.846 of the inherited 0.87)
+
+  region            IoU  ceiling  of ceil   ref px render px  tex-only
+  ------------------------------------------------------------------
+  T stem+foot     0.845    0.929    0.909     1886     1750     0.903
+  swash           0.599    0.867    0.691     2583     1877     0.811
+  a               0.846    0.871    0.971     1204     1277     1.004
+  c               0.904    0.847    1.067     1052     1077     1.059
+  o               0.873    0.848    1.030     1000     1002     1.012
+  m               0.839    0.855    0.981     1119     1062     0.946
+  b               0.811    0.866    0.937     1021     1033     0.894
+  i               0.769    0.846    0.909      663      655     0.858
+  Senor           0.136    0.780    0.174     1297      292     0.506
+  ------------------------------------------------------------------
+  worst region: Senor at 0.174 of its own ceiling
+  `tex-only` is the same column for tex/senor.png's ALPHA laid on the SCR rectangle -- no render, no mask rule.  Where it is as low as the
+  render column, the glyph's problem is the PANEL, not the render.
+
+controls
+  positive: tex/senor.png alpha on the SCR rectangle, no render and no mask rule
+            IoU 0.7532 = 0.877 of the 0.8591 ceiling, against the render's 0.857.
+            The render and the whole chromaticity mask rule together are therefore worth -0.020 of ceiling;
+            everything else between 0.877 and 1.000 is the PANEL against the calibrated reference map.
+  negative: the SAME render mask squashed 8 % vertically, same sampler
+            aspect 2.5749 (+14.38 % vs reference, bar is +5 %) -- the aspect check FIRES, as intended
+            IoU 0.6422 = 0.747 of ceiling, against 0.857 un-squashed: the IoU loses 0.109 of ceiling for a known 8 %
+
+agreement (metric frame, 168 x 327 cells):
+   both agree ink     7679 cells   ref only (miss)   1977   render only    775
+
+ink pixel colour (native resolution, each in its own image):
+   reference all ink      mean (120.0,105.7,107.0)  sd (21.4,31.6,36.4)  luma p5-p95  45-133  n=9368
+   reference untarnished  mean (126.8,118.7,122.2)  sd (13.6,14.7,16.6)  luma p5-p95  94-133  n=7625
+   render all ink         mean (167.5,160.2,162.3)  sd ( 9.2,13.7,15.4)  luma p5-p95 142-176  n=14112
+
+==============================================================================
+  FAIL ink area ratio   0.8753                  target 1.000 +/- 0.10  (SPEC 10.20: the reference footprint itself is +/- 3.3 %)
+  FAIL ink aspect       2.3689 vs 2.2512        target within 5 % (3 sigma of the reference's own isotropy)
+  PASS IoU vs ceiling   0.7362                  target >= 0.7303 = 0.85 x the 0.8591 ceiling measured this run
+  FAIL worst region     0.174 (Senor)           target >= 0.75 of that region's own measured ceiling
+
+FAIL  -- flank script, render against ref_side.jpg
+==============================================================================
+wrote probe_scratch/rev52_audit/fcaudit.png

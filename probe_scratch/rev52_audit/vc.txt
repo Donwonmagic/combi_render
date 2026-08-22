@@ -1,0 +1,162 @@
+
+==============================================================
+  Senor Tacombi combi -- verify the tree by content (rev 42)
+==============================================================
+  where: /home/user/combi_render
+
+-- git --
+  ok    rev-42 tip is an ancestor of HEAD                    yes
+  ok    commits >= 227                                       ok
+        (370 commits; 227 is rev 42, more means you have added work)
+  ok    modified tracked files                               0
+  ok    tracked files >= 239                                 ok
+        (1409 files; 239 is rev 42.  FEWER means something was deleted.)
+-- layout --
+  ok    HANDOFF_*.md at root >= 37                           ok
+  ok    docs/ must NOT exist                                 0
+  ok    probe_*.py >= 31                                     ok
+        (46 probes; 31 is rev 42.  Probes are never deleted.)
+  ok    source photographs (.jpg)                            3
+  ok    annotated derivatives (grids)                        5
+  ok    nolita + playa frames                                5
+  ok    upload provenance kept                               5
+-- SPEC.md anchors --
+  ok    ^### 10.100                                          1
+  ok    ^#### 10.100                                         8
+  ok    ^### 10.101                                          1
+  ok    ^#### 10.101                                         9
+  ok    ^### 10.99                                           1
+  ok    ^#### 10.99                                          7
+  ok    ^#### 10.98                                          13
+-- SPEC.md content --
+  ok    AN ORDINAL FACT NEEDS NO RULER                       1
+  ok    A LINE YOU DREW IS NOT EVIDENCE                      1
+  ok    0.7770 (the BUILT arch crown)                        2
+  ok    55.97 (self-overlap)                                 1
+  ok    0.024426 (DOOR_ARCH_G)                               5
+  ok    COMMON-MODE (case matters)                           3
+  ok    THE COUNTER'S FRONT FACE                             3
+  ok    CLOSED BY HIM (case matters)                         3
+  ok    CNT_NOSE_F                                           6
+  ok    cab_floor                                            4
+  ok    amtrak (HIS word)                                    2
+  ok    nolita, any case                                     32
+  ok    TEN flower heads                                     1
+-- build files --
+  ok    DOOR_ARCH_G in t1_shell.py                           3
+  ok    _G_BUILD in t1_shell.py                              0
+  ok    _arch_radial in t1_shell.py                          3
+  ok    T1_ABLATE in build.py                                5
+  ok    FLOOR_W in t1_detail.py                              5
+  ok    _assert_same_edge                                    4
+  ok    build_selectors in rev42_uv                          2
+  ok    C_FOOT in rev42_uv                                   7
+  ok    571.71 in rev42_uv                                   1
+  ok    190 in probe_dust_scope                              4
+-- symbols located by name, not by line --
+  ok    V_POW_Z defined once                                 1
+  ok    V_POW defined once                                   1
+  ok    DOOR_H in folk_gen.py                                1
+  ok    signboard gated on T1_SIGNBOARD                      3
+  ok    lidsign IS bound in build.py                         1
+-- textures (unchanged since rev 25; item 1 WILL move them) --
+  ok    tex/swirl.png                                        4ee4e09edcc9afb46303c8d3858a62bf
+  ok    tex/swirl_b.png                                      d201597e1c867b6e1fbedd2c0f8ab306
+  ok    tex/nose.png                                         b31ea156c15d2d8e38ba390d9e151706
+  ok    tex/senor.png                                        92ff38554d61947528904e113cf657f0
+  ok    tex/calidad.png                                      ffefd297a529adc9f2b0a319107429b1
+  ok    tex/lidmural.png                                     39f523a3127c0fdc72aec6bd567e1c85
+  ok    the header fit is CLAMPED, never enlarging           1
+  ok    lid_gen's sibling text fits still clamp              2
+  ok    tex/lidsign.png                                      bcd3da2dbec0276fabd7d8f8ee03f27b
+  ok    tex/emblem.png                                       574ba2d733353387568b412da48fd436
+-- locked VALUES --
+  ok    V_POW is 0.60                                        1
+  ok    V_POW_Z is 0.60                                      1
+  ok    V_POW and V_POW_Z agree                              yes
+  ok    DOOR_H art datum is 1.013467                         1
+  ok    signboard default is OFF                             1
+  ok    calidad burst centre is 0.505/0.575                  1
+  ok    calidad TYPE_SHIFT is DERIVED at run time            1
+  ok    calidad centroid is NOT a frozen literal             0
+  ok    calidad LINE_GAP cites its provenance                1
+  ok    calidad LINE_GAP names its frame                     1
+  ok    LINE_GAP declares it is TRANSFERRED                  1
+  ok    the +34% ratio argument stays retracted              1
+  ok    calidad type rotates about the burst                 1
+  ok    calidad generator carries its guard                  1
+  ok    calidad bunting function gone                        0
+  ok    calidad draws the star band                          1
+  ok    calidad stars derive from the burst                  1
+  ok    STAR_N declares itself NOT MEASURED                  1
+  ok    the star clamp reports what it drops                 1
+  ok    rear louvres are BUILT geometry                      1
+  ok    rear louvre count is 10 per flank                    1
+  ok    rear louvres are called from the build               1
+  ok    the louvre APERTURES are cut                         1
+  ok    build.py cuts the louvre apertures                   1
+  ok    the louvre apertures are BACKED                      1
+  ok    build.py builds the louvre bay                       1
+  ok    the blade section is DERIVED                         1
+  ok    LOUV_APERTURE declares itself INFERRED               1
+  ok    trunk lid is separated and hinged                    1
+  ok    trunk lid has a LATERAL hinge                        1
+  ok    build.py separates the trunk lid                     1
+  ok    TRUNK_OPEN_DEG declares itself NOT MEASURED          1
+  ok    TRUNK_OPEN_DEG=0 cites the SHUT ruling               1
+  ok    a SHUT trunk lid skips the swing, not runs it at zero 1
+  ok    the tail board is built                              1
+  ok    build.py raises the tail board                       1
+  ok    TB_WIDTH declares itself a POSE CHOICE               1
+  ok    TB_WIDTH keeps its parallax upper bound              1
+  ok    TB_Y_CENTRE declares itself a POSE CHOICE            1
+  ok    TB_TILT_DEG states WHICH DATUM                       1
+  ok    the board station is SOLVED, not typed               1
+  ok    the board foot is guarded against the SKIN           1
+  ok    the foot guard is NOT self-referential               0
+  ok    the trunk bay lining is guarded INBOARD of the skin  1
+  ok    the trunk bay is a LINING, not contents              1
+  ok    the rear hatch opens                                 1
+  ok    REAR_OPEN_DEG declares itself NOT MEASURED           1
+  ok    the T-handle rides the trunk lid                     1
+  ok    the 1963 plate rides the trunk lid                   1
+  ok    calidad pennant loop gone                            0
+  ok    calidad BUNT colour retired                          0
+  ok    VW_APEX_Z is 0.1250                                  1
+  ok    VW_V_TIP_X is 0.3806                                 1
+  ok    VW_W_ARM_X is 0.9200                                 1
+  ok    VW_W_ARM_Z is 0.0019                                 1
+  ok    VW_W_TROUGH_X is 0.4925                              1
+  ok    VW_W_TROUGH_Z is -0.6200                             1
+  ok    vw_bars reads the constants                          1
+-- guard figures, read from the machine-written STATE.md --
+  ok    roof baseline still 1.9835                           1
+  ok    roof delta within 1 mm                               ok
+  ok    rake 17.75 mm/m                                      1
+  ok    L=4.065 W=1.750                                      1
+  ok    bay widths 0.516 0.515 0.516                         2
+  ok    mesh objects 223                                     1
+  ok    the wipers are WITHDRAWN, not deleted                1
+  ok    non-manifold edges 0                                 1
+  ok    tracked marked crops >= 17                           ok
+        (31 crops tracked; 17 at rev 42.  Commit yours too.)
+-- gitignore --
+  ok    CLAUDE.md exists                                     1
+  ok    CLAUDE.md carries no measurements                    0
+  ok    heroes are NOT tracked                               0
+  ok    out/ is NOT tracked                                  0
+
+  note: 2 untracked file(s) present -- not a failure, but say so
+        in the handoff if you did not create them.
+
+==============================================================
+  ALL 127 PASS -- 0 FIDELITY, 127 SELF-CONSISTENCY.
+  NO ROW IN THIS SCRIPT MEASURES THE VEHICLE AGAINST A PHOTOGRAPH.
+  It checks that the RECORD is internally consistent, which is what it
+  is for.  Every defect this project has shipped -- the lid that opened
+  INWARDS, the board 120 mm inside the roof, the bay lining 17.5 mm low,
+  the 33 mm disc of body red in every tail lamp, the five-petal hubcaps --
+  passed this script and was found by LOOKING at a crop.  Do not quote
+  this line as evidence about the bus.
+==============================================================
+

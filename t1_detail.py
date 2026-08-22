@@ -1,5 +1,6 @@
 """Wheels, bright-work, lamps, counter, galley, interior."""
-import bpy, bmesh, math, os
+import bpy
+import numpy as _np, bmesh, math, os
 from mathutils import Vector, Matrix
 import t1_core as T
 
@@ -92,6 +93,16 @@ def tyre(name="tyre"):
     return T.revolve(prof, seg=112, axis='Y', name=name)
 
 
+# rev 51: the disc face profile, hoisted out of rim() so it can be compared with
+# the hubcap's.  Radii are AUTHORED against FLANGE_AUTHORED and scaled by S inside
+# rim(); the y column is NOT scaled.  Unchanged in value -- only its scope moved.
+RIM_DISC_PROF = [
+    (0.0500, 0.1600), (0.0560, 0.1560), (0.0570, 0.1400),
+    (0.0520, 0.1200), (0.0450, 0.0900), (0.0430, 0.0620),
+    (0.0450, 0.0400), (0.0470, 0.0000),
+]
+
+
 def rim(name="rim"):
     """16in steel wheel (t1_core.RIM_R): barrel + domed disc.
 
@@ -114,13 +125,10 @@ def rim(name="rim"):
     ]
     prof = [(y, r * S) for (y, r) in prof]
     barrel = T.revolve(prof, seg=96, axis='Y', name=name + "_barrel")
-    # disc face (slightly dished)
-    disc_prof = [
-        (0.0500, 0.1600), (0.0560, 0.1560), (0.0570, 0.1400),
-        (0.0520, 0.1200), (0.0450, 0.0900), (0.0430, 0.0620),
-        (0.0450, 0.0400), (0.0470, 0.0000),
-    ]
-    disc_prof = [(y, r * S) for (y, r) in disc_prof]
+    # disc face (slightly dished).  HOISTED to RIM_DISC_PROF at module level at
+    # rev 51 so the hubcap's seat can be DERIVED from it instead of typed --
+    # the two surfaces have to be compared, and a local list cannot be.
+    disc_prof = [(y, r * S) for (y, r) in RIM_DISC_PROF]
     verts, faces = [], []
     seg = 96
     n = len(disc_prof)
@@ -150,9 +158,9 @@ def rim(name="rim"):
     cuts = []
     for i in range(5):
         a = TAU * i / 5 + 0.31
-        cuts.append(T.cylinder((0.118 * math.cos(a), 0.048,
-                                0.118 * math.sin(a)),
-                               (0, 1, 0), 0.0235, 0.10, seg=28,
+        cuts.append(T.cylinder((VENT_CENTRE_R * math.cos(a), 0.048,
+                                VENT_CENTRE_R * math.sin(a)),
+                               (0, 1, 0), VENT_CUT_R, 0.10, seg=28,
                                name=f"vent{i}"))
     for c in cuts:
         T.boolean(disc, c)
@@ -170,10 +178,11 @@ CAP_R = 0.1345          # hubcap dome radius.  LOCKED: hubcap D / tyre D
 CAP_D = 2 * (CAP_R + 0.0025)        # what the profile below actually reaches
 
 
-def hubcap(name="cap"):
-    """large solid RED dome (SPEC rev3.2) -- not a small chrome moon cap"""
+def _cap_prof():
+    """the hubcap's revolve profile, (y, r).  rev 51: made a function so the
+    seat derivation below can read the SAME list the mesh is built from."""
     R = CAP_R
-    prof = [
+    return [
         (0.0745, 0.0000), (0.0736, 0.0300), (0.0710, 0.0560),
         (0.0664, 0.0800), (0.0596, 0.1010), (0.0502, 0.1180),
         (0.0378, 0.1288), (0.0236, 0.1342), (0.0120, R),
@@ -182,7 +191,134 @@ def hubcap(name="cap"):
         (0.0484, 0.1155), (0.0576, 0.0988), (0.0644, 0.0780),
         (0.0690, 0.0545), (0.0716, 0.0292), (0.0725, 0.0000),
     ]
-    return T.revolve(prof, seg=96, axis='Y', name=name)
+
+
+def hubcap(name="cap"):
+    """large solid RED dome (SPEC rev3.2) -- not a small chrome moon cap"""
+    return T.revolve(_cap_prof(), seg=96, axis='Y', name=name)
+
+
+# ==================================================== THE HUBCAP'S SEAT, rev 51
+# A HUBCAP CLIPS ONTO THE WHEEL.  Until rev 51 this one did not: build.py placed
+# the cap at the SAME y as the tyre, barrel and disc, so its outer lip floated
+# 47.7 mm INBOARD of the disc face it should sit on.  The consequence was the
+# most visible defect in every shipped frame -- the cream disc crossed in front
+# of the red dome at r = 0.11973 m and the five vent holes became the only
+# places the cap still showed, so every wheel rendered a FIVE-PETAL FLOWER with
+# five dark notches instead of a dome.
+#
+# MEASURED, rev 51, and it is why this moved.  How proud the dome actually
+# stands was recovered from photographs by the emblem's projected offset from
+# the cream-ring ellipse centre in obliquely-seen wheels -- a SHAPE-FREE
+# estimator (the emblem sits on the axle axis, so no dome profile enters):
+#     IMG_2073.jpeg        (GREEN bus, chrome cap)   phi 49.6 deg   49.8 +- 8.7 mm
+#     ref_rear34.jpg       (RED, current artwork)    phi 70.2 deg   62.1 +- 16.0 mm
+#     ref_nolita_front34   (RED, earlier artwork)    phi 58.3 deg   49.4 +- 20.5 mm
+#     ---- weighted                                                 52.2, 1sd ~7 mm
+# CONTROLS, all passed: the side ORTHO render at phi = 0 returns q = +0.0002
+# +- 0.0025 (the dome term vanishes, as it must); the low34 render, where the
+# answer is KNOWN to be 10.5 mm, reads back 12.6 +- 9.2; ref_side.jpg at
+# phi = 10.5 deg correctly returns UNRECOVERABLE (+-33.9 mm).
+#     as built, 10.5 mm  ->  EXCLUDED at 5.8 sigma
+#     seated,   58.2 mm  ->  CONSISTENT at 0.8 sigma
+# Corroborated scale-free and with no depth model at all by the visible red
+# radius / rim radius ratio: photographs 0.60-0.65, built INTENT 0.6233,
+# rendered 0.535-0.557 -- the render is ~14 % small, the signature of a buried
+# cap, and the photographs agree with the intent.
+#
+# SO THE AUTHORED DOME IS RIGHT AND ONLY ITS MOUNTING WAS WRONG.  The implied
+# dome depth is 52.2 + 12.3 = 64.5 mm against the authored 70.5 -- inside 1
+# sigma, so the PROFILE IS NOT TOUCHED on this evidence.  (A rev-51 hypothesis
+# that the dome depth itself was the defect is REFUTED by this measurement;
+# recorded so nobody re-proposes it.)  CAP_R stays locked: it is a RADIUS,
+# validated against a ratio of two DIAMETERS, and it never bore on depth.
+#
+# DERIVED, NOT TYPED (rule 2): the lip lands on the disc face at its own radius.
+def _cap_seat_dy():
+    """Outboard shift that seats the cap's outer lip on the wheel disc.
+
+    Reads the SAME two tables the meshes are built from, so the two cannot
+    drift apart.  Returns metres along +y (outboard) in cap-local coordinates.
+    """
+    cap = _cap_prof()
+    r_lip = max(r for (_y, r) in cap)                       # 0.1370 = CAP_R + 0.0025
+    y_lip = max(y for (y, r) in cap if abs(r - r_lip) < 1e-12)
+    S = T.RIM_R / 0.1905                                    # rim()'s own scale
+    dr = [r * S for (_y, r) in RIM_DISC_PROF][::-1]
+    dy = [y for (y, _r) in RIM_DISC_PROF][::-1]
+    y_disc_at_lip = _np.interp(r_lip, dr, dy)
+    return float(y_disc_at_lip - y_lip)
+
+
+CAP_SEAT_DY = _cap_seat_dy()            # 0.0477 m, derived
+CAP_LIP_R = max(r for (_y, r) in _cap_prof())
+
+# THE VENTS MUST STAY UNDER THE CAP, AND UNTIL REV 51 THEY DID NOT.
+# rim()'s own comment already required it -- "They must stay under the hubcap
+# ... they reach 0.1415, so only 7 mm of each crescent clears the cap" -- and
+# then accepted the 7 mm.  THE PHOTOGRAPHS EXCLUDE IT.  A 5-fold angular
+# harmonic test on the cream annulus just outboard of the cap returns a CLEAN
+# NULL on every photograph we hold (A5 0.0024-0.0571, SNR 0.5-3.3), against the
+# side-ortho render's own notch signature of A5 = 0.214 at SNR 8-11 on the same
+# statistic -- which would have shown on IMG_2073 at 41 sigma and on ref_side at
+# 46 sigma.  The notches are excluded outright, and NOT by the seating fix:
+# seating moves the cap outboard but leaves the vents reaching 4.5 mm past its
+# lip.  So the reach is now bounded by the cap, with the authored cutter SIZE
+# kept and only the station moved (the smaller change of the two available).
+VENT_CUT_R = 0.0235                     # authored cutter radius, unchanged
+VENT_MARGIN = 0.0020                    # stated, not tuned: 2 mm inside the lip
+VENT_CENTRE_R = CAP_LIP_R - VENT_CUT_R - VENT_MARGIN     # 0.1115, was 0.1180
+
+
+def cap_clearance_check(seat_dy, log=print):
+    """Is the seated cap in FRONT of the wheel disc across its whole face?
+
+    NOT a tautology: it compares two INDEPENDENTLY AUTHORED surfaces -- the cap
+    profile and rim()'s disc profile -- at a shift supplied by the caller.  Pass
+    seat_dy = 0 (T1_CAPSINK=1) and it fires on the real, shipped-for-50-revisions
+    defect, reporting the crossover radius.  Pass the derived seat and it clears.
+    """
+    cap = _cap_prof()
+    S = T.RIM_R / 0.1905
+    # FRONT HALF ONLY.  The profile is NOT monotonic in r: it runs from the apex
+    # out to the lip and then RETURNS along the cap's back face, so sorting the
+    # whole list by radius conflates the two surfaces and reads the return where
+    # the front belongs.  My first version of this guard did exactly that and
+    # fired on a correctly seated cap, reporting -7.1 mm at r = 0.1355 -- which
+    # is the BACK point (-0.0035, R + 0.0010).  Cut at the outermost point.
+    _imax = max(range(len(cap)), key=lambda i: cap[i][1])
+    front = cap[:_imax + 1]
+    crs = [r for (_y, r) in front]
+    cys = [y + seat_dy for (y, _r) in front]
+    dr = [r * S for (_y, r) in RIM_DISC_PROF][::-1]
+    dy = [y for (y, _r) in RIM_DISC_PROF][::-1]
+    rr = _np.linspace(0.0, CAP_LIP_R, 4001)
+    gap = _np.interp(rr, crs, cys) - _np.interp(rr, dr, dy)
+    worst = float(gap.min()); r_worst = float(rr[int(gap.argmin())])
+    if worst < 0.0:
+        bad = rr[gap < 0.0]
+        raise AssertionError(
+            "HUBCAP IS BURIED IN THE WHEEL DISC: the cream disc stands in front "
+            "of the red cap from r = %.5f m outward (worst %.1f mm at r = %.4f). "
+            "The five vent holes then look THROUGH the disc onto the cap and "
+            "every wheel renders a FIVE-PETAL FLOWER.  Seat the cap: "
+            "CAP_SEAT_DY = %.4f m, derived from the two profiles."
+            % (float(bad.min()), worst * 1000, r_worst, CAP_SEAT_DY))
+    if VENT_CENTRE_R + VENT_CUT_R > CAP_LIP_R + 1e-9:
+        raise AssertionError(
+            "VENT HOLES REACH PAST THE CAP: they reach r = %.4f against a cap "
+            "lip of %.4f, so %.1f mm of each crescent clears the cap and cuts a "
+            "DARK NOTCH into the cream annulus.  Five photographs return a clean "
+            "5-fold null there (A5 0.0024-0.0571) against the notched render's "
+            "A5 = 0.214, which would have shown at 41-46 sigma."
+            % (VENT_CENTRE_R + VENT_CUT_R, CAP_LIP_R,
+               (VENT_CENTRE_R + VENT_CUT_R - CAP_LIP_R) * 1000))
+    log("  hubcap seated: +%.1f mm outboard (DERIVED), cap clears the disc by "
+        "%.1f mm at worst (r %.4f); apex stands %.1f mm proud of the flange "
+        "against a photographed %.1f +- 7 mm; vents reach %.4f under a lip of "
+        "%.4f" % (seat_dy * 1000, worst * 1000, r_worst,
+                  (0.0745 + seat_dy - 0.0640) * 1000, 52.2,
+                  VENT_CENTRE_R + VENT_CUT_R, CAP_LIP_R))
 
 
 # ref_side.jpg, rear wheel, crop box (736,591,764,619): the white emblem on the

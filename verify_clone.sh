@@ -25,6 +25,35 @@
 cd "$(dirname "$0")" || exit 1
 QUIET=0; [ "$1" = "--quiet" ] && QUIET=1
 PASS=0; FAIL=0; FAILED_LINES=""
+# rev 51 -- THE SCORE IS SPLIT, and the split is the finding.
+# An intake audit this revision extracted every executed `ck` call site and
+# classified it.  THE RESULT: 0 of 125 rows name a reference frame AND a pixel
+# window; 125 of 125 compare the model, or the record, to itself.  Five rows
+# touch a photograph at all and every one is an `ls | wc -l` existence count --
+# none opens an image.  The count was validated against this script's own output
+# at two points in history (113 at rev 49c, 125 at HEAD).
+#
+# SURVEY_rev49 sec.4 prescribed exactly this TWO revisions ago (the survey was
+# produced during rev 50) -- "must name the
+# reference frame and the pixel window ... or be tagged SELF-CONSISTENCY, NOT
+# FIDELITY ... they must stop counting toward '113 PASS'" -- and it never reached
+# the machine.  This is that, in the machine.
+#
+# `ckf` is the FIDELITY entry point: use it ONLY for a row whose executed
+# expression measures against a NAMED FRAME and a NAMED PIXEL WINDOW.  There are
+# none yet, and the banner says so out loud rather than letting "ALL 125 PASS" be
+# pasted into a handoff as evidence about the vehicle.
+#
+# NOTE THE STRUCTURAL LIMIT, so nobody wastes a revision on it: this script has no
+# build, no render and no image library, and out/ is untracked and starts EMPTY.
+# It CANNOT host a fidelity row as written.  The fidelity lane already exists and
+# is DECOMMISSIONED -- flank_compare.py is a render-vs-photograph gate that exits
+# non-zero, dormant since rev 40, with zero LEDGER mentions since rev 43.  (It IS
+# named in the rev-41/42/43 prompts and in SURVEY_rev49; 'zero mentions anywhere'
+# is too strong and was wrong in an earlier commit message.)  Reviving
+# THAT is the job; adding image rows here is not.
+FID=0
+ckf () { FID=$((FID+1)); ck "$@"; }
 
 say () { [ $QUIET -eq 1 ] || printf '%s\n' "$*"; }
 
@@ -618,6 +647,18 @@ say "-- gitignore --"
 # WAS RENAMED, THE ROW WAS NOT LOOSENED: weakening a guard to accommodate my own
 # file naming is how a guard stops guarding.  Working crops must not carry
 # "hero" in their names.
+# rev 51 -- THE CARRIER GUARD.  CLAUDE.md is method-only and loads every session;
+# its whole value is that it carries NO measurements, because a figure in a
+# paragraph goes stale silently and this project has lost carriers exactly that
+# way.  This row is the mechanical stop on it becoming the fourth stale entry
+# door.  WATCHED FAILING: `mv CLAUDE.md x` reds it, and so does adding any
+# decimal figure to it.
+ck "CLAUDE.md exists" 1 "$([ -f CLAUDE.md ] && echo 1 || echo 0)"
+# NOTE THE SHELL TRAP, because it bit this row on its first run: `grep -c` EXITS 1
+# when the count is ZERO, which is exactly the PASSING case, so a `|| echo 99`
+# fallback fires on success and concatenates -- it reported `099`.  Capture stdout
+# and never branch on grep's status.
+ck "CLAUDE.md carries no measurements" 0 "$(if [ -f CLAUDE.md ]; then grep -cE '[0-9]+\.[0-9]' CLAUDE.md 2>/dev/null; else echo 99; fi)"
 ck "heroes are NOT tracked"         0 "$(git ls-files 2>/dev/null | grep -c 'hero.*\.png')"
 ck "out/ is NOT tracked"            0 "$(git ls-files 2>/dev/null | grep -c '^out/')"
 
@@ -632,8 +673,17 @@ fi
 say
 say "=============================================================="
 if [ $FAIL -eq 0 ]; then
-  printf '  ALL %d PASS.  Content matches the rev-42 measured baseline,\n' "$PASS"
-  printf '  which is still current at rev 44.\n'
+  printf '  ALL %d PASS -- %d FIDELITY, %d SELF-CONSISTENCY.\n' \
+         "$PASS" "$FID" "$((PASS-FID))"
+  if [ "$FID" -eq 0 ]; then
+    printf '  NO ROW IN THIS SCRIPT MEASURES THE VEHICLE AGAINST A PHOTOGRAPH.\n'
+    printf '  It checks that the RECORD is internally consistent, which is what it\n'
+    printf '  is for.  Every defect this project has shipped -- the lid that opened\n'
+    printf '  INWARDS, the board 120 mm inside the roof, the bay lining 17.5 mm low,\n'
+    printf '  the 33 mm disc of body red in every tail lamp, the five-petal hubcaps --\n'
+    printf '  passed this script and was found by LOOKING at a crop.  Do not quote\n'
+    printf '  this line as evidence about the bus.\n'
+  fi
   say "=============================================================="
   say
   exit 0
