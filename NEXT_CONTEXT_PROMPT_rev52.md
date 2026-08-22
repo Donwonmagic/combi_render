@@ -90,8 +90,12 @@ entering): weighted **52.2 mm, 1sd ~7**, from three frames at three obliquities.
 — EXCLUDED at 5.8 sigma**; seated **58.2 mm — CONSISTENT at 0.8 sigma**. Every control passed,
 including the negative one (`ref_side.jpg` at phi 10.5 deg correctly returns UNRECOVERABLE) and a
 positive one on a render where the answer was KNOWN (reads 12.6 +- 9.2 against a true 10.5).
-`CAP_SEAT_DY` is **derived** from the two profile tables, not typed. After: m5 harmonic
-**0.0554 -> 0.0017**, the vent notch signature **0.1295 -> 0.0055**, into the photographs' own range.
+`CAP_SEAT_DY` is **derived** from the two profile tables, not typed. After, quoting the ledger's own form and BOTH wheels: m5 across four thresholds
+**0.0487..0.0565 -> 0.0005..0.0019** (circle control 0.0000); the vent notch signature
+**0.1295 / 0.1314 -> 0.0055 / 0.0148** against photographs at 0.0024-0.0150.
+**CEILING, carried:** the FRONT wheel's 0.0148 is inside the photographic range by 0.2 %, and a
+residual 5-fold persists there in a band clear of both vents and cap lip — **A5 0.0100 at SNR 5.4**
+against the rear's clean 0.0047 / SNR 1.8. **Unexplained.**
 
 Also: the **0.3 m roof-strip retirement landed in the source** (it had only half-landed at rev 50 —
 six superseded statements were still live, including *"THAT IS AN OWNER QUESTION (rev 50 C3)"* which
@@ -121,17 +125,24 @@ check it actually is; `verify_clone`'s score **split** into FIDELITY vs SELF-CON
 
 ---
 
-## §5. THE WORK LIST FOR REV 52, IN ORDER
+## §5. THE WORK LIST FOR REV 52
+
+**ORDERING, STATED HONESTLY:** item 1 is his most recent report and is **blocked** on a photograph for
+its decisive half. **Item 2 is the highest value-per-minute in this file and is NOT blocked — if you
+only do one thing, do item 2.** Items 3 onward are unblocked and sequential.
 
 **1. THE TWO VW BADGES — HIS REPORT, AND IT IS ON TWO PARTS.**
 Both are built by **one generator**, `T.vw_bars(R, w, ...)`, each passing its own stroke-width
 fraction: nose `vw_logo_fit(..., wfrac=0.1986)`, hubcap `CAP_EMBLEM_WFRAC = 0.2087`. **Neither is
 measured**, and the hubcap's declares its own provenance: `# w/R as authored (0.0072 / 0.0345),
-kept`. **0.0345 was the OLD emblem radius — the one rev 14 found 7 sigma wrong and corrected.** The
+kept`. **0.0345 was the OLD emblem radius.** rev 14 BUILT it (`0.1897   built (rev 14)   -> 7.0 sigma`); the 7-sigma finding and the correction to 0.3170 are **rev 15's**. The
 DIAMETER was fixed and the STROKE RATIO WAS KEPT from the wrong-sized object.
-*Rev 51 got this far and stopped honestly:* a PSF-calibrated inversion of `ref_side.jpg` implies a
-true emblem/cap of **0.3474** against the built **0.3170**, i.e. **9.6 % small — but only 1.8 sigma**
-against the record's own declared +- 0.017. **Not enough to change a constant on.**
+**THE DIAMETER ROUTE ON `ref_side.jpg` IS EXHAUSTED — DO NOT RE-RUN IT.** Rev 51 already did exactly
+the calibration this item would otherwise prescribe: a synthetic emblem at KNOWN ratio and KNOWN blur
+at that frame's own scale, swept over its declared PSF sigma. It returns a true emblem/cap of
+**0.3474** against the built **0.3170** — **9.6 % small, but only 1.8 sigma** against the record's own
+declared +- 0.017. **Not enough to change a constant on, and re-running it gets the same 1.8 sigma.**
+**THE UNTOUCHED CONSTANT IS THE STROKE WEIGHT**, which no frame has ever been compared against.
 **DIAMETER and STROKE WEIGHT are two constants and only the first has ever been compared to a
 photograph.** Calibrate on a synthetic emblem at KNOWN size and KNOWN blur before touching a frame.
 **KNOWN-CLOSED ROUTES, do not re-try blind:** `ref_workshop.jpg` for the nose stroke width (the rev-49
@@ -140,8 +151,10 @@ automated mask (rev 51 tried it; **chrome is hostile to threshold segmentation**
 selected the painted rim and the "emblem" mask a dark environment reflection).
 
 **2. REVIVE THE FIDELITY LANE. IT ALREADY EXISTS, IT RUNS, AND IT IS RED.**
-`flank_compare.py` is a render-vs-photograph gate that exits non-zero. **Last touched at rev 40, zero
-mentions in any ledger or brief since**, and its only appearance in the acceptance surface is
+`flank_compare.py` is a render-vs-photograph gate that exits non-zero. **Last touched at rev 40, with zero LEDGER
+mentions since rev 43** — it IS named in the rev-41/42/43 prompts and three times in
+`SURVEY_rev49`, so "zero mentions anywhere" is too strong — and its only appearance in the
+acceptance surface is
 `ck "_assert_same_edge" 4 "$(grep -c ...)"` — *the fidelity test is being grepped for a symbol count
 instead of run.*
 **`out/` IS NOT TRACKED AND STARTS EMPTY — render one side view first, then run it.** That is the
@@ -156,14 +169,26 @@ FAIL worst region     0.174 (Senor)     target >= 0.75 of that region's own ceil
 EXIT=1
 ```
 
+**READ THE INSTRUMENT'S OWN BANDS BEFORE CHASING ANY OF THIS — TWO OF THE THREE FAILS ARE INSIDE
+THEM.** The same run prints `ratio render/reference 0.8753 +/- 0.0244 ... read against the render
+mask's own coverage band, +15.8 % / -6.7 %`: at the 25 % threshold the ratio is **1.0136, inside the
+1.000 +- 0.10 bar**. And the aspect FAIL flips on which vertical calibration is used — the same run
+gives **+2.86 %, inside the 5 % bar**, using the map's own scale instead of `k_t`, and `SURVEY_rev49`
+says `k_t = 215.5 px/m` **"is known to be wrong somewhere"** with the two calibrated instruments
+disagreeing by 2.3 % *with the sign wrong*. **ONLY THE WORST-REGION NUMBER IS ROBUST.**
+
 **"Senor" reads 0.174 of its own measured ceiling.** That is the word he has reported unclear THREE
-times, carrying a number the whole time. Check `cream_rms.py` and `mark_rev45_ba.py` for the same
+times, carrying a number the whole time — *though not the same number: `LEDGER_rev44`/`rev45` carry it
+as **0.459** of its ceiling in the open-findings register. Reconcile them; do not assume a typo.* Check `cream_rms.py` and `mark_rev45_ba.py` for the same
 shape. **This is the highest value-per-minute item in the file.**
 
 **3. A6 — THE CURVATURE EDGE-WEAR SPECKLE.** The loudest CG tell, and it survives W6's closure
 because it is texture, not light. Baseline re-measured at rev 51 with windows **verified by eye**:
 counter fascia **17.06 %** dark coverage against `ref_side.jpg`'s **0.62 %**; three nose/cab cream
-windows on the **subdivided** shell return **0.00 %** — the internal control. Controls: flat cream +
+windows on the **subdivided** shell return **0.00 %**. *Honest caveat: that is NOT a single-variable
+control — the fascia is `countercream` (WEAR 0.7) and the shell windows are `paint` (WEAR 0.55), on
+two different renders. The 1.27x wear ratio cannot explain 17 % vs 0 %, so the Pointiness diagnosis
+survives, but two things moved, not one.* Controls: flat cream +
 0.5 DN noise 0.00 %, flat cream + 7.6 % known chips 6.58 %.
 *Mechanism, by string:* `W_PT_LO, W_PT_HI = 0.520, 0.600` gates the chip mask on Pointiness, which is
 0.5 on a flat face, so any low-poly convex vertex clears 0.600 and `pw -> 1.0`; `deep` is fed **from
@@ -179,14 +204,23 @@ radius in world units** — mesh-density independent in exactly the way Pointine
 large-cell, low-contrast MOTTLE** visible on the same cream in the same crop. It is true for CHIPS
 and says nothing about the mottle.
 
-**4. A7 — the rear serving aperture renders as a black cavity.** 573 mm of undressed box on an
-internal control needing no photograph (the model's own side bays read median 188.5 / 124.4 against
-the rear aperture's 26.2). **And a second hole:** `gal_end_a` spans y -0.500..+0.400 against an
-aperture of +-0.520, so **120 mm of the show side sees past the end wall**. *Imprecision to carry:
+**4. A7 — the rear serving aperture renders as a black cavity.** The internal control is sound and
+needs no photograph: the model's own side bays read median 188.5 / 124.4 against the rear aperture's
+26.2.
+**BUT THE "573 mm OF UNDRESSED BOX" FRAMING IS REFUTED — BY THE SURVEY'S OWN ADVERSARY, UNDER THE
+HEADING "WHAT I BROKE".** `gal_end_a` is `_gbox("gal_end_a", X0 - 0.030, X0, -0.5000, 0.4000, 1.2000,
+1.8600)` with `X0 = -1.3000` — a white slab that **covers essentially the whole aperture in
+projection** and was placed deliberately. **The defect is ILLUMINATION, not dressing**, and the
+prescribed fix (extend the aft wall to the tail station) is wrong: it moves an unlit wall 573 mm
+closer without lighting it and deletes depth the photograph does show. **DO NOT BUILD IT.** The
+mechanism the same block gives is the real one: `roof_cutters()`'s aft edge is `LID_X1 = -1.0700`, so
+**803 mm of roofed body sits between the last light inlet and the tail skin.**
+**And a second hole, which stands:** `gal_end_a` spans y -0.500..+0.400 against an aperture of
++-0.520, so **120 mm of the show side sees past the end wall**. *Imprecision to carry:
 "the ONLY aperture his ruling leaves open" is wrong — `STATE.md` says `open serving apertures on +Y:
 3`. It is the only REAR/service aperture open.*
 
-**5. A9 — the galley is ~103 mm too far aft**, and the offset is **NOT rigid**: -0.09574 (hook u=0.13)
+**5. A9 — the galley is ~103 mm too far aft** *(the survey's §6 headline says ~106 mm and quotes the range as +0.096..+0.113; **both are wrong** — the machine's twelve per-feature deltas run -0.09574..-0.11035, mean 103.0 mm, and no feature reaches 0.113. Correcting the record, not silently.)*, and the offset is **NOT rigid**: -0.09574 (hook u=0.13)
 to -0.11035 (`gal_appliance` u=0.80), so a single additive constant leaves **+-7.3 mm**. Re-derive
 each X from `BAYS`. Separately `gal_rail` is **165 mm too LONG** (the survey's headline mis-signs it;
 its own body says built centre -0.380 length 0.660 against a measured -0.598 / 0.495) and 218 mm too
@@ -202,11 +236,22 @@ every flank rosette drawn at the diameter of its **gold core**; the built "Senor
 a word — **and item 2 now gives that one a number.** *A12 is an OWNER RULING, not a do-now:*
 `senor_trace.py` calls the remedy *"inventing ink the photograph does not show"*.
 
+**AND THE GUARD GAP ON THE PART JOB 1 TOUCHES IS TOTAL.** Not one `ck` row in `verify_clone.sh`
+mentions a wheel, hub, cap, rim or vent, and `verify.py` has none either. Rev 51 changed
+`CAP_SEAT_DY` and left `CAP_EMBLEM_D` alone with **zero verifier coverage on either**, and rev 52's
+top job changes them again. Add coverage in the same edit as the change (rule 12).
+
+**A CHEAP, UNBLOCKED ITEM NOT ON THE OLD LIST:** `SPEC` §8's colour locks are all graded **M** =
+*"Measured by me from `ref_source.jpeg`"* — a 246x197 thumbnail the record itself calls retired. They
+can be re-derived on `ref_playa_34.png` at **4x the area, today, with no new photograph**
+(`PHOTOS_WANTED_rev49.md` says so and nothing shows it was ever done).
+
 **THE PROCESS ROWS, still open:** the open-findings register abandoned at rev 45 (21 rows); the
 standing-instructions carrier deleted at rev 44, which took the **die-cut sticker** — the project's
 *original deliverable* — with it; SPEC §0.2 publishing two rev-4 corrections later refuted; rev 48's
-refuted *"B stays open"* still live in `build.py` and `t1_shell.py` (**cite the strings, the line
-numbers in every brief are rotted**).
+refuted *"B stays open"* still live in `build.py` (*"B (the engine lid, above) stays open"*) and
+`t1_shell.py` (*"so B"* / *"stays open and A is added"* — **it is split across two lines, so a flat
+grep for the phrase misses it**); and **the tail board still has zero rows in either verifier**.
 
 ---
 
@@ -223,21 +268,28 @@ numbers in every brief are rotted**).
 wheel or lamp reading — it has neither fitted.
 **AND A CORRECTION TO THE FRAME ARITHMETIC:** `ref_playa_34.png = IMG_3842.png = ref_source.jpeg` is
 written as an identity chain but **only the first two are byte-identical**. `ref_source.jpeg` is the
-same PHOTOGRAPH at 246x197 (correlation 0.9768), not the same file. So: **15 files, 5 byte-identical
+same PHOTOGRAPH at 246x197 (correlation 0.9768), not the same file. *Ceiling, and it is the record's
+own: a correlation on a 246x197 thumbnail **cannot distinguish "the same frame" from "two frames one
+second apart on a tripod"**. And this correction is NOT new at rev 51 — `PHOTOS_WANTED_rev49.md`
+already carried it.* So: **15 files, 5 byte-identical
 pairs, 10 distinct FILES, 9 distinct FRAMES.**
 
 ---
 
 ## §7. WHAT ONLY HE CAN GIVE — HE HAS SAID THE FIRST FIVE ARE NOT POSSIBLE NOW
 
-Full text in `PHOTOS_WANTED_rev49.md`, corrected at rev 50. **Do not re-ask 1–5.**
+Full text in `PHOTOS_WANTED_rev49.md` **for items 1–5 only** — that file contains no items 6 or 7,
+so **item 7 below has no carrier outside this brief. Put it in `PHOTOS_WANTED_rev52.md`.**
+**Do not re-ask 1–5.**
 
 1. **THE TAIL BOARD'S FOOTING** — stands on the parallax bound alone (33.5 px/m, identical at base
    and tip, so W <= 0.59 m with no lower bound). Closes **two** unknowns, not three.
 2. **THE DECAL, DARKER.** Five items, one frame, 60.8 % of the white lettering clipped.
 3. **THE NOSE, SQUARE ON.** W4, seven revisions.
-4. **A RAKING-LIGHT FRAME OF THE REAR QUARTER** — louvre pressing depth, block length and station,
-   and the V swage's section. One frame, four items.
+4. **A RAKING-LIGHT FRAME OF THE LOUVRES — the pressing depth.** *That is what
+   `PHOTOS_WANTED_rev49.md` and the rev-50 correction actually say: ONE item. The "block length,
+   station and V swage" expansion first appears in the rev-51 brief with no cited derivation — treat
+   it as a proposal, not as the record.*
 5. **THE OFF SIDE — ANY FRAME AT ALL.**
 6. **AN OBLIQUELY-SEEN WHEEL, CLOSE.** *Rev 51 DISSOLVED this one — the dome was recovered from
    frames we already hold. Struck.*
@@ -248,12 +300,30 @@ Full text in `PHOTOS_WANTED_rev49.md`, corrected at rev 50. **Do not re-ask 1–
 
 ---
 
-## §8. THE RULES — THEY NOW LIVE IN `CLAUDE.md`, WHICH LOADS EVERY SESSION
+## §8. THE RULES — `CLAUDE.md` CARRIES THE METHOD; THE NUMBERED CANON DOES NOT LIVE THERE
 
 Read it first. It is method only, carries **no measurements** (a `verify_clone` row enforces that,
 watched failing both ways), and every rule in it traces to a recorded failure of this project.
 
-**REV 51 CAUGHT NINE INSTRUMENTS OF ITS OWN, AND FOUR WERE ONE DEFECT.** A mask or window that
+**BUT `CLAUDE.md` HOLDS 17 METHOD RULES, NOT THE NUMBERED CANON, AND IT SAYS SO.** The canon (rules
+1–33) is printed last in `NEXT_CONTEXT_PROMPT_rev50.md` §11. **Rules 34 and 35 exist ONLY in
+`NEXT_CONTEXT_PROMPT_rev51.md` §8 and `LEDGER_rev50.md` §0**, and this brief would be the first to
+carry neither — which is `CLAUDE.md`'s own rule 16 (*"YOU MUST NOT DELETE A CARRIER"*) firing on this
+file. **Carried here so the chain does not break:**
+
+> **34. A REQUIREMENT INHERITS ITS OBJECT EXACTLY AS A RETIREMENT DOES.** Before relying on any
+> *"the record requires X"*, check which object the sentence is about — and check the cited line exists.
+
+> **35. A GUARD WRITTEN AGAINST A POSE ENCODES THAT POSE.** Guards that identify a part's foot or free
+> edge by `min(y)` are only right while the part leans one way. Ask the geometry — a foot is the
+> lowest point — never the pose.
+
+> **Rule 29.3, cited in §2b and in `LEDGER_rev51`:** no finding is attributed to a cause until a
+> control separates it. **Rule 29:** a retirement inherits the object it was made about, not the
+> station it was seen at. **Rule 15:** a retraction that lands in a ledger and not in the source is
+> half a retraction.
+
+**REV 51 CAUGHT NINE INSTRUMENTS OF ITS OWN, AND FIVE OF THE NINE WERE ONE DEFECT.** A mask or window that
 selected the wrong pixels: a "cab roof" window that was on the mural lid and the background; a "flank
 cream" window that included the bulb string; a "roundel" window on the V and W strokes; an "emblem"
 window on the rim ring; a "cap" window on the painted rim. **Every one caught by PAINTING the
@@ -299,7 +369,7 @@ Twelve process proposals reached rev 51 from outside. **Recorded so they are not
 | proposal | verdict | why |
 |---|---|---|
 | Root `CLAUDE.md`, method only, no numbers | **ADOPTED** | There was none. Landed, 118 lines, guarded by two rows watched failing. |
-| Split `verify_clone`'s score FIDELITY vs SELF-CONSISTENCY | **ADOPTED** | **0 of 127 rows name a frame and a pixel window.** The survey prescribed this nine revisions ago and it never reached the machine. |
+| Split `verify_clone`'s score FIDELITY vs SELF-CONSISTENCY | **ADOPTED** | **0 of 127 rows name a frame and a pixel window.** `SURVEY_rev49` §4 prescribed this during rev 50 — two revisions — and it never reached the machine. |
 | Revive the dormant render-vs-photograph gates | **ADOPTED — the one that matters** | `flank_compare.py` runs and is RED. §5 item 2. |
 | Promote the rev-50 tail-lamp chroma reading into a runnable fidelity probe | **ADOPT NARROWED** | The instrument is already written in prose in `LEDGER_rev50` — a frame, a window, a target, a control — and left zero rows behind. |
 | Add image/fidelity rows to `verify_clone.sh` | **REJECT** | Structurally impossible and the script now says so at the site: no build, no render, no image library, `out/` untracked. |

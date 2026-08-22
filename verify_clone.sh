@@ -33,7 +33,8 @@ PASS=0; FAIL=0; FAILED_LINES=""
 # none opens an image.  The count was validated against this script's own output
 # at two points in history (113 at rev 49c, 125 at HEAD).
 #
-# SURVEY_rev49 sec.4 prescribed exactly this nine revisions ago -- "must name the
+# SURVEY_rev49 sec.4 prescribed exactly this TWO revisions ago (the survey was
+# produced during rev 50) -- "must name the
 # reference frame and the pixel window ... or be tagged SELF-CONSISTENCY, NOT
 # FIDELITY ... they must stop counting toward '113 PASS'" -- and it never reached
 # the machine.  This is that, in the machine.
@@ -47,7 +48,9 @@ PASS=0; FAIL=0; FAILED_LINES=""
 # build, no render and no image library, and out/ is untracked and starts EMPTY.
 # It CANNOT host a fidelity row as written.  The fidelity lane already exists and
 # is DECOMMISSIONED -- flank_compare.py is a render-vs-photograph gate that exits
-# non-zero and has been dormant since rev 40 with zero ledger mentions.  Reviving
+# non-zero, dormant since rev 40, with zero LEDGER mentions since rev 43.  (It IS
+# named in the rev-41/42/43 prompts and in SURVEY_rev49; 'zero mentions anywhere'
+# is too strong and was wrong in an earlier commit message.)  Reviving
 # THAT is the job; adding image rows here is not.
 FID=0
 ckf () { FID=$((FID+1)); ck "$@"; }

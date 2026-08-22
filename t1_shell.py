@@ -1116,8 +1116,14 @@ LID_Y_HINGE = -0.5450                  # off-side edge of the opening
 # SO FOR SIX REVISIONS.  `_hinge` maps the free edge to
 # y = LID_Y_HINGE + LID_W*cos(a), so a > 90 puts it on the OFF side of the
 # hinge.  At 104.0 it landed at y = -0.8135 -- 87 mm OUTBOARD of the off-side
-# roof edge (Yt = 0.7273) and 1.63 m from the counter -- i.e. leaning AWAY from
-# the counter, the exact opposite of this line's own comment and of SPEC 135.
+# roof edge (Yt = 0.7347 -- a THIRD site that published the record's stale
+# 0.7273 until rev 51; the machine walks 0.7347, see the assert below) and
+# 1.63 m from the counter -- i.e. leaning AWAY from the counter, the exact
+# opposite of this line's own comment and of SPEC 135.
+# NOTE for anyone sweeping 0.7273: the remaining occurrence in this file, in
+# the prop-strut guard's rationale ("the foot is at y +0.7273"), is a NARRATIVE
+# OBSERVATION of where a foot landed at a DIFFERENT station, not a roof
+# constant. Yt varies with x. Do not "correct" it.
 # Raised at AUDIT_rev43:117 and unfixed since.
 #
 # WHY 76.0 AND NOT 61-78 ANYWHERE:  sin(76) - sin(104) = 0.0 EXACTLY, so this

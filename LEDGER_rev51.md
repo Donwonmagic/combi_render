@@ -317,7 +317,7 @@ counter as an awning. Nobody had seen it, because rev 50 fixed it and lost the f
 **EVERY ABLATION RE-WATCHED FIRING THIS REVISION**, rc=1 on each: `T1_TBFOOT`, `T1_BAYPROUD`,
 `T1_BAREMAT`, `T1_LIDDEG=104`, `T1_LIDASPECT=1.2`, `T1_HANDLEHI`, `T1_BAYSTALE`, `T1_LAMPSINK`.
 
-**GUARD GAP, UNCHANGED AND TOTAL:** 128 `ck` rows in `verify_clone.sh` and **not one** mentions a wheel,
+**GUARD GAP, UNCHANGED AND TOTAL:** 127 `ck` rows (the script's own total; an earlier draft said 128) in `verify_clone.sh` and **not one** mentions a wheel,
 hub, cap, rim or vent. `verify.py` has none either. The most visible defect in every frame has zero
 verifier coverage.
 

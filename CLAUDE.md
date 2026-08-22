@@ -52,7 +52,7 @@ in the same revision.**
    point — never the pose it happens to be in.
 8. **YOU MUST NOT PUBLISH A NUMBER FROM A MASK OR WINDOW YOU HAVE NOT PAINTED AND LOOKED AT.**
    Painted BEFORE the number, not marked afterwards. This is the most-repeated defect in the
-   project's history: in one revision alone, FOUR of eight wrong instruments were a mask
+   project's history: in one revision alone, FIVE of NINE wrong instruments were a mask
    selecting the wrong pixels -- a "cab roof" window that was on the mural lid and the
    background, a "flank cream" window that included the bulb string, a "roundel" window on the
    V and W strokes, an "emblem" window on the rim ring, a "cap" window on the painted rim.
