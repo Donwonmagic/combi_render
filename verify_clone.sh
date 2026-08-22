@@ -268,14 +268,35 @@ ck "T1_TARNCONTAM ablation exists"         3 "$(grep -c 'T1_TARNCONTAM' flank_co
 # T1_EDGEBEVEL=1 swaps in a ray-traced Bevel-vs-true-normal edge signal and
 # takes the same window to 0.10 % while a verified SHELL window holds at
 # 0.00 % -> 0.00 %: the chip gate moves ALONE, which T1_CTAN_WEAR never did
-# (it also drops Metallic).  IT IS NOT THE DEFAULT: its positive control
-# FAILED -- GAPW/2 is 0.75 px at 271.2 px/m, so the edge band is sub-pixel and
-# the chips are REMOVED rather than moved to the edges, and SPEC sec.3 locks
-# the finish WEATHERED.  These rows hold that BOTH paths and the derivation
+# (it also drops Metallic).  IT IS NOT THE DEFAULT and SPEC sec.3 locks the
+# finish WEATHERED.  These rows hold that BOTH paths and the derivation
 # survive; only rendering can say which is right.
+#
+# REV 53 RETRACTS REV 52'S REASON, AND THE RETRACTION IS IN t1_mats.py TOO
+# (rule 15: a retraction that lands in a ledger and not in the source is half a
+# retraction).  Rev 52 said the edge band is SUB-PIXEL at GAPW/2 = 0.75 px.
+# Rev 53 rendered T1_EDGERAD=12 -- 3.3 px, well above a pixel -- and the fascia
+# is UNCHANGED at 0.000 %.  The sub-pixel explanation is refuted; so is a butt
+# joint (`counter` is a closed mesh, 0 boundary edges).  The lever is NOT inert:
+# the 2.75 vs 12 mm difference lights up every window frame, shut line, arch lip
+# and gutter and nothing between them.  WHY THAT ONE FOLD IS SILENT IS OPEN.
 ck "chip gate: Pointiness still DEFAULT" 1 "$(grep -cE 'pw = _mr\(nt, PT, W_PT_LO' t1_mats.py)"
 ck "T1_EDGEBEVEL lever exists"           2 "$(grep -c 'T1_EDGEBEVEL' t1_mats.py)"
 ck "edge window DERIVED from a 90 deg fold" 2 "$(grep -c 'W_EDGE_90' t1_mats.py)"
+# rev 53.  The radius is a SWEEPABLE lever now, and the DEFAULT MUST STAY
+# DERIVED: T1_EDGERAD unset has to fall back to GAPW/2 exactly, or a sweep
+# silently becomes the shipped radius.  Anchored on the fallback expression
+# itself, so an APPENDED override fails this row and not only a deletion.
+ck "T1_EDGERAD radius lever exists"      1 "$(grep -c 'os.environ.get("T1_EDGERAD")' t1_mats.py)"
+ck "bevel radius DERIVED when unset"     1 "$(grep -cE 'else _SH\.GAPW / 2\.0\)$' t1_mats.py)"
+ck "rev52's sub-pixel reason is RETRACTED in the source" 1 "$(grep -c 'IS RETRACTED HERE' t1_mats.py)"
+# rev 53.  The chip probe must keep the two controls that make it readable at
+# all -- the record's own pair (arm A) and the NULL control (arm C) that caught
+# this probe reading 8.117 %% on PURE NOISE when it used a std instead of a MAD.
+ck "rev53 chip probe exists"             1 "$(ls probe_rev53_chip.py 2>/dev/null | wc -l)"
+ck "chip probe keeps its NULL control"   1 "$(grep -c 'nul = np.full_like' probe_rev53_chip.py)"
+ck "chip probe keeps the record's controls" 1 "$(grep -c 'record 7.316' probe_rev53_chip.py)"
+ck "chip probe reads the frame through its OWN optics" 1 "$(grep -c 'THROUGH THE PHOTOGRAPH' probe_rev53_chip.py)"
 # rev 52, A9 / SURVEY_rev49 finding 28.  SELF-CONSISTENCY, not fidelity.
 # gal_rail was TYPED at centre -0.3800 length 0.660 and measured on the mesh at
 # X -0.050 .. -0.710: 165 mm too long, 218 mm too far forward, crossing the
