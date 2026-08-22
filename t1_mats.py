@@ -939,7 +939,12 @@ def weather_group(name="WEATHER"):
     import t1_shell as _SH
     _bev = ng.nodes.new("ShaderNodeBevel"); _bev.location = (-2600, -1220)
     _bev.samples = BEVEL_SAMPLES
-    _bev.inputs["Radius"].default_value = _SH.GAPW / 2.0
+    # rev 53: the radius is a SWEEPABLE lever now, because grounding it was the
+    # whole of brief sec.4 item 2 and it needs more than one render to ground.
+    # T1_EDGERAD is in MILLIMETRES; unset keeps the derived GAPW/2 exactly.
+    _rad_mm = os.environ.get("T1_EDGERAD")
+    _bev.inputs["Radius"].default_value = (
+        float(_rad_mm) / 1000.0 if _rad_mm else _SH.GAPW / 2.0)
     _dot = ng.nodes.new("ShaderNodeVectorMath"); _dot.location = (-2420, -1220)
     _dot.operation = 'DOT_PRODUCT'
     ng.links.new(_bev.outputs[0], _dot.inputs[0])
@@ -1005,19 +1010,57 @@ def weather_group(name="WEATHER"):
 
     # ---- 2b curvature edge wear -----------------------------------------
     # DEFAULT IS STILL POINTINESS.  The Bevel gate below MEASURES BETTER on the
-    # one surface that has a photographic target -- counter fascia dark-chip
-    # coverage 4.07 % -> 0.10 % against ref_side.jpg's 0.00 % -- but its POSITIVE
-    # CONTROL FAILED and that is why it is not the default: it does not move the
-    # chips to the edges, it REMOVES them.  GAPW/2 = 2.75 mm is 0.75 px at the
-    # side view's 271.2 px/m, so the edge band is SUB-PIXEL and nothing survives
-    # at any render scale this project uses.  SPEC sec.3 locks the finish as
-    # WEATHERED, so shipping that on self-review would trade a measured defect
-    # for an unmeasured one.  T1_EDGEBEVEL=1 selects it; rev 52 reports both.
-    if os.environ.get("T1_EDGEBEVEL") == "1":
+    # one surface that has a photographic target, and rev 53 measured both
+    # against ref_side.jpg THROUGH THAT FRAME'S OWN OPTICS (blurred to its
+    # measured PSF, decimated to its 4.728 mm/px, given its 0.99 DN noise --
+    # the render is 271.2 px/m and the frame 211.5, so a fixed median radius is
+    # a DIFFERENT PHYSICAL SIZE in each and rev 52's raw comparison mismatched):
+    #
+    #     Pointiness (default)   2.589 %      photograph  0.165 %
+    #     Bevel, GAPW/2          0.000 %
+    #     Bevel, 12 mm           0.000 %
+    #
+    # AND AS A PROFILE, dark coverage in 6 mm bands measured UP from the
+    # fascia's bottom fold -- which is what a WEAR BAND actually is:
+    #
+    #     photograph   0.00  0.00  0.00  0.00  0.00  0.00  0.00
+    #     Pointiness   6.12  1.22  4.12  7.68 11.02 11.92 14.03   <- HEAVIEST
+    #                                                                FARTHEST
+    #                                                                FROM THE
+    #                                                                FOLD
+    # That inverted profile is the saturation defect stated as a shape rather
+    # than a single number: Pointiness puts the most wear where a real edge
+    # chip cannot be.
+    #
+    # REV 52'S EXPLANATION OF WHY THE BEVEL GATE LOOKS EMPTY IS RETRACTED HERE.
+    # It said GAPW/2 = 2.75 mm is 0.75 px and therefore SUB-PIXEL at every
+    # scale.  Rev 53 rendered T1_EDGERAD=12 (3.3 px at 271.2 px/m, well above a
+    # pixel) and the fascia is UNCHANGED at 0.000 %.  A butt joint is refuted
+    # too: `counter` is a closed mesh, 0 boundary edges, asked of the mesh.
+    # And the gate is NOT inert -- the 2.75 mm vs 12 mm difference image lights
+    # up every window frame, shut line, arch lip and gutter line and nothing in
+    # between, so the lever works and is edge-confined exactly as designed.
+    # WHY THIS ONE FOLD PRODUCES NO SIGNAL IS OPEN.  Stated, not guessed.
+    #
+    # SPEC sec.3 locks the finish as WEATHERED and the photograph shows the
+    # cream NOT chipped.  ASKED AND ANSWERED at rev 53 -- he ruled "Follow the
+    # photograph -- clean cream" on the crop named above, so WEATHERED is
+    # NARROWED to the red and the running gear and the cream follows the frame.
+    # T1_PTWEAR=1 restores the Pointiness gate; T1_EDGERAD sets the radius in mm.
+    # rev 53: THE DEFAULT IS NOW THE RAY-TRACED EDGE SIGNAL.  OWNER'S RULING,
+    # taken on the crop in probe_scratch/rev53_owner_fascia.png with the
+    # measured coverages beside it: "Follow the photograph -- clean cream."
+    # T1_PTWEAR=1 restores the Pointiness gate and MOVES NOTHING ELSE.
+    #
+    # THAT LEVER DID NOT EXIST UNTIL NOW, THOUGH THIS FILE SAID IT DID.  The
+    # paragraph above W_EDGE_90 has claimed since rev 52 that "T1_PTWEAR=1
+    # restores the Pointiness gate and moves NOTHING ELSE"; it appeared in NO
+    # other line of the source.  A claim in a source comment is not a lever.
+    if os.environ.get("T1_PTWEAR") == "1":
+        pw = _mr(nt, PT, W_PT_LO, W_PT_HI, 0.0, 1.0, -2200, -420, smooth=True)
+    else:
         pw = _mr(nt, EDGE, W_EDGE_LO, W_EDGE_HI, 0.0, 1.0, -2200, -420,
                  smooth=True)
-    else:
-        pw = _mr(nt, PT, W_PT_LO, W_PT_HI, 0.0, 1.0, -2200, -420, smooth=True)
     cn = _noise(nt, OBJ, W_CHIP_SCALE, W_CHIP_DETAIL, -2200, -700)
     cm = _mr(nt, cn.outputs["Fac"], W_CHIP_LO, W_CHIP_HI, 0.0, 1.0,
              -2000, -700)

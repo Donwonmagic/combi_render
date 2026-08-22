@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-22 03:26:35 UTC |
-| git commit | `74532f6` |
-| git subject | rev 52: lid_rail measured at ZERO AREA -- guarded with a self-expiring exemption, deliberately NOT fixed |
+| generated | 2026-08-22 13:48:37 UTC |
+| git commit | `7531aeb` |
+| git subject | rev 53: HIS RULING -- "follow the photograph, clean cream". The edge signal is the DEFAULT, and T1_PTWEAR (which rev 52 claimed existed) is BUILT |
 | working tree | clean |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=2 (applied, destructive, before booleans) |

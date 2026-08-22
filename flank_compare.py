@@ -305,7 +305,18 @@ SCR = _const(os.path.join(HERE, "build.py"), "SCR")
 RAKE_Z0 = _const(os.path.join(HERE, "t1_core.py"), "RAKE_Z0")
 RAKE_DZDX = _const(os.path.join(HERE, "t1_core.py"), "RAKE_DZDX")
 X_AXLE_R = _const(os.path.join(HERE, "t1_core.py"), "X_AXLE_R")
-X_TAIL = -1.8727                    # SPEC 10.35, printed only to show that the
+# rev 53: THIS WAS A TYPED COPY AND IT HAD DRIFTED.  It read -1.8727 against a
+# live t1_core X_TAIL of -1.873000 -- 0.3 mm, harmless here because the value is
+# only printed in a diagnostic, but it was READ AS THE LIVE VALUE by rev 53's
+# own brief audit and published as 802.7 mm where the answer is 803.0.
+# `_const` cannot pull it directly: t1_core writes `X_TAIL = _aft(X_TAIL_OLD)`,
+# a CALL, and _const reads literals only -- which is why it was typed.  So pull
+# the two literals the derivation actually rests on, exactly as folk_gen.py
+# already does (`X_TAIL = _C["X_AXLE_R"] - _C["O_NEW"]`).  At the tail, _aft()'s
+# f is 1 by construction, so _aft(X_TAIL_OLD) == X_AXLE_R - O_NEW.
+# _const's own failure text says it: "fix the reader, do not re-copy the value".
+X_TAIL = X_AXLE_R - _const(os.path.join(HERE, "t1_core.py"), "O_NEW")
+                                    # SPEC 10.35, printed only to show that the
                                     # rev-16 tail re-space cannot reach the panel
 VIEW = _view(os.path.join(HERE, "studio.py"), "side")
 

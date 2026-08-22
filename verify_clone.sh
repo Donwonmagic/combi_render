@@ -256,6 +256,31 @@ ck "_assert_same_edge"              4 "$(grep -c '_assert_same_edge' flank_compa
 # RUN IT to see those numbers -- `python3 flank_compare.py out/<pfx>_side.png`
 # -- and `T1_TARNCONTAM=1` puts the defect back so the guard can be WATCHED
 # FAILING.  Both were watched at rev 52.
+# rev 53.  A TYPED COPY OF A DERIVED CONSTANT, AND IT HAD DRIFTED.
+# flank_compare.py typed `X_TAIL = -1.8727` while t1_core derives -1.873000.
+# 0.3 mm, and harmless in that file (it is only printed in a diagnostic) -- but
+# rev 53's OWN brief audit read the copy as the live value and published the
+# A7 gap as 802.7 mm where it is 803.0.  The rev-52 session had it right; this
+# session got it wrong by reading a copy instead of asking the module, which is
+# rule 10 and rule 11 together.  `_const`'s own failure text already said
+# "fix the reader, do not re-copy the value".
+# Row 1: the literal must not come back.  Row 2: the figure it corrupted --
+# the A7 gap -- must reproduce from source, derived on BOTH sides.
+ck "flank_compare does NOT re-type X_TAIL" 0 "$(grep -cE '^X_TAIL = -?[0-9]' flank_compare.py)"
+ck "the A7 gap reproduces from source: 803 mm" 803 "$(python3 -c "
+import ast
+g={}
+for n in ast.parse(open('t1_core.py').read()).body:
+    if isinstance(n,ast.Assign):
+        for t in n.targets:
+            if isinstance(t,ast.Name) and t.id in ('X_AXLE_R','O_NEW'): g[t.id]=ast.literal_eval(n.value)
+for n in ast.parse(open('t1_shell.py').read()).body:
+    if isinstance(n,ast.Assign) and any(isinstance(t,ast.Tuple) for t in n.targets):
+        names=[e.id for t in n.targets for e in t.elts if isinstance(e,ast.Name)]
+        if 'LID_X1' in names:
+            g['LID_X1']=ast.literal_eval(n.value)[names.index('LID_X1')]
+print(round(abs(g['LID_X1']-(g['X_AXLE_R']-g['O_NEW']))*1000))
+" 2>/dev/null)"
 ck "tarnish endmember excludes claimed px" 1 "$(grep -cE 'smp = zm & ~raw$' flank_compare.py)"
 ck "T1_TARNCONTAM ablation exists"         3 "$(grep -c 'T1_TARNCONTAM' flank_compare.py)"
 # rev 52, A6.  SELF-CONSISTENCY, NOT FIDELITY -- this script cannot render.
@@ -268,14 +293,57 @@ ck "T1_TARNCONTAM ablation exists"         3 "$(grep -c 'T1_TARNCONTAM' flank_co
 # T1_EDGEBEVEL=1 swaps in a ray-traced Bevel-vs-true-normal edge signal and
 # takes the same window to 0.10 % while a verified SHELL window holds at
 # 0.00 % -> 0.00 %: the chip gate moves ALONE, which T1_CTAN_WEAR never did
-# (it also drops Metallic).  IT IS NOT THE DEFAULT: its positive control
-# FAILED -- GAPW/2 is 0.75 px at 271.2 px/m, so the edge band is sub-pixel and
-# the chips are REMOVED rather than moved to the edges, and SPEC sec.3 locks
-# the finish WEATHERED.  These rows hold that BOTH paths and the derivation
+# (it also drops Metallic).  IT IS NOT THE DEFAULT and SPEC sec.3 locks the
+# finish WEATHERED.  These rows hold that BOTH paths and the derivation
 # survive; only rendering can say which is right.
-ck "chip gate: Pointiness still DEFAULT" 1 "$(grep -cE 'pw = _mr\(nt, PT, W_PT_LO' t1_mats.py)"
-ck "T1_EDGEBEVEL lever exists"           2 "$(grep -c 'T1_EDGEBEVEL' t1_mats.py)"
-ck "edge window DERIVED from a 90 deg fold" 2 "$(grep -c 'W_EDGE_90' t1_mats.py)"
+#
+# REV 53 RETRACTS REV 52'S REASON, AND THE RETRACTION IS IN t1_mats.py TOO
+# (rule 15: a retraction that lands in a ledger and not in the source is half a
+# retraction).  Rev 52 said the edge band is SUB-PIXEL at GAPW/2 = 0.75 px.
+# Rev 53 rendered T1_EDGERAD=12 -- 3.3 px, well above a pixel -- and the fascia
+# is UNCHANGED at 0.000 %.  The sub-pixel explanation is refuted; so is a butt
+# joint (`counter` is a closed mesh, 0 boundary edges).  The lever is NOT inert:
+# the 2.75 vs 12 mm difference lights up every window frame, shut line, arch lip
+# and gutter and nothing between them.  WHY THAT ONE FOLD IS SILENT IS OPEN.
+# rev 53, HIS RULING: "Follow the photograph -- clean cream", taken on the crop
+# probe_scratch/rev53_owner_fascia.png with the measured coverages beside it.
+# The EDGE signal is the default now and Pointiness is the ablation.  The row
+# below is anchored on the else-branch, so it fails if the default is flipped
+# back silently OR if the two branches are swapped.
+# BOTH ROWS BELOW WERE WRONG WHEN FIRST WRITTEN AND WERE CAUGHT BY WATCHING
+# THEM FAIL, WHICH IS THE ONLY REASON THIS COMMENT IS HERE.
+#   * the DEFAULT row was anchored on `pw = _mr(nt, EDGE, ...` at an 8-space
+#     indent -- but BOTH branches are that, so swapping the two branches left
+#     it passing.  It is anchored on the LINE AFTER the T1_PTWEAR test now, so
+#     it reads which branch the ABLATION takes and therefore which is default.
+#   * the RULING row was anchored on 'Follow the$' -- which matched a line that
+#     merely WRAPPED there, not the sentence recording the ruling.  A guard
+#     anchored on where a sentence happens to wrap tests nothing.
+ck "chip gate: the EDGE signal is the DEFAULT" 1 "$(grep -A1 'os.environ.get("T1_PTWEAR") == "1":' t1_mats.py | grep -c 'nt, PT, W_PT_LO')"
+ck "T1_PTWEAR restores the OLD gate"     1 "$(grep -c 'os.environ.get("T1_PTWEAR")' t1_mats.py)"
+ck "his cream ruling is recorded in the source" 1 "$(grep -c 'ASKED AND ANSWERED at rev 53' t1_mats.py)"
+# RE-BASED AT REV 53, CAUSE NAMED: this row counted MENTIONS of W_EDGE_90, so
+# it broke when rev 53 added a comment that merely names the symbol -- a wording
+# change failing a row that is supposed to test a DERIVATION.  It is anchored on
+# the derivation expression itself now, with a companion row below that makes
+# the thing it actually cares about -- that the window is not a typed literal --
+# separately testable.  Both watched failing.
+ck "edge window DERIVED from a 90 deg fold" 1 "$(grep -cE '^W_EDGE_LO, W_EDGE_HI = 0\.10 \* W_EDGE_90, 0\.50 \* W_EDGE_90$' t1_mats.py)"
+ck "edge window is not a typed literal"     0 "$(grep -cE '^W_EDGE_LO, W_EDGE_HI = 0\.[0-9]+, 0\.[0-9]+$' t1_mats.py)"
+# rev 53.  The radius is a SWEEPABLE lever now, and the DEFAULT MUST STAY
+# DERIVED: T1_EDGERAD unset has to fall back to GAPW/2 exactly, or a sweep
+# silently becomes the shipped radius.  Anchored on the fallback expression
+# itself, so an APPENDED override fails this row and not only a deletion.
+ck "T1_EDGERAD radius lever exists"      1 "$(grep -c 'os.environ.get("T1_EDGERAD")' t1_mats.py)"
+ck "bevel radius DERIVED when unset"     1 "$(grep -cE 'else _SH\.GAPW / 2\.0\)$' t1_mats.py)"
+ck "rev52's sub-pixel reason is RETRACTED in the source" 1 "$(grep -c 'IS RETRACTED HERE' t1_mats.py)"
+# rev 53.  The chip probe must keep the two controls that make it readable at
+# all -- the record's own pair (arm A) and the NULL control (arm C) that caught
+# this probe reading 8.117 %% on PURE NOISE when it used a std instead of a MAD.
+ck "rev53 chip probe exists"             1 "$(ls probe_rev53_chip.py 2>/dev/null | wc -l)"
+ck "chip probe keeps its NULL control"   1 "$(grep -c 'nul = np.full_like' probe_rev53_chip.py)"
+ck "chip probe keeps the record's controls" 1 "$(grep -c 'record 7.316' probe_rev53_chip.py)"
+ck "chip probe reads the frame through its OWN optics" 1 "$(grep -c 'THROUGH THE PHOTOGRAPH' probe_rev53_chip.py)"
 # rev 52, A9 / SURVEY_rev49 finding 28.  SELF-CONSISTENCY, not fidelity.
 # gal_rail was TYPED at centre -0.3800 length 0.660 and measured on the mesh at
 # X -0.050 .. -0.710: 165 mm too long, 218 mm too far forward, crossing the
@@ -791,10 +859,51 @@ ck "every T1_ switch the brief names exists" 0 "$_ABL_MISSING"
 # revisions and START_HERE.md still said "rev 7" thirty revisions on.  Both are
 # the first thing a fresh context reads.
 _RN="$(echo "$_LATEST_BRIEF" | grep -oE '[0-9]+' | tail -1)"
+# rev 53.  THE INTAKE DOOR THAT ACTUALLY AUTO-LOADS, AND IT WAS THE ONE LEFT
+# UNGUARDED.  CLAUDE.md carries `@PASTE_INTO_CLAUDE_CODE.txt` in its Imports, so
+# that file is pulled into EVERY session as "this revision's entry procedure".
+# It was updated every revision from rev 47 through rev 51 and then REV 52
+# DROPPED IT: rev 53 opened with the rev-52 brief auto-loaded while the real
+# brief was rev 53, and nothing said so.  README and START_HERE were guarded at
+# rev 52; the file that loads itself was not.  It must BE the newest brief --
+# byte-identical, so there is no second source of truth free to diverge, which
+# is the same reason CLAUDE.md sec.10 rejected a separate RULES_CANON.md.
+ck "the IMPORTED entry procedure IS the newest brief" 1 "$(if [ -n "$_LATEST_BRIEF" ] && cmp -s PASTE_INTO_CLAUDE_CODE.txt "$_LATEST_BRIEF"; then echo 1; else echo 0; fi)"
+ck "CLAUDE.md still imports that entry procedure"     1 "$(grep -c '^@PASTE_INTO_CLAUDE_CODE.txt' CLAUDE.md)"
 ck "README points at the newest brief"       1 "$(if [ -n "$_RN" ] && grep -qE "rev $_RN\b" README.md 2>/dev/null; then echo 1; else echo 0; fi)"
 ck "START_HERE points at the newest brief"   1 "$(if [ -n "$_RN" ] && grep -qE "rev $_RN\b" START_HERE.md 2>/dev/null; then echo 1; else echo 0; fi)"
 ck "heroes are NOT tracked"         0 "$(git ls-files 2>/dev/null | grep -c 'hero.*\.png')"
 ck "out/ is NOT tracked"            0 "$(git ls-files 2>/dev/null | grep -c '^out/')"
+
+# rev 53.  THE MOST-REPEATED NUMERIC DEFECT IN THESE HANDOFFS, FINALLY GUARDED.
+# A brief quotes this script's row total in its sec.1 so the next context knows
+# what to expect, and that number has been wrong THREE REVISIONS RUNNING:
+# rev 52's brief said 138 then 151; rev 53's draft said 159 then 160; and this
+# revision moved 160 -> 162 -> 164 while the prose lagged each time.  The cause
+# is structural, not carelessness: until the tree is clean the banner reads
+# "N-1 PASSED, 1 FAILED" -- the clean-tree row IS the failure -- so the number
+# on screen while a brief is being written is always one short.
+# MUST BE THE LAST ROW: it compares the brief's stated total against this
+# script's OWN live tally, so it has to run after every other ck.  PASS+1
+# counts this row itself, which is stable once set.
+# READ IT OFF THE COMMAND LINE, NOT BY PICKING THE LARGEST NUMBER.  The first
+# version took the largest "ALL n PASS" anywhere in the brief, to dodge
+# bootstrap's "ALL 10 PASS".  WATCHED FAILING ON THE WRONG THING: a brief that
+# merely MENTIONS a bigger historical figure in prose -- and briefs quote old row
+# counts all the time; this one quotes "ALL 159 PASS" in its own audit table --
+# made the row read 900 and fail.  That is the carry-forward block's stated
+# principle firing on me (line ~817: re-wording the brief must not fail a row).
+# So anchor on the line that actually invokes this script.
+# WATCHED FAILING ON BOTH REAL MODES: a brief carrying the pre-commit number
+# (got 164, want 163), and a row added and COMMITTED without updating the brief
+# (got 165, want 166).
+# STATED LIMITATION, found by watching it: on a DIRTY tree the two effects
+# cancel -- the clean-tree row fails (-1) while the added row adds (+1) -- so
+# this row cannot see a newly added row until it is committed.  That is
+# acceptable only because the clean-tree row is itself failing at that moment
+# and the script already says STOP.  It is NOT a row you can trust mid-edit.
+_BRIEF_TOTAL="$(if [ -n "$_LATEST_BRIEF" ]; then grep -E '\./verify_clone\.sh' "$_LATEST_BRIEF" 2>/dev/null | grep -oE 'ALL [0-9]+ PASS' | grep -oE '[0-9]+' | head -1; else echo 0; fi)"
+ck "newest brief states THIS script's row count" "$((PASS+1))" "${_BRIEF_TOTAL:-0}"
 
 UNTRACKED="$(git status --porcelain 2>/dev/null | grep -c '^??')"
 if [ "${UNTRACKED:-0}" -gt 0 ]; then
