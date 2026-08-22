@@ -18,7 +18,7 @@ for b in $(git branch -r | grep -v HEAD); do
 done
 git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 ./bootstrap.sh          # ALL 10 PASS  -- THE BRANCH CHECK IS ROW 9
-./verify_clone.sh       # ALL 164 PASS -- and read what its verdict block says
+./verify_clone.sh       # ALL 165 PASS -- and read what its verdict block says
 ```
 
 **THE DESIGNATED BRANCH'S REMOTE COPY WAS DELETED AGAIN AT REV 53** — `fetch --prune` printed
@@ -160,6 +160,14 @@ that helper. `X_TAIL` alone was typed, because `_const` reads literals and this 
 does it correctly; at the tail `_aft()`'s f is 1 by construction, so `_aft(X_TAIL_OLD)` is exactly
 `X_AXLE_R - O_NEW`. `flank_compare.py` derives it that way now and prints **−1.8730**; its four
 verdicts are unchanged.
+
+**AND THE ROW-COUNT DEFECT ITSELF IS NOW GUARDED.** A brief quotes this script's total in its §1, and
+that number has been wrong **three revisions running** (rev 52: 138 then 151; rev 53: 159 then 160;
+this revision 160 → 162 → 164 → 165). The cause is structural: until the tree is clean the banner
+reads *"N−1 PASSED, 1 FAILED"* because the clean-tree row **is** the failure, so the number on screen
+while a brief is being written is always one short. The **last row in the script** now compares the
+brief's stated total against the script's **own live tally**. It fails on a dirty tree by design —
+which is the discipline, not a bug.
 
 **Two rows, all three drift routes watched failing:** re-typing the literal; drifting the
 derivation's own input `O_NEW` (**the silent case** — 810); and drifting `LID_X1`, the other side of

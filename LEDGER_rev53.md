@@ -227,7 +227,7 @@ not**. Caught only by watching them fail:
 
 ## §7. GUARDS ADDED — nine rows, EVERY ONE WATCHED FAILING
 
-`verify_clone.sh` **151 → 164** across the revision. Watched failing on: a silently flipped default;
+`verify_clone.sh` **151 → 165** across the revision. Watched failing on: a silently flipped default;
 **an APPENDED override after the derived fallback** (not merely a deletion —
 §4.2's stated failure mode); a removed radius lever; a removed `T1_PTWEAR`; a
 dropped null control; an un-retracted retraction; a typed literal replacing the
@@ -258,7 +258,23 @@ Fixed in the tree's own idiom (`folk_gen.py` already derives it as `X_AXLE_R - O
 `_aft(X_TAIL_OLD)` exactly because f = 1 at the tail). Two rows, three drift routes watched failing —
 re-typing the literal, drifting `O_NEW` (the silent case), drifting `LID_X1`.
 
-**`verify_clone.sh` 162 → 164.**
+**`verify_clone.sh` 162 → 165**, the last of them the row-count guard described in §7.2.
+
+---
+
+## §7.2 THE ROW COUNT ITSELF — THE MOST-REPEATED NUMERIC DEFECT, GUARDED
+
+A brief quotes `verify_clone.sh`'s total so the next context knows what to expect. That number has
+been wrong **three revisions running**: rev 52's brief said 138 then 151; rev 53's draft said 159
+then 160; this revision moved 160 → 162 → 164 → 165 with the prose lagging each time.
+
+**The cause is structural, not carelessness.** Until the tree is clean the banner reads
+*"N−1 PASSED, 1 FAILED"* — the clean-tree row **is** the failure — so the number on screen while a
+brief is being written is always one short. Every author transcribes the number they can see.
+
+The **last row in the script** now compares the newest brief's stated total against the script's own
+live `$PASS` tally. It must be last, because it counts every row before it. **It fails on a dirty
+tree by design**: that is the *"run it clean before you quote its total"* discipline made mechanical.
 
 ---
 

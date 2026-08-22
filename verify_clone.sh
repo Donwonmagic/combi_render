@@ -875,6 +875,22 @@ ck "START_HERE points at the newest brief"   1 "$(if [ -n "$_RN" ] && grep -qE "
 ck "heroes are NOT tracked"         0 "$(git ls-files 2>/dev/null | grep -c 'hero.*\.png')"
 ck "out/ is NOT tracked"            0 "$(git ls-files 2>/dev/null | grep -c '^out/')"
 
+# rev 53.  THE MOST-REPEATED NUMERIC DEFECT IN THESE HANDOFFS, FINALLY GUARDED.
+# A brief quotes this script's row total in its sec.1 so the next context knows
+# what to expect, and that number has been wrong THREE REVISIONS RUNNING:
+# rev 52's brief said 138 then 151; rev 53's draft said 159 then 160; and this
+# revision moved 160 -> 162 -> 164 while the prose lagged each time.  The cause
+# is structural, not carelessness: until the tree is clean the banner reads
+# "N-1 PASSED, 1 FAILED" -- the clean-tree row IS the failure -- so the number
+# on screen while a brief is being written is always one short.
+# MUST BE THE LAST ROW: it compares the brief's stated total against this
+# script's OWN live tally, so it has to run after every other ck.  PASS+1
+# counts this row itself, which is stable once set.
+# The brief also quotes bootstrap.sh's "ALL 10 PASS", so take the LARGEST
+# "ALL n PASS" in the file, not the first.
+_BRIEF_TOTAL="$(if [ -n "$_LATEST_BRIEF" ]; then grep -oE 'ALL [0-9]+ PASS' "$_LATEST_BRIEF" 2>/dev/null | grep -oE '[0-9]+' | sort -n | tail -1; else echo 0; fi)"
+ck "newest brief states THIS script's row count" "$((PASS+1))" "${_BRIEF_TOTAL:-0}"
+
 UNTRACKED="$(git status --porcelain 2>/dev/null | grep -c '^??')"
 if [ "${UNTRACKED:-0}" -gt 0 ]; then
   say
