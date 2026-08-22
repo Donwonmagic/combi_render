@@ -644,6 +644,14 @@ say "-- gitignore --"
 # WAS RENAMED, THE ROW WAS NOT LOOSENED: weakening a guard to accommodate my own
 # file naming is how a guard stops guarding.  Working crops must not carry
 # "hero" in their names.
+# rev 51 -- THE CARRIER GUARD.  CLAUDE.md is method-only and loads every session;
+# its whole value is that it carries NO measurements, because a figure in a
+# paragraph goes stale silently and this project has lost carriers exactly that
+# way.  This row is the mechanical stop on it becoming the fourth stale entry
+# door.  WATCHED FAILING: `mv CLAUDE.md x` reds it, and so does adding any
+# decimal figure to it.
+ck "CLAUDE.md exists" 1 "$([ -f CLAUDE.md ] && echo 1 || echo 0)"
+ck "CLAUDE.md carries no measurements" 0 "$(grep -cE '[0-9]+\.[0-9]' CLAUDE.md 2>/dev/null || echo 99)"
 ck "heroes are NOT tracked"         0 "$(git ls-files 2>/dev/null | grep -c 'hero.*\.png')"
 ck "out/ is NOT tracked"            0 "$(git ls-files 2>/dev/null | grep -c '^out/')"
 
