@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-22 13:48:37 UTC |
-| git commit | `7531aeb` |
-| git subject | rev 53: HIS RULING -- "follow the photograph, clean cream". The edge signal is the DEFAULT, and T1_PTWEAR (which rev 52 claimed existed) is BUILT |
+| generated | 2026-08-22 16:07:55 UTC |
+| git commit | `a342661` |
+| git subject | rev 54: the fascia fold is NOT silent -- the band is 1 mm and 0.27 px, and the radius lever is live at 4.45x |
 | working tree | clean |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=2 (applied, destructive, before booleans) |
@@ -50,6 +50,8 @@ over-rider posts (SPEC 10.91): NOT APPLICABLE -- the posts were built in rev 37 
 gap_englid is in the (y,z) TAIL frame at x=-1.7150; no flank aperture shares that surface, so a flank crossing test is NOT APPLICABLE (stated, not silently skipped)
 CARGO_GAP outline samples 154 (rev 22: 28, of which 20 on the corner arcs = 5.2 % of the length)
 band 1.372-1.775 un-dropped (1.307-1.710 AG)  bay widths 0.516 0.515 0.516
+hubcap badge: 4 rings R 0.043429 (= CAP_EMBLEM_D/2), glyph extreme 0.043429, spread 0.00e+00 m
+hubcap badge is SELF-CONSISTENCY ONLY -- CAP_EMBLEM_WFRAC has never been compared to a frame; see PHOTOS_WANTED item 7
 VERIFY: 0 fail, 0 warn
 ```
 
