@@ -6,6 +6,80 @@ session), then `LEDGER_rev55.md` — which is where every number below comes fro
 
 ---
 
+## §0. THE GOAL, AND HOW FAR OFF IT WE ACTUALLY ARE
+
+**CARRIED FORWARD FROM THE REV-55 BRIEF, WHICH GAINED THIS SECTION ON `main` AFTER REV 55 HAD
+ALREADY STARTED (§1). It is not mine and it is not to be dropped — rule 16.**
+
+**PHOTO-REALISTIC PARITY WITH THAT EXACT BUS.** Not "a convincing VW bus" — *that one*, the red
+Señor Tacombi combi in the frames on this repo. **Any single measurement off is unacceptable,
+per-measurement and not on average.** A model right in ninety places and wrong in one is not 99 %
+done, because he will look straight at the one. This paragraph is first because every revision has
+drifted toward whatever was measurable that week, and the goal is not "add rows".
+
+**AND HERE IS THE HONEST DISTANCE, MEASURED AT REV 55.** `verify_clone.sh` ends **ALL 201 PASS** and
+its own verdict block says what that is worth: **0 FIDELITY, 201 SELF-CONSISTENCY. Not one of those
+rows compares the vehicle to a photograph.** The whole parity question rests on **two** scripts:
+
+| gate | state at rev 55 |
+|---|---|
+| `flank_compare.py` | **runs, and still FAILS 2 of 4** — but rev 55 measured that **BOTH failing rows are ONE unknown, and it is an INSTRUMENT, not the model** (§2.2). Neither is a settled model defect |
+| `cream_rms.py` | **its photograph side is LIVE** and returns a real spectrum; **`run()` is still the dead `ref_side.jpg` path**, and neither it nor `mottle_measure.py` has one row in either verifier (§3.2) |
+| everything else | self-consistency |
+
+**So parity is still measured by ONE working gate — and rev 55's result is that the gate's two
+failures cannot be attributed to the vehicle until one number is established (§3.0 item A).**
+Adding a 202nd self-consistency row is not progress toward the goal; making a second gate run is.
+
+**A WORD ON REV 55'S OWN TEN ROWS, AGAINST THAT SENTENCE.** Rev 55 added ten `verify_clone` rows and
+they ARE self-consistency. They were not row-padding: rule 13 requires the guard in the same edit as
+the change, and every one of them holds a **retraction** in place — the true-normal withdrawal, the
+ground control's two-branch verdict, the aspect row's instrument note. **But the sentence above is
+right and should be read as aimed at rev 56:** the ten rows did not move the vehicle one millimetre
+closer to the photograph. §3.0 orders the work accordingly.
+
+**The frame reads as clay and the cause is the environment, not the shaders** — the surround is a
+featureless white cyclorama, so the paint has nothing to reflect. **He was shown that, told the cost,
+offered four routes, and ruled "keep studio, fix the model".** Parity is to be won on the MODEL, with
+that rig. **Do not re-litigate it.**
+
+### §0.1 THE REFERENCE SET IS COMPLETE, AND IT IS GUARDED FRAME BY FRAME
+
+> *[owner, rev 54]* **"we have all references that we need on repo and I want to make sure that is
+> never forgotten."**
+
+**Read that as two instructions and obey both.**
+
+**ONE: WHAT WE HOLD IS WHAT WE GET. STOP PARKING WORK BEHIND A PHOTOGRAPH.** For four revisions the
+top job has been logged as *"blocked on a photograph"*. It is not blocked; it is **hard**.
+`PHOTOS_WANTED_*` is a wish list, not a gate — carry it (rule 16, and items 1–5 are still not to be
+re-asked) but **do not let it license parking an item.** Rev 54 found a live route to the badge
+stroke weight in frames already on this repo and did not take it; **rev 55 did not take it either,
+and that is rev 55's clearest omission against this instruction. TAKE IT** (§3.3). Where a frame
+genuinely cannot answer, the result is *"it cannot be recovered from what we hold"* — a real result,
+stated with its ceiling — **not an item deferred to a photograph that is not coming.** Rev 55
+produced exactly one such result honestly: the red's G/R gap cannot be split between paint and
+illuminant, because the only near-neutral surface in the crop is there by construction (§2.1).
+
+**TWO: THEY CANNOT BE RE-SHOT, SO THEY ARE CHECKSUMMED INDIVIDUALLY.** Until rev 54 **not one row
+named a reference photograph** — the only image ever checksummed was `tex/emblem.png`, a build input.
+**18 rows now name them one at a time**, so a loss says *which*:
+
+* **the RED target bus** — `ref_side.jpg`, `ref_rear34.jpg`, `ref_playa_34.png`,
+  `ref_nolita_front34.jpg`, `ref_nolita_front34b.jpg`, `ref_nolita_flank.jpg`,
+  `ref_nolita_doorshut.jpg`, `IMG_2073.jpeg`
+* **NOT the target, geometry only** — `ref_workshop.jpg` is the **GREEN** vehicle; `bus_model_ref.JPG`
+  is a **SCHOOL BUS**, a fidelity bar only. **Paint and artwork do not transfer between vehicles;
+  geometry does (rule 11).**
+* **retired** — `ref_source.jpeg`, a 246×197 thumbnail the record itself retired
+* **derived/annotated** — `ref_grid.png`, `ref_side_grid.png`, `ref_nose_grid.png`,
+  `ref_band_grid.png`, `ref_x6_lanczos.png`
+* a **floor of 54** reference-class tracked images, and **the five byte-identical pairs are asserted
+  to stay five** — a sixth group means a frame arrived that duplicates one we already hold, which is
+  **not corroboration** and has fooled this project before (rule 11).
+
+---
+
 ## §1. START HERE — MEASURE THE BRANCH, DO NOT TRANSCRIBE IT
 
 ```bash
@@ -18,7 +92,7 @@ for b in $(git branch -r | grep -v HEAD); do
 done
 git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 ./bootstrap.sh          # ALL 10 PASS  -- THE BRANCH CHECK IS ROW 9
-./verify_clone.sh       # ALL 183 PASS -- and read what its verdict block says
+./verify_clone.sh       # ALL 201 PASS -- and read what its verdict block says
 ```
 
 **AT PICKUP, REV 55 MEASURED:** rev 54 **was merged**, through **PR #11** — so of the two shapes
@@ -43,7 +117,15 @@ shapes and **measure which**:
 > **ROW 9, NOT ROW 10** — confirmed again at rev 55 by reading the machine's own output:
 > row 8 clone depth, **row 9 "no branch carries work HEAD does not have"**, row 10 `verify_clone.sh`.
 
-**Re-measure before you finish, too.** `origin/main` moved mid-revision at rev 51.
+**RE-MEASURE BEFORE YOU FINISH, TOO — AND AT REV 55 THAT WARNING PAID.** `origin/main` moved
+mid-revision at rev 51, and **it moved again mid-revision at rev 55**: PRs **#12 and #13** landed
+after pickup, carrying four rev-54 commits, and they changed **`verify_clone.sh` (173 → 191 rows,
+the reference-set checksums), `NEXT_CONTEXT_PROMPT_rev55.md` (a whole new §0 and §0.1, including a
+NEW OWNER INSTRUCTION) and `PASTE_INTO_CLAUDE_CODE.txt`.** So rev 55 spent most of its length working
+from a brief that had been superseded on `main`, and **found out only because `bootstrap.sh` row 9
+failed at the end** — `STRANDED: origin/main(8 commits, 3 files)`. **That row is the only thing that
+caught it.** The merge was taken, both sets of rows kept, and §0/§0.1 are carried into this file.
+**Run the ahead/behind loop again before you close, every time.**
 
 ---
 
@@ -200,7 +282,7 @@ against the probes' own printouts. **What it found:**
 
 | what the draft said | what the machine says |
 |---|---|
-| `verify_clone.sh` **ALL 173 PASS** (carried from rev 55's §1) | **183** — this revision added ten rows |
+| `verify_clone.sh` **ALL 173 PASS** (what rev 55 measured at pickup) | **201.** Rev 55 added ten rows to the 173 it was handed, and `origin/main` brought **eighteen more** mid-revision (§1). A brief drafted before the merge said 183 and would have failed its own row |
 | rev 54's work landed through **PR #10** | **PR #11.** #10 was rev 53's. Read off `git log`, not carried |
 | the ink offsets are **+41.2/+38.6/+36.3** | **+41.3/+38.6/+36.2** on this revision's own fresh render; the rev-54 figures reproduce to <0.3 DN, so they were sound |
 | `Senor` is at **0.476** of its ceiling | **0.483** on the fresh render (rev 54 read 0.476). Render-to-render, not regression |
