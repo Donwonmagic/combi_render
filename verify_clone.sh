@@ -886,8 +886,14 @@ ck "out/ is NOT tracked"            0 "$(git ls-files 2>/dev/null | grep -c '^ou
 # MUST BE THE LAST ROW: it compares the brief's stated total against this
 # script's OWN live tally, so it has to run after every other ck.  PASS+1
 # counts this row itself, which is stable once set.
-# The brief also quotes bootstrap.sh's "ALL 10 PASS", so take the LARGEST
-# "ALL n PASS" in the file, not the first.
+# READ IT OFF THE COMMAND LINE, NOT BY PICKING THE LARGEST NUMBER.  The first
+# version took the largest "ALL n PASS" anywhere in the brief, to dodge
+# bootstrap's "ALL 10 PASS".  WATCHED FAILING ON THE WRONG THING: a brief that
+# merely MENTIONS a bigger historical figure in prose -- and briefs quote old row
+# counts all the time; this one quotes "ALL 159 PASS" in its own audit table --
+# made the row read 900 and fail.  That is the carry-forward block's stated
+# principle firing on me (line ~817: re-wording the brief must not fail a row).
+# So anchor on the line that actually invokes this script.
 # WATCHED FAILING ON BOTH REAL MODES: a brief carrying the pre-commit number
 # (got 164, want 163), and a row added and COMMITTED without updating the brief
 # (got 165, want 166).
@@ -896,7 +902,7 @@ ck "out/ is NOT tracked"            0 "$(git ls-files 2>/dev/null | grep -c '^ou
 # this row cannot see a newly added row until it is committed.  That is
 # acceptable only because the clean-tree row is itself failing at that moment
 # and the script already says STOP.  It is NOT a row you can trust mid-edit.
-_BRIEF_TOTAL="$(if [ -n "$_LATEST_BRIEF" ]; then grep -oE 'ALL [0-9]+ PASS' "$_LATEST_BRIEF" 2>/dev/null | grep -oE '[0-9]+' | sort -n | tail -1; else echo 0; fi)"
+_BRIEF_TOTAL="$(if [ -n "$_LATEST_BRIEF" ]; then grep -E '\./verify_clone\.sh' "$_LATEST_BRIEF" 2>/dev/null | grep -oE 'ALL [0-9]+ PASS' | grep -oE '[0-9]+' | head -1; else echo 0; fi)"
 ck "newest brief states THIS script's row count" "$((PASS+1))" "${_BRIEF_TOTAL:-0}"
 
 UNTRACKED="$(git status --porcelain 2>/dev/null | grep -c '^??')"
