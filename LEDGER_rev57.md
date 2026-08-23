@@ -401,3 +401,103 @@ mottle removed — is where rev 58 starts. **Do not tune `MOTTLE_M`.**
 * **Nothing was asked of the owner.** Rev 57 put **no** question to him: every item it touched was
   answerable from the repository, and §0.1 says that is the point. The one question worth his time
   is now F38/F39-shaped, and rev 58 should decide whether to ask it rather than inherit it unasked.
+
+---
+
+## §6. REV 57b — THE EFFICIENCY AUDIT. EVERY NUMBER
+
+**Owner-facing summary in `AUDIT_rev57_efficiency.md`. This is the arithmetic behind it.**
+
+### §6.1 THE MODEL HAS STOPPED CHANGING
+
+Non-comment lines changed in `t1_core` / `t1_shell` / `t1_detail` / `t1_mats` / `build` /
+`lid_gen` / `script_gen` / `studio`, per revision, from git:
+
+| rev | 48 | 49 | 50 | 51 | 52 | 53 | 54 | 55 | 56 | 57 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| model **code** | 266 | 297 | 145 | 102 | 34 | 10 | **0** | 3 | 3 | **0** |
+| prose **added** | — | — | — | 1781 | 804 | 1023 | 1540 | 1691 | 1642 | 1630 |
+
+**Four revisions, six lines of model code, two of them zero, against 6,503 lines of prose.**
+Tracked text today: **model 15,169 | prose 107,957 | probes 24,444 | verifiers 3,491.** Prose is
+**7.1×** the model; everything-not-the-model is **10.0×** it.
+
+### §6.2 THE VISIBILITY BUDGET
+
+`visibility_budget.py`, at a 3840 px delivery frame. Scale **measured**, not assumed: the subject's
+own bbox in `out/r57_hero.png` is **1356 px** across a **4.065 m** bus → **801 px/m, 1.25 mm/px**.
+
+| rank | finding | area affected |
+|---|---|---|
+| 1 | **F44** gloss, cream upper body | 2.48 × 10⁶ px² |
+| 2 | **F44** gloss, red flank | 9.61 × 10⁵ px² |
+| 3 | **F15** A7, unlit roofed body | 8.23 × 10⁵ px² |
+| 4 | **F45** galley interior | 3.97 × 10⁵ px² |
+| 5 | **F45** roof-aperture interior | 3.46 × 10⁵ px² |
+| 6 | **F01/F39** `Senor`, 28.5 % of its ink | 2.69 × 10⁴ px² |
+| 7 | **F10** galley 103 mm aft | 6.80 × 10³ px² |
+| 8 | **F03/F04** `MOTTLE_M` | 3.69 × 10² px² |
+| 9 | **F08** badge stroke, whole bracket | 1.17 × 10² px² |
+| 10 | **F38** ring band +9.5 % | 4.54 px² |
+| 11 | **F08** the 5.09 % it was for | **1.37 px²** |
+
+**Ratio between the ends: 1,813,098.** Linear equivalents at the same scale: galley **82.5 px**,
+A7 **643 px**, `MOTTLE_M` **19.2 px**, badge bracket **10.8 px**, badge 5.09 % **1.2 px**.
+
+### §6.3 F44 — THE GLOSS, MEASURED
+
+`gloss_compare.py`. One flat red panel each side, **no lamp, no badge, no chrome**; every figure
+divided by that region's **own median**, so exposure, white balance and every open px/m bracket
+cancel. **Not a colour comparison** — W6 does not bite.
+
+| | n | p5/med | median | p95/med | **spread** | **headroom** |
+|---|---|---|---|---|---|---|
+| render, `out/r57_hero.png` | 33 643 | 0.611 | 106.4 | 1.078 | **0.468** | **0.140** |
+| photograph, `ref_nolita_front34.jpg` | 20 549 | 0.598 | 54.0 | 1.791 | **1.192** | **1.007** |
+
+**Render spread / photograph spread = 0.392 against a 0.60 bar — FAIL. Headroom ratio 0.139.**
+
+**Calibrated before it was believed.** Exposure: **0.4677 at 0.70×, 1.00× and 1.40×** — identical to
+four decimals. Resolution: full **1.1921** against half-size **1.1460**, **3.9 %** apart.
+**Windows painted** — `probe_scratch/rev57_gloss_render.png` / `_photo.png`. The first attempt
+included the lit headlamp and read 7.43× instead of 7.20×; excluding it changed the conclusion not
+at all, which is the robustness check.
+
+### §6.4 F47 — WHERE THE GLOSS LIVES, AND A STALE PREMISE
+
+`body_paint()` sets, on `T1_paint` — **the whole two-tone body, red and cream both**:
+`Roughness` **0.420**, `Specular IOR Level` **0.50**, **`Coat Weight` 0.02**, `Coat Roughness`
+**0.300**. Coat weight 0.02 is, to two figures, **no clearcoat**; car paint is ~1.0 over
+coat roughness ~0.03, on a base of 0.05–0.15.
+
+The `WEATHER` header still reads *"nearly invisible at Specular IOR Level 0.21 / Roughness 0.42"*.
+**Specular IOR Level has been 0.50 since rev 8** and the fix-note sits four lines from the live
+assignment. The comment's conclusion survives; its premise is stale by nine revisions.
+
+**AND THE TRAP IS IN THE SOURCE TOO:** *"the red measured sat 0.37 against the reference's 0.82 and
+read salmon. Chalky finish restores the chroma."* **The high roughness is load-bearing for the
+colour**, and colour is the owner's call. Gloss and chroma may trade; measure both.
+
+### §6.5 WASTE, MEASURED
+
+| | measured | |
+|---|---|---|
+| ablations at 64 spp | rev 56 recorded the statistic stable across 16/32/48; rev 57's sweep paid **4.8 min × 9 = 43 min** against ~11 | ~**30 min** |
+| strips rebuild the scene | **65 s × 10 = 10.8 min** of tonight's delivery render | ~**11 min** |
+| `out/` empty at pickup | a baseline render before anything can run | ~**10 min** |
+| the row count | moved **three times** at rev 56 and **three** at rev 57 | now `audit_brief.py --fix-count` |
+
+### §6.6 WHAT REV 57b GOT WRONG, AND HOW IT WAS CAUGHT
+
+* **An extrapolation published as a measurement.** I wrote *"~1 h 50 m"* for the delivery render off
+  **strip 0 alone**. Strip 1 took **1102 s** against strip 0's **683 s**. Retracted in place.
+* **A false green from a relaxed check.** `audit_brief.py` and `verify_clone.sh` both assert every
+  `T1_` switch a brief names appears as `os.environ.get("NAME")`. `probe_rev58_gloss.py` read its
+  levers through a helper; I loosened **my** copy to fit, got a green from the tool I had just
+  edited, and **failed the repository's own verifier** on `T1_GL_COATW` and `T1_GL_COATR`, 2 of 45.
+  The fix belonged in the probe. **A relaxed copy of a check is worse than no copy.**
+* **IDs drifted between a script and the register** — `visibility_budget.py` still labelled the
+  gloss rows with pre-F44 IDs. Caught by reading its output against `OPEN_FINDINGS.md`.
+* **A suspicion refuted.** The render's nose roundel is body-red and looked wrong to me;
+  `ref_nolita_front34.jpg` shows the red bus's own roundel and it **is** body-red. The render is
+  right. *A control that finds nothing is still a result.*
