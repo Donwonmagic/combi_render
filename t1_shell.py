@@ -1379,6 +1379,61 @@ def _lid_face(x0, x1, w, name, inset=0.030, off=0.0):
     return ob
 
 
+def _decal_aspect_guard(ob, tol=0.010, filename="lidmural.png"):
+    """The mural decal quad must carry tex/lidmural.png at its authored aspect.
+
+    rev 59, ITEM 1's guard, added in the SAME edit as the fix.
+
+    TWO INDEPENDENTLY OBTAINED QUANTITIES, so it is not a tautology (rule 6):
+      * the aspect of the quad AS BUILT, measured off `ob`'s own vertices --
+        not recomputed from LID_X0/LID_X1/LID_W, which is what the call site
+        already knows;
+      * the aspect of the IMAGE FILE, read out of the PNG's IHDR on disk --
+        `lid_gen.py` authors that file and nothing here can influence it.
+
+    A stretched decal is invisible to every existing check: the panel is the
+    right size, the material is bound, the texture is not stale, and VERIFY
+    reads 0 fail.  It is only visible as distortion of the printed artwork.
+
+    WATCH IT FAIL:  T1_LIDINSET=0.030 restores the rev-8..58 inset and this
+    must refuse (built 1.6963 against the file's 1.6543, +2.54 %).
+
+    An ABSENT texture is reported as "NO TEXTURE" and is NOT a pass (rule 37).
+    """
+    import struct
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                        "tex", filename)
+    if not os.path.exists(path):
+        print("_decal_aspect_guard: NO TEXTURE at %s -- NOT CHECKED, and this "
+              "is an absent input, not a pass" % path)
+        return None
+    with open(path, "rb") as fh:
+        head = fh.read(24)
+    if head[:8] != b"\x89PNG\r\n\x1a\n" or head[12:16] != b"IHDR":
+        print("_decal_aspect_guard: %s is not a PNG IHDR -- NOT CHECKED"
+              % filename)
+        return None
+    iw, ih = struct.unpack(">II", head[16:24])
+    co = [v.co for v in ob.data.vertices]
+    # ASK THE MESH, not the pose or the constants (rule 35): the quad's own
+    # two edge lengths, taken as the bbox spans in the frame it was built in.
+    bl = max(c.x for c in co) - min(c.x for c in co)
+    bw = max(c.y for c in co) - min(c.y for c in co)
+    built, authored = bl / bw, iw / float(ih)
+    err = built / authored - 1.0
+    print("decal aspect: built %.4f (%.4f x %.4f m) vs %s %d x %d = %.4f "
+          "-> %+.2f %%" % (built, bl, bw, filename, iw, ih, authored,
+                           err * 100.0))
+    assert abs(err) <= tol, (
+        "SPEC/rev 59 item 1: the mural decal quad is %.4f but tex/%s is "
+        "authored %d x %d = %.4f, so the printed image is stretched %+.2f %% "
+        "along the vehicle (tolerance %.1f %%).  lid_gen.py traces the OUTER "
+        "edge of the yellow strips as the board boundary; a border inset here "
+        "makes the two files disagree about what that edge means."
+        % (built, filename, iw, ih, authored, err * 100.0, tol * 100.0))
+    return err
+
+
 # ============================================================ rev 48, JOB 1
 # THE ENGINE / TRUNK LID, OPENED -- his newest requirement.
 #
@@ -2379,7 +2434,35 @@ def roof_lids():
     # z in [-LID_T, 0]; a board at -0.0016 sits just under the UPPER face, and
     # _lid_panel's pressed seams dip to -0.0028 and poke through the decal
     # plane.  The underside is at -LID_T.
-    b = _lid_face(LID_X0, LID_X1, LID_W, "lid_board", off=-(LID_T + 0.0016))
+    # rev 59, ITEM 1 -- THE 30 mm INSET IS DROPPED AT THIS CALL SITE ONLY.
+    # `_lid_face`'s DEFAULT stays 0.030 because `signboard()` shares it; this
+    # is a call-site override, not a change of the function's contract.
+    #
+    # THE TWO FILES DISAGREED ABOUT WHAT THE TEXTURE'S BORDER MEANS.
+    # `lid_gen.py` traces the OUTER EDGE OF THE YELLOW STRIPS as the board
+    # boundary, i.e. the image already runs to the panel edge; this call then
+    # treated that same edge as 30 mm INBOARD of the panel.  The 30 mm was
+    # applied on all four sides of a 2.0340 x 1.2237 m panel -- 1.47 % of the
+    # length but 2.45 % of the width -- so it did two things at once:
+    #   * a bare-cream border all round that ref_side.jpg does not have
+    #     (a thin specular lip on the top and right edges only, <= 0.4 % of
+    #     the board's height at 6 columns, against 3.7 % rendered);
+    #   * it STRETCHED the printed image along the vehicle.  Decal quad
+    #     1.9740 x 1.1637, aspect 1.6963, against tex/lidmural.png's authored
+    #     2048 x 1238 = 1.6543 -> +2.54 % along X.  At inset 0.0 the quad is
+    #     2.0340 x 1.2237 = 1.6621 and the residual stretch is +0.47 %.
+    # Both figures recomputed from LID_X0/LID_X1/LID_ASPECT/LID_OPEN_DEG here,
+    # not transcribed.
+    #
+    # THE BOARD'S SIZE IS A SEPARATE, OPEN FINDING AND IS NOT TOUCHED HERE:
+    # LID_W, LID_X0, LID_X1 and LID_ASPECT are all unchanged.
+    #
+    # T1_LIDINSET restores the old value so the border can be WATCHED coming
+    # back -- the ablation for this item.
+    _LID_INSET = float(os.environ.get("T1_LIDINSET", 0.0))
+    b = _lid_face(LID_X0, LID_X1, LID_W, "lid_board",
+                  inset=_LID_INSET, off=-(LID_T + 0.0016))
+    _decal_aspect_guard(b)
     _hinge(b, 0.0, LID_Y_HINGE, zh, LID_OPEN_DEG)
     boards.append(b)
 

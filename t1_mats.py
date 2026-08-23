@@ -2257,6 +2257,78 @@ def build_all():
     # does not float, but chip the paint UNDER it, not the silver
     apply_weather(M["script"], dust=1.0, wear=0.0, fade=0.5, peel=0.0)
 
+    # ------------------------------------------------ rev 59, ITEM 2
+    # THE ROOF BOARDS HAD NO WEATHERING AT ALL, ON THE MOST EXPOSED SURFACE
+    # ON THE VEHICLE.
+    #
+    # `lidmural` and `lidsign` are built by `img_paint()`, which is FIVE
+    # nodes -- Image -> Base Color, Image -> RGBToBW -> MapRange -> Roughness,
+    # and a flat Specular IOR Level.  No Coat, no Normal, and they were the
+    # only two large painted EXTERIOR surfaces on the vehicle that were not in
+    # the apply_weather() list above: no dust, no orange-peel normal, no
+    # micro-roughness field.  SPEC sec.3 locks the finish as WEATHERED and a
+    # flat, unbroken printed panel is the plastic look that lock exists to
+    # keep out.
+    #
+    # THE PARAMETERS, AND WHY EACH ONE IS WHAT IT IS -- not a batch copy:
+    #
+    #   dust 1.0   the value every other exterior painted surface carries
+    #              (`paint`, `cream`, `script`).  The board is outdoors and
+    #              faces UP when the lid is shut.
+    #
+    #   wear 0.0   DELIBERATELY ZERO, like `script`.  The wear path in
+    #              weather_group() replaces the shaded colour with W_PRIMER
+    #              and then W_STEEL, and links the group's Metallic output --
+    #              that is a model of a chip through SPRAYED PAINT ON STEEL.
+    #              Putting bare metal through a printed board is a claim no
+    #              frame here supports, so it is not made.
+    #
+    #   peel 0.0   the cluster above already says why: "not sprayed sheet
+    #              metal".  A print does not lift the way a sprayed panel does.
+    #
+    #   fade       THE ONLY TERM THAT MOVES THE AREA MEAN, so it is the one
+    #              that had to be argued rather than picked.  The comment over
+    #              M["lidmural"] records that tex/lidmural.png's interior mean
+    #              matches ref_side.jpg's board interior to ONE sRGB code per
+    #              channel -- i.e. the photograph's own weathering is ALREADY
+    #              baked into both sides of that comparison.  A large
+    #              synthetic fade would double-count it and walk the render
+    #              off a match that is already good.  This is the same reason
+    #              rev 44 cut `capred`'s fade to 0.25, and it takes the same
+    #              value.  T1_LIDW_FADE sweeps it.
+    #
+    # WHAT THIS BUYS is SPATIAL structure -- the dust breakup, the orange-peel
+    # normal and the micro-roughness field -- not a colour move.  MEASURE the
+    # area mean either side of it and say if it moved (T1_LIDWEATHER=0).
+    #
+    # T1_LIDWEATHER=0 is the ABLATION: it restores the rev-8..58 bare boards
+    # so this can be WATCHED CHANGING THE PIXELS rather than assumed to.
+    if os.environ.get("T1_LIDWEATHER", "1") != "0":
+        _LIDW_FADE = float(os.environ.get("T1_LIDW_FADE", 0.25))
+        for _k in ("lidmural", "lidsign"):
+            apply_weather(M[_k], dust=1.0, wear=0.0, fade=_LIDW_FADE, peel=0.0)
+        # THE SPLICE MUST HAVE LANDED.  apply_weather() is a graph rewrite and
+        # a rewrite that quietly does nothing is this project's commonest
+        # failure mode (rev 56's lid_rail: built, bound, and EMPTY).  Ask the
+        # graph, not the call: all three of Base Color, Roughness and Normal
+        # must now be fed from a node group, on both boards.
+        for _k in ("lidmural", "lidsign"):
+            _b = _bsdf(M[_k])
+            _bad = [_s for _s in ("Base Color", "Roughness", "Normal")
+                    if not (_b.inputs[_s].links and
+                            _b.inputs[_s].links[0].from_node.type == 'GROUP')]
+            assert not _bad, (
+                "rev 59 item 2: apply_weather(%s) returned but %s still "
+                "%s not group-driven -- the weather splice did NOT land and "
+                "the board would render bare while this code reads as though "
+                "it did not." % (_k, _bad, "is" if len(_bad) == 1 else "are"))
+        print("lid boards: WEATHER spliced on lidmural + lidsign "
+              "(dust 1.0, wear 0.0, fade %.2f, peel 0.0, normal on)"
+              % _LIDW_FADE)
+    else:
+        print("T1_LIDWEATHER=0: lid boards left BARE -- the rev-8..58 state, "
+              "no dust, no fade, no orange-peel normal (ABLATION)")
+
     # ------------------------------------ the constant-roughness offenders
     # STATE.md counted 9 and allows exactly two classes through: transmissive,
     # and the sealed reflector.  Adjudicated one at a time, not as a batch:
