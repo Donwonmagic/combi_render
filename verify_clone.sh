@@ -1000,7 +1000,27 @@ ck "the IMPORTED entry procedure IS the newest brief" 1 "$(if [ -n "$_LATEST_BRI
 ck "CLAUDE.md still imports that entry procedure"     1 "$(grep -c '^@PASTE_INTO_CLAUDE_CODE.txt' CLAUDE.md)"
 ck "README points at the newest brief"       1 "$(if [ -n "$_RN" ] && grep -qE "rev $_RN\b" README.md 2>/dev/null; then echo 1; else echo 0; fi)"
 ck "START_HERE points at the newest brief"   1 "$(if [ -n "$_RN" ] && grep -qE "rev $_RN\b" START_HERE.md 2>/dev/null; then echo 1; else echo 0; fi)"
-ck "heroes are NOT tracked"         0 "$(git ls-files 2>/dev/null | grep -c 'hero.*\.png')"
+# rev 57b, OWNER RULING.  The rule was "no hero PNG tracked, ever", and it is
+# right about FULL-SIZE heroes: they are 11 MB and regenerable.  But it also
+# meant the delivery frame each revision is told to BEAT cost 107 minutes to
+# regenerate before it could be compared to, so no baseline ever survived a
+# revision.  He ruled that a DOWNSIZED reference is exempt.
+#
+# NARROWED BY DIMENSION, NOT BY NAME.  A name exemption is a hole anyone can
+# walk through by renaming; a width cap cannot be dodged without actually
+# shrinking the file.  Tracked hero PNGs must be <= 1600 px wide.
+ck "no FULL-SIZE hero is tracked" OK "$(python3 -c "
+import subprocess
+from PIL import Image
+bad=[]
+for f in subprocess.run(['git','ls-files'],capture_output=True,text=True).stdout.split():
+    if 'hero' in f and f.endswith('.png'):
+        try:
+            w,_=Image.open(f).size
+        except Exception:
+            continue
+        if w > 1600: bad.append('%s (%d px)'%(f,w))
+print('OK' if not bad else 'FULL-SIZE HERO TRACKED: '+'; '.join(bad))" 2>&1 | tail -1)"
 ck "out/ is NOT tracked"            0 "$(git ls-files 2>/dev/null | grep -c '^out/')"
 
 # rev 53.  THE MOST-REPEATED NUMERIC DEFECT IN THESE HANDOFFS, FINALLY GUARDED.
@@ -1189,6 +1209,185 @@ g = s.index('if clip > 0.02:')
 b = s.index('--- BASE LEVEL')
 print('OK' if g < b else 'GUARD IS AFTER THE FIRST PRINTED NUMBER')" 2>&1 | tail -1)"
 ck "mottle_measure binds PHOT exactly once"    1 "$(grep -c '^PHOT = ' mottle_measure.py)"
+
+# ------------------------------------------------- rev 57: THE NOSE BADGE
+# ITEM A, THE TOP JOB, TAKEN AFTER THREE REVISIONS OF DEFERRAL -- AND CLOSED
+# WITH A CEILING RATHER THAN A NUMBER.  These rows hold the parts of that
+# result that a later revision could quietly lose.
+#
+# The photographable quantity is stroke width / ring OUTER radius, taken off
+# the BUILT MESH (probe_rev57_geom.py -> probe_scratch/rev57_glyph.npz), not
+# off CAP_EMBLEM_WFRAC and not off the brief.  ARITHMETIC, not a grep: this
+# row re-derives all six strokes from the dump every run.
+ck "the six built nose strokes are ONE width" OK "$(python3 -c "
+import numpy as np
+Z=np.load('probe_scratch/rev57_glyph.npz',allow_pickle=True)
+cy,cz,R=float(Z['cy']),float(Z['cz']),float(Z['R_OUT'])
+V=Z['polys'][0].astype(float); W=Z['polys'][2].astype(float)
+V=np.column_stack([V[:,0]-cy,V[:,1]-cz])/R; W=np.column_stack([W[:,0]-cy,W[:,1]-cz])/R
+def pw(P,q):
+    a,b,c,d=[P[i] for i in q]
+    u=(b-a)/np.linalg.norm(b-a); n=np.array([-u[1],u[0]])
+    return abs(np.dot(a-c,n))
+w=[pw(V,(1,2,5,0)),pw(V,(2,3,4,5)),pw(W,(1,2,9,0)),
+   pw(W,(2,3,8,9)),pw(W,(3,4,7,8)),pw(W,(4,5,6,7))]
+print('OK' if (max(w)-min(w))/np.mean(w) < 0.005 else 'SPREAD %.4f'%((max(w)-min(w))/np.mean(w)))" 2>&1 | tail -1)"
+
+# The VALUE the newest brief and the ledger quote, recomputed from the dump.
+# If the badge geometry moves, this row moves with it and the prose does not.
+ck "the built nose stroke is 0.20455 of the ring R" 0.20455 "$(python3 -c "
+import numpy as np
+Z=np.load('probe_scratch/rev57_glyph.npz',allow_pickle=True)
+cy,cz,R=float(Z['cy']),float(Z['cz']),float(Z['R_OUT'])
+V=Z['polys'][0].astype(float); W=Z['polys'][2].astype(float)
+V=np.column_stack([V[:,0]-cy,V[:,1]-cz])/R; W=np.column_stack([W[:,0]-cy,W[:,1]-cz])/R
+def pw(P,q):
+    a,b,c,d=[P[i] for i in q]
+    u=(b-a)/np.linalg.norm(b-a); n=np.array([-u[1],u[0]])
+    return abs(np.dot(a-c,n))
+print('%.5f'%np.mean([pw(V,(1,2,5,0)),pw(V,(2,3,4,5)),pw(W,(1,2,9,0)),
+                      pw(W,(2,3,8,9)),pw(W,(3,4,7,8)),pw(W,(4,5,6,7))]))" 2>&1 | tail -1)"
+
+# NO RESULT MAY BE HARD-CODED INTO THE PROBE THAT PRODUCES IT.  rev 57's own
+# band control shipped a CONSTANT verdict string on its first run and the
+# string contradicted the numbers printed two lines above it -- sec.3.7's
+# lesson, fired on the probe written to honour it.  This row forbids the
+# measured values appearing as literals in the file that measures them.
+ck "the badge probe hard-codes none of its results" 0 \
+   "$(grep -cE '0\.23985|0\.14318|0\.09209|0\.09280|0\.20592' probe_rev57_badge.py)"
+
+# ... and the band control's verdict must be COMPUTED from the two gaps.
+ck "the band control's verdict is DERIVED" 1 \
+   "$(grep -c 'if _gap < 0.25 \* _str' probe_rev57_badge.py)"
+
+# F37.  t1_detail.py states the nose badge's ring outer D TWICE, with two
+# different values, about one boundary in one frame.  BOTH halves are held:
+# the disagreement is real (both strings still present) AND it is now
+# retracted in the SOURCE, not only in a ledger (rule 15).
+ck "both of the record's ring-D readings are still there" 2 \
+   "$(grep -cE 'outer D 91\.729 px|vertical D 91\.885 px' t1_detail.py)"
+# This one IS a grep, deliberately: what it asserts is that a RETRACTION is
+# present where a reader meets the defect, and prose is the only form that
+# takes.  It is anchored on the third reading's VALUE, not on a slogan, so
+# deleting the paragraph or replacing it with a hand-wave fails the row.
+ck "the ring-D disagreement is retracted IN THE SOURCE" 1 \
+   "$(grep -c 'vertical D 92.728 px' t1_detail.py)"
+
+# The mottle levers item B is swept on must READ THE ENVIRONMENT, not merely
+# be named in a comment -- the same anchoring the rev-56 switch row uses.
+ck "T1_MOT_M reads the environment"   1 "$(grep -c 'os.environ.get("T1_MOT_M"' t1_mats.py)"
+ck "T1_MOT_RGH reads the environment" 1 "$(grep -c 'os.environ.get("T1_MOT_RGH"' t1_mats.py)"
+
+# The register is a CARRIER (rule 16).  Rows leave it only by being closed or
+# retired -- never by being dropped -- so the IDs must be contiguous from F01
+# with no gap.  ARITHMETIC: it counts the IDs and checks the run.
+ck "OPEN_FINDINGS keeps an unbroken F01..Fnn" OK "$(python3 -c "
+import re
+ids=sorted({int(m) for m in re.findall(r'\*\*F(\d\d)\*\*', open('OPEN_FINDINGS.md').read())})
+print('OK' if ids and ids==list(range(1,len(ids)+1)) else 'GAP %s'%ids)" 2>&1 | tail -1)"
+
+# ------------------------------------------- rev 57: ITEM B WAS REFUTED
+# The gate does not measure the mottle.  These rows hold the refutation so a
+# later revision cannot re-inherit "tune MOTTLE_M" as though it were open.
+#
+# THE ABLATION LEVER MUST STAY A LEVER, not a comment.
+ck "T1_MOT_AMP reads the environment" 1 "$(grep -c 'os.environ.get("T1_MOT_AMP"' t1_mats.py)"
+
+# The refutation must live in the SOURCE, not only in a ledger (rule 15), and
+# it is anchored on the MEASURED value, so a hand-wave does not satisfy it.
+ck "mottle_measure records that it is not measuring the mottle" 1 \
+   "$(grep -c 'sd 0.2594, peak-to-peak 1.603 -- 6.5' mottle_measure.py)"
+ck "the dead 16-bit branch is retracted where it lives" 1 \
+   "$(grep -c 'WRONG SIDE OF THE CONVERSION' shader_solve.py)"
+
+# ...AND THE 16-BIT CLAIM IS TESTED, NOT ASSERTED.  F42 says PIL silently
+# downconverts a 16-bit RGBA PNG, so shader_solve's `a.max() > 255.0` test can
+# never fire.  This row BUILDS such a PNG and asks PIL what it gets back.  The
+# day PIL gains 16-bit RGBA support, or the reader is fixed, THIS ROW FAILS --
+# which is exactly when the comment beside it stops being true.  A guard on
+# behaviour, not on a grep (sec.10.4).
+ck "PIL really does downconvert 16-bit RGBA (F42 is live)" OK "$(python3 -c "
+import zlib, struct, io, numpy as np
+from PIL import Image
+w=h=4
+raw=b''.join(b'\x00'+b''.join(struct.pack('>HHHH',30000,30000,30000,65535) for _ in range(w)) for _ in range(h))
+def chunk(t,d):
+    c=t+d; return struct.pack('>I',len(d))+c+struct.pack('>I',zlib.crc32(c)&0xffffffff)
+png=(b'\x89PNG\r\n\x1a\n'+chunk(b'IHDR',struct.pack('>IIBBBBB',w,h,16,6,0,0,0))
+     +chunk(b'IDAT',zlib.compress(raw))+chunk(b'IEND',b''))
+a=np.asarray(Image.open(io.BytesIO(png)).convert('RGBA'))
+print('OK' if a.dtype==np.uint8 and a.max()<=255 else 'PIL NOW RETURNS %s max %s'%(a.dtype,a.max()))" 2>&1 | tail -1)"
+
+# ------------------------------- rev 57b: THE RANKING RULE, AND THE 3rd GATE
+# The efficiency audit found the ORDERING rule was the defect, not any row in
+# it.  These rows hold the replacement so it cannot quietly revert to "gate
+# availability" -- which is how four revisions went to a 1.4 px^2 question.
+#
+# BEHAVIOUR, not a grep: the budget script must actually RUN and must still
+# rank the paint's gloss above the badge stroke by orders of magnitude.
+ck "the visibility budget still ranks gloss over the badge" OK "$(python3 -c "
+import subprocess,re
+o=subprocess.run(['python3','visibility_budget.py','3840'],capture_output=True,text=True).stdout
+r=[l for l in o.splitlines() if re.match(r'^ +\d+\. ',l)]
+top=r[0] if r else ''; bot=r[-1] if r else ''
+print('OK' if 'GLOSS' in top and 'badge' in bot else 'ORDER CHANGED: %r / %r'%(top[:40],bot[:40]))" 2>&1 | tail -1)"
+
+# The third gate must RUN and must still be exposure-free -- the property that
+# makes it immune to the three open px/m and white-balance unknowns.
+ck "gloss_compare is exposure-free" OK "$(python3 -c "
+import subprocess,re
+o=subprocess.run(['python3','gloss_compare.py'],capture_output=True,text=True).stdout
+v=re.findall(r'x[01]\.\d\d  spread (\d\.\d+)', o)
+print('OK' if len(v)==3 and len(set(v))==1 else 'MOVED: %s'%v)" 2>&1 | tail -1)"
+
+# ...and it must be measuring GLOSS, not colour, or W6 bites.
+# ...and it must be measuring GLOSS, not colour, or W6 bites.  ANCHORED ON
+# CODE, NOT PROSE: a flat grep fired on the docstring sentence that EXPLAINS
+# it does not compare colour -- the fourth time in this repository that a row
+# has matched an explanation of a defect and called it the defect.  This one
+# strips comments and docstrings first and looks only at what executes.
+ck "gloss_compare compares no colour IN CODE"  0 "$(python3 -c "
+import ast,re
+src=open('gloss_compare.py').read()
+t=ast.parse(src)
+lines=set(range(1,src.count(chr(10))+2))
+for n in ast.walk(t):                     # drop every docstring's line range
+    if isinstance(n,(ast.Module,ast.FunctionDef,ast.ClassDef)):
+        d=ast.get_docstring(n,clean=False)
+        if d is not None:
+            b=n.body[0]
+            for i in range(b.lineno,(b.end_lineno or b.lineno)+1): lines.discard(i)
+code=[l for i,l in enumerate(src.splitlines(),1)
+      if i in lines and not l.strip().startswith('#')]
+print(sum(1 for l in code if re.search(r'G/R|hue|chroma|saturation',l)))" 2>&1 | tail -1)"
+ck "the audit's ranking rule is carried in the brief" 1 \
+   "$(if [ -n "$_LATEST_BRIEF" ]; then grep -c 'RANK BY PIXELS OF THE DELIVERY FRAME' "$_LATEST_BRIEF"; else echo 0; fi)"
+
+# ------------------------------- rev 57b: F51, THE RIG LIVES IN THE PREVIEW
+# build.py constructs the cyclorama, the lighting, the cabin fill and the
+# camera INSIDE `if os.environ.get("T1_PREVIEW"):`, so anything that execs
+# build.py to MEASURE gets a scene with no lights.  It produced a BLACK BUS
+# delivery frame that passed every automated check, and it is the same root
+# cause as F05's dead beauty arm.
+#
+# Until the rig is factored into one function, two scripts DUPLICATE that
+# sequence.  This row compares the sequences so the duplication cannot rot in
+# silence -- if build.py's rig changes and the probes' does not, it fails.
+ck "the duplicated studio rig still matches build.py" OK "$(python3 -c "
+import re
+def seq(f, lo=None):
+    t=open(f).read()
+    if lo: t=t[t.index(lo):]
+    return [m for m in re.findall(r'ST\.(cyclorama|lighting|cabin_fill|camera)\(', t)]
+b=seq('build.py','if os.environ.get(\"T1_PREVIEW\")')
+h=seq('hq_render.py'); g=seq('probe_rev58_gloss.py')
+print('OK' if b and b==h==g else 'DRIFTED build=%s hq=%s gloss=%s'%(b,h,g))" 2>&1 | tail -1)"
+
+# ...and the two scripts must still BUILD it at all.  A probe that execs
+# build.py without T1_PREVIEW and without this call renders an unlit scene
+# and reports numbers off it, which is exactly what happened.
+ck "hq_render builds the rig"          1 "$(grep -c '^ST.lighting(_KEY)' hq_render.py)"
+ck "probe_rev58_gloss builds the rig"  1 "$(grep -c '^ST.lighting(_KEY)' probe_rev58_gloss.py)"
 
 # --------------------------------------------------- rev 55: A RE-FRAMING
 # THE OWNER RETIRED A HEADING AND IT CAME BACK ONE BRIEF LATER.

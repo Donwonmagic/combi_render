@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-23 00:41:17 UTC |
-| git commit | `c13c75e` |
-| git subject | rev 56: keep the three probe tiles that are EVIDENCE, drop the two that were only copies of an untracked render |
+| generated | 2026-08-23 04:22:24 UTC |
+| git commit | `5378d78` |
+| git subject | rev 57: the top job TAKEN and ceiled with a measured bracket; item B REFUTED -- the gate does not measure the mottle |
 | working tree | clean |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=2 (applied, destructive, before booleans) |

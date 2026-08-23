@@ -393,6 +393,42 @@ CAP_EMBLEM_DEPTH = 0.0060           # plate thickness (prism is centred: +-half)
 #
 #     ring band / ring outer D = 0.093 +/- 0.012        adopted
 #
+# ------------------------------------------------------------------- rev 57
+# TWO VALUES FOR ONE BOUNDARY, AND NEITHER WAS RETRACTED.  F37.
+#
+# The block above gives this badge's ring OUTER D as 91.729 px vertical /
+# 62.705 px horizontal.  `vw_logo_fit`'s docstring, further down THIS FILE and
+# about THE SAME boundary in THE SAME frame and THE SAME crop box, gives
+# 91.885 / 63.143 -- carried on into REFERENCE_FRAMES_rev45.md as SPEC
+# 10.107's published conic.  They differ by 0.17 % and 0.70 %.  Nothing said
+# which was live, and rule 34 says a requirement inherits its object exactly
+# as a retirement does: before leaning on either, check which sentence is
+# about what.  Recorded here rather than in a ledger alone, because rule 15
+# says a retraction that lands in a ledger and not in the source is half a
+# retraction.
+#
+# A THIRD, INDEPENDENT READING, rev 57 (probe_rev57_badge.py, sec.1): the
+# outermost crossing of the half level between the local cream and the ring's
+# own trough, walked INWARD and bounded per ray, then a conic fit --
+#     vertical D 92.728 px   horizontal D 63.299 px   radial resid 0.2345 px
+#     over 685 rays; the same trace at the 0.35 and 0.65 levels reads
+#     93.388 / 64.068 (resid 0.1918) and 91.761 / 61.911 (resid 0.5807).
+# So the edge LEVEL moves the vertical D by 1.8 % across that range, which is
+# ten times the 0.17 % the two record values differ by.  NOTHING IS CHANGED
+# HERE: the adopted 0.093 +/- 0.012 stands, and all three readings sit inside
+# it.  What is fixed is that the disagreement is now stated where a reader
+# meets it.
+#
+# AND THE BUILT BAND IS AT THE TOP OF THE ADOPTED RANGE.  Off vw_ring's own
+# mesh the built band / outer D is 0.10086, against 0.09209 +/- 0.00292
+# (threshold) and 0.09280 +/- 0.00319 (gradient) measured on this frame over
+# 25 rays on the major axis, and against the 0.0874 above: +9.5 % and +15.4 %.
+# It is INSIDE the adopted +/- 0.012 and is NOT changed -- moving it moves the
+# glyph's fit radius with it, through `_BAND_FRAC = 0.028 / 0.140` in
+# vw_logo_fit.  Reported as F38.  This is the FIRST comparison of either
+# badge's BUILT geometry against a photograph; verify.py's own line says of
+# the other one "hubcap badge is SELF-CONSISTENCY ONLY".
+#
 # The +/- is the vertical-vs-horizontal systematic on the workshop badge (its
 # two sides read 5.24 and 7.34 px -- the badge is proud, so the near side shows
 # its wall) plus the transfer to the hubcap.  CEILING: the statistical floor on

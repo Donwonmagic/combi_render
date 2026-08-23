@@ -138,6 +138,31 @@ def _render(path, res, samples, transparent=False, albedo=False):
     if not os.path.exists(real):
         real = sc.render.frame_path(frame=sc.frame_current)
     from PIL import Image
+    # ------------------------------------------------------------- rev 57
+    # THE 16-BIT BRANCH BELOW CAN NEVER BE TAKEN, AND IT LOOKS LIKE IT CAN.
+    # F42.  color_depth is set to '16' above and Blender DELIVERS -- the
+    # written PNG's own IHDR reads bit depth 16, colour type 6, checked byte
+    # by byte.  But PIL's convert("RGBA") returns uint8, so by the time
+    # a.max() is tested the low byte is already gone and the test is on the
+    # WRONG SIDE OF THE CONVERSION.  Every measurement that comes through
+    # this function -- both arms of mottle_measure.py, and the mural solve --
+    # is therefore 8-bit.
+    #
+    # MEASURED rather than argued, with a stdlib 16-bit decoder CONTROLLED
+    # against PIL (its top byte is bit-identical to PIL's read for 100.0000 %
+    # of pixels, max difference 0):
+    #     cream patch sd   3.9999 at 16 bits   vs  4.0200 here   (+0.50 %)
+    # SO THE AGGREGATE COST IS SMALL AND IS STATED AS SMALL.  What it destroys
+    # is a small signal on a large one: the cream mottle's entire contribution
+    # to this patch is sd 0.2594 DN against an 8-bit quantisation noise floor
+    # of 1/sqrt(12) = 0.289 DN -- the mottle is quantised to 0.9 of one step
+    # by the reader, in the file named mottle_measure.py.
+    #
+    # NOT FIXED HERE, deliberately.  This is a SHARED path; every consumer's
+    # numbers move if it changes, and changing it without re-running each of
+    # them is the failure this project's own record warns about.  The line
+    # stays as it is so the defect stays watchable, and the fix is a whole
+    # revision's item with the decoder already written and controlled.
     a = np.asarray(Image.open(real).convert("RGBA"), dtype=np.float64)
     a /= 65535.0 if a.max() > 255.0 else 255.0
     return a

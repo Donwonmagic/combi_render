@@ -49,6 +49,56 @@ def cam():
 body = [bpy.data.objects["T1_body"]]
 restore = SS._only(body)
 cam()
+# ---------------------------------------------------------------- rev 57
+# THIS FILE IS NOT MEASURING THE MOTTLE.  F03/F04 ARE NOT MOTTLE FINDINGS.
+#
+# Rev 56 woke this gate and reported its spectrum as a live fidelity
+# comparison of the cream mottle.  It is live.  It is not about the mottle.
+# ABLATED, not argued -- five runs, every mottle constant this file's own
+# header names, render % of the band-passed patch:
+#
+#     run                          3.0mm   5.9    11.9   23.7   35.6
+#     base  M .024 RGH .62 AMP .55  0.538  1.048  1.861  2.971  3.614
+#     T1_MOT_M   = 0.016            0.544  1.055  1.869  2.978  3.616
+#     T1_MOT_M   = 0.004  (6x fine) 0.562  1.057  1.857  2.950  3.586
+#     T1_MOT_RGH = 0.90             0.544  1.048  1.853  2.956  3.596
+#     T1_MOT_AMP = 1.10  (double)   0.573  1.109  1.932  3.045  3.693
+#     T1_MOT_AMP = 0.0   (MOTTLE
+#                          ENTIRELY OFF) 0.527 1.027 1.837 2.937 3.574
+#     the photograph                0.804  1.135  1.455  2.201  3.183
+#
+# TURNING THE MOTTLE COMPLETELY OFF MOVES THIS GATE BY 1.1-2.0 %.  The gap it
+# reports against the photograph is 7.7-35.0 %.  Sweeping MOTTLE_M over a
+# factor of six closes 3 points of the 33 at 3 mm; DOUBLING the amplitude
+# moves the 23.7 mm row the WRONG WAY, 1.35 -> 1.38.
+#
+# AT PIXEL LEVEL: out/mottle_alb0.550.png and out/mottle_alb0.000.png differ
+# only in the mottle, so their difference IS the mottle.  Render breakup
+# sd 4.000 DN; the mottle alone sd 0.2594, peak-to-peak 1.603 -- 6.5 %.
+#
+# AND THE DIAGNOSIS IN THE REV-57 BRIEF WAS INVERTED.  Painted and looked at:
+# probe_scratch/rev57_alb_off.png (mottle removed) is a COARSE CLOUD;
+# probe_scratch/rev57_alb_diff.png (the mottle alone) is a FINE SPECKLE.  The
+# mottle IS the fine-scale term.  Shrinking MOTTLE_M would have shrunk the
+# only fine-scale thing the cream has -- the opposite of what the 3 mm ratio
+# asks -- and could not touch the coarse excess, which is not the mottle's.
+# DO NOT TUNE MOTTLE_M AGAINST THIS GATE.
+#
+# WHY, from t1_mats.py: the mottle reaches BASE COLOUR by one path only --
+# FADEV_MOTTLE -> WEATHER's FadeVert -> ffac -> the Fac of a HueSaturation
+# whose whole authority is W_FADE_SAT 0.88 and W_FADE_VAL 1.04, capped at
+# MOTTLE_AMP 0.55.  On a near-white cream that is ~2 % of value; measured,
+# 1.603 DN.  Its OTHER half -- ffac * MOTTLE_RGH_K 0.18 added to ROUGHNESS,
+# up to 0.099 -- AN ALBEDO PASS CANNOT SEE AT ALL.  This arm is blind to the
+# larger half of the mottle by construction, which is why the ablation above
+# is so nearly flat.  t1_mats.py asked for exactly this check beside
+# FADEV_CREAM -- "its authority over the rendered cream has to be
+# demonstrated, not assumed" -- and it had never been run.  It is 6.5 %.
+#
+# WHAT IS STILL TRUE: something in the render's cream albedo disagrees with
+# the photograph by 7.7-35.0 %.  The measurement is real; only its NAME and
+# its diagnosis were wrong.  What the other 93.5 % is, is OPEN.
+# ---------------------------------------------------------------------------
 ALB = os.environ.get("T1_MM_ALBEDO") == "1"
 # rev 19: the ALBEDO pass, because a beauty high-pass on a CURVED lit panel
 # measures the form shading and the sampler as well as the material.  SPEC
