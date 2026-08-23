@@ -1120,6 +1120,33 @@ ck "mottle_measure refuses a clipped patch"   1 \
 # is an ORDERING test, not a grep: the guard used to sit at the end of the
 # file, after the BASE LEVEL block and the character table had already put
 # nan and 0.000 on the console.
+# ---------------------------------------------------------------------------
+# rev 56 section 3.1.  lid_rail: the OWNER answered it, so the four-revision
+# zero-area exemption comes out.  These rows hold the ruling and its
+# provenance in the source, and make sure the exemption cannot creep back.
+ck "the lid_rail zero-area exemption is GONE"  1 \
+   "$(grep -c 'ZERO_AREA_EXEMPT = ()' verify.py)"
+ck "no name is zero-area exempt any more"      0 \
+   "$(grep -c 'ZERO_AREA_EXEMPT = ("lid_rail"' verify.py)"
+# The width must be RAIL_PROUD and must be asked of the MESH, not grepped --
+# the part was empty for four revisions precisely because grepping its name
+# found it and nothing asked its size.
+ck "verify asks the MESH for the rail width"   1 \
+   "$(grep -c 'width %.4f m != RAIL_PROUD' verify.py)"
+ck "the rail width is RAIL_PROUD, not a literal" 1 \
+   "$(grep -c 'RAIL_W = 0.0 if os.environ.get("T1_RAILFLAT") == "1" else RAIL_PROUD' t1_shell.py)"
+# and the ablation that restores the defect must stay, or neither guard can be
+# watched failing again.
+ck "T1_RAILFLAT ablation is a LIVE lever"      1 \
+   "$(grep -c 'os.environ.get("T1_RAILFLAT")' t1_shell.py)"
+# The owner's own words must stay attached to the number (rule 34: a
+# requirement inherits its object -- this one inherits a GREEN vehicle and a
+# geometry-only reading, and that has to travel with it).
+# Anchored on the LOGGED provenance line, which occurs once -- the phrase
+# itself appears twice (comment and log) and a row wanting exactly 1 of it
+# fails the moment the ruling is also explained in prose.
+ck "the rail width carries its provenance"     1 \
+   "$(grep -c 'ref_workshop.jpg: ' verify.py)"
 ck "that refusal precedes the first number"   "OK" \
    "$(python3 -c "
 s = open('mottle_measure.py').read()

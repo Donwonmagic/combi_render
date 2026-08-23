@@ -2386,7 +2386,33 @@ def roof_lids():
     # perimeter rail: the shallow frame the skin sits on, standing PROUD of the
     # roof by the measured 26 +/- 7 mm. ref_workshop.jpg shows the open lid is
     # the cut-out roof skin on a rail, not a box.
-    for (xa, xb) in ((LID_X0, LID_X0), (LID_X1, LID_X1)):
+    # rev 56 -- THIS BUILT TWO EMPTY OBJECTS FOR FOUR REVISIONS.  The loop ran
+    # (LID_X0, LID_X0) and (LID_X1, LID_X1), and _rag_grid interpolates
+    # x = x0 + (x1-x0)*ix/nx, so x0 == x1 put every vertex at ONE station:
+    # both objects measured 0.000000000 m2 with 18 of 18 faces degenerate and
+    # a bbox dx of exactly 0.000000.  The rail the comment above describes was
+    # in no render.  Grepping for the object name found it -- it was built, it
+    # was just empty, which is rule 10 exactly.
+    #
+    # It was left EXEMPT rather than fixed because the rail's WIDTH was
+    # measured nowhere and inventing one puts a visible member on the roof at
+    # a size no photograph supports.
+    #
+    # THE OWNER RULED IT, rev 56, off the marked crop of ref_workshop.jpg
+    # (probe_scratch/rev56_ASK_lidrail.png -- the aft end of the roof opening,
+    # multiple choice): "Narrow lip, ~as wide as it is tall".  So the width IS
+    # the proud height, and it is not a second free constant -- it is
+    # RAIL_PROUD itself, which is why this reads RAIL_PROUD and not a literal.
+    # ref_workshop.jpg is the GREEN vehicle: this is GEOMETRY, which rule 11
+    # says transfers, and no paint or artwork is taken from it.
+    #
+    # Both rails run INBOARD of the opening's own edges -- the frame the skin
+    # sits ON, so it cannot poke out past the aperture it closes.
+    # T1_RAILFLAT=1 restores the rev-52..55 defect (xa == xb, zero area) so
+    # the new width guard and the zero-area sweep can both be WATCHED FAILING
+    # on the thing they exist to catch.
+    RAIL_W = 0.0 if os.environ.get("T1_RAILFLAT") == "1" else RAIL_PROUD
+    for (xa, xb) in ((LID_X0 - RAIL_W, LID_X0), (LID_X1, LID_X1 + RAIL_W)):
         r = _rag_grid(RAG_HW, xa, xb, RAIL_PROUD, bows=False, nx=1, ny=18,
                       name="lid_rail")
         rails.append(r)
