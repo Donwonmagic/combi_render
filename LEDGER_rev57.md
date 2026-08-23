@@ -501,3 +501,28 @@ colour**, and colour is the owner's call. Gloss and chroma may trade; measure bo
 * **A suspicion refuted.** The render's nose roundel is body-red and looked wrong to me;
   `ref_nolita_front34.jpg` shows the red bus's own roundel and it **is** body-red. The render is
   right. *A control that finds nothing is still a result.*
+
+### §6.7 THE DELIVERY FRAME — THREE ATTEMPTS, AND THE TIMINGS THAT SETTLE IT
+
+| run | shape | strips total | verdict |
+|---|---|---|---|
+| 1 | ten processes, LIT, my own analysis running alongside | **6914 s = 115.2 min** | **eight white seams** (F48) |
+| 2 | one process, margin — **UNLIT** (F51) | 2354 s = 39.2 min | seam-free and **black**; INVALID |
+| 3 | one process, margin, LIT, machine idle | **6408 s = 106.8 min** | **seam-free, worst z = 1.62. SHIPPED** |
+
+**THE SINGLE-SESSION SAVING IS 506 s = 8.4 min = 7.3 %, not 2.94×.** Predicted from ten repeated
+scene builds at 65 s each: **650 s**; the margin adds render area and eats the difference. So the
+original estimate was right and **the 2.94× was entirely the unlit scene** — the speedup I briefly
+read as the optimisation paying off was the defect announcing itself.
+
+**AND THE CONTENTION HYPOTHESIS IS DEAD TOO.** I attributed part of the 2.94× to my own concurrent
+analysis stealing cores from run 1. Run 3 was LIT and ran on an idle machine and came in at 106.8
+against run 1's 115.2 — **7.3 % apart**, all of which the build overhead accounts for. There is no
+measurable contention term left to explain, so the claim is withdrawn rather than kept as a
+plausible-sounding aside. The 20-minute control I started to test it was killed unrun; it would
+have measured a real factor on an unlit scene and confirmed a cause that does not exist.
+
+**Delivery frame as shipped:** `out/hq_hero.png` (3840×2640, 256 spp, SUB=2, ten margin'd strips,
+`post.py --backdrop headroom`), with `out/hq_hero_white.png` as the flat-white variant and
+`out/hq_hero_raw.png` pre-optics. Non-backdrop mean luminance **179.6** — lit, which is the check
+that mattered.

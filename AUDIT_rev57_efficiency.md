@@ -157,12 +157,25 @@ rendered this model at delivery quality** — every figure in every ledger comes
 revisions.
 
 So it is running now: **`hero` at 3840×2640, 256 samples, SUB=2, in 10 stitched strips**, then
-`stitch.py`, then `post.py` for the optics. **Strips vary with content — 11.4 min for the ground
-strip, 18.4 for the first body strip.** *(I first wrote "~1 h 50 m" here from ONE strip. That is an
-extrapolation published as a measurement, which is the defect this project punishes, so it is
-corrected here rather than quietly overwritten; the true total is in `LEDGER_rev57.md`.)* It will be
-at **`out/hq_hero.png`** when you wake up, with the raw pre-optics frame beside it at
-`out/hq_hero_raw.png`.
+`stitch.py`, then `post.py` for the optics.
+
+**IT TOOK THREE ATTEMPTS AND THE FIRST TWO ARE THE INTERESTING PART.** Attempt 1 came out with
+**eight white seams** — Blender's border rounds inward, so a row at each boundary was rendered by
+neither strip (F48); `stitch.py` caught it, exited 2, and **my runner ignored the exit code and
+posted anyway** (F49). Attempt 2 fixed the seams and came out a **BLACK BUS** — I had moved the
+render into one Blender session and `build.py` builds the entire lighting rig inside its
+`if T1_PREVIEW:` block, so measuring tools get an unlit scene (F51). **Every automated check passed
+that frame**: stitch exited 0, the seam detector read a clean z = 3.63, and it ran 2.94× faster —
+which I briefly read as the optimisation working. Attempt 3 is lit, seam-free at worst z = 1.62,
+and is what shipped.
+
+**Measured, all three:** 115.2 min (ten processes, lit) → 39.2 min (one process, **unlit, invalid**)
+→ **106.8 min** (one process, lit). **The single-session saving is 8.4 min, 7.3 %** — the 2.94× was
+the missing lights, and the CPU-contention theory I floated for part of it is **withdrawn**: run 3
+was idle and lands 7.3 % from run 1, which the build overhead alone accounts for.
+
+The frame is at **`out/hq_hero.png`**, with `out/hq_hero_white.png` (flat-white backdrop) and
+`out/hq_hero_raw.png` (pre-optics) beside it.
 
 **Set your expectations honestly: it will be the same model, rendered beautifully.** It will be
 sharp, clean and 6.6× the pixels — and it will still be a matte bus in a white room, because §3's

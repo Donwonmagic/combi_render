@@ -467,7 +467,14 @@ ablate first:
 
 1. baseline `gloss_compare.py` on a fresh `hero` — **0.392 today**;
 2. `Coat Weight` 0.02 → 1.0, `Coat Roughness` 0.300 → 0.03 — the clearcoat alone;
-3. and then base `Roughness` 0.420 → ~0.25.
+3. and then base `Roughness` 0.420 → ~0.25 — **but see F53 first.**
+
+**F53, AND IT WILL SAVE YOU A DAY.** `T1_paint`'s **`Roughness` socket is LINKED** — the WEATHER
+group drives it — so setting `default_value` on it does **nothing**. `probe_rev58_gloss.py` detects
+that and says so rather than letting a flat gate read as *"roughness has no effect"*, which is
+exactly how rev 57 lost item B. **`Coat Weight`, `Coat Roughness` and `Specular IOR Level` are not
+linked and do move.** To move roughness you must go through the WEATHER group's own input, not the
+BSDF socket.
 
 **AND THE TRAP, WHICH THE SOURCE ITSELF SETS.** Four lines above those constants:
 *"the red measured sat 0.37 against the reference's 0.82 and read salmon. **Chalky finish restores
@@ -749,7 +756,13 @@ python3 stitch.py out/hq_hero_raw.png 0.0000,0.1000=out/hq0_hero.png ...   # DEC
 python3 post.py out/hq_hero_raw.png out/hq_hero.png   # optics LAST, never per strip
 ```
 
-**THE FIRST ATTEMPT PRODUCED A FRAME WITH EIGHT WHITE LINES ACROSS IT (F48).** Blender's border
+**IT TOOK THREE ATTEMPTS.** 1: **eight white seams** (F48). 2: seams fixed, frame came out a
+**BLACK BUS** because a single-session runner skips `build.py`'s preview block and with it the whole
+lighting rig (**F51**) — and it passed *every* automated check. 3: lit, seam-free at worst
+**z = 1.62**, shipped. **Timings: 115.2 min → 39.2 (unlit, invalid) → 106.8 min.** The
+single-session saving is **8.4 min, 7.3 %**, not the 2.94× the unlit run appeared to show.
+
+**ON THE SEAMS (F48).** Blender's border
 rounds **inward**, so a band declared 0.30..0.40 does not render every row the stitcher then reads
 from it — measured at the hq2/hq3 boundary, row **1849 was rendered by neither strip** and the
 stitcher took a pure-white row 1848 from strip 2. `hq_render.py` fixes it by rendering each band
