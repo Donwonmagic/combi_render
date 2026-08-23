@@ -7,3 +7,5 @@ tex/prev_*.png
 *.log
 *.bundle
 rev*_hero*.png
+probe_scratch/tri_*.png
+probe_scratch/view_*.png

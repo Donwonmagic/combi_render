@@ -38,9 +38,12 @@ changed six lines of model code between them, two of them zero, against 6,503 li
 | **E** | **F43** — what the other 93.5 % of the cream's albedo breakup is (NOT the mottle; rev 57 refuted that). Ablate `dust`/`wear`/`peel` one at a time | large area, subtle amplitude: sd **4.000 DN** over the cream body | `mottle_measure.py` albedo arm, **at `T1_MM_SAMP=16`** |
 | **—** | **F08 the badge stroke weight** | **1.4 px²** | **CEILED. Do not.** |
 
-**AND THE DELIVERY FRAME NOW EXISTS.** `out/hq_hero.png` — 3840×2640, 256 spp, SUB=2, ten stitched
-strips through `post.py`, made at rev 57b. **It is the baseline you have to beat.**
-Re-make it at the end of your revision and put the two side by side.
+**AND THE DELIVERY FRAME HAS BEEN MADE ONCE — BUT `out/` IS UNTRACKED, SO IT IS NOT IN YOUR CLONE.**
+Rev 57b built it at **3840×2640, 256 spp, SUB=2**, ten margin'd strips through `stitch.py` and
+`post.py`, seam-free at worst **z = 1.62**, in **106.8 min**. What IS tracked is a 1600-px reference
+copy: **`probe_scratch/rev57b_delivery_hq_hero.png`**. **That is the baseline you have to beat.**
+Re-make the full one with `hq_render.py` (§6) at the end of your revision and put the two side by
+side. Do not quote a delivery-frame figure off a frame you have not rendered.
 
 ---
 
