@@ -32,7 +32,8 @@ import os, re, sys, glob, subprocess
 ROOT = os.path.dirname(os.path.abspath(__file__))
 briefs = sorted(glob.glob(os.path.join(ROOT, "NEXT_CONTEXT_PROMPT_rev*.md")),
                 key=lambda p: int(re.search(r"rev(\d+)", p).group(1)))
-BRIEF = sys.argv[1] if len(sys.argv) > 1 else briefs[-1]
+_args = [a for a in sys.argv[1:] if not a.startswith("--")]
+BRIEF = _args[0] if _args else briefs[-1]
 N = int(re.search(r"rev(\d+)", os.path.basename(BRIEF)).group(1))
 TXT = open(BRIEF).read()
 fails = []
@@ -128,8 +129,25 @@ except Exception:
     real = None
 stated = re.search(r"ALL (\d+) PASS", TXT)
 stated = int(stated.group(1)) if stated else None
+# THE ROW COUNT IS SELF-REFERENTIAL AND IT HAS COST THREE EDIT CYCLES IN EACH
+# OF THE LAST TWO REVISIONS: every fix the audit demands adds a row, which
+# changes the number the brief must state, which is another edit and another
+# `cp`.  --fix-count writes it, so the ritual costs one command instead of
+# three rounds.  It writes the CLEAN-TREE total (a dirty tree costs one
+# passing row), which is the number the brief must carry.
+if real is not None and real != stated and "--fix-count" in sys.argv:
+    import glob as _g
+    t = open(BRIEF).read().replace("ALL %d PASS" % stated, "ALL %d PASS" % real) \
+                          .replace("%d SELF-CONSISTENCY" % stated,
+                                   "%d SELF-CONSISTENCY" % real)
+    open(BRIEF, "w").write(t)
+    open(pst, "w").write(t)
+    print("  --fix-count: rewrote %d -> %d in the brief AND in %s"
+          % (stated, real, os.path.basename(pst)))
+    stated = real
 ck("brief states verify_clone.sh's own row count", real is not None and real == stated,
-   "brief says %s, script says %s" % (stated, real))
+   "brief says %s, script says %s%s" % (stated, real,
+   "" if real == stated else "   [re-run with --fix-count to write it]"))
 
 # ------------------------------------------------- 6. README / START_HERE
 for f in ("README.md", "START_HERE.md"):

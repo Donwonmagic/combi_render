@@ -1298,6 +1298,51 @@ png=(b'\x89PNG\r\n\x1a\n'+chunk(b'IHDR',struct.pack('>IIBBBBB',w,h,16,6,0,0,0))
 a=np.asarray(Image.open(io.BytesIO(png)).convert('RGBA'))
 print('OK' if a.dtype==np.uint8 and a.max()<=255 else 'PIL NOW RETURNS %s max %s'%(a.dtype,a.max()))" 2>&1 | tail -1)"
 
+# ------------------------------- rev 57b: THE RANKING RULE, AND THE 3rd GATE
+# The efficiency audit found the ORDERING rule was the defect, not any row in
+# it.  These rows hold the replacement so it cannot quietly revert to "gate
+# availability" -- which is how four revisions went to a 1.4 px^2 question.
+#
+# BEHAVIOUR, not a grep: the budget script must actually RUN and must still
+# rank the paint's gloss above the badge stroke by orders of magnitude.
+ck "the visibility budget still ranks gloss over the badge" OK "$(python3 -c "
+import subprocess,re
+o=subprocess.run(['python3','visibility_budget.py','3840'],capture_output=True,text=True).stdout
+r=[l for l in o.splitlines() if re.match(r'^ +\d+\. ',l)]
+top=r[0] if r else ''; bot=r[-1] if r else ''
+print('OK' if 'GLOSS' in top and 'badge' in bot else 'ORDER CHANGED: %r / %r'%(top[:40],bot[:40]))" 2>&1 | tail -1)"
+
+# The third gate must RUN and must still be exposure-free -- the property that
+# makes it immune to the three open px/m and white-balance unknowns.
+ck "gloss_compare is exposure-free" OK "$(python3 -c "
+import subprocess,re
+o=subprocess.run(['python3','gloss_compare.py'],capture_output=True,text=True).stdout
+v=re.findall(r'x[01]\.\d\d  spread (\d\.\d+)', o)
+print('OK' if len(v)==3 and len(set(v))==1 else 'MOVED: %s'%v)" 2>&1 | tail -1)"
+
+# ...and it must be measuring GLOSS, not colour, or W6 bites.
+# ...and it must be measuring GLOSS, not colour, or W6 bites.  ANCHORED ON
+# CODE, NOT PROSE: a flat grep fired on the docstring sentence that EXPLAINS
+# it does not compare colour -- the fourth time in this repository that a row
+# has matched an explanation of a defect and called it the defect.  This one
+# strips comments and docstrings first and looks only at what executes.
+ck "gloss_compare compares no colour IN CODE"  0 "$(python3 -c "
+import ast,re
+src=open('gloss_compare.py').read()
+t=ast.parse(src)
+lines=set(range(1,src.count(chr(10))+2))
+for n in ast.walk(t):                     # drop every docstring's line range
+    if isinstance(n,(ast.Module,ast.FunctionDef,ast.ClassDef)):
+        d=ast.get_docstring(n,clean=False)
+        if d is not None:
+            b=n.body[0]
+            for i in range(b.lineno,(b.end_lineno or b.lineno)+1): lines.discard(i)
+code=[l for i,l in enumerate(src.splitlines(),1)
+      if i in lines and not l.strip().startswith('#')]
+print(sum(1 for l in code if re.search(r'G/R|hue|chroma|saturation',l)))" 2>&1 | tail -1)"
+ck "the audit's ranking rule is carried in the brief" 1 \
+   "$(if [ -n "$_LATEST_BRIEF" ]; then grep -c 'RANK BY PIXELS OF THE DELIVERY FRAME' "$_LATEST_BRIEF"; else echo 0; fi)"
+
 # --------------------------------------------------- rev 55: A RE-FRAMING
 # THE OWNER RETIRED A HEADING AND IT CAME BACK ONE BRIEF LATER.
 # At rev 54 he ruled "we have all references that we need on repo", and sec.4

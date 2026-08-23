@@ -1,5 +1,43 @@
 # NEXT CONTEXT PROMPT — rev 58
 
+## §0.0 DO THIS FIRST — THE WHOLE DECISION, IN TWENTY LINES
+
+**Before you read another word, put the machine to work. It is CPU-bound and idle right now.**
+
+```bash
+cd /home/user/combi_render
+nohup env T1_SUB=1 T1_PREVIEW=side T1_PFX=r58 T1_RX=1600 T1_RY=1100 T1_SAMP=96 \
+  /tmp/blender/blender -b -P build.py > /tmp/r58side.log 2>&1 &
+```
+
+`out/` is untracked and starts empty, and every revision until now has waited ~10 minutes for that
+before it could touch a gate. **Start it, then read.**
+
+**THE RANKING RULE CHANGED AT REV 57b, AND IT IS THE MOST IMPORTANT LINE IN THIS FILE.**
+The old rule was *"gate availability"*. It selected the least visible work available, for four
+revisions running, and `AUDIT_rev57_efficiency.md` measures the damage: **the last four revisions
+changed six lines of model code between them, two of them zero, against 6,503 lines of prose.**
+
+> **THE RULE IS NOW: RANK BY PIXELS OF THE DELIVERY FRAME. `python3 visibility_budget.py` prints
+> the table. Gate availability is a TIE-BREAKER, not the rule.**
+
+**What that makes rev 58's order** (run the script; do not trust this table, it is a copy):
+
+| # | do | worth | gate |
+|---|---|---|---|
+| **A** | **THE PAINT HAS ALMOST NO GLOSS.** `gloss_compare.py` FAILS at **0.392** of the photograph's spread, bar 0.60; its specular headroom is **0.139** of the photograph's | **3.4 × 10⁶ px²** — the largest thing in the frame | **`gloss_compare.py`, new at rev 57b** |
+| **B** | **THE GALLEY AND ROOF-APERTURE INTERIORS ARE UNTEXTURED WHITE BLOCKS**, seen through four openings, dead centre | **7.4 × 10⁵ px²** | none — build one, or accept it and say so |
+| **C** | **F15 / A7** — the unlit roofed run between the last light inlet and the tail | 8.2 × 10⁵ px² | none |
+| **D** | **F01/F39** — `Senor`, 28.5 % of its ink, in the ARTWORK not the render | 2.7 × 10⁴ px² | `flank_compare.py` |
+| **E** | **F43** — what the other 93.5 % of the cream's albedo breakup is (NOT the mottle; rev 57 refuted that). Ablate `dust`/`wear`/`peel` one at a time | large area, subtle amplitude: sd **4.000 DN** over the cream body | `mottle_measure.py` albedo arm, **at `T1_MM_SAMP=16`** |
+| **—** | **F08 the badge stroke weight** | **1.4 px²** | **CEILED. Do not.** |
+
+**AND THE DELIVERY FRAME NOW EXISTS.** `out/hq_hero.png` — 3840×2640, 256 spp, SUB=2, ten stitched
+strips through `post.py`, **1 h 50 m**, made at rev 57b. **It is the baseline you have to beat.**
+Re-make it at the end of your revision and put the two side by side.
+
+---
+
 **Read this whole file before you touch anything.** Then `CLAUDE.md` (method only, loads every
 session), then `LEDGER_rev57.md` — which is where every number below comes from — then
 `OPEN_FINDINGS.md`, and `SURVEY_rev49_photoreal.md` §6.
@@ -17,8 +55,8 @@ per-measurement and not on average.** A model right in ninety places and wrong i
 done, because he will look straight at the one. This paragraph is first because every revision has
 drifted toward whatever was measurable that week, and the goal is not "add rows".
 
-**AND HERE IS THE HONEST DISTANCE, MEASURED AT REV 57.** `verify_clone.sh` ends **ALL 240 PASS** and
-its own verdict block says what that is worth: **0 FIDELITY, 240 SELF-CONSISTENCY. Not one of those
+**AND HERE IS THE HONEST DISTANCE, MEASURED AT REV 57.** `verify_clone.sh` ends **ALL 244 PASS** and
+its own verdict block says what that is worth: **0 FIDELITY, 244 SELF-CONSISTENCY. Not one of those
 rows compares the vehicle to a photograph.** *(The rev-57 brief quoted the right ALL-n-PASS
 total and then, four words later, gave a self-consistency figure SIX LOWER than it — two numbers for
 one line, in one sentence. The wrong figure is DESCRIBED here and deliberately NOT reprinted; see
@@ -32,6 +70,8 @@ one line, in one sentence. The wrong figure is DESCRIBED here and deliberately N
 | `mottle_measure.py` | **runs, and it is NOT measuring the mottle.** Ablating the mottle entirely moves its five ratios by **1.1–2.0 %** against a **7.7–35.0 %** gap. **Rev 56's reading of this gate, and the whole of rev 57's inherited item B, are refuted** — §2.2 |
 | `cream_rms.py` | `run()` is the LIVE re-based path |
 | the badge | **the first built-against-frame row on either badge exists now** (the ring band, §2.1). The STROKE WEIGHT is **CEILED**: it cannot be recovered from what we hold |
+| **`gloss_compare.py`** | **NEW at rev 57b, and the first gate on the surface the eye lands on.** FAILS: the render's paint spreads **0.392** of the photograph's (bar 0.60), specular headroom **0.139**. Exposure-free and resolution-stable, both controlled; **not** a colour comparison, so W6 does not bite |
+| `visibility_budget.py` | **NEW at rev 57b.** Not a gate — the RANKING. Converts every finding to pixels of the delivery frame |
 | everything else | self-consistency |
 
 **SO PARITY IS MEASURED BY ONE-AND-A-HALF WORKING GATES, NOT TWO.** `flank_compare` is sound.
@@ -93,7 +133,7 @@ for b in $(git branch -r | grep -v HEAD); do
 done
 git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 ./bootstrap.sh          # ALL 10 PASS  -- THE BRANCH CHECK IS ROW 9
-./verify_clone.sh       # ALL 240 PASS -- and read what its verdict block says
+./verify_clone.sh       # ALL 244 PASS -- and read what its verdict block says
 ```
 
 **AT PICKUP, REV 57 MEASURED:** rev 56 **was merged, through PR #16** — not the "no PR opened"
@@ -364,35 +404,34 @@ file into every session as the entry procedure. **WHEN YOU WRITE THE REV-59 BRIE
 
 ## §3. THE WORK LIST FOR REV 58
 
-### §3.0 START HERE — THE ORDER, AND WHY
+### §3.0 START HERE — THE ORDER, AND WHY IT CHANGED
 
-**He ruled "keep studio, fix the model", so this is still a MODEL revision.** Rev 57 took the top
-job and ceiled it, and **refuted the item that was ranked second**. That refutation is the reason
-the order below is not the rev-57 order: *gate availability is the ranking rule, and one gate turned
-out not to be pointing at what it was thought to be pointing at.*
+**Rev 57b audited this handoff for efficiency and found the ranking rule was the defect.** Full
+evidence in `AUDIT_rev57_efficiency.md`; the short form is in §0.0 and the table is a script.
+**He ruled "keep studio, fix the model", so this is still a MODEL revision** — and §0.0's order is
+what "fix the model" means once the work is ranked by what shows.
 
-| # | do this | why | the gate |
-|---|---|---|---|
-| **A** | **FIND WHAT THE OTHER 93.5 % IS (F43).** The render's cream albedo carries **sd 4.000 DN** of breakup and the mottle is **0.2594** of it. Ablate the paint's OTHER spatial terms — `dust`, `wear`, `peel` — the way rev 57 ablated the mottle, and name the one that owns it | It is the largest unexplained disagreement with a photograph that this project can currently measure, and rev 57 handed it over already isolated: `probe_scratch/rev57_alb_off.png` **is** the thing, painted | `mottle_measure.py` albedo arm — **which works, and now has a known meaning** |
-| **B** | **THE BEAUTY ARM (F05), now the BLOCKING item for the mottle** | F41: the albedo arm **cannot** see the roughness half of the mottle, ever. Until the beauty arm runs, no mottle constant is testable at all — which is the real reason rev 57's sweep was flat | build the studio rig inside `shader_solve._render`, and say what that changes |
-| **C** | **`Senor` (F01/F39)** — 0.656 against 0.75, now known to be the **artwork alpha and its placement on `SCR`**, not the render | The last failing row on the one gate that is sound. Rev 57 removed "is it the render?" as a question | `flank_compare.py` |
-| **D** | **F42, the 16-bit reader** — measured, retracted, not fixed. A decoder is written and controlled | Cheap, and it lifts every consumer of `_render` at once. **Re-run every consumer in the same revision** | — |
-| **E** | the absolute flank scale (F02) and the mm axis (F06); A9 / the three holes / A13 / A16 / A11 / A14; the colour locks | unblocked, but **no gate** | — |
+**THE ONE THING TO INTERNALISE:** the method in `CLAUDE.md` is not in question and none of it is
+relaxed. Every rule was earned. What changed is *which item the method gets pointed at*. Rigour
+applied to a 1.4 px² question is still 1.4 px².
 
-**RENDER FIRST.** `out/` starts empty. `T1_PREVIEW=side` at **1600×1100** feeds `flank_compare.py`.
-Render `hero` and **LOOK at it.**
-
-**A WARNING ABOUT LOOKING, NOW TWICE EARNED.** Rev 55 called the nose roundel an "X" off a half-size
-hero; rev 57 looked again at full size and it is a clean V over W. **Crops generate leads, not
+**A WARNING ABOUT LOOKING, NOW TWICE EARNED.** Rev 55 called the nose roundel an "X" off a
+half-size hero; rev 57 looked at full size and it is a clean V over W. **Crops generate leads, not
 findings.** Take the lead, paint the window, then believe the number.
 
-**AND A WARNING ABOUT GATES, NEW AT REV 57 AND THE MOST IMPORTANT LINE IN THIS SECTION.**
+**AND A WARNING ABOUT GATES — rule 36, the most expensive lesson of rev 57.**
 **BEFORE YOU TUNE ANYTHING AGAINST A GATE, ABLATE THE THING YOU ARE ABOUT TO TUNE AND CHECK THE
-GATE MOVES.** Rev 56 woke a gate, read it, and named the constant to turn. Rev 57 turned it — over a
-factor of six — and the gate did not move, because the gate could not see it. **One five-minute
-ablation would have saved that.** It is now the first thing to do with any gate, not the last.
+GATE MOVES.** Rev 56 woke a gate, read it, and named the constant to turn. Rev 57 turned it over a
+factor of six and the gate did not move, because the gate could not see it. **One five-minute
+ablation would have saved a revision.**
 
-### §3.1 ITEM A IN DETAIL — WHAT REV 57 HANDS YOU
+**AND A THIRD, NEW AT REV 57b — DO NOT LET THE MACHINE IDLE.** Blender is CPU-bound and cannot be
+fanned out, so wall-clock is the binding constraint on this project, not tokens. Launch the render
+you will need before you read; run ablations at `T1_MM_SAMP=16` (rev 56 measured the statistic
+stable across 16/32/48 and the gate has run at 64 ever since — that alone cost 30 minutes of the
+rev-57 sweep); and analyse in the foreground while Blender runs in the background.
+
+### §3.1 ITEM E IN DETAIL — THE MOTTLE GATE, AND WHAT REV 57 HANDS YOU
 
 `mottle_measure.py`'s albedo arm is a **working instrument with a known meaning**: it measures the
 band-passed rms of the render's cream albedo against `ref_rear34.jpg`'s, and **1.1–2.0 % of what it
@@ -602,8 +641,13 @@ T1_PREVIEW=hero34r ...                                       # the REAR 3/4 -- A
 T1_SUB=2 /tmp/blender/blender -b -P audit.py                 # rewrites STATE.md -- COMMIT FIRST
 python3 lid_gen.py                                           # regenerates tex/lidmural.png
 python3 flank_compare.py out/r58_side.png /tmp/fc.png        # GATE 1.  FAILS 1 of 4 today.
+python3 gloss_compare.py out/r58_hero.png                    # GATE 3.  FAILS at 0.392 today.
+python3 visibility_budget.py 3840                            # THE RANKING.  Run it before choosing.
 python3 cream_rms.py                                         # the LIVE photograph-side cream
-T1_SUB=1 T1_MM_ALBEDO=1 /tmp/blender/blender -b -P mottle_measure.py   # GATE 2, ALBEDO arm
+T1_SUB=1 T1_MM_ALBEDO=1 T1_MM_SAMP=16 /tmp/blender/blender -b -P mottle_measure.py  # GATE 2
+#   ^ 16, NOT the default 64.  Rev 56 measured this statistic stable across
+#     16/32/48 and it has run at 64 ever since: 4.8 min a run against 1.5.
+#     Rev 57's nine-run sweep paid 30 minutes for nothing.
 T1_SUB=1 /tmp/blender/blender -b -P probe_rev57_geom.py      # dumps the built badge -> npz
 python3 probe_rev57_badge.py                                 # ITEM A, end to end, paints its windows
 python3 audit_brief.py                                       # rule 17's MECHANICAL half -- NEW at rev 57
@@ -625,6 +669,24 @@ before committing and keep the PNGs.**
 **`mottle_measure.py` names its output by `MOTTLE_AMP`, so two runs that differ in `MOTTLE_M`
 OVERWRITE EACH OTHER'S PNG. Rename per ablation or you will diff a file against itself.**
 **EVERY MEASUREMENT THROUGH `shader_solve._render` IS 8-BIT (F42), whatever `color_depth` says.**
+
+**THE DELIVERY FRAME — the recipe, measured at rev 57b, 1 h 50 m end to end.** Nobody had ever
+rendered this model at delivery quality before; every figure in every ledger comes off 1600×1100.
+Ten strips because `studio.render_set`'s own comment says a long hero gets reaped:
+
+```bash
+for i in $(seq 0 9); do
+  lo=$(python3 -c "print('%.4f'%($i/10))"); hi=$(python3 -c "print('%.4f'%(($i+1)/10))")
+  T1_SUB=2 T1_PREVIEW=hero T1_PFX=hq$i T1_RX=3840 T1_RY=2640 T1_SAMP=256 \
+    T1_BORDER="$lo,$hi" /tmp/blender/blender -b -P build.py
+done
+python3 stitch.py out/hq_hero_raw.png 0.0000,0.1000=out/hq0_hero.png ... # all ten
+python3 post.py out/hq_hero_raw.png out/hq_hero.png                      # optics LAST, never per strip
+```
+
+**~11 min per strip, of which 65 s is rebuilding the scene — 10.8 min of the 110 is pure repeat.**
+Rendering every strip inside ONE Blender session would take ~10 % off; nobody has written that yet
+and it is worth writing before the next delivery frame.
 
 **ABLATIONS — every one exists to WATCH A GUARD FAIL, and at rev 57 one of them was used to watch a
 GATE fail to move, which is the same idea pointed at an instrument.**
@@ -713,25 +775,29 @@ item to item.** It is a CARRIER too: each revision should re-rank it, not rewrit
 moved**.
 
 **WHAT MOVED AT REV 57, AND WHY.** F08 was *"next"* and is now *"parked, CEILED"* — the route was
-taken and the frame cannot answer. F03/F04 were *"next"* and have been **refuted as mottle
-findings**, so the mottle drops out of the top and **F43 — the 93.5 % that actually disagrees —
-takes its place**. F05 rises from *"later"* to *"near"*, because F41 shows it is the only arm that
-can ever see the mottle. F42 is new and cheap. **Gate availability is still the ranking rule, but
-rev 57 adds a second: a gate only counts for the item it can actually SEE.**
+taken and the frame cannot answer. F03/F04 were *"next"* and were **refuted as mottle findings**, so
+F43 replaces them. F05 rose because F41 shows it is the only arm that can see the mottle.
 
-| horizon | the work | why it is in this order |
-|---|---|---|
-| **next** | **F43 — what the other 93.5 % of the cream breakup is.** Ablate `dust` / `wear` / `peel` the way rev 57 ablated the mottle | The largest measurable disagreement with a photograph the project currently has, and it is handed over already isolated and painted |
-| **next** | **F05/F41 — the beauty arm.** The only arm that can see the roughness half of the mottle | Until it runs, no mottle constant is testable. That is now a measured statement, not an opinion |
-| **near** | **F01/F39 — `Senor`.** Now known to be the artwork alpha and its placement, not the render | The last failing row on the one sound gate, and its owner is identified |
-| **near** | **F42 — the 8-bit reader.** Decoder written and controlled | Cheap; lifts every consumer of `_render` at once. Re-run them all in the same revision |
-| **near** | **F02/F06 — the two absolute scales.** Rev 56's sqrt law applies to `ref_rear34.jpg` too. **Not attempted at rev 56 or 57** | Every render-to-photograph figure in millimetres runs through a bracket |
-| **then** | **F10–F14 — the galley cluster.** F11–F13 MEASURED; **F14 is five revisions INHERITED and past the decay rule** | Re-derive each X from `BAYS`; establish `gal_end_f`'s own sight line first |
-| **then** | **F15 — A7.** Illumination, not dressing | 803 mm of unlit roofed body changes how the rear reads |
-| **parked** | **F08 — the badge stroke weight. CEILED-rev57** | Taken, calibrated, refuted in both directions, and the ring-band control shows the fault is the target. **Needs a new frame or a pressing model, not another threshold** |
-| **later** | **F19 — the red's edge wear.** Needs a real crease/edge-angle attribute | A revision's work, and both obvious sockets are already refuted |
-| **later** | **F16/F17/F20/F23–F28, F37/F38** — artwork placement, the colour locks, the ring band's adopted range, the process rows | Unblocked but ungated, or a decision rather than a measurement |
-| **standing** | **F18 — the die-cut sticker** | The original deliverable. No gate, no owner ruling, open since rev 44 |
+**AND THEN REV 57b RE-RANKED THE WHOLE TABLE, WHICH IS A BIGGER CHANGE THAN ANY ROW.** The ordering
+rule itself was audited and replaced: **pixels of the delivery frame, not gate availability**
+(`AUDIT_rev57_efficiency.md`, `visibility_budget.py`). Under the old rule the top job was worth
+**1.4 px²**; under the new one it is **3.4 × 10⁶ px²**. Two items that had never appeared in this
+table at all — the paint's gloss and the untextured interiors — are now first and second, because
+nothing had gated them and the old rule could not see anything it could not gate.
+
+| horizon | the work | worth | why it is in this order |
+|---|---|---|---|
+| **next** | **the paint's GLOSS.** `gloss_compare.py` fails at 0.392 of the photograph's spread | 3.4 × 10⁶ px² | The largest surface in the frame, newly gated, and never measured before rev 57b |
+| **next** | **the untextured galley and roof-aperture interiors** | 7.4 × 10⁵ px² | Bright, central, seen through four openings, and pure placeholder |
+| **next** | **F15 — A7.** Illumination, not dressing | 8.2 × 10⁵ px² | A large unlit region changes how the whole rear reads |
+| **near** | **F01/F39 — `Senor`**, now known to be the artwork alpha and its placement | 2.7 × 10⁴ px² | Small but HARD-EDGED, so it reads louder per pixel than the table implies |
+| **near** | **F43/F05/F41 — the cream's albedo texture and the beauty arm** | large area, subtle | The mottle is 1.1–2.0 % of its own gate; the beauty arm is the only one that can see the roughness half |
+| **near** | **F42 — the 8-bit reader.** Decoder written and controlled | — | Cheap; lifts every consumer of `_render`. Re-run them all in the same revision |
+| **then** | **F10–F14 — the galley cluster.** F14 is five revisions INHERITED and past the decay rule | 6.8 × 10³ px² | Re-derive each X from `BAYS` |
+| **then** | **F02/F06 — the two absolute scales** | — | Every render-to-photograph figure in millimetres runs through a bracket |
+| **parked** | **F08 — the badge stroke weight. CEILED-rev57** | **1.4 px²** | Taken, calibrated, refuted in both directions. **Needs a new frame or a pressing model, not another threshold — and it is worth 1.4 px²** |
+| **later** | **F19** the red's edge wear; **F16/F17/F20/F23–F28, F37/F38** | — | Unblocked but ungated, or a decision rather than a measurement |
+| **standing** | **F18 — the die-cut sticker** | — | The original deliverable. No gate, no owner ruling, open since rev 44 |
 
 **WHAT WOULD CHANGE THIS ORDER:** a new photograph (§0.1 says none is coming), an owner ruling, or a
 gate becoming available for something currently ungated — **or, as at rev 57, a gate turning out not
@@ -748,7 +814,12 @@ to see the thing it was ranked for.**
    rev 45; do not restart it.)*
 2. **`README.md` and `START_HERE.md` name the newest brief BY NUMBER.** Two rows check it. Update
    both when you write the brief, not after the verifier tells you.
-3. **THE ROW COUNT IS SELF-REFERENTIAL AND IT WILL BITE YOU.** `verify_clone.sh` asserts the newest
+3. **THE ROW COUNT IS SELF-REFERENTIAL — AND IT IS AUTOMATED NOW, SO STOP HAND-EDITING IT.**
+   `python3 audit_brief.py --fix-count` writes the clean-tree total into the brief AND into
+   `PASTE_INTO_CLAUDE_CODE.txt`. It cost **three edit cycles at rev 56 and three at rev 57**;
+   it should cost one command. The warning below is kept because the mechanism is unchanged:
+
+   **THE ROW COUNT IS SELF-REFERENTIAL AND IT WILL BITE YOU.** `verify_clone.sh` asserts the newest
    brief states the script's own total. **Every row you add changes the number the brief must
    state**, so write the count LAST, and re-run after every fix — including the fixes your own
    audit demands, which add rows of their own. Rev 56's count moved three times.
@@ -764,6 +835,14 @@ to see the thing it was ranked for.**
 6. **NEVER DELETE A CARRIER.** §0, §0.1, §4, §5, §8 and §9 are carriers. If a section is the only
    home of something, carry it or hand it on by name. Two carriers have been lost in this project's
    history and both losses took years of context with them.
-7. **ROOM TO GROW:** new findings go in `OPEN_FINDINGS.md` with an ID and a grade, not into this
+7. **RANK BEFORE YOU CHOOSE.** `python3 visibility_budget.py` before picking the revision's item,
+   every time. The rule it encodes replaced *"gate availability"* at rev 57b after that rule sent
+   four consecutive revisions at a **1.4 px²** question. If you find yourself about to work an item
+   the script puts in the bottom half, say in the ledger why.
+8. **DO NOT LET THE MACHINE IDLE.** Blender is CPU-bound and must not be fanned out, so wall-clock
+   is the binding constraint — not tokens, and not context. Launch the render you will need before
+   you read the brief; ablate at `T1_MM_SAMP=16`; analyse in the foreground while Blender runs
+   behind you. Rev 57 measured ~35 minutes a revision going to avoidable waiting.
+9. **ROOM TO GROW:** new findings go in `OPEN_FINDINGS.md` with an ID and a grade, not into this
    file's prose. This file points AT the register. That way the brief stays a map and the register
    becomes the memory, and neither has to be rewritten to add one fact.
