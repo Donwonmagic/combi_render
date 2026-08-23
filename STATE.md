@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-23 15:20:49 UTC |
-| git commit | `b0daa97` |
-| git subject | rev 58 item A: the gloss lever TAKEN, the gate CORRECTED, and the ceiling MEASURED (F44/F59/F60/F61/F62) |
+| generated | 2026-08-23 22:28:49 UTC |
+| git commit | `8715e30` |
+| git subject | rev 58 close: row count settles at 261 after the audit and fix rows |
 | working tree | clean |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=2 (applied, destructive, before booleans) |
@@ -53,6 +53,8 @@ CARGO_GAP outline samples 154 (rev 22: 28, of which 20 on the corner arcs = 5.2 
 band 1.372-1.775 un-dropped (1.307-1.710 AG)  bay widths 0.516 0.515 0.516
 hubcap badge: 4 rings R 0.043429 (= CAP_EMBLEM_D/2), glyph extreme 0.043429, spread 0.00e+00 m
 hubcap badge is SELF-CONSISTENCY ONLY -- CAP_EMBLEM_WFRAC has never been compared to a frame; see PHOTOS_WANTED item 7
+wheel-house reach front: liner minus aperture radius -0.0 .. +0.0 mm over 0 station(s) short of it; rim inset inside flank_y +2.6 mm; 0 station(s) beyond the outline's feet
+wheel-house reach rear : liner minus aperture radius -0.0 .. +0.0 mm over 0 station(s) short of it; rim inset inside flank_y +2.6 mm; 0 station(s) beyond the outline's feet
 VERIFY: 0 fail, 0 warn
 ```
 
@@ -147,8 +149,8 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 | | |
 |---|---|
 | mesh objects | 223 |
-| vertices (all meshes) | 329920 |
-| faces (all meshes) | 320641 |
+| vertices (all meshes) | 330428 |
+| faces (all meshes) | 321135 |
 
 | prefix | n |
 |---|---|
