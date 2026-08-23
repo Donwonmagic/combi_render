@@ -691,6 +691,149 @@ def _measure_wheels():
     return out
 
 
+def _wheelhouse_reach(log=print):
+    """DOES EACH WHEEL-HOUSE LINER REACH ITS OWN ARCH APERTURE?
+
+    rev 59.  THE OWNER: "a weird arc above the back wheel just kind of
+    floating there".  `t1_detail.wheel_houses()` built BOTH liners as circles
+    of radius `WH_R`, whose own comment read
+    `WH_R = 0.3735   # = t1_shell.ARCH_R, the arch cut's radius`.
+    That is true of the FRONT cutter (`T.cylinder((T.X_AXLE_F`) and false of
+    the REAR one, which since rev 16 is `rear_arch_outline` through
+    `T.solid_prism` -- `ARCH_W_REAR` 0.920 m wide against a liner 0.747 m
+    across.  Nothing measured the result: `ARCH_W_REAR`, `_ARCH_PROFILE` and
+    `rear_arch_outline` appeared ZERO times in this file, which is the same
+    hole rev 18 found for the arch-to-tyre gap.
+
+    WHAT THIS ROW MEASURES.  For every liner object, at every one of its own
+    rim stations, the radius from that axle's centre against the radius of the
+    aperture THE CUTTER ACTUALLY CUTS in the same direction -- the front's
+    circle of ARCH_R, the rear's own `rear_arch_outline`.  Both in the
+    AUTHORED frame: step 8b shears `v.co.z -= rake_drop(v.co.x)` and leaves x
+    alone, so `_frame_dz(x)` undoes it exactly, per vertex.
+
+      delta < 0   the liner stops SHORT of the hole -- you see the body
+                  interior, and van_floor's edge, through the crescent
+      delta > lap the rim lands OUTBOARD of the lip, which trades an inner
+                  dark arc for a dark ring outside it (WH_INSET is 2.6 mm)
+
+    AND IT ALSO ASKS WHETHER THE RIM STANDS PROUD OF THE SKIN, because
+    widening the sector drives the end stations fore/aft and DOWN, where
+    `flank_y` is smaller -- the exact defect rev 38 fixed with a fixed
+    outboard y of 0.870.
+
+    WHICH AXES THIS DOES NOT SEE (rule 36).  It is a RADIUS test and a
+    HALF-WIDTH test at the rim only.  It says nothing about the liner between
+    its rim and its inboard flange, nothing about the aperture below the
+    outline's own feet (the cutter's skirt, which is not lip), and its
+    proud-of-skin arm compares against `flank_y`, which is the LOFT CONTROL
+    HULL -- the subdivided skin sits inboard of it, so a small positive inset
+    here is not proof the rim is behind the rendered surface.
+    """
+    import math
+    import t1_shell as S
+    fails, worst = [], []
+    LAP_MAX = 0.005          # rim may bury this far behind the lip, no more
+    SHORT_TOL = 0.0005       # 0.5 mm: chord/round-off, not a hole
+    MIN_INSET = 0.0005       # rim must be at least this far inside flank_y
+
+    for tag, xa in (("front", _T.X_AXLE_F), ("rear", _T.X_AXLE_R)):
+        zc = S.arch_z(xa)
+        ap = None
+        if tag == "rear":
+            pts = S.rear_arch_outline(xa)[:-2]     # drop the two FLOOR points
+            ap = sorted((math.atan2(dz, dx), math.hypot(dx, dz))
+                        for dx, dz in pts)
+        obs = []
+        for ob in bpy.data.objects:
+            if ob.type != 'MESH' or not ob.name.startswith("wheelhouse"):
+                continue
+            vs = [ob.matrix_world @ v.co for v in ob.data.vertices]
+            if not vs or abs(sum(v.x for v in vs) / len(vs) - xa) > 0.60:
+                continue
+            obs.append((ob, vs))
+        if len(obs) != 2:
+            fails.append("wheel-house reach: found %d liner(s) at the %s axle, "
+                         "expected 2" % (len(obs), tag))
+            continue
+        d_lo = d_hi = None
+        inset_lo = None
+        n_short = 0
+        n_out = 0
+        for ob, vs in obs:
+            rim = {}
+            for w in vs:
+                dx = w.x - xa
+                dz = (w.z - _frame_dz(w.x)) - zc     # -> AUTHORED frame
+                r = math.hypot(dx, dz)
+                th = math.atan2(dz, dx)
+                b = round(math.degrees(th))
+                if r > rim.get(b, (-1.0,))[0]:
+                    rim[b] = (r, th, w.x, w.z, abs(w.y))
+            for b in sorted(rim):
+                r, th, wx, wz, ay = rim[b]
+                if ap is None:
+                    r_ap = S.ARCH_R
+                else:
+                    if th < ap[0][0] - 1e-9 or th > ap[-1][0] + 1e-9:
+                        n_out += 1          # past the outline's own feet
+                        continue
+                    r_ap = _np_interp(th, [a for a, _ in ap],
+                                      [v for _, v in ap])
+                d = r - r_ap
+                d_lo = d if d_lo is None else min(d_lo, d)
+                d_hi = d if d_hi is None else max(d_hi, d)
+                if d < -SHORT_TOL:
+                    n_short += 1
+                # proud-of-skin arm, at the rim station's own (x, z)
+                fy = _T.flank_y(wx, wz - _frame_dz(wx))
+                ins = fy - ay
+                inset_lo = ins if inset_lo is None else min(inset_lo, ins)
+        if d_lo is None:
+            fails.append("wheel-house reach: no comparable station at the %s "
+                         "axle" % tag)
+            continue
+        log("  wheel-house reach %-5s: liner minus aperture radius %+.1f .. "
+            "%+.1f mm over %d station(s) short of it; rim inset inside "
+            "flank_y %+.1f mm; %d station(s) beyond the outline's feet"
+            % (tag, d_lo * 1000, d_hi * 1000, n_short, inset_lo * 1000, n_out))
+        if d_lo < -SHORT_TOL:
+            fails.append("the %s wheel-house liner stops SHORT of its own arch "
+                         "aperture by up to %.1f mm of radius (%d station(s)) "
+                         "-- the body interior shows through the crescent; "
+                         "t1_detail.wheel_houses / _arc_liner"
+                         % (tag, -d_lo * 1000, n_short))
+        if d_hi > LAP_MAX:
+            fails.append("the %s wheel-house liner rim sits %.1f mm PAST its "
+                         "arch aperture (lap limit %.1f mm) -- a dark ring "
+                         "outside the lip" % (tag, d_hi * 1000, LAP_MAX * 1000))
+        if inset_lo < MIN_INSET:
+            fails.append("the %s wheel-house liner rim stands %.1f mm PROUD of "
+                         "flank_y (WH_INSET is %.1f mm) -- rev 38's defect"
+                         % (tag, -inset_lo * 1000, 2.6))
+    return fails
+
+
+def _np_interp(x, xs, ys):
+    """1-D linear interpolation without importing numpy into this module."""
+    if x <= xs[0]:
+        return ys[0]
+    if x >= xs[-1]:
+        return ys[-1]
+    lo, hi = 0, len(xs) - 1
+    while hi - lo > 1:
+        mid = (lo + hi) // 2
+        if xs[mid] <= x:
+            lo = mid
+        else:
+            hi = mid
+    span = xs[hi] - xs[lo]
+    if span <= 0:
+        return ys[lo]
+    f = (x - xs[lo]) / span
+    return ys[lo] + f * (ys[hi] - ys[lo])
+
+
 def run(body, log=print):
     fails, warns = [], []
 
@@ -1814,6 +1957,12 @@ def run(body, log=print):
                                      max(_rr) - min(_rr)))
         log("  hubcap badge is SELF-CONSISTENCY ONLY -- CAP_EMBLEM_WFRAC has "
             "never been compared to a frame; see PHOTOS_WANTED item 7")
+
+    # rev 59.  The wheel-house liners against the apertures they line.
+    try:
+        fails += _wheelhouse_reach(log)
+    except Exception as e:                       # never let the guard vanish
+        fails.append("wheel-house reach assertion could not run: %s" % e)
 
     # Buried detail must never pass again: both wipers shipped for six
     # revisions fully enclosed in the nose skin. Casts camera -> object, not

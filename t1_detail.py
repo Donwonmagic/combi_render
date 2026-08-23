@@ -1342,7 +1342,15 @@ def galley():
     # Found as the CONTROL for the cab-floor test, and the control FAILING is
     # what showed the defect is systemic rather than a cab quirk.  1.400 was
     # AUTHORED -- it appears nowhere in SPEC.md or REF_MEASUREMENTS.md.
-    pts = T.rrect(FLOOR_W, 2.700, 0.02, seg=3)
+    # rev 59.  NOTCHED round the rear wheel houses -- see _notched_rrect for
+    # the measurement that forced it and for why FLOOR_W itself does not move.
+    # T1_WHFLAT=1 restores the un-notched slab so the census stays testable.
+    if os.environ.get("T1_WHFLAT") == "1":
+        pts = T.rrect(FLOOR_W, 2.700, 0.02, seg=3)
+    else:
+        pts = _notched_rrect(FLOOR_W, 2.700, 0.02,
+                             floor_notches(-0.500, (T.X_AXLE_R,)),
+                             WH_Y_IN - 0.002, seg=3)
     obs.append(T.solid_prism((-0.500, 0.000, 0.5400), (0, 1, 0), (1, 0, 0),
                              (0, 0, 1), pts, 0.040, name="van_floor"))
     # rev 11 carried two 0.900 x 0.240 steel slabs at x -1.500 and -1.780,
@@ -1395,16 +1403,121 @@ def galley():
 # number that is possible.  Its ceiling: no photograph shows this vehicle's
 # cab floor, and none is claimed.
 FLOOR_W = 1.200                     # AUTHORED, rev 38; see SPEC 10.96
-WH_R = 0.3735                       # = t1_shell.ARCH_R, the arch cut's radius
+WH_R = 0.3735                       # FRONT ARCH ONLY: = t1_shell.ARCH_R, and
+                                    # the front cutter really is a circle of
+                                    # that radius -- grep
+                                    # `T.cylinder((T.X_AXLE_F`.  THE REAR
+                                    # APERTURE IS NOT A CIRCLE and has not been
+                                    # since rev 16 (grep `ARCH_W_REAR` and
+                                    # `rear_arch_outline`); the rear liner is
+                                    # driven off that outline, see
+                                    # wheel_houses().
 WH_T = 0.010                        # house shell thickness
 WH_Y_IN = 0.500                     # inboard face; wheel spans y 0.604..0.760
 WH_INSET = 0.0026                   # outboard face this far inside flank_y (skin 2.8 mm)
 WH_SWEEP = 2.0                      # degrees past horizontal each side
 
 
-def _arc_liner(xa, zc, sgn, a0, a1, seg, name):
+def wh_x_halfspan(xa):
+    """Half the x extent the wheel-house tub occupies at axle xa.
+
+    Taken from the APERTURE ITSELF -- the rear's `rear_arch_outline`, the
+    front's circle of ARCH_R -- so ARCH_W_REAR's +-0.03 m moves the floor
+    notch with it and no second width constant exists to go stale.  The 10 mm
+    is clearance, not a measurement.
+    """
+    import t1_shell as S
+    if abs(xa - T.X_AXLE_R) < 1e-9:
+        return max(abs(dx) for dx, _ in S.rear_arch_outline(xa)[:-2]) + 0.010
+    return S.ARCH_R + 0.010
+
+
+def floor_notches(x_origin, axles):
+    """(v0, v1) bands, in a floor prism's own v axis, for the given axles."""
+    out = []
+    for xa in axles:
+        h = wh_x_halfspan(xa)
+        out.append((xa - h - x_origin, xa + h - x_origin))
+    return out
+
+
+def _notched_rrect(w, h, r, notches, hu, seg=3):
+    """`T.rrect` with rectangular NOTCHES cut into BOTH long edges.
+
+    rev 59, F: THE FLOOR PANS PASS 100 mm THROUGH THE WHEEL-HOUSE WALL, AND
+    THAT IS WHY THE BAR IS STILL THERE AFTER THE LINER WAS FIXED.
+
+    MEASURED, not argued.  With the rear liner corrected to the aperture, the
+    census through the side ortho still reads 177 van_floor rays -- 176 before
+    the fix.  The reason is geometric and it applies to a liner of ANY radius:
+    an ORTHOGRAPHIC side ray keeps its radius about the axle all the way in,
+    so it NEVER crosses the tub's cylindrical band.  The only surface that can
+    stop it is the tub's INBOARD wall, which stands at WH_Y_IN = 0.500 -- and
+    both floor pans reach FLOOR_W / 2 = 0.600, i.e. 100 mm OUTBOARD of it.
+    The ray therefore lands on the floor's 40 mm side face before the wall.
+
+    THE FRONT AXLE PROVES IT IS NOT THE LINER'S RADIUS.  The front liner has
+    always filled its circular aperture exactly (the reach row reads
+    -0.0 .. +0.0 mm) and the same census reads 151 `cab_floor` rays.
+
+    rev 38 sized FLOOR_W against the TYRES -- "clears the front tyre's inner
+    face (0.609) by 9 mm and the rear's (0.604) by 4 mm" -- and the wheel
+    houses, added in the SAME revision, were never in that sum.  FLOOR_W is
+    NOT changed here: a real T1's floor is notched round its wheel houses and
+    that is what this does, over the wheel house's own x span only, taken from
+    the aperture outline rather than from a second constant.
+
+    `notches` is a list of (v0, v1) bands in the outline's own v axis; `hu` is
+    the half-width the floor drops to inside them.  Winding matches
+    `T.rrect` -- CCW, first point on the +u edge -- because the notches are
+    inserted INTO the two straight edges in the direction each is already
+    travelling.
+    """
+    r = min(r, w / 2 - 1e-4, h / 2 - 1e-4)
+    a, b = w / 2 - r, h / 2 - r
+    bands = []
+    for v0, v1 in notches:
+        v0, v1 = max(min(v0, v1), -b), min(max(v0, v1), b)
+        if v1 - v0 > 1e-6:
+            bands.append((v0, v1))
+    bands.sort()
+    arcs = []
+    for cx, cy, a0 in ((a, b, 0.0), (-a, b, math.pi / 2),
+                       (-a, -b, math.pi), (a, -b, 1.5 * math.pi)):
+        arcs.append([(cx + r * math.cos(a0 + (math.pi / 2) * i / seg),
+                      cy + r * math.sin(a0 + (math.pi / 2) * i / seg))
+                     for i in range(seg + 1)])
+    pts = list(arcs[0]) + list(arcs[1])
+    for v0, v1 in reversed(bands):                 # -u edge runs v HIGH -> LOW
+        pts += [(-w / 2, v1), (-hu, v1), (-hu, v0), (-w / 2, v0)]
+    pts += list(arcs[2]) + list(arcs[3])
+    for v0, v1 in bands:                           # +u edge runs v LOW -> HIGH
+        pts += [(w / 2, v0), (hu, v0), (hu, v1), (w / 2, v1)]
+    # A band clamped exactly onto b lands its first (or last) point on top of a
+    # corner arc's end point.  A zero-length edge is not a self-intersection but
+    # every segment test says it is, and `solid_prism` caps the outline -- so it
+    # is removed rather than tolerated.  WATCHED: without this the cab pan's
+    # outline reported 2 self-intersections and the van pan's 0.
+    out = []
+    for q in pts:
+        if not out or abs(q[0] - out[-1][0]) > 1e-9 or abs(q[1] - out[-1][1]) > 1e-9:
+            out.append(q)
+    while len(out) > 3 and abs(out[0][0] - out[-1][0]) < 1e-9 \
+            and abs(out[0][1] - out[-1][1]) < 1e-9:
+        out.pop()
+    return out
+
+
+def _arc_liner(xa, zc, sgn, a0, a1, seg, name, outline=None):
     """A wheel-house shell: an arc tube about the axle whose OUTBOARD face
     follows the flank skin instead of sitting at a fixed y.
+
+    rev 59 -- AND WHOSE RADIUS NOW FOLLOWS THE APERTURE INSTEAD OF A CONSTANT.
+    Pass `outline` a list of (dx, dz) stations about (xa, zc) -- the aperture's
+    OWN outline, dropped of its two floor points -- and the sweep runs through
+    those stations at their own radii instead of round a circle of WH_R.  Pass
+    None and the behaviour is the circle, bit for bit, which is what the FRONT
+    arch wants and what T1_WHCIRC=1 restores for the rear.
 
     TWO THINGS THIS FIXES, BOTH CAUGHT BY LOOKING RATHER THAN BY A GUARD:
       1. A FULL 360 revolve is wrong.  The bodywork exists only above the
@@ -1422,19 +1535,48 @@ def _arc_liner(xa, zc, sgn, a0, a1, seg, name):
     R_IN = 0.030
     verts, faces = [], []
     n = 6
+    if outline is not None:
+        seg = len(outline) - 1
     for k in range(seg + 1):
-        a = a0 + (a1 - a0) * k / seg
-        ca, sa = math.cos(a), math.sin(a)
-        x = xa + WH_R * ca
-        z = zc + WH_R * sa
+        if outline is None:
+            a = a0 + (a1 - a0) * k / seg
+            ca, sa = math.cos(a), math.sin(a)
+            R = WH_R
+        else:
+            # The aperture's own station, at its own radius and its own
+            # direction.  a0/a1/WH_SWEEP are NOT applied here: t = +-1 is the
+            # outline's foot by construction, and sweeping past it would put
+            # the flat end caps back below the rocker -- the mid-air skirt
+            # rev 38 removed.
+            dx, dz = outline[k]
+            R = math.hypot(dx, dz)
+            ca, sa = dx / R, dz / R
+        x = xa + R * ca
+        z = zc + R * sa
+        # rev 59 RISK 1.  This was `try: ... except: y_out = 0.870 - WH_INSET`.
+        # A silent substitution here is the rev-38 defect exactly: 0.870 stands
+        # PROUD of the skin wherever the flank is narrower than that, and
+        # widening the sector drives the end stations to x -1.5600 / -0.6400
+        # where flank_y reads 0.8176.  It now RAISES.  (T.flank_y is
+        # WX(x) * G(z), two np.interp calls that clamp rather than throw, so
+        # the branch was dead already -- a completed build is the evidence it
+        # never fires, and both SUB levels complete.)
         try:
             y_out = T.flank_y(x, z) - WH_INSET
-        except Exception:
-            y_out = 0.870 - WH_INSET
-        prof = [(WH_Y_IN,        WH_R),
-                (y_out,          WH_R),
-                (y_out,          WH_R - WH_T),
-                (WH_Y_IN + WH_T, WH_R - WH_T),
+        except Exception as e:
+            raise RuntimeError(
+                "%s: flank_y(%.4f, %.4f) failed and there is no safe "
+                "substitute -- a fixed outboard y stands proud of the skin "
+                "(rev 38): %s" % (name, x, z, e))
+        if y_out <= WH_Y_IN + WH_T:
+            raise RuntimeError(
+                "%s: outboard face y %.4f is not outboard of the inboard face "
+                "%.4f at (x %.4f, z %.4f) -- the profile would be inverted"
+                % (name, y_out, WH_Y_IN + WH_T, x, z))
+        prof = [(WH_Y_IN,        R),
+                (y_out,          R),
+                (y_out,          R - WH_T),
+                (WH_Y_IN + WH_T, R - WH_T),
                 (WH_Y_IN + WH_T, R_IN),
                 (WH_Y_IN,        R_IN)]
         if sgn < 0:
@@ -1457,15 +1599,50 @@ def _arc_liner(xa, zc, sgn, a0, a1, seg, name):
 
 
 def wheel_houses():
-    """Close each wheel arch from inside -- the missing feature behind report 6."""
+    """Close each wheel arch from inside -- the missing feature behind report 6.
+
+    rev 59, THE OWNER: "a weird arc above the back wheel just kind of floating
+    there".  Both liners were built as circles of radius WH_R and WH_R's own
+    comment said that was `= t1_shell.ARCH_R, the arch cut's radius`.  THAT
+    COMMENT WAS TRUE OF THE FRONT ARCH ONLY.  The front cutter is
+    `T.cylinder((T.X_AXLE_F` -- a plain circle of ARCH_R, which the circular
+    liner fills exactly, and the front wheel renders clean.  The REAR cutter
+    is `T.solid_prism(... rear_arch_outline(T.X_AXLE_R) ...)`: superelliptical,
+    ARCH_W_REAR = 0.920 m wide but only ARCH_R tall above the hub.  A 0.747 m
+    circle inside a 0.920 m hole left the aperture UNLINED at both ends --
+    measured on the outline itself, the circle is short by up to 87.2 mm of
+    radius -- and through that crescent the render showed (a) the liner's rim
+    and flat end caps as a dark arc stopping in mid-air and (b) van_floor's
+    40 mm edge, seen edge-on, as a horizontal bar at hub height.  ref_side.jpg
+    shows the real arch dropping to a uniform dark void with neither.
+
+    ONE CAUSE, BOTH ARTEFACTS: the bar is only visible BECAUSE the liner
+    under-fills the aperture, so nothing here touches FLOOR_W.
+
+    The rear liner is driven from `rear_arch_outline` ITSELF, called exactly as
+    the cutter calls it, so the two share their stations and ARCH_W_REAR's
+    +-0.03 m cannot leave the liner behind.  Its two FLOOR points are dropped:
+    they are the cutter's skirt down to z -0.400, not lip.
+    """
+    import os
     import t1_shell as S
     obs = []
     a0 = -math.radians(WH_SWEEP)
     a1 = math.pi + math.radians(WH_SWEEP)
+    # ABLATION.  T1_WHCIRC=1 restores the circular rear liner so verify.py's
+    # wheel-house reach row stays separately testable (rule 3: a control is
+    # finished when you have WATCHED IT FAIL).
+    circ = os.environ.get("T1_WHCIRC", "") == "1"
     for xa in (T.X_AXLE_F, T.X_AXLE_R):
         zc = S.arch_z(xa)
+        # The FRONT stays on the circle -- it is the negative control, and its
+        # cutter really is one.
+        outline = None
+        if xa == T.X_AXLE_R and not circ:
+            outline = S.rear_arch_outline(xa)[:-2]
         for sgn in (1, -1):
-            ob = _arc_liner(xa, zc, sgn, a0, a1, 56, f"wheelhouse{xa:.0f}{sgn}")
+            ob = _arc_liner(xa, zc, sgn, a0, a1, 56, f"wheelhouse{xa:.0f}{sgn}",
+                            outline=outline)
             # Bake the offset into the MESH, not the object transform.  Setting
             # ob.location tripped build.py's step-8b assert -- the shear reads
             # v.co.x as world x and requires an identity transform on every
@@ -1831,7 +2008,16 @@ def interior():
     a void (SPEC 10.104).
     """
     obs = []
-    pts = T.rrect(FLOOR_W, 0.960, 0.05, seg=4)
+    # rev 59, same cause as van_floor: this pan reached 100 mm past the front
+    # wheel house's inboard wall and its edge shows through the front arch --
+    # 151 census rays through the side ortho, with a liner that fits its
+    # aperture to -0.0 .. +0.0 mm.  See _notched_rrect.
+    if os.environ.get("T1_WHFLAT") == "1":
+        pts = T.rrect(FLOOR_W, 0.960, 0.05, seg=4)
+    else:
+        pts = _notched_rrect(FLOOR_W, 0.960, 0.05,
+                             floor_notches(1.360, (T.X_AXLE_F,)),
+                             WH_Y_IN - 0.002, seg=4)
     obs.append(T.solid_prism((1.360, 0, 0.6400), (0, 1, 0), (1, 0, 0),
                              (0, 0, 1), pts, 0.070, name="cab_floor"))
     obs += interior_fill()
