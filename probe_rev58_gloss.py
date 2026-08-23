@@ -37,6 +37,32 @@ import studio as ST
 P = print
 
 
+# ----------------------------------------------------------------- rev 57b
+# BUILD THE RIG.  F51: `build.py` constructs the cyclorama, the lighting, the
+# cabin fill and the camera INSIDE its `if os.environ.get("T1_PREVIEW"):`
+# block, so anything that execs build.py to MEASURE something -- rather than
+# to ask for a preview -- gets a scene with no lights in it.
+#
+# That is not a hypothetical.  This script's first delivery render came back
+# with a BLACK BUS lit only by its own emissive bulb string, and every
+# automated check passed it: stitch.py exited 0, the seam detector read a
+# clean z = 3.63, and the job ran 2.94x FASTER than the lit one -- because an
+# unlit scene is cheap.  Only LOOKING at the frame found it.  It is also the
+# same root cause as F05, `mottle_measure.py`'s dead beauty arm, whose note
+# says "shader_solve._render() builds no studio rig".
+#
+# These four calls MIRROR build.py's block and must track it.  A verify_clone
+# row compares the two sequences so the duplication cannot rot silently; the
+# real fix is to factor them into one function, which is rev 58's to do.
+_KEY = float(os.environ.get("T1_KEY", "1.0"))
+if os.environ.get("T1_SCENE", "studio") != "studio":
+    raise SystemExit("FATAL: this script mirrors build.py's STUDIO rig only")
+ST.cyclorama()
+ST.lighting(_KEY)
+ST.cabin_fill(_KEY)
+ST.camera()
+P("rig built: cyclorama + lighting + cabin_fill + camera  (key %.2f)" % _KEY)
+
 def _f(v, d):
     """v is the RAW value already read from the environment by name below.
     The read is written out literally at each call site, not folded into a

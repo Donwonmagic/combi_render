@@ -32,6 +32,32 @@ exec(compile(open(os.path.join(ROOT, "build.py")).read(), "build.py", "exec"))
 import studio as ST
 P = print
 
+# ----------------------------------------------------------------- rev 57b
+# BUILD THE RIG.  F51: `build.py` constructs the cyclorama, the lighting, the
+# cabin fill and the camera INSIDE its `if os.environ.get("T1_PREVIEW"):`
+# block, so anything that execs build.py to MEASURE something -- rather than
+# to ask for a preview -- gets a scene with no lights in it.
+#
+# That is not a hypothetical.  This script's first delivery render came back
+# with a BLACK BUS lit only by its own emissive bulb string, and every
+# automated check passed it: stitch.py exited 0, the seam detector read a
+# clean z = 3.63, and the job ran 2.94x FASTER than the lit one -- because an
+# unlit scene is cheap.  Only LOOKING at the frame found it.  It is also the
+# same root cause as F05, `mottle_measure.py`'s dead beauty arm, whose note
+# says "shader_solve._render() builds no studio rig".
+#
+# These four calls MIRROR build.py's block and must track it.  A verify_clone
+# row compares the two sequences so the duplication cannot rot silently; the
+# real fix is to factor them into one function, which is rev 58's to do.
+_KEY = float(os.environ.get("T1_KEY", "1.0"))
+if os.environ.get("T1_SCENE", "studio") != "studio":
+    raise SystemExit("FATAL: this script mirrors build.py's STUDIO rig only")
+ST.cyclorama()
+ST.lighting(_KEY)
+ST.cabin_fill(_KEY)
+ST.camera()
+P("rig built: cyclorama + lighting + cabin_fill + camera  (key %.2f)" % _KEY)
+
 RX = int(os.environ.get("T1_HQ_RX", 3840))
 RY = int(os.environ.get("T1_HQ_RY", 2640))
 SAMP = int(os.environ.get("T1_HQ_SAMP", 256))
@@ -46,7 +72,10 @@ P("  DELIVERY FRAME  %dx%d  %d spp  %d strips  margin %.4f (%.1f rows)"
   % (RX, RY, SAMP, N, MARGIN, MARGIN * RY))
 P("  ONE session: the scene is built once, not %d times." % N)
 P("=" * 72)
+ONLY = os.environ.get("T1_HQ_ONLY")          # render ONE band, for timing controls
 for i in range(N):
+    if ONLY is not None and i != int(ONLY):
+        continue
     lo, hi = i / N, (i + 1) / N
     mlo, mhi = max(0.0, lo - MARGIN), min(1.0, hi + MARGIN)
     os.environ["T1_BORDER"] = "%.6f,%.6f" % (mlo, mhi)

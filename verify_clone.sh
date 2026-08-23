@@ -1343,6 +1343,32 @@ print(sum(1 for l in code if re.search(r'G/R|hue|chroma|saturation',l)))" 2>&1 |
 ck "the audit's ranking rule is carried in the brief" 1 \
    "$(if [ -n "$_LATEST_BRIEF" ]; then grep -c 'RANK BY PIXELS OF THE DELIVERY FRAME' "$_LATEST_BRIEF"; else echo 0; fi)"
 
+# ------------------------------- rev 57b: F51, THE RIG LIVES IN THE PREVIEW
+# build.py constructs the cyclorama, the lighting, the cabin fill and the
+# camera INSIDE `if os.environ.get("T1_PREVIEW"):`, so anything that execs
+# build.py to MEASURE gets a scene with no lights.  It produced a BLACK BUS
+# delivery frame that passed every automated check, and it is the same root
+# cause as F05's dead beauty arm.
+#
+# Until the rig is factored into one function, two scripts DUPLICATE that
+# sequence.  This row compares the sequences so the duplication cannot rot in
+# silence -- if build.py's rig changes and the probes' does not, it fails.
+ck "the duplicated studio rig still matches build.py" OK "$(python3 -c "
+import re
+def seq(f, lo=None):
+    t=open(f).read()
+    if lo: t=t[t.index(lo):]
+    return [m for m in re.findall(r'ST\.(cyclorama|lighting|cabin_fill|camera)\(', t)]
+b=seq('build.py','if os.environ.get(\"T1_PREVIEW\")')
+h=seq('hq_render.py'); g=seq('probe_rev58_gloss.py')
+print('OK' if b and b==h==g else 'DRIFTED build=%s hq=%s gloss=%s'%(b,h,g))" 2>&1 | tail -1)"
+
+# ...and the two scripts must still BUILD it at all.  A probe that execs
+# build.py without T1_PREVIEW and without this call renders an unlit scene
+# and reports numbers off it, which is exactly what happened.
+ck "hq_render builds the rig"          1 "$(grep -c '^ST.lighting(_KEY)' hq_render.py)"
+ck "probe_rev58_gloss builds the rig"  1 "$(grep -c '^ST.lighting(_KEY)' probe_rev58_gloss.py)"
+
 # --------------------------------------------------- rev 55: A RE-FRAMING
 # THE OWNER RETIRED A HEADING AND IT CAME BACK ONE BRIEF LATER.
 # At rev 54 he ruled "we have all references that we need on repo", and sec.4

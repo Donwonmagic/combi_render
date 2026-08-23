@@ -31,6 +31,7 @@ changed six lines of model code between them, two of them zero, against 6,503 li
 | # | do | worth | gate |
 |---|---|---|---|
 | **A** | **F44 — THE PAINT HAS ALMOST NO GLOSS.** `gloss_compare.py` FAILS at **0.392** of the photograph's spread, bar 0.60; its specular headroom is **0.139** of the photograph's | **3.4 × 10⁶ px²** — the largest thing in the frame | **`gloss_compare.py`, new at rev 57b** |
+| **A0** | **F51 — FACTOR THE STUDIO RIG OUT OF `build.py`'s PREVIEW BLOCK. Do this FIRST; it is an hour and it unblocks two other items.** `cyclorama/lighting/cabin_fill/camera` are built inside `if T1_PREVIEW:`, so **every tool that execs build.py to MEASURE renders an unlit scene** | it made rev 57b's first delivery frame a **BLACK BUS that passed every automated check**, and it is the cause of **F05** | a verifier row compares the duplicated sequences until it is fixed |
 | **B** | **F45 — THE GALLEY AND ROOF-APERTURE INTERIORS ARE UNTEXTURED WHITE BLOCKS**, seen through four openings, dead centre | **7.4 × 10⁵ px²** | none — build one, or accept it and say so |
 | **C** | **F15 / A7** — the unlit roofed run between the last light inlet and the tail | 8.2 × 10⁵ px² | none |
 | **D** | **F01/F39** — `Senor`, 28.5 % of its ink, in the ARTWORK not the render | 2.7 × 10⁴ px² | `flank_compare.py` |
@@ -582,7 +583,17 @@ carried as F18**; SPEC §0.2's two rev-4 corrections later refuted; rev 48's ref
 open"* still live in `build.py` and, **split across two lines so a flat grep misses it**, in
 `t1_shell.py`; the tail board still has **zero rows in either verifier**.
 
-### §3.7 THE HABITS THAT PAID AT REV 57
+### §3.7 THE HABITS THAT PAID AT REV 57 AND 57b
+
+**LOOK AT THE FRAME. IT IS NOT A RITUAL AND IT IS NOT LAST.** Rev 57b's delivery render came back
+a **BLACK BUS** — the whole body unlit, only the emissive bulb string showing — and **every
+automated check passed it**: `stitch.py` exited 0, the seam detector read a clean **z = 3.63**, and
+the job ran **2.94× faster** than the correct one. That speed was a *symptom*, and I read it as a
+win: I had already formed a CPU-contention hypothesis and started a **20-minute control** to
+confirm it. **The control would have measured a real contention factor on an unlit scene and
+confirmed the wrong cause.** Opening the PNG took ten seconds. `verify_clone.sh`'s own verdict
+block has said this all along — *"Every defect this project has shipped passed VERIFY: 0 fail,
+0 warn and was found by LOOKING at a crop."*
 
 **ABLATE BEFORE YOU TUNE.** §3.0's warning. It is the whole of rev 57's item B.
 
