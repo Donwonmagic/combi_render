@@ -25,8 +25,8 @@ changed six lines of model code between them, two of them zero, against 6,503 li
 
 | # | do | worth | gate |
 |---|---|---|---|
-| **A** | **THE PAINT HAS ALMOST NO GLOSS.** `gloss_compare.py` FAILS at **0.392** of the photograph's spread, bar 0.60; its specular headroom is **0.139** of the photograph's | **3.4 × 10⁶ px²** — the largest thing in the frame | **`gloss_compare.py`, new at rev 57b** |
-| **B** | **THE GALLEY AND ROOF-APERTURE INTERIORS ARE UNTEXTURED WHITE BLOCKS**, seen through four openings, dead centre | **7.4 × 10⁵ px²** | none — build one, or accept it and say so |
+| **A** | **F44 — THE PAINT HAS ALMOST NO GLOSS.** `gloss_compare.py` FAILS at **0.392** of the photograph's spread, bar 0.60; its specular headroom is **0.139** of the photograph's | **3.4 × 10⁶ px²** — the largest thing in the frame | **`gloss_compare.py`, new at rev 57b** |
+| **B** | **F45 — THE GALLEY AND ROOF-APERTURE INTERIORS ARE UNTEXTURED WHITE BLOCKS**, seen through four openings, dead centre | **7.4 × 10⁵ px²** | none — build one, or accept it and say so |
 | **C** | **F15 / A7** — the unlit roofed run between the last light inlet and the tail | 8.2 × 10⁵ px² | none |
 | **D** | **F01/F39** — `Senor`, 28.5 % of its ink, in the ARTWORK not the render | 2.7 × 10⁴ px² | `flank_compare.py` |
 | **E** | **F43** — what the other 93.5 % of the cream's albedo breakup is (NOT the mottle; rev 57 refuted that). Ablate `dust`/`wear`/`peel` one at a time | large area, subtle amplitude: sd **4.000 DN** over the cream body | `mottle_measure.py` albedo arm, **at `T1_MM_SAMP=16`** |

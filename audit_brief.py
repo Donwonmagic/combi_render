@@ -88,11 +88,34 @@ if outp:
 sw = sorted(set(re.findall(r"\bT1_[A-Z0-9_]+\b", TXT)))
 srcs = {p: open(os.path.join(ROOT, p)).read()
         for p in os.listdir(ROOT) if p.endswith((".py", ".sh"))}
+# WHAT THIS ROW IS FOR: catching a switch that survives only in a COMMENT
+# after the code behind it was deleted.  Its first form demanded the literal
+# sit directly after `environ.get(`, which is one idiom among several -- it
+# reported probe_rev58_gloss.py's own live levers as dead because they are
+# read through a one-line helper.  A row that fails on working code gets
+# ignored, so it now asks the real question: does the name appear in
+# EXECUTABLE code (not a comment, not a docstring) in a file that reads the
+# environment at all?
+def _code_lines(t):
+    out = []
+    for ln in t.splitlines():
+        b = ln.strip()
+        if not b or b.startswith("#"):
+            continue
+        out.append(ln)
+    return out
+
+
 dead = []
 for s in sw:
-    if not any(("environ" in t or "getenv" in t) and s in t
-               and re.search(r"(environ(\.get)?\[?\(?[\"']%s|getenv\([\"']%s)" % (s, s), t)
-               for t in srcs.values()):
+    ok = False
+    for t in srcs.values():
+        if "environ" not in t and "getenv" not in t:
+            continue
+        if any(("'%s'" % s) in ln or ('"%s"' % s) in ln for ln in _code_lines(t)):
+            ok = True
+            break
+    if not ok:
         dead.append(s)
 ck("every T1_* the brief names READS THE ENVIRONMENT", not dead,
    "%d named, %d not an env read%s" % (len(sw), len(dead),

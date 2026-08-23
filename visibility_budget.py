@@ -49,13 +49,13 @@ print("=" * 78)
 
 # (id, what, linear error in m OR None, area affected in m2 OR None, note)
 ROWS = [
-    ("F43/F41", "the paint's GLOSS -- the red flank alone",
+    ("F44", "the paint's GLOSS -- the red flank alone",
      None, 2.50 * 0.60, "measured: the photograph's red spreads 2.55x as wide"),
-    ("F43/F41", "the paint's GLOSS -- the whole cream upper body",
+    ("F44", "the paint's GLOSS -- the whole cream upper body",
      None, 4.07 * 0.95, "same defect, larger surface"),
-    ("(ungated)", "galley interior reads as untextured white blocks",
+    ("F45", "galley interior reads as untextured white blocks",
      None, 3 * 0.516 * 0.40, "seen through all three serving apertures"),
-    ("(ungated)", "roof-aperture interior, same",
+    ("F45", "roof-aperture interior, same",
      None, 1.20 * 0.45, "dead centre of the hero frame"),
     ("F15", "A7 -- unlit roofed body between the last inlet and the tail",
      0.803, 0.803 * 1.60, "ILLUMINATION over a large area, not dressing"),
