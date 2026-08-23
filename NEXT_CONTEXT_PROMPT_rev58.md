@@ -414,8 +414,14 @@ this list is what executed rather than what was drafted:**
 * *"Do the gates still run from this head?"* — gate 1 runs and fails **exactly one** row,
   `Senor` 0.656.
 
-**AND THE MECHANICAL SWEEP IS COMMITTED NOW.** `audit_brief.py` — 9 checks, **0 failed** on this
-file. Rev 58 should EXTEND it rather than rewrite it, and add the question its own revision needed.
+**AND BOTH AUDITS ARE COMMITTED SCRIPTS NOW.** `audit_brief.py` — 9 checks, **0 failed** — asks
+*is what the file says true?* `audit_adversary.py` — 10 questions, **0 broke** — asks *what would
+make it false?*, and it RECOMPUTES the headline figures from the renders and the source instead of
+re-reading them: the clearcoat ablation off `out/g0/g1_hero.png` (0.392 → 0.394, G/R +17.9 %), the
+exposure invariance, the budget's ordering, F51's single `ST.lighting` call, the delivery frame's
+lit-and-seam-free state, and **0 non-comment model-code lines since rev 56**.
+**REPLACE the adversary's questions each revision** — they are about THAT revision's claims, and a
+question that can no longer fail is not a control. Rev 58 should EXTEND it rather than rewrite it, and add the question its own revision needed.
 
 **THIS FILE MUST STAY BYTE-IDENTICAL TO `PASTE_INTO_CLAUDE_CODE.txt`.** `CLAUDE.md` imports that
 file into every session as the entry procedure. **WHEN YOU WRITE THE REV-59 BRIEF, `cp` IT OVER
