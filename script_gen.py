@@ -144,7 +144,11 @@ def stroke_poly(pts, w):
 # Their control points are samples of the TRUE MEDIAL AXIS of the reference ink
 # mask (skimage.morphology.medial_axis on the mask upsampled x6 and Gaussian-
 # filtered at sigma = 0.55 source px, exactly the pipeline senor_trace.py
-# documents and validates at IoU 0.913), and the third number of each triple is
+# documents -- rev 59: that "and validates at IoU 0.913" is RETRACTED.  0.913 was
+# scored against a reference baked into senor_trace.py that was missing the
+# tilde; against the re-baked one the word reads 0.8859.  See THE TILDE, REV 59
+# in senor_trace.py.  The PIPELINE described here is unchanged), and the third
+# number of each triple is
 # the exact distance transform at that sample -- i.e. the measured HALF-WIDTH.
 # Nothing is added to it.  Branches shorter than 3 source px are dropped as
 # spurs; the half-width at a Y-junction is the inscribed radius there and is
@@ -581,13 +585,21 @@ def draw_i(c):
 # segmented".  That belief was tested in rev 10 and is false: the word is
 # invisible in LUMA (Michelson contrast 0.132) but obvious in CHROMATICITY --
 # the red ground carries B = 6.0 +/- 3.6 DN while the word carries B = 21-81.
-# Segmented properly it is 934 px of real ink (SPEC 10.20).
+# Segmented properly it is 934 px of real ink (SPEC 10.20) -- rev 59: 934 was the
+# count of a segmentation THAT HAD NO TILDE IN IT.  Over the same window
+# compare_script.ref_mask(), which is what the live gate scores against, carries
+# 1176 px, and senor_trace.py's reference is now the re-baked 1062 (1176 less the
+# 88 px of Tacombi swash crossing rows 23..27 and the 26 px of swash crossing the
+# rows above them).  The 934 is kept here because SPEC 10.20 quotes it; it is not
+# the number to measure against.
 #
 # senor_trace.py carries the reconstruction: the measured mask's medial axis,
 # smoothed to 0.20 source px RMS, with the half-width taken from the Euclidean
 # distance transform at every sample.  Every half-width is measured; none is
-# invented.  It scores IoU 0.913 against the measured mask where the eyeballed
-# version scored 0.089.
+# invented.  It scored IoU 0.913 against the measured mask where the eyeballed
+# version scored 0.089 -- rev 59: RETRACTED, same reason.  Against the re-baked
+# reference the rev-9 strokes score 0.8135 and, with the tilde restored, 0.8859.
+# The 0.913 was a trace agreeing with its own blind spot.
 #
 # The tarnish is warm brown, not green-black: darkest quartile a* +14.0 against
 # lightest +6.9, a 6-sigma WARM shift.  That is applied in the RGB layer in

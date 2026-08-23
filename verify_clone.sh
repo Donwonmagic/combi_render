@@ -490,7 +490,19 @@ ck "tex/nose.png"    b31ea156c15d2d8e38ba390d9e151706 "$(md5of tex/nose.png)"
 # and senor_only() hash 4a6f4e8cd0489fa1 / 82d6cf56dd660b47 before and after --
 # so every mask-space figure in this project still holds.  Only the emitted
 # texture moved, and this row is re-based, never relaxed.
-ck "tex/senor.png"   92ff38554d61947528904e113cf657f0 "$(md5of tex/senor.png)"
+# rev 59, F67: RE-BASED because the artwork legitimately changed -- the `n~` had
+# no tilde.  senor_trace.py's baked reference was a segmentation that predates
+# the tilde, the trace was fitted to it, and SPUR_PRUNE_PX had eaten what little
+# survived: `_STROKES` carried only a 3 px vertical stub and a lone inscribed
+# disc where the stroke belongs.  One ("ntilde", ...) stroke replaces both.
+# THE CAUSE IS SEPARATELY TESTABLE, which is what licenses this re-base:
+# "the tilde is DRAWN, not pruned" below counts ink in the tilde band off the
+# raster (73 px before, 156 after, 186 in the reference), and "senor_trace's
+# baked mask == compare_script's live mask" is the row that would have caught
+# the whole thing fifty revisions ago.  Mask space is NOT bit-identical across
+# this change and is not claimed to be: compare_script's `Senor` box goes
+# 0.825 -> 0.889 and the whole lockup 0.942 -> 0.950, both watched printing.
+ck "tex/senor.png"   2c6d221fb2d80a8adf3419153c9b1de6 "$(md5of tex/senor.png)"
 # rev 45, SPEC 10.112: RE-BASED because the texture legitimately changed.
 # cal_gen.gradient's bias was 0.42 and `t` is zero at the burst's own centre by
 # construction, so the core evaluated to 84 % ORANGE and NOTHING in the shipped
@@ -1357,6 +1369,55 @@ o=subprocess.run(['python3','visibility_budget.py','3840'],capture_output=True,t
 r=[l for l in o.splitlines() if re.match(r'^ +\d+\. ',l)]
 top=r[0] if r else ''; bot=r[-1] if r else ''
 print('OK' if 'GLOSS' in top and 'badge' in bot else 'ORDER CHANGED: %r / %r'%(top[:40],bot[:40]))" 2>&1 | tail -1)"
+
+# ---------------------------- rev 59: TWO REFERENCE MASKS THAT NEVER MET (F67)
+# THE DEFECT THESE ROWS EXIST FOR.  `senor_trace.py` graded itself against a
+# mask baked into its own source from out/glyph_lab.npy -- a file that has not
+# existed in this repo for as long as anyone has looked, so its own
+# `_crosscheck()` printed "not present" every run and nobody read it.  Over the
+# identical window (mask x 6..88, y -12..27) that bake held 934 px while
+# `compare_script.ref_mask()`, which is what the LIVE gate scores against, held
+# 1176.  IoU 0.788, and the difference WAS the tilde of the `n~`: 118 px of ink
+# dead centre over the word.  The trace reported 0.913 the whole time.
+#
+# NOTHING IN THE REPO COMPARED THE TWO MASKS, so the divergence was invisible.
+# That is the root cause, and this is the row that makes it loud.  It is EXACT,
+# pixel for pixel -- not a tolerance -- over the guarded window, and it needs no
+# Blender and no render (this script must stay that way).
+ck "senor_trace's baked mask == compare_script's live mask" OK "$(python3 -c "
+import senor_trace as S
+ok, n, ng = S.check_ref_agrees(verbose=False)
+print('OK' if ok else ('NO REFERENCE' if n < 0 else 'DIVERGED: %d of %d px' % (n, ng)))" 2>&1 | tail -1)"
+
+# ...and it must be ABLE to go red, or it reports nothing (rule 3).
+# T1_ST_REFDRIFT flips ONE bit of the baked constants, inside the guarded rows
+# and outside _SWASH_EXCLUDE.  WATCHED FAILING BOTH WAYS at rev 59: perturbing
+# the BAKED side (this row) and, by monkeypatching compare_script.ref_mask(),
+# the LIVE side -- 2 px, reported at mask (45,14) and (46,15).
+ck "that agreement row FAILS when the bake is perturbed" DIVERGED "$(python3 -c "
+import os
+os.environ['T1_ST_REFDRIFT'] = '1'
+import senor_trace as S
+ok, n, ng = S.check_ref_agrees(verbose=False)
+print('DIVERGED' if (not ok and n == 1) else 'GUARD IS BLIND: ok=%s n=%s' % (ok, n))" 2>&1 | tail -1)"
+
+# THE FIX ITSELF, ASKED OF THE RASTER AND NOT OF A GREP (sec.10.4).  A stroke
+# named "ntilde" proves nothing -- there were two of those beside the tilde's
+# hole for fifty revisions.  This draws the word and counts ink in the band the
+# tilde occupies, mask rows y 1..9, cols x 35..63.  Before rev 59: 73 px drawn
+# against 186 in the reference.  After: 156.  Both watched printing.
+ck "the tilde is DRAWN, not pruned (band ink >= 150 px)" OK "$(python3 -c "
+import numpy as np, senor_trace as S
+ox, oy = S._REF_X0 - 8, S._REF_Y0 - 4
+c = S._Canvas(S._REF_W + 16, S._REF_H + 12)
+class _S:
+    def stroke(s, p, w, cut=False, caps=True): c.stroke(np.c_[p[:,0]-ox, p[:,1]-oy], w, cut, caps)
+    def cut(s, p): c.cut(np.c_[np.asarray(p)[:,0]-ox, np.asarray(p)[:,1]-oy])
+    def blob(s, p): pass
+S.draw_senor(_S(), ypad=0)
+g = (c.alpha() > 96)[S._REF_Y0-oy:S._REF_Y0-oy+S._REF_H, S._REF_X0-ox:S._REF_X0-ox+S._REF_W]
+n = int(g[1+12:9+13, 35-6:64-6].sum())
+print('OK' if n >= 150 else 'TILDE BAND ONLY %d px' % n)" 2>&1 | tail -1)"
 
 # The third gate must RUN and must still be exposure-free -- the property that
 # makes it immune to the three open px/m and white-balance unknowns.
