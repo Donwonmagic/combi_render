@@ -861,7 +861,16 @@ def run(body, log=print):
     # this block to be removed.  Local polygon area is used, which is zero
     # exactly when world area is, unless an object carries a singular scale --
     # stated, not hidden.
-    ZERO_AREA_EXEMPT = ("lid_rail", "lid_rail.001")
+    # rev 56 -- THE EXEMPTION IS RETIRED, AND IT RETIRED ITSELF.  It was
+    # written two-sided precisely so it could not outlive the defect, and on
+    # the first build after lid_rail was given a width the stale arm FAILED
+    # and named both objects.  That is the guard working, not a regression.
+    # The rail's width came from the owner (rev 56, multiple choice off a
+    # marked crop of ref_workshop.jpg): "narrow lip, ~as wide as it is tall",
+    # so RAIL_W = RAIL_PROUD in t1_shell.roof_lids().  The sweep now reads
+    # 0 of 223 and NO NAME IS EXEMPT -- if anything is ever built with zero
+    # area again it is a hard fail with nowhere to hide.
+    ZERO_AREA_EXEMPT = ()
     _zero = []
     for ob in bpy.data.objects:
         if ob.type != 'MESH' or not ob.data.polygons:
@@ -881,11 +890,43 @@ def run(body, log=print):
         fails.append("ZERO_AREA_EXEMPT is STALE -- these are no longer "
                      "zero-area, so remove them from the exemption: %s"
                      % _stale)
-    log("  zero-area sweep: %d of %d meshes have zero area; %d exempt and "
-        "KNOWN OPEN (lid_rail x2 -- width unmeasured, see LEDGER_rev52)"
+    log("  zero-area sweep: %d of %d meshes have zero area; %d exempt "
+        "(rev 56: lid_rail was the only exemption and it is BUILT now)"
         % (len(_zero), sum(1 for o in bpy.data.objects
                            if o.type == 'MESH' and o.data.polygons),
            len(ZERO_AREA_EXEMPT)))
+
+    # rev 56 -- THE RAIL'S WIDTH, AND WHERE IT CAME FROM.  The owner ruled it
+    # by multiple choice off a marked crop of ref_workshop.jpg
+    # (probe_scratch/rev56_ASK_lidrail.png): "narrow lip, ~as wide as it is
+    # tall".  So the width is not a free constant -- it IS RAIL_PROUD, and
+    # this row asks the MESH for it rather than grepping the source, because
+    # the whole reason this part was empty for four revisions is that
+    # grepping the object name found it and nothing ever asked its size.
+    #
+    # NOT A TAUTOLOGY: RAIL_PROUD is read from t1_shell and the width is
+    # measured off the built vertices, so a loop that stopped writing the
+    # width (the rev-52 defect: xa == xb) fails here at dx = 0.
+    #
+    # TOLERANCE 0.5 mm, not 1e-9: Blender stores vertex coordinates as
+    # float32.  A first version of this check used 1e-9 and reported the aft
+    # rail as poking outside its own aperture, which it does not -- the
+    # instrument was reading rounding noise.
+    import t1_shell as _S56
+    for _n in ("lid_rail", "lid_rail.001"):
+        _o = bpy.data.objects.get(_n)
+        if _o is None:
+            fails.append("lid_rail object missing: %s" % _n)
+            continue
+        _xs = [(_o.matrix_world @ _v.co).x for _v in _o.data.vertices]
+        _w = max(_xs) - min(_xs)
+        if abs(_w - _S56.RAIL_PROUD) > 5e-4:
+            fails.append("%s width %.4f m != RAIL_PROUD %.4f m -- the owner's "
+                         "rev-56 ruling is 'as wide as it is tall'"
+                         % (_n, _w, _S56.RAIL_PROUD))
+    log("  lid_rail width = RAIL_PROUD %.4f m (owner, rev 56, off "
+        "ref_workshop.jpg: 'narrow lip, ~as wide as it is tall')"
+        % _S56.RAIL_PROUD)
 
     # 4. exactly three OPEN apertures on the show side — tested on the shell
     import t1_shell as _S

@@ -878,6 +878,41 @@ ck "CLAUDE.md carries no measurements" 0 "$(if [ -f CLAUDE.md ]; then grep -cE '
 # NOTE THE SHELL TRAP above: capture grep's stdout, never branch on its status.
 ck "CLAUDE.md keeps the outgoing-brief rule" 1 "$(if [ -f CLAUDE.md ]; then grep -c 'AUDIT THE BRIEF YOU WRITE' CLAUDE.md 2>/dev/null; else echo 99; fi)"
 _LATEST_BRIEF="$(ls NEXT_CONTEXT_PROMPT_rev*.md 2>/dev/null | sort -V | tail -1)"
+# ---------------------------------------------------------------------------
+# rev 56 -- THE OPEN-FINDINGS REGISTER. One existed and was ABANDONED AT REV 45
+# WITH 21 ROWS, unnoticed for eleven revisions; the standing-instructions
+# carrier went the same way at rev 44 and took the project's original
+# deliverable with it. These rows exist so that cannot happen silently again.
+ck "the open-findings register exists"         1 \
+   "$(test -f OPEN_FINDINGS.md && echo 1 || echo 0)"
+# It must not be quietly emptied. The seed was 36 rows; a floor of 21 is the
+# size of the register that was lost, so falling below it is the same event.
+ck "the register has not been gutted"          "OK" \
+   "$(python3 -c "
+n = sum(1 for l in open('OPEN_FINDINGS.md') if l.startswith('| **F'))
+print('OK' if n >= 21 else 'ONLY %d ROWS -- the lost register had 21' % n)" 2>&1 | tail -1)"
+# EVERY row must carry a provenance grade. A register of ungraded claims is
+# what this project already has too much of.
+ck "every register row carries a grade"        "OK" \
+   "$(python3 -c "
+import re
+bad = []
+for l in open('OPEN_FINDINGS.md'):
+    if not l.startswith('| **F'): continue
+    if 'CLOSED-rev' in l or 'closed by' in l: continue
+    if not re.search(r'(MEASURED|RECOMPUTED|INHERITED|RULED|CEILED)', l):
+        bad.append(l.split('|')[1].strip())
+print('OK' if not bad else 'UNGRADED: %s' % bad)" 2>&1 | tail -1)"
+# and the brief must point at it, or the next context never opens it.
+ck "the newest brief names the register"       "OK" \
+   "$(python3 -c "
+import glob
+b = sorted(glob.glob('NEXT_CONTEXT_PROMPT_rev*.md'), key=lambda p: int(''.join(c for c in p if c.isdigit())))[-1]
+print('OK' if 'OPEN_FINDINGS.md' in open(b).read() else 'NOT NAMED IN %s' % b)" 2>&1 | tail -1)"
+# The die-cut sticker is the project's ORIGINAL DELIVERABLE and its carrier has
+# already been deleted once. It is named here so the register cannot lose it.
+ck "the register still carries the sticker"    1 \
+   "$(grep -c 'DIE-CUT STICKER' OPEN_FINDINGS.md)"
 ck "newest brief records its own audit"      1 "$(if [ -n "$_LATEST_BRIEF" ]; then grep -c 'AUDITED AGAINST THE MACHINE' "$_LATEST_BRIEF" 2>/dev/null; else echo 99; fi)"
 
 # ---- rev 52: THE CARRY-FORWARD BLOCK ------------------------------------
@@ -1017,6 +1052,47 @@ ck "T1_FC_ZSTRETCH ablation exists"           1 \
 # Item C: the aspect FAIL must never again be read as a settled model defect.
 ck "the aspect row carries its instrument note" 1 \
    "$(grep -c 'ON THE ASPECT ROW -- it is INSTRUMENT-DEPENDENT' flank_compare.py)"
+# ---------------------------------------------------------------------------
+# rev 56 item A.  THE VERTICAL CARRY LAW.  flank_kv carried k_t off the rear
+# hub by the map's FULL horizontal ratio -- a 1/Z^2 quantity used to move a
+# 1/Z one -- so it applied the depth correction twice and read 2.45 % low at
+# the lockup centre.  These rows hold the correction, its retraction and its
+# ablation in the SOURCE, not only in a ledger (rule 15).
+#
+# ANCHORED ON THE ARITHMETIC, NOT ON A STRING.  A grep for "sqrt" would pass
+# on a comment.  This row RUNS flank_kv at two columns and checks the ratio is
+# the LINEAR one (u+B)/(U_RHUB+B) = 0.976122 and not the quadratic 0.952814 --
+# so it fails if the law is reverted however the file is worded.
+ck "flank_kv carries k_t LINEARLY in (u+B)"  "OK" \
+   "$(python3 -c "
+import flank_compare as F
+r = F.flank_kv(465.5) / F.flank_kv(F.U_RHUB)
+print('OK' if abs(r - 0.976122) < 5e-5 else 'GOT %.6f' % r)" 2>&1 | tail -1)"
+# and the ablation must still be able to put the old law back, or the
+# correction can never be watched failing again.
+ck "T1_FC_KVQUAD ablation restores the old law" "OK" \
+   "$(python3 -c "
+import os, importlib, flank_compare as F
+os.environ['T1_FC_KVQUAD'] = '1'; importlib.reload(F)
+r = F.flank_kv(465.5) / F.flank_kv(F.U_RHUB)
+print('OK' if abs(r - 0.952814) < 5e-5 else 'GOT %.6f' % r)" 2>&1 | tail -1)"
+# The header's refuted physics claim must not come back: it said the
+# horizontal scale must be the SMALLER of the two, which is false aft of the
+# principal column and is what produced the phantom "one instrument is 2.3 %
+# out".  The withdrawal has to stay in the source.
+# Anchored on the PRINTED line, which occurs once, not on the bare phrase --
+# that appears three times (docstring, comment block, print) and a row that
+# wants exactly 1 of it breaks the moment the note is cross-referenced.
+ck "the anisotropy withdrawal is PRINTED"      1 \
+   "$(grep -c 'THE ANISOTROPY IS NOT A CONFLICT: ref_side.jpg' flank_compare.py)"
+# The anchor is OPEN and must not be quietly closed by a later revision
+# adopting the wheel number: three readings, two equations.
+ck "the open anchor keeps its three readings"  1 \
+   "$(grep -c 'THREE QUANTITIES, TWO EQUATIONS' flank_compare.py)"
+# The probe that proves the law must exist and must still separate the two
+# laws when RUN -- not merely be present.
+ck "probe_rev56_kv separates the two laws"     "OK" \
+   "$(python3 probe_rev56_kv.py 2>&1 | grep -q 'the LINEAR law is exact' && echo OK || echo NO)"
 # Item 2: the retraction lives in the SOURCE, not only in a ledger (rule 15),
 # and it must keep BOTH halves -- that the shipped socket is dead on smooth
 # geometry AND that the true normal counts facets.  Either half alone is a
@@ -1035,6 +1111,83 @@ ck "T1_TRUENORM lever exists in the shader"    1 \
 # singular.
 ck "cream_rms cites no undefined depth_correct" 0 \
    "$(grep -c 'See depth_correct()' cream_rms.py)"
+# ---------------------------------------------------------------------------
+# rev 56 item B.  cream_rms had a LIVE re-based measurement and a DEAD entry
+# point, and three briefs carried the re-base as open because `run()` -- what
+# a reader actually runs -- still pointed at ref_side.jpg.  These rows are
+# BEHAVIOURAL: they RUN the thing.  A grep would have passed all along.
+ck "cream_rms.run() returns the live spectrum" "5" \
+   "$(python3 -c "
+import cream_rms as C, io, contextlib
+buf = io.StringIO()
+with contextlib.redirect_stdout(buf):
+    d = C.run()
+print(len(d) if isinstance(d, dict) else 0)" 2>&1 | tail -1)"
+# and it must NOT be the dead path any more -- that path returns {} and says so.
+ck "cream_rms.run() is not the dead path"     0 \
+   "$(python3 -c "
+import cream_rms as C, io, contextlib
+buf = io.StringIO()
+with contextlib.redirect_stdout(buf):
+    C.run()
+print(buf.getvalue().count('LEGACY PATH, RESULT IS NOT CREAM'))" 2>&1 | tail -1)"
+# The dead path is KEPT and must stay reachable, or the reason for the re-base
+# stops being watchable and becomes a claim in a comment (rule 15).
+ck "the dead ref_side path is still reachable" 1 \
+   "$(T1_CR_LEGACY=1 python3 cream_rms.py 2>&1 | grep -c 'LEGACY PATH, RESULT IS NOT CREAM')"
+# WATCHED FAILING: spectrum() must REFUSE rather than answer when the patch
+# cannot support the measurement.  Fed a deliberately tiny box it returns None.
+ck "cream_rms.spectrum REFUSES a tiny patch"  "None" \
+   "$(python3 -c "
+import cream_rms as C
+print(C.spectrum(box=(900, 910, 300, 310), quiet=True))" 2>&1 | tail -1)"
+# mottle_measure's target must be DERIVED from that spectrum, not transcribed.
+ck "mottle_measure derives TARGET, not typed" 1 \
+   "$(grep -c '_CR.spectrum(quiet=True)' mottle_measure.py)"
+ck "mottle_measure refuses a None target"     1 \
+   "$(grep -c 'Refusing to print a ratio against a literal' mottle_measure.py)"
+# rev 56: the beauty arm is DEAD -- the patch comes back 100 % clipped and the
+# file used to print five "ratio 0.00" rows, which read as "the model has no
+# mottle" when they are a measurement of nothing.  It must refuse.
+ck "mottle_measure refuses a clipped patch"   1 \
+   "$(grep -c 'if clip > 0.02:' mottle_measure.py)"
+# and it must refuse BEFORE it prints anything measurement-shaped.  This row
+# is an ORDERING test, not a grep: the guard used to sit at the end of the
+# file, after the BASE LEVEL block and the character table had already put
+# nan and 0.000 on the console.
+# ---------------------------------------------------------------------------
+# rev 56 section 3.1.  lid_rail: the OWNER answered it, so the four-revision
+# zero-area exemption comes out.  These rows hold the ruling and its
+# provenance in the source, and make sure the exemption cannot creep back.
+ck "the lid_rail zero-area exemption is GONE"  1 \
+   "$(grep -c 'ZERO_AREA_EXEMPT = ()' verify.py)"
+ck "no name is zero-area exempt any more"      0 \
+   "$(grep -c 'ZERO_AREA_EXEMPT = ("lid_rail"' verify.py)"
+# The width must be RAIL_PROUD and must be asked of the MESH, not grepped --
+# the part was empty for four revisions precisely because grepping its name
+# found it and nothing asked its size.
+ck "verify asks the MESH for the rail width"   1 \
+   "$(grep -c 'width %.4f m != RAIL_PROUD' verify.py)"
+ck "the rail width is RAIL_PROUD, not a literal" 1 \
+   "$(grep -c 'RAIL_W = 0.0 if os.environ.get("T1_RAILFLAT") == "1" else RAIL_PROUD' t1_shell.py)"
+# and the ablation that restores the defect must stay, or neither guard can be
+# watched failing again.
+ck "T1_RAILFLAT ablation is a LIVE lever"      1 \
+   "$(grep -c 'os.environ.get("T1_RAILFLAT")' t1_shell.py)"
+# The owner's own words must stay attached to the number (rule 34: a
+# requirement inherits its object -- this one inherits a GREEN vehicle and a
+# geometry-only reading, and that has to travel with it).
+# Anchored on the LOGGED provenance line, which occurs once -- the phrase
+# itself appears twice (comment and log) and a row wanting exactly 1 of it
+# fails the moment the ruling is also explained in prose.
+ck "the rail width carries its provenance"     1 \
+   "$(grep -c 'ref_workshop.jpg: ' verify.py)"
+ck "that refusal precedes the first number"   "OK" \
+   "$(python3 -c "
+s = open('mottle_measure.py').read()
+g = s.index('if clip > 0.02:')
+b = s.index('--- BASE LEVEL')
+print('OK' if g < b else 'GUARD IS AFTER THE FIRST PRINTED NUMBER')" 2>&1 | tail -1)"
 ck "mottle_measure binds PHOT exactly once"    1 "$(grep -c '^PHOT = ' mottle_measure.py)"
 
 # --------------------------------------------------- rev 55: A RE-FRAMING

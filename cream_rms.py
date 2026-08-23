@@ -21,6 +21,7 @@ So this file does three things the first attempt did not:
 An absolute number from an estimator that cannot reproduce its own record is
 not evidence.  The ratio is.
 """
+import os
 import sys, numpy as np
 from PIL import Image
 
@@ -152,7 +153,16 @@ def rms25(lum, sig_px, tag):
     return float(np.sqrt(np.mean(hp ** 2))), hp.size
 
 
-def run(render_png, pxm_r=211.5, ortho_px=1248, ortho_m=5.90):
+def _legacy_ref_side(render_png, pxm_r=211.5, ortho_px=1248, ortho_m=5.90):
+    """THE DEAD PATH, KEPT SO THE RETRACTION STAYS WATCHABLE (rule 15).
+
+    This was `run()` from rev 13 to rev 55.  It measures ref_side.jpg, hits
+    the rev-17 hard guard, prints LEGACY PATH, RESULT IS NOT CREAM and returns
+    {} -- it has produced no number for eight revisions.  It is NOT deleted:
+    it is the thing that demonstrates WHY the re-base was necessary, and a
+    reader who wants to see ref_side.jpg fail to supply a body-cream patch
+    runs `T1_CR_LEGACY=1 python3 cream_rms.py`.
+    """
     print("=" * 72)
     print("25 mm CREAM BREAKUP -- one estimator, both frames")
     print("=" * 72)
@@ -221,8 +231,49 @@ def run(render_png, pxm_r=211.5, ortho_px=1248, ortho_m=5.90):
     return out
 
 
-if __name__ == "__main__":
-    run(sys.argv[1] if len(sys.argv) > 1 else "out/_solve_cream.png")
+def run(render_png=None):
+    """WHAT A READER RUNS.  rev 56 pointed it at the LIVE measurement.
+
+    From rev 13 to rev 55 this name was bound to the ref_side.jpg path, which
+    hits the rev-17 hard guard and returns {}.  So three consecutive briefs
+    carried "re-base cream_rms.py onto ref_rear34.jpg, open since rev 17" as
+    an open item WHILE THE RE-BASED MEASUREMENT WAS ALREADY WRITTEN, in this
+    same file, a hundred lines below -- and nothing called it.  The open item
+    was never the measurement.  It was the entry point.
+
+    WHY THERE IS NO RENDER ARM HERE, AND WHY THAT IS NOT AN OMISSION.  The
+    render side needs a mask, and a COLOUR gate on a render of the very
+    surface whose colour is under test is circular -- mottle_measure.py's own
+    docstring says so and chooses the patch in MODEL space instead.  This
+    function will not run a colour-gated render arm and call it a second
+    opinion.  It names the render arm and the command that runs it.
+    """
+    print("=" * 74)
+    print("cream_rms.run() -- the LIVE re-based path (rev 17 re-base, rev 56 wired up)")
+    print("=" * 74)
+    if os.environ.get("T1_CR_LEGACY") == "1":
+        print("T1_CR_LEGACY=1 -- running the DEAD ref_side.jpg path instead, so\n"
+              "the reason for the re-base can be watched rather than believed.\n")
+        return _legacy_ref_side(render_png or "out/_solve_cream.png")
+    got = spectrum()
+    if got is None:
+        print("\n  spectrum() REFUSED -- no usable patch.  No number is reported,")
+        print("  and none may be quoted from this run.")
+        print("=" * 74)
+        return {}
+    spec, mask, Y = got
+    character()
+    print("=" * 74)
+    print("THE RENDER ARM IS mottle_measure.py, AND IT NEEDS BLENDER:")
+    print("    T1_SUB=1 /tmp/blender/blender -b -P mottle_measure.py")
+    print("  It projects a MODEL-SPACE patch through an ORTHO render, so its")
+    print("  px/m is exact by construction, and it compares at matched")
+    print("  PHYSICAL scale against exactly the spectrum printed above.")
+    print("  As of rev 56 it DERIVES that target by calling spectrum() rather")
+    print("  than carrying it as five typed literals.")
+    print("=" * 74)
+    return spec
+
 
 
 # ====================================================================== rev 17
@@ -539,3 +590,11 @@ def character(box=_BODY, path="ref_rear34.jpg", label="bus cream"):
         if not iso:
             print("  CAVEAT: anisotropy %.3f is OUTSIDE 0.70-1.43 -- directional." % an8)
     return v
+
+
+# The entry point lives at the BOTTOM because `run()` calls `spectrum()` and
+# `character()`, which are defined below it.  It sat above them from rev 56's
+# first draft and raised NameError on the first invocation -- caught by
+# running the file, which is the only way this class of defect is ever caught.
+if __name__ == "__main__":
+    run(sys.argv[1] if len(sys.argv) > 1 else None)

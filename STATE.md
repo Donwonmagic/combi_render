@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-22 19:33:28 UTC |
-| git commit | `8ae9eac` |
-| git subject | rev 55: carry the rev-54 GOAL and REFERENCE-SET sections into the rev-56 brief |
+| generated | 2026-08-23 00:41:17 UTC |
+| git commit | `c13c75e` |
+| git subject | rev 56: keep the three probe tiles that are EVIDENCE, drop the two that were only copies of an untracked render |
 | working tree | clean |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=2 (applied, destructive, before booleans) |
@@ -33,7 +33,8 @@ H_ROOF 1.960 is RETIRED as an accuracy target (rev 22, owner's call): its only g
 rear overhang 0.7730 m = 0.3221 of the wheelbase (measured 0.773 +- 0.022 m)
 measured TRACK_F=1.3713  TRACK_R=1.3613  TYRE_D=0.6650
 SPEC 10.91 ban-exemption control: 2 exempt names, 4 planted near-misses all still banned
-zero-area sweep: 2 of 223 meshes have zero area; 2 exempt and KNOWN OPEN (lid_rail x2 -- width unmeasured, see LEDGER_rev52)
+zero-area sweep: 0 of 223 meshes have zero area; 0 exempt (rev 56: lid_rail was the only exemption and it is BUILT now)
+lid_rail width = RAIL_PROUD 0.0213 m (owner, rev 56, off ref_workshop.jpg: 'narrow lip, ~as wide as it is tall')
 open serving apertures on +Y: 3
 roof at tail = 1.988
 rake 17.75 mm/m (locked 17.75); drop at x=0 47.9 mm; RIDE_DROP identity holds
