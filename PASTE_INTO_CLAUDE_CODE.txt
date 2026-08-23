@@ -126,8 +126,11 @@ time**, so a loss says *which*:
 
 * **the RED target bus** — `ref_side.jpg`, `ref_rear34.jpg`, `ref_playa_34.png`,
   `ref_nolita_front34.jpg`, `ref_nolita_front34b.jpg`, `ref_nolita_flank.jpg`,
-  `ref_nolita_doorshut.jpg`, `IMG_2073.jpeg`
-* **NOT the target, geometry only** — `ref_workshop.jpg` is the **GREEN** vehicle; `bus_model_ref.JPG`
+  `ref_nolita_doorshut.jpg`
+* **NOT the target, geometry only** — `ref_workshop.jpg` is the **GREEN** vehicle; **`IMG_2073.jpeg` is ALSO
+  the GREEN vehicle and was MISFILED under the red bus in this very register until rev 58 measured it**
+  (body **G−R +21.7** on the lower flank and **+28.5** on the rear quarter, against `ref_side.jpg`'s **−67.6**);
+  `bus_model_ref.JPG`
   is a **SCHOOL BUS**, a fidelity bar only. **Paint and artwork do not transfer between vehicles;
   geometry does (rule 11).**
 * **retired** — `ref_source.jpeg`, a 246×197 thumbnail the record itself retired
