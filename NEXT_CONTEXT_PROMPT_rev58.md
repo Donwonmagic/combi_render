@@ -43,9 +43,15 @@ Re-make it at the end of your revision and put the two side by side.
 
 ---
 
-**Read this whole file before you touch anything.** Then `CLAUDE.md` (method only, loads every
-session), then `LEDGER_rev57.md` — which is where every number below comes from — then
-`OPEN_FINDINGS.md`, and `SURVEY_rev49_photoreal.md` §6.
+**Now read this whole file before you CHANGE anything.** §0.0 is the one thing you do first, and it
+starts a render rather than editing the tree — the two instructions do not conflict and the order
+matters: the machine is the scarce resource here, not your attention. *(Earlier briefs opened with
+"read this whole file before you touch anything", which left the CPU idle for the ~20 minutes of
+reading. Keep the discipline; stop paying for it in wall-clock.)*
+
+Then `CLAUDE.md` (method only, loads every session), then `AUDIT_rev57_efficiency.md` — **new, and
+it explains why §0.0's ranking replaced the old one** — then `LEDGER_rev57.md`, which is where
+every number in §2 comes from, then `OPEN_FINDINGS.md`, and `SURVEY_rev49_photoreal.md` §6.
 
 ---
 
