@@ -41,9 +41,10 @@ P("fascia x %.4f..%.4f  bottom fold z %.4f" % (FX0, FX1, FZ0))
 P("window  x %.4f..%.4f  z %.4f..%.4f  (%.3f x %.3f m)"
   % (X0, X1, Z0, Z1, X1 - X0, Z1 - Z0))
 
-ST.cyclorama()
-ST.lighting(float(os.environ.get("T1_KEY", "1.0")))
-ST.cabin_fill(float(os.environ.get("T1_KEY", "1.0")))
+# rev 58, F51: ONE definition of the rig, in studio.rig().  This probe builds
+# its own ORTHO camera below and overwrites scene.camera, so rig()'s camera is
+# unused here -- that is the only difference from the three calls this replaces.
+ST.rig(key=float(os.environ.get("T1_KEY", "1.0")), scene="studio", log=P)
 
 cam_d = bpy.data.cameras.new("lookcam"); cam_d.type = 'ORTHO'
 cam_d.ortho_scale = X1 - X0

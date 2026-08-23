@@ -33,11 +33,38 @@ from PIL import Image
 import scipy.ndimage as ndi
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-REND = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, "out", "r57_hero.png")
 PHOT = os.path.join(ROOT, "ref_nolita_front34.jpg")
 OUTD = os.path.join(ROOT, "probe_scratch")
 BAR = 0.60          # the render must reach 60 % of the photograph's spread
 P = print
+# rev 58, F58: THE DEFAULT USED TO BE A HARD-CODED `out/r57_hero.png`.
+# `out/` is untracked and starts EMPTY on every clone, so that default resolved
+# only in the working tree of the revision that wrote it -- the one place it is
+# guaranteed to work and the one place nobody re-runs it from cold.  A
+# verify_clone row called this script with no argument and reported the missing
+# file as `MOVED: []`, i.e. as "the gate is no longer exposure-free": an ABSENT
+# INPUT reading as a MEASUREMENT RESULT, pointing the reader at the statistic
+# instead of at the path.  Take the newest hero actually present, and if there
+# is none say so in those words rather than raising a stack trace.
+def _newest_hero():
+    import glob
+    c = sorted(glob.glob(os.path.join(ROOT, "out", "*_hero.png")),
+               key=os.path.getmtime, reverse=True)
+    return c[0] if c else None
+
+
+_ARGS = [a for a in sys.argv[1:] if not a.startswith("--")]
+if _ARGS:
+    REND = _ARGS[0]
+elif "--selftest" not in sys.argv:
+    REND = _newest_hero()
+    if REND is None:
+        P("NO RENDER: out/ holds no *_hero.png.  This is not a measurement --")
+        P("  render one first, e.g. T1_PREVIEW=hero T1_PFX=r58 ... build.py")
+        sys.exit(3)
+    P("no frame named; taking the newest hero in out/: %s" % os.path.basename(REND))
+else:
+    REND = None
 
 # Windows are FIXED and PAINTED.  Both sit on flat red bodywork with no lamp,
 # no badge and no chrome in them; rev 57's first attempt included the lit
@@ -65,6 +92,50 @@ def spread(path, box, tag):
     return dict(n=int(m.sum()), p5=p5, med=p50, p95=p95, p99=p99,
                 spread=(p95 - p5) / p50, head=p99 / p50 - 1.0, L=L, m=m)
 
+
+# ------------------------------------------------------------- rev 58, F58
+# --selftest: EXPOSURE INVARIANCE WITHOUT A FRAME.
+#
+# Exposure invariance is a property of the ESTIMATOR, not of any particular
+# render, so the row that checks it must not need `out/` to be populated.  It
+# used to: verify_clone called this script with no argument, the hard-coded
+# `out/r57_hero.png` was absent on every clone, and the missing file was
+# reported as `MOVED: []` -- an absent input dressed up as a moved statistic.
+#
+# This runs the REAL `spread()` on a synthetic red patch, so it exercises the
+# shipped mask, the shipped erosion and the shipped percentiles, and prints the
+# same three lines the live control prints.
+if "--selftest" in sys.argv:
+    rng = np.random.default_rng(58)
+    n = 220
+    base = np.zeros((n, n, 3), float)
+    # a red panel with a gradient and a bright streak, so the spread is nonzero
+    base[..., 0] = 150 + 60 * np.linspace(0, 1, n)[None, :]
+    base[..., 1] = 55 + 10 * np.linspace(0, 1, n)[:, None]
+    base[..., 2] = 48 + 8 * rng.random((n, n))
+    base[90:110, :, :] += 45.0                     # a highlight band
+    img = np.clip(base + rng.normal(0, 1.5, base.shape), 0, 255).astype(np.uint8)
+    Image.fromarray(img).save("/tmp/_gloss_selftest.png")
+    d = spread("/tmp/_gloss_selftest.png", (0, 0, n, n), "selftest")
+    P("SELFTEST -- exposure invariance of the shipped estimator, no frame needed")
+    P("  synthetic red patch %dx%d, %d px pass the shipped red mask" % (n, n, d["n"]))
+    got = []
+    for k in (0.70, 1.00, 1.40):
+        v = d["L"][d["m"]] * k
+        p5, p50, p95 = np.percentile(v, [5, 50, 95])
+        # T1_GC_ABSSPREAD=1 drops the /p50 that MAKES the statistic scale-free.
+        # That is the ABLATION: it turns the estimator into an exposure-
+        # dependent one, and the selftest must then FAIL.  WATCHED FAILING at
+        # rev 58 -- x0.70 35.8691, x1.00 51.2416, x1.40 71.7382, SELFTEST FAIL,
+        # rc=1.  (These three were TYPED AS A PREDICTION first and were wrong by
+        # two orders of magnitude; they are the numbers that printed.  Rule 5.)
+        # A control that has only ever passed has not been tested (rule 3).
+        _s = (p95 - p5) if os.environ.get("T1_GC_ABSSPREAD") else (p95 - p5) / p50
+        got.append("%.4f" % _s)
+        P("      x%.2f  spread %s" % (k, got[-1]))
+    ok = len(set(got)) == 1
+    P("  SELFTEST %s -- exposure-free" % ("PASS" if ok else "FAIL"))
+    sys.exit(0 if ok else 1)
 
 P("=" * 78)
 P("  GLOSS -- one red panel, render against photograph.  Not colour.")

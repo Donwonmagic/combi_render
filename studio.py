@@ -694,6 +694,113 @@ def camera():
     return o
 
 
+# --------------------------------------------------------------------- rig
+# rev 58, F51.  THE ONE DEFINITION OF THE SHOOTING RIG.
+#
+# Until this revision the four calls that build the rig lived INSIDE
+# `build.py`'s `if os.environ.get("T1_PREVIEW"):` block, so the rig was a side
+# effect of asking for a preview.  Anything that exec'd build.py to MEASURE got
+# a scene with no lights, and the failure is silent: an unlit render is a valid
+# PNG, it is cheap, and every automated check passes it.  It produced a BLACK
+# BUS delivery frame at 3840x2640 that passed stitch.py (exit 0), the seam
+# detector (a clean z = 3.63) and looked like a 2.94x speed win.  Only LOOKING
+# at it found it (F52).  It is also the cause of F05, `mottle_measure.py`'s
+# dead beauty arm, whose note reads "shader_solve._render() builds no studio
+# rig".
+#
+# Four scripts then DUPLICATED the sequence and a verify_clone row compared
+# them so the copies could not rot.  That row was a workaround for the absence
+# of this function, and it is replaced by the behavioural rows described in
+# `assert_lit` below.
+#
+# ORDER IS LOAD-BEARING and is the order build.py used: backdrop, then clay
+# (which must overwrite materials before the lights are placed against them),
+# then the lights, then the cabin fill, then the camera.
+def rig(key=1.0, scene="studio", clay=False, log=None):
+    """Build the whole shooting rig and return the camera.
+
+    THE SINGLE DEFINITION.  Call this instead of re-typing the sequence; a
+    hand-rolled copy is how F51 happened.  `scene` is "studio" (cyclorama +
+    lighting) or "playa" (ground_playa + playa).
+    """
+    if scene == "playa":
+        ground_playa()
+    else:
+        cyclorama()
+    if clay:
+        clay_all()
+    if scene == "playa":
+        playa(key)
+    else:
+        lighting(key)
+    # rev 44, SPEC 10.105 -- the cab was built and then rendered invisible.
+    cabin_fill(key)
+    cam = camera()
+    if log:
+        log("rig built: %s + lighting + cabin_fill + camera  (key %.2f%s)"
+            % ("ground_playa" if scene == "playa" else "cyclorama", key,
+               ", CLAY" if clay else ""))
+    return cam
+
+
+def rig_from_env(log=None):
+    """`rig()` with the switches build.py has always read from the environment.
+
+    The reads are written out literally rather than folded into a helper:
+    `verify_clone.sh` asserts every T1_ switch appears as `os.environ.get(
+    "NAME")` in source, and a helper taking the name as a variable hides it
+    from that row.  Rev 57b was caught by exactly that (sec.10.8).
+    """
+    return rig(key=float(os.environ.get("T1_KEY", "1.0")),
+               scene=os.environ.get("T1_SCENE", "studio"),
+               clay=bool(os.environ.get("T1_CLAY")),
+               log=log)
+
+
+def lit_report(scene=None):
+    """What is actually lighting this scene, as numbers.  Reports, never raises.
+
+    Returns (n_lights, total_watts, world_strength).  Emissive MATERIALS are
+    deliberately NOT counted: the black-bus frame had a lit bulb string and
+    nothing else, so "something is emitting" is exactly the reading that let
+    it pass.  This counts the RIG.
+    """
+    sc = scene or bpy.context.scene
+    lights = [o for o in sc.objects if o.type == 'LIGHT']
+    watts = sum(getattr(o.data, "energy", 0.0) for o in lights)
+    ws = 0.0
+    w = sc.world
+    if w is not None and w.use_nodes:
+        bg = w.node_tree.nodes.get("Background")
+        if bg is not None:
+            ws = float(bg.inputs[1].default_value)
+    return len(lights), watts, ws
+
+
+def assert_lit(scene=None, why="render"):
+    """REFUSE to render a scene with no rig.  This is the guard F51 lacked.
+
+    F51's cost was not that the rig was easy to forget -- it is that forgetting
+    it is SILENT.  Factoring `rig()` removes the duplication; this removes the
+    silence, which is the half that actually bit.  It is deliberately placed in
+    `render_set`, the one choke point every preview render goes through, so a
+    future script cannot opt out of it by forgetting to call it.
+
+    WATCHED FAILING (rule 3): `T1_SUB=1 T1_NORIG=1 ... build.py` builds the
+    scene, skips the rig and reaches this, and it raises rather than writing a
+    black frame.  A guard that has not been watched failing reports nothing.
+    """
+    n, watts, ws = lit_report(scene)
+    if n == 0 and ws <= 0.0:
+        raise RuntimeError(
+            "REFUSING TO %s AN UNLIT SCENE -- 0 light objects and world "
+            "strength %.3f.  The studio rig was never built.  Call "
+            "studio.rig() (or rig_from_env()) before rendering; that is F51, "
+            "and it shipped a BLACK BUS delivery frame that passed every "
+            "other automated check." % (why.upper(), ws))
+    return n, watts, ws
+
+
 def dof_limits(lens_mm, fstop, dist_m):
     """near / far sharp limits and hyperfocal, metres -- reported, not claimed"""
     f = float(lens_mm)
@@ -1479,6 +1586,12 @@ def _cull_foreground(loc, tgt, margin=2.20, log=print):
 def render_set(names, outdir, prefix="r", res=(1600, 1100), samples=64,
                transparent=True, log=print, matte=None):
     sc = setup_render(res, samples, transparent)
+    # rev 58, F51: the choke point every preview render goes through.  An
+    # unlit scene is a valid, cheap, silently-wrong PNG; refuse it here rather
+    # than let a later reader discover it by looking.  T1_NORIG=1 is the
+    # ablation that watches this fail.
+    _nl, _w, _ws = assert_lit(sc, why="render")
+    log("rig: %d light(s), %.0f W total, world %.3f" % (_nl, _w, _ws))
     fx = []
     if transparent:
         fx = composite_on_white(sc)

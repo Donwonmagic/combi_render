@@ -1334,11 +1334,45 @@ print('OK' if 'GLOSS' in top and 'badge' in bot else 'ORDER CHANGED: %r / %r'%(t
 
 # The third gate must RUN and must still be exposure-free -- the property that
 # makes it immune to the three open px/m and white-balance unknowns.
-ck "gloss_compare is exposure-free" OK "$(python3 -c "
+# rev 58, F58: THIS ROW USED TO CALL `gloss_compare.py` WITH NO ARGUMENT.
+# The script's default was a hard-coded `out/r57_hero.png`; `out/` is untracked
+# and starts EMPTY on every clone, so the row passed only in the working tree
+# that wrote it and FAILED on every clone -- reporting the missing file as
+# `MOVED: []`, i.e. an ABSENT INPUT dressed as a MOVED STATISTIC, which points
+# the reader at the estimator instead of at the path.  Exposure invariance is a
+# property of the ESTIMATOR, so it is now tested on a synthetic patch through
+# the REAL spread(), needs no render, and cannot rot with a filename.
+# WATCHED FAILING via T1_GC_ABSSPREAD=1, which drops the /p50 (the row below).
+ck "gloss_compare is exposure-free (selftest, no frame)" OK "$(python3 -c "
 import subprocess,re
-o=subprocess.run(['python3','gloss_compare.py'],capture_output=True,text=True).stdout
-v=re.findall(r'x[01]\.\d\d  spread (\d\.\d+)', o)
-print('OK' if len(v)==3 and len(set(v))==1 else 'MOVED: %s'%v)" 2>&1 | tail -1)"
+o=subprocess.run(['python3','gloss_compare.py','--selftest'],capture_output=True,text=True).stdout
+v=re.findall(r'x[01]\.\d\d  spread (\d+\.\d+)', o)
+print('OK' if len(v)==3 and len(set(v))==1 and 'SELFTEST PASS' in o else 'MOVED: %s'%v)" 2>&1 | tail -1)"
+
+# ...and the selftest must be ABLE to fail, or it reports nothing (rule 3).
+ck "the exposure selftest FAILS when the scale-freedom is removed" FAILS "$(python3 -c "
+import subprocess, os
+e=dict(os.environ); e['T1_GC_ABSSPREAD']='1'
+r=subprocess.run(['python3','gloss_compare.py','--selftest'],capture_output=True,text=True,env=e)
+print('FAILS' if r.returncode==1 and 'SELFTEST FAIL' in r.stdout else 'THE ABLATION DID NOT TRIP IT rc=%d'%r.returncode)" 2>&1 | tail -1)"
+
+# ...and the stale-default trap itself must stay shut: no revision-numbered
+# frame may come back as a default input path.
+# ANCHORED ON CODE, NOT TEXT.  The first version of this row was a flat grep
+# and it matched its OWN comment -- the one explaining that the old default was
+# `out/r57_hero.png` -- and reported the explanation as the defect.  That is the
+# FIFTH time a row in this file has done that.  Strip comments and strings that
+# are not code, and look only at what executes.
+ck "gloss_compare has no revision-numbered default frame" 0 "$(python3 -c "
+import io, tokenize, re
+src = open('gloss_compare.py').read()
+out = []
+for t in tokenize.generate_tokens(io.StringIO(src).readline):
+    if t.type == tokenize.COMMENT:
+        continue
+    out.append(t.string)
+code = ' '.join(out)
+print(len(re.findall(r'r[0-9]{2}b?_hero\.png', code)))" 2>&1 | tail -1)"
 
 # ...and it must be measuring GLOSS, not colour, or W6 bites.
 # ...and it must be measuring GLOSS, not colour, or W6 bites.  ANCHORED ON
@@ -1363,31 +1397,66 @@ print(sum(1 for l in code if re.search(r'G/R|hue|chroma|saturation',l)))" 2>&1 |
 ck "the audit's ranking rule is carried in the brief" 1 \
    "$(if [ -n "$_LATEST_BRIEF" ]; then grep -c 'RANK BY PIXELS OF THE DELIVERY FRAME' "$_LATEST_BRIEF"; else echo 0; fi)"
 
-# ------------------------------- rev 57b: F51, THE RIG LIVES IN THE PREVIEW
-# build.py constructs the cyclorama, the lighting, the cabin fill and the
-# camera INSIDE `if os.environ.get("T1_PREVIEW"):`, so anything that execs
-# build.py to MEASURE gets a scene with no lights.  It produced a BLACK BUS
-# delivery frame that passed every automated check, and it is the same root
-# cause as F05's dead beauty arm.
+# ------------------------------- rev 58: F51 FIXED, AND THESE ROWS TEST THE FIX
+# build.py used to construct the cyclorama, the lighting, the cabin fill and
+# the camera INSIDE `if os.environ.get("T1_PREVIEW"):`, so anything that exec'd
+# build.py to MEASURE got a scene with no lights.  It shipped a BLACK BUS
+# delivery frame that passed every automated check (F51/F52) and it is the
+# cause of F05's dead beauty arm.
 #
-# Until the rig is factored into one function, two scripts DUPLICATE that
-# sequence.  This row compares the sequences so the duplication cannot rot in
-# silence -- if build.py's rig changes and the probes' does not, it fails.
-ck "the duplicated studio rig still matches build.py" OK "$(python3 -c "
-import re
-def seq(f, lo=None):
-    t=open(f).read()
-    if lo: t=t[t.index(lo):]
-    return [m for m in re.findall(r'ST\.(cyclorama|lighting|cabin_fill|camera)\(', t)]
-b=seq('build.py','if os.environ.get(\"T1_PREVIEW\")')
-h=seq('hq_render.py'); g=seq('probe_rev58_gloss.py')
-print('OK' if b and b==h==g else 'DRIFTED build=%s hq=%s gloss=%s'%(b,h,g))" 2>&1 | tail -1)"
+# Rev 58 factored the sequence into studio.rig() and put a REFUSAL in
+# render_set().  The rev-57b rows compared four duplicated copies of the
+# sequence so the copies could not rot; there are no copies now, so those rows
+# are RETIRED and replaced by rows that test what actually has to stay true.
+# They are anchored on POSITION and COUNT, not on a grep for a name (sec.10.4):
+# a grep passes on a comment, and every string below is load-bearing code.
 
-# ...and the two scripts must still BUILD it at all.  A probe that execs
-# build.py without T1_PREVIEW and without this call renders an unlit scene
-# and reports numbers off it, which is exactly what happened.
-ck "hq_render builds the rig"          1 "$(grep -c '^ST.lighting(_KEY)' hq_render.py)"
-ck "probe_rev58_gloss builds the rig"  1 "$(grep -c '^ST.lighting(_KEY)' probe_rev58_gloss.py)"
+# 1. ONE DEFINITION.  studio.py is the only file allowed to call the four
+#    primitives.  If a script starts hand-rolling the sequence again, F51 is
+#    back, and this is the row that says so.
+ck "no file re-implements the studio rig" 0 "$(grep -l 'ST\.cyclorama()\|ST\.cabin_fill(\|ST\.ground_playa()' *.py 2>/dev/null | grep -v '^studio.py$' | grep -vx 'probe_dust_scope.py' | wc -l | tr -d '[:space:]')"
+
+# 2. studio.rig() still builds all four, in build.py's original order.  The
+#    order is load-bearing: clay must overwrite materials before the lights are
+#    placed against them, and the camera comes last.
+ck "studio.rig() builds the whole rig, in order" OK "$(python3 -c "
+import re, ast
+src = open('studio.py').read()
+fn  = next(n for n in ast.parse(src).body
+           if isinstance(n, ast.FunctionDef) and n.name == 'rig')
+body = ast.get_source_segment(src, fn)
+seq  = re.findall(r'\b(cyclorama|ground_playa|clay_all|lighting|playa|cabin_fill|camera)\(', body)
+want = ['ground_playa','cyclorama','clay_all','playa','lighting','cabin_fill','camera']
+print('OK' if seq == want else 'DRIFTED %s' % seq)" 2>&1 | tail -1)"
+
+# 3. THE F51 INVARIANT ITSELF, tested by POSITION: the rig is built BEFORE and
+#    OUTSIDE the preview block, not as a side effect of it.  If someone moves
+#    the call back inside `if T1_PREVIEW:`, this fails and names the reason.
+ck "build.py builds the rig OUTSIDE the preview block" OK "$(python3 -c "
+src = open('build.py').read()
+r = src.find('ST.rig_from_env(')
+p = src.find('if os.environ.get(\"T1_PREVIEW\"):', src.find('_want_rig'))
+print('OK' if 0 < r < p else 'rig_from_env@%d preview@%d -- F51 IS BACK' % (r, p))" 2>&1 | tail -1)"
+
+# 4. THE GUARD PRECEDES THE RENDER.  assert_lit() has to run before any frame
+#    is written or it guards nothing -- the same offset comparison rev 56 used
+#    to prove a guard precedes a print.
+ck "assert_lit precedes the render in render_set" OK "$(python3 -c "
+import ast
+src = open('studio.py').read()
+fn  = next(n for n in ast.parse(src).body
+           if isinstance(n, ast.FunctionDef) and n.name == 'render_set')
+body = ast.get_source_segment(src, fn)
+a, r = body.find('assert_lit('), body.find('bpy.ops.render.render(')
+print('OK' if 0 < a < r else 'assert_lit@%d render@%d -- THE GUARD IS AFTER THE RENDER' % (a, r))" 2>&1 | tail -1)"
+
+# 5. THE ABLATION STAYS REACHABLE.  A guard nobody can switch off has never
+#    been watched failing (rule 3).  T1_NORIG=1 is what watched this one fail:
+#    it suppresses the rig and build.py then refuses instead of writing a black
+#    frame.  Watched printing, rev 58:
+#      "REFUSING TO RENDER AN UNLIT SCENE -- 0 light objects and world strength 0.000"
+ck "T1_NORIG ablation reads the environment" 2 "$(grep -c 'os.environ.get("T1_NORIG")' build.py)"
+ck "T1_RIG lets a measuring tool ask for the rig" 1 "$(grep -c 'os.environ.get("T1_RIG")' build.py)"
 
 # --------------------------------------------------- rev 55: A RE-FRAMING
 # THE OWNER RETIRED A HEADING AND IT CAME BACK ONE BRIEF LATER.
