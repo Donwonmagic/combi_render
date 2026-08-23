@@ -30,7 +30,7 @@ changed six lines of model code between them, two of them zero, against 6,503 li
 
 | # | do | worth | gate |
 |---|---|---|---|
-| **A** | **F44 — THE PAINT HAS ALMOST NO GLOSS.** `gloss_compare.py` FAILS at **0.392** of the photograph's spread, bar 0.60; its specular headroom is **0.139** of the photograph's | **3.4 × 10⁶ px²** — the largest thing in the frame | **`gloss_compare.py`, new at rev 57b** |
+| **A** | **F44 — THE PAINT HAS ALMOST NO GLOSS.** `gloss_compare.py` FAILS at **0.392**, bar 0.60. **Rev 57b already refuted the clearcoat route (F54): +0.5 % spread, −18 % red saturation.** One lever left — roughness, via the WEATHER group (**F53**) — then the honest answer may be that the rest is the rig (**F55**) | **3.4 × 10⁶ px²** — the largest thing in the frame | **`gloss_compare.py`, new at rev 57b** |
 | **A0** | **F51 — FACTOR THE STUDIO RIG OUT OF `build.py`'s PREVIEW BLOCK. Do this FIRST; it is an hour and it unblocks two other items.** `cyclorama/lighting/cabin_fill/camera` are built inside `if T1_PREVIEW:`, so **every tool that execs build.py to MEASURE renders an unlit scene** | it made rev 57b's first delivery frame a **BLACK BUS that passed every automated check**, and it is the cause of **F05** | a verifier row compares the duplicated sequences until it is fixed |
 | **B** | **F45 — THE GALLEY AND ROOF-APERTURE INTERIORS ARE UNTEXTURED WHITE BLOCKS**, seen through four openings, dead centre | **7.4 × 10⁵ px²** | none — build one, or accept it and say so |
 | **C** | **F15 / A7** — the unlit roofed run between the last light inlet and the tail | 8.2 × 10⁵ px² | none |
@@ -465,12 +465,35 @@ bsdf.inputs["Coat Roughness"].default_value = 0.300
 plastic; car paint sits at 0.05–0.15. `Specular IOR Level` is already right (0.50 → F0 ≈ 0.04, the
 physical dielectric value, fixed at rev 8).
 
-**SO ITEM A IS A THREE-RUN EXPERIMENT, NOT A REVISION'S WORK** — provided you obey rule 36 and
-ablate first:
+**REV 57b RAN THE FIRST TWO OF THOSE RUNS FOR YOU, AND THE OBVIOUS FIX IS ALREADY REFUTED.**
 
-1. baseline `gloss_compare.py` on a fresh `hero` — **0.392 today**;
-2. `Coat Weight` 0.02 → 1.0, `Coat Roughness` 0.300 → 0.03 — the clearcoat alone;
-3. and then base `Roughness` 0.420 → ~0.25 — **but see F53 first.**
+| run | `gloss_compare` spread | red's G/R |
+|---|---|---|
+| baseline | **0.392** (bar 0.60) | 0.4289 |
+| `Coat Weight` 0.02 → **1.0**, `Coat Roughness` 0.300 → **0.03** | **0.394** | **0.5055** |
+
+**A full automotive clearcoat buys +0.5 % of spread and costs the red 18 % of its saturation, away
+from the photograph's 0.114.** The lever is LIVE — median L goes 106.4 → 115.0, so this is not a
+dead-lever null — it just does not buy spread. Painted:
+`probe_scratch/rev57b_gloss_ablation.png`, uniformly lighter and pinker with **no new highlight
+anywhere**. **F54. Do not spend the revision on coat weight.**
+
+**AND THE REASON BOUNDS THE WHOLE ITEM (F55).** A smooth coat under a **13.0 × 8.5 m** softbox
+reflects a nearly uniform field: you get a uniform LIFT, not a highlight. Spread needs STRUCTURE in
+what is reflected and this rig has almost none.
+
+**WHAT IS LEFT, AND IT IS ONE RUN:** base **`Roughness` 0.420 → ~0.25**, which would sharpen the
+softbox's reflection into a defined band instead of a wash. **But `T1_paint`'s Roughness socket is
+LINKED (F53)** — the WEATHER group drives it, so `default_value` is inert and you must go through
+the group's own input. `probe_rev58_gloss.py` detects and reports the linkage rather than letting a
+flat gate read as *"roughness has no effect"*.
+
+> **AND BE READY FOR THE HONEST ANSWER.** If roughness also fails to move it, **the spread deficit
+> is the RIG's, not the model's** — which is the owner's own ruling and therefore **not a defect to
+> fix**. That is a real result, it is worth stating with the number, and it would retire item A
+> rather than leaving it open forever. `gloss_compare`'s header said from the start that it would
+> not reach 1.000 under this rig; F54 is the first measurement of how little of the gap the model
+> can actually close.
 
 **F53, AND IT WILL SAVE YOU A DAY.** `T1_paint`'s **`Roughness` socket is LINKED** — the WEATHER
 group drives it — so setting `default_value` on it does **nothing**. `probe_rev58_gloss.py` detects

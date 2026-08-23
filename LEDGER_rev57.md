@@ -526,3 +526,43 @@ have measured a real factor on an unlit scene and confirmed a cause that does no
 `post.py --backdrop headroom`), with `out/hq_hero_white.png` as the flat-white variant and
 `out/hq_hero_raw.png` pre-optics. Non-backdrop mean luminance **179.6** — lit, which is the check
 that mattered.
+
+### §6.8 ITEM A'S FIRST ABLATION — THE CLEARCOAT IS REFUTED
+
+`probe_rev58_gloss.py`, first ever execution, 1600×1100 at 96 spp, SUB=1, rig built explicitly.
+
+**Its dead-lever guard fired immediately (F53):** `!! LINKED, so setting default_value is INERT
+for: Roughness`. `T1_paint`'s Roughness is driven by the WEATHER group, so item A's most obvious
+lever cannot be moved on the BSDF socket at all. `Coat Weight`, `Coat Roughness` and `Specular IOR
+Level` are not linked; **2 of 4 inputs changed** on the ablation run.
+
+**A CONTROL WORTH RECORDING:** the baseline through this probe's own render path reads
+`gloss_compare` **0.392** — identical to the value off `out/r57_hero.png`, which came from
+`build.py`'s preview path. **The rig I was forced to duplicate (F51) is faithful, not merely
+plausible.**
+
+| run | `gloss_compare` spread | headroom | G/R | B/R | median L |
+|---|---|---|---|---|---|
+| `g0` baseline | **0.392** | 0.129 | 0.4289 | 0.3534 | 106.4 |
+| `g1` `Coat Weight` 1.0, `Coat Roughness` 0.03 | **0.394** | 0.130 | **0.5055** | 0.4497 | 115.0 |
+| the photograph | 1.000 by definition | — | **0.114** | — | 54.0 |
+
+**A FULL AUTOMOTIVE CLEARCOAT BUYS +0.5 % OF SPREAD AND COSTS THE RED 17.9 % OF ITS SATURATION**,
+moving G/R *away* from the photograph's 0.114. The lever is **live** — median L rises 106.4 → 115.0
+— so this is not a dead-lever null like rev 57's item B. It is a live lever that does not buy the
+thing it was expected to buy. **F54.**
+
+**LOOKED AT** — `probe_scratch/rev57b_gloss_ablation.png`, baseline above, clearcoat below: the
+whole panel is uniformly lighter and pinker, the gold artwork paler, and there is **no new
+highlight anywhere**. The picture and the two numbers agree.
+
+**AND THE MECHANISM BOUNDS THE ITEM (F55).** A mirror-smooth coat under a **13.0 × 8.5 m** softbox
+reflects a nearly uniform field, so it delivers a uniform LIFT rather than a highlight. Spread
+requires STRUCTURE in what is reflected, and this rig has almost none. One model-side lever
+remains — base roughness, which would sharpen the softbox's reflection into a defined band — and it
+must be driven through the WEATHER group because of F53. **If that also fails, the spread deficit
+is the RIG's, which is the owner's own ruling and not a defect to fix.** That would retire item A
+with a measurement instead of leaving it open, and it is a legitimate outcome.
+
+**THE COST OF KNOWING THIS: two renders, 14 minutes.** Rule 36 paying for itself again — the same
+question, taken on faith, is what rev 57's item B spent a revision on.
