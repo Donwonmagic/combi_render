@@ -729,23 +729,26 @@ before committing and keep the PNGs.**
 OVERWRITE EACH OTHER'S PNG. Rename per ablation or you will diff a file against itself.**
 **EVERY MEASUREMENT THROUGH `shader_solve._render` IS 8-BIT (F42), whatever `color_depth` says.**
 
-**THE DELIVERY FRAME — the recipe, first run at rev 57b.** Nobody had ever
-rendered this model at delivery quality before; every figure in every ledger comes off 1600×1100.
-Ten strips because `studio.render_set`'s own comment says a long hero gets reaped:
+**THE DELIVERY FRAME — the recipe, and it took two attempts.**
 
 ```bash
-for i in $(seq 0 9); do
-  lo=$(python3 -c "print('%.4f'%($i/10))"); hi=$(python3 -c "print('%.4f'%(($i+1)/10))")
-  T1_SUB=2 T1_PREVIEW=hero T1_PFX=hq$i T1_RX=3840 T1_RY=2640 T1_SAMP=256 \
-    T1_BORDER="$lo,$hi" /tmp/blender/blender -b -P build.py
-done
-python3 stitch.py out/hq_hero_raw.png 0.0000,0.1000=out/hq0_hero.png ... # all ten
-python3 post.py out/hq_hero_raw.png out/hq_hero.png                      # optics LAST, never per strip
+T1_SUB=2 /tmp/blender/blender -b -P hq_render.py      # ONE build, 10 bands, WITH MARGIN
+python3 stitch.py out/hq_hero_raw.png 0.0000,0.1000=out/hq0_hero.png ...   # DECLARED spans
+#   ^^ CHECK ITS EXIT CODE.  It exits 2 on a seam and it MEANS it.
+python3 post.py out/hq_hero_raw.png out/hq_hero.png   # optics LAST, never per strip
 ```
 
-**Strips vary with content: 11.4 min for the ground strip, 18.4 for the first body strip. 65 s of every strip is rebuilding the scene — 10.8 min across ten strips is pure repeat.**
-Rendering every strip inside ONE Blender session would take ~10 % off; nobody has written that yet
-and it is worth writing before the next delivery frame.
+**THE FIRST ATTEMPT PRODUCED A FRAME WITH EIGHT WHITE LINES ACROSS IT (F48).** Blender's border
+rounds **inward**, so a band declared 0.30..0.40 does not render every row the stitcher then reads
+from it — measured at the hq2/hq3 boundary, row **1849 was rendered by neither strip** and the
+stitcher took a pure-white row 1848 from strip 2. `hq_render.py` fixes it by rendering each band
+with **margin** and declaring it without, and it builds the scene **once** instead of ten times
+(the old loop spent **10.8 of 116 minutes** rebuilding something that had not changed).
+
+**AND THE GUARD CAUGHT IT AND WAS IGNORED (F49).** `stitch.py` exited **2** and said *"seam
+detected -- fix the stitch before rendering big"*; the shell driving it printed the code and ran
+`post.py` anyway. **A guard whose exit code nobody reads is not a guard** — which is worth holding
+onto in a repository with 244 verifier rows.
 
 **ABLATIONS — every one exists to WATCH A GUARD FAIL, and at rev 57 one of them was used to watch a
 GATE fail to move, which is the same idea pointed at an instrument.**
