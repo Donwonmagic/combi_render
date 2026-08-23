@@ -30,7 +30,7 @@ changed six lines of model code between them, two of them zero, against 6,503 li
 
 | # | do | worth | gate |
 |---|---|---|---|
-| **A** | **F44 — THE PAINT HAS ALMOST NO GLOSS.** `gloss_compare.py` FAILS at **0.392**, bar 0.60. **Rev 57b already refuted the clearcoat route (F54): +0.5 % spread, −18 % red saturation.** One lever left — roughness, via the WEATHER group (**F53**) — then the honest answer may be that the rest is the rig (**F55**) | **3.4 × 10⁶ px²** — the largest thing in the frame | **`gloss_compare.py`, new at rev 57b** |
+| **A** | **F44 — THE PAINT HAS ALMOST NO GLOSS**, and rev 57b MEASURED WHOSE FAULT THAT IS. `gloss_compare.py` FAILS at **0.392**, bar 0.60. The clearcoat route is REFUTED (**F54**: +0.5 % spread, −18 % red saturation) and the SURROUND is now measured at **+119 %** — the same model under structured light reads **0.857** (**F59**). **One model lever is left, roughness through the WEATHER group (F53), and it is worth a morning, not a revision.** Read §3.1 before touching it | **3.4 × 10⁶ px²** — the largest thing in the frame | **`gloss_compare.py`; `probe_rev58_ceiling.py` for render-vs-render (F58)** |
 | **A0** | **F51 — FACTOR THE STUDIO RIG OUT OF `build.py`'s PREVIEW BLOCK. Do this FIRST; it is an hour and it unblocks two other items.** `cyclorama/lighting/cabin_fill/camera` are built inside `if T1_PREVIEW:`, so **every tool that execs build.py to MEASURE renders an unlit scene** | it made rev 57b's first delivery frame a **BLACK BUS that passed every automated check**, and it is the cause of **F05** | a verifier row compares the duplicated sequences until it is fixed |
 | **B** | **F45 — THE GALLEY AND ROOF-APERTURE INTERIORS ARE UNTEXTURED WHITE BLOCKS**, seen through four openings, dead centre | **7.4 × 10⁵ px²** | none — build one, or accept it and say so |
 | **C** | **F15 / A7** — the unlit roofed run between the last light inlet and the tail | 8.2 × 10⁵ px² | none |
@@ -524,13 +524,37 @@ every run and report both: `gloss_compare.py` for the gloss and `flank_compare.p
 for the chroma. **If they trade against each other, that is a finding and a question for him, not a
 number to split the difference on.**
 
-**THE CEILING, AND IT IS REAL.** The rig's sources are large-area softboxes — `top` is 13.0 × 8.5 m.
-Even a mirror-smooth paint under a 13 m source gives a **broad, soft** highlight, where the
-photograph's market-hall lamps give small intense ones. **So `gloss_compare.py` will not reach 1.000
-under this rig and it is not supposed to.** The owner's *"keep studio, fix the model"* stands.
-What the gate can tell you is how much of the gap is the MODEL's, and it can tell you that in
-three runs. **Find out where the ceiling is and report it with the number, rather than tuning
-toward 1.0.**
+**THE CEILING IS NO LONGER A WARNING. IT IS MEASURED, AND IT IS THE BIGGEST NUMBER REV 57b
+PRODUCED — F59.** The owner authorised exactly this (*"quantify it, ship nothing"*), and it took one
+frame:
+
+| | spread | of the photograph |
+|---|---|---|
+| baseline studio, `out/g0_hero.png` | **0.4675** | **0.392** — and this reproduces `gloss_compare`'s own published figure, which is the probe's internal control |
+| **the SAME model** under three small sources on the mirror direction, softboxes dimmed to match, `out/c5_hero.png` | **1.0212** | **0.857** |
+| `ref_nolita_front34.jpg`, same window, 20,549 red px | 1.1921 | 1.000 |
+
+**NOT ONE CONSTANT DIFFERS BETWEEN THOSE TWO FRAMES.** −0.3 % exposure, 0.00 % clipping, one mask
+built on the baseline and applied to both. `python3 probe_rev58_ceiling.py out/g0_hero.png
+out/c5_hero.png`; the arm that makes the frame is `T1_GL_MIRROR=n` in `probe_rev58_gloss.py`, which
+overrides a BUILT scene in memory and writes no source.
+
+**SO READ ITEM A THIS WAY, AND DO NOT SPEND A REVISION ON IT.** The clearcoat buys **+0.5 %** and
+costs the red **18 %** of its saturation (F54). The surround is worth **+119 %**. The model's share
+of this gate is thin, and it has now been bounded rather than guessed. **The owner's *"keep studio,
+fix the model"* stands and nothing here ships** — but F59 is what you show him if the gloss is ever
+re-opened, and the honest sentence about the delivery frame is *"the paint is not far off; the room
+it stands in has nothing to reflect."* The one lever still untested is ROUGHNESS through the WEATHER
+group (**F53** — the BSDF socket is LINKED, so `T1_GL_RGH` is inert; the live value is
+`g.inputs["Roughness"].default_value` on the group node). **Ablate it before you tune it (rule 36).**
+
+**AND F58, WHICH CAME OUT OF DOING IT: `gloss_compare.py` CANNOT COMPARE TWO RENDERS AT DIFFERENT
+EXPOSURES.** Its mask is `R > 1.35 G` rebuilt per frame; brighten the paint and it desaturates out
+of that test and the window **retreats into the shadows** — 33,600 px → **5,711** on the
+over-exposed first attempt, and **0.00 % clipped inside the retreat against 53.32 % over the region
+it came from.** Its published exposure control is not refuted (a ratio is scale-invariant); its
+**domain** was never stated. Use `probe_rev58_ceiling.py` for render-against-render, which holds one
+mask and refuses above 1 % clipping or 10 % exposure drift.
 
 **F47, found while reading:** the `WEATHER` header comment still says *"nearly invisible at
 Specular IOR Level 0.21 / Roughness 0.42"*. **`Specular IOR Level` has been 0.50 since rev 8** —
@@ -757,6 +781,13 @@ T1_SUB=2 /tmp/blender/blender -b -P audit.py                 # rewrites STATE.md
 python3 lid_gen.py                                           # regenerates tex/lidmural.png
 python3 flank_compare.py out/r58_side.png /tmp/fc.png        # GATE 1.  FAILS 1 of 4 today.
 python3 gloss_compare.py out/r58_hero.png                    # GATE 3.  FAILS at 0.392 today.
+#   ^ RENDER-vs-PHOTOGRAPH ONLY.  Its mask is rebuilt per frame, so it CANNOT
+#     compare two renders at different exposures -- F58.  For that:
+python3 probe_rev58_ceiling.py out/g0_hero.png out/c5_hero.png   # ONE mask, refuses on clipping
+T1_SUB=1 T1_KEY=0.12 T1_GL_MIRROR=3 T1_GL_SPOTPOW=120 T1_GL_PFX=c5 \
+  /tmp/blender/blender -b -P probe_rev58_gloss.py            # F59's frame.  SHIPS NOTHING.
+T1_SUB=1 T1_GL_MIRROR=3 T1_GL_NORENDER=1 \
+  /tmp/blender/blender -b -P probe_rev58_gloss.py            # placement check, ~25 s, no render
 python3 visibility_budget.py 3840                            # THE RANKING.  Run it before choosing.
 T1_SUB=1 T1_GL_COATW=1.0 T1_GL_COATR=0.03 T1_GL_PFX=g1 \
   /tmp/blender/blender -b -P probe_rev58_gloss.py            # ITEM A's ablation, changes NO source
@@ -913,7 +944,7 @@ nothing had gated them and the old rule could not see anything it could not gate
 
 | horizon | the work | worth | why it is in this order |
 |---|---|---|---|
-| **next** | **the paint's GLOSS.** `gloss_compare.py` fails at 0.392 of the photograph's spread | 3.4 × 10⁶ px² | The largest surface in the frame, newly gated, and never measured before rev 57b |
+| **next, but SMALLER THAN IT LOOKS** | **the paint's GLOSS.** `gloss_compare.py` fails at 0.392 of the photograph's spread — **and rev 57b measured that the SURROUND owns most of that gap (F59: the same model reads 0.857 under structured light).** The clearcoat is refuted (F54); one model lever is left (F53) | 3.4 × 10⁶ px² | Still the largest surface in the frame, but the MODEL's share of the deficit is now bounded and thin. **Do not spend a revision here** |
 | **next** | **the untextured galley and roof-aperture interiors** | 7.4 × 10⁵ px² | Bright, central, seen through four openings, and pure placeholder |
 | **next** | **F15 — A7.** Illumination, not dressing | 8.2 × 10⁵ px² | A large unlit region changes how the whole rear reads |
 | **near** | **F01/F39 — `Senor`**, now known to be the artwork alpha and its placement | 2.7 × 10⁴ px² | Small but HARD-EDGED, so it reads louder per pixel than the table implies |

@@ -1373,10 +1373,30 @@ ck "the audit's ranking rule is carried in the brief" 1 \
 # Until the rig is factored into one function, two scripts DUPLICATE that
 # sequence.  This row compares the sequences so the duplication cannot rot in
 # silence -- if build.py's rig changes and the probes' does not, it fails.
+#
+# rev 57b, SECOND FIX: it fired on a COMMENT.  probe_rev58_gloss.py's mirror
+# arm carries the sentence `ST.camera() only CREATES the camera`, which is the
+# explanation of F60, and the row read it as a fifth rig call.  That is the
+# FIFTH time in this repository a row has matched an explanation of a defect
+# and called it the defect.  Fixed the way `gloss_compare compares no colour IN
+# CODE` was fixed -- strip comments and docstrings and look only at what
+# executes.  This is a TIGHTENING, not a relaxation: the row now tests the code
+# it always meant to.  WATCHED FAILING with a real fifth ST.camera() call added
+# to the probe (got DRIFTED), and with the comment restored (got OK).
 ck "the duplicated studio rig still matches build.py" OK "$(python3 -c "
-import re
+import ast,re
+def _code(src):
+    lines=set(range(1,src.count(chr(10))+2))
+    for n in ast.walk(ast.parse(src)):
+        if isinstance(n,(ast.Module,ast.FunctionDef,ast.ClassDef)):
+            d=ast.get_docstring(n,clean=False)
+            if d is not None:
+                b=n.body[0]
+                for i in range(b.lineno,(b.end_lineno or b.lineno)+1): lines.discard(i)
+    return chr(10).join(l for i,l in enumerate(src.splitlines(),1)
+                        if i in lines and not l.strip().startswith('#'))
 def seq(f, lo=None):
-    t=open(f).read()
+    t=_code(open(f).read())
     if lo: t=t[t.index(lo):]
     return [m for m in re.findall(r'ST\.(cyclorama|lighting|cabin_fill|camera)\(', t)]
 b=seq('build.py','if os.environ.get(\"T1_PREVIEW\")')
@@ -1414,6 +1434,48 @@ ck "probe_rev58_gloss builds the rig"  1 "$(grep -c '^ST.lighting(_KEY)' probe_r
 # quoted twice in prose.
 ck "newest brief drops the retired sec.4 heading" 0 \
    "$(if [ -n "$_LATEST_BRIEF" ]; then grep -cE '^#+ .*WHAT ONLY HE CAN GIVE' "$_LATEST_BRIEF"; else echo 99; fi)"
+
+# ------------------------------- rev 57b: F58/F59/F60, THE RIG CEILING
+# `probe_rev58_ceiling.py` compares two RENDERS, which `gloss_compare.py`
+# cannot do: that gate rebuilds its red mask from every frame, and on a
+# brighter frame the paint desaturates out of the R > 1.35 G ratio test so the
+# window retreats into the shadows (F58 -- measured 33,600 px -> 5,711, with
+# 0.00 % clipping inside the retreat against 53.32 % over the region it came
+# from).  These four rows hold the probe honest.
+
+# ARITHMETIC, NOT A GREP: the two files must be looking at the SAME pixels.
+# If gloss_compare ever moves its window and the probe does not, the probe's
+# "in the gate's own unit" line becomes a comparison of two different panels.
+ck "the ceiling probe uses gloss_compare's OWN window"  1 "$(python3 -c "
+import ast
+def lit(f,name,key=None):
+    for n in ast.walk(ast.parse(open(f).read())):
+        if isinstance(n,ast.Assign) and getattr(n.targets[0],'id','')==name:
+            v=ast.literal_eval(n.value)
+            return v[key] if key else v
+    return None
+print(int(tuple(lit('gloss_compare.py','WIN','render'))==tuple(lit('probe_rev58_ceiling.py','WIN'))))" 2>&1 | tail -1)"
+
+# The badge probe earned this rule and it applies here: a probe that hard-codes
+# its own answer cannot refuse.  None of F59's measured values may appear as a
+# literal in the file that measures them.
+ck "the ceiling probe hard-codes none of its results"  0 \
+   "$(grep -cE '0\.4675|1\.0212|0\.857|2\.184|1\.1921' probe_rev58_ceiling.py)"
+
+# BEHAVIOUR, NOT PROSE: the refusal must come BEFORE the number.  Compared by
+# source offset, the way rev 56's guard-precedes-print row is -- a comment
+# saying "it refuses" is not a refusal.
+ck "the ceiling probe refuses BEFORE it publishes"  1 "$(python3 -c "
+s=open('probe_rev58_ceiling.py').read()
+print(int(0 < s.index('CLIP_REFUSE_PCT:') < s.index('MEASURED CEILING')))" 2>&1 | tail -1)"
+
+# F60: the mirror arm read the camera's matrix_world BEFORE anything aimed the
+# camera, and returned three rays from the origin that all hit the cyclorama --
+# ok=True on every one, rc=0, a rendered frame, a plausible null result.  The
+# aim has to precede the cast, and offsets are the only way to assert that.
+ck "the mirror arm AIMS before it casts"  1 "$(python3 -c "
+s=open('probe_rev58_gloss.py').read()
+print(int(0 < s.index('ST.aim(_cam') < s.index('_scn.ray_cast')))" 2>&1 | tail -1)"
 
 _BRIEF_TOTAL="$(if [ -n "$_LATEST_BRIEF" ]; then grep -E '\./verify_clone\.sh' "$_LATEST_BRIEF" 2>/dev/null | grep -oE 'ALL [0-9]+ PASS' | grep -oE '[0-9]+' | head -1; else echo 0; fi)"
 ck "newest brief states THIS script's row count" "$((PASS+1))" "${_BRIEF_TOTAL:-0}"
