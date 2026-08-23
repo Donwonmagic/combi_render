@@ -88,35 +88,18 @@ if outp:
 sw = sorted(set(re.findall(r"\bT1_[A-Z0-9_]+\b", TXT)))
 srcs = {p: open(os.path.join(ROOT, p)).read()
         for p in os.listdir(ROOT) if p.endswith((".py", ".sh"))}
-# WHAT THIS ROW IS FOR: catching a switch that survives only in a COMMENT
-# after the code behind it was deleted.  Its first form demanded the literal
-# sit directly after `environ.get(`, which is one idiom among several -- it
-# reported probe_rev58_gloss.py's own live levers as dead because they are
-# read through a one-line helper.  A row that fails on working code gets
-# ignored, so it now asks the real question: does the name appear in
-# EXECUTABLE code (not a comment, not a docstring) in a file that reads the
-# environment at all?
-def _code_lines(t):
-    out = []
-    for ln in t.splitlines():
-        b = ln.strip()
-        if not b or b.startswith("#"):
-            continue
-        out.append(ln)
-    return out
-
-
+# THIS MUST MATCH verify_clone.sh's OWN ROW, IDIOM FOR IDIOM.  Rev 57b
+# loosened it here and not there, and the result was this tool reporting green
+# while the repository's verifier failed on the same two switches -- two
+# instruments disagreeing because one had been relaxed to fit new code.  The
+# fix belonged in the new code.  If this ever needs loosening again, loosen
+# BOTH or neither.
 dead = []
-for s in sw:
-    ok = False
-    for t in srcs.values():
-        if "environ" not in t and "getenv" not in t:
-            continue
-        if any(("'%s'" % s) in ln or ('"%s"' % s) in ln for ln in _code_lines(t)):
-            ok = True
-            break
-    if not ok:
-        dead.append(s)
+for s_ in sw:
+    if not any(re.search(r"(environ(\.get)?\[?\(?[\"']%s|getenv\([\"']%s)" % (s_, s_), t)
+               for t in srcs.values()):
+        dead.append(s_)
+
 ck("every T1_* the brief names READS THE ENVIRONMENT", not dead,
    "%d named, %d not an env read%s" % (len(sw), len(dead),
                                        ("  " + " ".join(dead)) if dead else ""))

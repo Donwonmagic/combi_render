@@ -37,8 +37,15 @@ import studio as ST
 P = print
 
 
-def _f(k, d):
-    v = os.environ.get(k)
+def _f(v, d):
+    """v is the RAW value already read from the environment by name below.
+    The read is written out literally at each call site, not folded into a
+    helper: `verify_clone.sh` asserts every T1_ switch a brief names appears
+    as `os.environ.get("NAME")` in source, and a helper that takes the name
+    as a variable hides it from that row.  Rev 57b found this the hard way --
+    the helper form passed a loosened copy of the check and FAILED the
+    repository's own verifier, i.e. two instruments disagreeing because one
+    of them had been relaxed.  Match the convention instead of relaxing it."""
     return d if v is None else float(v)
 
 
@@ -49,10 +56,12 @@ b = next(n for n in m.node_tree.nodes if n.type == 'BSDF_PRINCIPLED')
 
 BEFORE = {k: b.inputs[k].default_value
           for k in ("Roughness", "Specular IOR Level", "Coat Weight", "Coat Roughness")}
-OVER = {"Roughness": _f("T1_GL_RGH", BEFORE["Roughness"]),
-        "Specular IOR Level": _f("T1_GL_SPEC", BEFORE["Specular IOR Level"]),
-        "Coat Weight": _f("T1_GL_COATW", BEFORE["Coat Weight"]),
-        "Coat Roughness": _f("T1_GL_COATR", BEFORE["Coat Roughness"])}
+OVER = {
+    "Roughness":          _f(os.environ.get("T1_GL_RGH"),   BEFORE["Roughness"]),
+    "Specular IOR Level": _f(os.environ.get("T1_GL_SPEC"),  BEFORE["Specular IOR Level"]),
+    "Coat Weight":        _f(os.environ.get("T1_GL_COATW"), BEFORE["Coat Weight"]),
+    "Coat Roughness":     _f(os.environ.get("T1_GL_COATR"), BEFORE["Coat Roughness"]),
+}
 
 P("=" * 74)
 P("  T1_paint finish -- the material that carries the WHOLE two-tone body")
@@ -80,8 +89,9 @@ if not moved:
 PFX = os.environ.get("T1_GL_PFX", "gl")
 ST.render_set([os.environ.get("T1_GL_VIEW", "hero")],
               os.path.join(ROOT, "out"), prefix=PFX,
-              res=(int(_f("T1_RX", 1600)), int(_f("T1_RY", 1100))),
-              samples=int(_f("T1_SAMP", 96)), log=P)
+              res=(int(_f(os.environ.get("T1_RX"), 1600)),
+                   int(_f(os.environ.get("T1_RY"), 1100))),
+              samples=int(_f(os.environ.get("T1_SAMP"), 96)), log=P)
 P("")
 P("  now:  python3 gloss_compare.py out/%s_hero.png" % PFX)
 P("  and:  python3 flank_compare.py <a side render> /tmp/fc.png   # the CHROMA half")

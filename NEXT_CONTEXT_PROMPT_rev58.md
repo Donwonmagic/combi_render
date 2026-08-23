@@ -368,6 +368,7 @@ why the ledger exists and why rule 17 says RECOMPUTE.**
 | §0 gave the self-consistency total as a figure **six lower** than the `ALL n PASS` it quoted four words earlier | that was inherited from the rev-57 brief, where it was already wrong. **Corrected — and DESCRIBED rather than reprinted**, because rev 54, 55, 56 and 57 each re-committed a defect inside the row written to explain it |
 | a bare **`243`** survived on that same line | the row count moved **three times** during this revision (238 → 239 → 240, each fix adding a passing row), and a `sed` keyed on `ALL 243 PASS` did not touch `243 now`. **§10.3 is right and it bit again.** Write the count LAST and grep for the bare number afterwards, not just the phrase |
 | the full-size roundel tile — the EVIDENCE for §2.4 — was cited by a path that **resolves here and not on a clone** | **`.gitignore` line 9 excludes `rev*_hero*.png`.** The sweep checked `os.path.exists` on the machine that WROTE the brief, which is the one place the path is guaranteed to work and the one place the brief is never read. **A sweep over the working tree cannot see a `.gitignore`.** The tile is renamed `probe_scratch/rev57_roundel_x5.png` and force-added, and **`audit_brief.py` now checks `git ls-files`, not the filesystem** — 52 paths, 0 unresolved, tracked |
+| `audit_brief.py` reported **green** on the T1_ switch row while `verify_clone.sh` **FAILED** on the same two switches | **I loosened the check in one instrument and not the other.** `probe_rev58_gloss.py` read its levers through a helper, which hides the literal from the `os.environ.get("NAME")` idiom both rows assert. I relaxed my copy to fit the new code, got a false green, and the repository's own verifier caught it a cycle later. **The fix belonged in the new code**: the probe now writes the reads out literally and both instruments are strict again. *A relaxed copy of a check is worse than no copy — it reports success on exactly the case the original was built for.* Rule: **loosen both or neither.** |
 | `README.md` and `START_HERE.md` still said rev 57 | both **FAILED** their rows. Updated |
 
 **WHAT THE ADVERSARY TRIED, AND IT BROKE NOTHING — ten questions, written as a script and RUN, so
@@ -887,10 +888,15 @@ to see the thing it was ranked for.**
    every time. The rule it encodes replaced *"gate availability"* at rev 57b after that rule sent
    four consecutive revisions at a **1.4 px²** question. If you find yourself about to work an item
    the script puts in the bottom half, say in the ledger why.
-8. **DO NOT LET THE MACHINE IDLE.** Blender is CPU-bound and must not be fanned out, so wall-clock
+8. **NEVER RELAX ONE COPY OF A CHECK.** `audit_brief.py` and `verify_clone.sh` assert some of the
+   same things. Rev 57b loosened the switch row in the first and not the second, got a green from
+   the tool it had just edited, and was caught by the one it had not. **Loosen both or neither**,
+   and when a check fails on code you just wrote, suspect the code first — *"do not edit the script
+   to make it pass"* applies to the copy as well as the original.
+9. **DO NOT LET THE MACHINE IDLE.** Blender is CPU-bound and must not be fanned out, so wall-clock
    is the binding constraint — not tokens, and not context. Launch the render you will need before
    you read the brief; ablate at `T1_MM_SAMP=16`; analyse in the foreground while Blender runs
    behind you. Rev 57 measured ~35 minutes a revision going to avoidable waiting.
-9. **ROOM TO GROW:** new findings go in `OPEN_FINDINGS.md` with an ID and a grade, not into this
+10. **ROOM TO GROW:** new findings go in `OPEN_FINDINGS.md` with an ID and a grade, not into this
    file's prose. This file points AT the register. That way the brief stays a map and the register
    becomes the memory, and neither has to be rewritten to add one fact.
