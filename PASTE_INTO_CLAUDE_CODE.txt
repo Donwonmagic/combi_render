@@ -17,7 +17,7 @@ per-measurement and not on average.** A model right in ninety places and wrong i
 done, because he will look straight at the one. This paragraph is first because every revision has
 drifted toward whatever was measurable that week, and the goal is not "add rows".
 
-**AND HERE IS THE HONEST DISTANCE, MEASURED AT REV 56.** `verify_clone.sh` ends **ALL 221 PASS** and
+**AND HERE IS THE HONEST DISTANCE, MEASURED AT REV 56.** `verify_clone.sh` ends **ALL 222 PASS** and
 its own verdict block says what that is worth: **0 FIDELITY, 221 SELF-CONSISTENCY. Not one of those
 rows compares the vehicle to a photograph.** The parity question rests on **two** scripts, and at
 rev 56 **both of them run** for the first time:
@@ -85,7 +85,7 @@ for b in $(git branch -r | grep -v HEAD); do
 done
 git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 ./bootstrap.sh          # ALL 10 PASS  -- THE BRANCH CHECK IS ROW 9
-./verify_clone.sh       # ALL 221 PASS -- and read what its verdict block says
+./verify_clone.sh       # ALL 222 PASS -- and read what its verdict block says
 ```
 
 **AT PICKUP, REV 56 MEASURED:** rev 55 **was merged**, through **PR #14 and PR #15** — **not** the
@@ -287,7 +287,7 @@ false?*) are **different instruments** and rev 55 said to run both. Both were ru
 
 | what the draft said | what the machine says |
 |---|---|
-| `verify_clone.sh` **ALL 215 PASS** | **221.** Written mid-revision and stale by six rows before the file was finished. The row count row exists precisely because this keeps happening |
+| `verify_clone.sh` **ALL 215 PASS** | **222.** Written mid-revision and stale by SEVEN rows before the file was finished, and it took three passes to settle because the fixes the audit itself demanded each added rows. The row count row exists precisely because this keeps happening |
 | the gate reads 0.9699 / 0.7509 / **0.652** | **0.9669 / 0.7506 / 0.644** on `out/r56b_side.png`, the render made AFTER the `lid_rail` geometry change. The earlier figures were from the pre-change render — render-to-render, not a regression, and the aspect row is identical to four decimals in both. **A brief must quote the render a reader will reproduce from THIS head** |
 | §2.4 cited a probe tile as **`rev56_mask_red.png`** | **that path did not resolve.** It is `probe_scratch/rev56_mask_red.png`, and the sibling four words earlier was already fully qualified. **THIS IS THE THIRD REVISION RUNNING FOR THIS EXACT DEFECT** — rev 54's ladder tile, rev 55's arch tile, now this: a bare filename beside a qualified sibling, caught only by the `stat` sweep and passed over by re-reading every time. The other **46** paths resolved. *(The broken form is deliberately not quoted anywhere else in this file: a brief that prints a bad path as an example fails its own sweep.)* |
 | the brief said the beauty arm | **"BEATY".** A typo in the one line telling the next context which arm to run. Caught by a spelling trap in the sweep, not by reading |
