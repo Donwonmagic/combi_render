@@ -40,7 +40,7 @@ because the frame cannot resolve it — worth 1.4 px². **F63 is the glyph's SHA
 the same frame resolves easily (7 cells against 6) and which the owner can see. Do not let F08's
 ceiling talk you out of F63.
 
-**THE RANKING RULE FROM REV 57b STILL STANDS** — rank by pixels of the delivery frame,
+**THE RANKING RULE FROM REV 57b STILL STANDS — RANK BY PIXELS OF THE DELIVERY FRAME**,
 `python3 visibility_budget.py`; gate availability is a tie-breaker — **but the owner outranks it,
 and at rev 58 he used that.** `CLAUDE.md`: *"The machine outranks the prose. The owner outranks the
 record."*
@@ -49,6 +49,32 @@ record."*
 
 **Now read this whole file before you CHANGE anything.** Then `CLAUDE.md`, then `LEDGER_rev58.md`
 (where every number in §2 comes from), then `OPEN_FINDINGS.md`, then `AUDIT_rev57_efficiency.md`.
+
+---
+
+## §0.05 THIS BRIEF WAS AUDITED AGAINST THE MACHINE — AND WHAT THE AUDIT FOUND
+
+**Rule 17: audit the brief you WRITE, not only the one you receive.** Both halves ran as scripts.
+
+* `python3 audit_brief.py` — **9 checked, 0 FAILED.**
+* `python3 audit_adversary.py` — **12 questions, 0 BROKE.** Its questions were REPLACED for this
+  revision; rev 57b's ten now pass by construction because the frames they read do not exist on a
+  clone, and a question that cannot fail is not a control.
+
+**AND THE AUDIT CHANGED TWO PUBLISHED FIGURES.** `audit_adversary.py` recomputed F59's mask
+correction at close and disagreed with what had been written. Re-derived through the **shipped**
+instrument (`gloss_compare.py` with and without `T1_GC_LOOSEMASK=1`) on `out/r58_hero.png`:
+**SPREAD render +0.6 %** (published −0.2 %) and **HEADROOM render −31.6 %** (published −29.4 %).
+The earlier pair came from an exploratory script that ordered the tighter test and the erosion
+differently (n 32418 against the shipped path's 27510). **The conclusion did not move** — the
+spread ratio reads 0.3918 loose against 0.3911 tight — but the figures did, and they are corrected
+in the source, the register, the ledger and here.
+
+**AND `audit_brief.py --fix-count` CORRUPTED THIS BRIEF BEFORE IT FIXED IT (F66).** Two scripts here
+print `ALL n PASS` — `verify_clone.sh` and `bootstrap.sh` — and the tool took the FIRST match,
+which is bootstrap's **ALL 10 PASS**. It rewrote all three bootstrap references to the verify count
+and left verify's own untouched, then reported the row green. Fixed, and **watched both ways**.
+**If you run `--fix-count`, grep the bare numbers afterwards, not just the phrase.**
 
 ---
 
