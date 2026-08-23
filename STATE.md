@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-23 04:22:24 UTC |
-| git commit | `5378d78` |
-| git subject | rev 57: the top job TAKEN and ceiled with a measured bracket; item B REFUTED -- the gate does not measure the mottle |
+| generated | 2026-08-23 15:20:49 UTC |
+| git commit | `b0daa97` |
+| git subject | rev 58 item A: the gloss lever TAKEN, the gate CORRECTED, and the ceiling MEASURED (F44/F59/F60/F61/F62) |
 | working tree | clean |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=2 (applied, destructive, before booleans) |

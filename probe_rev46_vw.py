@@ -61,6 +61,7 @@ sys.path.insert(0, HERE)
 os.environ.setdefault("T1_SUB", "1")
 
 import numpy as np                                           # noqa: E402
+import scipy.ndimage as ndi                                  # noqa: E402
 from PIL import Image, ImageDraw                             # noqa: E402
 import bpy                                                   # noqa: E402
 import t1_core as C                                          # noqa: E402
@@ -407,6 +408,127 @@ ctl("C5", eC < e45 * 0.6,
     "and they are BETTER THAN REV 45 BY A FACTOR OF %.1f -- a solver that "
     "converges to values the build does not use proves nothing, so this reads "
     "t1_core's own constants, not the solver's output" % (e45 / max(eC, 1e-9)))
+
+# =====================================================================
+# rev 58 -- THE AXIS THIS PROBE NEVER MEASURED, AND THE OWNER'S FIFTH REPORT.
+#
+# *[owner, rev 58]* "the vw emblems still need a fix, and the nose still does
+# not look right."
+#
+# HIS REPEAT IS A MEASUREMENT.  That sentence is already in t1_core, written at
+# rev 46 about his FOURTH report: when he reports the same thing again, the
+# prior closure was wrong or incomplete.  This is the fifth, and this probe has
+# reported "5 controls, 0 FAILED" throughout.
+#
+# WHY IT COULD NOT SEE IT.  Every landmark above (L1..L6) is a VERTICAL
+# position -- a row index down the emblem.  Not one of them is a RADIUS.  So a
+# stroke can terminate 18.9 mm short of the ring band with every landmark still
+# landing, because where a stroke ENDS vertically and how far it REACHES
+# radially are independent.  This is rev 46's own discovery -- "the axis nobody
+# checked" -- recurring on the axis rev 46 did not check.
+#
+# MEASURED OFF THE BUILT MESH, as a fraction of the ring's OUTER R, band inner
+# edge 0.7988:
+#     V arm tips ............ 0.8400, 0.8400   on the band
+#     W legs (troughs) ...... 0.8394, 0.8394   on the band
+#     W OUTER ARM tips ...... 0.6638, 0.6638   FLOAT 18.9 mm short
+#
+# THE MECHANISM, traced rather than guessed.  A terminal cap is cut PERPENDICULAR
+# TO THE STROKE, so its two corners sit at different radii.  vw_bars' fixed
+# point drives each terminal's *MAX* corner onto the band, which leaves the
+# other corner short by the cap's whole radial span; the W's outer arm meets the
+# ring at 0.12 deg while travelling at 55.5 deg, so that span is 0.176 R and the
+# far corner lands at 0.6638.  Then t1_detail.vw_logo_fit re-normalises the
+# whole glyph by its GLOBAL EXTREME, which is the very mechanism rev 44b named
+# and fixed one stage higher up -- "_fit_glyph scales by the SINGLE FURTHEST
+# VERTEX ... and drags every other end short" -- still live, one stage below.
+#
+# THREE CANDIDATE FIXES WERE TRIED AT REV 58 AND ALL THREE MADE IT WORSE OR NO
+# BETTER, WHICH IS WHY NONE OF THEM SHIPPED:
+#     drive the MIN corner instead of the MAX ....... cells 6 -> 4 (worse)
+#     make vw_logo_fit a pure unit conversion ....... cells 6 -> 4 (worse)
+#     raise VW_W_ARM_Z 0.0019 -> 0.30/0.55/0.77 ..... cells 6, 6, 6 (no change)
+# The glyph stays an X in all of them.  The V's arms and the W's outer arms
+# cross over the same region BY CONSTRUCTION, so this is a re-solve of the W's
+# spine against reach, not a one-constant tweak.  Recorded so the next attempt
+# does not spend itself re-trying these three.
+BAND_INNER = 1.0 - BAND          # 0.80 of the outer R, the band's inner edge
+
+
+def glyph_only_mask(rows=276, **over):
+    """The glyph WITH its ring band, rasterised in its own plane -- the same
+    construction built_mask uses, kept separate only so overrides can be passed
+    per call without disturbing the landmark path above."""
+    old = {k: getattr(C, k) for k in over}
+    for k, v in over.items():
+        setattr(C, k, v)
+    try:
+        return built_mask(rows)
+    finally:
+        for k, v in old.items():
+            setattr(C, k, v)
+
+
+def cream_cells(mask, frac=0.97):
+    """How many separate CREAM cells the strokes cut the ring's interior into.
+
+    STRUCTURAL, like every landmark here: a region count, not a thresholded
+    position, so it survives blur and exposure and needs no axis ratio.  It is
+    the right statistic for THIS defect because a stroke that fails to reach the
+    ring MERGES THE TWO CELLS EITHER SIDE OF IT -- the count drops by exactly
+    one per floating stroke, whatever the stroke's width or angle.
+
+    The photograph and the built raster go through this SAME function.  A second
+    copy of a measurement is how one of them gets quietly relaxed."""
+    n0, n1 = mask.shape
+    yy, xx = np.mgrid[0:n0, 0:n1]
+    cy, cx = (n0 - 1) / 2.0, (n1 - 1) / 2.0
+    disc = (((yy - cy) / (n0 / 2.0)) ** 2 + ((xx - cx) / (n1 / 2.0)) ** 2) <= frac ** 2
+    bg = disc & (~mask)
+    lab, k = ndi.label(bg)
+    if k == 0:
+        return 0, []
+    sz = ndi.sum(bg, lab, range(1, k + 1))
+    big = [int(s) for s in sz if s >= 0.002 * disc.sum()]
+    return len(big), sorted(big, reverse=True)
+
+
+def photo_cells():
+    """The same count on ref_nolita_front34.jpg's own roundel."""
+    a = np.asarray(Image.open(os.path.join(HERE, "ref_nolita_front34.jpg"))
+                   .convert("RGB")).astype(float)
+    R, G, B = a[..., 0], a[..., 1], a[..., 2]
+    red = (R > 110) & (G < 0.60 * R) & (B < 0.60 * R)
+    lab, n = ndi.label(red)
+    sub = lab[192:261, 153:194]
+    ids, counts = np.unique(sub[sub > 0], return_counts=True)
+    return cream_cells(sub == ids[int(np.argmax(counts))])
+
+
+nb, sb = cream_cells(glyph_only_mask(**CURRENT))
+npho, sp = photo_cells()
+print("")
+print("    REACH / TOPOLOGY -- cream cells the strokes cut the ring into")
+print("        PHOTOGRAPH  %d cells   sizes %s" % (npho, sp))
+print("        BUILT       %d cells   sizes %s" % (nb, sb[:8]))
+ctl("C6", nb == npho,
+    "THE BUILT GLYPH CUTS THE RING INTO THE SAME NUMBER OF CELLS AS THE "
+    "PHOTOGRAPH.  photo %d, built %d.  A stroke that fails to reach the ring "
+    "merges the two cells either side of it, so a deficit of %d is %d floating "
+    "stroke(s) -- and the mesh names them: the W's two outer arms, at r 0.6638 "
+    "against a band inner edge of 0.7988, floating 18.9 mm"
+    % (npho, nb, npho - nb, max(0, npho - nb)))
+
+# THE KILL.  A topology control that cannot go red proves nothing.  Erase the
+# W entirely and the count must collapse.
+_gone = glyph_only_mask(**CURRENT).copy()
+_nk, _ = cream_cells(_gone)
+_half = glyph_only_mask(VW_W_ARM_X=0.05, VW_W_TROUGH_X=0.05)
+_nh, _ = cream_cells(_half)
+ctl("C7", _nh != nb,
+    "KILL: collapsing the W's arms and troughs onto the axis moves the cell "
+    "count %d -> %d, so this control follows the glyph's topology rather than "
+    "reporting a constant" % (nb, _nh))
 
 nfail = sum(1 for v in CTL.values() if not v)
 print("\nCONTROLS: %d checked, %d FAILED%s"

@@ -770,6 +770,32 @@ ck "VW_W_TROUGH_X is 0.4925"        1 "$(grep -c '^VW_W_TROUGH_X = 0.4925' t1_co
 ck "VW_W_TROUGH_Z is -0.6200"       1 "$(grep -c '^VW_W_TROUGH_Z = -0.6200' t1_core.py)"
 ck "vw_bars reads the constants"    1 "$(grep -c '_apex    = (0.000, VW_APEX_Z)' t1_core.py)"
 
+# ------------------------------- rev 58: THE EMBLEM'S REACH AXIS, F63/F64
+# The six constants above are fitted to VERTICAL landmarks only.  None of them
+# is a radius, so a stroke can terminate 18.9 mm short of the ring band with
+# every landmark still landing -- which is what the built glyph does, and why
+# the owner has now reported this emblem FIVE times against a probe reporting
+# "5 controls, 0 FAILED".  rev 58 added the missing axis as C6.
+#
+# These rows do not re-measure the glyph -- verify_clone runs no Blender.  They
+# keep the control and its kill from being deleted, which is how the last four
+# closures of this emblem became invisible.  The MEASUREMENT lives in
+# probe_rev46_vw.py and it currently FAILS C6 BY DESIGN: photograph 7 cream
+# cells, built 6.  Do not "fix" that by relaxing the control.
+ck "the emblem reach control exists"      1 "$(grep -c '^def cream_cells' probe_rev46_vw.py)"
+ck "it reads the photograph too"          1 "$(grep -c '^def photo_cells' probe_rev46_vw.py)"
+# ONE definition, shared: a second copy is how one of two instruments gets
+# quietly relaxed (sec.10.8).  photo_cells must DELEGATE, not re-implement.
+ck "one definition of the cell measure"   1 "$(grep -c '^def cream_cells' probe_rev46_vw.py)"
+ck "photo_cells delegates to it"          OK "$(python3 -c "
+import ast
+src=open('probe_rev46_vw.py').read()
+fn=next(n for n in ast.parse(src).body if isinstance(n,ast.FunctionDef) and n.name=='photo_cells')
+body=ast.get_source_segment(src,fn)
+print('OK' if 'cream_cells(' in body else 'photo_cells RE-IMPLEMENTS the measure')" 2>&1 | tail -1)"
+ck "the reach control has a KILL"         1 "$(grep -c 'KILL: collapsing the W' probe_rev46_vw.py)"
+ck "F63 is on the register"               1 "$(grep -c '^| \*\*F63\*\*' OPEN_FINDINGS.md)"
+
 # ---------------------------------------------------------------------------
 # THE GUARD TABLE, EXECUTABLE.
 # These eight rows lived as prose in the brief -- a second copy of numbers
