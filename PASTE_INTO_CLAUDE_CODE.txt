@@ -746,6 +746,42 @@ radius with it; and **F39** — `Senor`'s ink deficit is in the artwork, which A
 
 ---
 
+## §4.1 THE OWNER'S STANDING INSTRUCTIONS — THE CARRIER DELETED AT REV 44, RESTORED
+
+**THIS SECTION IS A CARRIER (`CLAUDE.md` rule 16) AND IT IS BACK BECAUSE IT WENT MISSING ONCE
+ALREADY.** Every brief up to rev 43 carried **§7. INSTRUCTIONS OF MINE STILL OUTSTANDING, IN NO
+OTHER CARRIER** — fourteen items in the owner's own voice. It last appears at
+`NEXT_CONTEXT_PROMPT_rev43.md:685`. **No brief from rev 44 to rev 58 has had it or any successor.**
+The rev-49 survey found the loss (`SURVEY_rev49_photoreal.md` finding 39, MAJOR) and named **three**
+casualties. **Rev 56 recovered ONE of the three, as a one-line stub. Rev 57b restored the section.**
+
+> **Its own header is the instruction: GREP EACH BEFORE ACTING — A MEMORY ENTRY IS A CLAIM.**
+
+| # | the owner's item | where it stands, measured at rev 57b |
+|---|---|---|
+| 1 | drive fixes off the broadside render over `ref_side.jpg` | **CLOSED** rev 39–41. `probe_rev39_flank.py` is a standing instrument — **re-run it every revision that moves the flank**, and read SPEC §10.99 first: its Z-ladder has no power, only the JOINT registration may be quoted |
+| 2 | **"REMEMBER TO HOLD UP NEXT TO THE ACTUAL SOURCE PHOTOS"** | **LIVE, and two thirds never done — F61.** Show flank rev 39–41, cab door rev 42, **NOSE rev 51** (which found three defects by eye). **THE TAIL AND THE ROOF HAVE NEVER BEEN DONE** |
+| 3 | **the die-cut vinyl sticker — THE ORIGINAL DELIVERABLE** | **LIVE — F18, now carried in full.** Style and scene are **LOCKED BY HIM**; the art direction is already written in `AUDIT_rev43.md` §5; the asset has never been drawn. **His deferral has a TRIGGER — "build it after the model is done" — so this row is what makes the trigger reachable.** Do not re-put the papel-picado question until he opens it |
+| 4 | **the Playa hero is DEPRIORITISED, NOT CANCELLED** | **LIVE as a carrier — F62.** *"The agreed deliverable is the white-studio hero for fidelity PLUS a warm low-light Playa hero, and the Playa one carries the emotional bar that sits ABOVE clinical accuracy."* **From rev 52 the brief has said "not on the table"; that was an INFERENCE from W6, whose object is the studio RIG, not this second deliverable — rule 34.** Nothing here re-proposes `playa_env.py`; *"focus on the 3d model"* stands |
+| 5 | nine flower heads | **CLOSED** rev 39 — he answered TEN. SPEC §10.97.11 |
+| 6 | **"ABSOLUTE REPLICATION OF ALL ARTWORK" — a hard bar** | **LIVE — F64.** Mural board, flank paisley, script, Calidad decal, menu strips and cards, rear-lid lettering, plate surround. **Four of the seven have no row anywhere.** Rev 10's ceiling still stands: the lettered panel reads *"La S——— and no further"* and **"La Santa" is a RECONSTRUCTION** |
+| 7 | **the Señor Tacombi script — "I REJECTED IT TWICE"** | **LIVE — F01/F39**, and rev 57 narrowed it to the **artwork alpha and its placement**, not the render. A12 makes redrawing his call. *(Rev 43 already refuted "the silver is flat": `tex/senor.png` holds 5,856 unique opaque colours. The live defect is **VALUE**, not flatness.)* |
+| 8 | the front roof lid needs two-sided artwork | **KILLED, EXPLICITLY** at rev 44 — both refuters, because the contract it rested on was retired at rev 12. **This is the model for how an item should leave this table.** The trunk lid it also asked for is BUILT |
+| 9 | **"CLUTTER ON THE COUNTER"** | **LIVE — F66.** Raised more than once, **never recorded as closed**; rev 11 then dressed the galley with 51 objects |
+| 10 | **"the bus sits noticeably lower than stock"** | **ARGUABLY CLOSED — F66.** Rev 43 called it unadjudicated because every flank number is relative to the counter fascia. The **arch-to-tyre gap** is not: SPEC §2 has a photographed 41 ± 8 mm against a stock 90–120, and `STATE.md` measures **39.7 / 40.7 mm**. **Close it or state it** |
+| 11 | **Nolita is re-admitted for GEOMETRY ONLY, and every Nolita-derived number must be TAGGED** | **LIVE, AND IT NOW BITES — F65.** `gloss_compare.py`'s only reference is `ref_nolita_front34.jpg`, so **F44's 0.392 and F59's 0.857 are both Nolita-derived and neither is tagged.** Whether a paint FINISH statistic counts as geometry or as livery **has never been adjudicated** |
+| 12 | the GitHub migration | **CLOSED** — executed by him at rev 42 |
+| 13 | region 3 | **CLOSED BY HIM** at rev 40 — the pale band is the counter's front face. **Do not re-put it** |
+| 14 | **the standard, in his words** | **HALF CARRIED.** *"A photo realistic version of that exact bus"* and *"any single measurement off is unacceptable"* are in §0 and §7 of this brief. **The other half — "4K non-overlapping textures and no floating artifacts" — was in no carrier at all: F63. Re-measured at rev 57b: ONE of EIGHT textures meets SPEC §5's 3K floor**, and the 55.97 % self-overlap is `INHERITED-rev42`, sixteen revisions un-re-measured |
+
+**WHAT THE RESTORATION ACTUALLY FOUND, so the next context knows the shape of the risk.** Rev 56
+reinstated the register and believed the rev-44 loss was closed. It was not: **the sticker came back
+as a one-line row with none of his locked art direction in it, and the other two casualties did not
+come back at all.** A recovery that keeps the NAME and drops the CONTENT reads as closed and is not.
+**When you carry something, carry what makes it actionable — the lock, the trigger, the pointer.**
+
+---
+
 ## §5. THE RULES — `CLAUDE.md` CARRIES THE METHOD, NOT THE NUMBERED CANON
 
 The canon (rules 1–33) is printed in `NEXT_CONTEXT_PROMPT_rev50.md` §11. **Rules 34 and 35 live only

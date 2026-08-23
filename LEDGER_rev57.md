@@ -658,3 +658,112 @@ as a fifth rig call. **That is the fifth time a row in this repository has match
 of a defect and called it the defect.** Fixed the way the `gloss_compare compares no colour IN CODE`
 row was: strip comments and docstrings, look only at what executes. **A tightening, not a
 relaxation** — watched failing with a real fifth `ST.camera()` call, and passing with the comment.
+
+---
+
+## §7. THE DRIFT AUDIT — ALL 111 HANDOFFS AND BRIEFS AGAINST THE ORIGINAL PLAN
+
+**Asked for at the owner's request: *"review all handoffs and next context prompts and ensure we
+don't drift from the original plan."*** Read: `HANDOFF.md` (the rev-3-era original),
+`HANDOFF_rev7…rev45`, `NEXT_CONTEXT_PROMPT_rev8…rev58`, `LEDGER_rev43…rev57`,
+`SURVEY_rev49_photoreal.md` finding 39, `README.md`, `START_HERE.md`, `SPEC.md` §0.1/§3/§7.1.
+
+### §7.1 THE ORIGINAL PLAN, AND WHAT IS FAITHFUL TO IT
+
+`HANDOFF.md`: *"a maximum-fidelity, true-to-scale 3D model of the Playa del Carmen Tacombi combi …
+rendered as white-studio hero stills"*, process *"ground → build → adversarial audit → iterate"*,
+*"never declare done off self-review"*. **All of that is intact** and is restated in the live brief
+§0 and §7 and in `CLAUDE.md`. The vehicle is the same vehicle throughout — SPEC §7.1 settled at
+rev 44 that the Nolita frames show it in a different LIVERY STATE, not a different bus.
+
+**The original defect list D1–D10 is honestly accounted for**, and two of its entries are still the
+top of the live list under different names: **D4** — *"three serving bays render flat black …
+nothing lit behind them"* — is today's **F45** (item B) and **F15/A7** (item C), and
+`visibility_budget.py` independently ranks them 2nd and 3rd. **D7** — *"paint reads pink/salmon"* —
+became **W6**, which the owner ruled is not a paint error. **D2 and part of D10 were RETIRED as
+misreadings by measurement**, which is the process working. **D3, D5, D8 are fixed.**
+
+**Five of `HANDOFF.md` §7's twelve "locked, do not re-litigate" readings were later overturned** —
+whitewall tyres, the timber counter, the frosted fourth pane, the cream roundel, the lowered stance,
+and the clean-gloss finish. **That is not drift**: every one is struck in SPEC §0.1 with its grade,
+and the finish specifically is *"Locked by user decision 2026-08-08"*. `START_HERE.md` already
+says `HANDOFF.md` is history, not truth.
+
+### §7.2 THE DRIFT THAT IS REAL — AND IT IS ALL ONE DELETION
+
+**Every finding below traces to the same event: the section `§7. INSTRUCTIONS OF MINE STILL
+OUTSTANDING, IN NO OTHER CARRIER`, fourteen items in the owner's own voice, last present at
+`NEXT_CONTEXT_PROMPT_rev43.md:685` and deleted at rev 44.** The rev-49 survey found it
+(finding 39, MAJOR) and named three casualties. **Rev 56 recovered one of the three — as a
+one-line stub — and the recovery was recorded as if the loss were closed.**
+
+| casualty | state before rev 57b | evidence |
+|---|---|---|
+| **the die-cut sticker**, the original deliverable | carried as **F18**, one line, **without his LOCKED style, his LOCKED scene, the deferral's trigger, or the pointer to `AUDIT_rev43.md` §5** | the whole row was 14 words and graded `INHERITED-rev44` |
+| **"REMEMBER TO HOLD UP NEXT TO THE ACTUAL SOURCE PHOTOS"** | **in NO live carrier.** `grep -c` over the brief, `CLAUDE.md`, `OPEN_FINDINGS.md`, `SPEC.md` → **0, 0, 0, 0** | rev 51 did the NOSE half and recorded it in `LEDGER_rev51.md` §7 — a file no next context reads. **The TAIL and the ROOF have never been done** |
+| **the Playa hero, "deprioritised, NOT cancelled"**, carrying *"the emotional bar that sits ABOVE clinical accuracy"* | **in NO live carrier — and the brief had hardened it into a cancellation** | the phrase *"emotional bar"* appears in every brief to rev 43 and in **none** after. From rev 52 the brief reads *"reviving `playa_env.py` as the delivery frame is not on the table — do not re-propose it"* |
+
+**THE PLAYA ONE IS THE ONE THAT MATTERS, AND IT IS A RULE-34 CASE.** W6's object is the **studio
+rig** for the fidelity hero (*"keep the studio rig as it ships"*, rev 50). The Playa hero is a
+**second deliverable**. Rev 52's brief applied the rig ruling to the second deliverable and closed
+it; **rule 34 — *"a requirement inherits its object exactly as a retirement does"* — was written two
+revisions later, for exactly this move.** Nothing in this revision re-proposes `playa_env.py`:
+*"focus on the 3d model"* stands. What changed is that the record now says **deprioritised**, where
+for six revisions it said **not on the table**.
+
+**AND TWO MORE ITEMS OF THAT SECTION HAD NO CARRIER EITHER, WHICH THE SURVEY DID NOT COUNT:**
+
+* **F63 — his texture bar.** Item 14's second half, *"4K non-overlapping textures and no floating
+  artifacts"*, sits in the same sentence as *"any single measurement off is unacceptable"* — which
+  IS carried. **Re-measured at rev 57b: ONE of EIGHT textures meets SPEC §5's 3K floor**
+  (`senor.png` 4096×1738; the rest 1024–2400 px). The rev-42 reading was *"one image of seven"*.
+  **Sixteen revisions, one more image, no change.** The self-overlap half — 55.97 % of painted
+  surface, `T1_body` having no UV layout — is `INHERITED-rev42` and has not been re-measured since.
+* **F64 — *"ABSOLUTE REPLICATION OF ALL ARTWORK"*, which he called a hard bar.** Of its seven named
+  parts, **four have no row anywhere**: the menu strips and cards, the rear-lid lettering, the plate
+  surround, the mural board.
+
+### §7.3 A FINDING AGAINST THIS REVISION'S OWN NEW GATE — F65
+
+Item 11 of the deleted section: **Nolita is re-admitted for GEOMETRY ONLY, and every Nolita-derived
+number must be TAGGED.** `gloss_compare.py`'s only reference is **`ref_nolita_front34.jpg`**, so
+**F44's 0.392 and F59's 0.857 — published today — are both Nolita-derived, and neither is tagged.**
+SPEC §7.1 admits Nolita geometry and explicitly withholds livery; **whether a paint FINISH statistic
+is geometry or livery has never been adjudicated**, and the gate's own ceiling block does not raise
+it. **This does not withdraw either figure** — the record does class that frame under *"the RED
+target bus"* and §7.1 settles that it is the same vehicle. It says the admissibility of their source
+is unadjudicated and that I did not notice when I built the gate.
+
+### §7.4 WHAT WAS RESTORED, AND WHAT NOW HOLDS IT
+
+`NEXT_CONTEXT_PROMPT_rev58.md` **§4.1** carries the deleted section again, all fourteen items, each
+with where it stands measured at rev 57b rather than as inherited prose. `OPEN_FINDINGS.md` gains
+**F61–F67** and **F18 is rewritten from a stub into the full ruling**. **Four verifier rows hold it,
+every one watched failing on a planted defect:** the restored table must still have **14** numbered
+items (compacted to 6 → fails); all **three** rev-44 casualties must be named in the register
+(dropped one → 2); **F18 must carry his locked style, his locked scene and the deferral's trigger**
+(**the rev-56 stub scores 0**, which is the historical defect itself); and **README may not assert a
+`verify_clone` row count at all**.
+
+### §7.5 README WAS SIXTEEN REVISIONS STALE, AND IT IS THIRD IN ITS OWN READING ORDER
+
+| README said | the machine says |
+|---|---|
+| *"66 checks"* / *"Sixty-six content checks"* | **251** |
+| *"131 objects, 190 meshes, 42 materials"* — headed *"Expected at rev 42"* | `STATE.md`: **223 mesh objects, 44 datablocks**, 42 bound |
+| *"31 read-only instruments"* | **59** `probe_*.py` |
+| read **`HANDOFF_rev42.md`**, then rev 41, backwards | **the series ENDED at rev 45**; the per-revision record has been `LEDGER_rev*.md` since rev 43 |
+| the hero recipe is `hero.py … --strips 20`, *"budget ~2.3 h"* | `hq_render.py`, **106.8 min measured**, and `hero.py`'s per-strip loop is the one that spent 10.8 min rebuilding an unchanged scene |
+| **a ranked work list headed *"Open at rev 42, in the order the next revision should take them"*** | **a second, sixteen-revision-old priority list competing with the live brief.** Removed; README now points at `OPEN_FINDINGS.md` and the newest brief |
+
+**The numbers are gone rather than corrected** — `CLAUDE.md` opens with *"if you find a number here,
+that is the bug"* and README is prose. What is kept is the one paragraph that earned its place: the
+sticker and the Playa hero, **because between rev 44 and rev 57b that paragraph was the only place
+either of them survived in this repository.**
+
+### §7.6 WHAT THE AUDIT DID NOT FIND
+
+**No section was lost between rev 55 and rev 58** — a heading diff over the recent chain returns
+empty in all three transitions. The rev-51 compaction (25 sections → 9) dropped the rule canon, the
+parallelism section and the machine-state dump, but **all three were handed on by name or absorbed
+into `CLAUDE.md`**, which is what rule 16 permits. **The goal statement itself has never drifted.**

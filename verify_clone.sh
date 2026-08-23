@@ -1477,6 +1477,50 @@ ck "the mirror arm AIMS before it casts"  1 "$(python3 -c "
 s=open('probe_rev58_gloss.py').read()
 print(int(0 < s.index('ST.aim(_cam') < s.index('_scn.ray_cast')))" 2>&1 | tail -1)"
 
+# --------------------- rev 57b: THE REV-44 CARRIER LOSS, GUARDED AT LAST
+# Every brief to rev 43 carried "§7. INSTRUCTIONS OF MINE STILL OUTSTANDING, IN
+# NO OTHER CARRIER" -- fourteen items in the owner's own voice.  It was deleted
+# at rev 44 and the loss ran undetected for five revisions; the rev-49 survey
+# found it (finding 39) and named THREE casualties.  Rev 56 recovered ONE of
+# them AS A ONE-LINE STUB, which reads as closed and is not.  These four rows
+# exist so the same deletion cannot happen quietly a second time.
+
+# ARITHMETIC, NOT A GREP: the restored table must still have all FOURTEEN items.
+# A compaction that keeps the heading and drops half the rows is exactly the
+# failure this is for, and a heading grep would pass on it.
+ck "the standing-instructions carrier still has 14 items" 14 \
+   "$(if [ -n "$_LATEST_BRIEF" ]; then python3 -c "
+import re,sys
+t=open(sys.argv[1],errors='replace').read()
+i=t.find('INSTRUCTIONS — THE CARRIER DELETED AT REV 44')
+if i < 0: print(0); raise SystemExit
+seg=t[i:t.find(chr(10)+'## ', i+10)]
+print(len(re.findall(r'^\| [0-9]{1,2} \|', seg, re.M)))" "$_LATEST_BRIEF"; else echo 0; fi)"
+
+# All THREE of the rev-44 casualties must be named in the live register, not
+# just the one that was recovered.  Named, by their own distinguishing words.
+ck "all three rev-44 casualties are in the register" 3 "$(python3 -c "
+t=open('OPEN_FINDINGS.md',errors='replace').read()
+print(sum(k in t for k in ('die-cut','HOLD UP NEXT TO THE ACTUAL SOURCE PHOTOS','Playa hero')))" 2>&1 | tail -1)"
+
+# ...and the sticker row must carry what makes it ACTIONABLE, not only its name.
+# Rev 56's recovery kept the name and dropped his locked style, his locked
+# scene and the deferral's trigger condition -- and a deferred item with no
+# trigger in a carrier can never be triggered.  WATCHED FAILING on the rev-56
+# stub, which scores 0.
+ck "F18 carries his LOCKED art direction, not just the name" 3 "$(python3 -c "
+t=open('OPEN_FINDINGS.md',errors='replace').read()
+i=t.find('| **F18**'); row=t[i:t.find(chr(10),i)]
+print(sum(k in row for k in ('cartoon with rendered depth','papel picado',
+                             'build it after the model is done')))" 2>&1 | tail -1)"
+
+# README carried a rev-42 row count and a rev-42 object inventory for sixteen
+# revisions.  CLAUDE.md's own first line: if you find a number here, that is
+# the bug.  This row forbids README asserting a verify_clone total at all --
+# the script prints its own, and the brief is the one place that must echo it.
+ck "README states no verify_clone row count" 0 \
+   "$(grep -cE '[0-9]+ (content )?checks|Sixty-six' README.md)"
+
 _BRIEF_TOTAL="$(if [ -n "$_LATEST_BRIEF" ]; then grep -E '\./verify_clone\.sh' "$_LATEST_BRIEF" 2>/dev/null | grep -oE 'ALL [0-9]+ PASS' | grep -oE '[0-9]+' | head -1; else echo 0; fi)"
 ck "newest brief states THIS script's row count" "$((PASS+1))" "${_BRIEF_TOTAL:-0}"
 
