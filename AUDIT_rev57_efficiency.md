@@ -157,9 +157,12 @@ rendered this model at delivery quality** — every figure in every ledger comes
 revisions.
 
 So it is running now: **`hero` at 3840×2640, 256 samples, SUB=2, in 10 stitched strips**, then
-`stitch.py`, then `post.py` for the optics. Measured cost from the first strip: **~11 min per
-strip, ~1 h 50 m in total.** It will be at **`out/hq_hero.png`** when you wake up, with the raw
-pre-optics frame beside it at `out/hq_hero_raw.png`.
+`stitch.py`, then `post.py` for the optics. **Strips vary with content — 11.4 min for the ground
+strip, 18.4 for the first body strip.** *(I first wrote "~1 h 50 m" here from ONE strip. That is an
+extrapolation published as a measurement, which is the defect this project punishes, so it is
+corrected here rather than quietly overwritten; the true total is in `LEDGER_rev57.md`.)* It will be
+at **`out/hq_hero.png`** when you wake up, with the raw pre-optics frame beside it at
+`out/hq_hero_raw.png`.
 
 **Set your expectations honestly: it will be the same model, rendered beautifully.** It will be
 sharp, clean and 6.6× the pixels — and it will still be a matte bus in a white room, because §3's

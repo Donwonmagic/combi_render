@@ -33,7 +33,7 @@ changed six lines of model code between them, two of them zero, against 6,503 li
 | **—** | **F08 the badge stroke weight** | **1.4 px²** | **CEILED. Do not.** |
 
 **AND THE DELIVERY FRAME NOW EXISTS.** `out/hq_hero.png` — 3840×2640, 256 spp, SUB=2, ten stitched
-strips through `post.py`, **1 h 50 m**, made at rev 57b. **It is the baseline you have to beat.**
+strips through `post.py`, made at rev 57b. **It is the baseline you have to beat.**
 Re-make it at the end of your revision and put the two side by side.
 
 ---
@@ -431,6 +431,52 @@ you will need before you read; run ablations at `T1_MM_SAMP=16` (rev 56 measured
 stable across 16/32/48 and the gate has run at 64 ever since — that alone cost 30 minutes of the
 rev-57 sweep); and analyse in the foreground while Blender runs in the background.
 
+### §3.1 ITEM A IN DETAIL — THE GLOSS, AND WHERE IT LIVES IN THE SOURCE
+
+**Rev 57b found the mechanism by reading, and it is two constants.** `body_paint()` in
+`t1_mats.py` sets, for `T1_paint` — the material that carries **the whole two-tone body, red and
+cream both**:
+
+```
+bsdf.inputs["Roughness"].default_value      = 0.420
+bsdf.inputs["Specular IOR Level"]           = 0.50   (T1_SPEC)
+bsdf.inputs["Coat Weight"].default_value    = 0.02
+bsdf.inputs["Coat Roughness"].default_value = 0.300
+```
+
+**`Coat Weight` 0.02 is, to two figures, NO CLEARCOAT.** Automotive paint is a clearcoat at weight
+~1.0 over a base, with coat roughness ~0.03. And a base roughness of **0.420** is semi-matte
+plastic; car paint sits at 0.05–0.15. `Specular IOR Level` is already right (0.50 → F0 ≈ 0.04, the
+physical dielectric value, fixed at rev 8).
+
+**SO ITEM A IS A THREE-RUN EXPERIMENT, NOT A REVISION'S WORK** — provided you obey rule 36 and
+ablate first:
+
+1. baseline `gloss_compare.py` on a fresh `hero` — **0.392 today**;
+2. `Coat Weight` 0.02 → 1.0, `Coat Roughness` 0.300 → 0.03 — the clearcoat alone;
+3. and then base `Roughness` 0.420 → ~0.25.
+
+**AND THE TRAP, WHICH THE SOURCE ITSELF SETS.** Four lines above those constants:
+*"the red measured sat 0.37 against the reference's 0.82 and read salmon. **Chalky finish restores
+the chroma.**"* **The high roughness is load-bearing for the COLOUR.** Lowering it may re-break the
+red's saturation — and **colour is the owner's call under W6, gloss is not.** So measure BOTH on
+every run and report both: `gloss_compare.py` for the gloss and `flank_compare.py`'s own G/R block
+for the chroma. **If they trade against each other, that is a finding and a question for him, not a
+number to split the difference on.**
+
+**THE CEILING, AND IT IS REAL.** The rig's sources are large-area softboxes — `top` is 13.0 × 8.5 m.
+Even a mirror-smooth paint under a 13 m source gives a **broad, soft** highlight, where the
+photograph's market-hall lamps give small intense ones. **So `gloss_compare.py` will not reach 1.000
+under this rig and it is not supposed to.** The owner's *"keep studio, fix the model"* stands.
+What the gate can tell you is how much of the gap is the MODEL's, and it can tell you that in
+three runs. **Find out where the ceiling is and report it with the number, rather than tuning
+toward 1.0.**
+
+**F47, found while reading:** the `WEATHER` header comment still says *"nearly invisible at
+Specular IOR Level 0.21 / Roughness 0.42"*. **`Specular IOR Level` has been 0.50 since rev 8** —
+its own fix-note four lines from the live assignment says so. The comment's conclusion (the body is
+diffuse-dominated) survives at roughness 0.42; its stated premise is stale by nine revisions.
+
 ### §3.1 ITEM E IN DETAIL — THE MOTTLE GATE, AND WHAT REV 57 HANDS YOU
 
 `mottle_measure.py`'s albedo arm is a **working instrument with a known meaning**: it measures the
@@ -670,7 +716,7 @@ before committing and keep the PNGs.**
 OVERWRITE EACH OTHER'S PNG. Rename per ablation or you will diff a file against itself.**
 **EVERY MEASUREMENT THROUGH `shader_solve._render` IS 8-BIT (F42), whatever `color_depth` says.**
 
-**THE DELIVERY FRAME — the recipe, measured at rev 57b, 1 h 50 m end to end.** Nobody had ever
+**THE DELIVERY FRAME — the recipe, first run at rev 57b.** Nobody had ever
 rendered this model at delivery quality before; every figure in every ledger comes off 1600×1100.
 Ten strips because `studio.render_set`'s own comment says a long hero gets reaped:
 
@@ -684,7 +730,7 @@ python3 stitch.py out/hq_hero_raw.png 0.0000,0.1000=out/hq0_hero.png ... # all t
 python3 post.py out/hq_hero_raw.png out/hq_hero.png                      # optics LAST, never per strip
 ```
 
-**~11 min per strip, of which 65 s is rebuilding the scene — 10.8 min of the 110 is pure repeat.**
+**Strips vary with content: 11.4 min for the ground strip, 18.4 for the first body strip. 65 s of every strip is rebuilding the scene — 10.8 min across ten strips is pure repeat.**
 Rendering every strip inside ONE Blender session would take ~10 % off; nobody has written that yet
 and it is worth writing before the next delivery frame.
 
