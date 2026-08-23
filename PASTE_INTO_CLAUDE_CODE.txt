@@ -689,6 +689,8 @@ python3 lid_gen.py                                           # regenerates tex/l
 python3 flank_compare.py out/r58_side.png /tmp/fc.png        # GATE 1.  FAILS 1 of 4 today.
 python3 gloss_compare.py out/r58_hero.png                    # GATE 3.  FAILS at 0.392 today.
 python3 visibility_budget.py 3840                            # THE RANKING.  Run it before choosing.
+T1_SUB=1 T1_GL_COATW=1.0 T1_GL_COATR=0.03 T1_GL_PFX=g1 \
+  /tmp/blender/blender -b -P probe_rev58_gloss.py            # ITEM A's ablation, changes NO source
 python3 cream_rms.py                                         # the LIVE photograph-side cream
 T1_SUB=1 T1_MM_ALBEDO=1 T1_MM_SAMP=16 /tmp/blender/blender -b -P mottle_measure.py  # GATE 2
 #   ^ 16, NOT the default 64.  Rev 56 measured this statistic stable across
