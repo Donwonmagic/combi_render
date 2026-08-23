@@ -17,28 +17,59 @@ ALL 10 PASS. Then start the render, then read. `T1_PREVIEW` takes a LIST: `side,
 in ONE session and pays the ~20 s scene build once. `side` feeds `flank_compare.py`, `hero` feeds
 `gloss_compare.py`.
 
-**THE OWNER RE-RANKED THIS AT REV 58 AND HIS RANKING OUTRANKS THE PIXEL BUDGET.**
+**THE OWNER RE-RANKED THIS AT REV 58 AND AGAIN AT REV 58b. HIS RANKING OUTRANKS THE PIXEL BUDGET.**
 
-> *[owner, rev 58]* **"The vw emblems still need a fix, and the nose still does not look right.
-> I just want to make sure that is somewhere in the plan. We don't need to commit to a full
-> render until everything is fixed right?"**
+> *[owner, rev 58b]* **"There is a weird arc above the back wheel just kind of floating there. The nose
+> is still not the right shape. The rear hatch open is not true to size/scale/material. The door cuts
+> a little bit closer to the wheel well at the front. Señor in Señor Tacombi still is not clear and
+> well defined."**
 
-**Both halves are instructions. The emblem is item A. The delivery frame is the LAST step, not a
-milestone — do not spend 106.8 minutes on it until the model is right.**
+**ALL FIVE WERE CONFIRMED WITH MECHANISMS. THREE ARE FIXED AND ON THIS BRANCH. TWO ARE YOURS.**
 
-| # | do | worth | gate |
+| # | do | state | gate |
 |---|---|---|---|
-| **A** | **F63 — THE NOSE GLYPH BUILDS AS AN X, NOT A V OVER A W.** His FIFTH report. **GATED at rev 58 and the gate FAILS**: `probe_rev46_vw.py` C6, photograph **7** cream cells, built **6**. The W's outer arms float **18.9 mm** short of the band. **F65 lists three fixes that were tried and all failed — do not re-try them** | the emblem is dead centre on the nose and he has reported it five times | **`probe_rev46_vw.py` C6, new at rev 58, WATCHED FAILING** |
-| **B** | **THE NOSE BEYOND THE EMBLEM — a LEAD, not a finding.** Recover the photograph's camera, render THAT view, and compare the cream/red boundary. Un-pose-matched crops are how rev 55's "X" dissolved twice | — | none yet; building it is the job |
-| **C** | **F45 — THE GALLEY AND ROOF-APERTURE INTERIORS ARE UNTEXTURED WHITE BLOCKS**, seen through four openings, dead centre. Plainly visible in `out/r58b_hero.png` | **7.4 × 10⁵ px²** | none — build one, or accept it and say so |
-| **D** | **F15 / A7** — the unlit roofed run between the last light inlet and the tail | 8.2 × 10⁵ px² | none |
-| **E** | **F01/F39** — `Senor`, 28.5 % of its ink, in the ARTWORK not the render | 2.7 × 10⁴ px² | `flank_compare.py` |
-| **—** | **F08 the badge STROKE WEIGHT** | **1.4 px²** | **CEILED. Do not.** Note this is NOT F63 |
+| **A** | **THE DOOR — its shut line is ~95 mm too far from the front wheel arch, AND THE FRONT ARCH IS BUILT AS A CIRCLE WHEN THE REAL ONE IS NOT.** These are ONE job: moving the lobes alone drives the outline inside the circular arch and trips `assert _MIN_RAD >= DOOR_ARCH_G`, which SPEC 10.1 records collapsing the shell 205562 v → 12 v at SUB=2 | **DIAGNOSED, NOT FIXED.** §3.10 has every number | build it — none exists |
+| **B** | **THE NOSE — the two-tone break passes ~52 mm too close above the headlamp**, and `V_POW` is 0.60 where two frames read 0.52 | **DIAGNOSED, NOT FIXED.** §3.11. **Cheap unlock first: `T1_PREVIEW=front` is an ORTHOGRAPHIC front elevation that already exists and has never been pointed at the nose** | build it — none exists |
+| **C** | **F63/F69 — THE VW GLYPH BUILDS AS AN X, on the nose AND on four hubcaps** | **GATED AND FAILING.** `probe_rev46_vw.py` C6: photograph **7** cream cells, built **6** | **C6, watched failing** |
+| **D** | **F67 — NO GROUND SHADOW AND NO UNDERBODY.** The largest illusion defect on the register | **OPEN, never attempted** | none |
+| **E** | **F45 — the galley and roof-aperture interiors are untextured white blocks** | **OPEN** | none |
 
-**F63 AND F08 ARE DIFFERENT FINDINGS AND IT MATTERS.** F08 is the stroke's WIDTH, ceiled at rev 57
-because the frame cannot resolve it — worth 1.4 px². **F63 is the glyph's SHAPE AND REACH**, which
-the same frame resolves easily (7 cells against 6) and which the owner can see. Do not let F08's
-ceiling talk you out of F63.
+**FIXED AT REV 58b — verify these still hold before building on them:**
+
+* **the floating arc** — the rear liner was a CIRCLE inside a 0.920 m non-circular aperture, 86.7 mm
+  unlined each end; the bar behind the tyre was `van_floor` seen through the gap. Liner now follows
+  `rear_arch_outline`; both floor pans NOTCHED. `verify._wheelhouse_reach()` reads **−0.0 .. +0.0 mm,
+  0 stations short** at both axles, against **−85.4 mm over 98 stations** before. Ablations
+  `T1_WHCIRC=1`, `T1_WHFLAT=1`.
+* **the tilde** — the ñ's tilde was ABSENT and `senor_trace.py` could not see it because it graded
+  itself against a baked mask missing 118 px of it. Re-baked 934 → 1062 px; one 26-point stroke.
+  `Senor` render column **0.651 → 0.722**, tex-only **0.696 → 0.757** (bar 0.750).
+  `senor_trace.check_ref_agrees()` now compares baked against live EXACTLY, 2875 px, no tolerance.
+  Ablation `T1_ST_REFDRIFT=1`.
+* **the mural** — decal stretch **+2.54 % → +0.47 %**, side borders 1.03 % → **0.36 %** (photograph
+  ≤ 0.4 %); `apply_weather` applied to `lidmural`/`lidsign`, which had NONE. Ablations
+  `T1_LIDINSET`, `T1_LIDWEATHER`, `T1_LIDW_FADE`.
+  **The specular sweep SHIPPED NOTHING** — the pedestal returns with rev 12's exact signature.
+
+**STILL WRONG AND STILL OPEN, in the same area:** the mural board is **12–14 % SHORT**
+(built 2.034 m, photograph implies 2.303–2.377); its **top border is still 2.5× the photograph** and
+the residual is not decomposed; the **props cross 97 % of the painted face** where `ref_side.jpg`
+shows no rod crossing the artwork at all (**OWNER DECISION** — rev 44b's guard was removed at rev 50
+as unsatisfiable); the **S renders as three fragments** (**OWNER DECISION**, A12 — the break is real
+in the photograph and bridging it is inventing ink); **91 px of `Senor` reference ink is still
+undrawn**; the flank gate's worst region is now **`i` at 0.685**, not `Senor`.
+
+**TWO THINGS THE OWNER MUST RULE ON BEFORE YOU GO FAR:**
+1. **THE BRANCH COLLISION.** `origin/claude/bus-model-rev57-yvrlhi` was pushed at 15:08 on
+   2026-08-23, MID-REVISION, and carries 6 commits / 16 files HEAD does not have — including
+   a ceiling probe (`git show origin/claude/bus-model-rev57-yvrlhi:probe_rev58_ceiling.py` — it is
+   NOT on this tree) and a measurement that **the same model reads 0.857 of the photograph's
+   spread under a structured surround, a factor of 2.184, with not one constant changed.** It also
+   uses **F58–F67 for DIFFERENT findings than this branch does.** IDs are permanent by
+   `OPEN_FINDINGS.md`'s own rule. **Do not merge or renumber unilaterally.**
+2. **THE STUDIO RULING.** *"Keep studio, fix the model"* (rev 54) **predates** that 0.857
+   measurement and F62's finding that this flank's specular image is featureless cyclorama
+   **19.3 m** away. It is now the ceiling on everything else in the frame.
 
 **THE RANKING RULE FROM REV 57b STILL STANDS — RANK BY PIXELS OF THE DELIVERY FRAME**,
 `python3 visibility_budget.py`; gate availability is a tie-breaker — **but the owner outranks it,
@@ -366,6 +397,115 @@ additive constant leaves ±7.3 mm). Re-derive each X from `BAYS`.
 * A7's real defect: `roof_cutters()`'s aft edge is `LID_X1`, **not greppable as `LID_X1 = -1.0700`**
   — the source line is `LID_X0, LID_X1 = 0.9640, -1.0700` in `t1_shell.py`. **803 mm** of roofed
   body sits unlit between the last light inlet and the tail. A7 is **ILLUMINATION, not dressing.**
+
+### §3.10 ITEM A IN DETAIL — THE DOOR, AND THE FRONT ARCH IT IS COUPLED TO
+
+**MEASURED AT REV 58b. Ruler = `A`, the arch crown's height above the front hub — a VERTICAL length
+measured identically in both frames, so yaw AND pitch cancel, `flank_kv` is not needed and F26's
+camera ambiguity never arises.** In the model `A ≡ ARCH_R = 0.3735 m`. **Method control: the same
+pixel method run on the render recovers the render's own shipped constants to +1.8 % / +1.5 %, and
+`_LOBE_XA`/`_LOBE_XB` in model metres to 7 mm and 2 mm.** `ref_side.jpg` CANNOT answer this — the cab
+door is open and a man stands in front of the wheel. **`ref_nolita_doorshut.jpg` can, and has been in
+the repo since rev 44.**
+
+| quantity | photograph | render | ratio |
+|---|---|---|---|
+| crown gap, door rail → arch lip | 18.0 mm | 29.5 mm | **1.64×** |
+| standoff → arch fwd lip at w/A 0.50 | 82 mm | 175 mm | 2.12× |
+| … at 0.60 | 54 mm | 149 mm | 2.78× |
+| … at 0.70 | 38 mm | 121 mm | 3.18× |
+
+| | shipped | photo, bias-corrected |
+|---|---|---|
+| `DOOR_LOBE_A` (aft foot) | 0.8877 | **0.648 → −90 mm** |
+| `DOOR_LOBE_B` (fwd foot) | 1.1406 | **0.872 → −100 mm** |
+
+**THE STEP MUST MOVE AFT ~95 mm.** Root cause, and it is TWO stale constants that compound:
+`DOOR_LOBE_A = (91.1 - 56.0) / 39.54`. The FEET are right (re-measured, rms **0.09 px**, 56.19 and
+46.84 against 56.0 and 46.0). But **91.1 is the WHEEL HUB column while the model's `_ARCH_CX` is the
+ARCH's centre** — 7.55 px apart in that frame, rule 34 exactly — and **39.54 px is not the arch's
+radius in that image**, it is `ARCH_R × 105.9 px/m`, a scale obtained by ASSUMING the radius it is
+then used to measure. Measured directly the crown sits **41.50 px** above the hub.
+
+**AND THE COUPLED DEFECT: OUR FRONT ARCH IS A CIRCLE AND THE REAL ONE IS NOT.** Radius of the lip
+about (crown column, hub row), in units of A: photograph **1.0241 → 0.9582 → 0.9129 → 0.8723** as the
+angle sweeps; render **constant to 1 %**. The real lip sits up to **0.13 A ≈ 48 mm inboard of a
+circle**, exactly where the door's shut line descends. Both flanks fall symmetrically and the centre
+recovered from the two sides agrees with the crown column, so **it is shape, not a centre error**, and
+a ±4 % parallax error on A cannot produce a monotone 14 % fall. `t1_shell.py` concedes the arch was
+never measured *"a man stands directly in front of it in `ref_side.jpg`"* — true of THAT frame only.
+
+**WHY IT IS NOT ONE LINE.** Re-deriving the lobes about the arch drives the forward foot ~27 mm
+INSIDE a circle of `ARCH_R`, tripping `assert _MIN_RAD >= DOOR_ARCH_G - 5e-4` — **the geometry
+SPEC 10.1 records collapsing the shell 205562 v → 12 v at `T1_SUB=2`.** So **the front arch's profile
+must be measured off `ref_nolita_doorshut.jpg` and built in the SAME edit.** The machinery already
+exists for the rear: `rear_arch_outline`, `_arch_drop`, `ARCH_W_REAR`. **Build at BOTH SUB levels.**
+
+**Grep:** `DOOR_LOBE_A = (91.1 - 56.0) / 39.54`, `DOOR_LOBE_B = (91.1 - 46.0) / 39.54`,
+`_LOBE_XA = T.X_AXLE_F + DOOR_LOBE_A * ARCH_R`, `ARCH_R = 0.3735`, `_ARCH_CX = T.X_AXLE_F`,
+`DOOR_ARCH_G`, `_arch_radial`.
+**Interactions, CHECKED:** artwork SAFE (`folk_gen` frames on `DOOR_GAP`, the art datum) **but
+`verify_clone.sh` pins `DOOR_H art datum is 1.013467` BY VALUE and the smoothing support moves toward
+that station — re-check it**; handle SAFE (placed off the two-tone break); hinges SAFE; two-tone SAFE.
+**`_RAIL_SPAN` WEAKENS SILENTLY** — it is `[p for p in DOOR_BOT_RUN if p[0] <= _LOBE_XA + 1e-9]`, so
+moving `_LOBE_XA` aft SHORTENS the span the `_BOT_SPREAD < 0.030` flatness guard covers. Re-arm it
+over the span that was measured and state the span.
+**RETRACTED BY THE AUDIT ITSELF:** the photo's arch HORIZONTAL half-width `W_fwd = 43.55 px` was a
+scan-window-edge artefact. Every figure above uses only the VERTICAL `A`. **Absolute millimetres carry
+a ±4 % floor** (A is on the flank plane, the hub on the wheel plane, ~0.195 m of parallax); the RATIOS
+are free of it. **The arch below the door line is NOT recoverable** — deep shade, white bumper cutting in.
+
+### §3.11 ITEM B IN DETAIL — THE NOSE
+
+**BUILD THE INSTRUMENT FIRST AND IT IS ONE RENDER.** `studio.py` already carries
+`"front":    dict(loc=(26.0, 0.0, 1.52), tgt=(0.0, 0.0, 1.52), lens=None, ortho=3.55)`, reachable as
+**`T1_PREVIEW=front`**, and **nothing in this tree appears to have ever pointed it at the nose.** An
+orthographic front elevation removes perspective and plan-curvature bias entirely. **The bias it
+removes is PROVEN:** the same render gives u_lamp **0.400** measured against the arm's own endpoints
+(truth 0.634) but **2.658** against the bezel (truth 2.653).
+
+**F75 — THE TWO-TONE BREAK PASSES FAR TOO CLOSE ABOVE THE LAMP AND THE INDICATOR.** Ruler = the
+headlamp's own VERTICAL radius, so yaw and pitch cancel. Break above **lamp** centre, in lamp-radii:
+model **1.280**, render control **1.343 (+4.9 %)**, `ref_nolita_front34` **2.121**, `...34b` **2.100**,
+`ref_playa_34` **1.951**, `ref_workshop` (bare aperture, no chrome, no bloom) **2.127**. Above the
+**indicator**: model **0.153** against **0.875 / 0.880 / 0.805 / 0.803**. **Four frames, two vehicles,
+three liveries, two independent features, all agreeing.** Magnitude **52 mm** on the bare-aperture
+ruler (lamp and indicator agreeing to 1 mm), **73–80 mm** on the red-bus frames whose ruler is the
+chrome rim — the model's rim stands 16.5 mm outside its own bore and **no frame we hold shows a rim
+and its aperture together**, so that 1.19 conversion cannot be checked. **Honest range 50–80 mm.**
+
+**NO SINGLE CONSTANT FIXES IT — each was inverted on its own:** `V_POW` needs 0.345 at the lamp but
+0.214 at the indicator; `V_APEX` needs 0.745 vs 0.949, both above the bumper crown 0.5360, which
+would expose the wedge apex — **refuted**; `HL_DROP` fits both by construction but takes lamp-to-belt
+from the photographed **0.339 ± 0.025 m** to 0.391, a 2σ conflict with the arm that justified it;
+`V_HALF_W` gives 0.708 vs 0.736, the most nearly self-consistent. **It is a re-solve against TWO
+constraints — the same shape as F65.**
+
+**F77 — `V_POW` 0.60 vs a photographed 0.52.** Under yaw, with the arm normalised to its own
+endpoints, `p` is POSE-INVARIANT. Render control **0.605 / 0.620** against a source truth of 0.600.
+Photographs **0.517** (rms 1.88 px), **0.521** (rms 1.39), **0.531**. Effect at the lamp station
+**+24.5 mm — about HALF of F75's 52 mm.** **`verify_clone.sh` pins the contradicted value in THREE
+rows** (`V_POW is 0.60`, `V_POW_Z is 0.60`, `V_POW and V_POW_Z agree`) — re-base them TOGETHER with
+the cause named; never relax one copy.
+
+**F78 — `IND_DZ = 0.2060` is contradicted at 4.6σ BY ITS OWN CITED PHOTOGRAPH.** Render control
++0.7 %, the best in the audit. `ref_workshop` gives **≈0.160 m**, the red-bus frames 0.183, against a
+built 0.206 ± 0.010. **Fix F75's instrument first or the same millimetres get chased twice.**
+
+**F80 — the headlamp reads as a dark HOLE.** lens ÷ adjacent body-red, exposure-free: **render 0.884
+(darker than the paint)** against **1.603** and **1.268** with the lamp OFF. The mechanism is already
+in the source — *"a mirror in an unlit cavity returns the cavity"*. **`probe_rev45_nose.py`'s N2/C4/C6
+ALREADY GATE THIS and nothing invokes them. Run it before touching anything.**
+
+**F76 — AND ONE OF HIS OPEN QUESTIONS IS NOW CLOSED. DO NOT RE-ASK IT.** `probe_rev44_nolita_nose.py`
+says *"Whether the Nolita paint follows the PRESSED SWAGE ... IS NOT KNOWN AND IS NOW AN OWNER
+QUESTION."* Three independent paint jobs on two vehicles put the break in the same place to **±5 %**.
+**It follows the pressing.**
+
+**NOSE NEGATIVE RESULTS — expected wrong, measured RIGHT:** the two-tone TOPOLOGY is correct and the
+arms land on the belt at the front corner (~1 px in both render and photograph); the indicator POD
+SIZE is right; the bumper blade section is right; and **`HL_Z`'s belt arm still checks out** at
+exactly the photographed 0.339 — *which is why F75 cannot be fixed by dropping the lamps again.*
 
 ### §3.7 A13 / A16 / A12, A11's SECTION, A14, AND THE CHEAP COLOUR ITEM
 

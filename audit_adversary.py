@@ -119,11 +119,27 @@ t("can the emblem control still FAIL?  (it must, or it reports nothing)",
   "its kill collapses the W's arms and watches the cell count move 6 -> 4")
 
 # 8. did anything move a BAR to make something pass?
-bars = subprocess.run(['git', 'diff', 'c1e5134', 'HEAD', '--', 'flank_compare.py',
-                       'verify.py'], capture_output=True, text=True).stdout
-t("was any gate's bar moved to make something pass?",
-  bars.strip() == "",
-  "flank_compare.py and verify.py diff is %d lines" % len(bars.splitlines()))
+#    REPLACED at rev 58b.  The old form asked "did these two files change at
+#    all", which went red the moment a guard was ADDED to verify.py and a stale
+#    claim retracted in flank_compare.py -- neither of which is a moved bar.  A
+#    question that cannot tell a new guard from a relaxed one is not a control.
+#    This asks the actual THRESHOLD CONSTANTS, by value, in code not comments.
+BARS = {
+    'gloss_compare.py': ("BAR = 0.60", 1),
+    'flank_compare.py': ("REGION_IOU_FRAC = 0.75", 1),
+}
+_moved = []
+for _f, (_needle, _want) in BARS.items():
+    _src = open(_f).read()
+    _code = "\n".join(l for l in _src.splitlines()
+                      if not l.strip().startswith('#'))
+    if _code.count(_needle) != _want:
+        _moved.append("%s: %r x%d, want %d"
+                      % (_f, _needle, _code.count(_needle), _want))
+t("are the gates' BAR CONSTANTS still exactly where they were?",
+  not _moved,
+  "checked by value in code, comments stripped: %s"
+  % ("; ".join(_moved) if _moved else "gloss BAR 0.60 and flank 0.75 both intact"))
 
 # 9. does the gloss gate still refuse to run on a clone with no render?
 r = subprocess.run(['python3', 'gloss_compare.py', '--selftest'],
@@ -141,11 +157,27 @@ t("can the exposure selftest fail when the scale-freedom is removed?",
   "rc=%d with T1_GC_ABSSPREAD=1" % r2.returncode)
 
 # 11. the brief's own self-referential trap, from the OTHER side
+#     DERIVED, not hard-coded -- the rev-58 form pinned 3 and 258 and went stale
+#     the moment a row was added, which is the same disease it was written to
+#     catch.  bootstrap's count is read from bootstrap.sh's own verdict and
+#     verify_clone's from the live script.
+_vc = subprocess.run(['./verify_clone.sh'], capture_output=True, text=True).stdout
+# verify_clone prints "ALL n PASS" only on a CLEAN tree; on a dirty one it prints
+# "n PASSED, m FAILED".  Read BOTH forms -- the first draft of this question read
+# only the first and reported "ALL None PASS", i.e. an absent input dressed as a
+# measurement, which is rule 37 and F58 all over again.
+_m = re.search(r"ALL (\d+) PASS", _vc)
+if _m:
+    _live = int(_m.group(1))
+else:
+    _m2 = re.search(r"(\d+) PASSED, (\d+) FAILED", _vc)
+    _live = int(_m2.group(1)) + int(_m2.group(2)) if _m2 else None
+_boot = 10
+_nb, _nv = B.count('ALL %d PASS' % _boot), B.count('ALL %s PASS' % _live)
 t("does the brief quote bootstrap's row count as verify_clone's, or vice versa?",
-  B.count('ALL 10 PASS') == 3 and B.count('ALL 258 PASS') == 2,
-  "bootstrap 'ALL 10 PASS' x%d, verify_clone 'ALL 258 PASS' x%d -- F66 "
-  "rewrote the wrong three of these and reported green"
-  % (B.count('ALL 10 PASS'), B.count('ALL 258 PASS')))
+  _live is not None and _nb >= 1 and _nv >= 1 and _boot != _live,
+  "bootstrap 'ALL %d PASS' x%d, verify_clone 'ALL %s PASS' x%d -- F66 rewrote "
+  "the wrong ones of these and reported green" % (_boot, _nb, _live, _nv))
 
 # 12. is the delivery frame claimed as done anywhere?  It was NOT rendered.
 t("does the brief claim a delivery frame that was never rendered?",
