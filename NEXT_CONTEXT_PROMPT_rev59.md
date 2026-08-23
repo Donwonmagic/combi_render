@@ -89,8 +89,8 @@ per-measurement and not on average.** A model right in ninety places and wrong i
 done, because he will look straight at the one. **At rev 58 he did exactly that, at the emblem,
 for the fifth time, while every automated check was green.**
 
-**AND HERE IS THE HONEST DISTANCE.** `verify_clone.sh` ends **ALL 258 PASS** and its own verdict
-block says what that is worth: **0 FIDELITY, 258 SELF-CONSISTENCY. Not one of those rows compares
+**AND HERE IS THE HONEST DISTANCE.** `verify_clone.sh` ends **ALL 261 PASS** and its own verdict
+block says what that is worth: **0 FIDELITY, 261 SELF-CONSISTENCY. Not one of those rows compares
 the vehicle to a photograph.**
 
 | gate | state at rev 58 |
@@ -154,7 +154,7 @@ for b in $(git branch -r | grep -v HEAD); do
 done
 git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 ./bootstrap.sh          # ALL 10 PASS  -- THE BRANCH CHECK IS ROW 9
-./verify_clone.sh       # ALL 258 PASS -- and read what its verdict block says
+./verify_clone.sh       # ALL 261 PASS -- and read what its verdict block says
 ```
 
 **AT PICKUP, REV 58 MEASURED:** rev 57 **was merged, through PR #17** — the **fourth** revision
