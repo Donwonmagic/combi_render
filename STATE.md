@@ -8,10 +8,10 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-23 00:37:49 UTC |
-| git commit | `42f4c28` |
-| git subject | rev 56 section 3.1: the owner ruled lid_rail's width, so the four-revision zero-area exemption comes out |
-| working tree | **DIRTY** — this state is not committed |
+| generated | 2026-08-23 00:41:17 UTC |
+| git commit | `c13c75e` |
+| git subject | rev 56: keep the three probe tiles that are EVIDENCE, drop the two that were only copies of an untracked render |
+| working tree | clean |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=2 (applied, destructive, before booleans) |
 | geometry source | procedural, built this run |
