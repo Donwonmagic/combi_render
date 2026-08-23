@@ -189,8 +189,20 @@ shape you are in:**
 
 **RE-MEASURE BEFORE YOU FINISH, TOO.** `origin/main` moved mid-revision at rev 51 and rev 55, and
 both times **row 9 was the only thing that caught it**. It did **not** move mid-revision at rev 56
-or rev 57 (re-checked at close both times: 0 ahead / 0 behind, diff empty). **Run the ahead/behind
-loop again before you close, every time.**
+or rev 57. **IT MOVED AGAIN AT REV 57b — AND THE ONLY REASON THAT WAS NOTICED IS THAT THE LOOP WAS
+RE-RUN AT CLOSE.** The count went from **21 ahead** to **3 ahead / 1 behind** between two commits,
+because **PR #17 merged the revision's first 21 commits into `main` while the work was still
+running.** That is now the **THIRD** mid-revision move in eight revisions, and the **FOURTH running**
+in which the brief's guess about the merge state was wrong and the machine corrected it — this
+file's own §1 predicted *"no PR opened, because none was asked for"* and a PR was opened and merged
+anyway. **Believe the loop, not the paragraph, and run it TWICE.**
+
+**WHAT REV 57b DID ABOUT IT, so rev 58 can copy the shape:** the designated branch was 0 ahead /
+1 behind after the merge, so the remaining three commits were **rebased onto the new `origin/main`**
+(the merged history is finished — never stack on it) and force-pushed with `--force-with-lease`.
+`git diff --name-only HEAD...origin/main` was **empty**: **no photographs arrived.** `bootstrap.sh`
+**10/10** and `verify_clone.sh` **ALL 251 PASS** were both re-run FROM THE REBASED HEAD, not
+inherited from before it. **Run the ahead/behind loop again before you close, every time.**
 
 ---
 
