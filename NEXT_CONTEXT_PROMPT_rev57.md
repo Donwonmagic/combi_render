@@ -294,8 +294,19 @@ false?*) are **different instruments** and rev 55 said to run both. Both were ru
 | §2.8's heading was missing the phrase `verify_clone.sh`'s own `newest brief records its own audit` row greps for | that row **FAILED**. *(The phrase is deliberately not quoted in this cell: the row counts occurrences and wants exactly one, so a cell naming it makes the row fail — which is precisely what happened on the first attempt at this fix.)* The audit row was itself un-audited — the sweep I wrote checked paths, strings, switches and figures and did not check that the brief satisfies the verifier's own brief-facing rows. **Run `./verify_clone.sh` against the outgoing brief before calling the audit done; four of the five defects here were found that way, not by the sweep** |
 | `README.md` and `START_HERE.md` still said **rev 56** | both point at the newest brief by number and both **FAILED** their rows. Updated |
 
-**THE ADVERSARIAL PASS FOUND** (it tried to break the file rather than confirm it):
+**THE ADVERSARIAL PASS BROKE NOTHING, AND HERE IS EXACTLY WHAT IT TRIED** — written as a script and
+RUN, so this list is what executed rather than what was drafted:
 
+* *"Do the ablations actually flip what the brief says they flip?"* — `T1_FC_KVQUAD` moves
+  `flank_kv(465.5)` **210.355 → 205.332 px/m**, which is the 205.3 → 210.4 the file quotes.
+* *"Does every script the brief tells you to run ACTUALLY RUN?"* — `probe_rev56_kv.py` and
+  `cream_rms.py` both **rc=0**, and both print the strings quoted from them.
+* *"Was a BAR moved to make a row pass?"* — the diff of `flank_compare.py` across this revision
+  touches **no** `*_TOL` constant. The instrument under the bar changed; the bar did not.
+* *"Does `STATE.md` actually say what the brief says it says?"* — **0 of 223, 0 exempt**, and its
+  own provenance header reads `working tree | clean`.
+* *"Is this file byte-identical to `PASTE_INTO_CLAUDE_CODE.txt`?"* — yes, checked by comparing the
+  two files rather than by remembering to `cp`.
 * *"Does every `T1_*` this brief names actually READ THE ENVIRONMENT?"* — all four new ones do:
   `T1_FC_KVQUAD` (`flank_compare.py`), `T1_RAILFLAT` (`t1_shell.py`), `T1_CR_LEGACY`
   (`cream_rms.py`), `T1_MM_ALBEDO` (`mottle_measure.py`). The row that checks this is anchored on
