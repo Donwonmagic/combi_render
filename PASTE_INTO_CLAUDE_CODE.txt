@@ -814,7 +814,12 @@ to see the thing it was ranked for.**
    rev 45; do not restart it.)*
 2. **`README.md` and `START_HERE.md` name the newest brief BY NUMBER.** Two rows check it. Update
    both when you write the brief, not after the verifier tells you.
-3. **THE ROW COUNT IS SELF-REFERENTIAL AND IT WILL BITE YOU.** `verify_clone.sh` asserts the newest
+3. **THE ROW COUNT IS SELF-REFERENTIAL — AND IT IS AUTOMATED NOW, SO STOP HAND-EDITING IT.**
+   `python3 audit_brief.py --fix-count` writes the clean-tree total into the brief AND into
+   `PASTE_INTO_CLAUDE_CODE.txt`. It cost **three edit cycles at rev 56 and three at rev 57**;
+   it should cost one command. The warning below is kept because the mechanism is unchanged:
+
+   **THE ROW COUNT IS SELF-REFERENTIAL AND IT WILL BITE YOU.** `verify_clone.sh` asserts the newest
    brief states the script's own total. **Every row you add changes the number the brief must
    state**, so write the count LAST, and re-run after every fix — including the fixes your own
    audit demands, which add rows of their own. Rev 56's count moved three times.
@@ -830,6 +835,14 @@ to see the thing it was ranked for.**
 6. **NEVER DELETE A CARRIER.** §0, §0.1, §4, §5, §8 and §9 are carriers. If a section is the only
    home of something, carry it or hand it on by name. Two carriers have been lost in this project's
    history and both losses took years of context with them.
-7. **ROOM TO GROW:** new findings go in `OPEN_FINDINGS.md` with an ID and a grade, not into this
+7. **RANK BEFORE YOU CHOOSE.** `python3 visibility_budget.py` before picking the revision's item,
+   every time. The rule it encodes replaced *"gate availability"* at rev 57b after that rule sent
+   four consecutive revisions at a **1.4 px²** question. If you find yourself about to work an item
+   the script puts in the bottom half, say in the ledger why.
+8. **DO NOT LET THE MACHINE IDLE.** Blender is CPU-bound and must not be fanned out, so wall-clock
+   is the binding constraint — not tokens, and not context. Launch the render you will need before
+   you read the brief; ablate at `T1_MM_SAMP=16`; analyse in the foreground while Blender runs
+   behind you. Rev 57 measured ~35 minutes a revision going to avoidable waiting.
+9. **ROOM TO GROW:** new findings go in `OPEN_FINDINGS.md` with an ID and a grade, not into this
    file's prose. This file points AT the register. That way the brief stays a map and the register
    becomes the memory, and neither has to be rewritten to add one fact.
