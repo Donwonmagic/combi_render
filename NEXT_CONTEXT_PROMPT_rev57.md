@@ -17,7 +17,7 @@ per-measurement and not on average.** A model right in ninety places and wrong i
 done, because he will look straight at the one. This paragraph is first because every revision has
 drifted toward whatever was measurable that week, and the goal is not "add rows".
 
-**AND HERE IS THE HONEST DISTANCE, MEASURED AT REV 56.** `verify_clone.sh` ends **ALL 222 PASS** and
+**AND HERE IS THE HONEST DISTANCE, MEASURED AT REV 56.** `verify_clone.sh` ends **ALL 227 PASS** and
 its own verdict block says what that is worth: **0 FIDELITY, 221 SELF-CONSISTENCY. Not one of those
 rows compares the vehicle to a photograph.** The parity question rests on **two** scripts, and at
 rev 56 **both of them run** for the first time:
@@ -85,7 +85,7 @@ for b in $(git branch -r | grep -v HEAD); do
 done
 git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 ./bootstrap.sh          # ALL 10 PASS  -- THE BRANCH CHECK IS ROW 9
-./verify_clone.sh       # ALL 222 PASS -- and read what its verdict block says
+./verify_clone.sh       # ALL 227 PASS -- and read what its verdict block says
 ```
 
 **AT PICKUP, REV 56 MEASURED:** rev 55 **was merged**, through **PR #14 and PR #15** — **not** the
@@ -287,7 +287,7 @@ false?*) are **different instruments** and rev 55 said to run both. Both were ru
 
 | what the draft said | what the machine says |
 |---|---|
-| `verify_clone.sh` **ALL 215 PASS** | **222.** Written mid-revision and stale by SEVEN rows before the file was finished, and it took three passes to settle because the fixes the audit itself demanded each added rows. The row count row exists precisely because this keeps happening |
+| `verify_clone.sh` **ALL 215 PASS** | **227.** Written mid-revision and stale by SEVEN rows before the file was finished, and it took three passes to settle because the fixes the audit itself demanded each added rows. The row count row exists precisely because this keeps happening |
 | the gate reads 0.9699 / 0.7509 / **0.652** | **0.9669 / 0.7506 / 0.644** on `out/r56b_side.png`, the render made AFTER the `lid_rail` geometry change. The earlier figures were from the pre-change render — render-to-render, not a regression, and the aspect row is identical to four decimals in both. **A brief must quote the render a reader will reproduce from THIS head** |
 | §2.4 cited a probe tile as **`rev56_mask_red.png`** | **that path did not resolve.** It is `probe_scratch/rev56_mask_red.png`, and the sibling four words earlier was already fully qualified. **THIS IS THE THIRD REVISION RUNNING FOR THIS EXACT DEFECT** — rev 54's ladder tile, rev 55's arch tile, now this: a bare filename beside a qualified sibling, caught only by the `stat` sweep and passed over by re-reading every time. The other **46** paths resolved. *(The broken form is deliberately not quoted anywhere else in this file: a brief that prints a bad path as an example fails its own sweep.)* |
 | the brief said the beauty arm | **"BEATY".** A typo in the one line telling the next context which arm to run. Caught by a spelling trap in the sweep, not by reading |
@@ -449,9 +449,9 @@ not corroboration — rule 11.)* The render's flank red reads **G/R 0.462 agains
 
 ### §3.6 THE PROCESS ROWS, STILL OPEN
 
-The **open-findings** register abandoned at rev 45 (21 rows); the standing-instructions carrier
-deleted at rev 44, which took the **die-cut sticker — the project's original deliverable** — with
-it, **still open**; SPEC §0.2's two rev-4 corrections later refuted; rev 48's refuted *"B stays
+The **open-findings register is REINSTATED** as `OPEN_FINDINGS.md` (rev 56) — see §8; the
+standing-instructions carrier deleted at rev 44, which took the **die-cut sticker — the project's
+original deliverable** — with it, **still open and now carried as F18**; SPEC §0.2's two rev-4 corrections later refuted; rev 48's refuted *"B stays
 open"* still live in `build.py` and, **split across two lines so a flat grep misses it**, in
 `t1_shell.py`; the tail board still has **zero rows in either verifier**.
 
@@ -612,3 +612,93 @@ thing — `lid_rail`'s width — and it closed a defect that had been exempt for
 
 **`git rev-list --count origin/main..HEAD` before you start and again before you finish. And
 `git diff --name-only HEAD...origin/main` — that is where his photographs arrive. EVERY session.**
+
+---
+
+## §8. THE OPEN-FINDINGS REGISTER — `OPEN_FINDINGS.md`
+
+**A register existed once and was ABANDONED AT REV 45 WITH 21 ROWS, and nobody noticed for eleven
+revisions.** The standing-instructions carrier went the same way at rev 44 and took the project's
+original deliverable with it. Rev 56 reinstated the register as **`OPEN_FINDINGS.md`**, seeded only
+from findings that could be grounded in the repository on the day it was written: **36 rows — 28
+OPEN, 8 CLOSED.**
+
+**IT IS A CARRIER (rule 16). Rows leave it only by being CLOSED with the measurement that closed
+them, or RETIRED with the ruling that retired them. Never by being dropped.**
+
+**THE POINT OF THE FILE IS THE PROVENANCE GRADE, NOT THE LIST.** Every row is marked
+`MEASURED-revN` / `RECOMPUTED-revN` / `INHERITED-revN` / `RULED-revN` / `CEILED`. This project's
+recurring failure is not losing numbers — it is **re-quoting inherited ones as though they had been
+measured**. An `INHERITED` row is a claim. Treat it as one.
+
+**GRADE DECAY IS ITSELF A FINDING.** An `INHERITED` row that survives three more revisions without
+being re-measured should be re-measured or downgraded — not quietly re-quoted a fourth time.
+
+**REV 56 UPGRADED FOUR ROWS BY RE-MEASURING THEM**, and reports that they were sound: the galley
+cluster (F11–F13) had been carried as INHERITED-rev52 for four revisions and **every figure
+reproduced exactly off the built mesh** — `BAYS[2]` aft edge **−0.855750**, sixth hook overshoot
+**51.25 mm**, hook span centre **−0.7050** against the rail's **−0.5980** = **107.0 mm**, and the six
+stations' irregular gaps **78 / 79 / 73 / 105 / 69 mm**. *A control that finds nothing is still a
+result, and four INHERITED rows becoming MEASURED is worth more than a new row.*
+
+**WHAT IS STILL INHERITED AND OLDEST:** F14 (`gal_end_f`'s 260.0 / 20.0 mm sight lines, rev 52),
+F15 (A7's 803 mm, rev 52), F08/F09 (the badge, rev 54), F20 (the colour locks, rev 52), F18 (the
+die-cut sticker, rev 44 — **the oldest thing in the file**).
+
+---
+
+## §9. THE HORIZON BEYOND REV 57 — WHERE THIS IS GOING
+
+**Rev 57's own order is §3.0. This section is the longer arc, so the project stops lurching from
+item to item.** It is a CARRIER too: each revision should re-rank it, not rewrite it, and say what
+moved.
+
+| horizon | the work | why it is in this order |
+|---|---|---|
+| **next** | **F08 — the badge stroke weight.** Take the nose-badge route or close it with its ceiling | The top job, unblocked, three revisions deferred. Nothing else on the list has been skipped that often |
+| **next** | **F03/F04 — the cream mottle.** A live gate that disagrees with the photograph in SHAPE and in SIGN | The first measurable shader defect this project has ever had. `MOTTLE_M` (feature size), not `MOTTLE_AMP` |
+| **near** | **F01 — `Senor`.** No longer downstream of the aspect unknown; it is on its own now | The last failing row on gate 1 |
+| **near** | **F02/F06 — the two absolute scales.** Rev 56's sqrt-law algebra applies to `ref_rear34.jpg` as well as `ref_side.jpg` | Both gates quote millimetres through a bracket. Closing either lifts everything downstream |
+| **then** | **F10–F14 — the galley cluster.** Now MEASURED, so it is a build job rather than a measurement one | Re-derive each X from `BAYS`; establish `gal_end_f`'s own sight line first |
+| **then** | **F15 — A7.** Illumination, not dressing | 803 mm of unlit roofed body changes how the rear reads |
+| **later** | **F19 — the red's edge wear.** Needs a real crease/edge-angle attribute off the geometry | A revision's work, and both obvious sockets are already refuted |
+| **later** | **F16/F17/F20/F23–F28** — artwork placement, the colour locks, the process rows | Unblocked but ungated |
+| **standing** | **F18 — the die-cut sticker** | The original deliverable. It has no gate and no owner ruling, and it has been open since rev 44 |
+
+**WHAT WOULD CHANGE THIS ORDER:** a new photograph (§0.1 says none is coming), an owner ruling, or a
+gate becoming available for something currently ungated. **Gate availability is the ranking rule** —
+an item with a gate outranks an item without one, because only the gated one can tell you whether
+you improved the photograph.
+
+---
+
+## §10. HOW TO GROW THIS HANDOFF WITHOUT BREAKING IT
+
+**Written because rev 56 spent three passes fighting the mechanics rather than the work.**
+
+1. **The set is three files.** `LEDGER_rev<N>.md` (what you did, with every number),
+   `NEXT_CONTEXT_PROMPT_rev<N+1>.md` (this file), and **`cp` of that file over
+   `PASTE_INTO_CLAUDE_CODE.txt` IN THE SAME COMMIT.** `CLAUDE.md` imports the `.txt` into every
+   session, and a byte-identity row fails if you forget. *(The `HANDOFF_rev*.md` series ended at
+   rev 45; do not restart it.)*
+2. **`README.md` and `START_HERE.md` name the newest brief BY NUMBER.** Two rows check it. Update
+   both when you write the brief, not after the verifier tells you.
+3. **THE ROW COUNT IS SELF-REFERENTIAL AND IT WILL BITE YOU.** `verify_clone.sh` asserts the newest
+   brief states the script's own total. **Every row you add changes the number the brief must
+   state**, so write the count LAST, and re-run after every fix — including the fixes your own
+   audit demands, which add rows of their own. Rev 56's count moved three times.
+4. **ADD ROWS ANCHORED ON ARITHMETIC OR BEHAVIOUR, NOT ON A GREP.** A grep passes on a comment. Rev
+   56's rows RUN `flank_kv` at two columns, RUN `cream_rms.run()`, and compare two source offsets to
+   prove a guard precedes a print. The one row rev 56 wrote as a bare grep needed fixing twice
+   because the phrase it counted legitimately appears more than once.
+5. **RUN BOTH AUDITS, AS SCRIPTS, AND RECORD WHAT THEY FOUND *IN* THE BRIEF.** The rule-17 sweep
+   asks *"is what the file says true?"*; the adversary asks *"what would make it false?"*. They are
+   different instruments and they find different things — at rev 56 the sweep found a
+   directory-less path and a typo, and **four of the five defects came from running
+   `./verify_clone.sh` against the outgoing brief**, which neither pass thought to do until it did.
+6. **NEVER DELETE A CARRIER.** §0, §0.1, §4, §5, §8 and §9 are carriers. If a section is the only
+   home of something, carry it or hand it on by name. Two carriers have been lost in this project's
+   history and both losses took years of context with them.
+7. **ROOM TO GROW:** new findings go in `OPEN_FINDINGS.md` with an ID and a grade, not into this
+   file's prose. This file points AT the register. That way the brief stays a map and the register
+   becomes the memory, and neither has to be rewritten to add one fact.

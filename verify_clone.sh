@@ -878,6 +878,41 @@ ck "CLAUDE.md carries no measurements" 0 "$(if [ -f CLAUDE.md ]; then grep -cE '
 # NOTE THE SHELL TRAP above: capture grep's stdout, never branch on its status.
 ck "CLAUDE.md keeps the outgoing-brief rule" 1 "$(if [ -f CLAUDE.md ]; then grep -c 'AUDIT THE BRIEF YOU WRITE' CLAUDE.md 2>/dev/null; else echo 99; fi)"
 _LATEST_BRIEF="$(ls NEXT_CONTEXT_PROMPT_rev*.md 2>/dev/null | sort -V | tail -1)"
+# ---------------------------------------------------------------------------
+# rev 56 -- THE OPEN-FINDINGS REGISTER. One existed and was ABANDONED AT REV 45
+# WITH 21 ROWS, unnoticed for eleven revisions; the standing-instructions
+# carrier went the same way at rev 44 and took the project's original
+# deliverable with it. These rows exist so that cannot happen silently again.
+ck "the open-findings register exists"         1 \
+   "$(test -f OPEN_FINDINGS.md && echo 1 || echo 0)"
+# It must not be quietly emptied. The seed was 36 rows; a floor of 21 is the
+# size of the register that was lost, so falling below it is the same event.
+ck "the register has not been gutted"          "OK" \
+   "$(python3 -c "
+n = sum(1 for l in open('OPEN_FINDINGS.md') if l.startswith('| **F'))
+print('OK' if n >= 21 else 'ONLY %d ROWS -- the lost register had 21' % n)" 2>&1 | tail -1)"
+# EVERY row must carry a provenance grade. A register of ungraded claims is
+# what this project already has too much of.
+ck "every register row carries a grade"        "OK" \
+   "$(python3 -c "
+import re
+bad = []
+for l in open('OPEN_FINDINGS.md'):
+    if not l.startswith('| **F'): continue
+    if 'CLOSED-rev' in l or 'closed by' in l: continue
+    if not re.search(r'(MEASURED|RECOMPUTED|INHERITED|RULED|CEILED)', l):
+        bad.append(l.split('|')[1].strip())
+print('OK' if not bad else 'UNGRADED: %s' % bad)" 2>&1 | tail -1)"
+# and the brief must point at it, or the next context never opens it.
+ck "the newest brief names the register"       "OK" \
+   "$(python3 -c "
+import glob
+b = sorted(glob.glob('NEXT_CONTEXT_PROMPT_rev*.md'), key=lambda p: int(''.join(c for c in p if c.isdigit())))[-1]
+print('OK' if 'OPEN_FINDINGS.md' in open(b).read() else 'NOT NAMED IN %s' % b)" 2>&1 | tail -1)"
+# The die-cut sticker is the project's ORIGINAL DELIVERABLE and its carrier has
+# already been deleted once. It is named here so the register cannot lose it.
+ck "the register still carries the sticker"    1 \
+   "$(grep -c 'DIE-CUT STICKER' OPEN_FINDINGS.md)"
 ck "newest brief records its own audit"      1 "$(if [ -n "$_LATEST_BRIEF" ]; then grep -c 'AUDITED AGAINST THE MACHINE' "$_LATEST_BRIEF" 2>/dev/null; else echo 99; fi)"
 
 # ---- rev 52: THE CARRY-FORWARD BLOCK ------------------------------------
