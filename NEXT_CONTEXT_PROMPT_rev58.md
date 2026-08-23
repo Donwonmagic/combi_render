@@ -416,9 +416,25 @@ this list is what executed rather than what was drafted:**
   it.** Fixed as above. **This is the one thing either pass broke.**
 * *"Do the gates still run from this head?"* — gate 1 runs and fails **exactly one** row,
   `Senor` 0.656.
+* **rev 57b's own question, added to the script as §10.5 asks:** *"the ceiling probe reports in the
+  SAME unit as `gloss_compare` — do the two agree where they overlap?"* It RUNS
+  `probe_rev58_ceiling.py` and checks it recovers the gate's own published **0.392** on the frame
+  the gate published it from. **It does, to three figures.** Watched failing: move the photograph
+  window 40 px and it reads 0.436 and BREAKS. On a fresh clone, where `out/` is empty, it SKIPS
+  **out loud** rather than passing silently.
+
+**AND ONE VERIFIER ROW HAD TO BE TIGHTENED BY THIS WORK, WHICH IS WORTH MORE THAN THE ROWS ADDED.**
+*"The duplicated studio rig still matches build.py"* **FAILED** on `probe_rev58_gloss.py` — it
+counted `ST.camera(` inside the COMMENT that explains F60 and read it as a fifth rig call.
+**That is the FIFTH time a row here has matched an explanation of a defect and called it the
+defect.** Fixed the way the `gloss_compare compares no colour IN CODE` row was — strip comments and
+docstrings, look only at what executes. **A tightening, not a relaxation**, and watched both ways:
+it fails on a real fifth `ST.camera()` call and passes with the comment in place. **§10.8's rule
+held: when a check fails on code you just wrote, suspect the code first — and here the answer was
+that both were slightly wrong, so both moved.**
 
 **AND BOTH AUDITS ARE COMMITTED SCRIPTS NOW.** `audit_brief.py` — 9 checks, **0 failed** — asks
-*is what the file says true?* `audit_adversary.py` — 10 questions, **0 broke** — asks *what would
+*is what the file says true?* `audit_adversary.py` — 11 questions, **0 broke** — asks *what would
 make it false?*, and it RECOMPUTES the headline figures from the renders and the source instead of
 re-reading them: the clearcoat ablation off `out/g0/g1_hero.png` (0.392 → 0.394, G/R +17.9 %), the
 exposure invariance, the budget's ordering, F51's single `ST.lighting` call, the delivery frame's

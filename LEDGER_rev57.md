@@ -566,3 +566,95 @@ with a measurement instead of leaving it open, and it is a legitimate outcome.
 
 **THE COST OF KNOWING THIS: two renders, 14 minutes.** Rule 36 paying for itself again — the same
 question, taken on faith, is what rev 57's item B spent a revision on.
+
+### §6.9 THE RIG CEILING — THE OWNER'S RULING, CARRIED OUT, WITH EVERY NUMBER
+
+**The ruling** (`AskUserQuestion`, rev 57b): *"Quantify it, ship nothing. Rev 58 renders ONE frame
+under a structured surround purely to read `gloss_compare`, then reverts. Tells us how much of the
+0.392 is the model's vs the rig's. Nothing ships, no constant changes."*
+
+**IT TOOK FOUR ATTEMPTS AND THREE OF THEM WERE WRONG. All three were caught by LOOKING or by
+painting, none by an exit code — every one returned rc=0.**
+
+| # | what was run | what came back | how it was caught |
+|---|---|---|---|
+| 1 | `T1_SCENE=playa`, through `build.py`'s own playa path | **NO VEHICLE** — a dark cylinder on a grey plane, rc=0, 2.4 min | rule 1, opening the PNG. **F57** |
+| 2 | `T1_GL_SPOT=3`, three 0.35 m sources at **4000 W** on a ring, `out/c3_hero.png` | **BLOWN OUT.** Whole-window clipping **24.28 %**; the gate read **0.058** and would have been published as *"structure makes it worse"* | painting the mask. **F58** |
+| 3 | `T1_GL_MIRROR=3` at first draft | three rays from **(0,0,0)** that all hit the cyclorama at **(0,0,0)**, normal **(0,0,1)**, `ok=True` on every one | printing the ray. **F60** |
+| 4 | `T1_KEY=0.12 T1_GL_MIRROR=3 T1_GL_SPOTPOW=120`, `out/c5_hero.png` | **the measurement** | — |
+
+**F58, THE MASK THAT WALKS OFF THE DEFECT.** `gloss_compare.py` rebuilds its red mask from every
+frame: `R > 1.35 G`, `R > 1.35 B`, `L > 25`, opened and eroded 5×5. On attempt 2 the paint
+desaturated out of those ratio tests and the mask **retreated to a strict subset**:
+
+| | px in the window's red mask | clipped inside it |
+|---|---|---|
+| baseline `g0` | **33,600** | 0.00 % |
+| `c3`, the gate's own per-frame mask | **5,711 (17.0 %)** | **0.00 %** |
+| `c3`, the baseline's mask over the same region | 33,600 | **53.32 %** |
+
+**The mask found the 17 % of the panel that was still exposed and measured that.** Painted:
+`probe_scratch/rev58_ceil_refused_mask_test.png` (magenta = the retreat, cyan = the baseline
+window) and `..._refused_clip_test.png` (red = the 53.32 %). **The gate's published exposure
+control is NOT refuted** — 0.70×/1.00×/1.40× still gives 0.4677 three times, because a ratio test
+is scale-invariant. **What was never stated is its DOMAIN: no clipping, and no change large enough
+to move the mask.** It remains correct for what it is for, render against photograph.
+
+**THE EXPOSURE LADDER**, at 800×550 / 16 spp against `calref` (studio only, med **107.0**), all
+measured through the baseline's own mask so only the light differs:
+
+| run | key | sources | median L | spread |
+|---|---|---|---|---|
+| `calref` | 1.00 | none | 107.0 | 0.5492 |
+| `cal1` | 0.30 | 3 ring @ 1200 W | 160.9 | 0.3542 |
+| `cal2` | 0.12 | 3 ring @ 500 W | **110.2** | 0.5273 |
+| `mfix1` | 1.00 | 3 **mirror** @ 300 W | 170.7 | 0.5436 |
+| `mfix2` | 1.00 | 3 mirror @ 1500 W | 217.6 | 0.4907 |
+| `mm1` | 0.12 | 3 mirror @ 250 W | 142.4 | 0.9488 |
+| **`mm2`** | **0.12** | **3 mirror @ 120 W** | **107.2 (+0.2 %)** | **0.9915** |
+
+*(Half-res 16-spp spreads are noise-inflated and are NOT comparable to the full-res figures below;
+this ladder exists to find the exposure match, which is a median, and a median is robust. The
+transfer was checked: `calref` med **107.0** at 800×550/16 spp against `g0` med **106.4** at
+1600×1100/96 spp — **0.6 %**.)*
+
+**THE MEASUREMENT**, `probe_rev58_ceiling.py out/g0_hero.png out/c5_hero.png`, both 1600×1100 at
+96 spp, ONE mask built on the baseline and applied to both, refusal bars at 1 % clipping and 10 %
+exposure drift:
+
+| | red px | median L | spread | headroom | clipped |
+|---|---|---|---|---|---|
+| `g0` — studio as shipped | 33,600 | 106.4 | **0.4675** | 0.1297 | 0.00 % |
+| `c5` — same model, structured surround | 33,600 | 106.1 | **1.0212** | 0.3888 | 0.00 % |
+| exposure difference | | | **−0.3 %** | | |
+
+**IN THE GATE'S OWN UNIT**, against `ref_nolita_front34.jpg` (same window, spread **1.1921** over
+20,549 red px): **0.392 → 0.857 of the photograph's spread, a factor of 2.184.**
+
+**THE INTERNAL CONTROL:** the probe recovers **0.392** on the baseline — the figure
+`gloss_compare.py` published from that same frame — so the two instruments agree where they can be
+compared, and the probe is not a second opinion invented to give a better answer.
+
+**AND WHAT F58 COSTS IN PRACTICE:** run the gate directly on `c5` and it reports **0.755**, because
+its per-frame mask holds only **15,587 of 33,600 px (46.4 %)** there too. **0.10 of understatement
+on a frame that is not even clipped.**
+
+**WHAT THIS DOES AND DOES NOT SAY.** It says the surround owns most of this gate's deficit: the
+same model, with **not one constant changed**, goes from 0.392 to 0.857 when it has something to
+reflect. Set beside **F54** — a full automotive clearcoat buys **+0.5 %** and costs the red **18 %**
+of its saturation — **the model's remaining share of `gloss_compare` is thin.** It does **not** say
+the rig should change: *"keep studio, fix the model"* (rev 54) stands, `studio.py` is untouched, the
+arm overrides a built scene in memory and reverts when the process exits, and **nothing here ships**.
+Side by side: `probe_scratch/rev58_ceil_pair.png`.
+
+**FOUR VERIFIER ROWS HOLD IT**, and each was watched failing on a planted defect: the probe uses
+`gloss_compare`'s own window (planted a moved window → 0); it hard-codes none of its results
+(planted `_ANSWER = 1.0212` → 1); it refuses before it publishes (moved the refusal after the
+print → 0); and the mirror arm aims before it casts (deleted the aim → the row cannot find it).
+
+**AND A FIFTH ROW HAD TO BE TIGHTENED.** *"The duplicated studio rig still matches build.py"*
+**FAILED** on this work — it counted `ST.camera(` inside the COMMENT that explains F60 and read it
+as a fifth rig call. **That is the fifth time a row in this repository has matched an explanation
+of a defect and called it the defect.** Fixed the way the `gloss_compare compares no colour IN CODE`
+row was: strip comments and docstrings, look only at what executes. **A tightening, not a
+relaxation** — watched failing with a real fifth `ST.camera()` call, and passing with the comment.

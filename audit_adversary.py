@@ -13,7 +13,7 @@ longer fail is not a control.  Keep the shape: recompute, don't re-read.
 
     python3 audit_adversary.py
 """
-import os, re, subprocess, math
+import os, re, subprocess, math, sys
 import numpy as np
 from PIL import Image
 import scipy.ndimage as ndi
@@ -99,4 +99,24 @@ t("is item A claimed solved anywhere?",
   'F44' in of and 'OPEN' in of[of.index('| **F44**'):of.index('| **F44**')+400],
   "F44 is still OPEN; F54 closes only the CLEARCOAT ROUTE, not the item")
 
-P(); P("  %d tried, %d BROKE%s"%(10,len(bad),("  -> "+"; ".join(bad)) if bad else ""))
+# 11. rev 57b's own question: the ceiling probe publishes a number in the SAME
+# unit as `gloss_compare.py` ("x of the photograph's spread").  Two instruments
+# reporting the same unit must agree where they overlap, or one of them is a
+# second opinion invented to give a better answer.  RECOMPUTED, not re-read:
+# this runs the probe and checks it recovers the gate's own published 0.392 on
+# the baseline frame the gate published it from.  It SKIPS on a fresh clone,
+# where `out/` is empty, rather than passing silently.
+_need = [os.path.join('out', f) for f in ('g0_hero.png', 'c5_hero.png')]
+if all(os.path.exists(f) for f in _need):
+    _r = subprocess.run([sys.executable, 'probe_rev58_ceiling.py'] + _need,
+                        capture_output=True, text=True).stdout
+    _m = re.search(r'baseline\s+([0-9.]+) of the photograph', _r)
+    t("does the ceiling probe recover the gate's own 0.392?",
+      bool(_m) and abs(float(_m.group(1)) - 0.392) <= 0.002,
+      "probe says %s, gloss_compare published 0.392" % (_m.group(1) if _m else "nothing"))
+else:
+    P("  SKIP  does the ceiling probe recover the gate's own 0.392?")
+    P("         out/g0_hero.png and out/c5_hero.png are not rendered here --")
+    P("         a SKIP, said out loud, not a silent pass.")
+
+P(); P("  %d tried, %d BROKE%s"%(11,len(bad),("  -> "+"; ".join(bad)) if bad else ""))
