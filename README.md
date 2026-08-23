@@ -17,7 +17,7 @@ straight at the one.
 
 1. **The highest-numbered `NEXT_CONTEXT_PROMPT_rev*.md`** — the live brief. Read
    it first, in full. **Find it with `ls`; do not trust a filename typed in any
-   document, including this line** (`CLAUDE.md`). It was rev 56 when this line was
+   document, including this line** (`CLAUDE.md`). It was rev 57 when this line was
    last touched. Then `CLAUDE.md` (method, loads every session) and the
    highest-numbered `LEDGER_rev*.md`.
 2. **`STATE.md`** — machine-written by `audit.py`. If it and any prose in this
@@ -180,7 +180,7 @@ comment, which is why the historical documents could be foldered.
                                    photographs, SPEC.md, STATE.md,
                                    REF_MEASUREMENTS.md, README.md, the live
                                    brief NEXT_CONTEXT_PROMPT_rev*.md (highest
-                                   number wins -- rev 56 at this edit), CLAUDE.md,
+                                   number wins -- rev 57 at this edit), CLAUDE.md,
                                    .gitignore
   docs/                 83 files   37 handoffs, 37 superseded context prompts,
                                    the audit documents, START_HERE, SKEPTIC_PASS
