@@ -1000,7 +1000,27 @@ ck "the IMPORTED entry procedure IS the newest brief" 1 "$(if [ -n "$_LATEST_BRI
 ck "CLAUDE.md still imports that entry procedure"     1 "$(grep -c '^@PASTE_INTO_CLAUDE_CODE.txt' CLAUDE.md)"
 ck "README points at the newest brief"       1 "$(if [ -n "$_RN" ] && grep -qE "rev $_RN\b" README.md 2>/dev/null; then echo 1; else echo 0; fi)"
 ck "START_HERE points at the newest brief"   1 "$(if [ -n "$_RN" ] && grep -qE "rev $_RN\b" START_HERE.md 2>/dev/null; then echo 1; else echo 0; fi)"
-ck "heroes are NOT tracked"         0 "$(git ls-files 2>/dev/null | grep -c 'hero.*\.png')"
+# rev 57b, OWNER RULING.  The rule was "no hero PNG tracked, ever", and it is
+# right about FULL-SIZE heroes: they are 11 MB and regenerable.  But it also
+# meant the delivery frame each revision is told to BEAT cost 107 minutes to
+# regenerate before it could be compared to, so no baseline ever survived a
+# revision.  He ruled that a DOWNSIZED reference is exempt.
+#
+# NARROWED BY DIMENSION, NOT BY NAME.  A name exemption is a hole anyone can
+# walk through by renaming; a width cap cannot be dodged without actually
+# shrinking the file.  Tracked hero PNGs must be <= 1600 px wide.
+ck "no FULL-SIZE hero is tracked" OK "$(python3 -c "
+import subprocess
+from PIL import Image
+bad=[]
+for f in subprocess.run(['git','ls-files'],capture_output=True,text=True).stdout.split():
+    if 'hero' in f and f.endswith('.png'):
+        try:
+            w,_=Image.open(f).size
+        except Exception:
+            continue
+        if w > 1600: bad.append('%s (%d px)'%(f,w))
+print('OK' if not bad else 'FULL-SIZE HERO TRACKED: '+'; '.join(bad))" 2>&1 | tail -1)"
 ck "out/ is NOT tracked"            0 "$(git ls-files 2>/dev/null | grep -c '^out/')"
 
 # rev 53.  THE MOST-REPEATED NUMERIC DEFECT IN THESE HANDOFFS, FINALLY GUARDED.

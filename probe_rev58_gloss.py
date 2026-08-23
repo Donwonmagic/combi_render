@@ -112,6 +112,42 @@ P("  %d of 4 inputs changed this run" % moved)
 if not moved:
     P("  BASELINE RUN -- nothing overridden.")
 
+# ------------------------------------------------------------- rev 57b
+# THE RIG-CEILING ARM.  OWNER-AUTHORISED MEASUREMENT, SHIPS NOTHING.
+#
+# F55: a smooth coat under a 13.0 x 8.5 m softbox reflects a nearly uniform
+# field, so it gives a uniform LIFT and not a highlight -- which is why the
+# clearcoat bought +0.5 % of spread (F54).  The open question is how much of
+# `gloss_compare`'s 0.392 is therefore the RIG's rather than the model's, and
+# the owner ruled "quantify it, ship nothing".
+#
+# T1_GL_SPOT=n adds n SMALL, BRIGHT area lights -- a market-hall-lamp
+# analogue, which is what the reference photograph actually has -- to the
+# EXISTING studio rig, changes nothing else, and reverts when the process
+# exits.  Nothing here is written to the shipped rig, and studio.py is not
+# touched: the lights are created with bpy directly so verify_clone's
+# "the duplicated studio rig still matches build.py" row stays exact.
+#
+# READ THE RESULT AS A CEILING, NOT A PROPOSAL.  It says how much spread a
+# structured surround would buy.  It does NOT say the rig should change --
+# that is the owner's ruling and "keep studio, fix the model" stands.
+_SPOT = int(os.environ.get("T1_GL_SPOT", "0"))
+if _SPOT:
+    import mathutils
+    for _i in range(_SPOT):
+        _d = bpy.data.lights.new("ceil_spot%d" % _i, type='AREA')
+        _d.shape = 'SQUARE'
+        _d.size = float(os.environ.get("T1_GL_SPOTSIZE", "0.35"))   # SMALL
+        _d.energy = float(os.environ.get("T1_GL_SPOTPOW", "4000"))
+        _o = bpy.data.objects.new("ceil_spot%d" % _i, _d)
+        bpy.context.collection.objects.link(_o)
+        _o.location = (2.0 + 2.2 * _i, 7.0 - 1.4 * _i, 5.2 + 0.6 * _i)
+        _v = mathutils.Vector((0.0, 0.0, 1.2)) - mathutils.Vector(_o.location)
+        _o.rotation_euler = _v.to_track_quat('-Z', 'Y').to_euler()
+    P("RIG-CEILING ARM: %d small bright source(s) added, size %.2f m, %.0f W each"
+      % (_SPOT, _d.size, _d.energy))
+    P("  MEASUREMENT ONLY -- nothing here ships, and the studio ruling stands.")
+
 PFX = os.environ.get("T1_GL_PFX", "gl")
 ST.render_set([os.environ.get("T1_GL_VIEW", "hero")],
               os.path.join(ROOT, "out"), prefix=PFX,

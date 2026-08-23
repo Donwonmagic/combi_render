@@ -38,17 +38,20 @@ changed six lines of model code between them, two of them zero, against 6,503 li
 | **E** | **F43** — what the other 93.5 % of the cream's albedo breakup is (NOT the mottle; rev 57 refuted that). Ablate `dust`/`wear`/`peel` one at a time | large area, subtle amplitude: sd **4.000 DN** over the cream body | `mottle_measure.py` albedo arm, **at `T1_MM_SAMP=16`** |
 | **—** | **F08 the badge stroke weight** | **1.4 px²** | **CEILED. Do not.** |
 
-**AND THE DELIVERY FRAME HAS BEEN MADE ONCE — BUT IT IS NOT IN YOUR CLONE, AND THAT IS DELIBERATE.**
-Rev 57b built it at **3840×2640, 256 spp, SUB=2**, ten margin'd strips through `stitch.py` and
-`post.py`, seam-free at worst **z = 1.62**, in **106.8 min**. It is not tracked: `out/` is
-gitignored and a verifier row asserts **no hero PNG is tracked anywhere**. *(I force-added a 1600-px
-reference copy and that row caught it. Renaming the file to dodge the pattern would have been
-evading the guard, not satisfying it, so the copy is gone — see **F56**, which is the owner's call,
-not mine.)*
+**AND THE DELIVERY FRAME IS IN YOUR CLONE — 1600 px of it.**
+`probe_scratch/rev57b_delivery_hq_hero.png` **is the baseline you have to beat.** The owner ruled at
+rev 57b that a downsized delivery reference is exempt from the no-heroes-tracked rule, so each
+revision can be compared to the last without a 107-minute re-render. The guard is narrowed **by
+DIMENSION, not by name** — tracked hero PNGs must be ≤ 1600 px wide — and it is **watched failing**
+on the 3840-px frame. **Re-make the full one at the end of your revision (`hq_render.py`, §6,
+106.8 min), downsize it to 1600 px, and put the two side by side.**
 
-**So there is no baseline image in your clone. Re-make it** — `hq_render.py`, §6, **106.8 min** —
-**before you claim any delivery-frame figure, and re-make it again at the end of your revision so
-the two can be put side by side.** The numbers describing it are in `LEDGER_rev57.md` §6.7.
+**THE FULL-SIZE FRAME IS STILL NOT TRACKED, AND THAT IS DELIBERATE.**
+Rev 57b built it at **3840×2640, 256 spp, SUB=2**, ten margin'd strips through `stitch.py` and
+`post.py`, seam-free at worst **z = 1.62**, in **106.8 min**. `out/` is gitignored and 11 MB
+of hero is not the repository's business. **Re-render before you claim any delivery-frame figure** —
+the numbers describing this one are in `LEDGER_rev57.md` §6.7, and quoting them off a frame you
+have not rendered is exactly what §6's own warning forbids.
 
 ---
 
