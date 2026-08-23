@@ -242,7 +242,28 @@ ck "_G_BUILD in t1_shell.py"        0 "$(grep -c '_G_BUILD' t1_shell.py)"
 # the measure, the reference value and the guard.  All three must stay.
 ck "_arch_radial in t1_shell.py"    3 "$(grep -c '_arch_radial' t1_shell.py)"
 ck "T1_ABLATE in build.py"          5 "$(grep -c 'T1_ABLATE' build.py)"
-ck "FLOOR_W in t1_detail.py"        5 "$(grep -c 'FLOOR_W' t1_detail.py)"
+# rev 58: THIS ROW WAS A RAW grep -c AND IT COUNTED COMMENTS.  The rear-arch fix
+# added seven mentions of FLOOR_W in comments and docstrings -- every one of them
+# EXPLAINING WHY FLOOR_W DOES NOT MOVE -- and the row read 12 against its 5 and
+# called the explanation the defect.  That is sec.10.4's trap, and it is now the
+# SIXTH time a row in this file has done it.
+# THE EXPECTED VALUE IS UNCHANGED: stripped of comments and docstrings the count
+# is still exactly 5, which is what the row always meant.  It is not re-based --
+# it is made to measure what it was written to measure.
+ck "FLOOR_W in t1_detail.py (CODE only)" 5 "$(python3 -c "
+import ast
+src = open('t1_detail.py').read()
+keep = set(range(1, len(src.splitlines()) + 1))
+for n in ast.walk(ast.parse(src)):
+    if isinstance(n, (ast.Module, ast.FunctionDef, ast.ClassDef)):
+        d = ast.get_docstring(n, clean=False)
+        if d is not None:
+            b = n.body[0]
+            for i in range(b.lineno, (b.end_lineno or b.lineno) + 1):
+                keep.discard(i)
+code = [l for i, l in enumerate(src.splitlines(), 1)
+        if i in keep and not l.strip().startswith('#')]
+print(sum(l.count('FLOOR_W') for l in code))" 2>&1 | tail -1)"
 ck "_assert_same_edge"              4 "$(grep -c '_assert_same_edge' flank_compare.py)"
 # rev 52.  SELF-CONSISTENCY, NOT FIDELITY -- this script cannot render, so it
 # cannot check what the tarnish windows actually rescue.  What it CAN hold is
