@@ -177,6 +177,13 @@ assert v_apex(2.108) <= 0.3960, "V_APEX at the nose above the bumper-occlusion b
 # actually measured against the reference: see the residual table in the
 # handover.  Roughness modulation alone is nearly invisible at Specular IOR
 # Level 0.21 / Roughness 0.42 because the body is diffuse-dominated.
+#   RETRACTED IN PART, rev 58 (F47).  The CONCLUSION stands -- the body is
+#   diffuse-dominated -- but both figures in the premise are stale: Specular
+#   IOR Level has been 0.50 since rev 8 (its own fix-note is four lines from
+#   the live assignment), and body Roughness is 0.250 since rev 58 (F60).
+#   And "nearly invisible" is now measured rather than asserted: moving that
+#   roughness 0.420 -> 0.250 moves the gloss gate 0.3911 -> 0.4261, which is
+#   16x what a full clearcoat bought.  It is not invisible; it was untested.
 # rev 15, work-list item 2.  These four were fixed literals; they are now
 # overridable because a NEGATIVE CONTROL showed the amplitude lever is inert at
 # 25 mm and the SCALE/persistence levers are the live ones.  See SPEC 10.31.
@@ -1911,7 +1918,27 @@ def body_paint(name="T1_paint"):
     # in a white studio laid an achromatic white veil over the paint -- that,
     # not the base colour, is why the red measured sat 0.37 against the
     # reference's 0.82 and read salmon. Chalky finish restores the chroma.
-    bsdf.inputs["Roughness"].default_value = 0.420
+    #
+    # rev 58, F60, OWNER RULING "ship 0.250": 0.420 -> 0.250.  THE TRADE ABOVE
+    # IS REAL BUT IT IS SMALL, AND IT WAS MEASURED RATHER THAN ARGUED.  Both
+    # halves on the same masked red pixels of a 1600x1100 hero at 96 spp:
+    #     rgh    gloss ratio   headroom    G/R
+    #     0.420      0.3911     0.0899   0.4315   <- was shipped
+    #     0.250      0.4261     0.1458   0.4364   <- ships now  (+8.9 %, +62 %)
+    #     0.050      0.4233     0.1408   0.4451   <- SATURATED: worse, and dearer
+    # so the chroma cost of this step is +1.1 % of G/R against a red already at
+    # 0.43 vs the photograph's 0.114 -- a gap F21 says cannot be split between
+    # paint and illuminant from what we hold.  Compare F54's full clearcoat:
+    # +17.9 % of G/R for +0.5 % of gloss.  This is 16x the gloss for a fifth of
+    # the cost.  It still FAILS the 0.60 bar and the reason is not the paint:
+    # see F62 -- this flank's specular image is white cyclorama 19.3 m away.
+    #
+    # THIS SOCKET IS THE LEVER ONLY BECAUSE apply_weather() COPIES IT.  It is
+    # unlinked here, so apply_weather() loads it into the WEATHER group's own
+    # Roughness input and then links the group's output back over it (F53).
+    # Writing this socket AFTER apply_weather() runs would be inert.
+    bsdf.inputs["Roughness"].default_value = float(
+        os.environ.get("T1_BODY_RGH", 0.250))
     bsdf.inputs["Metallic"].default_value = 0.0
     # rev 8 (audit materials-7): was 0.21, i.e. F0 = 0.0168 / IOR 1.29. Every
     # dielectric paint is F0 ~ 0.04. Fixing an environment problem inside the

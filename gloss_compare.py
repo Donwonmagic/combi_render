@@ -78,6 +78,22 @@ def spread(path, box, tag):
     R, G, B = sub[..., 0], sub[..., 1], sub[..., 2]
     L = 0.2126 * R + 0.7152 * G + 0.0722 * B
     m = (R > G * 1.35) & (R > B * 1.35) & (L > 25)
+    # rev 58, F59: THE SHIPPED MASK LET THE GOLD FLANK INK THROUGH, AND THE
+    # HEADROOM STATISTIC IS DEFINED ON EXACTLY THE PIXELS IT CONTAMINATED.
+    #
+    # `R > G*1.35` excludes cream, chrome, the silver script and the teal, so
+    # the kept set is 95.0 % body red -- the mask does most of its job and the
+    # rectangle's raw 42.9 % red fraction OVERSTATES the problem.  But 3.4 %
+    # of the kept pixels are the gold artwork, and they are the BRIGHT ones:
+    # measured on out/r58_hero.png the p99 pixels average RGB (194.8, 119.0,
+    # 78.7), G/R 0.61 -- gold ink, not paint.  Excluding it moves
+    #     SPREAD   render -0.2 %, photo +0.8 %   (the headline is ROBUST)
+    #     HEADROOM render -29.4 %, photo +0.1 %  (the headline is NOT)
+    # so the render's headroom was inflated by a third by ink.  A paint
+    # measurement may not include the signwriting.  T1_GC_LOOSEMASK=1 restores
+    # the old mask so the change is testable in both directions.
+    if not os.environ.get("T1_GC_LOOSEMASK"):
+        m = m & (G < 0.55 * R) & (B < 0.50 * R)
     m = ndi.binary_erosion(ndi.binary_opening(m, np.ones((5, 5))), np.ones((5, 5)))
     if m.sum() < 2000:
         raise SystemExit("gloss_compare: %s window holds only %d red px -- REFUSING"
