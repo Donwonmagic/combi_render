@@ -87,8 +87,14 @@ def spread(path, box, tag):
     # of the kept pixels are the gold artwork, and they are the BRIGHT ones:
     # measured on out/r58_hero.png the p99 pixels average RGB (194.8, 119.0,
     # 78.7), G/R 0.61 -- gold ink, not paint.  Excluding it moves
-    #     SPREAD   render -0.2 %, photo +0.8 %   (the headline is ROBUST)
-    #     HEADROOM render -29.4 %, photo +0.1 %  (the headline is NOT)
+    #     SPREAD   render +0.6 %, photo +0.8 %   (the headline is ROBUST)
+    #     HEADROOM render -31.6 %, photo +0.1 %  (the headline is NOT)
+    # RECOMPUTED THROUGH THIS SHIPPED PATH, and it CORRECTED two figures I had
+    # published from an exploratory script that applied the tighter test in a
+    # different order relative to the erosion: I had -0.2 % and -29.4 %.  The
+    # conclusion is unchanged and the direction of the important one is not:
+    # the spread ratio reads 0.3918 loose against 0.3911 tight, so the headline
+    # really is robust, and the headroom really does fall by about a third.
     # so the render's headroom was inflated by a third by ink.  A paint
     # measurement may not include the signwriting.  T1_GC_LOOSEMASK=1 restores
     # the old mask so the change is testable in both directions.
