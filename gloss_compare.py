@@ -78,6 +78,10 @@ for tag, d in (("render", r), ("photo", q)):
       % (tag, d["n"], d["p5"] / d["med"], d["med"], d["p95"] / d["med"],
          d["spread"], d["head"]))
 P("  painted -> probe_scratch/rev57_gloss_render.png / _photo.png")
+P("  (those two tiles are OVERWRITTEN by whichever render you last measured --")
+P("   this run: %s.  They illustrate the WINDOW, which is fixed; they are not"
+  % os.path.basename(REND))
+P("   a record of one frame's numbers.  Those live in the ledger.)")
 P("  LOOK AT THEM.  A window that catches a lamp or a chrome ring is not a")
 P("  paint measurement, and that is how rev 57's first attempt went wrong.")
 
