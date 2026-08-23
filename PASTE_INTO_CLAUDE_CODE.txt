@@ -6,12 +6,17 @@
 
 ```bash
 cd /home/user/combi_render
-nohup env T1_SUB=1 T1_PREVIEW=side T1_PFX=r58 T1_RX=1600 T1_RY=1100 T1_SAMP=96 \
-  /tmp/blender/blender -b -P build.py > /tmp/r58side.log 2>&1 &
+nohup env T1_SUB=1 T1_PREVIEW=side,hero T1_PFX=r58 T1_RX=1600 T1_RY=1100 T1_SAMP=96 \
+  /tmp/blender/blender -b -P build.py > /tmp/r58.log 2>&1 &
 ```
 
-`out/` is untracked and starts empty, and every revision until now has waited ~10 minutes for that
-before it could touch a gate. **Start it, then read.**
+`out/` is untracked and starts empty, and every revision until now has waited ~10 minutes for a
+render before it could touch a gate. **Start it, then read.**
+
+**`T1_PREVIEW` TAKES A LIST, AND ALMOST NOBODY HAS USED THAT.** `side,hero` renders both views in
+ONE Blender session and pays the ~20 s scene build once instead of twice. You need both: `side`
+feeds `flank_compare.py`, `hero` feeds `gloss_compare.py`. The same point costs the delivery frame
+10.8 minutes — see §6.
 
 **THE RANKING RULE CHANGED AT REV 57b, AND IT IS THE MOST IMPORTANT LINE IN THIS FILE.**
 The old rule was *"gate availability"*. It selected the least visible work available, for four
@@ -681,9 +686,8 @@ mottle_measure.py (albedo arm, 64 spp) ~4.8 min PER RUN -- budget ablations in f
 
 ```bash
 T1_SUB=1 T1_VERIFY=1 /tmp/blender/blender -b -P build.py     # -> "VERIFY: 0 fail, 0 warn"
-T1_PREVIEW=side T1_PFX=r58 T1_RX=1600 T1_RY=1100 T1_SAMP=96 \
-  /tmp/blender/blender -b -P build.py
-T1_PREVIEW=hero   ...                                        # LOOK at it, at FULL size
+T1_PREVIEW=side,hero T1_PFX=r58 T1_RX=1600 T1_RY=1100 T1_SAMP=96 \
+  /tmp/blender/blender -b -P build.py     # BOTH views, ONE build.  It takes a LIST.
 T1_PREVIEW=hero34r ...                                       # the REAR 3/4 -- A7 lives here
 T1_SUB=2 /tmp/blender/blender -b -P audit.py                 # rewrites STATE.md -- COMMIT FIRST
 python3 lid_gen.py                                           # regenerates tex/lidmural.png
