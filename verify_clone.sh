@@ -894,7 +894,22 @@ ck "bay widths 0.516 0.515 0.516"   2 "$(grep -c 'bay widths 0.516 0.515 0.516' 
 # is COMMENTED, not deleted, so re-enabling is one line and this row moves back.
 # 231 - 8 = 223, and the figure was watched printing out of audit.py before it
 # was typed here.
-ck "mesh objects 223"               1 "$(grep -c '| mesh objects | 223 |' STATE.md)"
+# rev 60 -- RE-BASED 223 -> 228, WITH THE CAUSE NAMED AND A COMPANION ROW.
+#
+# THE CAUSE.  Item D (F67) added FIVE meshes: `underpan`, two `chassis_rail`
+# and the two end closers `under_close_f` / `under_close_a`.  The count is a
+# by-value guard and it REFUSED the change, which is correct behaviour -- a
+# silent mesh-count drift is how parts get added and lost unnoticed.
+#
+# THE COMPANION ROW below makes the cause SEPARATELY TESTABLE, so this total
+# cannot be re-based again by DELETING the underbody: dropping those parts
+# would take the count back to 223 and pass this row, and the companion row is
+# what stops that.
+ck "mesh objects 228"               1 "$(grep -c '| mesh objects | 228 |' STATE.md)"
+# FOUR prefix rows, not five parts: STATE.md's inventory groups by PREFIX and
+# `chassis_rail` carries n=2.  Watched print before this number was written.
+ck "and the underbody's parts are IN that count" 4 "$(grep -cE '^\| `(underpan|chassis_rail|under_close_f|under_close_a)`' STATE.md)"
+ck "and there are TWO chassis rails"          1 "$(grep -c '| `chassis_rail` | 2 |' STATE.md)"
 # and the wipers are gone for the stated reason, not by accident
 ck "the wipers are WITHDRAWN, not deleted" 1 \
    "$(grep -c '^# A(D.wipers(), \"chrome_d\")' build.py)"
