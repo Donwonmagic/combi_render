@@ -359,3 +359,41 @@ the owner decision carried in the rev-60 brief.
   the interiors (F45).
 * **The front arch is not rebuilt** — deliberately, see §3.5.
 * **The delivery render was not run**, per the owner's standing instruction.
+
+---
+
+## §6. THE OWNER'S THREE RULINGS, AND WHAT EACH ONE COST OR SAVED
+
+All three were put in ONE batch, as multiple choice, with the crops attached — `door_ba.png`,
+`fig_arch.png`, `fig_lamp.png`.
+
+**1. THE BRANCH — *"Merge it, renumber its IDs."*** Merged. A literal merge would have reverted two
+revisions of documents (the branch is 15 behind), so `PASTE_INTO_CLAUDE_CODE.txt`, `verify_clone.sh`,
+`audit_adversary.py` and `README.md` resolved to HEAD and the branch's unique work came in:
+`probe_rev58_ceiling.py` (**on no other branch**), seven painted `rev58_ceil_*.png` masks, and the
+**MIRROR arm** of `probe_rev58_gloss.py` — which asks the geometry for the reflected direction rather
+than guessing a pose, rule 7. `probe_rev58_gloss.py` keeps **BOTH** arms. Its ten findings are
+**F88–F97**, each carrying its old ID on the row.
+
+**AND THE RENUMBERING IMMEDIATELY CAUGHT A DEFECT.** Giving `yvrlhi-F61/F63/F64` their permanent
+**F91/F93/F94** made them match the register's row pattern for the first time, and `verify_clone.sh`
+reported `UNGRADED: ['F91','F93','F94']` — the standing-bars table had **no grade column at all**.
+The check was right and the table was wrong. Graded `RULED-rev57b, RE-ID rev59`.
+
+```
+bootstrap.sh   ALL 10 PASS   <- row 9 GREEN for the first time in three revisions
+verify_clone.sh  ALL 261 PASS
+```
+
+**2. THE STUDIO — *"Keep studio — ruling stands."*** Put to him **with F62 and F86 both on the
+table** and the headlamp crop attached, so this is not a re-ask of rev 54 on the old evidence. The
+consequence, stated to him and accepted: **F80's headlamp gap is partly a consequence of the
+surround and is ceiled there.** `ref_playa_34` is daylight with a sky for the lens to reflect; the
+cyclorama is featureless. **F86 is NOT ceiled by this** — the red/cream level is a paint question.
+
+**3. THE FRONT ARCH — *"Leave it circular."*** The measurement said the departure is real
+(5.0× the instrument floor) but **4.4 mm rms**, below SPEC §2's ±8 mm lock, with the forward half
+unrecoverable. He was offered the mirror option **with the warning that my own forward trace does
+not support symmetry**, and declined it. **`probe_rev59_door` M3 stays failing** as the honest open
+record: if it ever reads PASS without the arch being rebuilt, the instrument was relaxed rather than
+the model fixed.

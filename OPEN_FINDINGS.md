@@ -269,6 +269,16 @@ if the frame is absent (rule 37), and it takes no revision-numbered default.*
 
 ---
 
+## OWNER RULINGS AT REV 59 — three, in one batch, none to be re-asked
+
+| what was put to him | his ruling | what it settles |
+|---|---|---|
+| the stranded `bus-model-rev57-yvrlhi` branch, 6 commits / 16 files, colliding IDs, `bootstrap.sh` row 9 red for three revisions | ***"Merge it, renumber its IDs"*** | **Done at rev 59.** F88–F97; main's F58–F67 untouched; row 9 **GREEN**, `bootstrap.sh` ALL 10 PASS |
+| the rev-54 studio ruling, re-put with **F62** (featureless cyclorama 19.3 m out) and **F86** (red/cream 1.41× out) and the headlamp crop attached | ***"Keep studio — ruling stands"*** | **STOP RE-PUTTING IT.** **F80** is ceiled to the surround — the photograph has a sky for the lens to reflect and the studio does not. **F86 is NOT ceiled**: it is a paint-level question, not a rig one |
+| the front arch: real but **4.4 mm rms** (F83), below SPEC §2's ±8 mm lock, forward half unrecoverable | ***"Leave it circular"*** | **Do not build it, and do not mirror the half that can be seen.** `probe_rev59_door` **M3 stays failing** as the honest open record |
+
+---
+
 ## CLOSED — kept with what closed them, never deleted
 
 | ID | finding | closed by |

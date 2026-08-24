@@ -65,19 +65,25 @@ photograph**; the **props cross 97 % of the painted face** (**OWNER DECISION**);
 three fragments** (**OWNER DECISION**, A12); **91 px of `Senor` reference ink is undrawn**; the flank
 gate's worst region is **`i` at 0.685**.
 
-**ONE THING THE OWNER MUST RULE ON — AND ONE THAT IS NO LONGER A QUESTION:**
-1. **THE STUDIO RULING.** *"Keep studio, fix the model"* (rev 54) **predates** F62's measurement that
-   this flank's specular image is featureless cyclorama **19.3 m** away — and rev 59 adds a second
-   reason to re-put it: **F86**. `ref_playa_34` is bright daylight with a **sky for the lens to
-   reflect**; the studio has nothing. **F80 and the studio ruling are coupled.**
-2. **THE BRANCH COLLISION IS UNCHANGED AND STILL NOT MERGED.** `origin/claude/bus-model-rev57-yvrlhi`
-   still carries **6 commits / 16 files** HEAD does not have — including a ceiling probe that is **NOT
-   on this tree** and can only be read as
-   `git show origin/claude/bus-model-rev57-yvrlhi:probe_rev58_ceiling.py` — and
-   it uses **F58–F67 for DIFFERENT findings**. IDs are permanent. **Do not merge or renumber
-   unilaterally.** `bootstrap.sh` row 9 is RED for exactly this and is left red on purpose.
-   **The rev-59 handoff's separate question — "do rev 58's 13 commits go to main via a PR?" — is
-   DEAD: they were already merged, through PR #18. Do not ask it.**
+**THE OWNER RULED ON ALL THREE OPEN DECISIONS AT REV 59. DO NOT RE-ASK ANY OF THEM.**
+
+1. **THE BRANCH COLLISION — RULED: *"Merge it, renumber its IDs."*** Done, at rev 59.
+   `origin/claude/bus-model-rev57-yvrlhi` is merged; its ten findings are renumbered **F88–F97**,
+   with **main's F58–F67 untouched** and **every renumbered row carrying its old ID on the row** so
+   `LEDGER_rev57.md` and `NEXT_CONTEXT_PROMPT_rev58.md` — which still use the old numbering — can be
+   translated. `probe_rev58_ceiling.py` is **on this tree now**, and `probe_rev58_gloss.py` carries
+   **BOTH** arms, rev 58's dark-card and rev 57b's **MIRROR** arm (`T1_GL_MIRROR`).
+   **`bootstrap.sh` row 9 is GREEN for the first time in three revisions — ALL 10 PASS.**
+2. **THE STUDIO — RULED: *"Keep studio, fix the model"* STANDS**, put to him again at rev 59 with
+   F62 and F86 both on the table and the headlamp crop attached. **STOP RE-PUTTING IT.** The
+   consequence he accepted: **F80's headlamp gap is partly a consequence of the surround and is
+   ceiled there** — the photograph has a sky for the lens to reflect and the cyclorama does not.
+   What remains live is **F86**, the red/cream LEVEL, which is a paint question and not a rig one.
+3. **THE FRONT ARCH — RULED: *"Leave it circular."*** The departure is **4.4 mm rms**, below SPEC
+   §2's ±8 mm lock, and the forward half below the door line **cannot be recovered from what we
+   hold**. **Do not build it, and do not mirror the half that can be seen.**
+   `probe_rev59_door` **M3 stays failing as the honest open record** — if it ever reads PASS without
+   the arch being rebuilt, the instrument was relaxed rather than the model fixed.
 
 **RANK BY PIXELS OF THE DELIVERY FRAME**, `python3 visibility_budget.py`; gate availability is a
 tie-breaker — **but the owner outranks it.** `CLAUDE.md`: *"The machine outranks the prose. The owner
@@ -190,10 +196,10 @@ for b in $(git branch -r | grep -v HEAD); do
     "$(git rev-list --count origin/main..$b)" "$(git rev-list --count $b..origin/main)"
 done
 git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
-./bootstrap.sh          # 9 PASSED, 1 FAILED at rev 59 -- ROW 9, and LEFT RED ON PURPOSE
-#   ^ row 9 is "no branch carries work HEAD does not have" and it reads
-#     STRANDED: origin/claude/bus-model-rev57-yvrlhi(6 commits, 16 files).
-#     MEASURE IT ANYWAY.  If that string differs BY ONE CHARACTER something moved.
+./bootstrap.sh          # ALL 10 PASS at rev 59 close -- row 9 went GREEN when the
+#     stranded rev-57b branch was merged on the owner's ruling.  MEASURE IT
+#     ANYWAY: row 9 is "no branch carries work HEAD does not have", and it had
+#     been red for THREE revisions.  A new red here means a new stranded branch.
 ./verify_clone.sh       # ALL 261 PASS in ~70 s -- and read what its verdict block says
 ```
 
@@ -475,6 +481,13 @@ tall"*.
 
 **ASKED AND ANSWERED AT REV 58:** the roughness/chroma trade — **"ship 0.250"** (F60). That is the
 only thing put to him, and it was put as multiple choice with the crop attached.
+
+**ASKED AND ANSWERED AT REV 59 — THREE RULINGS, NONE TO BE RE-ASKED.** All three were put as
+multiple choice with the crops attached, in one batch:
+1. **the stranded rev-57b branch** — ***"Merge it, renumber its IDs."*** Done; F88–F97; row 9 green.
+2. **the studio** — ***"Keep studio — ruling stands."*** Put to him WITH F62 and F86 and the
+   headlamp crop. **F80's headlamp gap is ceiled to the surround; F86's red/cream level is not.**
+3. **the front arch** — ***"Leave it circular."*** **Do not build it and do not mirror it.**
 
 **AND HE VOLUNTEERED TWO INSTRUCTIONS AT REV 58, BOTH BINDING:** the emblem needs a fix (F63, item
 A), and **the full delivery render waits until the model is right.**

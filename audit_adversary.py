@@ -168,12 +168,25 @@ if front:
       "agreement is the only internal control this instrument has")
 
 # --------------------------------------------------------- brief hygiene
-bs = re.findall(r'ALL (\d+) PASS', B)
-t("does the brief quote bootstrap's row count as verify_clone's, or vice versa?",
-  set(bs) <= {"261"},
-  "'ALL n PASS' in the brief: %r -- F66 rewrote the wrong ones of these and "
-  "reported the row green.  bootstrap is 9 PASSED / 1 FAILED at rev 59 and is "
-  "quoted that way, not as 'ALL 10 PASS'" % sorted(set(bs)))
+# F66: TWO scripts in this repo print "ALL n PASS", and a tool that took the
+# FIRST match rewrote the wrong ones and reported the row green.  So this does
+# not forbid a number -- it checks each occurrence is ATTACHED to the right
+# script, which is the thing that actually went wrong.
+_mis = []
+for line in B.split("\n"):
+    for num in re.findall(r'ALL (\d+) PASS', line):
+        names_boot = "bootstrap" in line
+        names_ver = "verify_clone" in line
+        if num == "261" and not names_ver:
+            _mis.append((num, line.strip()[:52]))
+        if num == "10" and not names_boot:
+            _mis.append((num, line.strip()[:52]))
+        if num not in ("10", "261"):
+            _mis.append((num, line.strip()[:52]))
+t("is every 'ALL n PASS' in the brief attached to the script that prints it?",
+  not _mis,
+  "verify_clone prints ALL 261 PASS and bootstrap ALL 10 PASS; F66 rewrote the "
+  "wrong ones of these and reported the row green.  Mismatched: %r" % _mis)
 
 t("does the brief claim a delivery frame that nobody rendered?",
   "DO NOT RUN IT UNTIL THE MODEL IS RIGHT" in B,
