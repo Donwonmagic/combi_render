@@ -178,6 +178,27 @@ missed the source truth by more than a few percent is graded LEAD, not FINDING.*
 **THE INSTRUMENT TO BUILD FIRST, AND IT IS ONE RENDER.** `studio.py` already carries an orthographic FRONT elevation — `"front":    dict(loc=(26.0, 0.0, 1.52), tgt=(0.0, 0.0, 1.52), lens=None, ortho=3.55)`, reachable as `T1_PREVIEW=front`. **An orthographic front render removes perspective and plan-curvature bias entirely**, letting every ratio above be read against the constants with no camera solve. **Nothing in this tree appears to have ever used it on the nose.** The horizontal-ratio bias it removes is proven: the same render gives u_lamp **0.400** measured against the arm's endpoints (truth 0.634) but **2.658** against the bezel (truth 2.653).
 
 
+## THE OWNER'S STANDING BARS — RECOVERED FROM A STRANDED BRANCH AT REV 58b
+
+**RULE 16, AND IT NEARLY WENT WRONG AGAIN.** These three are the owner's OWN
+STANDING INSTRUCTIONS. They were restored to the register by the rev-57b drift
+audit on `origin/claude/bus-model-rev57-yvrlhi` — a branch that was never merged
+— and they appear **ZERO times** in this branch's live register or brief
+(grepped, both files, at rev 58b). They went with the rev-44 carrier deletion.
+
+**THEY KEEP THAT BRANCH'S IDs — F61, F63, F64 THERE — AND ARE DELIBERATELY NOT
+RENUMBERED HERE.** This branch already uses F61/F63/F64 for different findings.
+That collision is an open owner decision (§0.0) and resolving it is not this
+block's job; **losing the bars a second time while waiting for that decision
+is the thing this block exists to prevent.**
+
+| ref | the owner's bar | state when last measured |
+|---|---|---|
+| **yvrlhi-F61** | ***"REMEMBER TO HOLD UP NEXT TO THE ACTUAL SOURCE PHOTOS"*** | **OPEN, and two thirds of it has NEVER BEEN DONE.** Done for the show flank (rev 39/40/41), the cab door (rev 42) and the NOSE (rev 51 — which found three real defects by eye alone: flush headlamps, the roundel's short V-arms, a flat nose). **THE TAIL AND THE ROOF HAVE STILL NEVER BEEN DONE.** |
+| **yvrlhi-F63** | ***"4K non-overlapping textures and no floating artifacts"*** — the second half of his standard, beside *"any single measurement off is unacceptable"* which IS carried | **OPEN AND FAILING. ONE of EIGHT textures meets SPEC §5's 3K floor**: `senor.png` 4096×1738. The other seven — `calidad` 2400×1771, `lidmural` and `lidsign` 2048×1238, `swirl`/`swirl_b` 2048×2048, `emblem`/`nose` 1024×1024. The rev-42 figure was "one of seven"; there are eight now and **it is still one**. **THIS BEARS DIRECTLY ON THE FINISH-LINE PHASE** — a 3840-wide delivery frame cannot be sharper than the 1024 px textures feeding it. |
+| **yvrlhi-F64** | ***"ABSOLUTE REPLICATION OF ALL ARTWORK"***, which he called *"a hard bar"* | **OPEN as a bar.** Named parts: the mural board, the flank paisley, the script, the Calidad decal, the menu strips and cards, the rear-lid lettering, the plate surround. F01/F39 hold the script and A13/A16 the rosettes — but **FOUR of the seven named parts have NO ROW AT ALL**: the menu strips and cards, the rear-lid lettering, the plate surround, and the mural board. |
+
+
 ---
 
 ## CLOSED — kept with what closed them, never deleted

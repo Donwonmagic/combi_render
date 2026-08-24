@@ -184,7 +184,11 @@ for b in $(git branch -r | grep -v HEAD); do
     "$(git rev-list --count origin/main..$b)" "$(git rev-list --count $b..origin/main)"
 done
 git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
-./bootstrap.sh          # ALL 10 PASS  -- THE BRANCH CHECK IS ROW 9
+./bootstrap.sh          # 9 PASSED, 1 FAILED at rev 58b -- ROW 9, and LEFT RED ON PURPOSE
+#   ^ row 9 is "no branch carries work HEAD does not have" and it reads
+#     STRANDED: origin/claude/bus-model-rev57-yvrlhi(6 commits, 16 files).
+#     MEASURE IT ANYWAY.  If that string differs BY ONE CHARACTER something moved.
+#     Rows 1-8 and 10 pass; verify_clone.sh is ALL 261 PASS in ~67 s.
 ./verify_clone.sh       # ALL 261 PASS -- and read what its verdict block says
 ```
 
@@ -323,6 +327,19 @@ HEAD.
 
 ## §3. THE WORK LIST FOR REV 59
 
+> **READ THIS BEFORE YOU GREP FOR "ITEM A". THIS FILE CONTAINS TWO INCOMPATIBLE
+> LETTER SCHEMES AND YOU WILL WORK THE WRONG ITEM IF YOU DO NOT.**
+> §0.0's table is authoritative: **A = the door, B = the nose, C = the emblem,
+> D = the ground shadow, E = the interiors.**
+> **§3.1 "ITEM A IN DETAIL — THE EMBLEM" and §3.2 "ITEM B IN DETAIL — THE NOSE,
+> POSE-MATCHED" are the REV-58 letters and are SUPERSEDED.** §3.2's method is
+> superseded too: it says recover `ref_nolita_front34.jpg`'s camera; **§3.11 says
+> use the orthographic front elevation instead, and that is the live method.**
+> The door and nose sections are **§3.10 and §3.11, which sit physically between
+> §3.6 and §3.7** — scrolling past §3.9 to find them will fail.
+> **Fixing this collision is part of this revision.**
+
+
 ### §3.1 ITEM A IN DETAIL — THE EMBLEM, AND WHAT NOT TO RE-TRY
 
 **Run the gate first and read its own summary line, never its exit code (rule 9):**
@@ -436,8 +453,16 @@ a ±4 % parallax error on A cannot produce a monotone 14 % fall. `t1_shell.py` c
 never measured *"a man stands directly in front of it in `ref_side.jpg`"* — true of THAT frame only.
 
 **WHY IT IS NOT ONE LINE.** Re-deriving the lobes about the arch drives the forward foot ~27 mm
-INSIDE a circle of `ARCH_R`, tripping `assert _MIN_RAD >= DOOR_ARCH_G - 5e-4` — **the geometry
-SPEC 10.1 records collapsing the shell 205562 v → 12 v at `T1_SUB=2`.** So **the front arch's profile
+INSIDE a circle of `ARCH_R`, tripping `assert _MIN_RAD >= DOOR_ARCH_G - 5e-4`.
+**READ SPEC §10.100.5 BEFORE YOU TOUCH THAT ASSERT, AND DO NOT INHERIT ITS SCARE
+NUMBER.** The `205562 v → 12 v` collapse is real but it is **§10.9 / §10.62 /
+§10.100.5, NOT §10.1** (§10.1 is "The three frames"), and **§10.62 explicitly
+refutes the rationale**: *"That does not transfer: all six crossings were live at
+SUB=2 with zero non-manifold edges."* The assert is a **REGRESSION BASELINE armed
+at rev 41's own clearance, not a physical limit**, and it is **module-level, so it
+fires at import at EVERY `T1_SUB`**, not only at 2. It will fail loudly and
+immediately; `CLAUDE.md` already licenses a re-base *with the cause named AND a
+companion row that makes the cause separately testable.* So **the front arch's profile
 must be measured off `ref_nolita_doorshut.jpg` and built in the SAME edit.** The machinery already
 exists for the rear: `rear_arch_outline`, `_arch_drop`, `ARCH_W_REAR`. **Build at BOTH SUB levels.**
 
