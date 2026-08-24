@@ -195,6 +195,11 @@ a side-by-side impression without measuring it.** All from `ref_side.jpg` and
    measurement, not a paint change, so it does not need the owner first.
 4. **F93, the textures** — mechanical, ungated, and it caps the delivery frame.
 5. **The tail and the roof against a photograph** (F91) — never once done.
+   **AND THE AUDIT ARGUES THIS BELONGS EARLIER THAN FIFTH.** It is the only
+   item here that can find an UNKNOWN defect; everything above it works a known
+   one. The same pass on the NOSE at rev 51 found three real defects by eye
+   that no gate had reported. Cheap, and the highest information per hour on
+   this page.
 
 **AND THE THING TO PUT TO THE OWNER, as multiple choice with crops attached:**
 F99's interior warmth (colour is his call under W6), and F100's gold aperture

@@ -78,11 +78,11 @@ for the fifth time, while every automated check was green.**
 block says what that is worth: **0 FIDELITY, 264 SELF-CONSISTENCY. Not one of those rows compares
 the vehicle to a photograph.**
 
-| gate | state at rev 58 |
+| gate | state MEASURED at close of rev 60 |
 |---|---|
-| `flank_compare.py` | **runs, FAILS 1 of 4.** `Senor` **0.651** against a 0.75 bar. The deficit is the **artwork alpha and its placement**, not the render (F39) |
+| `flank_compare.py` | **runs, FAILS.** Worst region **`i` at 0.685** against a 0.75 bar; `Senor` **0.720**. *(The rev-58 table said `Senor` 0.651 and rev 60 found that BOTH stale AND contradicted by this same brief's §9 — re-measured live.)* The deficit is the **artwork alpha and its placement**, not the render (F39) |
 | `mottle_measure.py` | **runs, and it is NOT measuring the mottle** — 1.1–2.0 % of it. Rev 56's reading and rev 57's item B are REFUTED |
-| `gloss_compare.py` | **runs, FAILS at 0.426** (bar 0.60). Mask corrected at rev 58 (F59); the model-side lever is now **exhausted** (F60/F62) |
+| `gloss_compare.py` | **runs, FAILS at 0.436** (bar 0.60, measured at rev-60 close; it was 0.426 at rev 58). Mask corrected at rev 58 (F59); the model-side lever is now **exhausted** (F60/F62) |
 | **`probe_rev46_vw.py`** | **NOW FAILS C6, and that is the point.** photograph 7 cream cells, built 6. It reported 0 FAILED for three revisions while the glyph was an X |
 | `cream_rms.py` | `run()` is the LIVE re-based path |
 | the badge STROKE WEIGHT | **CEILED-rev57.** Different finding from F63 |
@@ -334,6 +334,16 @@ cannot be sharper than the textures in it. **This is the finish line's blocker a
 
 Two thirds of the owner's own standing bar, never done. `ref_rear34.jpg` exists.
 
+**AND THE REV-60 AUDIT ARGUES THIS SHOULD RUN EARLY, NOT FIFTH.** Every other
+item on this list works a defect that is already KNOWN and already gated. This
+is the only one that can find an UNKNOWN one, and it is cheap — one render, one
+matched-scale crop, one look. Rev 51 did exactly this for the NOSE and it found
+**three real defects by eye alone** (flush headlamps, the roundel's short
+V-arms, a flat nose) that no gate had ever reported. The tail and the roof have
+had no such pass in sixty revisions. **If the goal is parity rather than
+closing tickets, an hour here probably buys more than an hour anywhere else on
+this page.** Do it before, or alongside, item C — not after.
+
 ### §3.6 THE ROWS CARRIED FORWARD, STILL OPEN
 
 * **F45's roof-aperture interior** was never separately measured — F98 covers the galley bays only.
@@ -452,22 +462,23 @@ mottle_measure.py (albedo arm, 64 spp) ~4.8 min PER RUN -- budget ablations in f
 ```bash
 ./bootstrap.sh                                               # THE TOOLCHAIN IS NOT ON THE CLONE
 T1_SUB=1 T1_VERIFY=1 /tmp/blender/blender -b -P build.py     # -> "VERIFY: 0 fail, 0 warn"
-T1_PREVIEW=front,side,hero T1_PFX=r60 T1_RX=1600 T1_RY=1100 T1_SAMP=96 \
+T1_PREVIEW=front,side,hero T1_PFX=r61 T1_RX=1600 T1_RY=1100 T1_SAMP=96 \
   /tmp/blender/blender -b -P build.py     # ALL THREE views, ONE build.  It takes a LIST.
 T1_RIG=1 ... /tmp/blender/blender -b -P build.py             # rev 58: build the rig WITHOUT a preview
 T1_NORIG=1 ...                                               # the ABLATION -- assert_lit must REFUSE
 T1_SUB=2 /tmp/blender/blender -b -P audit.py                 # rewrites STATE.md -- COMMIT FIRST
 python3 lid_gen.py                                           # regenerates tex/lidmural.png
-python3 flank_compare.py out/r60_side.png /tmp/fc.png        # GATE 1.  FAILS 1 of 4 today.
-python3 gloss_compare.py out/r60_hero.png                    # GATE 3.  FAILS at 0.426 today.
-#   ^ NOTE F85: this REWRITES a TRACKED file (probe_scratch/rev57_gloss_render.png).
-#     Restore it before you verify, or the "modified tracked files" row fires.
-python3 probe_rev59_door.py out/r60_side.png                # ITEM A.  M2 PASSES, M3 fails BY DESIGN.
-python3 probe_rev59_nose.py out/r60_front.png               # ITEM B.  M1 FAILS: 1.184 vs 1.951-2.127.
+python3 flank_compare.py out/r61_side.png /tmp/fc.png        # GATE 1.  worst region i 0.685.
+python3 gloss_compare.py out/r61_hero.png                    # GATE 3.  FAILS at 0.436 today.
+#   ^ F85 is CLOSED at rev 60: the painted tiles go to out/ now, so running the
+#     gate no longer dirties the tree.  T1_GL_TILES=track restores the old
+#     destination if you deliberately want to refresh the committed tiles.
+python3 probe_rev59_door.py out/r61_side.png                # ITEM A.  M2 PASSES, M3 fails BY DESIGN.
+python3 probe_rev59_nose.py out/r61_front.png               # ITEM B.  M1 FAILS: 1.187 vs 1.951-2.127.
 T1_SUB=1 /tmp/blender/blender -b -P probe_rev45_nose.py     # 8 checked, 0 FAILED -- and read F86.
 python3 gloss_compare.py --selftest                          # exposure invariance, NO frame needed
 python3 visibility_budget.py 3840                            # THE RANKING.  Run it before choosing.
-T1_SUB=1 /tmp/blender/blender -b -P probe_rev46_vw.py        # ITEM A.  C6 FAILS: photo 7, built 6.
+T1_SUB=1 /tmp/blender/blender -b -P probe_rev46_vw.py        # ITEM C.  C6 FAILS: photo 7, built 6.
 T1_SUB=1 T1_VW_SOLVE=1 /tmp/blender/blender -b -P probe_rev46_vw.py   # the solver
 T1_SUB=1 T1_GL_WRGH=0.25 T1_GL_PFX=w25 T1_RX=1600 T1_RY=1100 T1_SAMP=96 \
   /tmp/blender/blender -b -P probe_rev58_gloss.py            # ITEM A's roughness arm, changes NO source
