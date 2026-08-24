@@ -162,7 +162,7 @@ own branch. It was recreated by the first push. **Expect it at rev 61.**
 **ROW 9 WAS RED AT PICKUP AND IS GREEN AT CLOSE, AND I DO NOT FULLY KNOW WHY — SO MEASURE IT.**
 At pickup `bootstrap.sh` ended **9 PASSED, 1 FAILED**:
 `STRANDED: origin/claude/bus-model-rev57-yvrlhi(6 commits, 16 files)`. At close it ends
-**ALL 10 PASS**, and an independent loop — `git rev-list --count HEAD..$b` over every remote branch —
+`bootstrap.sh` **ALL 10 PASS**, and an independent loop — `git rev-list --count HEAD..$b` —
 finds **no branch ahead of HEAD**. Rev 60 did not merge anything, so the most likely explanation is
 that the pickup reading was taken against an incompletely-fetched remote. **THAT IS A GUESS AND IT IS
 LABELLED ONE.** Run row 9 yourself and believe the output, not this paragraph — it is the row this
