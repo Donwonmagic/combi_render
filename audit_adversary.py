@@ -130,11 +130,23 @@ t("is STATE.md CURRENT for the geometry? (19 verify rows read it)",
   "60 shipped it two revisions stale once already"
   % (_stc, ", ".join(_since) if _since else "nothing"))
 
-t("does the pan stay clear of the vehicle's FIXED bodywork limit?",
-  D_.UNDER_X1 - D_.UNDER_RAMP > -1.905,
+# rev 60c-ii -- THIS QUESTION CRASHED, AND A GUARD THAT CRASHES REPORTS
+# NOTHING (CLAUDE.md rule 3).  It read `D_.UNDER_RAMP`, a constant rev 60c
+# SPLIT into UNDER_RAMP_F and UNDER_RAMP_A because the two ends need different
+# lengths.  The rename was made and this file was not re-run, so the adversary
+# died on an AttributeError PART WAY THROUGH ITS LIST -- every question below
+# it silently went unasked, and the run still looked like it had produced
+# output.  Both ends are asked now, by name.
+t("does the AFT ramp stay clear of the vehicle's FIXED bodywork limit?",
+  D_.UNDER_X1 - D_.UNDER_RAMP_A > -1.905,
   "aft ramp reaches x %.4f against the -1.905 limit that verify.py's length "
   "row enforces.  The first cut reached -2.100 and went red at +205 mm"
-  % (D_.UNDER_X1 - D_.UNDER_RAMP))
+  % (D_.UNDER_X1 - D_.UNDER_RAMP_A))
+
+t("does the FRONT ramp stay inboard of the front bodywork?",
+  D_.UNDER_X0 + D_.UNDER_RAMP_F < 2.127,
+  "front ramp reaches x %.4f against the body's own +2.127 front limit"
+  % (D_.UNDER_X0 + D_.UNDER_RAMP_F))
 
 # was a REGEX ON SOURCE that `(0.099` would have satisfied; now it compares the
 # two albedos numerically, which is the thing the claim is about.
