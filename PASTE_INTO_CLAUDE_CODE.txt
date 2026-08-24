@@ -30,9 +30,16 @@ recommended order and this §0.0 is its short form.
 | **B** | **THE NOSE BREAK, 74–76 mm low** | **NOT FIXED. THE WHOLE REMEDY PROGRAMME IS REFUTED at rev 60** — `V_POW`, `V_RISE` and `V_POW_Z` all fail to move the feature | `probe_rev59_nose.py` M1, **watched failing** |
 | **E** | **THE INTERIORS** | **F45 REFUTED AS WRITTEN.** The real defect is CHROMA (F99) and its cause is not separable from one frame | none — and that is a finding |
 
-**THE TWO THINGS TO PUT TO HIM, as multiple choice with crops attached, IN ONE BATCH:**
-**F99** the interior's warmth (**W6 makes colour his call**) and **F100** the gold aperture surround
-(**a new frame would settle it**). *Do not re-ask anything in §4.*
+**THE ONE THING TO PUT TO HIM, as multiple choice with the two crops attached:**
+**F111 — ARE THE SERVING BAYS GLAZED OR OPEN?** `ref_side.jpg` shows all three carrying glass with
+clear reflections; `ref_nolita_doorshut.jpg` shows the same three open. Both are the red target bus;
+the panels evidently lift out for service. The model builds them OPEN. **No gate can settle this —
+it is a ruling.** *Do not re-ask anything in §4.*
+
+**AND DO NOT ASK HIM THE TWO REV 60 DRAFTED.** **F99** was measured on the doorshut frame, which is
+a DIFFERENT STATE of the vehicle — on the target's own frame the render is within 2 % (rule 11), and
+**F100**'s "gold surround" is that state's too: in `ref_side.jpg` the surround is the beaded bulb
+string the model already builds (F112).
 
 **RANK BY PIXELS OF THE DELIVERY FRAME**, `python3 visibility_budget.py` — **which was repaired at
 rev 60 and is worth trusting for the first time**: it had named a frame that cannot exist, so it
