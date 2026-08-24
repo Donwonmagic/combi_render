@@ -981,9 +981,28 @@ bad = []
 for l in open('OPEN_FINDINGS.md'):
     if not l.startswith('| **F'): continue
     if 'CLOSED-rev' in l or 'closed by' in l: continue
-    if not re.search(r'(MEASURED|RECOMPUTED|INHERITED|RULED|CEILED)', l):
+    if not re.search(r'(MEASURED|RECOMPUTED|INHERITED|RULED|CEILED|OBSERVED)', l):
         bad.append(l.split('|')[1].strip())
 print('OK' if not bad else 'UNGRADED: %s' % bad)" 2>&1 | tail -1)"
+# rev 60b -- OBSERVED WAS ADDED TO THE VOCABULARY ABOVE, WITH ITS CAUSE AND
+# THIS COMPANION ROW.
+#
+# CAUSE: `GAPS_rev60.md` grades findings MEASURED / OBSERVED / REFUTED, and the
+# register's guard accepted only the first.  F111 -- the serving bays are glazed
+# in ref_side.jpg and open in ref_nolita_doorshut.jpg -- is genuinely seen by
+# eye on one frame each and has NOT been reduced to a number.  Grading it
+# MEASURED to satisfy the guard would have been exactly the laundering this
+# project forbids.
+#
+# BUT OBSERVED IS A WEAKER GRADE, so widening the vocabulary is a LOOSENING, and
+# this row is what stops it spreading: OBSERVED rows must stay a small minority.
+# If this fires, findings are being parked at the weaker grade instead of being
+# measured.
+ck "OBSERVED rows stay a small minority of the register" OK "$(python3 -c "
+import re
+rows=[l for l in open('OPEN_FINDINGS.md') if l.startswith('| **F')]
+obs=[l for l in rows if 'OBSERVED' in l]
+print('OK' if len(obs) <= max(3, len(rows)//20) else 'OBSERVED=%d of %d -- measure them or say why'%(len(obs),len(rows)))" 2>&1 | tail -1)"
 # and the brief must point at it, or the next context never opens it.
 ck "the newest brief names the register"       "OK" \
    "$(python3 -c "
