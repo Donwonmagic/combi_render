@@ -305,11 +305,21 @@ T1_SUB=1 /tmp/blender/blender -b -P probe_rev46_vw.py                 # C6 FAILS
 T1_SUB=1 T1_VW_DUMP=1 /tmp/blender/blender -b -P probe_rev46_vw.py    # PAINT the cells. LOOK.
 ```
 
-**The job is a CONSTRUCTION change, not a re-solve.** `t1_core.vw_bars` builds the V as one 3-point
-mitred polyline and the W as one 5-point one, and they fuse at the apex into two long diagonals.
-**Every parameter route is closed — see §2.2 and do not re-open them.** If a construction that keeps
-the strokes separate cannot reach 7 substantial cells at the photograph's own scale either, **say so
-with the number**; that is a real result.
+**REV 60 PRESCRIBED THE WRONG FIX HERE AND REV 60b CAUGHT IT (F113).** It said *"a construction that
+keeps them as separate strokes is the next thing to try"*. **`t1_core.vw_bars`' own docstring says
+that construction WAS tried and produced an X** — grep `This was six independent overlapping bars`:
+*"rev 8 … six independent overlapping bars … at hero resolution the V and the W merged into an X"*.
+And the centre fusion it would open is one the photograph shows CLOSED — grep
+`A TOUCH at the centre does match`. **Do not un-fuse the glyph and do not go back to separate
+objects.**
+
+**WHAT IS ACTUALLY UNTESTED IS THE ANGULAR SPACING OF THE SIX TERMINALS** (F114). Reach is refuted
+(F101), weight is refuted (F102); the measured defect — seven thin SLIVERS photographed against four
+fat WEDGES built — is a statement about **where the six stroke ends sit around the ring**, and that
+axis has never been swept. The docstring carries the angles it was built from (*"V arm -40.75 deg,
+W inner -53.04 deg"*). **Sweep those through C6's cell count, exactly as rev 60 swept `V_POW`
+through M1.** If no angular arrangement reaches 7 substantial cells at the photograph's own scale,
+**say so with the number**; that is a real result.
 
 ### §3.2 ITEM B — THE NOSE. Three candidates, and the ablations are already in the tree.
 
