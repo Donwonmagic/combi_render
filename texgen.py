@@ -38,7 +38,12 @@ SWIRL_INK_RANGE = (0.25, 0.38)
 
 FASCIA_W, FASCIA_H = 4096, 640
 FASCIA_SS = 2
-EMBLEM_SIZE = 1024
+EMBLEM_SIZE = 1024               # rev 60b: RAISING THIS TO 3072 IS BLOCKED --
+# texgen.make_emblem cannot run on this machine at all: load_font raises
+# "no usable font among [Poppins-Bold, WorkSans-Bold, Outfit-Bold,
+# InstrumentSans-Bold]".  tex/emblem.png is therefore a TRACKED BUILD INPUT
+# THE TREE CANNOT REPRODUCE, at any resolution.  Recorded as F115; do not
+# raise this constant until a font is vendored or the dependency is removed.
 EMBLEM_SS = 2
 
 # warm gold / amber palette + near-white highlight

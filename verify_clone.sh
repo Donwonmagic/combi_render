@@ -501,9 +501,59 @@ say "-- textures (unchanged since rev 25; item 1 WILL move them) --"
 # ALL EIGHT.  Rev 43's first cut hashed only the three the brief happened to
 # mention, which left senor.png (the only image meeting SPEC 5's 3K bar) and
 # calidad.png (a live work item) unprotected.  If it is artwork, it is hashed.
-ck "tex/swirl.png"   4ee4e09edcc9afb46303c8d3858a62bf "$(md5of tex/swirl.png)"
-ck "tex/swirl_b.png" d201597e1c867b6e1fbedd2c0f8ab306 "$(md5of tex/swirl_b.png)"
-ck "tex/nose.png"    b31ea156c15d2d8e38ba390d9e151706 "$(md5of tex/nose.png)"
+# ===========================================================================
+# rev 60b -- SIX TEXTURE HASHES RE-BASED, AND THE CAUSE IS F93.
+#
+# The generators were re-run at higher resolution to meet SPEC sec.5's floor:
+#     folk_gen.py   N 2048 -> 4096      swirl.png, swirl_b.png
+#     folk_gen.py   NOSE_TEX 1024->3072 nose.png
+#     lid_gen.py    W 2048 -> 4096      lidmural.png, lidsign.png
+#     cal_gen.py    W 2400 -> 3072      calidad.png  (4096 is OOM-killed here)
+#
+# THE ARTWORK DID NOT CHANGE, and that was checked rather than assumed, because
+# A12 makes artwork the owner's call: swirl's ink coverage is 0.0225 -> 0.0226,
+# and downsampling the new 4096 tile back to 2048 differs from the old file by
+# a MEDIAN of 0.00 DN with 0.3 % of pixels over 32 DN -- edges only, which is
+# what resampling a sharper edge looks like.  cal_gen's own centroid guard
+# ("100%% calidad off center") still passes at -0.0001.
+#
+# rev 60b -- SPEC sec.5's 3K FLOOR IS NOW ASSERTED.  F93.
+#
+# THE DEFECT THIS ROW EXISTS FOR.  Every texture below is pinned BY MD5, so any
+# change to one is caught -- but nothing anywhere asserted the thing SPEC sec.5
+# actually requires: that a texture is big enough for the delivery frame.  F93
+# sat open for revisions reading "ONE of EIGHT meets the 3K floor" with no row
+# to make it fail.  A hash pins a file to its past; it does not pin it to a
+# standard.  A 3840-wide delivery frame cannot be sharper than the textures in
+# it, so this is the finish line's blocker and it is now a row.
+#
+# emblem.png is EXEMPT AND NAMED, not silently skipped (rule 27): texgen.py
+# cannot run on this machine -- load_font raises "no usable font" for all four
+# candidates -- so tex/emblem.png is a tracked build input the tree cannot
+# reproduce at ANY resolution.  That is F115, and the exemption dies with it.
+ck "every texture meets SPEC sec.5's 3K floor (emblem exempt, F115)" OK "$(python3 -c "
+from PIL import Image
+import glob, os
+bad = []
+for f in sorted(glob.glob('tex/*.png')):
+    n = os.path.basename(f)
+    if n in ('emblem.png',) or n.startswith('prev_'):
+        continue
+    im = Image.open(f)
+    if max(im.size) < 3072:
+        bad.append('%s %dx%d' % (n, im.width, im.height))
+print('OK' if not bad else 'UNDER 3072: ' + '; '.join(bad))" 2>&1 | tail -1)"
+ck "and emblem.png is the ONLY exemption" 1 "$(python3 -c "
+from PIL import Image
+import glob, os
+n = sum(1 for f in glob.glob('tex/*.png')
+        if not os.path.basename(f).startswith('prev_')
+        and max(Image.open(f).size) < 3072)
+print(n)" 2>&1 | tail -1)"
+
+ck "tex/swirl.png"   94577b44f9f4b4eab1f6fcb6d811e955 "$(md5of tex/swirl.png)"
+ck "tex/swirl_b.png" eaa09315a6905d9ed9151fd4e511ed86 "$(md5of tex/swirl_b.png)"
+ck "tex/nose.png"    34b3d81a74f366a6fd849612b2293e0c "$(md5of tex/nose.png)"
 # rev 46, SPEC 10.120: RE-BASED because 'Senor' was very nearly invisible.
 # Measured per WORD -- which nobody had done, and which dissolves the standing
 # contradiction between ledger findings 19 and 30 -- Michelson against the red
@@ -563,7 +613,7 @@ ck "tex/senor.png"   2c6d221fb2d80a8adf3419153c9b1de6 "$(md5of tex/senor.png)"
 # instruction AND recorded the reason as "no frame we hold shows them", which
 # ref_side.jpg refutes at 7x.  Their PRESENCE was never the error.  Their
 # IDENTITY was, and only he could settle it.  Re-based, never relaxed.
-ck "tex/calidad.png" ffefd297a529adc9f2b0a319107429b1 "$(md5of tex/calidad.png)"
+ck "tex/calidad.png" 4dcde8e8df8ff32b44291189368495ad "$(md5of tex/calidad.png)"
 # rev 50: RE-BASED because the TYPE legitimately changed, and the change is
 # checkable independently of the checksum -- see the clamp row below, added in
 # the same edit so this line cannot be re-based back without it.
@@ -577,7 +627,7 @@ ck "tex/calidad.png" ffefd297a529adc9f2b0a319107429b1 "$(md5of tex/calidad.png)"
 #     after    the four words BIT-UNCHANGED, &  0.474  <- 1.03x
 # so the clamp bit only on the glyph that was being enlarged.  The photograph
 # sets the & at cap height with the rest of the line.  Re-based, never relaxed.
-ck "tex/lidmural.png" 39f523a3127c0fdc72aec6bd567e1c85 "$(md5of tex/lidmural.png)"
+ck "tex/lidmural.png" 9776e6aef0114dbc209d148811b504d7 "$(md5of tex/lidmural.png)"
 # COMPENSATING ROW, same edit.  A checksum re-base is only honest if the reason
 # is separately testable; rev 49c set that precedent when it widened one grep
 # window and added three rows in the same commit.  This one asserts the clamp
@@ -592,7 +642,7 @@ ck "the header fit is CLAMPED, never enlarging" 1 \
 # and its two siblings, which are where that idiom comes from
 ck "lid_gen's sibling text fits still clamp" 2 \
    "$(grep -cE '^ *k = min\(1\.0, (wpx / tot|wid \* 0\.86 / wpx)\)' lid_gen.py)"
-ck "tex/lidsign.png" bcd3da2dbec0276fabd7d8f8ee03f27b "$(md5of tex/lidsign.png)"
+ck "tex/lidsign.png" 876a5e376a69dcd56ffaed7f60f13714 "$(md5of tex/lidsign.png)"
 ck "tex/emblem.png"  574ba2d733353387568b412da48fd436 "$(md5of tex/emblem.png)"
 
 # ------------------------------------------------------------------- gitignore
