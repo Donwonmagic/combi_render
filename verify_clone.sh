@@ -230,6 +230,13 @@ say "-- build files --"
 # What remains is the definition, the guard and its message -- which is the
 # whole point: the CLEARANCE INVARIANT survived the geometry that motivated
 # it.  A drop to 0 would be the finding; 3 is the invariant standing alone.
+# rev 59: STILL 3, BUT THEY ARE NOT THE SAME THREE.  The guard no longer
+# COMPARES against DOOR_ARCH_G -- rev 41's clearance was an accident of rev
+# 41's outline, not a measurement, and the photograph puts the real clearance
+# at a third of it.  DOOR_ARCH_G is now the definition plus two mentions in
+# the re-based guard's message, where it is REPORTED as the historical anchor
+# rather than enforced as a bar.  The count is unchanged; the meaning is not,
+# and that is said here rather than left for the next reader to discover.
 ck "DOOR_ARCH_G in t1_shell.py"     3 "$(grep -c 'DOOR_ARCH_G' t1_shell.py)"
 # rev 44b: 4 -> 0, AND THAT IS CORRECT.  `_G_BUILD` existed ONLY to solve the
 # construction clearance for 10.100's wrapped arc by fixed point.  10.102
