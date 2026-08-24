@@ -143,7 +143,7 @@ for b in $(git branch -r | grep -v HEAD); do
 done
 git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 ./bootstrap.sh          # 9 of 10 at rev 60 close.  MEASURE IT ANYWAY
-./verify_clone.sh       # and read what its verdict block says
+./verify_clone.sh       # ALL 262 PASS in ~70 s -- and read its verdict block
 ```
 
 **AT PICKUP, REV 60 MEASURED.** HEAD was `claude/new-session-ocymb5`, **0 ahead / 0 behind**
