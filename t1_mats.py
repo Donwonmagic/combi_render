@@ -146,7 +146,20 @@ V_APEX_AUTH = 0.4050                    # un-dropped == t1_shell.V_APEX_Z
 Z_BELT0 = Z_BELT_AUTH - T.RAKE_Z0       # above ground at x = 0
 V_APEX0 = V_APEX_AUTH - T.RAKE_Z0       # above ground at x = 0
 V_RISE = 0.8670
-V_POW = 0.60
+# rev 60 -- T1_VRISE, A DIAGNOSTIC ABLATION, NOT A SHIPPED LEVER.
+# Item B needs to know WHICH constant actually moves the break at the
+# HEADLAMP's own station, because a V_POW sweep over 0.15..1.20 moves it by
+# 0.004 lamp radii -- nothing.  The identity V_APEX0 + V_RISE == Z_BELT0 is
+# asserted below, so this re-derives V_APEX0 to keep it.  THAT DE-REGISTERS THE
+# PRESSED SWAGE in t1_shell (which is authored off V_APEX_AUTH), so this switch
+# is for MEASUREMENT ONLY and must never be shipped set.
+if os.environ.get("T1_VRISE"):
+    V_RISE = float(os.environ["T1_VRISE"])
+    V_APEX0 = Z_BELT0 - V_RISE
+V_POW = float(os.environ.get("T1_VPOW", 0.60))   # rev 60: T1_VPOW is an
+# ABLATION ONLY -- it exists so the break's true sensitivity to V_POW can be
+# measured in a RENDER instead of predicted by a hand-written copy of the node
+# graph.  The shipped value is 0.60 and nothing but this env var changes it.
 
 # Above-ground value at any station, for probes and reports.
 def z_belt(x):
