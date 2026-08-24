@@ -82,12 +82,21 @@ t("does the MESH still hold its lateral extent? (not the constants -- the MESH)"
   "brackets and mir_head-1.  Rev 60 moved it to -1.5600 and the line was "
   "printed, logged and never read" % (_mY.groups() if _mY else "ABSENT",))
 
-t("is STATE.md even CURRENT for HEAD? (19 verify rows read it)",
-  re.search(r'\| git commit \| `([0-9a-f]+)`', _ST).group(1)
-  == subprocess.run(['git', 'rev-parse', '--short', 'HEAD'],
-                    capture_output=True, text=True).stdout.strip(),
-  "a stale STATE.md makes every row that reads it a claim about an older "
-  "tree; rev 60 shipped it two revisions stale once already")
+# NOT "== HEAD": audit.py stamps the commit it ran AT, and STATE.md is then
+# committed, so that form lags by one commit BY CONSTRUCTION and could never
+# pass.  The real question is whether any GEOMETRY SOURCE moved after it was
+# written -- that is what makes it stale.
+_stc = re.search(r'\| git commit \| `([0-9a-f]+)`', _ST).group(1)
+_since = subprocess.run(
+    ['git', 'diff', '--name-only', _stc, 'HEAD', '--',
+     'build.py', 't1_core.py', 't1_shell.py', 't1_detail.py', 't1_mats.py'],
+    capture_output=True, text=True).stdout.split()
+t("is STATE.md CURRENT for the geometry? (19 verify rows read it)",
+  not _since,
+  "STATE.md was written at %s; geometry source changed since: %s.  A stale "
+  "STATE.md makes every row that reads it a claim about an older tree, and rev "
+  "60 shipped it two revisions stale once already"
+  % (_stc, ", ".join(_since) if _since else "nothing"))
 
 t("does the pan stay clear of the vehicle's FIXED bodywork limit?",
   D_.UNDER_X1 - D_.UNDER_RAMP > -1.905,
