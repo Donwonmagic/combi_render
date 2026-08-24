@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-24 20:10:25 UTC |
-| git commit | `f39b0d9` |
-| git subject | rev 60b: the underbody was built half its own depth wrong on TWO axes |
+| generated | 2026-08-24 21:07:46 UTC |
+| git commit | `b5b0acf` |
+| git subject | rev 60b: state the real merge state -- 42 commits merged nowhere |
 | working tree | clean |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=2 (applied, destructive, before booleans) |
