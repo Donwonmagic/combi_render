@@ -1598,6 +1598,122 @@ def _arc_liner(xa, zc, sgn, a0, a1, seg, name, outline=None):
     return ob
 
 
+# ===========================================================================
+# rev 60 -- THE UNDERBODY.  F67, the owner's item D, never attempted.
+#
+# THE DEFECT, MEASURED IN THE FRAME AND NOT ARGUED.  A vertical luminance
+# profile down `out/r59a_hero.png` at cols 930-990 -- between the wheels,
+# clear of both -- runs: red flank 152 DN, darkening to 131 at the body's
+# lower edge (v 828), and then the very next rows are GROUND, rising 155 ->
+# 224 by v 880.  THERE IS NO DARK BAND AT ALL.  The same profile on
+# `ref_side.jpg` at cols 350-500 runs: body 63, then a FORTY-ROW BAND AT
+# 8.5 DN (v 609-648), then the ground emerging at 650 and reaching its open
+# plateau of ~140 by v 700.
+#
+#     under-sill ground / open ground   render 0.68   photograph 0.14
+#     the dark band's floor / open      render  none  photograph 0.061
+#
+# WHY IT WAS BRIGHT: `t1_mats.body_paint` drives the two-tone off object-space
+# Z, and the shell's bottom face at `t1_core.ZB` ~ 0.386 sits BELOW the belt
+# line, so the underside was being painted BODY RED and lit like a flank.
+# Sampled in the hero it reads (159, 117, 112) -- 0.509 of open ground where
+# the photograph's cavity is 0.061.  The pan below hides that face rather than
+# re-plumbing the paint graph, because a normal-based selector in the paint
+# would also have to be right about every OTHER downward face on the vehicle.
+#
+# THE DEPTH IS AN ASSUMPTION AND IT IS STATED AS ONE (rule 12).  The
+# photograph's band is 39 px; scale comes from the REAR tyre's horizontal
+# extent at its own hub row -- 172 px for a locked TYRE_D 0.665 m, so
+# 258.6 px/m.  (The wheelbase route returns 210 px/m and is REFUSED: the
+# vehicle is a few degrees off square in that frame, so the hub-to-hub span is
+# foreshortened while the tyre's own width is not.  And the front hub cannot
+# be fitted there at all -- a person in dark jeans stands in front of that
+# wheel and the first fit locked onto body red AROUND them, 100 px off.  That
+# was caught by PAINTING the fitted circle, not by reasoning -- rule 8.)
+#
+# 39 px / 258.6 = 0.151 m.  THAT BAND CONTAINS BOTH THE UNDERBODY AND THE
+# SHADOWED GROUND UNDER IT, and no feature in the profile separates them, so
+# 0.151 m is a CEILING on this drop and NOT its value.  UNDER_DROP is set
+# below that ceiling and the residue is left to the ground.  What the frames
+# we hold cannot do is give the underbody's true depth: that is a
+# NEW-FRAME item (a low raking shot under the sill), recorded as such.
+#
+# NOT BUILT, deliberately: exhaust, fuel tank, spare, engine.  At 258.6 px/m
+# `ref_side.jpg`'s cavity is a featureless 8.5 DN with a std of 1.9 -- it
+# resolves NOTHING inside itself, so anything modelled in there would be
+# invention.  `ref_nolita_flank.jpg` does show ONE member and that is the
+# single rail pair below.
+# ===========================================================================
+UNDER_W    = 1.560                  # ASSUMPTION: inboard of the sills (1.750)
+UNDER_TOP  = 0.3860                 # == t1_core.ZB over the wheelbase
+UNDER_DROP = 0.0900                 # ASSUMPTION, under the 0.151 m ceiling
+UNDER_X0, UNDER_X1 = 1.780, -1.760  # clear of BOTH wheel-house notches:
+#   front notch 0.9165..1.6835 (X_AXLE_F +- ARCH_R + 10 mm)
+#   rear  notch -1.570..-0.630 (X_AXLE_R +- ARCH_W_REAR/2 + 10 mm)
+# so both ends of the pan are at FULL width and the end ramps below can close
+# them.  The first cut of this stopped at -1.800 while the body runs on to
+# -2.108, and the pan's square aft cap then hung in open air behind the rear
+# wheel -- plainly visible in the hero, found by CROPPING THE RENDER, not by
+# any check.  The ramps are 1.400 wide, not UNDER_W: at the aft ramp's outer
+# station WX has already fallen to 0.777 and a 0.780 half-width pan would
+# stand PROUD of the body there.
+#
+# AND THE AFT END IS BOUNDED BY THE LENGTH ROW, NOT BY THE SHEET METAL.  The
+# first cut ran the pan to -1.980 with its ramp reaching -2.100 and
+# `verify.py` went red: "length 4.260 vs spec 4.055 (+205 mm)".  The body's
+# skin does run to -2.108, but everything aft of -1.905 is on a SWUNG part
+# (lid_trunk, glass_rear, englid_handle, plate_1963), which `_bounds()`
+# excludes -- so the vehicle's FIXED aft limit is -1.905 and the pan may not
+# reach it.  The guard caught this in the same edit; the number above is set
+# from the guard's own limit rather than from the skin.
+RAIL_DROP  = 0.0350
+RAIL_Y     = 0.300
+RAIL_W     = 0.090
+UNDER_RAMP   = 0.120                # end closers rise over this much x
+UNDER_RAMP_W = UNDER_W              # the ramps are the PAN's OWN width.
+# The first cut made them 1.400 against the pan's 1.560, and the 80 mm ledge
+# of pan left proud on each side kept its square aft face -- so the block
+# still ended in mid-air behind the rear wheel and the ramp fixed nothing.
+# Found by cropping the render AGAIN, at the same place, after the first fix.
+# 1.400 had been chosen against WX at x -2.070 (0.777), a station the ramp no
+# longer reaches: at its real stations, x 1.900 and -1.880, WX is 0.866 and
+# 0.873, so the pan's own 0.780 half-width clears the body at both.
+
+
+def underbody():
+    """The closed pan under the body, plus the one chassis member a frame
+    actually shows.  SPEC 10.117.  Ablation: T1_NOUNDER=1 omits the lot and
+    probe_rev60_under.py must REFUSE."""
+    obs = []
+    if os.environ.get("T1_NOUNDER") == "1":
+        return obs
+    xc = (UNDER_X0 + UNDER_X1) / 2.0
+    ln = UNDER_X0 - UNDER_X1
+    pts = _notched_rrect(UNDER_W, ln, 0.030,
+                         floor_notches(xc, (T.X_AXLE_F, T.X_AXLE_R)),
+                         WH_Y_IN - 0.002, seg=3)
+    obs.append(T.solid_prism((xc, 0.000, UNDER_TOP - UNDER_DROP),
+                             (0, 1, 0), (1, 0, 0), (0, 0, 1), pts,
+                             UNDER_DROP, name="underpan"))
+    for sy in (1, -1):
+        rp = T.rrect(RAIL_W, ln - 0.400, 0.010, seg=2)
+        obs.append(T.solid_prism((xc, sy * RAIL_Y,
+                                  UNDER_TOP - UNDER_DROP - RAIL_DROP),
+                                 (0, 1, 0), (1, 0, 0), (0, 0, 1), rp,
+                                 RAIL_DROP, name="chassis_rail%+d" % sy))
+    # the end closers: a ramp from the pan's floor up to the body's own lower
+    # edge, so neither end stops in mid-air.  Built in the (x, z) plane and
+    # extruded across y, which is the only orientation that can taper in z.
+    zb, zt = UNDER_TOP - UNDER_DROP, UNDER_TOP
+    for xe, xo, nm in ((UNDER_X0, UNDER_RAMP, "f"),
+                       (UNDER_X1, -UNDER_RAMP, "a")):
+        prof = [(xe, zb), (xe + xo, zt), (xe, zt)]
+        obs.append(T.solid_prism((0.0, -UNDER_RAMP_W / 2.0, 0.0),
+                                 (1, 0, 0), (0, 0, 1), (0, 1, 0), prof,
+                                 UNDER_RAMP_W, name="under_close_%s" % nm))
+    return obs
+
+
 def wheel_houses():
     """Close each wheel arch from inside -- the missing feature behind report 6.
 

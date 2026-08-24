@@ -340,6 +340,11 @@ for _o, _k in D.cab_fitout():
 # floor is in plain sight from outside -- which is what his report 6, "there
 # seems to be a bar obstructing the front wheel?", was looking at.
 A(D.wheel_houses(), "dark")
+# rev 60 -- F67 / item D.  The pan that closes the underbody, and the one
+# chassis member a frame shows.  See t1_detail.underbody.__doc__ and the
+# block above it for the measurement and for the STATED assumption in its
+# depth.  T1_NOUNDER=1 omits it -- probe_rev60_under.py must then REFUSE.
+A(D.underbody(), "dark" if os.environ.get("T1_UNDERSEAL") == "0" else "underseal")
 log("conversion fit-out")
 
 # ------------------------------------------------------------- 7 brightwork

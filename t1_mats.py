@@ -2131,6 +2131,19 @@ def build_all():
     # old D4: at 0.03 albedo the galley was a black void behind the hatches.
     # Lifted so the openings read as depth once fill_galley is on.
     M["dark"] = interior_wear("interior_dark", (0.1150, 0.1080, 0.1000), 0.78)
+    # rev 60, F67 / item D.  THE UNDERBODY IS NOT CAB TRIM.  The pan first
+    # shipped on M["dark"], the cab-interior grey at 0.115 albedo, because
+    # that was the nearest dark key -- which is an inheritance, not a
+    # measurement.  A vehicle's underside is underseal plus road dirt and is
+    # very much darker than a cab lining.
+    #
+    # THE VALUE IS A STATED ASSUMPTION AND THE FRAMES CANNOT SETTLE IT: in
+    # `ref_side.jpg` this region is 8.0 DN with a standard deviation of 1.9 --
+    # it resolves nothing inside itself, so no albedo can be recovered from
+    # it.  What IS measured is the ratio the cavity has to reach; see
+    # probe_rev60_under.py.  Ablation T1_UNDERSEAL=0 puts the pan back on
+    # M["dark"] so the difference this key makes stays testable.
+    M["underseal"] = interior_wear("underseal", (0.0380, 0.0370, 0.0360), 0.88)
     M["amber"] = simple("amber", (0.9200, 0.3400, 0.0250), rough=0.09,
                         transmit=0.75, ior=1.49)
     M["ruby"] = simple("ruby", (0.7000, 0.0350, 0.0250), rough=0.09,
