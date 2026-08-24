@@ -227,6 +227,96 @@ if os.environ.get("T1_GL_DARK"):
     P("  reflected field without removing any light from the scene.")
     P("  MEASUREMENT ONLY -- nothing here ships, and the studio ruling stands.")
 
+# ------------------------------------------------------------- rev 57b
+# THE MIRROR ARM -- T1_GL_MIRROR=n.
+#
+# The first ceiling run (T1_GL_SPOT=3, above) put its sources on an arbitrary
+# ring and measured spread 0.4437 against the baseline's 0.4675 -- a 5 % LOSS,
+# not a gain.  Looking at the frame said why: there was no highlight on the
+# show flank at all.  A specular highlight appears at exactly the points whose
+# MIRROR DIRECTION from the camera reaches a source, so a source placed
+# anywhere else is not a test of gloss -- it is just more ambient.
+#
+# This arm asks the GEOMETRY instead of guessing a pose (rule 7).  It fires n
+# rays from the scene camera through n sample points inside gloss_compare's
+# OWN window, takes the surface each one hits, reflects the view direction
+# about that surface's normal, and puts one small source out along the
+# reflected ray.  If the paint has any specular response at all, THOSE
+# sources are the ones it can show.
+#
+# STILL A MEASUREMENT, STILL SHIPS NOTHING.  Same reversion, same ruling.
+_MIRROR = int(os.environ.get("T1_GL_MIRROR", "0"))
+if _MIRROR:
+    import mathutils
+    from mathutils import Vector
+    _scn = bpy.context.scene
+    _cam = _scn.camera
+    if _cam is None:
+        raise SystemExit("FATAL: no scene camera -- the mirror arm cannot aim")
+    # `ST.camera()` only CREATES the camera; `ST.render_set` aims it per view,
+    # which has not happened yet.  Reading matrix_world here without aiming
+    # first gave three rays from the ORIGIN that all hit the cyclorama at
+    # (0,0,0) -- a plausible-looking null result from a camera that was never
+    # pointed at the bus.  Aim it exactly the way render_set will, then force
+    # the depsgraph to evaluate the new matrix before any ray is cast.
+    _V = ST.views()
+    _vv = _V[os.environ.get("T1_GL_VIEW", "hero")]
+    ST.aim(_cam, _vv["loc"], _vv["tgt"], _vv.get("lens"), _vv.get("ortho"),
+           _vv.get("focus"), _vv.get("fstop"))
+    bpy.context.view_layer.update()
+    _dg = bpy.context.evaluated_depsgraph_get()
+    # gloss_compare.py's WIN["render"] on a 1600x1100 hero, as fractions of
+    # the frame, so the arm follows the gate's window rather than a literal.
+    _WX0, _WY0, _WX1, _WY1 = 520 / 1600.0, 610 / 1100.0, 1060 / 1600.0, 790 / 1100.0
+    _fr = [_cam.matrix_world @ v for v in _cam.data.view_frame(scene=_scn)]
+    _tr, _br, _bl, _tl = _fr                     # Blender's order
+    _org = _cam.matrix_world.translation
+    _hit = 0
+    _dist = float(os.environ.get("T1_GL_MIRRORD", "6.0"))
+    for _i in range(_MIRROR):
+        _u = _WX0 + (_WX1 - _WX0) * (_i + 0.5) / _MIRROR
+        _v = _WY0 + (_WY1 - _WY0) * 0.5
+        _top = _tl.lerp(_tr, _u)
+        _bot = _bl.lerp(_br, _u)
+        _pt = _top.lerp(_bot, _v)
+        _dir = (_pt - _org).normalized()
+        _ok, _loc, _nrm, _idx, _obj, _m = _scn.ray_cast(_dg, _org, _dir)
+        P("            [ray] org (%.2f %.2f %.2f) dir (%.3f %.3f %.3f) ok=%s"
+          % (_org.x, _org.y, _org.z, _dir.x, _dir.y, _dir.z, _ok))
+        if not _ok:
+            P("  mirror ray %d MISSED the model -- no source placed" % _i)
+            continue
+        if _obj is None or _obj.name in ("cyc", "floor") or "cyc" in _obj.name:
+            P("  mirror ray %d hit the SURROUND (%s), not the vehicle -- skipped"
+              % (_i, _obj.name if _obj else "?"))
+            continue
+        _refl = (_dir - 2.0 * _dir.dot(_nrm) * _nrm).normalized()
+        _d = bpy.data.lights.new("mir_spot%d" % _i, type='AREA')
+        _d.shape = 'SQUARE'
+        _d.size = float(os.environ.get("T1_GL_SPOTSIZE", "0.35"))
+        _d.energy = float(os.environ.get("T1_GL_SPOTPOW", "4000"))
+        _o = bpy.data.objects.new("mir_spot%d" % _i, _d)
+        bpy.context.collection.objects.link(_o)
+        _o.location = _loc + _refl * _dist
+        _o.rotation_euler = (_loc - _o.location).to_track_quat('-Z', 'Y').to_euler()
+        _hit += 1
+        P("  mirror %d: hits %-14s at (%.3f %.3f %.3f) n=(%.2f %.2f %.2f)"
+          % (_i, _obj.name if _obj else "?", _loc.x, _loc.y, _loc.z,
+             _nrm.x, _nrm.y, _nrm.z))
+        P("            source at (%.2f %.2f %.2f), %.1f m out along the mirror"
+          % (_o.location.x, _o.location.y, _o.location.z, _dist))
+    P("MIRROR ARM: %d of %d source(s) placed ON THE MIRROR DIRECTION, size %.2f m,"
+      % (_hit, _MIRROR, float(os.environ.get("T1_GL_SPOTSIZE", "0.35"))))
+    P("  %.0f W each.  MEASUREMENT ONLY -- the studio ruling stands."
+      % float(os.environ.get("T1_GL_SPOTPOW", "4000")))
+    if not _hit:
+        raise SystemExit("FATAL: every mirror ray missed -- refusing to render "
+                         "a frame that would look like a null result")
+
+if os.environ.get("T1_GL_NORENDER") == "1":
+    P("T1_GL_NORENDER=1 -- stopping before the render (placement check only)")
+    raise SystemExit(0)
+
 PFX = os.environ.get("T1_GL_PFX", "gl")
 ST.render_set([os.environ.get("T1_GL_VIEW", "hero")],
               os.path.join(ROOT, "out"), prefix=PFX,

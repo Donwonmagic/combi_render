@@ -566,3 +566,204 @@ with a measurement instead of leaving it open, and it is a legitimate outcome.
 
 **THE COST OF KNOWING THIS: two renders, 14 minutes.** Rule 36 paying for itself again — the same
 question, taken on faith, is what rev 57's item B spent a revision on.
+
+### §6.9 THE RIG CEILING — THE OWNER'S RULING, CARRIED OUT, WITH EVERY NUMBER
+
+**The ruling** (`AskUserQuestion`, rev 57b): *"Quantify it, ship nothing. Rev 58 renders ONE frame
+under a structured surround purely to read `gloss_compare`, then reverts. Tells us how much of the
+0.392 is the model's vs the rig's. Nothing ships, no constant changes."*
+
+**IT TOOK FOUR ATTEMPTS AND THREE OF THEM WERE WRONG. All three were caught by LOOKING or by
+painting, none by an exit code — every one returned rc=0.**
+
+| # | what was run | what came back | how it was caught |
+|---|---|---|---|
+| 1 | `T1_SCENE=playa`, through `build.py`'s own playa path | **NO VEHICLE** — a dark cylinder on a grey plane, rc=0, 2.4 min | rule 1, opening the PNG. **F57** |
+| 2 | `T1_GL_SPOT=3`, three 0.35 m sources at **4000 W** on a ring, `out/c3_hero.png` | **BLOWN OUT.** Whole-window clipping **24.28 %**; the gate read **0.058** and would have been published as *"structure makes it worse"* | painting the mask. **F58** |
+| 3 | `T1_GL_MIRROR=3` at first draft | three rays from **(0,0,0)** that all hit the cyclorama at **(0,0,0)**, normal **(0,0,1)**, `ok=True` on every one | printing the ray. **F60** |
+| 4 | `T1_KEY=0.12 T1_GL_MIRROR=3 T1_GL_SPOTPOW=120`, `out/c5_hero.png` | **the measurement** | — |
+
+**F58, THE MASK THAT WALKS OFF THE DEFECT.** `gloss_compare.py` rebuilds its red mask from every
+frame: `R > 1.35 G`, `R > 1.35 B`, `L > 25`, opened and eroded 5×5. On attempt 2 the paint
+desaturated out of those ratio tests and the mask **retreated to a strict subset**:
+
+| | px in the window's red mask | clipped inside it |
+|---|---|---|
+| baseline `g0` | **33,600** | 0.00 % |
+| `c3`, the gate's own per-frame mask | **5,711 (17.0 %)** | **0.00 %** |
+| `c3`, the baseline's mask over the same region | 33,600 | **53.32 %** |
+
+**The mask found the 17 % of the panel that was still exposed and measured that.** Painted:
+`probe_scratch/rev58_ceil_refused_mask_test.png` (magenta = the retreat, cyan = the baseline
+window) and `..._refused_clip_test.png` (red = the 53.32 %). **The gate's published exposure
+control is NOT refuted** — 0.70×/1.00×/1.40× still gives 0.4677 three times, because a ratio test
+is scale-invariant. **What was never stated is its DOMAIN: no clipping, and no change large enough
+to move the mask.** It remains correct for what it is for, render against photograph.
+
+**THE EXPOSURE LADDER**, at 800×550 / 16 spp against `calref` (studio only, med **107.0**), all
+measured through the baseline's own mask so only the light differs:
+
+| run | key | sources | median L | spread |
+|---|---|---|---|---|
+| `calref` | 1.00 | none | 107.0 | 0.5492 |
+| `cal1` | 0.30 | 3 ring @ 1200 W | 160.9 | 0.3542 |
+| `cal2` | 0.12 | 3 ring @ 500 W | **110.2** | 0.5273 |
+| `mfix1` | 1.00 | 3 **mirror** @ 300 W | 170.7 | 0.5436 |
+| `mfix2` | 1.00 | 3 mirror @ 1500 W | 217.6 | 0.4907 |
+| `mm1` | 0.12 | 3 mirror @ 250 W | 142.4 | 0.9488 |
+| **`mm2`** | **0.12** | **3 mirror @ 120 W** | **107.2 (+0.2 %)** | **0.9915** |
+
+*(Half-res 16-spp spreads are noise-inflated and are NOT comparable to the full-res figures below;
+this ladder exists to find the exposure match, which is a median, and a median is robust. The
+transfer was checked: `calref` med **107.0** at 800×550/16 spp against `g0` med **106.4** at
+1600×1100/96 spp — **0.6 %**.)*
+
+**THE MEASUREMENT**, `probe_rev58_ceiling.py out/g0_hero.png out/c5_hero.png`, both 1600×1100 at
+96 spp, ONE mask built on the baseline and applied to both, refusal bars at 1 % clipping and 10 %
+exposure drift:
+
+| | red px | median L | spread | headroom | clipped |
+|---|---|---|---|---|---|
+| `g0` — studio as shipped | 33,600 | 106.4 | **0.4675** | 0.1297 | 0.00 % |
+| `c5` — same model, structured surround | 33,600 | 106.1 | **1.0212** | 0.3888 | 0.00 % |
+| exposure difference | | | **−0.3 %** | | |
+
+**IN THE GATE'S OWN UNIT**, against `ref_nolita_front34.jpg` (same window, spread **1.1921** over
+20,549 red px): **0.392 → 0.857 of the photograph's spread, a factor of 2.184.**
+
+**THE INTERNAL CONTROL:** the probe recovers **0.392** on the baseline — the figure
+`gloss_compare.py` published from that same frame — so the two instruments agree where they can be
+compared, and the probe is not a second opinion invented to give a better answer.
+
+**AND WHAT F58 COSTS IN PRACTICE:** run the gate directly on `c5` and it reports **0.755**, because
+its per-frame mask holds only **15,587 of 33,600 px (46.4 %)** there too. **0.10 of understatement
+on a frame that is not even clipped.**
+
+**WHAT THIS DOES AND DOES NOT SAY.** It says the surround owns most of this gate's deficit: the
+same model, with **not one constant changed**, goes from 0.392 to 0.857 when it has something to
+reflect. Set beside **F54** — a full automotive clearcoat buys **+0.5 %** and costs the red **18 %**
+of its saturation — **the model's remaining share of `gloss_compare` is thin.** It does **not** say
+the rig should change: *"keep studio, fix the model"* (rev 54) stands, `studio.py` is untouched, the
+arm overrides a built scene in memory and reverts when the process exits, and **nothing here ships**.
+Side by side: `probe_scratch/rev58_ceil_pair.png`.
+
+**FOUR VERIFIER ROWS HOLD IT**, and each was watched failing on a planted defect: the probe uses
+`gloss_compare`'s own window (planted a moved window → 0); it hard-codes none of its results
+(planted `_ANSWER = 1.0212` → 1); it refuses before it publishes (moved the refusal after the
+print → 0); and the mirror arm aims before it casts (deleted the aim → the row cannot find it).
+
+**AND A FIFTH ROW HAD TO BE TIGHTENED.** *"The duplicated studio rig still matches build.py"*
+**FAILED** on this work — it counted `ST.camera(` inside the COMMENT that explains F60 and read it
+as a fifth rig call. **That is the fifth time a row in this repository has matched an explanation
+of a defect and called it the defect.** Fixed the way the `gloss_compare compares no colour IN CODE`
+row was: strip comments and docstrings, look only at what executes. **A tightening, not a
+relaxation** — watched failing with a real fifth `ST.camera()` call, and passing with the comment.
+
+---
+
+## §7. THE DRIFT AUDIT — ALL 111 HANDOFFS AND BRIEFS AGAINST THE ORIGINAL PLAN
+
+**Asked for at the owner's request: *"review all handoffs and next context prompts and ensure we
+don't drift from the original plan."*** Read: `HANDOFF.md` (the rev-3-era original),
+`HANDOFF_rev7…rev45`, `NEXT_CONTEXT_PROMPT_rev8…rev58`, `LEDGER_rev43…rev57`,
+`SURVEY_rev49_photoreal.md` finding 39, `README.md`, `START_HERE.md`, `SPEC.md` §0.1/§3/§7.1.
+
+### §7.1 THE ORIGINAL PLAN, AND WHAT IS FAITHFUL TO IT
+
+`HANDOFF.md`: *"a maximum-fidelity, true-to-scale 3D model of the Playa del Carmen Tacombi combi …
+rendered as white-studio hero stills"*, process *"ground → build → adversarial audit → iterate"*,
+*"never declare done off self-review"*. **All of that is intact** and is restated in the live brief
+§0 and §7 and in `CLAUDE.md`. The vehicle is the same vehicle throughout — SPEC §7.1 settled at
+rev 44 that the Nolita frames show it in a different LIVERY STATE, not a different bus.
+
+**The original defect list D1–D10 is honestly accounted for**, and two of its entries are still the
+top of the live list under different names: **D4** — *"three serving bays render flat black …
+nothing lit behind them"* — is today's **F45** (item B) and **F15/A7** (item C), and
+`visibility_budget.py` independently ranks them 2nd and 3rd. **D7** — *"paint reads pink/salmon"* —
+became **W6**, which the owner ruled is not a paint error. **D2 and part of D10 were RETIRED as
+misreadings by measurement**, which is the process working. **D3, D5, D8 are fixed.**
+
+**Five of `HANDOFF.md` §7's twelve "locked, do not re-litigate" readings were later overturned** —
+whitewall tyres, the timber counter, the frosted fourth pane, the cream roundel, the lowered stance,
+and the clean-gloss finish. **That is not drift**: every one is struck in SPEC §0.1 with its grade,
+and the finish specifically is *"Locked by user decision 2026-08-08"*. `START_HERE.md` already
+says `HANDOFF.md` is history, not truth.
+
+### §7.2 THE DRIFT THAT IS REAL — AND IT IS ALL ONE DELETION
+
+**Every finding below traces to the same event: the section `§7. INSTRUCTIONS OF MINE STILL
+OUTSTANDING, IN NO OTHER CARRIER`, fourteen items in the owner's own voice, last present at
+`NEXT_CONTEXT_PROMPT_rev43.md:685` and deleted at rev 44.** The rev-49 survey found it
+(finding 39, MAJOR) and named three casualties. **Rev 56 recovered one of the three — as a
+one-line stub — and the recovery was recorded as if the loss were closed.**
+
+| casualty | state before rev 57b | evidence |
+|---|---|---|
+| **the die-cut sticker**, the original deliverable | carried as **F18**, one line, **without his LOCKED style, his LOCKED scene, the deferral's trigger, or the pointer to `AUDIT_rev43.md` §5** | the whole row was 14 words and graded `INHERITED-rev44` |
+| **"REMEMBER TO HOLD UP NEXT TO THE ACTUAL SOURCE PHOTOS"** | **in NO live carrier.** `grep -c` over the brief, `CLAUDE.md`, `OPEN_FINDINGS.md`, `SPEC.md` → **0, 0, 0, 0** | rev 51 did the NOSE half and recorded it in `LEDGER_rev51.md` §7 — a file no next context reads. **The TAIL and the ROOF have never been done** |
+| **the Playa hero, "deprioritised, NOT cancelled"**, carrying *"the emotional bar that sits ABOVE clinical accuracy"* | **in NO live carrier — and the brief had hardened it into a cancellation** | the phrase *"emotional bar"* appears in every brief to rev 43 and in **none** after. From rev 52 the brief reads *"reviving `playa_env.py` as the delivery frame is not on the table — do not re-propose it"* |
+
+**THE PLAYA ONE IS THE ONE THAT MATTERS, AND IT IS A RULE-34 CASE.** W6's object is the **studio
+rig** for the fidelity hero (*"keep the studio rig as it ships"*, rev 50). The Playa hero is a
+**second deliverable**. Rev 52's brief applied the rig ruling to the second deliverable and closed
+it; **rule 34 — *"a requirement inherits its object exactly as a retirement does"* — was written two
+revisions later, for exactly this move.** Nothing in this revision re-proposes `playa_env.py`:
+*"focus on the 3d model"* stands. What changed is that the record now says **deprioritised**, where
+for six revisions it said **not on the table**.
+
+**AND TWO MORE ITEMS OF THAT SECTION HAD NO CARRIER EITHER, WHICH THE SURVEY DID NOT COUNT:**
+
+* **F63 — his texture bar.** Item 14's second half, *"4K non-overlapping textures and no floating
+  artifacts"*, sits in the same sentence as *"any single measurement off is unacceptable"* — which
+  IS carried. **Re-measured at rev 57b: ONE of EIGHT textures meets SPEC §5's 3K floor**
+  (`senor.png` 4096×1738; the rest 1024–2400 px). The rev-42 reading was *"one image of seven"*.
+  **Sixteen revisions, one more image, no change.** The self-overlap half — 55.97 % of painted
+  surface, `T1_body` having no UV layout — is `INHERITED-rev42` and has not been re-measured since.
+* **F64 — *"ABSOLUTE REPLICATION OF ALL ARTWORK"*, which he called a hard bar.** Of its seven named
+  parts, **four have no row anywhere**: the menu strips and cards, the rear-lid lettering, the plate
+  surround, the mural board.
+
+### §7.3 A FINDING AGAINST THIS REVISION'S OWN NEW GATE — F65
+
+Item 11 of the deleted section: **Nolita is re-admitted for GEOMETRY ONLY, and every Nolita-derived
+number must be TAGGED.** `gloss_compare.py`'s only reference is **`ref_nolita_front34.jpg`**, so
+**F44's 0.392 and F59's 0.857 — published today — are both Nolita-derived, and neither is tagged.**
+SPEC §7.1 admits Nolita geometry and explicitly withholds livery; **whether a paint FINISH statistic
+is geometry or livery has never been adjudicated**, and the gate's own ceiling block does not raise
+it. **This does not withdraw either figure** — the record does class that frame under *"the RED
+target bus"* and §7.1 settles that it is the same vehicle. It says the admissibility of their source
+is unadjudicated and that I did not notice when I built the gate.
+
+### §7.4 WHAT WAS RESTORED, AND WHAT NOW HOLDS IT
+
+`NEXT_CONTEXT_PROMPT_rev58.md` **§4.1** carries the deleted section again, all fourteen items, each
+with where it stands measured at rev 57b rather than as inherited prose. `OPEN_FINDINGS.md` gains
+**F61–F67** and **F18 is rewritten from a stub into the full ruling**. **Four verifier rows hold it,
+every one watched failing on a planted defect:** the restored table must still have **14** numbered
+items (compacted to 6 → fails); all **three** rev-44 casualties must be named in the register
+(dropped one → 2); **F18 must carry his locked style, his locked scene and the deferral's trigger**
+(**the rev-56 stub scores 0**, which is the historical defect itself); and **README may not assert a
+`verify_clone` row count at all**.
+
+### §7.5 README WAS SIXTEEN REVISIONS STALE, AND IT IS THIRD IN ITS OWN READING ORDER
+
+| README said | the machine says |
+|---|---|
+| *"66 checks"* / *"Sixty-six content checks"* | **251** |
+| *"131 objects, 190 meshes, 42 materials"* — headed *"Expected at rev 42"* | `STATE.md`: **223 mesh objects, 44 datablocks**, 42 bound |
+| *"31 read-only instruments"* | **59** `probe_*.py` |
+| read **`HANDOFF_rev42.md`**, then rev 41, backwards | **the series ENDED at rev 45**; the per-revision record has been `LEDGER_rev*.md` since rev 43 |
+| the hero recipe is `hero.py … --strips 20`, *"budget ~2.3 h"* | `hq_render.py`, **106.8 min measured**, and `hero.py`'s per-strip loop is the one that spent 10.8 min rebuilding an unchanged scene |
+| **a ranked work list headed *"Open at rev 42, in the order the next revision should take them"*** | **a second, sixteen-revision-old priority list competing with the live brief.** Removed; README now points at `OPEN_FINDINGS.md` and the newest brief |
+
+**The numbers are gone rather than corrected** — `CLAUDE.md` opens with *"if you find a number here,
+that is the bug"* and README is prose. What is kept is the one paragraph that earned its place: the
+sticker and the Playa hero, **because between rev 44 and rev 57b that paragraph was the only place
+either of them survived in this repository.**
+
+### §7.6 WHAT THE AUDIT DID NOT FIND
+
+**No section was lost between rev 55 and rev 58** — a heading diff over the recent chain returns
+empty in all three transitions. The rev-51 compaction (25 sections → 9) dropped the rule canon, the
+parallelism section and the machine-state dump, but **all three were handed on by name or absorbed
+into `CLAUDE.md`**, which is what rule 16 permits. **The goal statement itself has never drifted.**
