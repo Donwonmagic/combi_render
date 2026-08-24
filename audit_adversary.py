@@ -141,13 +141,17 @@ t("is the photographed cavity really 0.057 of open ground?",
 
 row = lum[599:604, :].mean(0)
 dark = np.nonzero(row[640:830] < 40)[0]
-t("is the tyre-span scale quoted as a RANGE, not one threshold's reading?",
-  len(dark) > 60 and 150 < (dark.max() - dark.min()) < 195
-  and "251-284" in open('t1_detail.py').read(),
-  "tyre spans %d px at v=601; 0.665 m / that span is the 258.6 px/m the "
-  "brief's 0.151 m ceiling rests on.  The WHEELBASE route gives 210 and is "
-  "refused -- if this breaks, so does the ceiling"
-  % (dark.max() - dark.min() if len(dark) else -1))
+# rev 60b: the TYRE-SPAN scale is retracted entirely -- that window was on the
+# arch shadow and the kerb, not the tyre.  This now asks whether the source
+# carries the RIM-FIT scale and has stopped asserting the dead one.
+_TD = open('t1_detail.py').read()
+t("has the dead tyre-span scale been replaced by the rim-fit one?",
+  "211.6 px/m" in _TD and "hub-to-hub 507.8" in _TD
+  and not re.search(r'^[^#\n]*258\.6', _TD, re.M),
+  "the scale is now 211.6 px/m from a CIRCLE FIT to both cream rims "
+  "(rear rms 1.11 px over 828 points), not a luminance run through the arch "
+  "shadow.  If the old figure comes back, so does a 23 % error in every metric "
+  "quantity taken off ref_side.jpg")
 
 b = np.asarray(Image.open('ref_nolita_doorshut.jpg').convert('RGB')).astype(float)
 ii = b[138:157, 288:315]

@@ -37,29 +37,58 @@ There was **no cavity at all**. Cause: `t1_mats.body_paint` drives the two-tone
 off object-space z, so the shell's bottom face at `t1_core.ZB` ≈ 0.386 sits
 below the belt line and was painted **body red** — sampled (159, 117, 112).
 
-### §1.2 The scale, and an instrument of mine that was wrong
+### §1.2 The scale — PUBLISHED WRONG TWICE, AND WHAT IT ACTUALLY IS
 
-`ref_side.jpg` px/m from the **rear tyre's horizontal extent at its own hub
-row**: 172 px for a locked `TYRE_D` 0.665 m → **251–284 px/m**, threshold-dependent (see the correction below).
+**THE LIVE FIGURE.** `ref_side.jpg` is **211.6 px/m**, from a circle fit to
+both cream rim rings:
 
-**The wheelbase route was REFUSED at 210 px/m.** The vehicle is a few degrees
-off square there, so hub-to-hub is foreshortened while the tyre's own width is
-not — and the front hub cannot be fitted in that frame at all: **a person in
-dark jeans stands in front of that wheel** and the first circle fit locked onto
-body red *around* them, putting the centre ~100 px out. **Caught by painting
-the fitted circle, not by reasoning.**
+```
+rear rim   centre (749.5, 604.6)  r 39.79 px   n=828   rms 1.11 px
+front rim  centre at that radius  (241.8, 609.8)       rms 2.25 px, n=107
+hub-to-hub 507.8 px / 2.400 m LOCKED           ->      211.6 px/m
+```
 
-Dark band 39 px ÷ that scale = **0.137–0.155 m**, and that band contains **both** the
-underbody and the shadowed ground beneath it, with no feature separating them.
-So **0.137–0.155 m** is a **CEILING on the pan's drop, not its value**.
+The rear rim fits a **circle** to 1.11 px, so it images round: there is no yaw
+foreshortening at that wheel and this scale applies to **vertical** extents
+too, which is what the band below needs.
 
-**CORRECTION, MADE IN THE SAME REVISION (rule 13).** The first cut of this
-published **258.6 px/m** and **0.151 m** as exact. They are one threshold's
-reading: the tyre's span runs **167 → 189 px** as the dark threshold goes
-30 → 60 DN, so px/m runs **251 → 284** and the ceiling **0.155 → 0.137 m**.
-`audit_adversary.py` caught it by re-measuring at a different threshold and
-getting 180 px. **`UNDER_DROP` 0.090 m is below even the lowest ceiling, so the
-build does not move — the precision was wrong, not the conclusion.**
+**TWO RETRACTIONS, BOTH MINE, BOTH IN THE SAME REVISION (rule 13).**
+
+1. I first published **258.6 px/m** from "the rear tyre's horizontal extent at
+   its own hub row, 172 px". **There is no tyre in that window.** At the hub
+   row the tyre reads 11–13 DN and the wheel-arch shadow above it reads
+   15–22 DN — they are contiguous and a luminance threshold cannot separate
+   them. The run went from inside the arch shadow out onto the kerb. Painted
+   and looked at, which is the only reason it was caught.
+2. I then "corrected" it to **251–284 px/m, threshold-dependent**, which
+   retained the same broken window and merely widened it.
+
+**AND I REFUSED THE ROUTE THAT WAS RIGHT.** I dismissed the wheelbase at
+210 px/m on two grounds, both false: that the vehicle is "a few degrees off
+square" (the rear rim images circular to 1.11 px — it is not), and that the
+front hub "cannot be fitted at all" because a man stands in front of it (its
+cream rim crescent is visible below his leg and fits to 2.25 px with the radius
+constrained to the rear's). **A wheelbase and a tyre foreshorten by the SAME
+cosine, so the two routes must agree; when they disagreed by 23 % one of them
+was simply mis-measured, and it was mine.**
+
+**THE CEILING, RECOMPUTED.** The dark band is threshold-dependent too — 33 px
+at 15 DN to 66 px at 60 DN — which the first correction applied to the tyre and
+**not** to the band it divides, in the same paragraph:
+
+```
+33..66 px / 211.6 px/m   =   0.156 .. 0.312 m
+```
+
+That band contains **both** the underbody and the shadowed ground beneath it
+and nothing separates them, so it is a **CEILING, not a value**. The pan's
+visible drop below the shell is 0.090–0.100 m, under even the lowest of those.
+**The build does not move. The precision was wrong twice; the conclusion was
+not.**
+
+**EVERY OTHER METRIC FIGURE TAKEN OFF `ref_side.jpg` INHERITED THE 23 % ERROR**
+and must be re-derived at 211.6 — including the red-band figures in §2.6, which
+are retracted there.
 
 ### §1.3 What was built, and the result
 

@@ -1621,39 +1621,44 @@ def _arc_liner(xa, zc, sgn, a0, a1, seg, name, outline=None):
 # re-plumbing the paint graph, because a normal-based selector in the paint
 # would also have to be right about every OTHER downward face on the vehicle.
 #
-# THE DEPTH IS AN ASSUMPTION AND IT IS STATED AS ONE (rule 12).  The
-# photograph's band is 39 px; scale comes from the REAR tyre's horizontal
-# extent at its own hub row, and THAT SPAN IS THRESHOLD-DEPENDENT, which the
-# first cut of this comment hid behind a single figure:
+# THE DEPTH IS AN ASSUMPTION AND IT IS STATED AS ONE (rule 12), AND THE SCALE
+# IT RESTS ON WAS PUBLISHED WRONG TWICE BEFORE IT WAS RIGHT.
 #
-#     dark threshold  30   35   40   45   50   55   60   DN
-#     tyre span      167  172  180  180  189  189  189   px
-#     -> px/m        251  259  271  271  284  284  284
-#     -> 39 px band 0.155 0.151 0.144 0.144 0.137 0.137 0.137  m
+# RETRACTED, rev 60b: this comment first said "258.6 px/m from the REAR tyre's
+# horizontal extent at its own hub row (172 px)", then "251-284, threshold
+# dependent".  BOTH ARE DEAD.  An independent audit painted that window and the
+# dark run is not the tyre: at the hub row the tyre reads 11-13 DN and the
+# wheel-arch shadow above it reads 15-22 DN, so the two are CONTIGUOUS and a
+# luminance threshold cannot separate them.  The "tyre span" ran from inside
+# the arch shadow out onto the kerb.  Painted and looked at -- rule 8, on the
+# instrument that set the scale for the whole revision.
 #
-# So the honest scale is 251-284 px/m and the honest ceiling is 0.137-0.155 m.
-# 258.6 and 0.151 were ONE THRESHOLD PUBLISHED AS IF EXACT; audit_adversary.py
-# caught it by re-measuring at a different threshold and getting 180 px.
-# UNDER_DROP 0.090 is below even the LOWEST of those ceilings, so the build
-# does not move -- the PRECISION was wrong, not the conclusion.  (The wheelbase route returns 210 px/m and is REFUSED: the
-# vehicle is a few degrees off square in that frame, so the hub-to-hub span is
-# foreshortened while the tyre's own width is not.  And the front hub cannot
-# be fitted there at all -- a person in dark jeans stands in front of that
-# wheel and the first fit locked onto body red AROUND them, 100 px off.  That
-# was caught by PAINTING the fitted circle, not by reasoning -- rule 8.)
+# THE SCALE, RE-DERIVED AND PAINTED.  Both cream rim rings are fitted as
+# circles instead:
+#     rear rim   centre (749.5, 604.6)  r 39.79 px   n=828   rms 1.11 px
+#     front rim  centre fixed to that radius (241.8, 609.8)  rms 2.25 px, n=107
+#     hub-to-hub 507.8 px / 2.400 m LOCKED  ->  211.6 px/m
+# The rear rim fits a CIRCLE to 1.11 px, i.e. it images round, so there is no
+# yaw foreshortening at that wheel and this scale applies to VERTICAL extents
+# too -- which matters, because the band below is vertical.  (A wheelbase and a
+# tyre are foreshortened by the SAME cosine, so the two routes must agree; when
+# they disagreed by 23 % one of them was simply mis-measured, and it was mine.)
 #
-# THAT BAND CONTAINS BOTH THE UNDERBODY AND THE
-# SHADOWED GROUND UNDER IT, and no feature in the profile separates them, so
-# 0.151 m is a CEILING on this drop and NOT its value.  UNDER_DROP is set
-# below that ceiling and the residue is left to the ground.  What the frames
-# we hold cannot do is give the underbody's true depth: that is a
-# NEW-FRAME item (a low raking shot under the sill), recorded as such.
+# THE CEILING, RECOMPUTED.  The photograph's dark band is threshold-dependent
+# too -- 33 px at 15 DN to 66 px at 60 DN -- which the first cut corrected for
+# the tyre and NOT for the band it divides, in the same paragraph:
+#     33..66 px / 211.6 px/m  =  0.156 .. 0.312 m
+# THAT BAND CONTAINS BOTH THE UNDERBODY AND THE SHADOWED GROUND UNDER IT, and
+# no feature in the profile separates them, so this is a CEILING and NOT a
+# value.  The pan's visible drop below the shell is 0.090-0.100 m, under even
+# the lowest of those.  What the frames cannot give is the underbody's true
+# depth: that is a NEW-FRAME item (a low raking shot under the sill).
 #
-# NOT BUILT, deliberately: exhaust, fuel tank, spare, engine.  At 258.6 px/m
-# `ref_side.jpg`'s cavity is a featureless 8.5 DN with a std of 1.9 -- it
-# resolves NOTHING inside itself, so anything modelled in there would be
-# invention.  `ref_nolita_flank.jpg` does show ONE member and that is the
-# single rail pair below.
+# NOT BUILT, deliberately: exhaust, fuel tank, spare, engine.  `ref_side.jpg`'s
+# cavity is a featureless 8.5 DN with a std of 1.9 -- it resolves NOTHING
+# inside itself, so anything modelled in there would be invention.
+# `ref_nolita_flank.jpg` does show ONE member and that is the single rail pair
+# below.
 # ===========================================================================
 UNDER_W    = 1.560                  # ASSUMPTION: inboard of the sills (1.750)
 # rev 60b -- THE PAN IS DEFINED BY ITS FLOOR, NOT BY ITS TOP.

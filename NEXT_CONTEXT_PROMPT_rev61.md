@@ -275,7 +275,7 @@ be a lighting defect is laundering.**
 * *"the emblem is a stroke-weight problem"* — **NO**, ink fraction 0.5903 vs 0.6062 (F102).
 * *"`V_POW` needs 0.345 at the lamp"* — **NO** (F106).
 * **MINE:** *"the flank two-tone break sits too low"*, from a side-by-side — **REFUTED BY MY OWN
-  MEASUREMENT**: red band **0.723 m** photographed against **0.707 m** built, **−17 mm**.
+  MEASUREMENT**: **RETRACTED AGAIN at rev 60b (F110)** — that instrument was on the mural lid and the script. Settled: model 0.8745 m from its own constants against a photographed 0.863 ± 0.014 m, **+12 ± 14 mm, no resolvable gap**.
 * **MINE:** `ref_side.jpg` at 210 px/m from the wheelbase — **REFUSED**, it is **258.6** from the
   rear tyre's own width; the wheelbase is foreshortened and the front hub cannot be fitted at all.
 * **§2b of the rev-52 brief — HIS SETTLED RULINGS — IS UNCHANGED AND STILL BINDING.** W6; the roof
