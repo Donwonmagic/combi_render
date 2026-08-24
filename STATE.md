@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-24 21:07:46 UTC |
-| git commit | `b5b0acf` |
-| git subject | rev 60b: state the real merge state -- 42 commits merged nowhere |
+| generated | 2026-08-24 22:22:16 UTC |
+| git commit | `37131bd` |
+| git subject | rev 60c: the underbody on all three axes -- an adversary reinstated the z bug and the tree stayed green |
 | working tree | clean |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=2 (applied, destructive, before booleans) |
@@ -29,6 +29,8 @@ length excludes opened lids: 4.311 with them, 4.065 without (what projects: coun
 bounds EXCLUDE 9 non-bodywork part(s): counter, counter_nosing, counter_top, tail_board, tail_board_stay, tb_bulbflex, tb_bulbs, tb_edge_dark, tb_edge_red
 x range [-2.151, 2.160]   full-Y [-1.064, 1.150]
 lateral extent full-Y [-1.0637, 1.1500] holds its baseline (brackets +y, mir_head-1 -y)
+underbody proudness: worst -26.2 mm (under_close_a at x -1.8300, |y| 0.7800 against skin 0.8062) -- INBOARD of the skin everywhere
+underbody/shell fit: worst intrusion +11.5 mm at (x +1.780, y +0.03) -- CLOSED everywhere the pan spans
 dims  L=4.065 W=1.750 roof@rear-axle=1.9833 (regression baseline 1.9835, -0.2 mm; dome deficit +0 mm still unmodelled) (bbox top 3.132)
 H_ROOF 1.960 is RETIRED as an accuracy target (rev 22, owner's call): its only ground-line-free support was withdrawn by SPEC 10.34. The model reads 1.9833; the real vehicle's absolute roof height is OPEN and UNMEASURED. The +23 mm warn is gone because THE TEST WAS WITHDRAWN, not because the model improved -- the mesh did not move.
 rear overhang 0.7730 m = 0.3221 of the wheelbase (measured 0.773 +- 0.022 m)
@@ -150,8 +152,8 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 | | |
 |---|---|
 | mesh objects | 228 |
-| vertices (all meshes) | 330583 |
-| faces (all meshes) | 321210 |
+| vertices (all meshes) | 330551 |
+| faces (all meshes) | 321194 |
 
 | prefix | n |
 |---|---|

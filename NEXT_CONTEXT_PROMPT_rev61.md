@@ -25,7 +25,7 @@ recommended order and this §0.0 is its short form.
 | # | do | state at close of rev 60 | gate |
 |---|---|---|---|
 | **A** | **THE DOOR** | **FIXED AT REV 59.** 0.1 mm | `probe_rev59_door.py` M2 **PASSING** |
-| **D** | **THE GROUND SHADOW AND UNDERBODY** | **BUILT AT REV 60, PARTLY CLOSED.** Cavity 0.545 → **0.219** against a photographed 0.057; the residue is the ruled-in studio | `probe_rev45_ground.py` **G4, PASSING at 0.2519** |
+| **D** | **THE GROUND SHADOW AND UNDERBODY** | **BUILT AT REV 60; GEOMETRY REPAIRED TWICE SINCE, AND THE FIGURES REV 60 PUBLISHED ARE STALE.** Re-measured at rev 60c: **G4 0.3585 built, 0.5607 ablated**, against a photographed 0.057. The residue is now APPORTIONED — see §2.1 | `probe_rev45_ground.py` **G4 PASSING at 0.3585**; and NEW: `verify.py`'s underbody **proudness** and **slot** rows |
 | **C** | **THE EMBLEM — still an X** | **NOT FIXED. CAUSE LOCALISED at rev 60** to the CONSTRUCTION: the V and W are each ONE mitred polyline and they fuse into two diagonals. **Three hypotheses refuted — do not re-try them** | `probe_rev46_vw.py` C6, **watched failing** |
 | **B** | **THE NOSE BREAK — 73 mm on the red-bus ruler, but F75's HONEST BRACKET IS 50–80 mm, best single estimate 52 mm** | **NOT FIXED. THE WHOLE REMEDY PROGRAMME IS REFUTED at rev 60** — `V_POW`, `V_RISE` and `V_POW_Z` all fail to move the feature | `probe_rev59_nose.py` M1, **watched failing** |
 | **E** | **THE INTERIORS** | **F45 REFUTED AS WRITTEN.** The real defect is CHROMA (F99) and its cause is not separable from one frame | none — and that is a finding |
@@ -209,16 +209,37 @@ Built: `t1_detail.underbody()` — a notched pan, two chassis rails, an end ramp
 `M["underseal"]`.
 
 ```
-cavity floor / open ground   0.545 -> 0.352 (pan) -> 0.219 (underseal)   photograph 0.057
-probe_rev45_ground G4        0.5475 ablated -> 0.2519 built
+cavity floor / open ground   0.545 -> 0.352 (pan) -> 0.219 (underseal)   photograph 0.057   [STALE]
+probe_rev45_ground G4        0.5475 ablated -> 0.2519 built                                   [STALE]
+
+  ^^ BOTH LINES WERE MEASURED ON A BUGGED MESH AND ARE SUPERSEDED.  Re-run at
+     rev 60c, after the geometry was repaired:
+
+  G4  ablated (T1_NOUNDER=1)                     0.5607
+      BUILT, AS SHIPPED (visible drop 0.090 m)   0.3585   <- the live figure
+      built at the ceiling band's top (0.145 m)  0.2590
+      photograph ref_side.jpg                    0.057
 ```
 
-**PARTLY CLOSED WITH ITS CEILING**: the residue is the white cyclorama filling a 90 mm cavity, the
-same ceiling as F62. **`UNDER_DROP` 0.090 m is a STATED ASSUMPTION** under a measured ceiling of
-**0.137–0.155 m**, threshold-dependent — corrected in the same revision (rule 13) — the photograph's band contains both the metal and the shadowed ground and cannot separate
-them. **A low raking shot under the sill is the new frame that would settle it.**
+**PARTLY CLOSED WITH ITS CEILING, AND AT REV 60c THE RESIDUE IS APPORTIONED RATHER THAN ASSERTED.**
+The third row above is a CONTROL (`T1_UNDER_VIS`, measurement only) that separates the two named
+causes, which rev 60 could only name: **the assumed drop owns 0.0995 of the residue, and even at the
+most generous drop the photograph is still 0.202 away — and that remainder is the studio**, F62's
+ceiling, which the owner has ruled. **The shipped constant stays 0.090 deliberately**: the
+0.137–0.155 m band is a CEILING containing both the metal and the shadowed ground, and setting a
+constant to a ceiling would assume the band is all metal. **A low raking shot under the sill is the
+new frame that would settle it.**
 
-**C5 was watched failing at 0.5475 before it was watched passing** (rule 3), and `verify.py`'s length
+**AND THE 0.2519 THIS BRIEF PUBLISHED WAS SUBSTANTIALLY THE BUG.** The pre-repair pan hung
+0.134–0.145 m low, which is essentially the 0.145 row above (0.2590). **Rev 60's "improvement" was
+mostly a mesh error that happened to flatter the gate.**
+
+**THE NAME IS ALSO WRONG AND IS FIXED IN SOURCE: `UNDER_DROP` STOPPED MEANING THE VISIBLE DROP.**
+Rev 60b silently redefined it as the pan prism's DEPTH, most of it buried (0.124 m now), while the
+brief, `GAPS_rev60.md` and `audit_adversary.py`'s ceiling question all went on quoting it against a
+ceiling that belongs to the visible drop. **`UNDER_VIS` is the visible drop and is the 0.090.**
+
+**C5 was watched failing before it was watched passing** (rule 3 — re-watched at rev 60c: 0.5607 ablated, 0.3585 built), and `verify.py`'s length
 row caught the pan's first aft end protruding **205 mm** past the vehicle's fixed bodywork limit.
 
 ### §2.2 ITEM C — THE EMBLEM: THREE REFUTATIONS AND THE CAUSE (F101–F105)
@@ -310,6 +331,68 @@ be a lighting defect is laundering.**
 
 ---
 
+## §2.7 WHAT REV 60c DID — AN INDEPENDENT ADVERSARY PUT THE BUG BACK AND NOTHING NOTICED
+
+**THE FINDING THAT MATTERS, and it is about this repository's guards, not about the underbody.**
+An independent adversary restored rev 60's *exact* z error on the repaired tree — pan 45 mm low
+leaving an open slot, rails 78 % buried — and reported `VERIFY: 0 fail, 0 warn` and
+`verify_clone.sh` **ALL PASS**. `grep -n "underpan\|chassis_rail\|under_close\|UNDER_" verify.py`
+returned **nothing**. The rev-60b repair guarded the one axis `STATE.md` happened to already print
+and left the axis that caused the visible damage unguarded and un-ablatable. **The clone-level row
+was worse: it greps `STATE.md` for the four object NAMES, so it passed throughout rev 60 with both
+closers 685 mm proud AND the pan 45 mm low** — rule 10, verbatim.
+
+**FOUR MORE DEFECTS IN THE SAME ASSEMBLY, all measured off the mesh, all confirmed independently
+before acting** (F116–F125, and every one is in `OPEN_FINDINGS.md` with its number):
+
+| what | measured | now |
+|---|---|---|
+| aft closer PROUD of the tapering tail | up to **+48 mm**, last 7 mm past the rearmost bodywork in open air | ends at x −1.830; worst **−26.2 mm, inboard everywhere** |
+| OPEN SLOT against the shell | **−29.1 mm** at the tail, −2.3 mm at the front | worst intrusion **+11.5 mm**, closed |
+| rails end blunt in mid-air | **200 mm** short of the pan, square 35 mm face in silhouette | tapered into the pan, ending 100 mm inboard |
+| pan floor / rail top | **bit-identical** `0.29599999999999999`, coincident faces over 3.14 m | 10 mm overlap |
+
+**AND `ZB` IS NOT THE SHELL'S UNDERSIDE — that is why rev 60b's slot fix missed the tail by 29 mm.**
+`UNDER_TOP` was set "above max(ZB) = 0.397". Ray-cast up at the shell from below and its own bottom
+face, authored, is a curve that RISES AT BOTH ENDS, to **0.4391** at x −1.850. **Rev 60b's stated
+CAUSE is retracted too**: it blamed the rake shear, but step 8b shears pan and shell alike, and a
+shear that is a pure function of x cannot open a gap between two things at the same x.
+
+**THE GUARDS THAT NOW EXIST, and rule 36 says to write down what they cannot see — both do, in
+source.** `verify.py` gained **proudness** (per station, against the body's OWN half-width) and
+**slot** (against the shell's OWN ray-cast underside). Neither derives its threshold from what it
+checks (rule 6): both compare the underbody against the BODY, built by other code.
+**Watched failing, all three, which is the only reason they count (rule 3):**
+
+```
+T1_UNDER_ZBUG   -> SLOT  -50.5 mm     the defect that was invisible
+T1_UNDER_PROUD  -> PROUD +55.4 mm     and it fires the slot row too
+T1_UNDER_YBUG   -> PROUD +753.8 mm    and the old lateral row
+```
+
+**MY OWN NEW GUARD WAS WRONG ON ITS FIRST RUN — rule 4, on schedule.** It sampled a 6 mm vertex slab,
+found it EMPTY at x −0.630 because the shell is subdivided, and reported the pan **780 mm proud**
+where it is 95 mm inboard. Caught by reading the number, fixed by binning the profile once (F125).
+
+**AND FIVE FIGURES IN THE RECORD WERE WRONG** (F120–F124): item D's headline **G4 0.2519 was
+measured on a mesh the repair deleted** and is really **0.3585**; *"919 mm proud"* stood in THREE
+source files when 1.560 − 0.875 = **685**; the aft-ramp comment cited `WX(-1.880) = 0.873` when it is
+**0.7122** (0.873 is `WX(-1.700)`, 180 mm away) — **and that sentence is what licensed the
+proudness**; `UNDER_DROP` silently stopped meaning the visible drop; and `underbody()` cited **SPEC
+10.117, which is about PAINT** — SPEC has no underbody section, so the citation is WITHDRAWN rather
+than invented (rule 34).
+
+**THE ONE PIECE OF GENUINELY NEW GROUND: G4's RESIDUE IS NOW APPORTIONED, NOT ASSERTED.** See §2.1.
+`T1_UNDER_VIS` is a MEASUREMENT-ONLY control that separates the two causes rev 60 could only name.
+**The assumed drop owns 0.0995; the studio owns the remaining 0.202.** And it explains 0.2519: the
+bugged pan hung 0.134–0.145 m low, which is the deep-pan case, **so rev 60's "improvement" was
+substantially the bug**.
+
+**`GAPS_rev60.md` HAD NOT BEEN TOUCHED BY ANY REPAIR COMMIT** while §0.0 orders it read FIRST. It is
+a carrier, so it is annotated IN PLACE with a ⚠ block naming all four retracted things (F124).
+
+---
+
 ## §3. THE WORK LIST FOR REV 61
 
 > **`GAPS_rev60.md` §6 is the ranked order and it is the owner's own list worked through. This
@@ -341,7 +424,7 @@ through M1.** If no angular arrangement reaches 7 substantial cells at the photo
 ### §3.2 ITEM B — THE NOSE. Three candidates, and the ablations are already in the tree.
 
 ```bash
-python3 probe_rev59_nose.py out/r61_front.png     # M1 FAILS: 1.185 vs 1.951-2.121
+python3 probe_rev59_nose.py out/r61_front.png     # M1 FAILS: 1.187 vs 1.951-2.121
 ```
 
 **Sweep each through M1, exactly as rev 60 swept `V_POW` — one render each:**
@@ -508,7 +591,7 @@ python3 gloss_compare.py out/r61_hero.png                    # GATE 3.  FAILS at
 #     gate no longer dirties the tree.  T1_GL_TILES=track restores the old
 #     destination if you deliberately want to refresh the committed tiles.
 python3 probe_rev59_door.py out/r61_side.png                # ITEM A.  M2 PASSES, M3 fails BY DESIGN.
-python3 probe_rev59_nose.py out/r61_front.png               # ITEM B.  M1 FAILS: 1.185 vs 1.951-2.121.
+python3 probe_rev59_nose.py out/r61_front.png               # ITEM B.  M1 FAILS: 1.187 vs 1.951-2.121.
 T1_SUB=1 /tmp/blender/blender -b -P probe_rev45_nose.py     # 8 checked, 0 FAILED -- and read F86.
 python3 gloss_compare.py --selftest                          # exposure invariance, NO frame needed
 python3 visibility_budget.py 3840                            # THE RANKING.  Run it before choosing.
@@ -552,9 +635,17 @@ the tracked baseline; the full frame is **not** tracked and that is deliberate. 
 narrowed **by DIMENSION, not by name** — tracked hero PNGs must be ≤ 1600 px wide.
 
 **ABLATIONS — every one exists to WATCH A GUARD FAIL.**
+**NEW AT REV 60c — THE TWO AXES REV 60b LEFT UNGUARDED, AND THE ONE THAT APPORTIONS G4:**
+**`T1_UNDER_ZBUG`** (restores rev 60's z error — pan 45 mm low, rails 78 % buried; `verify.py`'s
+underbody SLOT row must REFUSE — **watched at -50.5 mm**), **`T1_UNDER_PROUD`** (restores rev 60b's
+aft ramp, which stood up to 48 mm proud of the tapering tail; the PROUDNESS row must REFUSE —
+**watched at +55.4 mm**, and it fires the slot row too), **`T1_UNDER_VIS`** (the pan's VISIBLE drop
+— **MEASUREMENT ONLY**, it is what apportions G4 in §2.1 and it is not a tuning knob).
+**And `T1_UNDER_YBUG` now fires TWO rows, not one — watched at +753.8 mm on the new proudness row.**
+
 **NEW AT REV 60 — and `T1_NOUNDER` is the one that arms item D's whole gate:**
 **`T1_NOUNDER`** (omits the underbody entirely; `probe_rev45_ground.py`'s **C5 must REFUSE** — watched
-failing at G4 0.5475 before it was watched passing at 0.2519), **`T1_UNDERSEAL`**`=0` (puts the pan
+failing at G4 0.5607 before it was watched passing at 0.3585), **`T1_UNDERSEAL`**`=0` (puts the pan
 back on the cab-interior grey, which is the 0.352-vs-0.219 step), **`T1_VPOW`** / **`T1_VPOWZ`** (the
 paint's and the pressed swage's exponents — **move them TOGETHER** or `verify.py` fires *"V_POW
 de-registered"*, which is correct and was watched), **`T1_VRISE`** (re-derives `V_APEX0` to hold the
