@@ -35,9 +35,17 @@ REF   = "ref_nolita_doorshut.jpg"
 PHOTO = os.path.join(os.path.dirname(os.path.abspath(__file__)), REF)
 
 # ---- the model's own constants, so the control has something to miss -------
+#
+# READ LIVE, NEVER RE-TYPED.  The first cut of this probe pasted rev 44b's two
+# constants as literals, and the moment the source moved -- in the same
+# revision, by this probe's own finding -- the controls started grading the new
+# build against the old numbers and reported the FIX as a 20 % miss.  A probe
+# that re-types the thing it is checking is checking its own typing.
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-X_AXLE_F, TIRE_R, ARCH_R = 1.300, 0.3325, 0.3735
-DOOR_LOBE_A_BUILT, DOOR_LOBE_B_BUILT = (91.1 - 56.0) / 39.54, (91.1 - 46.0) / 39.54
+import t1_core as _T
+import t1_shell as _S
+X_AXLE_F, TIRE_R, ARCH_R = _T.X_AXLE_F, _T.TIRE_R, _S.ARCH_R
+DOOR_LOBE_A_BUILT, DOOR_LOBE_B_BUILT = _S.DOOR_LOBE_A, _S.DOOR_LOBE_B
 ORTHO, RX, RY, CAM_Z = 5.90, 1600, 1100, 1.52     # studio.py "side"
 
 
@@ -217,7 +225,8 @@ def main():
           100 * ((mB - mA) / (DOOR_LOBE_B_BUILT - DOOR_LOBE_A_BUILT) - 1)))
     ck("M2 the built lobes sit where the photograph puts them",
        abs(mA - DOOR_LOBE_A_BUILT) < 0.03 and abs(mB - DOOR_LOBE_B_BUILT) < 0.03,
-       "photograph A %.4f B %.4f against built %.4f %.4f -- aft by %.1f / %.1f mm"
+       "photograph A %.4f B %.4f against built %.4f %.4f -- built stands "
+       "%+.1f / %+.1f mm FORWARD of the photograph (+ = too far forward)"
        % (mA, mB, DOOR_LOBE_A_BUILT, DOOR_LOBE_B_BUILT,
           1000 * (DOOR_LOBE_A_BUILT - mA) * ARCH_R,
           1000 * (DOOR_LOBE_B_BUILT - mB) * ARCH_R))
