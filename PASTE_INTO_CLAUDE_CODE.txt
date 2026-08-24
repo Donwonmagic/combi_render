@@ -474,6 +474,10 @@ T1_SUB=1 T1_GL_WRGH=0.25 T1_GL_PFX=w25 T1_RX=1600 T1_RY=1100 T1_SAMP=96 \
 python3 cream_rms.py                                         # the LIVE photograph-side cream
 T1_SUB=1 T1_MM_ALBEDO=1 T1_MM_SAMP=16 /tmp/blender/blender -b -P mottle_measure.py  # GATE 2
 #   ^ 16, NOT the default 64.  Rev 56 measured this statistic stable across 16/32/48.
+T1_SUB=1 T1_VW_DUMP=1 /tmp/blender/blender -b -P probe_rev46_vw.py     # PAINT the cells.  LOOK.
+T1_SUB=1 T1_VW_RES=1 /tmp/blender/blender -b -P probe_rev46_vw.py      # count vs raster scale (F105)
+T1_SUB=1 T1_PG_PAINT=1 /tmp/blender/blender -b -P probe_rev45_ground.py  # ITEM D.  G4 + its PAINTED window
+T1_SUB=1 T1_NOUNDER=1 /tmp/blender/blender -b -P probe_rev45_ground.py   # the ABLATION -- C5 must REFUSE
 python3 audit_brief.py                                       # rule 17's MECHANICAL half
 python3 audit_adversary.py                                   # rule 15's adversary -- REPLACE its questions
 ```
@@ -503,7 +507,21 @@ the tracked baseline; the full frame is **not** tracked and that is deliberate. 
 narrowed **by DIMENSION, not by name** — tracked hero PNGs must be ≤ 1600 px wide.
 
 **ABLATIONS — every one exists to WATCH A GUARD FAIL.**
-**NEW AT REV 59:** **`T1_DOOR_STALE`** (restores rev 44b's door lobes; the re-based cab-door/front-arch
+**NEW AT REV 60 — and `T1_NOUNDER` is the one that arms item D's whole gate:**
+**`T1_NOUNDER`** (omits the underbody entirely; `probe_rev45_ground.py`'s **C5 must REFUSE** — watched
+failing at G4 0.5475 before it was watched passing at 0.2519), **`T1_UNDERSEAL`**`=0` (puts the pan
+back on the cab-interior grey, which is the 0.352-vs-0.219 step), **`T1_VPOW`** / **`T1_VPOWZ`** (the
+paint's and the pressed swage's exponents — **move them TOGETHER** or `verify.py` fires *"V_POW
+de-registered"*, which is correct and was watched), **`T1_VRISE`** (re-derives `V_APEX0` to hold the
+locked identity, so it DE-REGISTERS the swage and is for MEASUREMENT ONLY), **`T1_VW_CAPMIN`** /
+**`T1_VW_PUREFIT`** / **`T1_VW_WFRAC`** (the three emblem routes rev 60 REFUTED — see §2.2 and do not
+re-open them), **`T1_VW_CELLSOLVE`**(`_N`) (the cell-count search), **`T1_VW_DUMP`**(`_P`) (**paints
+what `cream_cells` actually counts** — the only reason the cause was found), **`T1_VW_RES`** (the
+count against raster scale, which is how F105 was caught), **`T1_VW_WSWEEP`** (stroke weight against
+the photograph's ink fraction), **`T1_GL_TILES=track`** (writes the gloss tiles back into tracked
+`probe_scratch/`; the default now writes to `out/`, which is F85's fix), **`T1_PG_PAINT`** (paints
+G4's window — **look at it before quoting G4**).
+**CARRIED FROM REV 59:** **`T1_DOOR_STALE`** (restores rev 44b's door lobes; the re-based cab-door/front-arch
 clearance guard must REFUSE — watched, at 0.0653 R against the photograph's 0.0226 R).
 **CARRIED FROM REV 58:** **`T1_NORIG`** (suppresses the rig; `assert_lit` must refuse — watched),
 **`T1_RIG`** (build the rig without asking for a preview), **`T1_GC_ABSSPREAD`** (drops the `/p50`;
