@@ -114,7 +114,7 @@ built          G3 0.7714   G4 0.2519     [STALE]
      and the gate was never re-run.  Re-measured:
 
 T1_NOUNDER=1   G3 0.8376   G4 0.5607
-built          G3 0.7935   G4 0.3585     <- the live figure
+built          G3 0.7935   G4 0.3599     <- the live figure
 T1_UNDER_VIS=0.145 (the photographed ceiling band's top)   G4 0.2590
 photograph ref_side.jpg                                    G4 0.057
 
@@ -133,7 +133,7 @@ measured here for the underbody instead of the flank.
 **G4** was added to `probe_rev45_ground.py`, its window located from that
 probe's own projected contact patches. **C5 is armed at the ABLATION**, which is
 render-against-render and so free of the studio caveat — **watched failing at
-0.5475 before it was watched passing at 0.2519** (rule 3). **Re-watched at rev 60c: 0.5607 ablated, 0.3585 built.**
+0.5475 before it was watched passing at 0.2519** (rule 3). **Re-watched at rev 60c: 0.5607 ablated, 0.3599 built.**
 
 * **G4's first window was wrong and printed a believable 0.3134.** It walked up
   from `min(PX[k][1])` — the farthest contact patch, not the ground line at
@@ -272,5 +272,5 @@ verify_clone.sh   261 PASSED, 1 FAILED at mid-revision -- the self-referential r
 verify.py         0 fail, 0 warn at T1_SUB=1 AND T1_SUB=2
 probe_rev46_vw    7 checked, 1 FAILED -- C6, photo 7 built 6.  UNCHANGED, by design
 probe_rev59_nose  5 checked, 1 FAILED -- M1, 1.187 vs 1.951..2.127.  UNCHANGED
-probe_rev45_ground 5 checked, 0 FAILED -- G4 0.2519 (was 0.5475 ablated)  [STALE: rev 60c reads 0.3585 / 0.5607]
+probe_rev45_ground 5 checked, 0 FAILED -- G4 0.2519 (was 0.5475 ablated)  [STALE: rev 60c reads 0.3599 / 0.5607]
 ```

@@ -957,8 +957,43 @@ def _under_proud(body, log=print):
 
 
 def _under_slot(body, log=print):
-    """Worst OPEN SLOT between the underbody's top and the shell's underside,
-    in mm.  Negative = a gap you could see daylight through."""
+    """Worst OPEN SLOT between the underbody and the shell, in mm, along the
+    underbody's OUTWARD-FACING PERIMETER.  Negative = a gap you could see
+    daylight through.
+
+    rev 60c-ii -- TWO WINDOWS WERE WRONG BEFORE THIS ONE, AND BOTH FAILED THE
+    SAME WAY: they measured somewhere the defect was not.
+
+    (1) The first sampled five typed y stations ending at 0.74 and reported
+        "CLOSED everywhere the pan spans".  The shell's underside at the tail
+        is a DISH that turns up sharply into the flank, so the margin at
+        x -1.823 ran +24.5 mm at y 0.700, +16.0 at 0.740 -- the LAST SAMPLE --
+        then +3.5 at 0.760 and -20.8 mm at 0.778.  A -15 mm slot was live at
+        both outer corners, symmetric, while the row printed CLOSED into
+        STATE.md.  An independent adversary found it; the author did not.
+        It also never sampled -y at all, which is the side the rev-60 defect
+        lived on.
+
+    (2) Sampling the parts' whole footprint then fired at -357 mm over the
+        WHEEL WELLS, where the body's nearest downward face is the inner arch
+        350-400 mm up.  Capping the comparison at a gap threshold only moved
+        the false positive (x +0.965 read -148 mm, just inside a 150 mm cap):
+        across the notch boundary the gap is a CONTINUUM from 0 to 357 mm, so
+        NO threshold separates the two cases.  A threshold was the wrong
+        instrument, not a badly-chosen one.
+
+    WHAT IT ASKS NOW.  A slot only matters if you can SEE it, and the surfaces
+    you can see are the underbody's outward-facing perimeter: the outboard
+    edge where the pan runs at FULL width (the notched edges face the wheel
+    wells and are covered by the tub and the tyre), and the fore and aft end
+    stations.  Both are taken from the MESH -- full width means "within 2 mm
+    of this part's own widest", not a typed constant -- so the notch is
+    excluded because it is narrower, not because anything was hard-coded.
+
+    WHAT IT DOES NOT SEE (rule 36): anything under the wheel wells; the pan's
+    FLOOR (nothing here bounds how low the underbody hangs -- that is
+    probe_rev45_ground.py's G4, off a photograph); y-proudness (the row
+    above); a slot narrower than the sample step."""
     obs = _under_objs()
     if not obs:
         return None, None
@@ -974,20 +1009,43 @@ def _under_slot(body, log=print):
         d = (M.to_3x3() @ Vector((0.0, 0.0, -1.0))).normalized()
         h, l, nn, i = ob.ray_cast(o, d)
         return (ob.matrix_world @ l).z if h else None
-    worst, where = 1e9, None
-    xs = [ -1.82 + 0.04 * i for i in range(0, 93) ]     # -1.82 .. +1.86
-    for x in xs:
-        for y in (0.03, 0.20, 0.40, 0.60, 0.74):
-            tops = [t for t in (ray_down(ob, x, y) for ob in obs)
-                    if t is not None]
-            if not tops:
-                continue            # no underbody here: the shell closes it
-            sb = ray_up(body, x, y)
-            if sb is None:
-                continue            # no shell above: the length row owns this
-            d = (max(tops) - sb) * 1000.0
-            if d < worst:
-                worst, where = d, (x, y, max(tops), sb)
+    # Build the perimeter sample set from each part's own mesh.
+    pts = set()
+    for ob in obs:
+        M = ob.matrix_world
+        vs = [M @ v.co for v in ob.data.vertices]
+        x0, x1 = min(v.x for v in vs), max(v.x for v in vs)
+        ygl = max(abs(v.y) for v in vs)
+        nx = max(8, int((x1 - x0) / 0.006) + 1)
+        for i in range(nx + 1):
+            x = x0 + (x1 - x0) * i / float(nx)
+            loc = [abs(v.y) for v in vs if abs(v.x - x) < 0.010]
+            if not loc:
+                continue
+            ym = max(loc)
+            if ym >= ygl - 0.002:          # FULL WIDTH -> this edge faces out
+                for sgn in (1.0, -1.0):
+                    pts.add((round(x, 4), round(sgn * (ym - 0.003), 4)))
+        # the two END stations, right across the part
+        ny = max(8, int(ygl / 0.008) + 1)
+        for xe in (x0 + 0.003, x1 - 0.003):
+            for j in range(ny + 1):
+                y = ygl * j / float(ny)
+                for yy in (y, -y):
+                    pts.add((round(xe, 4), round(yy, 4)))
+    worst, where, n = 1e9, None, 0
+    for x, y in sorted(pts):
+        tops = [t for t in (ray_down(ob, x, y) for ob in obs) if t is not None]
+        if not tops:
+            continue                # no underbody here: the shell closes it
+        sb = ray_up(body, x, y)
+        if sb is None:
+            continue                # no shell above: the length row owns this
+        n += 1
+        d = (max(tops) - sb) * 1000.0
+        if d < worst:
+            worst, where = d, (x, y, max(tops), sb)
+    _under_slot.n = n
     return (None, None) if where is None else (worst, where)
 
 
@@ -1098,8 +1156,8 @@ def run(body, log=print):
                 % (_swh[2], _swh[0], _swh[1], _swh[3], _sw, _UNDER_SLOT_MIN))
         elif _sw is not None:
             log("  underbody/shell fit: worst intrusion %+.1f mm at (x %+.3f, "
-                "y %+.2f) -- CLOSED everywhere the pan spans"
-                % (_sw, _swh[0], _swh[1]))
+                "y %+.2f) over %d perimeter station(s), both signs of y"
+                % (_sw, _swh[0], _swh[1], getattr(_under_slot, "n", 0)))
     # rev 8: HEIGHT IS NOT A SCALAR ANY MORE, twice over. The vehicle is raked,
     # so the roof is a sloping line; and the roof lids are modelled OPEN, so the
     # bbox top is ~3.0 m, not the vehicle.

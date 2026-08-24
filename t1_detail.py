@@ -1708,7 +1708,7 @@ UNDER_VIS  = 0.0900                 # ZB - UNDER_FLOOR amidships.  The STATED
 UNDER_VIS = float(os.environ.get("T1_UNDER_VIS", UNDER_VIS))
 UNDER_FLOOR = UNDER_FLOOR - (UNDER_VIS - 0.0900)
 UNDER_DROP = UNDER_TOP - UNDER_FLOOR   # recomputed: the floor may have moved
-UNDER_X0, UNDER_X1 = 1.780, -1.760  # clear of BOTH wheel-house notches:
+UNDER_X0, UNDER_X1 = 1.780, -1.700  # clear of BOTH wheel-house notches:
 #   front notch 0.9165..1.6835 (X_AXLE_F +- ARCH_R + 10 mm)
 #   rear  notch -1.570..-0.630 (X_AXLE_R +- ARCH_W_REAR/2 + 10 mm)
 # so both ends of the pan are at FULL width and the end ramps below can close
@@ -1746,7 +1746,7 @@ RAIL_INSET = 0.100                  # rail ends, inboard of the pan's own ends
 # THE END CLOSERS.  Each end gets its OWN length and its OWN outer top: the
 # body is symmetric in neither.
 UNDER_RAMP_F = 0.120                # front: to x +1.900
-UNDER_RAMP_A = 0.070                # aft:   to x -1.830, and NOT further --
+UNDER_RAMP_A = 0.100                # aft:   to x -1.800, and NOT further --
 # rev 60c: the aft ramp ran to -1.880 at a FLAT 0.780 half-width while the
 # tail tapers away under it.  Measured on the mesh, body max|y| against that
 # 0.780:
@@ -1758,11 +1758,29 @@ UNDER_RAMP_A = 0.070                # aft:   to x -1.830, and NOT further --
 # air -- a black wedge 156 mm across, lit on its top face, in the lower third
 # of the delivery frame.  That is the SAME defect class as the 685 mm error
 # this function was repaired for, 40 mm away from where it was repaired.
-# -1.830 is the last station with the skin still outboard of 0.780 by a margin
-# (0.8062, +26 mm).  A wider ramp cannot reach further aft; a longer one would
-# have to taper in y, and nothing a photograph shows would settle its shape.
+# rev 60c-ii -- AND -1.830 WAS STILL TOO FAR AFT, FOR A SECOND AND DIFFERENT
+# REASON: not the skin's width but the shell's UNDERSIDE at the CORNERS.  The
+# tail's underside is a DISH that turns up violently into the flank over the
+# last 30 mm.  Authored frame, ray-cast at the pan's own outer edge:
+#
+#     x        -1.700  -1.740  -1.760  -1.780  -1.800  -1.830
+#     y 0.05    0.4045  0.4052  0.4054  0.4059  0.4096  0.4224
+#     y 0.777   0.3995  0.4012  0.4027  0.4066  0.4167  0.4863   <- the corner
+#
+# The corner is FLAT to -1.780 and then climbs 80 mm in 30 mm of x.  A ramp
+# reaching -1.830 at a flat top left a measured **-53.4 mm OPEN SLOT** at both
+# outer corners -- which the first version of verify.py's slot row could not
+# see, because its outermost sample was y 0.74 (F126).  The aft closer now
+# stops at -1.800, where the corner is still only 0.4167, and the pan itself
+# starts its ramp 60 mm further forward so the run stays a ramp (53 deg) and
+# does not become a wall.  Everything aft of -1.800 is closed by the shell's
+# OWN sheet metal, which is what that dish is.
+# A ramp reaching further would have to taper in y, and nothing a photograph
+# shows would settle its shape.
 UNDER_TOP_F  = 0.4270               # >= shell 0.4165 at x +1.900, +10.5 mm
-UNDER_TOP_A  = 0.4330               # >= shell 0.4224 at x -1.830, +10.6 mm
+UNDER_TOP_A  = 0.4300               # >= shell 0.4167 at x -1.800, +13.3 mm
+#                                   # -- and that is the CORNER value, not the
+#                                   # centreline's 0.4096.  See the table below.
 UNDER_RAMP_W = UNDER_W              # the ramps are the PAN's OWN width.
 # The first cut made them 1.400 against the pan's 1.560, and the 80 mm ledge
 # of pan left proud on each side kept its square aft face -- so the block
@@ -1834,11 +1852,17 @@ def underbody():
     zb = _ztop - UNDER_DROP
     for xe, xo, zt_out, nm in ((UNDER_X0,  UNDER_RAMP_F, UNDER_TOP_F, "f"),
                                (UNDER_X1, -UNDER_RAMP_A, UNDER_TOP_A, "a")):
-        # T1_UNDER_PROUD=1 restores rev 60b's aft ramp, which ran 50 mm
-        # further aft at a flat half-width and stood up to 48 mm proud of the
+        # T1_UNDER_PROUD=1 restores rev 60b's aft ramp, which ran to x -1.880
+        # at a flat half-width and top, and stood up to 48 mm proud of the
         # tapering tail.  verify.py's proudness row must REFUSE it.
+        # rev 60c-ii: PINNED TO THE ABSOLUTE STATION, not to a length.  It was
+        # written as `xo = -0.120`, which reproduced -1.880 only while the pan
+        # ended at -1.760; when the pan's end moved to -1.700 the ablation
+        # silently became a -1.820 ramp, which is INBOARD of the skin, and it
+        # stopped exercising the proudness row at all.  An ablation expressed
+        # as an offset from a constant that moves is not an ablation.
         if os.environ.get("T1_UNDER_PROUD") == "1" and nm == "a":
-            xo, zt_out = -0.120, UNDER_TOP
+            xo, zt_out = (-1.880 - xe), UNDER_TOP
         prof = [(xe, zb), (xe + xo, zt_out), (xe, _ztop)]
         # y origin is 0.0 -- the CENTRELINE.  The first cut passed
         # -UNDER_RAMP_W/2 as well as the depth, so the two offsets ADDED and

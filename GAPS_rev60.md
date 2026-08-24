@@ -18,7 +18,7 @@ that retired them.
 > 1. **G4 / the cavity figures (§ the table below, and the gate table).** `0.2519`
 >    and `0.219` were measured on a pan that a bug hung 45 mm too low. The repair
 >    that fixed the bug raised the floor and nobody re-ran the gate. **Re-measured
->    at rev 60c: G4 = 0.3585 built, 0.5607 ablated.**
+>    at rev 60c: G4 = 0.3599 built, 0.5607 ablated.**
 > 2. **`251–284 px/m` (twice).** RETRACTED at rev 60b as F108. There is no tyre in
 >    that window — the tyre and the arch shadow above it are contiguous and no
 >    threshold separates them. **The scale is 211.6 px/m**, from a circle fit to
@@ -60,7 +60,7 @@ before quoting any of them.
 | `probe_rev59_nose.py` | **M1 FAILS** — 1.187 lamp radii against 1.951 … 2.127 | in range | item B, lever unknown |
 | `flank_compare.py` | **FAILS** — worst region **`i` at 0.685**, `Senor` 0.720 | 0.75 | F01/F39 |
 | `gloss_compare.py` | **FAILS at 0.436** (was 0.426 at rev 58) | 0.60 | ceiled, F60/F62 |
-| `probe_rev45_ground.py` | 5 checked, **0 FAILED**. ~~G4 **0.2519** (ablated 0.5475)~~ **STALE — re-measured at rev 60c: G4 0.3585, ablated 0.5607** | G4 < 0.45 | item D, partly closed |
+| `probe_rev45_ground.py` | 5 checked, **0 FAILED**. ~~G4 **0.2519** (ablated 0.5475)~~ **STALE — re-measured at rev 60c: G4 0.3599, ablated 0.5607** | G4 < 0.45 | item D, partly closed |
 
 ---
 
@@ -127,7 +127,7 @@ with the attribution rev 60 could not give:**
 | G4, cavity floor ÷ open ground | value |
 |---|---|
 | ablated (`T1_NOUNDER=1`, no underbody at all) | 0.5607 |
-| **built, as shipped (visible drop 0.090 m)** | **0.3585** |
+| **built, as shipped (visible drop 0.090 m)** | **0.3599** |
 | built at the TOP of the photographed ceiling band (drop 0.145 m) | 0.2590 |
 | photograph `ref_side.jpg` | 0.057 |
 
@@ -138,6 +138,10 @@ ceiling, which the owner has ruled. **The shipped constant stays 0.090**: the
 0.137–0.155 m band is a CEILING containing both the metal and the ground shadow,
 and setting a constant to a ceiling would assume the band is all metal.
 `T1_UNDER_VIS` exists to measure this, not to tune it.
+
+**AND THE GATE'S OWN SPREAD IS NOW STATED, WHICH NOBODY HAD DONE.** Three runs of `G4` across two
+geometry variants of this same repair read **0.3585 / 0.3599 / 0.3612** — a spread of **0.0027**, or
+0.8 % relative. **Quote it as 0.360 ± 0.002, not to four figures.** The live value is **0.3599**.
 
 **AND IT EXPLAINS THE 0.2519 THIS FILE PUBLISHED.** The pre-repair pan hung
 0.134–0.145 m low — i.e. essentially the third row above, which reads 0.2590.
