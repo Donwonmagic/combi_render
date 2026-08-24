@@ -232,6 +232,30 @@ done
 [ -z "$STRANDED" ] && ck "no branch carries work HEAD does not have" ok \
   || ck "no branch carries work HEAD does not have" "STRANDED:$STRANDED -- SPEC 10.113.5"
 
+# --------------------------------------------------------------------- rev 60b
+# THE AXIS ROW 9 CANNOT SEE, AND IT COST THIS PROJECT SEVEN REVISIONS OF WRONG
+# MERGE-STATE PROSE.
+#
+# Row 9's loop is `git rev-list --count HEAD.."$b"` -- it finds branches AHEAD
+# OF HEAD.  It is structurally blind to the opposite direction: HEAD ahead of
+# origin/main, i.e. work that is finished, pushed, and MERGED NOWHERE.  At rev
+# 60b that was 39 commits -- the whole of rev 59 and rev 60 -- while row 9 read
+# green, and the brief said "0 ahead / 0 behind" because it had measured
+# `git diff HEAD...origin/main`, the THREE-DOT form, which is empty whenever
+# main has nothing HEAD lacks and says nothing about the reverse.
+#
+# THIS IS NOT A FAILURE: being ahead mid-revision is the normal state, and a row
+# that cries wolf on that is worse than no row (see the note above).  It PRINTS,
+# every run, so the number cannot be guessed in prose again.
+_AHEAD="$(git rev-list --count origin/main..HEAD 2>/dev/null || echo '?')"
+_BEHIND="$(git rev-list --count HEAD..origin/main 2>/dev/null || echo '?')"
+say "  note: HEAD is $_AHEAD ahead / $_BEHIND behind origin/main."
+if [ "${_AHEAD:-0}" -gt 0 ] 2>/dev/null; then
+  say "        Those $_AHEAD commits are MERGED NOWHERE.  Row 9 cannot see this"
+  say "        axis -- it only finds branches ahead of HEAD.  Carry the number"
+  say "        into the handoff; do NOT infer it from 'git diff HEAD...main'."
+fi
+
 # --------------------------------------------------------------- 5  the tree
 if [ -x ./verify_clone.sh ]; then
   if ./verify_clone.sh --quiet >/dev/null 2>&1

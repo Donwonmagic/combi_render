@@ -33,8 +33,21 @@ from scipy import ndimage
 ORTHO, RX, RY = 3.55, 1600, 1100          # studio.py "front"
 # What the photographs read, from OPEN_FINDINGS F75.  Carried here so the
 # comparison is in the probe rather than in a paragraph.
+# rev 60b -- `ref_workshop` IS THE GREEN VEHICLE AND THIS IS A PAINT BOUNDARY.
+#
+# The two-tone break is where the CREAM meets the RED.  `ref_workshop.jpg` is a
+# different bus in a different livery -- §0.1 of every brief since rev 54 says
+# so, and CLAUDE.md rule 11 says paint and artwork do not transfer between
+# vehicles while geometry does.  Its 2.127 was nevertheless the number M1
+# printed as the target to reach, and rev 60 carried "74-76 mm" forward from it
+# into the owner's own item B.
+#
+# It is KEPT, because it is the only BARE-APERTURE reading -- no chrome rim, no
+# bloom -- and F75's register row calls it "the unambiguous ruler".  But it is
+# now labelled, and the bar below is taken from the RED BUS frames only.
 PHOTO = {"ref_nolita_front34": 2.121, "ref_nolita_front34b": 2.100,
-         "ref_playa_34": 1.951, "ref_workshop": 2.127}
+         "ref_playa_34": 1.951}
+PHOTO_GEOMETRY_ONLY = {"ref_workshop": 2.127}   # GREEN vehicle -- see above
 
 
 def main():
@@ -125,11 +138,13 @@ def main():
     ck("M1 the break sits as high above the lamp as the photographs put it",
        lo_p <= built <= hi_p,
        "elevation %.3f lamp radii against the photographs' %.3f .. %.3f "
-       "(%s).  To reach %.3f the break must rise %.1f px = %.0f mm"
+       "(%s; ref_workshop 2.127 is the GREEN vehicle and is EXCLUDED -- "
+       "paint does not transfer, rule 11).  To reach %.3f, the highest RED-BUS "
+       "reading, the break must rise %.1f px = %.0f mm"
        % (built, lo_p, hi_p, ", ".join("%s %.3f" % kv for kv in PHOTO.items()),
-          PHOTO["ref_workshop"],
-          PHOTO["ref_workshop"] * out[0][2] - (out[0][1] - out[0][3]),
-          1000 * (PHOTO["ref_workshop"] * out[0][2] - (out[0][1] - out[0][3])) / pxm))
+          max(PHOTO.values()),
+          max(PHOTO.values()) * out[0][2] - (out[0][1] - out[0][3]),
+          1000 * (max(PHOTO.values()) * out[0][2] - (out[0][1] - out[0][3])) / pxm))
 
     print("=" * 78)
     print("  probe_rev59_nose -- the two-tone break, on an ORTHOGRAPHIC elevation")

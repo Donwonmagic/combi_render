@@ -27,7 +27,7 @@ recommended order and this §0.0 is its short form.
 | **A** | **THE DOOR** | **FIXED AT REV 59.** 0.1 mm | `probe_rev59_door.py` M2 **PASSING** |
 | **D** | **THE GROUND SHADOW AND UNDERBODY** | **BUILT AT REV 60, PARTLY CLOSED.** Cavity 0.545 → **0.219** against a photographed 0.057; the residue is the ruled-in studio | `probe_rev45_ground.py` **G4, PASSING at 0.2519** |
 | **C** | **THE EMBLEM — still an X** | **NOT FIXED. CAUSE LOCALISED at rev 60** to the CONSTRUCTION: the V and W are each ONE mitred polyline and they fuse into two diagonals. **Three hypotheses refuted — do not re-try them** | `probe_rev46_vw.py` C6, **watched failing** |
-| **B** | **THE NOSE BREAK, 74–76 mm low** | **NOT FIXED. THE WHOLE REMEDY PROGRAMME IS REFUTED at rev 60** — `V_POW`, `V_RISE` and `V_POW_Z` all fail to move the feature | `probe_rev59_nose.py` M1, **watched failing** |
+| **B** | **THE NOSE BREAK — 73 mm on the red-bus ruler, but F75's HONEST BRACKET IS 50–80 mm, best single estimate 52 mm** | **NOT FIXED. THE WHOLE REMEDY PROGRAMME IS REFUTED at rev 60** — `V_POW`, `V_RISE` and `V_POW_Z` all fail to move the feature | `probe_rev59_nose.py` M1, **watched failing** |
 | **E** | **THE INTERIORS** | **F45 REFUTED AS WRITTEN.** The real defect is CHROMA (F99) and its cause is not separable from one frame | none — and that is a finding |
 
 **THE ONE THING TO PUT TO HIM, as multiple choice with the two crops attached:**
@@ -65,7 +65,7 @@ tune, FIRST.* Rev 58 and rev 59 both proposed inverting nose constants that four
 **AND FOUR OF MY OWN INSTRUMENTS WERE WRONG THIS REVISION, WHICH IS NORMAL HERE (rule 4).** A G4
 window that walked up from the wrong contact patch onto the **"Tacombi" lettering** and printed a
 believable **0.3134**; a px/m fit that locked onto body red **around a person standing in front of
-the wheel** (210 px/m against the tyre's own 258.6); a red mask that swallowed the **mural lid** and
+the wheel**; a red mask that swallowed the **mural lid** and
 reported 1.972 m of red on a body 1.5 m tall; and a contiguous-run edge finder cut short by the
 **silver script**. **Every one caught by PAINTING THE WINDOW AND LOOKING. None by reasoning.**
 
@@ -233,7 +233,7 @@ scale the built glyph reads **4**, so **C6 understates the deficit**.
 ### §2.3 ITEM B — THE NOSE REMEDY PROGRAMME IS REFUTED (F106/F107)
 
 ```
-V_POW   0.15 / 0.60 / 1.20     ->  1.174 / 1.187 / 1.170 lamp radii
+V_POW   0.15 / 0.60 / 1.20     ->  1.174 / 1.187 / 1.170 lamp radii   (r60_front)
 V_RISE  0.8670 / 0.9800        ->  1.174 / 1.165
 V_POW = V_POW_Z, 0.60 / 0.30   ->  1.175 / 1.178
 ```
@@ -283,8 +283,12 @@ be a lighting defect is laundering.**
 * *"`V_POW` needs 0.345 at the lamp"* — **NO** (F106).
 * **MINE:** *"the flank two-tone break sits too low"*, from a side-by-side — **REFUTED BY MY OWN
   MEASUREMENT**: **RETRACTED AGAIN at rev 60b (F110)** — that instrument was on the mural lid and the script. Settled: model 0.8745 m from its own constants against a photographed 0.863 ± 0.014 m, **+12 ± 14 mm, no resolvable gap**.
-* **MINE:** `ref_side.jpg` at 210 px/m from the wheelbase — **REFUSED**, it is **258.6** from the
-  rear tyre's own width; the wheelbase is foreshortened and the front hub cannot be fitted at all.
+* **MINE, AND THEN REFUTED AGAIN AT REV 60b (F108):** I refused the wheelbase's 210 px/m in favour
+  of **258.6** from "the rear tyre's own width". **There is no tyre in that window** — the tyre and
+  the arch shadow above it are contiguous and no threshold separates them. The scale is **211.6 px/m**
+  from a circle fit to both cream rims (rear rms 1.11 px over 828 points), and the rear rim images
+  ROUND, so there is no foreshortening to justify the refusal either. **The route I refused was the
+  right one, and every metric figure I took off that frame carried a 23 % error.**
 * **§2b of the rev-52 brief — HIS SETTLED RULINGS — IS UNCHANGED AND STILL BINDING.** W6; the roof
   strips' 0.3 m retired; the wipers withdrawn entire; the lower bay SHUT; the RED bus is the target
   and **paint and artwork do not transfer between vehicles**; the tail board IS on the vehicle; the
@@ -324,7 +328,7 @@ through M1.** If no angular arrangement reaches 7 substantial cells at the photo
 ### §3.2 ITEM B — THE NOSE. Three candidates, and the ablations are already in the tree.
 
 ```bash
-python3 probe_rev59_nose.py out/r61_front.png     # M1 FAILS: 1.187 vs 1.951-2.127
+python3 probe_rev59_nose.py out/r61_front.png     # M1 FAILS: 1.185 vs 1.951-2.121
 ```
 
 **Sweep each through M1, exactly as rev 60 swept `V_POW` — one render each:**
@@ -491,7 +495,7 @@ python3 gloss_compare.py out/r61_hero.png                    # GATE 3.  FAILS at
 #     gate no longer dirties the tree.  T1_GL_TILES=track restores the old
 #     destination if you deliberately want to refresh the committed tiles.
 python3 probe_rev59_door.py out/r61_side.png                # ITEM A.  M2 PASSES, M3 fails BY DESIGN.
-python3 probe_rev59_nose.py out/r61_front.png               # ITEM B.  M1 FAILS: 1.187 vs 1.951-2.127.
+python3 probe_rev59_nose.py out/r61_front.png               # ITEM B.  M1 FAILS: 1.185 vs 1.951-2.121.
 T1_SUB=1 /tmp/blender/blender -b -P probe_rev45_nose.py     # 8 checked, 0 FAILED -- and read F86.
 python3 gloss_compare.py --selftest                          # exposure invariance, NO frame needed
 python3 visibility_budget.py 3840                            # THE RANKING.  Run it before choosing.
@@ -593,7 +597,7 @@ crop, one mark, one sentence — and ASK IT WITH THE QUESTION TOOL.**
 ## §8. THE OPEN-FINDINGS REGISTER — `OPEN_FINDINGS.md`
 
 **A register existed once and was ABANDONED AT REV 45 WITH 21 ROWS**, and nobody noticed for eleven
-revisions. Rev 56 reinstated it; it carries **65 rows** now.
+revisions. Rev 56 reinstated it; it carries **117 rows** now (rev 58's '65' stood until rev 60b — §8 is a CARRIER and it went stale for two revisions while the findings it points at doubled).
 
 **IT IS A CARRIER (rule 16). Rows leave it only by being CLOSED with the measurement that closed
 them, or RETIRED with the ruling that retired them. Never by being dropped.**

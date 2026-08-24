@@ -49,7 +49,15 @@ if not _heroes:
     sys.exit(2)
 try:
     a = np.asarray(Image.open(_heroes[0]).convert("RGB")).astype(int)
-    nw = (a.max(axis=2) < 235) | (a.max(axis=2) - a.min(axis=2) > 12)
+    # rev 60b -- THE MASK WAS 27 % BACKDROP AND NOBODY HAD PAINTED IT.
+    # The backdrop's lower half renders at 234 DN, ONE code value under the old
+    # `< 235` threshold, so the mask reached column 0 and the subject's measured
+    # width was 1356 px against a true 1069.  Every "linear px" and "area px^2"
+    # printed was inflated ~1.27x / ~1.61x.  The ORDER survived (all rows share
+    # PXM) but the brief promotes this tool as worth trusting, so the number has
+    # to be right too.  Threshold moved well clear of the backdrop and the
+    # saturation arm kept for the coloured bodywork.
+    nw = (a.max(axis=2) < 215) | (a.max(axis=2) - a.min(axis=2) > 22)
     xs = np.nonzero(nw)[1]
     W0 = a.shape[1]
     PXM = (xs.max() - xs.min()) / BUS_L * (RX / W0)
@@ -69,10 +77,14 @@ ROWS = [
      None, 2.50 * 0.60, "measured: the photograph's red spreads 2.55x as wide"),
     ("F44", "the paint's GLOSS -- the whole cream upper body",
      None, 4.07 * 0.95, "same defect, larger surface"),
-    ("F45", "galley interior reads as untextured white blocks",
-     None, 3 * 0.516 * 0.40, "seen through all three serving apertures"),
-    ("F45", "roof-aperture interior, same",
-     None, 1.20 * 0.45, "dead centre of the hero frame"),
+    # rev 60b: F45's galley row is REMOVED, not merely superseded.  It carried
+    # the IDENTICAL area expression as F99's row below, so the one surface was
+    # counted TWICE, and F45 is a finding this project has REFUTED (F98) --
+    # it sat at rank 6 of 17 in the table the brief tells the next context to
+    # choose work by.  The roof-aperture half is kept: F98 covers the galley
+    # bays only and that interior has never been separately measured.
+    ("F45", "roof-aperture interior -- never separately measured",
+     None, 1.20 * 0.45, "dead centre of the hero frame; F98 covers the bays only"),
     ("F15", "A7 -- unlit roofed body between the last inlet and the tail",
      0.803, 0.803 * 1.60, "ILLUMINATION over a large area, not dressing"),
     ("F01/F39", "Senor -- 28.5 % of its ink missing",
@@ -100,10 +112,15 @@ ROWS = [
      None, 3.54 * 0.09, "the DARK BAND itself; PARTLY CLOSED at rev 60"),
     ("F67", "the contact shadow's footprint on the ground",
      None, 4.065 * 1.75, "what makes it read planted rather than floating"),
-    ("F75/F87", "the nose two-tone break, 74 mm low at the lamp",
-     0.074, 1.50 * 0.074, "OWNER.  Gated and FAILING (M1).  Lever UNKNOWN"),
-    ("F99", "the galley interior is 1.39x too cool relative to its cream",
-     None, 3 * 0.516 * 0.40, "supersedes F45, which rev 60 REFUTED as written"),
+    ("F75/F87", "the nose two-tone break, 50-80 mm low (best est. 52)",
+     0.052, 1.50 * 0.052, "OWNER.  Gated and FAILING (M1).  Lever UNKNOWN"),
+    # rev 60b: F99 is DOWNGRADED -- it was measured on ref_nolita_doorshut.jpg,
+    # a DIFFERENT STATE of the vehicle (no folk art, chalkboard lid, open gold
+    # apertures).  On the target's own frame the render is within 2 %.  The row
+    # is kept at the area it would affect IF it were real, flagged, so the
+    # ranking does not silently lose a surface.
+    ("F99", "galley interior chroma -- DOWNGRADED, wrong vehicle state",
+     None, 3 * 0.516 * 0.40, "measured on doorshut; on ref_side the render is within 2 %"),
 ]
 
 print("%-10s %-52s %10s %12s" % ("id", "what", "linear px", "area px^2"))
