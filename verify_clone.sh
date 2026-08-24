@@ -1391,12 +1391,35 @@ print('OK' if a.dtype==np.uint8 and a.max()<=255 else 'PIL NOW RETURNS %s max %s
 #
 # BEHAVIOUR, not a grep: the budget script must actually RUN and must still
 # rank the paint's gloss above the badge stroke by orders of magnitude.
-ck "the visibility budget still ranks gloss over the badge" OK "$(python3 -c "
+# rev 60 -- RE-BASED, WITH THE CAUSE NAMED, AND WITH A COMPANION ROW BELOW.
+#
+# THE CAUSE.  This row asserted that the table's TOP line contains "GLOSS".
+# That held only because the table was INCOMPLETE: at rev 59 it listed none of
+# the emblem (F63), the ground shadow (F67) or the nose break (F75) -- three of
+# the owner's own five items -- and it ranked the CEILED gloss row first, so a
+# context that obeyed it would have worked a closed item and skipped his.  Rev
+# 60 added the missing rows and F67's shadow footprint, 4.81e+06 px^2, now
+# sorts above gloss's 2.62e+06.  The ORDER changed because the DATA was wrong,
+# not because the tool broke.
+#
+# WHAT THIS ROW MEANS, kept: the badge -- the top job for four revisions -- must
+# still sort LAST, far below the large-area items.  That is the tool's whole
+# point and it is unchanged.  The companion row makes the CAUSE separately
+# testable, so this cannot be quietly relaxed again by dropping rows.
+ck "the visibility budget still sorts the badge last, under gloss" OK "$(python3 -c "
 import subprocess,re
 o=subprocess.run(['python3','visibility_budget.py','3840'],capture_output=True,text=True).stdout
 r=[l for l in o.splitlines() if re.match(r'^ +\d+\. ',l)]
-top=r[0] if r else ''; bot=r[-1] if r else ''
-print('OK' if 'GLOSS' in top and 'badge' in bot else 'ORDER CHANGED: %r / %r'%(top[:40],bot[:40]))" 2>&1 | tail -1)"
+bot=r[-1] if r else ''
+gl=[i for i,l in enumerate(r) if 'GLOSS' in l]
+bd=[i for i,l in enumerate(r) if 'badge' in l]
+print('OK' if r and 'badge' in bot and gl and bd and min(gl)<min(bd) else 'ORDER CHANGED: %r'%(bot[:40],))" 2>&1 | tail -1)"
+ck "the visibility budget carries the owner's OWN ranked items" OK "$(python3 -c "
+import subprocess
+o=subprocess.run(['python3','visibility_budget.py','3840'],capture_output=True,text=True).stdout
+need=['F63','F67','F75']
+missing=[n for n in need if n not in o]
+print('OK' if not missing else 'MISSING:'+','.join(missing))" 2>&1 | tail -1)"
 
 # ---------------------------- rev 59: TWO REFERENCE MASKS THAT NEVER MET (F67)
 # THE DEFECT THESE ROWS EXIST FOR.  `senor_trace.py` graded itself against a

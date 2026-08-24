@@ -156,10 +156,20 @@ V_RISE = 0.8670
 if os.environ.get("T1_VRISE"):
     V_RISE = float(os.environ["T1_VRISE"])
     V_APEX0 = Z_BELT0 - V_RISE
-V_POW = float(os.environ.get("T1_VPOW", 0.60))   # rev 60: T1_VPOW is an
-# ABLATION ONLY -- it exists so the break's true sensitivity to V_POW can be
-# measured in a RENDER instead of predicted by a hand-written copy of the node
-# graph.  The shipped value is 0.60 and nothing but this env var changes it.
+V_POW = 0.60
+# rev 60 -- T1_VPOW is an ABLATION ONLY.  It exists so the break's true
+# sensitivity to V_POW can be measured in a RENDER instead of predicted by a
+# hand-written copy of the node graph.  The shipped value is the literal above
+# and nothing but this env var changes it.
+#
+# THE LITERAL STAYS ON ITS OWN LINE ON PURPOSE.  The first cut of this wrote
+# `V_POW = float(os.environ.get("T1_VPOW", 0.60))` and broke THREE
+# verify_clone.sh rows at once -- "V_POW is 0.60", "V_POW_Z is 0.60" and
+# "V_POW and V_POW_Z agree" -- because all three grep for `^V_POW = 0.60`.
+# The rev-60 brief warned about exactly those three rows by name.  An ablation
+# that disarms a by-value guard is not an ablation, it is a regression.
+if os.environ.get("T1_VPOW"):
+    V_POW = float(os.environ["T1_VPOW"])
 
 # Above-ground value at any station, for probes and reports.
 def z_belt(x):
