@@ -30,16 +30,13 @@ recommended order and this §0.0 is its short form.
 | **B** | **THE NOSE BREAK — 73 mm on the red-bus ruler, but F75's HONEST BRACKET IS 50–80 mm, best single estimate 52 mm** | **NOT FIXED. THE WHOLE REMEDY PROGRAMME IS REFUTED at rev 60** — `V_POW`, `V_RISE` and `V_POW_Z` all fail to move the feature | `probe_rev59_nose.py` M1, **watched failing** |
 | **E** | **THE INTERIORS** | **F45 REFUTED AS WRITTEN.** The real defect is CHROMA (F99) and its cause is not separable from one frame | none — and that is a finding |
 
-**THE ONE THING TO PUT TO HIM, as multiple choice with the two crops attached:**
-**F111 — ARE THE SERVING BAYS GLAZED OR OPEN?** `ref_side.jpg` shows all three carrying glass with
-clear reflections; `ref_nolita_doorshut.jpg` shows the same three open. Both are the red target bus;
-the panels evidently lift out for service. The model builds them OPEN. **No gate can settle this —
-it is a ruling.** *Do not re-ask anything in §4.*
-
-**AND DO NOT ASK HIM THE TWO REV 60 DRAFTED.** **F99** was measured on the doorshut frame, which is
-a DIFFERENT STATE of the vehicle — on the target's own frame the render is within 2 % (rule 11), and
-**F100**'s "gold surround" is that state's too: in `ref_side.jpg` the surround is the beaded bulb
-string the model already builds (F112).
+**THERE IS NOTHING TO PUT TO HIM THIS REVISION, AND THAT IS THE HONEST OUTCOME.** Rev 60 drafted
+three owner questions and an independent audit refuted all three: **F99**'s interior warmth was
+measured on a DIFFERENT STATE of the vehicle (on the target's own frame the render is within 2 %),
+**F100**'s gold surround is that state's too, and **F111**'s glazing was a MISREAD WINDOW — the bays
+read OPEN, the cook's bare forearm is at full saturation with no veil over it, and `STATE.md`'s
+*"open serving apertures on +Y: 3"* already matches. **Do not spend his one question on any of
+them.** *Do not re-ask anything in §4.*
 
 **RANK BY PIXELS OF THE DELIVERY FRAME**, `python3 visibility_budget.py` — **which was repaired at
 rev 60 and is worth trusting for the first time**: it had named a frame that cannot exist, so it
