@@ -2460,7 +2460,7 @@ def _fit_glyph(obs, target_r, ax=('y', 'z')):
     return s
 
 
-def vw_logo_fit(ring_r, x=2.1215, depth=0.0110, wfrac=0.1986):
+def vw_logo_fit(ring_r, x=2.1215, depth=0.0110, wfrac=None):
     """V over W sized so its strokes run INTO the roundel ring and stop flush
     with the ring's OUTER radius -- which is what the emblem does.
 
@@ -2520,9 +2520,30 @@ def vw_logo_fit(ring_r, x=2.1215, depth=0.0110, wfrac=0.1986):
     # 1/0.84, and it is the arms, not just the ends, that go under the band.
     # Fitted instead so the extreme sits 20 % into the band, the ends still
     # visibly run into it and the arms stay clear.
+    # rev 60, F63 / item C.  wfrac is the STROKE WEIGHT as a fraction of the
+    # ring radius.  T1_VW_WFRAC overrides it so the weight can be swept against
+    # the photograph's own topology without editing a constant -- see
+    # probe_rev46_vw.py's T1_VW_WSWEEP.
+    if wfrac is None:
+        wfrac = float(os.environ.get("T1_VW_WFRAC", 0.1986))
     _BAND_FRAC = 0.028 / 0.140              # roundel()'s band / outer radius
-    _fit_glyph(obs := vw_logo(R=1.0, w=wfrac, x=x, depth=depth),
-               ring_r * (1.0 - 0.8 * _BAND_FRAC))
+    obs = vw_logo(R=1.0, w=wfrac, x=x, depth=depth)
+    # rev 60, F63 / item C.  T1_VW_PUREFIT=1 makes this a PURE UNIT CONVERSION.
+    # t1_core.vw_bars' fixed point has already placed every terminal against
+    # the band in R=1 units; re-normalising by the GLOBAL EXTREME here is a
+    # SECOND normalisation that undoes it, dragging whichever end is not the
+    # extreme back inside the band.  Rev 58 removed this on its own (cells
+    # 6 -> 4, worse) and drove the near cap corner on its own (6 -> 4, worse);
+    # neither works alone because each is half of one fix.  Together they are
+    # the pair the rev-58 note says was never tried.
+    if os.environ.get("T1_VW_PUREFIT") == "1":
+        for o in obs:
+            for v in o.data.vertices:
+                v.co.y *= ring_r
+                v.co.z *= ring_r
+            o.data.update()
+    else:
+        _fit_glyph(obs, ring_r * (1.0 - 0.8 * _BAND_FRAC))
     return obs
 
 

@@ -979,6 +979,30 @@ def vw_bars(R, w, origin, u_ax, v_ax, n_ax, depth, tag="vw"):
                 ww[i] = (base[0] * k, base[1] * k)
         return v, ww
 
+    # ------------------------------------------------------------- rev 60
+    # T1_VW_CAPMIN -- DRIVE THE CAP'S *NEAR* CORNER, NOT ITS FAR ONE.
+    #
+    # F63 / item C.  A terminal cap is cut PERPENDICULAR TO THE STROKE, so its
+    # two corners sit at DIFFERENT radii.  Driving the far corner onto the band
+    # leaves the near one short by the cap's whole radial span, and for the W's
+    # outer arm -- which meets the ring at 0.12 deg while travelling at 55.5 --
+    # that span is 0.176 R, so the near corner lands at 0.6638 against a band
+    # inner edge of 0.7988 and the arm FLOATS 18.9 mm.  A floating stroke
+    # merges the two ring cells either side of it, which is why the glyph
+    # rasterises with 6 cells where the photograph has 7 and reads as an X.
+    #
+    # THE CAP FITS INSIDE THE BAND: its span is 0.176 R and the band is
+    # 0.200 R wide, so driving the NEAR corner to the band's inner edge puts
+    # the FAR corner at ~0.975, still inside the ring's outer radius of 1.0.
+    # The whole cap is then hidden under the band, which is what the
+    # photograph shows -- "every stroke end disappears into the ring band".
+    #
+    # ONLY THE FOUR TRUE END CAPS.  The W's two troughs are INTERIOR mitres
+    # whose outer point BULGES; there the far point is the one that must land,
+    # exactly as before.  Sorted descending, a cap's two corners are the two
+    # largest radii assigned to that terminal, so the near corner is rs[1].
+    _CAPMIN = os.environ.get("T1_VW_CAPMIN") == "1"
+    _ENDS = {('V', 0), ('V', 2), ('W', 0), ('W', 4)}
     for _ in range(40):
         v, ww = _spines()
         reach, worst = {}, 0.0
@@ -990,12 +1014,17 @@ def vw_bars(R, w, origin, u_ax, v_ax, n_ax, depth, tag="vw"):
                                     + (py / R - spine[k][1]) ** 2)
                 if (which, j) in _rad:
                     rr = math.hypot(px, py) / R
-                    reach[(which, j)] = max(reach.get((which, j), 0.0), rr)
+                    reach.setdefault((which, j), []).append(rr)
         for t in _term:
-            if t in reach and reach[t] > 1e-9:
-                e = _RING_INNER_FRAC / reach[t]
-                worst = max(worst, abs(e - 1.0))
-                _rad[t] *= e
+            rs = sorted(reach.get(t, []), reverse=True)
+            if not rs or rs[0] <= 1e-9:
+                continue
+            got = rs[1] if (_CAPMIN and t in _ENDS and len(rs) >= 2) else rs[0]
+            if got <= 1e-9:
+                continue
+            e = _RING_INNER_FRAC / got
+            worst = max(worst, abs(e - 1.0))
+            _rad[t] *= e
         if worst < 1e-9:
             break
     V_SPINE, W_SPINE = _spines()
