@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-23 22:28:49 UTC |
-| git commit | `8715e30` |
-| git subject | rev 58 close: row count settles at 261 after the audit and fix rows |
+| generated | 2026-08-24 03:42:32 UTC |
+| git commit | `2f26988` |
+| git subject | rev 59: probe_rev59_door reads the built constants instead of re-typing them |
 | working tree | clean |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=2 (applied, destructive, before booleans) |
@@ -62,7 +62,7 @@ VERIFY: 0 fail, 0 warn
 |---|---|
 | cutters rolled back | none |
 | non-manifold edges (body) | 0 |
-| body faces | 229493 quad, 1032 tri, 5191 ngon |
+| body faces | 229485 quad, 1048 tri, 5186 ngon |
 
 ## Measured dimensions
 
@@ -149,8 +149,8 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 | | |
 |---|---|
 | mesh objects | 223 |
-| vertices (all meshes) | 330428 |
-| faces (all meshes) | 321135 |
+| vertices (all meshes) | 330459 |
+| faces (all meshes) | 321138 |
 
 | prefix | n |
 |---|---|
