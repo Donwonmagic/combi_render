@@ -343,7 +343,7 @@ A(D.wheel_houses(), "dark")
 # rev 60 -- F67 / item D.  The pan that closes the underbody, and the one
 # chassis member a frame shows.  See t1_detail.underbody.__doc__ and the
 # block above it for the measurement and for the STATED assumption in its
-# depth.  T1_NOUNDER=1 omits it -- probe_rev60_under.py must then REFUSE.
+# depth.  T1_NOUNDER=1 omits it -- probe_rev45_ground.py's C5 must REFUSE.
 A(D.underbody(), "dark" if os.environ.get("T1_UNDERSEAL") == "0" else "underseal")
 log("conversion fit-out")
 

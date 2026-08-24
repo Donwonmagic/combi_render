@@ -1656,8 +1656,19 @@ def _arc_liner(xa, zc, sgn, a0, a1, seg, name, outline=None):
 # single rail pair below.
 # ===========================================================================
 UNDER_W    = 1.560                  # ASSUMPTION: inboard of the sills (1.750)
-UNDER_TOP  = 0.3860                 # == t1_core.ZB over the wheelbase
-UNDER_DROP = 0.0900                 # ASSUMPTION, under the 0.151 m ceiling
+# rev 60b -- THE PAN IS DEFINED BY ITS FLOOR, NOT BY ITS TOP.
+#
+# The floor is the only edge anyone can see; the top is buried inside the
+# shell.  Defining the top and subtracting a depth (the first cut) left a
+# HAIRLINE SLOT at the aft end, because `t1_core.ZB` is not flat -- it runs
+# 0.385 amidships to 0.397 at x 1.8 -- and the whole model is SHEARED by the
+# rake at build step 8b, so the shell's bottom face measures 0.3755 at x -1.5
+# against 0.3272 at x +1.5 in the dropped frame.  A flat plate at one z cannot
+# meet a sheared, non-flat edge.  So the top is set ABOVE max(ZB) and simply
+# intrudes into the shell, which is invisible and cannot leave a gap.
+UNDER_FLOOR = 0.2960                # the visible underside.  ZB - 0.090 amidships
+UNDER_TOP  = 0.4100                 # buried: above max(ZB) = 0.397 over the span
+UNDER_DROP = UNDER_TOP - UNDER_FLOOR
 UNDER_X0, UNDER_X1 = 1.780, -1.760  # clear of BOTH wheel-house notches:
 #   front notch 0.9165..1.6835 (X_AXLE_F +- ARCH_R + 10 mm)
 #   rear  notch -1.570..-0.630 (X_AXLE_R +- ARCH_W_REAR/2 + 10 mm)
@@ -1694,7 +1705,7 @@ UNDER_RAMP_W = UNDER_W              # the ramps are the PAN's OWN width.
 def underbody():
     """The closed pan under the body, plus the one chassis member a frame
     actually shows.  SPEC 10.117.  Ablation: T1_NOUNDER=1 omits the lot and
-    probe_rev60_under.py must REFUSE."""
+    probe_rev45_ground.py's C5 must REFUSE."""
     obs = []
     if os.environ.get("T1_NOUNDER") == "1":
         return obs
@@ -1703,23 +1714,35 @@ def underbody():
     pts = _notched_rrect(UNDER_W, ln, 0.030,
                          floor_notches(xc, (T.X_AXLE_F, T.X_AXLE_R)),
                          WH_Y_IN - 0.002, seg=3)
-    obs.append(T.solid_prism((xc, 0.000, UNDER_TOP - UNDER_DROP),
+    # rev 60b -- `_frame` extrudes +-depth/2 ABOUT THE ORIGIN ("extruded
+    # +-depth/2 along w", its own docstring).  The first cut of this function
+    # was written as if it extruded origin -> origin+depth, so EVERY prism here
+    # was placed half its own depth wrong.  Origins are CENTRES.
+    obs.append(T.solid_prism((xc, 0.000, UNDER_TOP - UNDER_DROP / 2.0),
                              (0, 1, 0), (1, 0, 0), (0, 0, 1), pts,
                              UNDER_DROP, name="underpan"))
     for sy in (1, -1):
         rp = T.rrect(RAIL_W, ln - 0.400, 0.010, seg=2)
         obs.append(T.solid_prism((xc, sy * RAIL_Y,
-                                  UNDER_TOP - UNDER_DROP - RAIL_DROP),
+                                  UNDER_TOP - UNDER_DROP - RAIL_DROP / 2.0),
                                  (0, 1, 0), (1, 0, 0), (0, 0, 1), rp,
                                  RAIL_DROP, name="chassis_rail%+d" % sy))
     # the end closers: a ramp from the pan's floor up to the body's own lower
     # edge, so neither end stops in mid-air.  Built in the (x, z) plane and
     # extruded across y, which is the only orientation that can taper in z.
-    zb, zt = UNDER_TOP - UNDER_DROP, UNDER_TOP
+    zb, zt = UNDER_TOP - UNDER_DROP, UNDER_TOP   # absolute, matching the pan
     for xe, xo, nm in ((UNDER_X0, UNDER_RAMP, "f"),
                        (UNDER_X1, -UNDER_RAMP, "a")):
         prof = [(xe, zb), (xe + xo, zt), (xe, zt)]
-        obs.append(T.solid_prism((0.0, -UNDER_RAMP_W / 2.0, 0.0),
+        # y origin is 0.0 -- the CENTRELINE.  The first cut passed
+        # -UNDER_RAMP_W/2 as well as the depth, so the two offsets ADDED and
+        # both closers were built wholly on the off side, y -1.560..0.000,
+        # standing 919 mm proud of the bodywork.  STATE.md printed it --
+        # full-Y [-1.064, 1.150] -> [-1.560, 1.150] -- and nobody read the line.
+        # T1_UNDER_YBUG=1 restores rev 60's centred-origin error so verify.py's
+        # lateral-extent row stays WATCHABLE (rule 3).  It must FAIL under it.
+        _y0 = -UNDER_RAMP_W / 2.0 if os.environ.get("T1_UNDER_YBUG") == "1" else 0.0
+        obs.append(T.solid_prism((0.0, _y0, 0.0),
                                  (1, 0, 0), (0, 0, 1), (0, 1, 0), prof,
                                  UNDER_RAMP_W, name="under_close_%s" % nm))
     return obs
@@ -2471,7 +2494,7 @@ def _fit_glyph(obs, target_r, ax=('y', 'z')):
     return s
 
 
-def vw_logo_fit(ring_r, x=2.1215, depth=0.0110, wfrac=None):
+def vw_logo_fit(ring_r, x=2.1215, depth=0.0110, wfrac=0.1986):
     """V over W sized so its strokes run INTO the roundel ring and stop flush
     with the ring's OUTER radius -- which is what the emblem does.
 
@@ -2535,8 +2558,13 @@ def vw_logo_fit(ring_r, x=2.1215, depth=0.0110, wfrac=None):
     # ring radius.  T1_VW_WFRAC overrides it so the weight can be swept against
     # the photograph's own topology without editing a constant -- see
     # probe_rev46_vw.py's T1_VW_WSWEEP.
-    if wfrac is None:
-        wfrac = float(os.environ.get("T1_VW_WFRAC", 0.1986))
+    # rev 60b: the DEFAULT STAYS IN THE SIGNATURE.  The first cut moved it to
+    # None and read it here, which broke `probe_rev54_wfrac.py` -- that probe
+    # reads this default OUT OF THE SIGNATURE (inspect.signature) to reconcile
+    # the nose and hubcap stroke weights, and it died with
+    # "TypeError: must be real number, not NoneType".  Nothing invokes it, so
+    # nothing caught it.
+    wfrac = float(os.environ.get("T1_VW_WFRAC", wfrac))
     _BAND_FRAC = 0.028 / 0.140              # roundel()'s band / outer radius
     obs = vw_logo(R=1.0, w=wfrac, x=x, depth=depth)
     # rev 60, F63 / item C.  T1_VW_PUREFIT=1 makes this a PURE UNIT CONVERSION.

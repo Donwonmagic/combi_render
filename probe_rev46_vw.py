@@ -647,6 +647,7 @@ if os.environ.get("T1_VW_DUMP"):
         for i in range(k):                       # slivers below the size floor
             if sz[i] < keep:
                 out[lab == i + 1] = (255, 255, 255)
+        os.makedirs(os.path.join(HERE, "out"), exist_ok=True)
         sc = max(1, int(420 / max(n0, n1)))
         Image.fromarray(out).resize((n1 * sc, n0 * sc), Image.NEAREST).save(
             os.path.join(HERE, "out", "vw_cells_%s.png" % name))

@@ -65,11 +65,29 @@ t("is UNDER_DROP really UNDER the 0.151 m ceiling the brief claims?",
   "exceeds it, the pan is deeper than the photograph's whole dark band, which "
   "contains the shadowed ground as well" % D_.UNDER_DROP)
 
-t("do the end ramps really span the PAN's own width?",
-  abs(D_.UNDER_RAMP_W - D_.UNDER_W) < 1e-9,
-  "ramp %.4f vs pan %.4f -- the first cut made them 1.400 against 1.560 and "
-  "the 80 mm ledge kept its square aft face, which is the defect the ramps "
-  "were added to remove" % (D_.UNDER_RAMP_W, D_.UNDER_W))
+# rev 60b -- THIS QUESTION WAS A LITERAL TAUTOLOGY AND IT PASSED THROUGH THE
+# WORST DEFECT OF THE REVISION.  It asserted `UNDER_RAMP_W == UNDER_W` while
+# t1_detail.py contains the line `UNDER_RAMP_W = UNDER_W` -- a threshold
+# derived from the expression it checks (rule 6) -- and it read OK while both
+# end closers were built wholly on the off side, 919 mm proud of the skin.
+#
+# IT NOW ASKS THE MESH, via STATE.md, which audit.py writes FROM the mesh.
+# A constant cannot answer a question about where a part ended up.
+_ST = open('STATE.md').read()
+_mY = re.search(r'full-Y \[([-0-9.]+), ([-0-9.]+)\]', _ST)
+t("does the MESH still hold its lateral extent? (not the constants -- the MESH)",
+  _mY is not None and abs(float(_mY.group(1)) + 1.0637) < 0.005
+  and abs(float(_mY.group(2)) - 1.1500) < 0.005,
+  "STATE.md full-Y %s against the baseline [-1.0637, 1.1500] set by the counter "
+  "brackets and mir_head-1.  Rev 60 moved it to -1.5600 and the line was "
+  "printed, logged and never read" % (_mY.groups() if _mY else "ABSENT",))
+
+t("is STATE.md even CURRENT for HEAD? (19 verify rows read it)",
+  re.search(r'\| git commit \| `([0-9a-f]+)`', _ST).group(1)
+  == subprocess.run(['git', 'rev-parse', '--short', 'HEAD'],
+                    capture_output=True, text=True).stdout.strip(),
+  "a stale STATE.md makes every row that reads it a claim about an older "
+  "tree; rev 60 shipped it two revisions stale once already")
 
 t("does the pan stay clear of the vehicle's FIXED bodywork limit?",
   D_.UNDER_X1 - D_.UNDER_RAMP > -1.905,
@@ -77,12 +95,17 @@ t("does the pan stay clear of the vehicle's FIXED bodywork limit?",
   "row enforces.  The first cut reached -2.100 and went red at +205 mm"
   % (D_.UNDER_X1 - D_.UNDER_RAMP))
 
+# was a REGEX ON SOURCE that `(0.099` would have satisfied; now it compares the
+# two albedos numerically, which is the thing the claim is about.
+_MT = open('t1_mats.py').read()
+_us = re.search(r'M\["underseal"\]\s*=\s*interior_wear\([^,]+,\s*\(([0-9.]+)', _MT)
+_dk = re.search(r'M\["dark"\]\s*=\s*interior_wear\([^,]+,\s*\(([0-9.]+)', _MT)
 t("is the underseal really DARKER than the interior grey it replaced?",
-  'M["underseal"]' in open('t1_mats.py').read()
-  and re.search(r'M\["underseal"\][^\n]*\(0\.0[0-9]+', open('t1_mats.py').read())
-  is not None,
-  "if underseal is not materially darker than M['dark'] (0.1150) the 0.352 -> "
-  "0.219 step in the brief has no cause")
+  _us is not None and _dk is not None
+  and float(_us.group(1)) < 0.5 * float(_dk.group(1)),
+  "underseal albedo %s against M['dark'] %s -- the 0.352 -> 0.219 step has no "
+  "cause unless this is materially darker"
+  % (_us.group(1) if _us else "ABSENT", _dk.group(1) if _dk else "ABSENT"))
 
 # ----------------------------------------------- the guard I broke, from source
 t("is V_POW's by-value pin STILL greppable, with the ablation beside it?",

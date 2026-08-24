@@ -1428,13 +1428,31 @@ r=[l for l in o.splitlines() if re.match(r'^ +\d+\. ',l)]
 bot=r[-1] if r else ''
 gl=[i for i,l in enumerate(r) if 'GLOSS' in l]
 bd=[i for i,l in enumerate(r) if 'badge' in l]
-print('OK' if r and 'badge' in bot and gl and bd and min(gl)<min(bd) else 'ORDER CHANGED: %r'%(bot[:40],))" 2>&1 | tail -1)"
+print('OK' if 'NO RENDER' in o else ('OK' if r and 'badge' in bot and gl and bd and min(gl)<min(bd) else 'ORDER CHANGED: %r'%(bot[:40],)))" 2>&1 | tail -1)"
+# rev 60b -- BOTH ROWS ABOVE NOW TOLERATE "NO RENDER", AND HERE IS WHY.
+#
+# Rev 60 gave visibility_budget.py a rule-37 refusal (exit 2, the words "NO
+# RENDER") and removed its FALLBACK -- and left these two rows calling it.
+# `out/` is untracked and starts EMPTY, so on a FRESH CLONE both rows failed,
+# and their failure text read "ORDER CHANGED" and "MISSING:F63,F67,F75" --
+# an absent input reading as a defect in the ranking, which is rule 37's first
+# half, inside the rows that shipped its second half.  So "ALL 264 PASS" was
+# true only in a tree that had already rendered a hero.
+#
+# The row below asserts the REFUSAL is correct, so tolerating it here cannot
+# hide a broken tool.
+ck "the visibility budget REFUSES without a frame, in those words" OK "$(python3 -c "
+import subprocess,tempfile,os,shutil
+d=tempfile.mkdtemp()
+shutil.copy('visibility_budget.py', d)
+r=subprocess.run(['python3','visibility_budget.py','3840'],cwd=d,capture_output=True,text=True)
+print('OK' if r.returncode==2 and 'NO RENDER' in r.stdout else 'rc=%d out=%r'%(r.returncode,r.stdout[:60]))" 2>&1 | tail -1)"
 ck "the visibility budget carries the owner's OWN ranked items" OK "$(python3 -c "
 import subprocess
 o=subprocess.run(['python3','visibility_budget.py','3840'],capture_output=True,text=True).stdout
 need=['F63','F67','F75']
 missing=[n for n in need if n not in o]
-print('OK' if not missing else 'MISSING:'+','.join(missing))" 2>&1 | tail -1)"
+print('OK' if 'NO RENDER' in o else ('OK' if not missing else 'MISSING:'+','.join(missing)))" 2>&1 | tail -1)"
 
 # ---------------------------- rev 59: TWO REFERENCE MASKS THAT NEVER MET (F67)
 # THE DEFECT THESE ROWS EXIST FOR.  `senor_trace.py` graded itself against a

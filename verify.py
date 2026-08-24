@@ -861,6 +861,42 @@ def run(body, log=print):
     log("  bounds EXCLUDE %d non-bodywork part(s): %s"
         % (len(_drop), ", ".join(_drop) if _drop else "none"))
     log(f"  x range [{lo.x:.3f}, {hi.x:.3f}]   full-Y [{lo.y:.3f}, {hi.y:.3f}]")
+    # rev 60b -- LATERAL EXTENT IS NOW ASSERTED, NOT MERELY LOGGED.
+    #
+    # THE DEFECT THIS ROW EXISTS FOR.  Rev 60's underbody end-closers were
+    # built with `_frame`'s centred convention misused on the Y axis, so both
+    # were placed wholly on the off side, reaching y -1.560 against a body
+    # half-width of 0.875 -- 919 mm proud of the skin at their own station.
+    # It rendered invisibly in `front`, `side` and `hero`, and it moved the
+    # DELIVERY camera solve, because studio.subject_bbox() sees every mesh.
+    #
+    # THE LINE ABOVE PRINTED IT -- full-Y went [-1.064, 1.150] -> [-1.560,
+    # 1.150] in that commit -- and nobody read it.  A quantity that is logged
+    # and never asserted is not a guard (rule 27's shape).  The width row two
+    # rows down cannot see this: it reads `body.bound_box`, the T1_body object
+    # ONLY, so no add-on part on any axis can ever move it.
+    #
+    # THE BOUND IS THE BODY'S OWN, not a typed constant: nothing that is not
+    # bodywork may reach outboard of the widest bodywork, plus a stated 30 mm
+    # for the mirrors and handles that legitimately do.
+    # A FIXED BOUND WOULD BE WRONG.  Two fixtures legitimately reach outboard
+    # of the 0.875 skin and they were measured, not assumed: +y 1.1500 is the
+    # counter's `bracket*` set, -y -1.0637 is `mir_head-1`, the off-side
+    # mirror.  So this is a REGRESSION row against those two, which is the
+    # shape that would have caught the ramps: any NEW part straying outboard
+    # moves one of them and this fires.
+    _YBASE_HI, _YBASE_LO, _YTOL = 1.1500, -1.0637, 0.005
+    if abs(hi.y - _YBASE_HI) > _YTOL or abs(lo.y - _YBASE_LO) > _YTOL:
+        fails.append(
+            "lateral extent MOVED: full-Y [%.4f, %.4f] against the baseline "
+            "[%.4f, %.4f] (%+.0f / %+.0f mm). The baseline is set by the "
+            "counter brackets on +y and mir_head-1 on -y; if neither moved, a "
+            "NEW part is standing proud of the skin"
+            % (lo.y, hi.y, _YBASE_LO, _YBASE_HI,
+               1000 * (lo.y - _YBASE_LO), 1000 * (hi.y - _YBASE_HI)))
+    else:
+        log("  lateral extent full-Y [%.4f, %.4f] holds its baseline "
+            "(brackets +y, mir_head-1 -y)" % (lo.y, hi.y))
     # rev 8: HEIGHT IS NOT A SCALAR ANY MORE, twice over. The vehicle is raked,
     # so the roof is a sloping line; and the roof lids are modelled OPEN, so the
     # bbox top is ~3.0 m, not the vehicle.

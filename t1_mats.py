@@ -2164,7 +2164,7 @@ def build_all():
     # `ref_side.jpg` this region is 8.0 DN with a standard deviation of 1.9 --
     # it resolves nothing inside itself, so no albedo can be recovered from
     # it.  What IS measured is the ratio the cavity has to reach; see
-    # probe_rev60_under.py.  Ablation T1_UNDERSEAL=0 puts the pan back on
+    # probe_rev45_ground.py's G4.  Ablation T1_UNDERSEAL=0 puts the pan back on
     # M["dark"] so the difference this key makes stays testable.
     M["underseal"] = interior_wear("underseal", (0.0380, 0.0370, 0.0360), 0.88)
     M["amber"] = simple("amber", (0.9200, 0.3400, 0.0250), rough=0.09,
