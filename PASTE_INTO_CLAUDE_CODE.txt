@@ -74,8 +74,8 @@ per-measurement and not on average.** A model right in ninety places and wrong i
 done, because he will look straight at the one. **At rev 58 he did exactly that, at the emblem,
 for the fifth time, while every automated check was green.**
 
-**AND HERE IS THE HONEST DISTANCE.** `verify_clone.sh` ends **ALL 264 PASS** and its own verdict
-block says what that is worth: **0 FIDELITY, 264 SELF-CONSISTENCY. Not one of those rows compares
+**AND HERE IS THE HONEST DISTANCE.** `verify_clone.sh` ends **ALL 265 PASS** and its own verdict
+block says what that is worth: **0 FIDELITY, 265 SELF-CONSISTENCY. Not one of those rows compares
 the vehicle to a photograph.**
 
 | gate | state MEASURED at close of rev 60 |
@@ -143,7 +143,7 @@ for b in $(git branch -r | grep -v HEAD); do
 done
 git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 ./bootstrap.sh          # 9 of 10 at rev 60 close.  MEASURE IT ANYWAY
-./verify_clone.sh       # ALL 264 PASS in ~70 s -- and read its verdict block
+./verify_clone.sh       # ALL 265 PASS in ~70 s -- and read its verdict block
 ```
 
 **AT PICKUP, REV 60 MEASURED.** HEAD was `claude/new-session-ocymb5`, **0 ahead / 0 behind**
