@@ -159,10 +159,14 @@ own branch. It was recreated by the first push. **Expect it at rev 61.**
 
 **AND `out/` WAS EMPTY.** Render before quoting any probe.
 
-**ROW 9 IS STILL RED AND IT IS NOT REV 60's DOING.** `bootstrap.sh` ends **9 PASSED, 1 FAILED**:
-`STRANDED: origin/claude/bus-model-rev57-yvrlhi(6 commits, 16 files)`. That branch was merged at
-rev 59 on the owner's ruling and the row went green; it is red again at rev 60 pickup with the
-identical string. **If that string differs by one character, something moved — stop and measure.**
+**ROW 9 WAS RED AT PICKUP AND IS GREEN AT CLOSE, AND I DO NOT FULLY KNOW WHY — SO MEASURE IT.**
+At pickup `bootstrap.sh` ended **9 PASSED, 1 FAILED**:
+`STRANDED: origin/claude/bus-model-rev57-yvrlhi(6 commits, 16 files)`. At close it ends
+**ALL 10 PASS**, and an independent loop — `git rev-list --count HEAD..$b` over every remote branch —
+finds **no branch ahead of HEAD**. Rev 60 did not merge anything, so the most likely explanation is
+that the pickup reading was taken against an incompletely-fetched remote. **THAT IS A GUESS AND IT IS
+LABELLED ONE.** Run row 9 yourself and believe the output, not this paragraph — it is the row this
+project says must never be ignored, and it has been wrong in both directions now.
 
 **RE-MEASURE BEFORE YOU FINISH, TOO.** `origin/main` moved mid-revision at rev 51 and rev 55.
 

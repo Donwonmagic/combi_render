@@ -27,8 +27,8 @@ before quoting any of them.
 | gate | value at close | bar | state |
 |---|---|---|---|
 | `verify.py` | 0 fail, 0 warn at `T1_SUB=1` **and** `T1_SUB=2` | — | self-consistency only |
-| `verify_clone.sh` | 261 PASS, 1 FAIL (the self-referential row count) | — | **0 fidelity, 261 self-consistency** |
-| `bootstrap.sh` | **9 PASSED, 1 FAILED** — row 9, `STRANDED origin/claude/bus-model-rev57-yvrlhi` (6 commits, 16 files) | 10 | **unchanged from pickup; NOT this revision's doing** |
+| `verify_clone.sh` | **ALL 262 PASS** | — | **0 fidelity, 262 self-consistency** |
+| `bootstrap.sh` | **9 PASSED, 1 FAILED at PICKUP; ALL 10 PASS at CLOSE** | 10 | **the change is UNEXPLAINED — rev 60 merged nothing. Run row 9 yourself** |
 | `probe_rev46_vw.py` | **C6 FAILS** — photograph 7 cream cells, built 6 | 7 | item C, cause now localised |
 | `probe_rev59_nose.py` | **M1 FAILS** — 1.187 lamp radii against 1.951 … 2.127 | in range | item B, lever unknown |
 | `flank_compare.py` | **FAILS** — worst region **`i` at 0.685**, `Senor` 0.720 | 0.75 | F01/F39 |

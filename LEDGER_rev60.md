@@ -220,8 +220,12 @@ first and predicted a break of **0.604** lamp radii where the machine measures
 ## §6 THE STATE OF THE GATES AT CLOSE
 
 ```
-bootstrap.sh      9 PASSED, 1 FAILED -- row 9, STRANDED origin/claude/bus-model-rev57-yvrlhi
-                  (6 commits, 16 files).  UNCHANGED from pickup; not this revision's doing
+bootstrap.sh      AT PICKUP  9 PASSED, 1 FAILED -- row 9, STRANDED
+                             origin/claude/bus-model-rev57-yvrlhi (6 commits, 16 files)
+                  AT CLOSE   ALL 10 PASS, and an independent loop over every remote branch
+                             finds none ahead of HEAD.  Rev 60 merged nothing, so the pickup
+                             reading was probably taken against an incompletely-fetched
+                             remote -- STATED AS A GUESS, not a finding (rule 29.3)
 verify_clone.sh   261 PASSED, 1 FAILED at mid-revision -- the self-referential row count only
 verify.py         0 fail, 0 warn at T1_SUB=1 AND T1_SUB=2
 probe_rev46_vw    7 checked, 1 FAILED -- C6, photo 7 built 6.  UNCHANGED, by design
