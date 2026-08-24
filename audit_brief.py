@@ -133,8 +133,63 @@ try:
         real = int(real.group(1))
 except Exception:
     real = None
-stated = re.search(r"ALL (\d+) PASS", TXT)
-stated = int(stated.group(1)) if stated else None
+# ------------------------------------------------------------- rev 58 FIX
+# THIS USED TO TAKE THE FIRST "ALL n PASS" IN THE BRIEF, AND IT CORRUPTED THE
+# BRIEF IT WAS WRITTEN TO REPAIR.
+#
+# TWO scripts in this repository print that phrase: verify_clone.sh (ALL 258
+# PASS) and bootstrap.sh (ALL 10 PASS), and the brief quotes bootstrap's FIRST.
+# So `stated` read 10, and --fix-count then blind-replaced every occurrence of
+# the string "ALL 10 PASS" -- rewriting all THREE of the brief's bootstrap
+# references to 258 and leaving verify_clone's own count untouched.  It then
+# reported the row as PASSING, because the corrupted text matched.
+#
+# Watched, rev 58: "--fix-count: rewrote 10 -> 258", three bootstrap lines
+# wrong, verify's two still at 257, and a green row over the top of it.
+#
+# The count is now bound to verify_clone BY CONTEXT rather than by position,
+# and the rewrite is line-targeted.  If the brief does not make the attribution
+# unambiguous, this REFUSES rather than guessing -- a number this file cannot
+# identify is not a number it may rewrite.
+def _stated_rows(txt):
+    """The row count the brief attributes to VERIFY_CLONE, and its line numbers.
+
+    A line counts as verify_clone's if it names verify_clone, or if it is the
+    SELF-CONSISTENCY sentence, which is about verify_clone by construction.
+    Lines naming bootstrap are excluded explicitly."""
+    hits = []
+    for i, ln in enumerate(txt.splitlines()):
+        m = re.search(r"ALL (\d+) PASS", ln)
+        if not m:
+            continue
+        if "bootstrap" in ln:
+            continue
+        if "verify_clone" in ln or "SELF-CONSISTENCY" in ln:
+            hits.append((i, int(m.group(1))))
+    # The SELF-CONSISTENCY sentence carries the same number WITHOUT the
+    # "ALL n PASS" wrapper, on its own line -- rev 54, 55, 56 and 57 each
+    # re-committed a defect inside the very row written to explain it, and at
+    # rev 58 this function left that line at 999 while fixing the two beside
+    # it.  It is about verify_clone by construction, so it is collected too.
+    if hits:
+        _n = hits[0][1]
+        for i, ln in enumerate(txt.splitlines()):
+            if re.search(r"\b%d SELF-CONSISTENCY" % _n, ln) and \
+               not any(i == j for j, _ in hits):
+                hits.append((i, _n))
+    return hits
+
+
+_hits = _stated_rows(TXT)
+_vals = sorted({v for _, v in _hits})
+if len(_vals) == 1:
+    stated = _vals[0]
+elif not _vals:
+    stated = None
+else:
+    stated = None
+    print("  !! the brief states MORE THAN ONE verify_clone row count %s -- "
+          "REFUSING to rewrite any of them" % _vals)
 # THE ROW COUNT IS SELF-REFERENTIAL AND IT HAS COST THREE EDIT CYCLES IN EACH
 # OF THE LAST TWO REVISIONS: every fix the audit demands adds a row, which
 # changes the number the brief must state, which is another edit and another
@@ -143,9 +198,16 @@ stated = int(stated.group(1)) if stated else None
 # passing row), which is the number the brief must carry.
 if real is not None and real != stated and "--fix-count" in sys.argv:
     import glob as _g
-    t = open(BRIEF).read().replace("ALL %d PASS" % stated, "ALL %d PASS" % real) \
-                          .replace("%d SELF-CONSISTENCY" % stated,
-                                   "%d SELF-CONSISTENCY" % real)
+    # LINE-TARGETED.  A blind string replace hits bootstrap's "ALL 10 PASS"
+    # too -- that is exactly what corrupted the rev-59 brief.  Only lines this
+    # file has ATTRIBUTED to verify_clone are rewritten.
+    _lines = open(BRIEF).read().splitlines(keepends=True)
+    for _i, _ in _stated_rows("".join(_lines)):
+        _lines[_i] = re.sub(r"ALL %d PASS" % stated, "ALL %d PASS" % real,
+                            _lines[_i])
+        _lines[_i] = re.sub(r"%d SELF-CONSISTENCY" % stated,
+                            "%d SELF-CONSISTENCY" % real, _lines[_i])
+    t = "".join(_lines)
     open(BRIEF, "w").write(t)
     open(pst, "w").write(t)
     print("  --fix-count: rewrote %d -> %d in the brief AND in %s"

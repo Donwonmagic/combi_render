@@ -1,6 +1,25 @@
 """probe_rev44_typo -- RE-VERIFYING THE TWO SURVIVING TYPOGRAPHY SEVERITY-5s
 WITH THE WINDOW INDEPENDENTLY RE-DERIVED.  READ-ONLY.  No bpy.
 
+READ THIS FIRST, REV 59 -- THIS PROBE NOW PRINTS "8 checked, 7 FAILED" AND
+THAT IS NOT A NEW DEFECT IN THE GENERATOR.  Every C-row below is pinned to
+`senor_trace._ref_mask()` as it stood at rev 44: 934 px in six pieces of
+252/332/16/258/61/15.  THAT MASK WAS RE-BAKED AT REV 59 (see THE TILDE, REV 59
+in senor_trace.py) because it was missing the tilde of the `n~`.  It is now
+1062 px and it decomposes into FOUR pieces of 15/61/256/730 -- restoring the
+tilde FUSES what used to be separate components, which is why C1, C2, C3, C4,
+C5 and F2 all move at once.  The rows have deliberately NOT been re-pinned:
+they are rev 44's record of rev 44's mask, and re-pinning them would erase the
+evidence that the mask changed.  Re-derive them if you need them.
+
+AND NOTE WHAT THAT MEANS FOR THE HISTORY BELOW.  AUDIT_rev43 sec.0's retracted
+headline was "the n HAS NO TILDE".  Rev 44 retracted it because a 16 px mark
+existed at the corner of the clipped window and concluded "a thin tilde is not
+a missing one" (N1).  The 16 px mark was the 3 px stub and the lone inscribed
+disc that `_STROKES` carried INSTEAD of a tilde.  Rev 59 measured the band the
+photograph actually carries -- 186 px against the generator's 73 -- and drew
+the stroke.  The rev-43 headline was nearer right than its retraction allowed.
+
 WHY.  AUDIT_rev43 sec.0 retracted its headline -- "the n HAS NO TILDE" -- after
 finding that BOTH adversarial refuters confirmed it because BOTH INHERITED THE
 ORIGINAL'S WINDOW (x 48-64, y -8..+2), which clipped a real 16 px mark at one

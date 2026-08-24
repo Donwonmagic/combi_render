@@ -242,7 +242,28 @@ ck "_G_BUILD in t1_shell.py"        0 "$(grep -c '_G_BUILD' t1_shell.py)"
 # the measure, the reference value and the guard.  All three must stay.
 ck "_arch_radial in t1_shell.py"    3 "$(grep -c '_arch_radial' t1_shell.py)"
 ck "T1_ABLATE in build.py"          5 "$(grep -c 'T1_ABLATE' build.py)"
-ck "FLOOR_W in t1_detail.py"        5 "$(grep -c 'FLOOR_W' t1_detail.py)"
+# rev 58: THIS ROW WAS A RAW grep -c AND IT COUNTED COMMENTS.  The rear-arch fix
+# added seven mentions of FLOOR_W in comments and docstrings -- every one of them
+# EXPLAINING WHY FLOOR_W DOES NOT MOVE -- and the row read 12 against its 5 and
+# called the explanation the defect.  That is sec.10.4's trap, and it is now the
+# SIXTH time a row in this file has done it.
+# THE EXPECTED VALUE IS UNCHANGED: stripped of comments and docstrings the count
+# is still exactly 5, which is what the row always meant.  It is not re-based --
+# it is made to measure what it was written to measure.
+ck "FLOOR_W in t1_detail.py (CODE only)" 5 "$(python3 -c "
+import ast
+src = open('t1_detail.py').read()
+keep = set(range(1, len(src.splitlines()) + 1))
+for n in ast.walk(ast.parse(src)):
+    if isinstance(n, (ast.Module, ast.FunctionDef, ast.ClassDef)):
+        d = ast.get_docstring(n, clean=False)
+        if d is not None:
+            b = n.body[0]
+            for i in range(b.lineno, (b.end_lineno or b.lineno) + 1):
+                keep.discard(i)
+code = [l for i, l in enumerate(src.splitlines(), 1)
+        if i in keep and not l.strip().startswith('#')]
+print(sum(l.count('FLOOR_W') for l in code))" 2>&1 | tail -1)"
 ck "_assert_same_edge"              4 "$(grep -c '_assert_same_edge' flank_compare.py)"
 # rev 52.  SELF-CONSISTENCY, NOT FIDELITY -- this script cannot render, so it
 # cannot check what the tarnish windows actually rescue.  What it CAN hold is
@@ -490,7 +511,19 @@ ck "tex/nose.png"    b31ea156c15d2d8e38ba390d9e151706 "$(md5of tex/nose.png)"
 # and senor_only() hash 4a6f4e8cd0489fa1 / 82d6cf56dd660b47 before and after --
 # so every mask-space figure in this project still holds.  Only the emitted
 # texture moved, and this row is re-based, never relaxed.
-ck "tex/senor.png"   92ff38554d61947528904e113cf657f0 "$(md5of tex/senor.png)"
+# rev 59, F67: RE-BASED because the artwork legitimately changed -- the `n~` had
+# no tilde.  senor_trace.py's baked reference was a segmentation that predates
+# the tilde, the trace was fitted to it, and SPUR_PRUNE_PX had eaten what little
+# survived: `_STROKES` carried only a 3 px vertical stub and a lone inscribed
+# disc where the stroke belongs.  One ("ntilde", ...) stroke replaces both.
+# THE CAUSE IS SEPARATELY TESTABLE, which is what licenses this re-base:
+# "the tilde is DRAWN, not pruned" below counts ink in the tilde band off the
+# raster (73 px before, 156 after, 186 in the reference), and "senor_trace's
+# baked mask == compare_script's live mask" is the row that would have caught
+# the whole thing fifty revisions ago.  Mask space is NOT bit-identical across
+# this change and is not claimed to be: compare_script's `Senor` box goes
+# 0.825 -> 0.889 and the whole lockup 0.942 -> 0.950, both watched printing.
+ck "tex/senor.png"   2c6d221fb2d80a8adf3419153c9b1de6 "$(md5of tex/senor.png)"
 # rev 45, SPEC 10.112: RE-BASED because the texture legitimately changed.
 # cal_gen.gradient's bias was 0.42 and `t` is zero at the burst's own centre by
 # construction, so the core evaluated to 84 % ORANGE and NOTHING in the shipped
@@ -769,6 +802,32 @@ ck "VW_W_ARM_Z is 0.0019"           1 "$(grep -c '^VW_W_ARM_Z = 0.0019' t1_core.
 ck "VW_W_TROUGH_X is 0.4925"        1 "$(grep -c '^VW_W_TROUGH_X = 0.4925' t1_core.py)"
 ck "VW_W_TROUGH_Z is -0.6200"       1 "$(grep -c '^VW_W_TROUGH_Z = -0.6200' t1_core.py)"
 ck "vw_bars reads the constants"    1 "$(grep -c '_apex    = (0.000, VW_APEX_Z)' t1_core.py)"
+
+# ------------------------------- rev 58: THE EMBLEM'S REACH AXIS, F63/F64
+# The six constants above are fitted to VERTICAL landmarks only.  None of them
+# is a radius, so a stroke can terminate 18.9 mm short of the ring band with
+# every landmark still landing -- which is what the built glyph does, and why
+# the owner has now reported this emblem FIVE times against a probe reporting
+# "5 controls, 0 FAILED".  rev 58 added the missing axis as C6.
+#
+# These rows do not re-measure the glyph -- verify_clone runs no Blender.  They
+# keep the control and its kill from being deleted, which is how the last four
+# closures of this emblem became invisible.  The MEASUREMENT lives in
+# probe_rev46_vw.py and it currently FAILS C6 BY DESIGN: photograph 7 cream
+# cells, built 6.  Do not "fix" that by relaxing the control.
+ck "the emblem reach control exists"      1 "$(grep -c '^def cream_cells' probe_rev46_vw.py)"
+ck "it reads the photograph too"          1 "$(grep -c '^def photo_cells' probe_rev46_vw.py)"
+# ONE definition, shared: a second copy is how one of two instruments gets
+# quietly relaxed (sec.10.8).  photo_cells must DELEGATE, not re-implement.
+ck "one definition of the cell measure"   1 "$(grep -c '^def cream_cells' probe_rev46_vw.py)"
+ck "photo_cells delegates to it"          OK "$(python3 -c "
+import ast
+src=open('probe_rev46_vw.py').read()
+fn=next(n for n in ast.parse(src).body if isinstance(n,ast.FunctionDef) and n.name=='photo_cells')
+body=ast.get_source_segment(src,fn)
+print('OK' if 'cream_cells(' in body else 'photo_cells RE-IMPLEMENTS the measure')" 2>&1 | tail -1)"
+ck "the reach control has a KILL"         1 "$(grep -c 'KILL: collapsing the W' probe_rev46_vw.py)"
+ck "F63 is on the register"               1 "$(grep -c '^| \*\*F63\*\*' OPEN_FINDINGS.md)"
 
 # ---------------------------------------------------------------------------
 # THE GUARD TABLE, EXECUTABLE.
@@ -1332,13 +1391,96 @@ r=[l for l in o.splitlines() if re.match(r'^ +\d+\. ',l)]
 top=r[0] if r else ''; bot=r[-1] if r else ''
 print('OK' if 'GLOSS' in top and 'badge' in bot else 'ORDER CHANGED: %r / %r'%(top[:40],bot[:40]))" 2>&1 | tail -1)"
 
+# ---------------------------- rev 59: TWO REFERENCE MASKS THAT NEVER MET (F67)
+# THE DEFECT THESE ROWS EXIST FOR.  `senor_trace.py` graded itself against a
+# mask baked into its own source from out/glyph_lab.npy -- a file that has not
+# existed in this repo for as long as anyone has looked, so its own
+# `_crosscheck()` printed "not present" every run and nobody read it.  Over the
+# identical window (mask x 6..88, y -12..27) that bake held 934 px while
+# `compare_script.ref_mask()`, which is what the LIVE gate scores against, held
+# 1176.  IoU 0.788, and the difference WAS the tilde of the `n~`: 118 px of ink
+# dead centre over the word.  The trace reported 0.913 the whole time.
+#
+# NOTHING IN THE REPO COMPARED THE TWO MASKS, so the divergence was invisible.
+# That is the root cause, and this is the row that makes it loud.  It is EXACT,
+# pixel for pixel -- not a tolerance -- over the guarded window, and it needs no
+# Blender and no render (this script must stay that way).
+ck "senor_trace's baked mask == compare_script's live mask" OK "$(python3 -c "
+import senor_trace as S
+ok, n, ng = S.check_ref_agrees(verbose=False)
+print('OK' if ok else ('NO REFERENCE' if n < 0 else 'DIVERGED: %d of %d px' % (n, ng)))" 2>&1 | tail -1)"
+
+# ...and it must be ABLE to go red, or it reports nothing (rule 3).
+# T1_ST_REFDRIFT flips ONE bit of the baked constants, inside the guarded rows
+# and outside _SWASH_EXCLUDE.  WATCHED FAILING BOTH WAYS at rev 59: perturbing
+# the BAKED side (this row) and, by monkeypatching compare_script.ref_mask(),
+# the LIVE side -- 2 px, reported at mask (45,14) and (46,15).
+ck "that agreement row FAILS when the bake is perturbed" DIVERGED "$(python3 -c "
+import os
+os.environ['T1_ST_REFDRIFT'] = '1'
+import senor_trace as S
+ok, n, ng = S.check_ref_agrees(verbose=False)
+print('DIVERGED' if (not ok and n == 1) else 'GUARD IS BLIND: ok=%s n=%s' % (ok, n))" 2>&1 | tail -1)"
+
+# THE FIX ITSELF, ASKED OF THE RASTER AND NOT OF A GREP (sec.10.4).  A stroke
+# named "ntilde" proves nothing -- there were two of those beside the tilde's
+# hole for fifty revisions.  This draws the word and counts ink in the band the
+# tilde occupies, mask rows y 1..9, cols x 35..63.  Before rev 59: 73 px drawn
+# against 186 in the reference.  After: 156.  Both watched printing.
+ck "the tilde is DRAWN, not pruned (band ink >= 150 px)" OK "$(python3 -c "
+import numpy as np, senor_trace as S
+ox, oy = S._REF_X0 - 8, S._REF_Y0 - 4
+c = S._Canvas(S._REF_W + 16, S._REF_H + 12)
+class _S:
+    def stroke(s, p, w, cut=False, caps=True): c.stroke(np.c_[p[:,0]-ox, p[:,1]-oy], w, cut, caps)
+    def cut(s, p): c.cut(np.c_[np.asarray(p)[:,0]-ox, np.asarray(p)[:,1]-oy])
+    def blob(s, p): pass
+S.draw_senor(_S(), ypad=0)
+g = (c.alpha() > 96)[S._REF_Y0-oy:S._REF_Y0-oy+S._REF_H, S._REF_X0-ox:S._REF_X0-ox+S._REF_W]
+n = int(g[1+12:9+13, 35-6:64-6].sum())
+print('OK' if n >= 150 else 'TILDE BAND ONLY %d px' % n)" 2>&1 | tail -1)"
+
 # The third gate must RUN and must still be exposure-free -- the property that
 # makes it immune to the three open px/m and white-balance unknowns.
-ck "gloss_compare is exposure-free" OK "$(python3 -c "
+# rev 58, F58: THIS ROW USED TO CALL `gloss_compare.py` WITH NO ARGUMENT.
+# The script's default was a hard-coded `out/r57_hero.png`; `out/` is untracked
+# and starts EMPTY on every clone, so the row passed only in the working tree
+# that wrote it and FAILED on every clone -- reporting the missing file as
+# `MOVED: []`, i.e. an ABSENT INPUT dressed as a MOVED STATISTIC, which points
+# the reader at the estimator instead of at the path.  Exposure invariance is a
+# property of the ESTIMATOR, so it is now tested on a synthetic patch through
+# the REAL spread(), needs no render, and cannot rot with a filename.
+# WATCHED FAILING via T1_GC_ABSSPREAD=1, which drops the /p50 (the row below).
+ck "gloss_compare is exposure-free (selftest, no frame)" OK "$(python3 -c "
 import subprocess,re
-o=subprocess.run(['python3','gloss_compare.py'],capture_output=True,text=True).stdout
-v=re.findall(r'x[01]\.\d\d  spread (\d\.\d+)', o)
-print('OK' if len(v)==3 and len(set(v))==1 else 'MOVED: %s'%v)" 2>&1 | tail -1)"
+o=subprocess.run(['python3','gloss_compare.py','--selftest'],capture_output=True,text=True).stdout
+v=re.findall(r'x[01]\.\d\d  spread (\d+\.\d+)', o)
+print('OK' if len(v)==3 and len(set(v))==1 and 'SELFTEST PASS' in o else 'MOVED: %s'%v)" 2>&1 | tail -1)"
+
+# ...and the selftest must be ABLE to fail, or it reports nothing (rule 3).
+ck "the exposure selftest FAILS when the scale-freedom is removed" FAILS "$(python3 -c "
+import subprocess, os
+e=dict(os.environ); e['T1_GC_ABSSPREAD']='1'
+r=subprocess.run(['python3','gloss_compare.py','--selftest'],capture_output=True,text=True,env=e)
+print('FAILS' if r.returncode==1 and 'SELFTEST FAIL' in r.stdout else 'THE ABLATION DID NOT TRIP IT rc=%d'%r.returncode)" 2>&1 | tail -1)"
+
+# ...and the stale-default trap itself must stay shut: no revision-numbered
+# frame may come back as a default input path.
+# ANCHORED ON CODE, NOT TEXT.  The first version of this row was a flat grep
+# and it matched its OWN comment -- the one explaining that the old default was
+# `out/r57_hero.png` -- and reported the explanation as the defect.  That is the
+# FIFTH time a row in this file has done that.  Strip comments and strings that
+# are not code, and look only at what executes.
+ck "gloss_compare has no revision-numbered default frame" 0 "$(python3 -c "
+import io, tokenize, re
+src = open('gloss_compare.py').read()
+out = []
+for t in tokenize.generate_tokens(io.StringIO(src).readline):
+    if t.type == tokenize.COMMENT:
+        continue
+    out.append(t.string)
+code = ' '.join(out)
+print(len(re.findall(r'r[0-9]{2}b?_hero\.png', code)))" 2>&1 | tail -1)"
 
 # ...and it must be measuring GLOSS, not colour, or W6 bites.
 # ...and it must be measuring GLOSS, not colour, or W6 bites.  ANCHORED ON
@@ -1363,31 +1505,66 @@ print(sum(1 for l in code if re.search(r'G/R|hue|chroma|saturation',l)))" 2>&1 |
 ck "the audit's ranking rule is carried in the brief" 1 \
    "$(if [ -n "$_LATEST_BRIEF" ]; then grep -c 'RANK BY PIXELS OF THE DELIVERY FRAME' "$_LATEST_BRIEF"; else echo 0; fi)"
 
-# ------------------------------- rev 57b: F51, THE RIG LIVES IN THE PREVIEW
-# build.py constructs the cyclorama, the lighting, the cabin fill and the
-# camera INSIDE `if os.environ.get("T1_PREVIEW"):`, so anything that execs
-# build.py to MEASURE gets a scene with no lights.  It produced a BLACK BUS
-# delivery frame that passed every automated check, and it is the same root
-# cause as F05's dead beauty arm.
+# ------------------------------- rev 58: F51 FIXED, AND THESE ROWS TEST THE FIX
+# build.py used to construct the cyclorama, the lighting, the cabin fill and
+# the camera INSIDE `if os.environ.get("T1_PREVIEW"):`, so anything that exec'd
+# build.py to MEASURE got a scene with no lights.  It shipped a BLACK BUS
+# delivery frame that passed every automated check (F51/F52) and it is the
+# cause of F05's dead beauty arm.
 #
-# Until the rig is factored into one function, two scripts DUPLICATE that
-# sequence.  This row compares the sequences so the duplication cannot rot in
-# silence -- if build.py's rig changes and the probes' does not, it fails.
-ck "the duplicated studio rig still matches build.py" OK "$(python3 -c "
-import re
-def seq(f, lo=None):
-    t=open(f).read()
-    if lo: t=t[t.index(lo):]
-    return [m for m in re.findall(r'ST\.(cyclorama|lighting|cabin_fill|camera)\(', t)]
-b=seq('build.py','if os.environ.get(\"T1_PREVIEW\")')
-h=seq('hq_render.py'); g=seq('probe_rev58_gloss.py')
-print('OK' if b and b==h==g else 'DRIFTED build=%s hq=%s gloss=%s'%(b,h,g))" 2>&1 | tail -1)"
+# Rev 58 factored the sequence into studio.rig() and put a REFUSAL in
+# render_set().  The rev-57b rows compared four duplicated copies of the
+# sequence so the copies could not rot; there are no copies now, so those rows
+# are RETIRED and replaced by rows that test what actually has to stay true.
+# They are anchored on POSITION and COUNT, not on a grep for a name (sec.10.4):
+# a grep passes on a comment, and every string below is load-bearing code.
 
-# ...and the two scripts must still BUILD it at all.  A probe that execs
-# build.py without T1_PREVIEW and without this call renders an unlit scene
-# and reports numbers off it, which is exactly what happened.
-ck "hq_render builds the rig"          1 "$(grep -c '^ST.lighting(_KEY)' hq_render.py)"
-ck "probe_rev58_gloss builds the rig"  1 "$(grep -c '^ST.lighting(_KEY)' probe_rev58_gloss.py)"
+# 1. ONE DEFINITION.  studio.py is the only file allowed to call the four
+#    primitives.  If a script starts hand-rolling the sequence again, F51 is
+#    back, and this is the row that says so.
+ck "no file re-implements the studio rig" 0 "$(grep -l 'ST\.cyclorama()\|ST\.cabin_fill(\|ST\.ground_playa()' *.py 2>/dev/null | grep -v '^studio.py$' | grep -vx 'probe_dust_scope.py' | wc -l | tr -d '[:space:]')"
+
+# 2. studio.rig() still builds all four, in build.py's original order.  The
+#    order is load-bearing: clay must overwrite materials before the lights are
+#    placed against them, and the camera comes last.
+ck "studio.rig() builds the whole rig, in order" OK "$(python3 -c "
+import re, ast
+src = open('studio.py').read()
+fn  = next(n for n in ast.parse(src).body
+           if isinstance(n, ast.FunctionDef) and n.name == 'rig')
+body = ast.get_source_segment(src, fn)
+seq  = re.findall(r'\b(cyclorama|ground_playa|clay_all|lighting|playa|cabin_fill|camera)\(', body)
+want = ['ground_playa','cyclorama','clay_all','playa','lighting','cabin_fill','camera']
+print('OK' if seq == want else 'DRIFTED %s' % seq)" 2>&1 | tail -1)"
+
+# 3. THE F51 INVARIANT ITSELF, tested by POSITION: the rig is built BEFORE and
+#    OUTSIDE the preview block, not as a side effect of it.  If someone moves
+#    the call back inside `if T1_PREVIEW:`, this fails and names the reason.
+ck "build.py builds the rig OUTSIDE the preview block" OK "$(python3 -c "
+src = open('build.py').read()
+r = src.find('ST.rig_from_env(')
+p = src.find('if os.environ.get(\"T1_PREVIEW\"):', src.find('_want_rig'))
+print('OK' if 0 < r < p else 'rig_from_env@%d preview@%d -- F51 IS BACK' % (r, p))" 2>&1 | tail -1)"
+
+# 4. THE GUARD PRECEDES THE RENDER.  assert_lit() has to run before any frame
+#    is written or it guards nothing -- the same offset comparison rev 56 used
+#    to prove a guard precedes a print.
+ck "assert_lit precedes the render in render_set" OK "$(python3 -c "
+import ast
+src = open('studio.py').read()
+fn  = next(n for n in ast.parse(src).body
+           if isinstance(n, ast.FunctionDef) and n.name == 'render_set')
+body = ast.get_source_segment(src, fn)
+a, r = body.find('assert_lit('), body.find('bpy.ops.render.render(')
+print('OK' if 0 < a < r else 'assert_lit@%d render@%d -- THE GUARD IS AFTER THE RENDER' % (a, r))" 2>&1 | tail -1)"
+
+# 5. THE ABLATION STAYS REACHABLE.  A guard nobody can switch off has never
+#    been watched failing (rule 3).  T1_NORIG=1 is what watched this one fail:
+#    it suppresses the rig and build.py then refuses instead of writing a black
+#    frame.  Watched printing, rev 58:
+#      "REFUSING TO RENDER AN UNLIT SCENE -- 0 light objects and world strength 0.000"
+ck "T1_NORIG ablation reads the environment" 2 "$(grep -c 'os.environ.get("T1_NORIG")' build.py)"
+ck "T1_RIG lets a measuring tool ask for the rig" 1 "$(grep -c 'os.environ.get("T1_RIG")' build.py)"
 
 # --------------------------------------------------- rev 55: A RE-FRAMING
 # THE OWNER RETIRED A HEADING AND IT CAME BACK ONE BRIEF LATER.

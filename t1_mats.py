@@ -177,6 +177,13 @@ assert v_apex(2.108) <= 0.3960, "V_APEX at the nose above the bumper-occlusion b
 # actually measured against the reference: see the residual table in the
 # handover.  Roughness modulation alone is nearly invisible at Specular IOR
 # Level 0.21 / Roughness 0.42 because the body is diffuse-dominated.
+#   RETRACTED IN PART, rev 58 (F47).  The CONCLUSION stands -- the body is
+#   diffuse-dominated -- but both figures in the premise are stale: Specular
+#   IOR Level has been 0.50 since rev 8 (its own fix-note is four lines from
+#   the live assignment), and body Roughness is 0.250 since rev 58 (F60).
+#   And "nearly invisible" is now measured rather than asserted: moving that
+#   roughness 0.420 -> 0.250 moves the gloss gate 0.3911 -> 0.4261, which is
+#   16x what a full clearcoat bought.  It is not invisible; it was untested.
 # rev 15, work-list item 2.  These four were fixed literals; they are now
 # overridable because a NEGATIVE CONTROL showed the amplitude lever is inert at
 # 25 mm and the SCALE/persistence levers are the live ones.  See SPEC 10.31.
@@ -1911,7 +1918,27 @@ def body_paint(name="T1_paint"):
     # in a white studio laid an achromatic white veil over the paint -- that,
     # not the base colour, is why the red measured sat 0.37 against the
     # reference's 0.82 and read salmon. Chalky finish restores the chroma.
-    bsdf.inputs["Roughness"].default_value = 0.420
+    #
+    # rev 58, F60, OWNER RULING "ship 0.250": 0.420 -> 0.250.  THE TRADE ABOVE
+    # IS REAL BUT IT IS SMALL, AND IT WAS MEASURED RATHER THAN ARGUED.  Both
+    # halves on the same masked red pixels of a 1600x1100 hero at 96 spp:
+    #     rgh    gloss ratio   headroom    G/R
+    #     0.420      0.3911     0.0899   0.4315   <- was shipped
+    #     0.250      0.4261     0.1458   0.4364   <- ships now  (+8.9 %, +62 %)
+    #     0.050      0.4233     0.1408   0.4451   <- SATURATED: worse, and dearer
+    # so the chroma cost of this step is +1.1 % of G/R against a red already at
+    # 0.43 vs the photograph's 0.114 -- a gap F21 says cannot be split between
+    # paint and illuminant from what we hold.  Compare F54's full clearcoat:
+    # +17.9 % of G/R for +0.5 % of gloss.  This is 16x the gloss for a fifth of
+    # the cost.  It still FAILS the 0.60 bar and the reason is not the paint:
+    # see F62 -- this flank's specular image is white cyclorama 19.3 m away.
+    #
+    # THIS SOCKET IS THE LEVER ONLY BECAUSE apply_weather() COPIES IT.  It is
+    # unlinked here, so apply_weather() loads it into the WEATHER group's own
+    # Roughness input and then links the group's output back over it (F53).
+    # Writing this socket AFTER apply_weather() runs would be inert.
+    bsdf.inputs["Roughness"].default_value = float(
+        os.environ.get("T1_BODY_RGH", 0.250))
     bsdf.inputs["Metallic"].default_value = 0.0
     # rev 8 (audit materials-7): was 0.21, i.e. F0 = 0.0168 / IOR 1.29. Every
     # dielectric paint is F0 ~ 0.04. Fixing an environment problem inside the
@@ -2229,6 +2256,78 @@ def build_all():
     # hand-painted silver: inherit the panel's dust and roughness field so it
     # does not float, but chip the paint UNDER it, not the silver
     apply_weather(M["script"], dust=1.0, wear=0.0, fade=0.5, peel=0.0)
+
+    # ------------------------------------------------ rev 59, ITEM 2
+    # THE ROOF BOARDS HAD NO WEATHERING AT ALL, ON THE MOST EXPOSED SURFACE
+    # ON THE VEHICLE.
+    #
+    # `lidmural` and `lidsign` are built by `img_paint()`, which is FIVE
+    # nodes -- Image -> Base Color, Image -> RGBToBW -> MapRange -> Roughness,
+    # and a flat Specular IOR Level.  No Coat, no Normal, and they were the
+    # only two large painted EXTERIOR surfaces on the vehicle that were not in
+    # the apply_weather() list above: no dust, no orange-peel normal, no
+    # micro-roughness field.  SPEC sec.3 locks the finish as WEATHERED and a
+    # flat, unbroken printed panel is the plastic look that lock exists to
+    # keep out.
+    #
+    # THE PARAMETERS, AND WHY EACH ONE IS WHAT IT IS -- not a batch copy:
+    #
+    #   dust 1.0   the value every other exterior painted surface carries
+    #              (`paint`, `cream`, `script`).  The board is outdoors and
+    #              faces UP when the lid is shut.
+    #
+    #   wear 0.0   DELIBERATELY ZERO, like `script`.  The wear path in
+    #              weather_group() replaces the shaded colour with W_PRIMER
+    #              and then W_STEEL, and links the group's Metallic output --
+    #              that is a model of a chip through SPRAYED PAINT ON STEEL.
+    #              Putting bare metal through a printed board is a claim no
+    #              frame here supports, so it is not made.
+    #
+    #   peel 0.0   the cluster above already says why: "not sprayed sheet
+    #              metal".  A print does not lift the way a sprayed panel does.
+    #
+    #   fade       THE ONLY TERM THAT MOVES THE AREA MEAN, so it is the one
+    #              that had to be argued rather than picked.  The comment over
+    #              M["lidmural"] records that tex/lidmural.png's interior mean
+    #              matches ref_side.jpg's board interior to ONE sRGB code per
+    #              channel -- i.e. the photograph's own weathering is ALREADY
+    #              baked into both sides of that comparison.  A large
+    #              synthetic fade would double-count it and walk the render
+    #              off a match that is already good.  This is the same reason
+    #              rev 44 cut `capred`'s fade to 0.25, and it takes the same
+    #              value.  T1_LIDW_FADE sweeps it.
+    #
+    # WHAT THIS BUYS is SPATIAL structure -- the dust breakup, the orange-peel
+    # normal and the micro-roughness field -- not a colour move.  MEASURE the
+    # area mean either side of it and say if it moved (T1_LIDWEATHER=0).
+    #
+    # T1_LIDWEATHER=0 is the ABLATION: it restores the rev-8..58 bare boards
+    # so this can be WATCHED CHANGING THE PIXELS rather than assumed to.
+    if os.environ.get("T1_LIDWEATHER", "1") != "0":
+        _LIDW_FADE = float(os.environ.get("T1_LIDW_FADE", 0.25))
+        for _k in ("lidmural", "lidsign"):
+            apply_weather(M[_k], dust=1.0, wear=0.0, fade=_LIDW_FADE, peel=0.0)
+        # THE SPLICE MUST HAVE LANDED.  apply_weather() is a graph rewrite and
+        # a rewrite that quietly does nothing is this project's commonest
+        # failure mode (rev 56's lid_rail: built, bound, and EMPTY).  Ask the
+        # graph, not the call: all three of Base Color, Roughness and Normal
+        # must now be fed from a node group, on both boards.
+        for _k in ("lidmural", "lidsign"):
+            _b = _bsdf(M[_k])
+            _bad = [_s for _s in ("Base Color", "Roughness", "Normal")
+                    if not (_b.inputs[_s].links and
+                            _b.inputs[_s].links[0].from_node.type == 'GROUP')]
+            assert not _bad, (
+                "rev 59 item 2: apply_weather(%s) returned but %s still "
+                "%s not group-driven -- the weather splice did NOT land and "
+                "the board would render bare while this code reads as though "
+                "it did not." % (_k, _bad, "is" if len(_bad) == 1 else "are"))
+        print("lid boards: WEATHER spliced on lidmural + lidsign "
+              "(dust 1.0, wear 0.0, fade %.2f, peel 0.0, normal on)"
+              % _LIDW_FADE)
+    else:
+        print("T1_LIDWEATHER=0: lid boards left BARE -- the rev-8..58 state, "
+              "no dust, no fade, no orange-peel normal (ABLATION)")
 
     # ------------------------------------ the constant-roughness offenders
     # STATE.md counted 9 and allows exactly two classes through: transmissive,
