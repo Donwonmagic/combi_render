@@ -40,7 +40,7 @@ below the belt line and was painted **body red** — sampled (159, 117, 112).
 ### §1.2 The scale, and an instrument of mine that was wrong
 
 `ref_side.jpg` px/m from the **rear tyre's horizontal extent at its own hub
-row**: 172 px for a locked `TYRE_D` 0.665 m → **258.6 px/m**.
+row**: 172 px for a locked `TYRE_D` 0.665 m → **251–284 px/m**, threshold-dependent (see the correction below).
 
 **The wheelbase route was REFUSED at 210 px/m.** The vehicle is a few degrees
 off square there, so hub-to-hub is foreshortened while the tyre's own width is
@@ -49,9 +49,17 @@ dark jeans stands in front of that wheel** and the first circle fit locked onto
 body red *around* them, putting the centre ~100 px out. **Caught by painting
 the fitted circle, not by reasoning.**
 
-Dark band 39 px ÷ 258.6 = **0.151 m**, and that band contains **both** the
+Dark band 39 px ÷ that scale = **0.137–0.155 m**, and that band contains **both** the
 underbody and the shadowed ground beneath it, with no feature separating them.
-So 0.151 m is a **CEILING on the pan's drop, not its value**.
+So **0.137–0.155 m** is a **CEILING on the pan's drop, not its value**.
+
+**CORRECTION, MADE IN THE SAME REVISION (rule 13).** The first cut of this
+published **258.6 px/m** and **0.151 m** as exact. They are one threshold's
+reading: the tyre's span runs **167 → 189 px** as the dark threshold goes
+30 → 60 DN, so px/m runs **251 → 284** and the ceiling **0.155 → 0.137 m**.
+`audit_adversary.py` caught it by re-measuring at a different threshold and
+getting 180 px. **`UNDER_DROP` 0.090 m is below even the lowest ceiling, so the
+build does not move — the precision was wrong, not the conclusion.**
 
 ### §1.3 What was built, and the result
 

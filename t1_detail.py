@@ -1623,15 +1623,26 @@ def _arc_liner(xa, zc, sgn, a0, a1, seg, name, outline=None):
 #
 # THE DEPTH IS AN ASSUMPTION AND IT IS STATED AS ONE (rule 12).  The
 # photograph's band is 39 px; scale comes from the REAR tyre's horizontal
-# extent at its own hub row -- 172 px for a locked TYRE_D 0.665 m, so
-# 258.6 px/m.  (The wheelbase route returns 210 px/m and is REFUSED: the
+# extent at its own hub row, and THAT SPAN IS THRESHOLD-DEPENDENT, which the
+# first cut of this comment hid behind a single figure:
+#
+#     dark threshold  30   35   40   45   50   55   60   DN
+#     tyre span      167  172  180  180  189  189  189   px
+#     -> px/m        251  259  271  271  284  284  284
+#     -> 39 px band 0.155 0.151 0.144 0.144 0.137 0.137 0.137  m
+#
+# So the honest scale is 251-284 px/m and the honest ceiling is 0.137-0.155 m.
+# 258.6 and 0.151 were ONE THRESHOLD PUBLISHED AS IF EXACT; audit_adversary.py
+# caught it by re-measuring at a different threshold and getting 180 px.
+# UNDER_DROP 0.090 is below even the LOWEST of those ceilings, so the build
+# does not move -- the PRECISION was wrong, not the conclusion.  (The wheelbase route returns 210 px/m and is REFUSED: the
 # vehicle is a few degrees off square in that frame, so the hub-to-hub span is
 # foreshortened while the tyre's own width is not.  And the front hub cannot
 # be fitted there at all -- a person in dark jeans stands in front of that
 # wheel and the first fit locked onto body red AROUND them, 100 px off.  That
 # was caught by PAINTING the fitted circle, not by reasoning -- rule 8.)
 #
-# 39 px / 258.6 = 0.151 m.  THAT BAND CONTAINS BOTH THE UNDERBODY AND THE
+# THAT BAND CONTAINS BOTH THE UNDERBODY AND THE
 # SHADOWED GROUND UNDER IT, and no feature in the profile separates them, so
 # 0.151 m is a CEILING on this drop and NOT its value.  UNDER_DROP is set
 # below that ceiling and the residue is left to the ground.  What the frames

@@ -93,8 +93,12 @@ standing hypotheses are dead.**
 sunlit frame over dark paving. Same ceiling as F62. **The remaining factor of
 ~3.8 is not recoverable while the studio stands**, which is the owner's ruling.
 **The pan's DEPTH is a stated assumption (0.090 m) under a measured ceiling of
-0.151 m** — the photograph's dark band contains both the metal and the shadowed
-ground and cannot separate them. **A low raking shot under the sill is the one
+0.137–0.155 m** — the photograph's dark band contains both the metal and the
+shadowed ground and cannot separate them, AND its scale is threshold-dependent
+(the rear tyre spans 167–189 px as the dark threshold runs 30–60 DN, so px/m
+runs 251–284). **`UNDER_DROP` 0.090 m is below even the lowest of those, so the
+build stands; the PRECISION was corrected in the same revision, not the
+conclusion.** **A low raking shot under the sill is the one
 new frame that would settle it.**
 
 ### §2.4 F99 — THE INTERIOR IS TOO COLD, AND THE CAUSE IS NOT SEPARABLE
@@ -139,7 +143,7 @@ model".** It is on this list only so the next context does not rediscover it.
 | the emblem is a stroke-weight problem | **NO.** Ink fraction 0.5903 built vs 0.6062 photographed |
 | *"`V_POW` needs 0.345 at the lamp"* | **NO.** Setting it to 0.345 leaves the break where it was |
 | **MY OWN**: *"the flank two-tone break sits too low"* — from the side-by-side | **REFUTED BY MY OWN MEASUREMENT.** Row-wise red fraction over a wide window: red band **0.723 m** photographed against **0.707 m** built — **−17 mm**. The side-by-side impression was the counter shelf and the crop, not the paint |
-| **MY OWN**: `ref_side.jpg` is 210 px/m from the wheelbase | **REFUSED.** The vehicle is a few degrees off square so hub-to-hub is foreshortened; the rear tyre's own width gives **258.6 px/m**. And the front hub cannot be fitted there at all — **a person stands in front of that wheel** and the fit locked onto body red around them |
+| **MY OWN**: `ref_side.jpg` is 210 px/m from the wheelbase | **REFUSED.** The vehicle is a few degrees off square so hub-to-hub is foreshortened; the rear tyre's own width gives **251–284 px/m** (threshold-dependent — my first cut published 258.6 as if exact and `audit_adversary.py` refuted it by re-measuring at another threshold). And the front hub cannot be fitted there at all — **a person stands in front of that wheel** and the fit locked onto body red around them |
 
 ---
 

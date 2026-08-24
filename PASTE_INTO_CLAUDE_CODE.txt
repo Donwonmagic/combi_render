@@ -191,7 +191,7 @@ probe_rev45_ground G4        0.5475 ablated -> 0.2519 built
 
 **PARTLY CLOSED WITH ITS CEILING**: the residue is the white cyclorama filling a 90 mm cavity, the
 same ceiling as F62. **`UNDER_DROP` 0.090 m is a STATED ASSUMPTION** under a measured ceiling of
-0.151 m — the photograph's band contains both the metal and the shadowed ground and cannot separate
+**0.137–0.155 m**, threshold-dependent — corrected in the same revision (rule 13) — the photograph's band contains both the metal and the shadowed ground and cannot separate
 them. **A low raking shot under the sill is the new frame that would settle it.**
 
 **C5 was watched failing at 0.5475 before it was watched passing** (rule 3), and `verify.py`'s length

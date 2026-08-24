@@ -11,13 +11,15 @@ executed rather than what it meant to try.  REPLACE the questions each
 revision -- they are about THAT revision's claims, and a question that can no
 longer fail is not a control.  Keep the shape: recompute, don't re-read.
 
-REV 59's questions.  Rev 58's twelve are retired with rev 58's claims: they
-asked about the roughness lever, the emblem reach control and the gloss frames,
-and one of them BROKE for the wrong reason -- it wanted `out/r58_hero.png`,
-which does not exist on a clone, so it was reporting the untracked directory
-rather than anything about the brief.  That is F58's shape and it is designed
-out here: every question below either needs NO render, or SAYS SO and breaks
-rather than passing silently (rule 37).
+REV 60's questions.  Rev 59's are RETIRED WITH REV 59's CLAIMS -- they asked
+about the door lobes, the re-based clearance guard and the front arch, all of
+which are closed and none of which can fail any more.
+
+MOST OF THESE RECOMPUTE FROM A PHOTOGRAPH, NOT A RENDER, on purpose: rev 60's
+headline numbers are photograph-side (a px/m, a cavity ratio, two chroma
+ratios) and a question that needs `out/` is a question that reports the
+untracked directory instead of the brief (F58, rule 37).  The three that DO
+need the source read the source.
 
     python3 audit_adversary.py
 """
@@ -30,7 +32,7 @@ P = print
 bad = []
 NQ = [0]
 
-BRIEF = 'NEXT_CONTEXT_PROMPT_rev60.md'
+BRIEF = 'NEXT_CONTEXT_PROMPT_rev61.md'
 
 
 def t(q, ok, d=""):
@@ -46,159 +48,113 @@ P("=" * 78)
 P("  audit_adversary.py -- what would make %s false?" % BRIEF)
 P("=" * 78)
 
-# ---------------------------------------------------------------- the source
-import t1_shell as S
-import t1_core as T
+import t1_shell as S          # noqa: E402
+import t1_core as T           # noqa: E402
+import t1_detail as D_        # noqa: E402  -- constants only, no bpy calls made
 
-t("are the door lobes REALLY where the brief says, in the SOURCE?",
-  abs(S.DOOR_LOBE_A - 0.7096) < 0.002 and abs(S.DOOR_LOBE_B - 0.9598) < 0.002,
-  "t1_shell computes %.4f / %.4f; the brief says 0.7098 / 0.9600 and the "
-  "photograph 0.7096 / 0.9598" % (S.DOOR_LOBE_A, S.DOOR_LOBE_B))
+# ------------------------------------------------- the underbody, from source
+t("is the underbody actually BUILT, or only described in the brief?",
+  hasattr(D_, "underbody") and "underpan" in open('t1_detail.py').read()
+  and 'A(D.underbody(),' in open('build.py').read(),
+  "t1_detail.underbody() must exist AND build.py must call it -- a function "
+  "nobody calls is a paragraph")
 
-t("are they an EXPRESSION of the measurement, or re-typed numbers?",
-  "(_DS_ARCH_CX - _DS_FOOT_A) / _DS_ARCH_R" in open('t1_shell.py').read(),
-  "a bare 0.7096 in the source is how the next re-measurement gets lost")
+t("is UNDER_DROP really UNDER the 0.151 m ceiling the brief claims?",
+  D_.UNDER_DROP < 0.151,
+  "UNDER_DROP = %.4f m against a measured ceiling of 0.151 m.  If this ever "
+  "exceeds it, the pan is deeper than the photograph's whole dark band, which "
+  "contains the shadowed ground as well" % D_.UNDER_DROP)
 
-t("is DOOR_ARCH_G still DEFINED but no longer used as a BAR?",
-  "min(_arch_radial(p) for p in _GAP41_S)" in open('t1_shell.py').read()
-  and "_MIN_RAD >= DOOR_ARCH_G" not in open('t1_shell.py').read(),
-  "kept as the historical anchor and REPORTED; enforcing it again would "
-  "re-forbid the vehicle (F84)")
+t("do the end ramps really span the PAN's own width?",
+  abs(D_.UNDER_RAMP_W - D_.UNDER_W) < 1e-9,
+  "ramp %.4f vs pan %.4f -- the first cut made them 1.400 against 1.560 and "
+  "the 80 mm ledge kept its square aft face, which is the defect the ramps "
+  "were added to remove" % (D_.UNDER_RAMP_W, D_.UNDER_W))
 
-t("does the dense rail guard actually cover a span, or has it collapsed?",
-  len(S._RAIL_DENSE) >= 10 and S._DENSE_SPREAD < 0.030,
-  "n=%d over x %.4f .. %.4f, spread %.2f mm -- four raw points cannot see a "
-  "sag between them, which is why this exists"
-  % (len(S._RAIL_DENSE), S._RAIL_DENSE[0][0], S._RAIL_DENSE[-1][0],
-     S._DENSE_SPREAD * 1000))
+t("does the pan stay clear of the vehicle's FIXED bodywork limit?",
+  D_.UNDER_X1 - D_.UNDER_RAMP > -1.905,
+  "aft ramp reaches x %.4f against the -1.905 limit that verify.py's length "
+  "row enforces.  The first cut reached -2.100 and went red at +205 mm"
+  % (D_.UNDER_X1 - D_.UNDER_RAMP))
 
-# ---- CAN the re-based guard still fail?  A guard that cannot is not a guard.
-r = subprocess.run([sys.executable, "-c", "import t1_shell"],
-                   env=dict(os.environ, T1_DOOR_STALE="1"),
-                   capture_output=True, text=True)
-t("can the re-based clearance guard still REFUSE?  (it must, or it reports nothing)",
-  r.returncode != 0 and "clear the front arch the way the photograph" in r.stderr,
-  "T1_DOOR_STALE=1 restores rev 44b's two constants and the import fails, at "
-  "0.0653 of ARCH_R against the photograph's 0.0226")
+t("is the underseal really DARKER than the interior grey it replaced?",
+  'M["underseal"]' in open('t1_mats.py').read()
+  and re.search(r'M\["underseal"\][^\n]*\(0\.0[0-9]+', open('t1_mats.py').read())
+  is not None,
+  "if underseal is not materially darker than M['dark'] (0.1150) the 0.352 -> "
+  "0.219 step in the brief has no cause")
 
-# ------------------------------------------------------- the photograph side
-def _load(p):
-    a = np.asarray(Image.open(p).convert('RGB')).astype(float)
-    return a[..., 0] - 0.5 * (a[..., 1] + a[..., 2]), a.mean(axis=2)
+# ----------------------------------------------- the guard I broke, from source
+t("is V_POW's by-value pin STILL greppable, with the ablation beside it?",
+  len(re.findall(r'^V_POW = 0\.60$', open('t1_mats.py').read(), re.M)) == 1
+  and 'T1_VPOW' in open('t1_mats.py').read(),
+  "three verify_clone rows grep '^V_POW = 0.60'.  Rev 60's first ablation cut "
+  "took out all three at once; the literal must stay on its own line")
 
-import importlib.util
-spec = importlib.util.spec_from_file_location("pd", "probe_rev59_door.py")
-pd = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(pd)
-red_p, lum_p = _load(pd.PHOTO)
-pu, pv = pd.despike(*pd.trace_lip(red_p, 58, 132, 236, 300, hold=4))
-pcu, pcv, pR, prms, pn = pd.arch_fit(pu, pv)
-door = pd.walk(lum_p, 60, 239.4, 36, 4, 4.0)
-clear = (np.hypot(door[:, 0] - pcu, door[:, 1] - pcv) - pR) / pR
+t("do T1_VPOW and T1_VPOWZ BOTH exist, so paint and swage can move together?",
+  'T1_VPOW' in open('t1_mats.py').read()
+  and 'T1_VPOWZ' in open('t1_shell.py').read(),
+  "the brief tells rev 61 to sweep these; one without the other cannot keep "
+  "verify.py's registration row satisfied")
 
-t("does the PHOTOGRAPH really clear its own arch by 0.0226 of ARCH_R?",
-  abs(clear.min() - 0.0226) < 0.004,
-  "recomputed %.4f R = %.1f mm at u %.1f.  If this is wrong the re-base is "
-  "wrong, because this number IS the new bar"
-  % (clear.min(), 1000 * clear.min() * S.ARCH_R, door[clear.argmin(), 0]))
+# ------------------------------------------ rev 60's PHOTOGRAPH-side arithmetic
+a = np.asarray(Image.open('ref_side.jpg').convert('RGB')).astype(float)
+lum = a.mean(2)
+col = lum[:, 350:500].mean(1)
+cav, opn = col[605:650].min(), col[700:740].mean()
+t("is the photographed cavity really 0.057 of open ground?",
+  abs(cav / opn - 0.057) < 0.006,
+  "ref_side.jpg cols 350-500: cavity floor %.1f DN, open plateau %.1f DN, "
+  "ratio %.4f -- the brief says 0.057" % (cav, opn, cav / opn))
 
-t("is the photographed arch's departure really only ~1.2 pct of R?",
-  0.008 < prms / pR < 0.016,
-  "recomputed rms %.3f px = %.3f %% of R over n=%d.  The brief REFUTES a 48 mm "
-  "claim on the strength of this being small (F82/F83)"
-  % (prms, 100 * prms / pR, pn))
+row = lum[599:604, :].mean(0)
+dark = np.nonzero(row[640:830] < 40)[0]
+t("is the tyre-span scale quoted as a RANGE, not one threshold's reading?",
+  len(dark) > 60 and 150 < (dark.max() - dark.min()) < 195
+  and "251-284" in open('t1_detail.py').read(),
+  "tyre spans %d px at v=601; 0.665 m / that span is the 258.6 px/m the "
+  "brief's 0.151 m ceiling rests on.  The WHEELBASE route gives 210 and is "
+  "refused -- if this breaks, so does the ceiling"
+  % (dark.max() - dark.min() if len(dark) else -1))
 
-fb, fa, _, _, framp, _ = pd.feet(pd.walk(lum_p, 60, 239.4, 36, 4, 4.0))
-w_photo = (pcu - fb) / pR - (pcu - fa) / pR
-t("is the ramp's WIDTH really within ~1 pct of the built width?",
-  abs(w_photo / (S.DOOR_LOBE_B - S.DOOR_LOBE_A) - 1) < 0.03,
-  "photograph %.4f of R against the built %.4f -- this is the corroboration "
-  "that the step was the right SIZE in the wrong PLACE, and it is independent "
-  "of where either foot sits" % (w_photo, S.DOOR_LOBE_B - S.DOOR_LOBE_A))
+b = np.asarray(Image.open('ref_nolita_doorshut.jpg').convert('RGB')).astype(float)
+ii = b[138:157, 288:315]
+ee = b[183:192, 240:280]
+ri = ii[..., 0].mean() / ii[..., 2].mean()
+re_ = ee[..., 0].mean() / ee[..., 2].mean()
+t("is the photographed interior really WARMER than its own exterior cream?",
+  abs(ri - 1.357) < 0.05 and abs(re_ - 1.130) < 0.05 and ri / re_ > 1.15,
+  "interior R/B %.3f, exterior R/B %.3f, ratio %.3f -- the brief claims "
+  "1.357 / 1.130 / 1.201, and F99's whole case is that this ratio inverts in "
+  "the render" % (ri, re_, ri / re_))
 
-# ------------------------------------------------ rule 37: absent input
-for probe, arg in (("probe_rev59_door.py", "out/__nope__.png"),
-                   ("probe_rev59_nose.py", "out/__nope__.png")):
-    r = subprocess.run([sys.executable, probe, arg], capture_output=True, text=True)
-    t("does %s say NO RENDER and exit non-zero with no frame?" % probe,
-      r.returncode == 2 and r.stdout.startswith("NO RENDER"),
-      "rc=%d, first words %r -- F58 was an ABSENT INPUT dressed as a MOVED "
-      "STATISTIC" % (r.returncode, r.stdout.split(".")[0][:58]))
+# ------------------------------------------------------- the brief's own bones
+t("does the brief still CARRY §0 and §0.1, the reference-set guarantee?",
+  "## §0. THE GOAL" in B and "§0.1 THE REFERENCE SET IS COMPLETE" in B,
+  "rev 60 DROPPED §0 while assembling this brief and caught it only by "
+  "accident.  It is a carrier (rule 16) and it holds the owner's own words "
+  "about the reference set")
 
-    r2 = subprocess.run([sys.executable, probe], capture_output=True, text=True)
-    t("...and with NO ARGUMENT at all, rather than a revision-numbered default?",
-      r2.returncode == 2 and r2.stdout.startswith("NO RENDER"),
-      "rc=%d -- a default frame under out/ passes only in the tree that wrote "
-      "it (F58)" % r2.returncode)
+t("does every finding ID the gap review cites actually exist in the register?",
+  all(i in open('OPEN_FINDINGS.md').read()
+      for i in re.findall(r'\bF(?:9[0-9]|10[0-7])\b', open('GAPS_rev60.md').read())),
+  "GAPS_rev60.md is the deliverable the owner asked for by name; a dangling "
+  "ID in it is a dangling promise")
 
-# --------------------------------------------- the renders, which may be absent
-side = sorted([f for f in os.listdir('out') if f.endswith('_side.png')]) if os.path.isdir('out') else []
-front = sorted([f for f in os.listdir('out') if f.endswith('_front.png')]) if os.path.isdir('out') else []
-t("are the frames the brief's item-A and item-B figures need actually present?",
-  bool(side) and bool(front),
-  "side %r  front %r -- out/ is untracked and starts EMPTY.  If this BROKE, "
-  "render before trusting any figure below it, and note that BREAKING here is "
-  "the correct behaviour rather than a silent pass" % (side[-1:], front[-1:]))
-
-if side:
-    r = subprocess.run([sys.executable, "probe_rev59_door.py", "out/" + side[-1]],
-                       capture_output=True, text=True)
-    m2 = [l for l in r.stdout.split("\n") if "M2 the built lobes" in l]
-    m3 = [l for l in r.stdout.split("\n") if "M3 the photographed front arch" in l]
-    t("does the door probe's M2 actually PASS on the shipped tree?",
-      bool(m2) and m2[0].strip().startswith("PASS"),
-      (m2[0].strip() if m2 else "row absent") + "  -- on out/" + side[-1])
-    t("does M3 still FAIL, as the brief says it must BY DESIGN?",
-      bool(m3) and m3[0].strip().startswith("FAIL"),
-      "if this ever reads PASS without the arch being rebuilt, the instrument "
-      "was relaxed rather than the model fixed (F83)")
-
-if front:
-    r = subprocess.run([sys.executable, "probe_rev59_nose.py", "out/" + front[-1]],
-                       capture_output=True, text=True)
-    got = re.search(r"elevation ([0-9.]+) lamp radii", r.stdout)
-    t("does the nose elevation really read ~1.18 lamp radii?",
-      bool(got) and abs(float(got.group(1)) - 1.184) < 0.05,
-      "recomputed %s against the brief's 1.184; the photographs read "
-      "1.951-2.127" % (got.group(1) if got else "nothing"))
-    c4 = [l for l in r.stdout.split("\n") if "C4 the two independent lamps" in l]
-    t("do the nose probe's TWO INDEPENDENT lamps still agree?",
-      bool(c4) and c4[0].strip().startswith("PASS"),
-      "two lamps disagreeing is how a segmentation failure announces itself; "
-      "agreement is the only internal control this instrument has")
-
-# --------------------------------------------------------- brief hygiene
-# F66: TWO scripts in this repo print "ALL n PASS", and a tool that took the
-# FIRST match rewrote the wrong ones and reported the row green.  So this does
-# not forbid a number -- it checks each occurrence is ATTACHED to the right
-# script, which is the thing that actually went wrong.
-_mis = []
-for line in B.split("\n"):
-    for num in re.findall(r'ALL (\d+) PASS', line):
-        names_boot = "bootstrap" in line
-        names_ver = "verify_clone" in line
-        if num == "261" and not names_ver:
-            _mis.append((num, line.strip()[:52]))
-        if num == "10" and not names_boot:
-            _mis.append((num, line.strip()[:52]))
-        if num not in ("10", "261"):
-            _mis.append((num, line.strip()[:52]))
 t("is every 'ALL n PASS' in the brief attached to the script that prints it?",
-  not _mis,
-  "verify_clone prints ALL 261 PASS and bootstrap ALL 10 PASS; F66 rewrote the "
-  "wrong ones of these and reported the row green.  Mismatched: %r" % _mis)
+  all(('verify_clone' in ln or 'bootstrap' in ln or 'SELF-CONSISTENCY' in ln)
+      for ln in B.splitlines() if re.search(r'ALL \d+ PASS', ln)),
+  "two scripts print that phrase and a blind rewrite has corrupted this brief "
+  "before")
 
-t("does the brief claim a delivery frame that nobody rendered?",
-  "DO NOT RUN IT UNTIL THE MODEL IS RIGHT" in B,
-  "the owner held it at rev 58 and items B, C, D and E are still open; the "
-  "brief must say so rather than quote a frame nobody made")
+t("does the brief promise a lever for item B that rev 60 already refuted?",
+  not re.search(r'V_POW\s+needs\s+0\.345', B),
+  "rev 58's 0.345 is refuted by four renders; if the brief still offers it as "
+  "the fix, rev 61 will spend itself on it exactly as rev 59 did")
 
-t("does the brief still carry the two-letter-scheme collision it inherited?",
-  "TWO INCOMPATIBLE" not in B and "§3.11 says" not in B,
-  "rev 59 was told its own brief contained two letter schemes and that fixing "
-  "it was part of the revision; a leftover cross-reference re-creates it")
-
-P("=" * 78)
-P("  %d questions, %d BROKE%s"
-  % (NQ[0], len(bad), ("  --  " + "; ".join(bad)) if bad else ""))
-P("=" * 78)
+P("-" * 78)
+P("  %d asked, %d BROKE%s" % (NQ[0], len(bad),
+                              ("  --  " + "; ".join(bad)) if bad else ""))
+P("  A question that can no longer fail is not a control.  REPLACE THESE")
+P("  for rev 61 -- they are about rev 60's claims.")
+sys.exit(1 if bad else 0)
