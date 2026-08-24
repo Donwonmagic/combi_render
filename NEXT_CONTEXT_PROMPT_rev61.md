@@ -74,8 +74,8 @@ per-measurement and not on average.** A model right in ninety places and wrong i
 done, because he will look straight at the one. **At rev 58 he did exactly that, at the emblem,
 for the fifth time, while every automated check was green.**
 
-**AND HERE IS THE HONEST DISTANCE.** `verify_clone.sh` ends **ALL 261 PASS** and its own verdict
-block says what that is worth: **0 FIDELITY, 261 SELF-CONSISTENCY. Not one of those rows compares
+**AND HERE IS THE HONEST DISTANCE.** `verify_clone.sh` ends **ALL 262 PASS** and its own verdict
+block says what that is worth: **0 FIDELITY, 262 SELF-CONSISTENCY. Not one of those rows compares
 the vehicle to a photograph.**
 
 | gate | state at rev 58 |
