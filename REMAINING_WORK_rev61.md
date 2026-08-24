@@ -132,10 +132,20 @@ flush headlamps, the roundel's short V-arms, a flat nose — that no gate had ev
 
 * **C1. F91 — THE TAIL AND THE ROOF AGAINST A PHOTOGRAPH. Two thirds of the owner's own standing
   bar, never once done in 60 revisions.** `ref_rear34.jpg` exists and is the target bus.
-  **IN PROGRESS at rev 60c-ii.** First candidates from reading the frame: two horizontal press
-  lines across the red rear panel where the model creases nothing (`ENGLID_GAP` is a shut line,
-  not a swage); confirm the chrome-framed "1963" plate, the oval amber tail lamp, the engine-lid
-  handle and the bulb string, all of which the model does build.
+  **FIRST PASS DONE at rev 60c-ii on the TAIL (F128); the ROOF is still not done.** What it found:
+  * **The red's excess blue is the SURROUND, not the paint — and that refutes a fix nobody had
+    tried yet.** Photograph red B/R **0.046** (`ref_rear34`) and **0.047** (`ref_side`), two scenes
+    with very different light — spread **0.001**. Render **0.218** (`hero34r`) and **0.351**
+    (`side`), two views of ONE build — spread **0.133, 133× wider**. A term that swings that much
+    with camera position is what the paint REFLECTS, i.e. E1's ceiling. **Do not warm a paint
+    constant to close it.**
+  * **The tail lamp is close**: within-frame lamp/red luma 0.877 photographed vs 0.801 rendered.
+  * **NOT a defect, checked**: the two horizontal lines on the rear panel are the engine lid's own
+    shut line, which `ENGLID_GAP` builds. **Recorded so nobody chases a swage that is there.**
+  * **NOT comparable, deliberately not claimed**: the lamp's aspect ratio — it is pose-dependent
+    by the model's own control (1.189–1.847) and `hero34r` is not pose-matched to the reference.
+  * **STILL TO DO: the ROOF**, and a tail pass from a camera actually matched to `ref_rear34.jpg`
+    — in `hero34r` the tail is small and half-occluded by the counter.
 * **C2. F45's ROOF-APERTURE INTERIOR — never separately measured** [3.5e5 px²]. F98 refuted the
   "untextured white blocks" claim for the GALLEY bays only; the roof aperture half was never
   measured and appears in no ledger because nothing could gate it.
