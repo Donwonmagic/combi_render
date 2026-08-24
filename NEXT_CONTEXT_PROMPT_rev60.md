@@ -192,7 +192,7 @@ git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 #   ^ row 9 is "no branch carries work HEAD does not have" and it reads
 #     STRANDED: origin/claude/bus-model-rev57-yvrlhi(6 commits, 16 files).
 #     MEASURE IT ANYWAY.  If that string differs BY ONE CHARACTER something moved.
-./verify_clone.sh       # and read what its verdict block says
+./verify_clone.sh       # ALL 261 PASS in ~70 s -- and read what its verdict block says
 ```
 
 **AT PICKUP, REV 59 MEASURED — AND THE HANDOFF IT WAS GIVEN WAS WRONG.** The handoff stated
