@@ -71,7 +71,9 @@ gate's worst region is **`i` at 0.685**.
    reason to re-put it: **F86**. `ref_playa_34` is bright daylight with a **sky for the lens to
    reflect**; the studio has nothing. **F80 and the studio ruling are coupled.**
 2. **THE BRANCH COLLISION IS UNCHANGED AND STILL NOT MERGED.** `origin/claude/bus-model-rev57-yvrlhi`
-   still carries **6 commits / 16 files** HEAD does not have, including `probe_rev58_ceiling.py`, and
+   still carries **6 commits / 16 files** HEAD does not have — including a ceiling probe that is **NOT
+   on this tree** and can only be read as
+   `git show origin/claude/bus-model-rev57-yvrlhi:probe_rev58_ceiling.py` — and
    it uses **F58–F67 for DIFFERENT findings**. IDs are permanent. **Do not merge or renumber
    unilaterally.** `bootstrap.sh` row 9 is RED for exactly this and is left red on purpose.
    **The rev-59 handoff's separate question — "do rev 58's 13 commits go to main via a PR?" — is
