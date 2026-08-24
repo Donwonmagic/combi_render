@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-24 18:53:56 UTC |
-| git commit | `831f001` |
-| git subject | rev 60 close: name rev 60's OWN ablations in the brief, T1_NOUNDER above all |
+| generated | 2026-08-24 20:10:25 UTC |
+| git commit | `f39b0d9` |
+| git subject | rev 60b: the underbody was built half its own depth wrong on TWO axes |
 | working tree | clean |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=2 (applied, destructive, before booleans) |
@@ -27,7 +27,8 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 ```
 length excludes opened lids: 4.311 with them, 4.065 without (what projects: counter, counter_nosing, counter_top, tail_board, tail_board_stay, tb_bulbflex, tb_bulbs, tb_edge_dark, tb_edge_red)
 bounds EXCLUDE 9 non-bodywork part(s): counter, counter_nosing, counter_top, tail_board, tail_board_stay, tb_bulbflex, tb_bulbs, tb_edge_dark, tb_edge_red
-x range [-2.151, 2.160]   full-Y [-1.560, 1.150]
+x range [-2.151, 2.160]   full-Y [-1.064, 1.150]
+lateral extent full-Y [-1.0637, 1.1500] holds its baseline (brackets +y, mir_head-1 -y)
 dims  L=4.065 W=1.750 roof@rear-axle=1.9833 (regression baseline 1.9835, -0.2 mm; dome deficit +0 mm still unmodelled) (bbox top 3.132)
 H_ROOF 1.960 is RETIRED as an accuracy target (rev 22, owner's call): its only ground-line-free support was withdrawn by SPEC 10.34. The model reads 1.9833; the real vehicle's absolute roof height is OPEN and UNMEASURED. The +23 mm warn is gone because THE TEST WAS WITHDRAWN, not because the model improved -- the mesh did not move.
 rear overhang 0.7730 m = 0.3221 of the wheelbase (measured 0.773 +- 0.022 m)
