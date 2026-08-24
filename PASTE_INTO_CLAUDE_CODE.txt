@@ -153,11 +153,27 @@ git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 ./verify_clone.sh       # ALL 266 PASS in ~70 s -- and read its verdict block
 ```
 
-**AT PICKUP, REV 60 MEASURED.** HEAD was `claude/new-session-ocymb5`, **0 ahead / 0 behind**
-`origin/main`, tree clean, `git diff --name-only HEAD...origin/main` **empty**. Rev 59's work was
-already merged. **That is the SIXTH revision running in which the prose guessed the merge state and
-the machine corrected it** — the incoming handoff said HEAD was 13 ahead and that rev 58/58b were
-unmerged; they were merged through PR #18.
+**THE MERGE STATE, MEASURED AT REV 60b CLOSE — AND REV 60 GOT THIS WRONG.**
+
+```
+HEAD  claude/new-session-ocymb5   42 ahead / 0 behind origin/main
+origin/main                       fbcec2e, still rev 58's PR #18 merge
+rev 59's door commit  6275969     NOT on main
+rev 60's underbody    0b0bf89     NOT on main
+```
+
+**42 commits — the whole of rev 59 AND rev 60 — are MERGED NOWHERE.** They live only on the branch
+this file says gets deleted from the remote (five revisions running). The rev-60 brief said
+*"0 ahead / 0 behind … rev 59's work was already merged"*, which was false: it had measured
+`git diff --name-only HEAD...origin/main`, the **THREE-DOT** form, which is empty whenever main has
+nothing HEAD lacks and says **nothing** about the reverse. **That is the seventh consecutive
+revision whose prose guessed the merge state.**
+
+**AND `bootstrap.sh` ROW 9 IS STRUCTURALLY BLIND TO IT.** Its loop is
+`git rev-list --count HEAD..$b` — it finds branches AHEAD OF HEAD, never HEAD ahead of main. It read
+**green** through all 42. `bootstrap.sh` now PRINTS the count every run (it is not a failing row:
+being ahead mid-revision is normal, and a row that cries wolf teaches you to ignore the one row that
+must never be ignored). **Read that line. Do not infer the merge state from a three-dot diff.**
 
 **AND THE TENTH DELETION HAPPENED, ON SCHEDULE.** `fetch --prune` printed
 `- [deleted] (none) -> origin/claude/new-session-ocymb5` — **the branch rev 60 was told to develop
