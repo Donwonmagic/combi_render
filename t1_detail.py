@@ -1665,15 +1665,49 @@ UNDER_W    = 1.560                  # ASSUMPTION: inboard of the sills (1.750)
 #
 # The floor is the only edge anyone can see; the top is buried inside the
 # shell.  Defining the top and subtracting a depth (the first cut) left a
-# HAIRLINE SLOT at the aft end, because `t1_core.ZB` is not flat -- it runs
-# 0.385 amidships to 0.397 at x 1.8 -- and the whole model is SHEARED by the
-# rake at build step 8b, so the shell's bottom face measures 0.3755 at x -1.5
-# against 0.3272 at x +1.5 in the dropped frame.  A flat plate at one z cannot
-# meet a sheared, non-flat edge.  So the top is set ABOVE max(ZB) and simply
-# intrudes into the shell, which is invisible and cannot leave a gap.
+# HAIRLINE SLOT at the aft end, because `t1_core.ZB` is not flat.
+#
+# rev 60c -- AND `ZB` IS NOT THE SHELL'S UNDERSIDE EITHER, WHICH IS WHY THE
+# SLOT SURVIVED THAT FIX.  rev 60b set UNDER_TOP 0.410 "above max(ZB) = 0.397"
+# and declared the top could not leave a gap.  Ray-cast up at the shell from
+# below and the shell's own bottom face, in the AUTHORED frame, is a curve
+# that RISES AT BOTH ENDS, well above ZB at the tail:
+#
+#     x      -1.760  -1.800  -1.820  -1.830  -1.840  -1.850     +1.780  +1.850  +1.900
+#     shell   0.4055  0.4098  0.4170  0.4224  0.4299  0.4391     0.4084  0.4122  0.4165
+#
+# so a flat top at 0.410 was BELOW the shell over the last 60 mm of the tail
+# and at the very front, and the measured gaps were -29.1 mm at x -1.85 and
+# -2.3 mm at x +1.85 on the centreline.  Each end now has its OWN outer top,
+# set from the table above plus a stated margin, and the flat is raised.
+#
+# rev 60b's stated cause for the first slot was ALSO wrong and is retracted
+# here: it blamed the rake shear.  Step 8b subtracts RAKE_Z0 + RAKE_DZDX*x
+# from pan and shell alike, so a shear that is a pure function of x cannot
+# open a gap between two things at the SAME x.  The cause was only ever the
+# shell's underside varying with x -- which is what the table measures.
 UNDER_FLOOR = 0.2960                # the visible underside.  ZB - 0.090 amidships
-UNDER_TOP  = 0.4100                 # buried: above max(ZB) = 0.397 over the span
+UNDER_TOP  = 0.4200                 # buried.  Clears the shell by >= 11.6 mm
+#                                   # at BOTH pan ends (see the table above)
 UNDER_DROP = UNDER_TOP - UNDER_FLOOR
+# UNDER_DROP IS NOT THE VISIBLE DROP and has not been since rev 60b, which
+# changed its meaning without saying so: it is the pan prism's DEPTH, most of
+# it buried.  What a photograph could compare against is the floor's drop
+# below the shell, which is this:
+UNDER_VIS  = 0.0900                 # ZB - UNDER_FLOOR amidships.  The STATED
+#                                   # ASSUMPTION under a measured 0.137-0.155 m
+#                                   # ceiling -- the photograph's band contains
+#                                   # both the metal and the shadowed ground.
+# rev 60c -- T1_UNDER_VIS OVERRIDES IT, FOR MEASUREMENT ONLY.  It exists to
+# SEPARATE the two named contributors to G4's residue (rule 29.3): the white
+# cyclorama filling a shallow cavity (F62's ceiling) and this assumed drop.
+# It is not a tuning knob -- the shipped value stays 0.090, because the
+# 0.137-0.155 band is a CEILING that contains both the metal and the ground
+# shadow, and setting the constant to a ceiling would assume the band is all
+# metal.  What the override buys is an attribution, not a fix.
+UNDER_VIS = float(os.environ.get("T1_UNDER_VIS", UNDER_VIS))
+UNDER_FLOOR = UNDER_FLOOR - (UNDER_VIS - 0.0900)
+UNDER_DROP = UNDER_TOP - UNDER_FLOOR   # recomputed: the floor may have moved
 UNDER_X0, UNDER_X1 = 1.780, -1.760  # clear of BOTH wheel-house notches:
 #   front notch 0.9165..1.6835 (X_AXLE_F +- ARCH_R + 10 mm)
 #   rear  notch -1.570..-0.630 (X_AXLE_R +- ARCH_W_REAR/2 + 10 mm)
@@ -1681,9 +1715,7 @@ UNDER_X0, UNDER_X1 = 1.780, -1.760  # clear of BOTH wheel-house notches:
 # them.  The first cut of this stopped at -1.800 while the body runs on to
 # -2.108, and the pan's square aft cap then hung in open air behind the rear
 # wheel -- plainly visible in the hero, found by CROPPING THE RENDER, not by
-# any check.  The ramps are 1.400 wide, not UNDER_W: at the aft ramp's outer
-# station WX has already fallen to 0.777 and a 0.780 half-width pan would
-# stand PROUD of the body there.
+# any check.
 #
 # AND THE AFT END IS BOUNDED BY THE LENGTH ROW, NOT BY THE SHEET METAL.  The
 # first cut ran the pan to -1.980 with its ramp reaching -2.100 and
@@ -1693,27 +1725,83 @@ UNDER_X0, UNDER_X1 = 1.780, -1.760  # clear of BOTH wheel-house notches:
 # excludes -- so the vehicle's FIXED aft limit is -1.905 and the pan may not
 # reach it.  The guard caught this in the same edit; the number above is set
 # from the guard's own limit rather than from the skin.
-RAIL_DROP  = 0.0350
+RAIL_DROP  = 0.0350                 # the rail's VISIBLE drop below the floor
+RAIL_EMBED = 0.0100                 # rev 60c: and this much buried INSIDE the
+# pan.  rev 60b's "origins are centres" fix was applied to the pan and the rail
+# independently and made their shared face EXACTLY coincident -- pan floor and
+# rail top both landed on 0.29599999999999999, bit-identical, two opaque faces
+# back to back over the rails' whole 3.14 m footprint on one material.  Before
+# that fix the rail was 27.5 mm inside the pan and there was no coincidence.
+# A flush condition is not a construction: the rail now OVERLAPS the pan.
+RAIL_TAPER = 0.120                  # rev 60c: each rail end ramps up into the
+# pan floor over this much x.  rev 60b freed the rails from being 78 % buried
+# and so exposed, for the first time, that they stop 200 mm short of the pan at
+# each end with a SQUARE 35 mm face -- a step in the underbody silhouette
+# directly behind the rear wheel, which is the same "ends in mid-air" defect
+# UNDER_RAMP was introduced to remove for the pan itself.  Found by an
+# independent adversary reading the extents, not by any check.
 RAIL_Y     = 0.300
 RAIL_W     = 0.090
-UNDER_RAMP   = 0.120                # end closers rise over this much x
+RAIL_INSET = 0.100                  # rail ends, inboard of the pan's own ends
+# THE END CLOSERS.  Each end gets its OWN length and its OWN outer top: the
+# body is symmetric in neither.
+UNDER_RAMP_F = 0.120                # front: to x +1.900
+UNDER_RAMP_A = 0.070                # aft:   to x -1.830, and NOT further --
+# rev 60c: the aft ramp ran to -1.880 at a FLAT 0.780 half-width while the
+# tail tapers away under it.  Measured on the mesh, body max|y| against that
+# 0.780:
+#     x      -1.800  -1.820  -1.840  -1.850  -1.860  -1.870
+#     max|y|  0.8358  0.8175  0.7894  0.7729  0.7565  0.7322
+#     proud   -55.8   -37.5    -9.4    +7.1   +23.5   +47.8   mm
+# so the closer stood up to 48 mm PROUD of the skin over the last 30 mm of the
+# tail, and its final 7 mm hung past the rearmost bodywork (x -1.8730) in open
+# air -- a black wedge 156 mm across, lit on its top face, in the lower third
+# of the delivery frame.  That is the SAME defect class as the 685 mm error
+# this function was repaired for, 40 mm away from where it was repaired.
+# -1.830 is the last station with the skin still outboard of 0.780 by a margin
+# (0.8062, +26 mm).  A wider ramp cannot reach further aft; a longer one would
+# have to taper in y, and nothing a photograph shows would settle its shape.
+UNDER_TOP_F  = 0.4270               # >= shell 0.4165 at x +1.900, +10.5 mm
+UNDER_TOP_A  = 0.4330               # >= shell 0.4224 at x -1.830, +10.6 mm
 UNDER_RAMP_W = UNDER_W              # the ramps are the PAN's OWN width.
 # The first cut made them 1.400 against the pan's 1.560, and the 80 mm ledge
 # of pan left proud on each side kept its square aft face -- so the block
 # still ended in mid-air behind the rear wheel and the ramp fixed nothing.
 # Found by cropping the render AGAIN, at the same place, after the first fix.
 # 1.400 had been chosen against WX at x -2.070 (0.777), a station the ramp no
-# longer reaches: at its real stations, x 1.900 and -1.880, WX is 0.866 and
-# 0.873, so the pan's own 0.780 half-width clears the body at both.
+# longer reaches.
+#
+# rev 60c RETRACTS what rev 60b then wrote here.  It read: "at its real
+# stations, x 1.900 and -1.880, WX is 0.866 and 0.873, so the pan's own 0.780
+# half-width clears the body at both."  WX(+1.900) is 0.8664, but
+# WX(-1.880) is 0.7122 -- 0.873 is WX(-1.700), a station 180 mm away.  The
+# sentence licensed the proudness above with a reading of the wrong station,
+# in the commit whose subject was that a constant had been misused.
 
 
 def underbody():
     """The closed pan under the body, plus the one chassis member a frame
-    actually shows.  SPEC 10.117.  Ablation: T1_NOUNDER=1 omits the lot and
-    probe_rev45_ground.py's C5 must REFUSE."""
+    actually shows.  Ablations: T1_NOUNDER=1 omits the lot and
+    probe_rev45_ground.py's C5 must REFUSE; T1_UNDER_YBUG / T1_UNDER_ZBUG /
+    T1_UNDER_PROUD each restore one shipped defect so verify.py's underbody
+    rows stay WATCHABLE (rule 3).
+
+    NO SPEC SECTION.  rev 60b's docstring cited "SPEC 10.117", which is
+    "rev 45 -- THE PAINT, INSTRUMENTED"; SPEC.md ends at 10.123 and has no
+    underbody section at all.  Rule 34: the citation is withdrawn rather than
+    replaced, because writing one would be inventing the record.  What this
+    assembly is answerable to is `probe_rev45_ground.py` and verify.py's
+    underbody rows, not a paragraph."""
     obs = []
     if os.environ.get("T1_NOUNDER") == "1":
         return obs
+    # T1_UNDER_ZBUG=1 restores rev 60's z error -- the pan half its own depth
+    # low, leaving a 45 mm slot, and the rails 78 % buried.  An independent
+    # adversary reinstated exactly this on the repaired tree and every check
+    # stayed green, because the rev-60b repair guarded only the ONE axis
+    # STATE.md happened to already print.  verify.py's slot row must REFUSE it.
+    _zbug = os.environ.get("T1_UNDER_ZBUG") == "1"
+    _ztop = UNDER_TOP - UNDER_DROP / 2.0 if _zbug else UNDER_TOP
     xc = (UNDER_X0 + UNDER_X1) / 2.0
     ln = UNDER_X0 - UNDER_X1
     pts = _notched_rrect(UNDER_W, ln, 0.030,
@@ -1723,29 +1811,44 @@ def underbody():
     # +-depth/2 along w", its own docstring).  The first cut of this function
     # was written as if it extruded origin -> origin+depth, so EVERY prism here
     # was placed half its own depth wrong.  Origins are CENTRES.
-    obs.append(T.solid_prism((xc, 0.000, UNDER_TOP - UNDER_DROP / 2.0),
+    obs.append(T.solid_prism((xc, 0.000, _ztop - UNDER_DROP / 2.0),
                              (0, 1, 0), (1, 0, 0), (0, 0, 1), pts,
                              UNDER_DROP, name="underpan"))
+    # the rails: built in the (x, z) plane and extruded across y, which is the
+    # only orientation that can taper their ends into the pan.
+    _rz_t = _ztop - UNDER_DROP + RAIL_EMBED
+    _rz_b = _ztop - UNDER_DROP - RAIL_DROP
+    if _zbug:                       # rev 60's rails: top flush, 78 % buried
+        _rz_t, _rz_b = _rz_t + RAIL_DROP / 2.0, _rz_b + RAIL_DROP / 2.0
+    _rx0, _rx1 = UNDER_X1 + RAIL_INSET, UNDER_X0 - RAIL_INSET
+    rp = [(_rx0 + RAIL_TAPER, _rz_b), (_rx1 - RAIL_TAPER, _rz_b),
+          (_rx1, _rz_t), (_rx0, _rz_t)]
     for sy in (1, -1):
-        rp = T.rrect(RAIL_W, ln - 0.400, 0.010, seg=2)
-        obs.append(T.solid_prism((xc, sy * RAIL_Y,
-                                  UNDER_TOP - UNDER_DROP - RAIL_DROP / 2.0),
-                                 (0, 1, 0), (1, 0, 0), (0, 0, 1), rp,
-                                 RAIL_DROP, name="chassis_rail%+d" % sy))
-    # the end closers: a ramp from the pan's floor up to the body's own lower
-    # edge, so neither end stops in mid-air.  Built in the (x, z) plane and
-    # extruded across y, which is the only orientation that can taper in z.
-    zb, zt = UNDER_TOP - UNDER_DROP, UNDER_TOP   # absolute, matching the pan
-    for xe, xo, nm in ((UNDER_X0, UNDER_RAMP, "f"),
-                       (UNDER_X1, -UNDER_RAMP, "a")):
-        prof = [(xe, zb), (xe + xo, zt), (xe, zt)]
+        obs.append(T.solid_prism((0.0, sy * RAIL_Y, 0.0),
+                                 (1, 0, 0), (0, 0, 1), (0, 1, 0), rp,
+                                 RAIL_W, name="chassis_rail%+d" % sy))
+    # the end closers: a ramp from the pan's floor up INTO the body's own
+    # underside, so neither end stops in mid-air and neither leaves a slot.
+    # Built in the (x, z) plane and extruded across y, which is the only
+    # orientation that can taper in z.
+    zb = _ztop - UNDER_DROP
+    for xe, xo, zt_out, nm in ((UNDER_X0,  UNDER_RAMP_F, UNDER_TOP_F, "f"),
+                               (UNDER_X1, -UNDER_RAMP_A, UNDER_TOP_A, "a")):
+        # T1_UNDER_PROUD=1 restores rev 60b's aft ramp, which ran 50 mm
+        # further aft at a flat half-width and stood up to 48 mm proud of the
+        # tapering tail.  verify.py's proudness row must REFUSE it.
+        if os.environ.get("T1_UNDER_PROUD") == "1" and nm == "a":
+            xo, zt_out = -0.120, UNDER_TOP
+        prof = [(xe, zb), (xe + xo, zt_out), (xe, _ztop)]
         # y origin is 0.0 -- the CENTRELINE.  The first cut passed
         # -UNDER_RAMP_W/2 as well as the depth, so the two offsets ADDED and
         # both closers were built wholly on the off side, y -1.560..0.000,
-        # standing 919 mm proud of the bodywork.  STATE.md printed it --
+        # 685 mm proud of the bodywork at their own station (1.560 - 0.875;
+        # rev 60b wrote 919 mm in three files and it is reachable from no
+        # half-width this vehicle has).  STATE.md printed the extent --
         # full-Y [-1.064, 1.150] -> [-1.560, 1.150] -- and nobody read the line.
-        # T1_UNDER_YBUG=1 restores rev 60's centred-origin error so verify.py's
-        # lateral-extent row stays WATCHABLE (rule 3).  It must FAIL under it.
+        # T1_UNDER_YBUG=1 restores that error so verify.py's lateral-extent
+        # row stays WATCHABLE (rule 3).  It must FAIL under it.
         _y0 = -UNDER_RAMP_W / 2.0 if os.environ.get("T1_UNDER_YBUG") == "1" else 0.0
         obs.append(T.solid_prism((0.0, _y0, 0.0),
                                  (1, 0, 0), (0, 0, 1), (0, 1, 0), prof,

@@ -59,17 +59,27 @@ t("is the underbody actually BUILT, or only described in the brief?",
   "t1_detail.underbody() must exist AND build.py must call it -- a function "
   "nobody calls is a paragraph")
 
-t("is UNDER_DROP really UNDER the 0.151 m ceiling the brief claims?",
-  D_.UNDER_DROP < 0.151,
-  "UNDER_DROP = %.4f m against a measured ceiling of 0.151 m.  If this ever "
+# rev 60c -- THIS QUESTION WAS ASKING ABOUT THE WRONG QUANTITY.  It read
+# `D_.UNDER_DROP < 0.151`, but rev 60b silently changed what UNDER_DROP MEANS:
+# it was the visible drop (0.090) and became the pan prism's DEPTH, most of it
+# buried inside the shell (0.124 now).  The question went on printing "ok"
+# against a ceiling that belongs to a quantity it had stopped measuring.
+# UNDER_VIS is the visible drop and is what the photograph's band bounds.
+t("is the VISIBLE drop really under the 0.151 m ceiling? (UNDER_VIS, not "
+  "UNDER_DROP -- rev 60b changed what UNDER_DROP means)",
+  D_.UNDER_VIS < 0.151,
+  "UNDER_VIS = %.4f m against a measured ceiling of 0.151 m.  If this ever "
   "exceeds it, the pan is deeper than the photograph's whole dark band, which "
-  "contains the shadowed ground as well" % D_.UNDER_DROP)
+  "contains the shadowed ground as well" % D_.UNDER_VIS)
 
 # rev 60b -- THIS QUESTION WAS A LITERAL TAUTOLOGY AND IT PASSED THROUGH THE
 # WORST DEFECT OF THE REVISION.  It asserted `UNDER_RAMP_W == UNDER_W` while
 # t1_detail.py contains the line `UNDER_RAMP_W = UNDER_W` -- a threshold
 # derived from the expression it checks (rule 6) -- and it read OK while both
-# end closers were built wholly on the off side, 919 mm proud of the skin.
+# end closers were built wholly on the off side, 685 mm proud of the skin
+# (rev 60c: this said 919 mm; 1.560 - 0.875 = 0.685, and 919 mm is
+# reachable from no half-width this vehicle has -- it was wrong in three
+# files at once).
 #
 # IT NOW ASKS THE MESH, via STATE.md, which audit.py writes FROM the mesh.
 # A constant cannot answer a question about where a part ended up.
@@ -81,6 +91,28 @@ t("does the MESH still hold its lateral extent? (not the constants -- the MESH)"
   "STATE.md full-Y %s against the baseline [-1.0637, 1.1500] set by the counter "
   "brackets and mir_head-1.  Rev 60 moved it to -1.5600 and the line was "
   "printed, logged and never read" % (_mY.groups() if _mY else "ABSENT",))
+
+# rev 60c -- THE TWO AXES THE y QUESTION ABOVE CANNOT SEE.  An independent
+# adversary reinstated rev 60's z error in full on the repaired tree and every
+# check in this repository stayed green, because nothing asserted anything
+# about the underbody except its NAMES and its y extent.  These ask STATE.md,
+# which audit.py writes from the mesh, for verify.py's own two measurements.
+_mS = re.search(r'underbody/shell fit: worst intrusion ([-+0-9.]+) mm', _ST)
+t("does the underbody still MEET the shell? (the z axis rev 60b left open)",
+  _mS is not None and float(_mS.group(1)) >= 5.0,
+  "STATE.md's underbody/shell intrusion is %s.  It must be >= +5 mm: the pan's "
+  "top has to INTRUDE into the shell, not merely reach for it.  Rev 60b set it "
+  "from ZB and left -29.1 mm of open slot at the tail, because ZB is not the "
+  "shell's underside" % (_mS.group(1) + " mm" if _mS else "ABSENT"))
+
+_mP = re.search(r'underbody proudness: worst ([-+0-9.]+) mm', _ST)
+t("is every underbody part still INBOARD of the skin at its own station?",
+  _mP is not None and float(_mP.group(1)) <= 2.0,
+  "STATE.md's worst underbody proudness is %s.  It must be <= +2 mm.  The y "
+  "extent question above CANNOT see this: its bound is two fixed scalars, so a "
+  "part may stand 280 mm proud on +y without moving either -- and rev 60b's "
+  "aft ramp was doing exactly that, 48 mm proud, while that row read green"
+  % (_mP.group(1) + " mm" if _mP else "ABSENT"))
 
 # NOT "== HEAD": audit.py stamps the commit it ran AT, and STATE.md is then
 # committed, so that form lags by one commit BY CONSTRUCTION and could never
