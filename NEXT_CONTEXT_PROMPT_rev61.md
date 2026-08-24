@@ -63,6 +63,74 @@ reported 1.972 m of red on a body 1.5 m tall; and a contiguous-run edge finder c
 **silver script**. **Every one caught by PAINTING THE WINDOW AND LOOKING. None by reasoning.**
 
 ---
+## §0. THE GOAL, AND HOW FAR OFF IT WE ACTUALLY ARE
+
+**CARRIED FORWARD FROM THE REV-55, 56, 57 AND 58 BRIEFS. It is not mine and it is not to be
+dropped — rule 16.**
+
+**PHOTO-REALISTIC PARITY WITH THAT EXACT BUS.** Not "a convincing VW bus" — *that one*, the red
+Señor Tacombi combi in the frames on this repo. **Any single measurement off is unacceptable,
+per-measurement and not on average.** A model right in ninety places and wrong in one is not 99 %
+done, because he will look straight at the one. **At rev 58 he did exactly that, at the emblem,
+for the fifth time, while every automated check was green.**
+
+**AND HERE IS THE HONEST DISTANCE.** `verify_clone.sh` ends **ALL 261 PASS** and its own verdict
+block says what that is worth: **0 FIDELITY, 261 SELF-CONSISTENCY. Not one of those rows compares
+the vehicle to a photograph.**
+
+| gate | state at rev 58 |
+|---|---|
+| `flank_compare.py` | **runs, FAILS 1 of 4.** `Senor` **0.651** against a 0.75 bar. The deficit is the **artwork alpha and its placement**, not the render (F39) |
+| `mottle_measure.py` | **runs, and it is NOT measuring the mottle** — 1.1–2.0 % of it. Rev 56's reading and rev 57's item B are REFUTED |
+| `gloss_compare.py` | **runs, FAILS at 0.426** (bar 0.60). Mask corrected at rev 58 (F59); the model-side lever is now **exhausted** (F60/F62) |
+| **`probe_rev46_vw.py`** | **NOW FAILS C6, and that is the point.** photograph 7 cream cells, built 6. It reported 0 FAILED for three revisions while the glyph was an X |
+| `cream_rms.py` | `run()` is the LIVE re-based path |
+| the badge STROKE WEIGHT | **CEILED-rev57.** Different finding from F63 |
+| `visibility_budget.py` | the RANKING, not a gate |
+| everything else | self-consistency |
+
+**The frame reads as clay and the cause is the environment, not the shaders** — the surround is a
+featureless white cyclorama, so the paint has nothing to reflect. **He was shown that, told the
+cost, offered four routes, and ruled "keep studio, fix the model".** **Rev 58 MEASURED that
+ceiling** (F62): this flank's specular image is white cyclorama **19.3 m** away. **Do not
+re-litigate it.**
+
+### §0.1 THE REFERENCE SET IS COMPLETE, AND IT IS GUARDED FRAME BY FRAME
+
+> *[owner, rev 54]* **"we have all references that we need on repo and I want to make sure that is
+> never forgotten."**
+
+**ONE: WHAT WE HOLD IS WHAT WE GET. STOP PARKING WORK BEHIND A PHOTOGRAPH.** `PHOTOS_WANTED_*` is a
+wish list, not a gate — carry it (rule 16, and items 1–5 are still not to be re-asked) but **do not
+let it license parking an item.** Where a frame genuinely cannot answer, the result is *"it cannot
+be recovered from what we hold"* — a real result, stated with its ceiling. **Rev 58 produced two:**
+the residual gloss gap (F62) and the photograph's inability to resolve the V/W centre gap at 68 px.
+
+**TWO: THEY CANNOT BE RE-SHOT, SO THEY ARE CHECKSUMMED INDIVIDUALLY.** **18 rows name them one at a
+time**, so a loss says *which*:
+
+* **the RED target bus** — `ref_side.jpg`, `ref_rear34.jpg`, `ref_playa_34.png`,
+  `ref_nolita_front34.jpg`, `ref_nolita_front34b.jpg`, `ref_nolita_flank.jpg`,
+  `ref_nolita_doorshut.jpg`
+* **NOT the target, geometry only** — `ref_workshop.jpg` is the **GREEN** vehicle; **`IMG_2073.jpeg` is ALSO
+  the GREEN vehicle and was MISFILED under the red bus in this very register until rev 58 measured it**
+  (body **G−R +21.7** on the lower flank and **+28.5** on the rear quarter, against `ref_side.jpg`'s **−67.6**);
+  `bus_model_ref.JPG`
+  is a **SCHOOL BUS**, a fidelity bar only. **Paint and artwork do not transfer between vehicles;
+  geometry does (rule 11).**
+* **retired** — `ref_source.jpeg`, a 246×197 thumbnail the record itself retired
+* **derived/annotated** — `ref_grid.png`, `ref_side_grid.png`, `ref_nose_grid.png`,
+  `ref_band_grid.png`, `ref_x6_lanczos.png`
+* a **floor of 54** reference-class tracked images, and **the five byte-identical pairs are asserted
+  to stay five** — a sixth group means a frame arrived that duplicates one we already hold, which is
+  **not corroboration** and has fooled this project before (rule 11).
+
+---
+
+---
+
+---
+
 ## §1. START HERE — MEASURE THE BRANCH, DO NOT TRANSCRIBE IT
 
 ```bash
