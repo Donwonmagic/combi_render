@@ -1725,6 +1725,20 @@ ck "newest brief drops the retired sec.4 heading" 0 \
    "$(if [ -n "$_LATEST_BRIEF" ]; then grep -cE '^#+ .*WHAT ONLY HE CAN GIVE' "$_LATEST_BRIEF"; else echo 99; fi)"
 
 _BRIEF_TOTAL="$(if [ -n "$_LATEST_BRIEF" ]; then grep -E '\./verify_clone\.sh' "$_LATEST_BRIEF" 2>/dev/null | grep -oE 'ALL [0-9]+ PASS' | grep -oE '[0-9]+' | head -1; else echo 0; fi)"
+# rev 60c-ii -- REMAINING_WORK_rev61.md declared itself a CARRIER and NO FILE
+# IN THE REPOSITORY NAMED IT for a whole revision.  That is exactly how the
+# standing-instructions carrier was lost at rev 44 and the open-findings
+# register at rev 45 (CLAUDE.md rule 16).  A carrier nothing points at is a
+# carrier already half gone, so the pointers are asserted, not trusted.
+_RW="$(ls -1 REMAINING_WORK_rev*.md 2>/dev/null | sort -V | tail -1)"
+ck "the ranked work list exists" OK "$([ -n "$_RW" ] && echo OK || echo MISSING)"
+ck "README, START_HERE and the newest brief all name it" OK "$(
+  _n=0
+  for f in README.md START_HERE.md "$(ls -1 NEXT_CONTEXT_PROMPT_rev*.md | sort -V | tail -1)"; do
+    grep -q "$_RW" "$f" 2>/dev/null && _n=$((_n+1))
+  done
+  [ "$_n" = 3 ] && echo OK || echo "only $_n of 3 name $_RW")"
+
 ck "newest brief states THIS script's row count" "$((PASS+1))" "${_BRIEF_TOTAL:-0}"
 
 UNTRACKED="$(git status --porcelain 2>/dev/null | grep -c '^??')"

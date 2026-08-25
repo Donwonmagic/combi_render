@@ -5,7 +5,7 @@ left, so we know what we need to execute, and we can streamline work."***
 
 **THIS IS A CARRIER (`CLAUDE.md` rule 16).** Rows leave it only by being CLOSED with the
 measurement that closed them or RETIRED with the ruling that retired them. It does not replace
-`OPEN_FINDINGS.md` — that register holds 121 rows with their provenance grades and stays the
+`OPEN_FINDINGS.md` — that register holds 133 unique IDs (F1–F133) with their provenance grades and stays the
 system of record. **This file answers a different question: of those rows, which are WORK?**
 
 **HOW THIS WAS BUILT.** Every number in §A–§C was watched print in this session, on the render
@@ -14,6 +14,13 @@ until re-measured. The ranking column is `visibility_budget.py 3840` — pixels 
 frame — which the brief says to run before choosing, **with its own stated ceiling: pixels are not
 visibility, a hard-edged error reads louder per pixel than a soft one. Use it for orders of
 magnitude, not to rank neighbours.**
+
+**⚠ AND A SECOND CEILING, FOUND AT REV 60c-ii (F132): that script takes its scale from WHICHEVER HERO
+FRAME WAS RENDERED LAST**, in an untracked directory (grep `key=os.path.getmtime`). An adversary
+reproduced every px² figure below exactly by restoring one file's mtime, and got 801 px/m where a
+fresh run today gives 724 — **so the absolute figures below are ~22 % high and are NOT reproducible
+as printed.** The orders of magnitude, which is all this column is used for, are unaffected.
+**Re-run it yourself before choosing, and expect a third scale.**
 
 ---
 
@@ -177,9 +184,9 @@ project revisions.**
 | # | row | the ceiling |
 |---|---|---|
 | **E1** | **F44 / F60 / F62 — THE PAINT'S GLOSS.** `gloss_compare.py` **FAILS at 0.426** (bar 0.60) on `out/r60c_hero.png`, measured this session | **The model-side lever is EXHAUSTED.** F62 measured what this flank actually reflects: a featureless white cyclorama **19.3 m** away. The frame reads as clay because the paint has nothing to reflect. **The owner was shown this, told the cost, offered four routes, and ruled *"keep studio, fix the model"*.** The gate is a RULER, not a verdict |
-| **E2** | **F67's RESIDUE — the ground shadow.** G4 **0.3602** built / 0.5475 ablated / **0.2581** at the top of the photographed ceiling band / **0.057** photographed. Measured this session | **APPORTIONED at rev 60c, which is new:** the assumed 0.090 m drop owns **0.1021** of the residue; even at the most generous drop the photograph is still **0.202** away, **and that remainder is the studio — E1's ceiling**. The shipped constant stays 0.090 deliberately: the 0.137–0.155 m band is a CEILING containing both the metal and the ground shadow, and setting a constant to a ceiling would assume the band is all metal. **A low raking shot under the sill is the one new frame that would settle it** |
+| **E2** | **F67's RESIDUE — the ground shadow.** G4 **0.3602** built / 0.5475 ablated / **0.2581** at the top of the photographed ceiling band / **0.057** photographed. Measured this session | **APPORTIONED at rev 60c, which is new:** the assumed 0.090 m drop owns **0.1021** and the studio owns **0.2011** — and 0.1021 + 0.2011 = 0.3032 = built − photograph exactly. **⚠ BUT THE BAND THIS ROW LEANS ON IS RETRACTED, AND ONLY THE STUDIO HALF IS STILL CEILED (F109, rev 60b).** The register: *"The band cannot be a ceiling on anything: `STATE.md` gives rocker-to-ground 0.3177 m and the band's own upper bound is 0.312 m… At 211.6 px/m that is **0.156 – 0.312 m**, against the 0.137–0.155 m published."* **That retraction never reached the brief, `GAPS_rev60.md`, `t1_detail.py`, or `audit_adversary.py`'s `UNDER_VIS < 0.151` row** — the project's own rule: a retraction that lands in a ledger and not in the source is half a retraction. So `T1_UNDER_VIS=0.145` is **not** the top of any surviving band. **The STUDIO half stands on F62 and stays ceiled. The DROP half is un-bounded and is WORK.** A low raking shot under the sill is the frame that would settle it |
 | **E3** | **F83 — the front arch** | Real, but **4.4 mm rms**, inside SPEC §2's ±8 mm lock, forward half unrecoverable. **Owner ruled *"leave it circular"*. Do not build it and do not mirror it.** `probe_rev59_door` M3 stays failing as the honest open record |
-| **E4** | **F80 — the headlamp reads as a dark hole** | **Ceiled to the surround** — the photograph has a sky for the lens to reflect and the studio does not. **F86 is the part that is NOT ceiled (see B6)** |
+| ~~**E4**~~ **→ §B7** | ~~F80 — the headlamp reads as a dark hole~~ **MOVED OUT OF §E AT REV 60c-ii — IT WAS FILED HERE ON AN ARGUMENT, AND ITS OWN REGISTER ROW SAYS THE OPPOSITE** | F80 is graded `MEASURED-rev58`, status **OPEN**: *"**OPEN — and it is ALREADY GATED BY SOMETHING NOTHING RUNS.** `probe_rev45_nose.py`'s N2/C4/C6 gate this against `ref_playa_34` at 0.565 lens/cream… **Run it before touching anything**"*. No CEILED grade, no owner ruling names it. **And the stated ceiling is contradicted by the row's own second figure**: `ref_nolita_front34b` is *"lamp off, in shade"* and still reads **1.268** against the render's **0.884** — a shaded frame has no sky either. **It is WORK with an un-run gate.** Caught by an independent adversary. This is the one category where a wrong filing means a row is never worked again |
 | **E5** | **F08 — the badge STROKE WEIGHT** | **CEILED-rev57.** Different finding from F63. The photograph cannot resolve the V/W centre gap at 68 px |
 
 ---
@@ -225,7 +232,7 @@ for.
 | **H4** | **F88 / F95 — `gloss_compare.py` rebuilds its red mask from every frame so the mask can WALK OFF the defect**, and it reads the target's paint finish off a **NOLITA** frame, which is admitted for GEOMETRY ONLY (rule 11) | |
 | **H5** | **F49 / F50 — `stitch.py`'s guard fired and the runner ignored it**; its docstring describes a better design than its code implements | matters only at delivery |
 | **H6** | **F97 — the shell's n-gon count has grown 1.8×** (2,876 → **5,191**) and nothing tracks it. 0 non-manifold edges | **LOW.** Deliverables are stills and a sticker, so nothing reads the topology — but the original handoff's condition was *"if the mesh is ever delivered"* |
-| **H7** | **F115 — `tex/emblem.png` is 1024×1024 and BLOCKED** from regeneration. **8 of 9 textures now meet SPEC §5's 3K floor** (measured this session); against the owner's stated **4K** bar, `calidad.png` and `nose.png` sit at 3072 | the 3K floor is now an asserted row for the first time |
+| **H7** | **F115 — `tex/emblem.png` is 1024×1024 and BLOCKED** from regeneration (`texgen.make_emblem` raises *"no usable font"*). ~~8 of 9 textures~~ **SEVEN OF THE EIGHT TRACKED textures meet SPEC §5's 3K floor** — the "9" counted `tex/prev_calidad.png`, an **untracked scratch file the gate itself excludes** (`verify_clone.sh`, grep `startswith('prev_')`). **Two copies of one check disagreeing is §10.8's own prohibition, and I wrote the second copy.** Against the owner's **4K** bar, `tex/calidad.png` and `tex/nose.png` sit at 3072 | the 3K floor is an asserted row; the 4K bar is a decision, not a blocker |
 
 ---
 
@@ -247,6 +254,59 @@ textures              8 of 9 >= 3072 px; emblem.png 1024 BLOCKED
 about the vehicle. **Not one of those 268 rows compares the model to a photograph.** The trunk lid
 that opened inwards, the board's foot buried in the roof, the disc of body red in every tail lamp,
 the five-petal hubcaps — every one passed this script and was found by **looking at a crop**.
+
+---
+
+---
+
+## §I THE 27 OPEN ROWS THAT WERE IN NEITHER OUTGOING DOCUMENT
+
+**Added at rev 60c-ii, and this section is the reason the one-screen table above is not the whole
+truth.** An independent adversary counted the register against both outgoing documents and found
+rows that appear in neither — while this file called itself *"the whole remaining list"* and the
+brief is the next context's only map. I recomputed it and the count is **27**, not the 24 it
+reported. **Three of them matter as much as anything in §A:**
+
+* **F79 — the nose roundel is 10–24 % too large relative to the headlamp.** A geometry defect on
+  the owner's top-ranked item, adjacent to §A1 and **not the same finding**.
+* **F77 — `V_POW = 0.60` is too large; two frames read ≈ 0.52.** §A2 lists three candidate levers
+  for the nose and this is not one of them.
+* **F96 — two more items from the deleted carrier still have no live home**, one of them raised by
+  the owner himself (*"clutter on the counter"*). Rule 16's failure mode, twice over.
+
+| ID | what it is |
+|---|---|
+| **F02** | see the register |
+| **F04** | not a mottle finding either |
+| **F07** | see the register |
+| **F11** | galley cluster |
+| **F12** | galley cluster |
+| **F13** | galley cluster |
+| **F19** | no edge chipping is built at all, while SPEC §3 and the owner's rev-53 narrowing both require it |
+| **F21** | ceiled by construction |
+| **F22** | OPEN and UNMEASURED |
+| **F23** | the TAIL BOARD has zero rows in either verifier — on a part the owner confirmed is on the vehicle |
+| **F24** | split across two lines so a flat grep misses it |
+| **F27** | five materials are still a CONSTANT roughness against SPEC §3's WEATHERED lock |
+| **F28** | see the register |
+| **F37** | `t1_detail.py` states the nose badge's ring outer D TWICE, with two different values |
+| **F43** | what the other 93.5 % of the render's cream albedo breakup actually is |
+| **F53** | `T1_paint`'s Roughness socket is LINKED, so setting `default_value` on it is INERT |
+| **F55** | why F54 happened — and it BOUNDS item A |
+| **F57** | `T1_SCENE=playa` RENDERS NO VEHICLE |
+| **F68** | `T.cylinder` centres on its origin and FOUR call sites author it as a base |
+| **F77** | **`V_POW = 0.60` IS TOO LARGE; two frames read ≈ 0.52** — and §A2 lists three nose levers without it |
+| **F78** | `IND_DZ = 0.2060` is contradicted by the very frame its own comment cites |
+| **F79** | **THE NOSE ROUNDEL IS 10–24 % TOO LARGE relative to the headlamp** — adjacent to §A1 but NOT the same finding |
+| **F87** | the orthographic front elevation confirms F75 POSE-FREE |
+| **F89** | the rig ceiling, measured — the surround owns most of the gloss deficit |
+| **F92** | the PLAYA HERO, *"deprioritised, not cancelled"*, which the brief has since hardened into a cancellation |
+| **F96** | two more of the deleted carrier's items have no live home, one of them owner-raised (*"clutter on the counter"*) |
+| **F104** | what painting the emblem cells showed: the ink is the right AMOUNT arranged the WRONG WAY |
+
+**These are NOT triaged into §A–§H.** Triaging them is the next context's first cheap job, and
+doing it will change the one-screen table. **Do not read that table as complete until this section
+is empty.**
 
 ---
 

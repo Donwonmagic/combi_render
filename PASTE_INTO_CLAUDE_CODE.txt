@@ -44,7 +44,11 @@ always reported a FALLBACK scale, and its table omitted three of the owner's own
 
 ---
 
-**Now read this whole file before you CHANGE anything.** Then `GAPS_rev60.md`, then `CLAUDE.md`,
+**Now read this whole file before you CHANGE anything.** Then **`REMAINING_WORK_rev61.md`** — the
+owner asked for it in those words at rev 60c (*"a comprehensive list of just what exactly is left, so
+we know what we need to execute"*) and it is the RANKED EXECUTION LIST: it sorts the register's open
+rows into work, ceiled, the owner's call and process debt, and its **§I** carries 27 rows that were in
+no document at all. Then `GAPS_rev60.md`, then `CLAUDE.md`,
 then `LEDGER_rev60.md` (where every number in §2 comes from), then `OPEN_FINDINGS.md`.
 
 ---
@@ -78,8 +82,8 @@ per-measurement and not on average.** A model right in ninety places and wrong i
 done, because he will look straight at the one. **At rev 58 he did exactly that, at the emblem,
 for the fifth time, while every automated check was green.**
 
-**AND HERE IS THE HONEST DISTANCE.** `verify_clone.sh` ends **ALL 268 PASS** and its own verdict
-block says what that is worth: **0 FIDELITY, 268 SELF-CONSISTENCY. Not one of those rows compares
+**AND HERE IS THE HONEST DISTANCE.** `verify_clone.sh` ends **ALL 270 PASS** and its own verdict
+block says what that is worth: **0 FIDELITY, 270 SELF-CONSISTENCY. Not one of those rows compares
 the vehicle to a photograph.**
 
 | gate | state MEASURED at close of rev 60 |
@@ -147,7 +151,7 @@ for b in $(git branch -r | grep -v HEAD); do
 done
 git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 ./bootstrap.sh          # 9 of 10 at rev 60 close.  MEASURE IT ANYWAY
-./verify_clone.sh       # ALL 268 PASS in ~70 s -- and read its verdict block
+./verify_clone.sh       # ALL 270 PASS in ~70 s -- and read its verdict block
 ```
 
 **THE MERGE STATE, MEASURED AT REV 60b CLOSE — AND REV 60 GOT THIS WRONG.**
@@ -378,10 +382,16 @@ checks (rule 6): both compare the underbody against the BODY, built by other cod
 **Watched failing, all three, which is the only reason they count (rule 3):**
 
 ```
-T1_UNDER_ZBUG   -> SLOT  -50.5 mm     the defect that was invisible
-T1_UNDER_PROUD  -> PROUD +55.4 mm     and it fires the slot row too
-T1_UNDER_YBUG   -> PROUD +753.8 mm    and the old lateral row
+T1_UNDER_ZBUG   -> SLOT  -50.5 mm                the defect that was invisible
+T1_UNDER_PROUD  -> PROUD +55.4 mm                the PROUDNESS row ONLY
+T1_UNDER_YBUG   -> PROUD +724.1 mm, SLOT -335.3, and the old lateral row -496 mm
 ```
+
+**ALL THREE RE-MEASURED AT REV 60c-ii AT SUB=1, AFTER THE GEOMETRY MOVED.** The brief previously
+said `T1_UNDER_PROUD` *"fires the slot row too"* (it does not, since the aft closer's station moved)
+and put `T1_UNDER_YBUG` at **+753.8 mm** (it is **+724.1**, because the skin's half-width at the
+ramp's new station is different). **Both were true when written and stale when they shipped — which
+is the whole reason this brief says measure, do not transcribe.**
 
 **MY OWN NEW GUARD WAS WRONG ON ITS FIRST RUN — rule 4, on schedule.** It sampled a 6 mm vertex slab,
 found it EMPTY at x −0.630 because the shell is subdivided, and reported the pan **780 mm proud**
@@ -685,10 +695,10 @@ narrowed **by DIMENSION, not by name** — tracked hero PNGs must be ≤ 1600 px
 **NEW AT REV 60c — THE TWO AXES REV 60b LEFT UNGUARDED, AND THE ONE THAT APPORTIONS G4:**
 **`T1_UNDER_ZBUG`** (restores rev 60's z error — pan 45 mm low, rails 78 % buried; `verify.py`'s
 underbody SLOT row must REFUSE — **watched at -50.5 mm**), **`T1_UNDER_PROUD`** (restores rev 60b's
-aft ramp, which stood up to 48 mm proud of the tapering tail; the PROUDNESS row must REFUSE —
-**watched at +55.4 mm**, and it fires the slot row too), **`T1_UNDER_VIS`** (the pan's VISIBLE drop
+aft ramp at its ABSOLUTE station x −1.880 — see F127; the PROUDNESS row must REFUSE — **watched at
++55.4 mm, that row and no other**), **`T1_UNDER_VIS`** (the pan's VISIBLE drop
 — **MEASUREMENT ONLY**, it is what apportions G4 in §2.1 and it is not a tuning knob).
-**And `T1_UNDER_YBUG` now fires TWO rows, not one — watched at +753.8 mm on the new proudness row.**
+**And `T1_UNDER_YBUG` now fires THREE rows — the lateral row at −496 mm, the new proudness row at +724.1 mm, and the slot row at −335.3 mm.**
 
 **NEW AT REV 60 — and `T1_NOUNDER` is the one that arms item D's whole gate:**
 **`T1_NOUNDER`** (omits the underbody entirely; `probe_rev45_ground.py`'s **C5 must REFUSE** — watched

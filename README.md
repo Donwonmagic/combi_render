@@ -267,8 +267,16 @@ git push -u origin main
 
 **This section used to be a ranked work list dated rev 42, and it sat here for
 sixteen revisions competing with the live brief.** It is deliberately gone.
-There are exactly two live registers and this file is neither:
+There are exactly three live registers and this file is none of them:
 
+* **`REMAINING_WORK_rev61.md`** — the RANKED EXECUTION LIST, written at rev 60c
+  because the owner asked for *"a comprehensive list of just what exactly is
+  left, so we know what we need to execute"*. It sorts the register's open rows
+  into REAL WORK / CEILED / the owner's call / process debt, and its **§I**
+  carries the rows that were in no document at all. **It is a CARRIER.** It was
+  an ORPHAN for one revision — no file in the repository named it — which is how
+  a carrier gets lost (rule 16); it is named here, in `START_HERE.md`, in the
+  brief's reading order and in `verify_clone.sh` so that cannot recur.
 * **`OPEN_FINDINGS.md`** — every open finding with an ID and a **provenance
   grade** (`MEASURED` / `RECOMPUTED` / `INHERITED` / `RULED` / `CEILED`). It is
   a CARRIER: rows leave it only by being closed with the measurement that closed
