@@ -334,14 +334,18 @@ holds **27 untriaged rows** — rev 62 did not triage them either, which is two 
 6. **ASK HIM ABOUT AN ALPHA CHANNEL.** F155: the render is *"to plug into company merch with
    different backgrounds"*. Nobody has asked whether he needs a cut-out. One line, and it changes
    the delivery chain.
-7. **THE SURVIVING PANEL ITEMS**, none of which rev 61 or rev 62 touched: the glass is a flat slab
+7. **THE DELIVERY PACKAGE IS BUILT BUT NOT RE-RUN AT SIZE.** `deliver.py` shipped a set at
+   2400×1650. **He has not said what size he needs for print.** If he asks for large format it is
+   one command and a longer wait — do not re-derive the pipeline. And **`delivery/READ_ME_FIRST.txt` lists
+   the model's known defects to him**; keep that list current or it becomes a lie.
+8. **THE SURVIVING PANEL ITEMS**, none of which rev 61 or rev 62 touched: the glass is a flat slab
    (0.5 % sd against the photograph's 12.8 %); the tyres have no tread, no sidewall lettering, and
    are 35 % too light; the tail is modelled as a box where the real one is a barrel; every shut
    line is a 1-px ink stroke with no leading-edge highlight; the galley is monochrome; the counter
    is a floating slab with no fascia.
-8. **F143 — TWO LOUDSPEAKERS STAND ON THE ROOF AND ARE UNMODELLED.** Known since `AUDIT_rev12.md`,
+9. **F143 — TWO LOUDSPEAKERS STAND ON THE ROOF AND ARE UNMODELLED.** Known since `AUDIT_rev12.md`,
    in no live carrier for 50 revisions now, corroborated on two independent scenes.
-9. **THE INHERITED CLUSTER** — F14 (**ten** revisions un-re-measured), F15, F10, F20.
+10. **THE INHERITED CLUSTER** — F14 (**ten** revisions un-re-measured), F15, F10, F20.
 
 ---
 ## §4 WHAT WAS ASKED OF HIM — A CARRIER, NOT A LIST OF BLOCKERS
@@ -369,6 +373,14 @@ studio *"keep studio — ruling stands"* (twice); the front arch *"leave it circ
 > required be surfaced rather than silently decided. **SHIPPED** as
 > `script_gen.SENOR_TARNISH = 0.0`; luma **117.1 → 201.1**. The b flag, i dot and swash keep their
 > tarnish. `T1_SENOR_TARNISH=1` restores the pre-ruling texture **byte for byte**. See **F157**.
+
+> ***"It is going on different backgrounds for promotional material etc. give me everything I
+> might need."*** — rev 62, when asked whether he needed an alpha channel. **THIS IS A DELIVERY
+> INSTRUCTION AND IT IS BUILT**: `T1_ALPHA=1` renders RGBA with the contact shadow preserved in
+> partial alpha (**F159**), and `deliver.py` packages it into full-frame, trimmed and SEPARATED
+> vehicle/shadow layers with a plain-language `delivery/READ_ME_FIRST.txt` (**F160**). **It does NOT
+> retire the rev-58 hold on the FULL delivery render** — he re-stated that gate in the same
+> breath, below. What it retires is the excuse that the assets could not be made yet.
 
 > ***"this is just the render to plug into company merch with different backgrounds once i
 > determine the model is done"*** — his answer when asked to rule on the local bounce card.
@@ -482,6 +494,11 @@ python3 audit_brief.py ; python3 audit_adversary.py          # rules 15 and 17, 
 **`T1_BULB_STR`** / **`T1_BULB_BASEV`** (both REFUTED as fixes, F144),
 **`T1_SENOR_BREAKS`** (restores the tarnish-faithful broken `S`; the connectivity guard must read
 3 instead of 1).
+**NEW AT REV 62: `T1_ALPHA`** — the DELIVERY switch. Renders RGBA with the white cyclorama not
+drawn at all, keeping the contact shadow in partial alpha and dropping CA/vignette/grain (they
+belong to the finished composite). **OFF by default and three `verify_clone.sh` rows keep it
+that way** — if it ever defaults ON, every gate in this repository starts scoring a transparent
+frame against a white-background reference. Feed the result to `python3 deliver.py`.
 **NEW AT REV 62: `T1_SENOR_TARNISH`** (restores the pre-ruling tarnish on the `Señor` word;
 the shipped value 0.0 is the owner's ruling, and `=1` reproduces the old `tex/senor.png` BYTE FOR
 BYTE -- a `verify_clone.sh` row asserts it).
@@ -556,7 +573,7 @@ that way, and none by reasoning.**
 **IT IS A CARRIER (rule 16). Rows leave it only by being CLOSED with the measurement that closed
 them, or RETIRED with the ruling that retired them. Never by being dropped.**
 
-It carries **157 rows** now. **Rev 62 added F151–F157**, of which **three are refutations** --
+It carries **161 rows** now. **Rev 62 added F151–F161**, of which **three are refutations** --
 one of the rev-62 brief's own diagnosis (F154), one of its leading emblem suspect (F152), and one
 of a route it prescribed (F153). **Two are owner rulings** (F155, F157) and **one is a trap laid
 for the next context by an owner ruling** (F156).
