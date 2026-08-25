@@ -595,7 +595,34 @@ ck "tex/nose.png"    34b3d81a74f366a6fd849612b2293e0c "$(md5of tex/nose.png)"
 # WATCHED BOTH WAYS: shipped 1 component [361 px]; T1_SENOR_BREAKS=1 gives 3
 # [251, 61, 14].  IoU against the TARNISHED mask FALLS by design (Senor
 # 0.8859 -> 0.8602) and MUST NOT be "repaired" -- see senor_trace.py.
-ck "tex/senor.png"   adcf908f0c3c078c45f8d305d470796a "$(md5of tex/senor.png)"
+# ===========================================================================
+# rev 62 -- RE-BASED, AND THE CAUSE IS AN OWNER RULING, NOT A REPAIR.
+#
+# He was shown probe_scratch/rev62_q_senor.png -- the photograph and the render
+# of the same word at the same mm/px -- and asked which finish he wanted on
+# `Senor`.  Four options; he chose "Bright silver, same as Tacombi".  That
+# overrides SPEC sec.3's WEATHERED lock FOR THIS WORD ONLY, and the rev-62 brief
+# sec.4 had already flagged the collision and required it be surfaced to him
+# rather than decided silently.  script_gen.SENOR_TARNISH = 0.0 ships it.
+#
+# THE COMPANION ROW, which is what makes this a re-base and not a rubber stamp
+# (CLAUDE.md, "a re-base is allowed only with the cause named AND a companion
+# row that makes the cause separately testable"): the row below re-runs
+# script_gen with T1_SENOR_TARNISH=1 and asserts it reproduces the PRE-RULING
+# texture BYTE FOR BYTE.  So the ruling is reversible, the measured TARNISH_K
+# and SENOR_MICHELSON are provably still live, and this hash moved for the
+# stated cause and no other.  WATCHED: the word's luma goes 117.1 -> 201.1
+# against a clean silver of 210.9, and the b flag, i dot and swash zones are
+# untouched.
+# ===========================================================================
+ck "tex/senor.png"   3491b72149707950e51d6be4ca31f33f "$(md5of tex/senor.png)"
+ck "T1_SENOR_TARNISH=1 restores the PRE-RULING texture byte for byte" yes \
+   "$(cp tex/senor.png /tmp/_vc_senor.png 2>/dev/null; \
+      T1_SENOR_TARNISH=1 python3 script_gen.py >/dev/null 2>&1; \
+      if cmp -s tex/senor.png /tmp/_vc_senor_pre.png 2>/dev/null || \
+         [ "$(md5of tex/senor.png)" = "adcf908f0c3c078c45f8d305d470796a" ]; \
+      then echo yes; else echo no; fi; \
+      cp /tmp/_vc_senor.png tex/senor.png 2>/dev/null)"
 ck "the S is ONE letter, per the owner's rev-61 ruling"  1 \
    "$(python3 senor_trace.py 2>/dev/null | grep -o 'rasterised `S` components: [0-9]*' | awk '{print $NF}')"
 # rev 45, SPEC 10.112: RE-BASED because the texture legitimately changed.
