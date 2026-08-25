@@ -37,6 +37,17 @@
 # image, and a vignette that darkens the corners of transparency or grain that
 # stops dead at the silhouette is a visible tell.
 #
+# BIT DEPTH, STATED BECAUSE THE RECORD HAS A FINDING ABOUT EXACTLY THIS.  The
+# masters in out/ are genuine 16-bit RGBA PNGs -- IHDR bit depth 16, colour
+# type 6, checked by reading the header, not by asking PIL.  This script reads
+# them through PIL, which returns uint8 for 16-bit RGBA, so everything it writes
+# is 8-bit.  THAT IS F42's MECHANISM ON A NEW PATH, and here it is a DELIBERATE
+# CHOICE rather than F42's accident: 8-bit sRGB is what design tools expect and
+# 16-bit RGBA PNG breaks several of them.  The distinction matters -- F42 is a
+# measurement path silently losing precision; this is a delivery path choosing a
+# format.  Do not "fix" this one by pointing it at a 16-bit decoder without
+# asking the owner what his tools take.
+#
 # RUN   python3 deliver.py [--prefix deliv] [--outdir delivery]
 
 import os
@@ -286,6 +297,10 @@ def manifest(rows, missing):
     A("TECHNICAL")
     A("-" * 72)
     A("Format        PNG, 8-bit RGBA, straight (un-premultiplied) alpha, sRGB.")
+    A("              8-bit is deliberate -- it is what design tools expect, and")
+    A("              16-bit RGBA PNG breaks in several of them. The renders")
+    A("              behind these ARE 16-bit and are kept; if you ever need")
+    A("              that depth for heavy grading, ask and it can be exported.")
     A("Shadow        Carried in the ALPHA channel, not painted on as grey. That")
     A("              is why it darkens a dark background correctly instead of")
     A("              laying a grey patch on it.")
