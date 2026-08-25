@@ -31,7 +31,16 @@ that retired them.
 >    vehicle, and on the target's own frame the render is within 2 % (rule 11);
 >    F100's "gold surround" is that state's too.
 >
-> **The grading legend below is still good and so is everything not marked.**
+> **AND A SECOND PASS AT REV 60c-ii FOUND FIVE MORE, all now marked in place:** the
+> `verify_clone.sh` row count (262 → **270**); the textures paragraph (§5 and §6 item 4 —
+> **that work was DONE at rev 60b and is GATED**, and this file still calls it ungated); the
+> flank break's **−17 mm** (F110, **retracted** — the window was on the counter's cream fascia);
+> F100's gold surround (**F112 refutes it outright**, not merely as a question); and the nose
+> bracket's upper bound **2.127**, which is `ref_workshop` — **the GREEN vehicle, which the probe
+> itself excludes under rule 11**, used here as the red bus's own bound.
+>
+> **So do NOT read "everything not marked is good" as a guarantee. Two passes found nine
+> defects in this file. Check anything you are about to lean on.**
 
 **HOW TO READ THE GRADE.** `MEASURED` means a number was watched print this
 revision, with its window painted and looked at. `OBSERVED` means it is visible
@@ -57,7 +66,7 @@ before quoting any of them.
 | `verify_clone.sh` | ~~**ALL 262 PASS**~~ **268 at rev 60c** | — | **0 fidelity, 262 self-consistency** |
 | `bootstrap.sh` | **9 PASSED, 1 FAILED at PICKUP; ALL 10 PASS at CLOSE** | 10 | **the change is UNEXPLAINED — rev 60 merged nothing. Run row 9 yourself** |
 | `probe_rev46_vw.py` | **C6 FAILS** — photograph 7 cream cells, built 6 | 7 | item C, cause now localised |
-| `probe_rev59_nose.py` | **M1 FAILS** — 1.187 lamp radii against 1.951 … 2.127 | in range | item B, lever unknown |
+| `probe_rev59_nose.py` | **M1 FAILS** — 1.187 lamp radii against ~~1.951 … 2.127~~ **1.951 … 2.121 — RULE 11: 2.127 is `ref_workshop`, the GREEN vehicle, which the probe itself EXCLUDES** | in range | item B, lever unknown |
 | `flank_compare.py` | **FAILS** — worst region **`i` at 0.685**, `Senor` 0.720 | 0.75 | F01/F39 |
 | `gloss_compare.py` | **FAILS at 0.436** (was 0.426 at rev 58) | 0.60 | ceiled, F60/F62 |
 | `probe_rev45_ground.py` | 5 checked, **0 FAILED**. ~~G4 **0.2519** (ablated 0.5475)~~ **STALE — re-measured at rev 60c: G4 0.3602, ablated 0.5475** | G4 < 0.45 | item D, partly closed |
@@ -98,7 +107,9 @@ standing hypotheses are dead.**
 **MEASURED-rev60, NOT FIXED, and the entire remedy programme is REFUTED.**
 
 * Built **1.187** lamp radii above the lamp centre against the photographs'
-  **1.951 … 2.127** (four frames, two vehicles). **74–76 mm** too low, on a
+  ~~**1.951 … 2.127** (four frames, two vehicles)~~ **1.951 … 2.121, THREE frames, ONE vehicle —
+  the probe prints *"ref_workshop 2.127 is the GREEN vehicle and is EXCLUDED -- paint does not
+  transfer, rule 11"*, and this file used it as the RED bus's upper bound.** ~~74–76 mm~~ **73 mm** too low, on a
   pose-free orthographic elevation with four controls passing.
 * **`V_POW` swept 0.15 → 1.20 — an 8× range — moves it 0.004 lamp radii.**
   `V_RISE` +13 % moves it 0.009. Paint and swage moved **together**
@@ -213,7 +224,7 @@ model".** It is on this list only so the next context does not rediscover it.
 | *"the W's outer arms float 18.9 mm short"* is the cause | **SYMPTOM.** Removing the float makes the topology worse (6 → 2, or → 4 paired) |
 | the emblem is a stroke-weight problem | **NO.** Ink fraction 0.5903 built vs 0.6062 photographed |
 | *"`V_POW` needs 0.345 at the lamp"* | **NO.** Setting it to 0.345 leaves the break where it was |
-| **MY OWN**: *"the flank two-tone break sits too low"* — from the side-by-side | **REFUTED BY MY OWN MEASUREMENT.** Row-wise red fraction over a wide window: red band **0.723 m** photographed against **0.707 m** built — **−17 mm**. The side-by-side impression was the counter shelf and the crop, not the paint |
+| **MY OWN**: *"the flank two-tone break sits too low"* — from the side-by-side | ~~**REFUTED BY MY OWN MEASUREMENT.** Row-wise red fraction: red band **0.723 m** photographed against **0.707 m** built — **−17 mm**~~ **⚠ RETRACTED AT REV 60b-ii (F110) — MY FOURTH WRONG WINDOW ON THIS QUANTITY.** The row published as the break, 422, reads (216,189,168) — the counter's **cream fascia**; the true cream/red edge is at y 440. **The counter occludes the break in both frames, so the quantity is NOT MEASURABLE from `ref_side.jpg` and is RE-OPENED as unmeasurable, not closed.** The side-by-side impression being the counter shelf still stands |
 | **MY OWN**: `ref_side.jpg` is 210 px/m from the wheelbase | **REFUSED.** The vehicle is a few degrees off square so hub-to-hub is foreshortened; ~~the rear tyre's own width gives **251–284 px/m**~~ — **RETRACTED IN FULL at rev 60b (F108). There is no tyre in that window**: the tyre and the arch shadow above it are contiguous and no threshold separates them. The route I refused was the right one. **The scale is 211.6 px/m** from a circle fit to both cream rims (rear rms 1.11 px over 828 points), and the rear rim images ROUND, so there is no foreshortening to justify the refusal either. Every metric figure taken off that frame carried a 23 % error. The front-hub half stands: a person does stand in front of that wheel |
 
 ---
@@ -227,8 +238,12 @@ a side-by-side impression without measuring it.** All from `ref_side.jpg` and
 1. **The gold paisley reads SPARSER and PALER in the render** than in the
    photograph, particularly across the rear quarter. `flank_compare` gates the
    script, not the paisley. **No gate covers this.**
-2. **The aperture surround is smooth GOLD in the photograph and white BEADING in
-   the render** (F100). ~4 px wide in a 480 px frame; two attempts to window it
+2. ~~**The aperture surround is smooth GOLD in the photograph and white BEADING in
+   the render** (F100)~~ **⚠ REFUTED ENTIRELY AT REV 60b (F112), not merely withdrawn as a
+   question: in `ref_side.jpg` the surround is plainly a STRING OF SMALL BULBS — the same beaded
+   edge the model builds. The gold frame belongs to the `ref_nolita_doorshut` state, a different
+   livery and fit-out (rule 11). Do not put it to him and do not carry it as a lead.**
+   ~~~4 px wide in a 480 px frame; two attempts to window it
    landed on the body panel. **A NEW-FRAME item.**
 3. **The counter shelf reads far more prominent and far whiter** in the render
    than in any photograph.
