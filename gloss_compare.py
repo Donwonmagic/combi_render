@@ -34,7 +34,16 @@ import scipy.ndimage as ndi
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 PHOT = os.path.join(ROOT, "ref_nolita_front34.jpg")
-OUTD = os.path.join(ROOT, "probe_scratch")
+# rev 60, F85.  THIS USED TO WRITE INTO probe_scratch/, WHICH IS TRACKED, so
+# merely RUNNING the gate dirtied the working tree and verify_clone.sh's
+# "modified tracked files" row then fired.  It cost rev 59 a wasted hunt.
+# The painted tiles are a LOOK-AT-IT aid, not a record (the numbers live in the
+# ledger), so they belong in out/, which is untracked.  T1_GL_TILES=track
+# restores the old destination for the one case that wants it: deliberately
+# refreshing the committed reference tiles.
+OUTD = os.path.join(ROOT, "probe_scratch"
+                    if os.environ.get("T1_GL_TILES") == "track" else "out")
+os.makedirs(OUTD, exist_ok=True)
 BAR = 0.60          # the render must reach 60 % of the photograph's spread
 P = print
 # rev 58, F58: THE DEFAULT USED TO BE A HARD-CODED `out/r57_hero.png`.
@@ -170,7 +179,8 @@ for tag, d in (("render", r), ("photo", q)):
     P("%-8s %8d %9.3f %9.1f %9.3f   %10.3f %10.3f"
       % (tag, d["n"], d["p5"] / d["med"], d["med"], d["p95"] / d["med"],
          d["spread"], d["head"]))
-P("  painted -> probe_scratch/rev57_gloss_render.png / _photo.png")
+P("  painted -> %s/rev57_gloss_render.png / _photo.png"
+  % os.path.relpath(OUTD, ROOT))
 P("  (those two tiles are OVERWRITTEN by whichever render you last measured --")
 P("   this run: %s.  They illustrate the WINDOW, which is fixed; they are not"
   % os.path.basename(REND))

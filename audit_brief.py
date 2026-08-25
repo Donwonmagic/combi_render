@@ -39,7 +39,18 @@ TXT = open(BRIEF).read()
 fails = []
 
 
+_NCK = 0
+
+
 def ck(label, ok, detail=""):
+    # rev 60c-ii -- THE TOTAL IS COUNTED HERE, NOT TYPED AT THE BOTTOM.  It was
+    # the literal `7 + 2` while this file ran ten ck rows, so it printed
+    # "9 checked" and a row could be added, removed or skipped without the
+    # number ever moving.  Same defect class as F129 in the sibling script,
+    # and the register wrote the general rule down while this copy kept it:
+    # a script that reports per-item results must make a PARTIAL RUN VISIBLE.
+    global _NCK
+    _NCK += 1
     print("  %-4s %-52s %s" % ("ok" if ok else "FAIL", label, detail))
     if not ok:
         fails.append(label)
@@ -241,7 +252,7 @@ ck("the retired sec.4 heading is not a heading",
 
 print("-" * 78)
 print("  %d checked, %d FAILED%s"
-      % (7 + 2, len(fails), ("  ->  " + "; ".join(fails)) if fails else ""))
+      % (_NCK, len(fails), ("  ->  " + "; ".join(fails)) if fails else ""))
 print("  This is the MECHANICAL half of rule 17.  The other half -- RECOMPUTE")
 print("  every figure -- is the revision's own job and no script can do it.")
 sys.exit(1 if fails else 0)

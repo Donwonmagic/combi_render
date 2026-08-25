@@ -30,17 +30,59 @@ RX = int(sys.argv[1]) if len(sys.argv) > 1 else 3840
 BUS_L = 4.065                       # STATE.md, overall length ex counter
 
 # px/m is MEASURED off a real render at a known width, not assumed from the
-# camera: the subject's own bbox in out/r57_hero.png.
+# camera: the subject's own bbox in a hero frame.
+#
+# rev 60.  THIS NAMED out/r57_hero.png, A REVISION-NUMBERED FRAME THAT NO
+# LONGER EXISTS AND WILL NEVER EXIST AGAIN -- out/ is untracked and starts
+# empty, and no revision since 57 has written that prefix.  So the tool ALWAYS
+# took its except branch and ALWAYS reported a FALLBACK scale, while still
+# printing a ranked table that reads like a measurement.  That is rule 37
+# exactly: an absent input must never read as a measurement.  It now GLOBS for
+# whatever hero frame the tree actually has, newest first, and REFUSES in
+# those words if there is none.
+import glob as _glob, os
+# rev 60c-ii -- AND THE "REPAIR" ABOVE REPRODUCED THE DEFECT IT FIXED (F132).
+# `key=os.path.getmtime` took the scale off whichever hero was rendered LAST,
+# in an UNTRACKED directory, so the ranking that decides what counts as WORK
+# depended on out/ mtimes.  An independent adversary reproduced every px^2
+# figure in REMAINING_WORK exactly by restoring one file's mtime, and got a
+# scale of 801 px/m where a fresh run gave 724 -- a 22 % swing with no source
+# change at all.  Rule 37: an AMBIGUOUS input must never read as a measurement
+# any more than an absent one may.
+#
+# The frame is now NAMED, not inferred: pass it as the second argument.  With
+# no argument the choice is deterministic (sorted BY NAME, not by clock) and
+# the frame used is PRINTED on every run, so the number can be reproduced.
+_heroes = sorted(_glob.glob("out/*hero*.png"))
+_named = [x for x in sys.argv[1:] if x.endswith(".png")]
+if _named:
+    _heroes = _named
+if not _heroes:
+    print("NO RENDER -- visibility_budget needs a hero frame to measure its "
+          "own scale off, and out/ holds none.  Render one first:")
+    print("  T1_SUB=1 T1_PREVIEW=hero T1_PFX=rNN /tmp/blender/blender -b -P build.py")
+    sys.exit(2)
 try:
-    a = np.asarray(Image.open("out/r57_hero.png").convert("RGB")).astype(int)
-    nw = (a.max(axis=2) < 235) | (a.max(axis=2) - a.min(axis=2) > 12)
+    print("  scale frame: %s%s" % (_heroes[0],
+          "" if _named else "  (chosen BY NAME from %d in out/; pass one "
+                            "explicitly to pin it)" % len(_heroes)))
+    a = np.asarray(Image.open(_heroes[0]).convert("RGB")).astype(int)
+    # rev 60b -- THE MASK WAS 27 % BACKDROP AND NOBODY HAD PAINTED IT.
+    # The backdrop's lower half renders at 234 DN, ONE code value under the old
+    # `< 235` threshold, so the mask reached column 0 and the subject's measured
+    # width was 1356 px against a true 1069.  Every "linear px" and "area px^2"
+    # printed was inflated ~1.27x / ~1.61x.  The ORDER survived (all rows share
+    # PXM) but the brief promotes this tool as worth trusting, so the number has
+    # to be right too.  Threshold moved well clear of the backdrop and the
+    # saturation arm kept for the coloured bodywork.
+    nw = (a.max(axis=2) < 215) | (a.max(axis=2) - a.min(axis=2) > 22)
     xs = np.nonzero(nw)[1]
     W0 = a.shape[1]
     PXM = (xs.max() - xs.min()) / BUS_L * (RX / W0)
-    src = "measured off out/r57_hero.png (%d px wide)" % W0
-except Exception as e:                                  # no render on a clone
-    PXM = 333.6 * (RX / 1600.0)
-    src = "FALLBACK 333.6 px/m at 1600 -- render out/r57_hero.png for the real one"
+    src = "measured off %s (%d px wide)" % (_heroes[0], W0)
+except Exception as e:
+    print("NO RENDER -- %s could not be read (%s)" % (_heroes[0], e))
+    sys.exit(2)
 
 print("=" * 78)
 print("  VISIBILITY BUDGET at a %d px delivery frame" % RX)
@@ -53,10 +95,14 @@ ROWS = [
      None, 2.50 * 0.60, "measured: the photograph's red spreads 2.55x as wide"),
     ("F44", "the paint's GLOSS -- the whole cream upper body",
      None, 4.07 * 0.95, "same defect, larger surface"),
-    ("F45", "galley interior reads as untextured white blocks",
-     None, 3 * 0.516 * 0.40, "seen through all three serving apertures"),
-    ("F45", "roof-aperture interior, same",
-     None, 1.20 * 0.45, "dead centre of the hero frame"),
+    # rev 60b: F45's galley row is REMOVED, not merely superseded.  It carried
+    # the IDENTICAL area expression as F99's row below, so the one surface was
+    # counted TWICE, and F45 is a finding this project has REFUTED (F98) --
+    # it sat at rank 6 of 17 in the table the brief tells the next context to
+    # choose work by.  The roof-aperture half is kept: F98 covers the galley
+    # bays only and that interior has never been separately measured.
+    ("F45", "roof-aperture interior -- never separately measured",
+     None, 1.20 * 0.45, "dead centre of the hero frame; F98 covers the bays only"),
     ("F15", "A7 -- unlit roofed body between the last inlet and the tail",
      0.803, 0.803 * 1.60, "ILLUMINATION over a large area, not dressing"),
     ("F01/F39", "Senor -- 28.5 % of its ink missing",
@@ -71,6 +117,28 @@ ROWS = [
      0.47 * 0.02869, None, "CEILED: the frame cannot resolve it"),
     ("F08", "the badge stroke weight -- the 5.09 % it was meant to settle",
      0.0509 * 0.02869, None, "**the top job for four revisions**"),
+    # ------------------------------------------------------------- rev 60
+    # THE TABLE OMITTED EVERY ITEM THE OWNER HIMSELF RANKED.  At rev 59 it
+    # listed neither the emblem, nor the ground shadow, nor the nose break --
+    # three of his five -- and put the CEILED gloss row on top, so a context
+    # that followed it would have worked a closed item and skipped his.
+    ("F63/F69", "the VW glyph builds as an X -- nose roundel",
+     None, 3.1416 * 0.14 ** 2, "OWNER, five times.  Gated and FAILING (C6)"),
+    ("F63/F69", "the same glyph on four hubcaps",
+     None, 4 * 3.1416 * 0.043429 ** 2, "same defect, four more instances"),
+    ("F67", "the ground shadow and the underbody",
+     None, 3.54 * 0.09, "the DARK BAND itself; PARTLY CLOSED at rev 60"),
+    ("F67", "the contact shadow's footprint on the ground",
+     None, 4.065 * 1.75, "what makes it read planted rather than floating"),
+    ("F75/F87", "the nose two-tone break, 50-80 mm low (best est. 52)",
+     0.052, 1.50 * 0.052, "OWNER.  Gated and FAILING (M1).  Lever UNKNOWN"),
+    # rev 60b: F99 is DOWNGRADED -- it was measured on ref_nolita_doorshut.jpg,
+    # a DIFFERENT STATE of the vehicle (no folk art, chalkboard lid, open gold
+    # apertures).  On the target's own frame the render is within 2 %.  The row
+    # is kept at the area it would affect IF it were real, flagged, so the
+    # ranking does not silently lose a surface.
+    ("F99", "galley interior chroma -- DOWNGRADED, wrong vehicle state",
+     None, 3 * 0.516 * 0.40, "measured on doorshut; on ref_side the render is within 2 %"),
 ]
 
 print("%-10s %-52s %10s %12s" % ("id", "what", "linear px", "area px^2"))

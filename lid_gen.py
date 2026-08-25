@@ -410,8 +410,8 @@ SIGN_TOP_V = 0.020
 # foreshortening, is 0.449.  The residual is ~1 px of stroke width on an 80 px
 # word and the three measurements (u span, v span, stroke width) do not close.
 
-W, H = 2048, int(round(2048 / BOARD_ASPECT))          # 2048 x 1238
-SW, SH = 2048, int(round(2048 / SIGN_ASPECT))         # identical, one board
+W, H = 4096, int(round(4096 / BOARD_ASPECT))          # rev 60b: 2048 -> 4096 (F93)
+SW, SH = 4096, int(round(4096 / SIGN_ASPECT))         # rev 60b: 2048 -> 4096 (F93)
 
 
 # --------------------------------------------------------------- primitives

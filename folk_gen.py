@@ -177,7 +177,7 @@ TEXDIR = os.path.join(HERE, "tex")
 # ===========================================================================
 MAP_LOC = (0.185, 0.410, 0.263)      # Mapping node Location
 MAP_SCALE = 0.26                     # Mapping node Scale (uniform)
-N = 2048                             # tile size
+N = 4096                             # tile size (rev 60b: 2048 -> 4096, SPEC 5 3K floor, F93)
 SS = 3                               # supersample factor (0.626 mm sub-texel)
 TILE = N * SS
 PPM = MAP_SCALE * TILE               # sub-texels per metre = 1597.4
@@ -1859,7 +1859,7 @@ def solve_flank(side, seed, variant, door_ops, verbose=True):
 # measured wedge composition around BOTH front corners at the measured band
 # height and asserts nothing about the middle of the face, which is left bare.
 # Inventing scrollwork for the centre would breach SPEC 10.10.
-NOSE_TEX = 1024
+NOSE_TEX = 3072
 NOSE_Y0, NOSE_Y1 = -0.780, 0.780       # decal window in object space
 NOSE_ZA, NOSE_ZB = 0.020, 1.580        # square, so the art is undistorted
 

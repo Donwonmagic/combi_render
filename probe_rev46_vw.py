@@ -534,3 +534,208 @@ nfail = sum(1 for v in CTL.values() if not v)
 print("\nCONTROLS: %d checked, %d FAILED%s"
       % (len(CTL), nfail,
          "" if not nfail else " -- " + ",".join(k for k, v in CTL.items() if not v)))
+
+
+# =====================================================================
+# rev 60 -- T1_VW_CELLSOLVE: PUT cream_cells INTO THE OBJECTIVE.
+#
+# The rev-60 brief's item C says the missing piece is exactly this, and that
+# if no setting of the six parameters reaches the photograph's 7 cells, the
+# honest result is to SAY SO WITH THE NUMBER.  So this searches and reports,
+# and it does NOT write anything into t1_core.
+#
+# WHY REACH ALONE IS KNOWN NOT TO BE THE ANSWER (rev 60, measured).  Driving
+# the cap's near corner onto the band -- which removes the 18.9 mm float that
+# F63 named as the defect -- makes the topology WORSE, not better:
+#     T1_VW_CAPMIN=0 T1_VW_PUREFIT=0    6 cells   (as shipped)
+#     T1_VW_CAPMIN=0 T1_VW_PUREFIT=1    6 cells
+#     T1_VW_CAPMIN=1 T1_VW_PUREFIT=0    2 cells
+#     T1_VW_CAPMIN=1 T1_VW_PUREFIT=1    4 cells
+# So the float is a SYMPTOM and not the cause: strokes pushed further into the
+# band merge with their neighbours and swallow the cream between them.  The
+# cell count is a property of where the strokes LAND ANGULARLY, which is the
+# spine's business, not the cap's.
+# =====================================================================
+if os.environ.get("T1_VW_CELLSOLVE"):
+    import random as _rnd
+    _rnd.seed(60)
+    _NEV = int(os.environ.get("T1_VW_CELLSOLVE_N", 900))
+    _lo = {"VW_V_TIP_X": 0.20, "VW_APEX_Z": 0.15, "VW_W_ARM_X": 0.55,
+           "VW_W_ARM_Z": -0.40, "VW_W_TROUGH_X": 0.30, "VW_W_TROUGH_Z": -0.90}
+    _hi = {"VW_V_TIP_X": 0.55, "VW_APEX_Z": 0.45, "VW_W_ARM_X": 1.05,
+           "VW_W_ARM_Z": 0.55, "VW_W_TROUGH_X": 0.70, "VW_W_TROUGH_Z": -0.30}
+
+    def _score(p):
+        try:
+            n, sz = cream_cells(glyph_only_mask(**p))
+            e, _L = err(built_landmarks(**p))
+        except Exception:
+            return None
+        return n, e, sz
+
+    print("\n    T1_VW_CELLSOLVE -- searching %d points for the photograph's "
+          "%d cells" % (_NEV, npho))
+    _best = {}          # cells -> (residual, params, sizes)
+    _cur = dict(CURRENT)
+    _r = _score(_cur)
+    if _r:
+        _best[_r[0]] = (_r[1], dict(_cur), _r[2])
+    _seen = 0
+    for _it in range(_NEV):
+        # half the budget random over the box, half a local walk from the best
+        # 7-cell (or else best-celled) point found so far
+        if _it % 2 == 0 or not _best:
+            _p = {k: _rnd.uniform(_lo[k], _hi[k]) for k in PARAMS}
+        else:
+            _target = max(_best)
+            _base = _best[_target][1]
+            _sc = 0.12 * (1.0 - _it / float(_NEV)) + 0.01
+            _p = {k: min(_hi[k], max(_lo[k],
+                  _base[k] + _rnd.gauss(0.0, _sc) * (_hi[k] - _lo[k])))
+                  for k in PARAMS}
+        _r = _score(_p)
+        _seen += 1
+        if not _r:
+            continue
+        _n, _e, _sz = _r
+        if _n not in _best or _e < _best[_n][0]:
+            _best[_n] = (_e, dict(_p), _sz)
+    print("    evaluated %d points" % _seen)
+    print("    cells reached: %s" % ", ".join(str(k) for k in sorted(_best)))
+    for _n in sorted(_best):
+        _e, _p, _sz = _best[_n]
+        _mark = "  <-- THE PHOTOGRAPH'S COUNT" if _n == npho else ""
+        print("      %d cells  best landmark residual %.4f%s" % (_n, _e, _mark))
+        if _n == npho or _n == max(_best):
+            print("          " + "  ".join("%s %.4f" % (k, _p[k])
+                                           for k in PARAMS))
+            print("          sizes %s" % (_sz,))
+    if npho in _best:
+        print("    RESULT: %d cells IS reachable; best landmark residual there "
+              "is %.4f against C4's bar of 0.045"
+              % (npho, _best[npho][0]))
+    else:
+        print("    RESULT: NO setting of the six spine parameters reached %d "
+              "cells in %d evaluations.  Best was %d.  The current spine "
+              "family cannot reach the photograph's topology."
+              % (npho, _seen, max(_best)))
+
+
+# rev 60 -- T1_VW_DUMP: PAINT THE CELLS AND LOOK AT THEM.
+# A cell COUNT is a statistic about a picture nobody in this project has ever
+# looked at.  Rule 8 applies to a topology exactly as it applies to a window.
+if os.environ.get("T1_VW_DUMP"):
+    def _paint_cells(mask, name, frac=0.97):
+        """Paint what cream_cells() actually counts, in ITS OWN colours."""
+        n0, n1 = mask.shape
+        yy, xx = np.mgrid[0:n0, 0:n1]
+        cy, cx = (n0 - 1) / 2.0, (n1 - 1) / 2.0
+        disc = (((yy - cy) / (n0 / 2.0)) ** 2
+                + ((xx - cx) / (n1 / 2.0)) ** 2) <= frac ** 2
+        bg = disc & (~mask)
+        lab, k = ndi.label(bg)
+        sz = ndi.sum(bg, lab, range(1, k + 1))
+        keep = 0.002 * disc.sum()
+        out = np.zeros((n0, n1, 3), np.uint8)
+        out[mask] = (40, 40, 40)
+        cols = [(235, 60, 60), (60, 205, 95), (70, 125, 245), (240, 195, 45),
+                (205, 80, 225), (55, 215, 215), (250, 135, 40)]
+        big = sorted(((int(sz[i]), i + 1) for i in range(k) if sz[i] >= keep),
+                     reverse=True)
+        for rank, (_s, idx) in enumerate(big):
+            out[lab == idx] = cols[rank % len(cols)]
+        for i in range(k):                       # slivers below the size floor
+            if sz[i] < keep:
+                out[lab == i + 1] = (255, 255, 255)
+        os.makedirs(os.path.join(HERE, "out"), exist_ok=True)
+        sc = max(1, int(420 / max(n0, n1)))
+        Image.fromarray(out).resize((n1 * sc, n0 * sc), Image.NEAREST).save(
+            os.path.join(HERE, "out", "vw_cells_%s.png" % name))
+        print("    %-8s %d counted cells (white = below the 0.2 %% floor) "
+              "-> out/vw_cells_%s.png" % (name, len(big), name))
+        return len(big)
+
+    _a = np.asarray(Image.open(os.path.join(HERE, "ref_nolita_front34.jpg"))
+                    .convert("RGB")).astype(float)
+    _R, _G, _B = _a[..., 0], _a[..., 1], _a[..., 2]
+    _red = (_R > 110) & (_G < 0.60 * _R) & (_B < 0.60 * _R)
+    _lab, _n = ndi.label(_red)
+    _sub = _lab[192:261, 153:194]
+    _ids, _counts = np.unique(_sub[_sub > 0], return_counts=True)
+    _paint_cells(_sub == _ids[int(np.argmax(_counts))], "photo")
+    _paint_cells(glyph_only_mask(rows=69, **CURRENT), "built_69")
+    _alt = os.environ.get("T1_VW_DUMP_P")
+    if _alt:
+        import json as _json
+        _ap = dict(CURRENT); _ap.update(_json.loads(_alt))
+        _paint_cells(glyph_only_mask(rows=69, **_ap), "alt_69")
+        print("    alt params: " + "  ".join("%s %.4f" % (k, _ap[k])
+                                             for k in PARAMS))
+    _paint_cells(glyph_only_mask(**CURRENT), "built_276")
+
+
+# rev 60 -- T1_VW_RES: IS C6's 6-vs-7 A SHAPE DEFECT OR A RESOLUTION ARTEFACT?
+#
+# THE TWO SIDES OF C6 ARE NOT RASTERISED AT THE SAME SCALE.  photo_cells()
+# counts inside a 41 x 69 px crop of ref_nolita_front34.jpg; glyph_only_mask
+# defaults to 276 ROWS.  A cell count is a TOPOLOGY, and topology is
+# resolution-sensitive: a cream gap one pixel wide at 69 rows is four pixels
+# wide at 276 and survives where the other merges.  C6 has compared the two
+# directly since rev 58 without this ever being checked.  Rule 36 -- run the
+# instrument on a case whose answer you already know.
+if os.environ.get("T1_VW_RES"):
+    print("\n    T1_VW_RES -- the BUILT glyph's cell count against raster scale")
+    print("    (the photograph's own count, at its native 41 x 69, is %d)" % npho)
+    for _rows in (41, 55, 69, 90, 138, 207, 276, 414, 552):
+        try:
+            _n, _s = cream_cells(glyph_only_mask(rows=_rows, **CURRENT))
+            print("      rows %4d   cells %d   sizes %s" % (_rows, _n, _s[:8]))
+        except Exception as _e:
+            print("      rows %4d   FAILED %s" % (_rows, _e))
+
+
+# rev 60 -- T1_VW_WSWEEP: THE STROKE WEIGHT, MEASURED AGAINST THE PHOTOGRAPH.
+#
+# PAINTING THE COUNTED CELLS (T1_VW_DUMP) SHOWED WHAT NO COUNT COULD.  The
+# photograph's cream cells are LONG THIN SLIVERS; the built glyph's are FAT
+# WEDGES.  That is not a reach difference and no spine solves it: the
+# photographed strokes are HEAVY and the built ones are LIGHT.  So the defect
+# behind "it builds as an X" is STROKE WEIGHT, and the cell count is merely
+# how it shows up in the topology.
+#
+# THE SCALE-FREE STATISTIC IS INK FRACTION inside the roundel disc -- ink
+# pixels over disc pixels.  It needs no axis ratio, no px/m and no landmark,
+# so an oblique 41 x 69 crop and a 276-row raster can be compared directly.
+if os.environ.get("T1_VW_WSWEEP"):
+    def _ink_frac(mask, frac=0.97):
+        n0, n1 = mask.shape
+        yy, xx = np.mgrid[0:n0, 0:n1]
+        cy, cx = (n0 - 1) / 2.0, (n1 - 1) / 2.0
+        disc = (((yy - cy) / (n0 / 2.0)) ** 2
+                + ((xx - cx) / (n1 / 2.0)) ** 2) <= frac ** 2
+        return float((mask & disc).sum()) / float(disc.sum())
+
+    _a = np.asarray(Image.open(os.path.join(HERE, "ref_nolita_front34.jpg"))
+                    .convert("RGB")).astype(float)
+    _R, _G, _B = _a[..., 0], _a[..., 1], _a[..., 2]
+    _red = (_R > 110) & (_G < 0.60 * _R) & (_B < 0.60 * _R)
+    _lab, _n = ndi.label(_red)
+    _sub = _lab[192:261, 153:194]
+    _ids, _counts = np.unique(_sub[_sub > 0], return_counts=True)
+    _pm = (_sub == _ids[int(np.argmax(_counts))])
+    _pf = _ink_frac(_pm)
+    print("\n    T1_VW_WSWEEP -- stroke weight against the photograph")
+    print("    PHOTOGRAPH ink fraction %.4f, cells %d" % (_pf, npho))
+    print("    %-8s %-8s %-6s %s" % ("wfrac", "inkfrac", "cells", "sizes"))
+    for _wf in (0.1986, 0.24, 0.28, 0.32, 0.36, 0.40, 0.44, 0.48):
+        os.environ["T1_VW_WFRAC"] = "%.4f" % _wf
+        try:
+            _m = glyph_only_mask(**CURRENT)
+            _if = _ink_frac(_m)
+            _c, _sz = cream_cells(_m)
+            print("    %-8.4f %-8.4f %-6d %s%s"
+                  % (_wf, _if, _c, _sz[:7],
+                     "   <-- photograph's cell count" if _c == npho else ""))
+        except Exception as _e:
+            print("    %-8.4f FAILED %s" % (_wf, _e))
+    os.environ.pop("T1_VW_WFRAC", None)

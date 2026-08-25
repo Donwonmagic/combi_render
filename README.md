@@ -17,7 +17,7 @@ straight at the one.
 
 1. **The highest-numbered `NEXT_CONTEXT_PROMPT_rev*.md`** — the live brief. Read
    it first, in full. **Find it with `ls`; do not trust a filename typed in any
-   document, including this line** (`CLAUDE.md`). It was rev 59 when this line was
+   document, including this line** (`CLAUDE.md`). It was rev 61 when this line was
    last touched. Then `CLAUDE.md` (method, loads every session) and the
    highest-numbered `LEDGER_rev*.md`.
 2. **`STATE.md`** — machine-written by `audit.py`. If it and any prose in this
@@ -26,8 +26,10 @@ straight at the one.
 3. **`SPEC.md`** — the specification and the complete decision log. §10 is the
    spine: §10.1 → §10.101, every finding, every refutation, every rule and why
    it exists. It is cumulative, so it contains its own history.
-4. **`HANDOFF_rev42.md`**, then `HANDOFF_rev41.md`, backwards — what each
-   revision actually did.
+4. **The `LEDGER_rev*.md` series, newest first** — what each revision actually
+   did, with its arithmetic. *(The `HANDOFF_rev*.md` series ENDED at rev 45 and
+   is history, not truth; do not restart it. `HANDOFF.md` and `SPEC_AUDIT.md`
+   are rev-3 era — `START_HERE.md` says so and it is right.)*
 5. **`REF_MEASUREMENTS.md`** — measurements taken off the reference
    photographs, with their admissibility grades.
 
@@ -40,10 +42,13 @@ tar -xf b.tar.xz && mv blender-4.5.3-linux-x64 /tmp/blender
 ## Verify first
 
 ```bash
-./verify_clone.sh          # 66 checks, exit 0 or 1
+./verify_clone.sh          # exit 0 or 1; it PRINTS its own row total
 ```
-Sixty-six content checks that replace what used to be thirty hand-typed `grep`
-lines in the brief plus a prose guard table. **Identity is ancestry, not
+Content checks that replace what used to be thirty hand-typed `grep` lines in
+the brief plus a prose guard table. **The count is not written here on purpose**
+— it moves every revision, and a number in prose goes stale silently. The script
+prints `ALL n PASS` on a clean tree and the newest brief must state that same
+n, which a row enforces. **Identity is ancestry, not
 arithmetic** — it tests that rev 42's tip is an ancestor of HEAD, so it stays
 valid as you commit. **It locates by symbol, never by line number.** It checks
 locked *values* (not just that a symbol exists), the signboard gate's
@@ -70,28 +75,47 @@ git checkout -- STATE.md
 `audit.py` exits non-zero whenever it reports a failure, and `&&` would skip the
 restore in exactly the case that leaves the tree dirty.
 
-**Expected at rev 42: 0 fail / 0 warn on all four runs.** 131 objects,
-190 meshes, 42 materials, 5 constant-roughness, **0 non-manifold edges**,
-roof @ rear axle 1.9835 / 1.9833, cut roof hole 70069v / 254428v, rake
-17.75 mm/m, L = 4.065 W = 1.750, arch gaps 39.7 / 40.7 mm, bay widths
-0.516 / 0.515 / 0.516.
+**Expected: 0 fail / 0 warn on all four runs.** The inventory and every
+dimension that used to be typed here live in **`STATE.md`**, which `audit.py`
+writes from the mesh it just built. **This paragraph carried a rev-42 snapshot
+for sixteen revisions** — 131 objects and 190 meshes against the 223 the machine
+now reports — which is exactly the failure mode `CLAUDE.md` opens with: *if you
+find a number here, that is the bug.* Read `STATE.md`.
 
 ## The hero
 
 ```bash
-python3 hero.py hero34f --res 4800x3200 --samples 56 --strips 20 --sub 2 --only N
-python3 hero.py hero34f --res 4800x3200 --samples 56 --strips 20 --sub 2 --stitch-only
+T1_SUB=2 /tmp/blender/blender -b -P hq_render.py   # ONE build, 10 margin'd bands
+python3 stitch.py out/hq_hero_raw.png <declared spans>   # CHECK ITS EXIT CODE: 2 = seam
+python3 post.py out/hq_hero_raw.png out/hq_hero.png      # optics LAST, never per strip
 ```
+
+`hero.py` still exists and still works, but **`hq_render.py` is the measured
+recipe** (rev 57b): it builds the scene ONCE instead of ten times, renders each
+band with MARGIN because Blender's border rounds inward, and it carries the
+studio rig itself, because a single-session runner otherwise SKIPS `build.py`'s
+preview block — where the lighting is built — and renders an **unlit** frame
+that passes every automated check (F51; it shipped once, as a black bus).
 
 One strip per call, then stitch. `post.py` runs **once** on the stitched frame,
 never per strip. Strip timings rise down the frame, **peak around strip 16, and
 fall again** — 153 s at strip 1, 614 s at strip 16, 390 s at strip 19, because
-the bottom strips are mostly ground. 18 measured strips came to 7631 s; budget
-~2.3 h for the frame. Heroes are gitignored and are not in this repo.
+the bottom strips are mostly ground. **The measured delivery frame at rev 57b:
+3840×2640, 256 spp, `T1_SUB=2`, ten bands, seam-free at worst z = 1.62, in
+106.8 min** — and the single-session saving over the old ten-build loop is
+**8.4 min, 7.3 %**, not the 2.94× an unlit run once appeared to show.
+
+**Full-size heroes are gitignored and are not in this repo. One DOWNSIZED
+delivery reference per revision IS tracked** — the owner ruled it at rev 57b so
+each revision has the frame it is told to beat without a 107-minute re-render.
+The guard is by DIMENSION, not by name: a tracked hero PNG must be ≤ 1600 px
+wide.
 
 ## The probes
 
-31 read-only instruments, `probe_*.py`. **Run the ones you inherit, not only
+The read-only instruments are `probe_*.py` — **count them with `ls`, do not
+trust a number typed here** (it said 31 for sixteen revisions and is now well
+past that). **Run the ones you inherit, not only
 the ones you write** — and **read each probe's own summary line rather than
 grepping for a pattern**, because the wordings differ and a summary grep
 under-read six probes in rev 37 and again in rev 39.
@@ -180,7 +204,7 @@ comment, which is why the historical documents could be foldered.
                                    photographs, SPEC.md, STATE.md,
                                    REF_MEASUREMENTS.md, README.md, the live
                                    brief NEXT_CONTEXT_PROMPT_rev*.md (highest
-                                   number wins -- rev 59 at this edit), CLAUDE.md,
+                                   number wins -- rev 61 at this edit), CLAUDE.md,
                                    .gitignore
   docs/                 83 files   37 handoffs, 37 superseded context prompts,
                                    the audit documents, START_HERE, SKEPTIC_PASS
@@ -239,25 +263,32 @@ git push -u origin main
   **1400 px wide is a FLOOR:** `flank_compare` documents a verdict flip across
   its aspect tolerance at 900 px for no change in the model.
 
-## Open at rev 42, in the order the next revision should take them
+## Where the open work lives — NOT here
 
-1. **The door's art frame and the body's missing UV layout — one job.** Rev 42
-   moved the cab door's bottom 272–388 mm but deliberately left `folk_gen`'s art
-   frame at `DOOR_H = 1.013467`; separately, 55.97 % of painted surface
-   self-overlaps because `T1_body` has no UV layout at all. **Both fixes are the
-   same texture re-bake.** §10.100.6 and §10.101.
-2. **Report 3** — the counter top's inner edge in `ref_rear34.jpg` at y 423,
-   x 700, the one route that needs no parallax term. §10.99.6.
-3. **Report 4** — the VW glyph's V and W fuse into an X. §10.94.
-4. **Report 7** — "100% Calidad" off centre, `cal_gen.py:246`. §10.95.3.
-5. **`V_POW`** locked at 0.60 against an implied 0.30–0.48. `t1_mats.py:149`
-   and `t1_shell.py:1086`.
-6. **`probe_clean_top` / `probe_dust_anchor`** — rewrite or retire, ten
-   revisions open.
-7. **`lidsign.png` is worn by no object; `tex/emblem.png` is referenced by
-   nothing at all.**
+**This section used to be a ranked work list dated rev 42, and it sat here for
+sixteen revisions competing with the live brief.** It is deliberately gone.
+There are exactly three live registers and this file is none of them:
 
-The die-cut vinyl sticker for children at the restaurant — the **original**
+* **`REMAINING_WORK_rev61.md`** — the RANKED EXECUTION LIST, written at rev 60c
+  because the owner asked for *"a comprehensive list of just what exactly is
+  left, so we know what we need to execute"*. It sorts the register's open rows
+  into REAL WORK / CEILED / the owner's call / process debt, and its **§I**
+  carries the rows that were in no document at all. **It is a CARRIER.** It was
+  an ORPHAN for one revision — no file in the repository named it — which is how
+  a carrier gets lost (rule 16); it is named here, in `START_HERE.md`, in the
+  brief's reading order and in `verify_clone.sh` so that cannot recur.
+* **`OPEN_FINDINGS.md`** — every open finding with an ID and a **provenance
+  grade** (`MEASURED` / `RECOMPUTED` / `INHERITED` / `RULED` / `CEILED`). It is
+  a CARRIER: rows leave it only by being closed with the measurement that closed
+  them, or retired with the ruling that retired them.
+* **the highest-numbered `NEXT_CONTEXT_PROMPT_rev*.md`** — this revision's order,
+  ranked by `visibility_budget.py` (pixels of the delivery frame), plus §4.1,
+  the owner's standing instructions, restored at rev 57b after being deleted at
+  rev 44.
+
+**The die-cut vinyl sticker for children at the restaurant — the original
 deliverable — is still unbuilt, and the warm low-light "Playa" hero is
-deprioritised but **not cancelled**: it carries the emotional bar that sits
-above clinical accuracy.
+deprioritised but NOT cancelled: it carries the emotional bar that sits above
+clinical accuracy.** Both are carried as `F18` and `F62`. **This paragraph was
+the only place either survived between rev 44 and rev 57b**, which is why it is
+kept here as well as in the register.

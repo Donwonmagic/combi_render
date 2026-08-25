@@ -230,6 +230,13 @@ say "-- build files --"
 # What remains is the definition, the guard and its message -- which is the
 # whole point: the CLEARANCE INVARIANT survived the geometry that motivated
 # it.  A drop to 0 would be the finding; 3 is the invariant standing alone.
+# rev 59: STILL 3, BUT THEY ARE NOT THE SAME THREE.  The guard no longer
+# COMPARES against DOOR_ARCH_G -- rev 41's clearance was an accident of rev
+# 41's outline, not a measurement, and the photograph puts the real clearance
+# at a third of it.  DOOR_ARCH_G is now the definition plus two mentions in
+# the re-based guard's message, where it is REPORTED as the historical anchor
+# rather than enforced as a bar.  The count is unchanged; the meaning is not,
+# and that is said here rather than left for the next reader to discover.
 ck "DOOR_ARCH_G in t1_shell.py"     3 "$(grep -c 'DOOR_ARCH_G' t1_shell.py)"
 # rev 44b: 4 -> 0, AND THAT IS CORRECT.  `_G_BUILD` existed ONLY to solve the
 # construction clearance for 10.100's wrapped arc by fixed point.  10.102
@@ -494,9 +501,59 @@ say "-- textures (unchanged since rev 25; item 1 WILL move them) --"
 # ALL EIGHT.  Rev 43's first cut hashed only the three the brief happened to
 # mention, which left senor.png (the only image meeting SPEC 5's 3K bar) and
 # calidad.png (a live work item) unprotected.  If it is artwork, it is hashed.
-ck "tex/swirl.png"   4ee4e09edcc9afb46303c8d3858a62bf "$(md5of tex/swirl.png)"
-ck "tex/swirl_b.png" d201597e1c867b6e1fbedd2c0f8ab306 "$(md5of tex/swirl_b.png)"
-ck "tex/nose.png"    b31ea156c15d2d8e38ba390d9e151706 "$(md5of tex/nose.png)"
+# ===========================================================================
+# rev 60b -- SIX TEXTURE HASHES RE-BASED, AND THE CAUSE IS F93.
+#
+# The generators were re-run at higher resolution to meet SPEC sec.5's floor:
+#     folk_gen.py   N 2048 -> 4096      swirl.png, swirl_b.png
+#     folk_gen.py   NOSE_TEX 1024->3072 nose.png
+#     lid_gen.py    W 2048 -> 4096      lidmural.png, lidsign.png
+#     cal_gen.py    W 2400 -> 3072      calidad.png  (4096 is OOM-killed here)
+#
+# THE ARTWORK DID NOT CHANGE, and that was checked rather than assumed, because
+# A12 makes artwork the owner's call: swirl's ink coverage is 0.0225 -> 0.0226,
+# and downsampling the new 4096 tile back to 2048 differs from the old file by
+# a MEDIAN of 0.00 DN with 0.3 % of pixels over 32 DN -- edges only, which is
+# what resampling a sharper edge looks like.  cal_gen's own centroid guard
+# ("100%% calidad off center") still passes at -0.0001.
+#
+# rev 60b -- SPEC sec.5's 3K FLOOR IS NOW ASSERTED.  F93.
+#
+# THE DEFECT THIS ROW EXISTS FOR.  Every texture below is pinned BY MD5, so any
+# change to one is caught -- but nothing anywhere asserted the thing SPEC sec.5
+# actually requires: that a texture is big enough for the delivery frame.  F93
+# sat open for revisions reading "ONE of EIGHT meets the 3K floor" with no row
+# to make it fail.  A hash pins a file to its past; it does not pin it to a
+# standard.  A 3840-wide delivery frame cannot be sharper than the textures in
+# it, so this is the finish line's blocker and it is now a row.
+#
+# emblem.png is EXEMPT AND NAMED, not silently skipped (rule 27): texgen.py
+# cannot run on this machine -- load_font raises "no usable font" for all four
+# candidates -- so tex/emblem.png is a tracked build input the tree cannot
+# reproduce at ANY resolution.  That is F115, and the exemption dies with it.
+ck "every texture meets SPEC sec.5's 3K floor (emblem exempt, F115)" OK "$(python3 -c "
+from PIL import Image
+import glob, os
+bad = []
+for f in sorted(glob.glob('tex/*.png')):
+    n = os.path.basename(f)
+    if n in ('emblem.png',) or n.startswith('prev_'):
+        continue
+    im = Image.open(f)
+    if max(im.size) < 3072:
+        bad.append('%s %dx%d' % (n, im.width, im.height))
+print('OK' if not bad else 'UNDER 3072: ' + '; '.join(bad))" 2>&1 | tail -1)"
+ck "and emblem.png is the ONLY exemption" 1 "$(python3 -c "
+from PIL import Image
+import glob, os
+n = sum(1 for f in glob.glob('tex/*.png')
+        if not os.path.basename(f).startswith('prev_')
+        and max(Image.open(f).size) < 3072)
+print(n)" 2>&1 | tail -1)"
+
+ck "tex/swirl.png"   94577b44f9f4b4eab1f6fcb6d811e955 "$(md5of tex/swirl.png)"
+ck "tex/swirl_b.png" eaa09315a6905d9ed9151fd4e511ed86 "$(md5of tex/swirl_b.png)"
+ck "tex/nose.png"    34b3d81a74f366a6fd849612b2293e0c "$(md5of tex/nose.png)"
 # rev 46, SPEC 10.120: RE-BASED because 'Senor' was very nearly invisible.
 # Measured per WORD -- which nobody had done, and which dissolves the standing
 # contradiction between ledger findings 19 and 30 -- Michelson against the red
@@ -556,7 +613,7 @@ ck "tex/senor.png"   2c6d221fb2d80a8adf3419153c9b1de6 "$(md5of tex/senor.png)"
 # instruction AND recorded the reason as "no frame we hold shows them", which
 # ref_side.jpg refutes at 7x.  Their PRESENCE was never the error.  Their
 # IDENTITY was, and only he could settle it.  Re-based, never relaxed.
-ck "tex/calidad.png" ffefd297a529adc9f2b0a319107429b1 "$(md5of tex/calidad.png)"
+ck "tex/calidad.png" 4dcde8e8df8ff32b44291189368495ad "$(md5of tex/calidad.png)"
 # rev 50: RE-BASED because the TYPE legitimately changed, and the change is
 # checkable independently of the checksum -- see the clamp row below, added in
 # the same edit so this line cannot be re-based back without it.
@@ -570,7 +627,7 @@ ck "tex/calidad.png" ffefd297a529adc9f2b0a319107429b1 "$(md5of tex/calidad.png)"
 #     after    the four words BIT-UNCHANGED, &  0.474  <- 1.03x
 # so the clamp bit only on the glyph that was being enlarged.  The photograph
 # sets the & at cap height with the rest of the line.  Re-based, never relaxed.
-ck "tex/lidmural.png" 39f523a3127c0fdc72aec6bd567e1c85 "$(md5of tex/lidmural.png)"
+ck "tex/lidmural.png" 9776e6aef0114dbc209d148811b504d7 "$(md5of tex/lidmural.png)"
 # COMPENSATING ROW, same edit.  A checksum re-base is only honest if the reason
 # is separately testable; rev 49c set that precedent when it widened one grep
 # window and added three rows in the same commit.  This one asserts the clamp
@@ -585,7 +642,7 @@ ck "the header fit is CLAMPED, never enlarging" 1 \
 # and its two siblings, which are where that idiom comes from
 ck "lid_gen's sibling text fits still clamp" 2 \
    "$(grep -cE '^ *k = min\(1\.0, (wpx / tot|wid \* 0\.86 / wpx)\)' lid_gen.py)"
-ck "tex/lidsign.png" bcd3da2dbec0276fabd7d8f8ee03f27b "$(md5of tex/lidsign.png)"
+ck "tex/lidsign.png" 876a5e376a69dcd56ffaed7f60f13714 "$(md5of tex/lidsign.png)"
 ck "tex/emblem.png"  574ba2d733353387568b412da48fd436 "$(md5of tex/emblem.png)"
 
 # ------------------------------------------------------------------- gitignore
@@ -887,7 +944,22 @@ ck "bay widths 0.516 0.515 0.516"   2 "$(grep -c 'bay widths 0.516 0.515 0.516' 
 # is COMMENTED, not deleted, so re-enabling is one line and this row moves back.
 # 231 - 8 = 223, and the figure was watched printing out of audit.py before it
 # was typed here.
-ck "mesh objects 223"               1 "$(grep -c '| mesh objects | 223 |' STATE.md)"
+# rev 60 -- RE-BASED 223 -> 228, WITH THE CAUSE NAMED AND A COMPANION ROW.
+#
+# THE CAUSE.  Item D (F67) added FIVE meshes: `underpan`, two `chassis_rail`
+# and the two end closers `under_close_f` / `under_close_a`.  The count is a
+# by-value guard and it REFUSED the change, which is correct behaviour -- a
+# silent mesh-count drift is how parts get added and lost unnoticed.
+#
+# THE COMPANION ROW below makes the cause SEPARATELY TESTABLE, so this total
+# cannot be re-based again by DELETING the underbody: dropping those parts
+# would take the count back to 223 and pass this row, and the companion row is
+# what stops that.
+ck "mesh objects 228"               1 "$(grep -c '| mesh objects | 228 |' STATE.md)"
+# FOUR prefix rows, not five parts: STATE.md's inventory groups by PREFIX and
+# `chassis_rail` carries n=2.  Watched print before this number was written.
+ck "and the underbody's parts are IN that count" 4 "$(grep -cE '^\| `(underpan|chassis_rail|under_close_f|under_close_a)`' STATE.md)"
+ck "and there are TWO chassis rails"          1 "$(grep -c '| `chassis_rail` | 2 |' STATE.md)"
 # and the wipers are gone for the stated reason, not by accident
 ck "the wipers are WITHDRAWN, not deleted" 1 \
    "$(grep -c '^# A(D.wipers(), \"chrome_d\")' build.py)"
@@ -959,9 +1031,28 @@ bad = []
 for l in open('OPEN_FINDINGS.md'):
     if not l.startswith('| **F'): continue
     if 'CLOSED-rev' in l or 'closed by' in l: continue
-    if not re.search(r'(MEASURED|RECOMPUTED|INHERITED|RULED|CEILED)', l):
+    if not re.search(r'(MEASURED|RECOMPUTED|INHERITED|RULED|CEILED|OBSERVED)', l):
         bad.append(l.split('|')[1].strip())
 print('OK' if not bad else 'UNGRADED: %s' % bad)" 2>&1 | tail -1)"
+# rev 60b -- OBSERVED WAS ADDED TO THE VOCABULARY ABOVE, WITH ITS CAUSE AND
+# THIS COMPANION ROW.
+#
+# CAUSE: `GAPS_rev60.md` grades findings MEASURED / OBSERVED / REFUTED, and the
+# register's guard accepted only the first.  F111 -- the serving bays are glazed
+# in ref_side.jpg and open in ref_nolita_doorshut.jpg -- is genuinely seen by
+# eye on one frame each and has NOT been reduced to a number.  Grading it
+# MEASURED to satisfy the guard would have been exactly the laundering this
+# project forbids.
+#
+# BUT OBSERVED IS A WEAKER GRADE, so widening the vocabulary is a LOOSENING, and
+# this row is what stops it spreading: OBSERVED rows must stay a small minority.
+# If this fires, findings are being parked at the weaker grade instead of being
+# measured.
+ck "OBSERVED rows stay a small minority of the register" OK "$(python3 -c "
+import re
+rows=[l for l in open('OPEN_FINDINGS.md') if l.startswith('| **F')]
+obs=[l for l in rows if 'OBSERVED' in l]
+print('OK' if len(obs) <= max(3, len(rows)//20) else 'OBSERVED=%d of %d -- measure them or say why'%(len(obs),len(rows)))" 2>&1 | tail -1)"
 # and the brief must point at it, or the next context never opens it.
 ck "the newest brief names the register"       "OK" \
    "$(python3 -c "
@@ -1384,12 +1475,53 @@ print('OK' if a.dtype==np.uint8 and a.max()<=255 else 'PIL NOW RETURNS %s max %s
 #
 # BEHAVIOUR, not a grep: the budget script must actually RUN and must still
 # rank the paint's gloss above the badge stroke by orders of magnitude.
-ck "the visibility budget still ranks gloss over the badge" OK "$(python3 -c "
+# rev 60 -- RE-BASED, WITH THE CAUSE NAMED, AND WITH A COMPANION ROW BELOW.
+#
+# THE CAUSE.  This row asserted that the table's TOP line contains "GLOSS".
+# That held only because the table was INCOMPLETE: at rev 59 it listed none of
+# the emblem (F63), the ground shadow (F67) or the nose break (F75) -- three of
+# the owner's own five items -- and it ranked the CEILED gloss row first, so a
+# context that obeyed it would have worked a closed item and skipped his.  Rev
+# 60 added the missing rows and F67's shadow footprint, 4.81e+06 px^2, now
+# sorts above gloss's 2.62e+06.  The ORDER changed because the DATA was wrong,
+# not because the tool broke.
+#
+# WHAT THIS ROW MEANS, kept: the badge -- the top job for four revisions -- must
+# still sort LAST, far below the large-area items.  That is the tool's whole
+# point and it is unchanged.  The companion row makes the CAUSE separately
+# testable, so this cannot be quietly relaxed again by dropping rows.
+ck "the visibility budget still sorts the badge last, under gloss" OK "$(python3 -c "
 import subprocess,re
 o=subprocess.run(['python3','visibility_budget.py','3840'],capture_output=True,text=True).stdout
 r=[l for l in o.splitlines() if re.match(r'^ +\d+\. ',l)]
-top=r[0] if r else ''; bot=r[-1] if r else ''
-print('OK' if 'GLOSS' in top and 'badge' in bot else 'ORDER CHANGED: %r / %r'%(top[:40],bot[:40]))" 2>&1 | tail -1)"
+bot=r[-1] if r else ''
+gl=[i for i,l in enumerate(r) if 'GLOSS' in l]
+bd=[i for i,l in enumerate(r) if 'badge' in l]
+print('OK' if 'NO RENDER' in o else ('OK' if r and 'badge' in bot and gl and bd and min(gl)<min(bd) else 'ORDER CHANGED: %r'%(bot[:40],)))" 2>&1 | tail -1)"
+# rev 60b -- BOTH ROWS ABOVE NOW TOLERATE "NO RENDER", AND HERE IS WHY.
+#
+# Rev 60 gave visibility_budget.py a rule-37 refusal (exit 2, the words "NO
+# RENDER") and removed its FALLBACK -- and left these two rows calling it.
+# `out/` is untracked and starts EMPTY, so on a FRESH CLONE both rows failed,
+# and their failure text read "ORDER CHANGED" and "MISSING:F63,F67,F75" --
+# an absent input reading as a defect in the ranking, which is rule 37's first
+# half, inside the rows that shipped its second half.  So "ALL 264 PASS" was
+# true only in a tree that had already rendered a hero.
+#
+# The row below asserts the REFUSAL is correct, so tolerating it here cannot
+# hide a broken tool.
+ck "the visibility budget REFUSES without a frame, in those words" OK "$(python3 -c "
+import subprocess,tempfile,os,shutil
+d=tempfile.mkdtemp()
+shutil.copy('visibility_budget.py', d)
+r=subprocess.run(['python3','visibility_budget.py','3840'],cwd=d,capture_output=True,text=True)
+print('OK' if r.returncode==2 and 'NO RENDER' in r.stdout else 'rc=%d out=%r'%(r.returncode,r.stdout[:60]))" 2>&1 | tail -1)"
+ck "the visibility budget carries the owner's OWN ranked items" OK "$(python3 -c "
+import subprocess
+o=subprocess.run(['python3','visibility_budget.py','3840'],capture_output=True,text=True).stdout
+need=['F63','F67','F75']
+missing=[n for n in need if n not in o]
+print('OK' if 'NO RENDER' in o else ('OK' if not missing else 'MISSING:'+','.join(missing)))" 2>&1 | tail -1)"
 
 # ---------------------------- rev 59: TWO REFERENCE MASKS THAT NEVER MET (F67)
 # THE DEFECT THESE ROWS EXIST FOR.  `senor_trace.py` graded itself against a
@@ -1593,6 +1725,20 @@ ck "newest brief drops the retired sec.4 heading" 0 \
    "$(if [ -n "$_LATEST_BRIEF" ]; then grep -cE '^#+ .*WHAT ONLY HE CAN GIVE' "$_LATEST_BRIEF"; else echo 99; fi)"
 
 _BRIEF_TOTAL="$(if [ -n "$_LATEST_BRIEF" ]; then grep -E '\./verify_clone\.sh' "$_LATEST_BRIEF" 2>/dev/null | grep -oE 'ALL [0-9]+ PASS' | grep -oE '[0-9]+' | head -1; else echo 0; fi)"
+# rev 60c-ii -- REMAINING_WORK_rev61.md declared itself a CARRIER and NO FILE
+# IN THE REPOSITORY NAMED IT for a whole revision.  That is exactly how the
+# standing-instructions carrier was lost at rev 44 and the open-findings
+# register at rev 45 (CLAUDE.md rule 16).  A carrier nothing points at is a
+# carrier already half gone, so the pointers are asserted, not trusted.
+_RW="$(ls -1 REMAINING_WORK_rev*.md 2>/dev/null | sort -V | tail -1)"
+ck "the ranked work list exists" OK "$([ -n "$_RW" ] && echo OK || echo MISSING)"
+ck "README, START_HERE and the newest brief all name it" OK "$(
+  _n=0
+  for f in README.md START_HERE.md "$(ls -1 NEXT_CONTEXT_PROMPT_rev*.md | sort -V | tail -1)"; do
+    grep -q "$_RW" "$f" 2>/dev/null && _n=$((_n+1))
+  done
+  [ "$_n" = 3 ] && echo OK || echo "only $_n of 3 name $_RW")"
+
 ck "newest brief states THIS script's row count" "$((PASS+1))" "${_BRIEF_TOTAL:-0}"
 
 UNTRACKED="$(git status --porcelain 2>/dev/null | grep -c '^??')"

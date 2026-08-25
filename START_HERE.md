@@ -4,8 +4,10 @@
 > AS CURRENT INSTRUCTION.** It predates `bootstrap.sh`, `verify_clone.sh`,
 > `CLAUDE.md` and `lid_gen.py`, which it mentions ZERO times, and its paths and
 > core count below are wrong for this machine. **Current entry: `CLAUDE.md`, then
-> the highest-numbered `NEXT_CONTEXT_PROMPT_rev*.md` (find it with `ls`; rev 59 at this edit), then
-> `./bootstrap.sh` and `./verify_clone.sh`.** Not deleted — it is the only carrier
+> the highest-numbered `NEXT_CONTEXT_PROMPT_rev*.md` (find it with `ls`; rev 61 at this edit), then
+> `REMAINING_WORK_rev61.md` (the RANKED EXECUTION LIST -- what is left, sorted into work,
+> ceiled, the owner's call and process debt; its §I carries rows that were in no document
+> at all), then `./bootstrap.sh` and `./verify_clone.sh`.** Not deleted — it is the only carrier
 > of the rev-7 causal tests below (`CLAUDE.md` rule 16).
 >
 > **rev 7 (2026-08-09): read `HANDOFF_rev7.md` and `STATE.md` first.** Much of

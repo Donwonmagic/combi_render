@@ -30,7 +30,7 @@ changed six lines of model code between them, two of them zero, against 6,503 li
 
 | # | do | worth | gate |
 |---|---|---|---|
-| **A** | **F44 — THE PAINT HAS ALMOST NO GLOSS.** `gloss_compare.py` FAILS at **0.392**, bar 0.60. **Rev 57b already refuted the clearcoat route (F54): +0.5 % spread, −18 % red saturation.** One lever left — roughness, via the WEATHER group (**F53**) — then the honest answer may be that the rest is the rig (**F55**) | **3.4 × 10⁶ px²** — the largest thing in the frame | **`gloss_compare.py`, new at rev 57b** |
+| **A** | **F44 — THE PAINT HAS ALMOST NO GLOSS**, and rev 57b MEASURED WHOSE FAULT THAT IS. `gloss_compare.py` FAILS at **0.392**, bar 0.60. The clearcoat route is REFUTED (**F54**: +0.5 % spread, −18 % red saturation) and the SURROUND is now measured at **+119 %** — the same model under structured light reads **0.857** (**F59**). **One model lever is left, roughness through the WEATHER group (F53), and it is worth a morning, not a revision.** Read §3.1 before touching it | **3.4 × 10⁶ px²** — the largest thing in the frame | **`gloss_compare.py`; `probe_rev58_ceiling.py` for render-vs-render (F58)** |
 | **A0** | **F51 — FACTOR THE STUDIO RIG OUT OF `build.py`'s PREVIEW BLOCK. Do this FIRST; it is an hour and it unblocks two other items.** `cyclorama/lighting/cabin_fill/camera` are built inside `if T1_PREVIEW:`, so **every tool that execs build.py to MEASURE renders an unlit scene** | it made rev 57b's first delivery frame a **BLACK BUS that passed every automated check**, and it is the cause of **F05** | a verifier row compares the duplicated sequences until it is fixed |
 | **B** | **F45 — THE GALLEY AND ROOF-APERTURE INTERIORS ARE UNTEXTURED WHITE BLOCKS**, seen through four openings, dead centre | **7.4 × 10⁵ px²** | none — build one, or accept it and say so |
 | **C** | **F15 / A7** — the unlit roofed run between the last light inlet and the tail | 8.2 × 10⁵ px² | none |
@@ -78,8 +78,8 @@ per-measurement and not on average.** A model right in ninety places and wrong i
 done, because he will look straight at the one. This paragraph is first because every revision has
 drifted toward whatever was measurable that week, and the goal is not "add rows".
 
-**AND HERE IS THE HONEST DISTANCE, MEASURED AT REV 57.** `verify_clone.sh` ends **ALL 247 PASS** and
-its own verdict block says what that is worth: **0 FIDELITY, 247 SELF-CONSISTENCY. Not one of those
+**AND HERE IS THE HONEST DISTANCE, MEASURED AT REV 57.** `verify_clone.sh` ends **ALL 255 PASS** and
+its own verdict block says what that is worth: **0 FIDELITY, 255 SELF-CONSISTENCY. Not one of those
 rows compares the vehicle to a photograph.** *(The rev-57 brief quoted the right ALL-n-PASS
 total and then, four words later, gave a self-consistency figure SIX LOWER than it — two numbers for
 one line, in one sentence. The wrong figure is DESCRIBED here and deliberately NOT reprinted; see
@@ -156,7 +156,7 @@ for b in $(git branch -r | grep -v HEAD); do
 done
 git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 ./bootstrap.sh          # ALL 10 PASS  -- THE BRANCH CHECK IS ROW 9
-./verify_clone.sh       # ALL 247 PASS -- and read what its verdict block says
+./verify_clone.sh       # ALL 255 PASS -- and read what its verdict block says
 ```
 
 **AT PICKUP, REV 57 MEASURED:** rev 56 **was merged, through PR #16** — not the "no PR opened"
@@ -189,8 +189,20 @@ shape you are in:**
 
 **RE-MEASURE BEFORE YOU FINISH, TOO.** `origin/main` moved mid-revision at rev 51 and rev 55, and
 both times **row 9 was the only thing that caught it**. It did **not** move mid-revision at rev 56
-or rev 57 (re-checked at close both times: 0 ahead / 0 behind, diff empty). **Run the ahead/behind
-loop again before you close, every time.**
+or rev 57. **IT MOVED AGAIN AT REV 57b — AND THE ONLY REASON THAT WAS NOTICED IS THAT THE LOOP WAS
+RE-RUN AT CLOSE.** The count went from **21 ahead** to **3 ahead / 1 behind** between two commits,
+because **PR #17 merged the revision's first 21 commits into `main` while the work was still
+running.** That is now the **THIRD** mid-revision move in eight revisions, and the **FOURTH running**
+in which the brief's guess about the merge state was wrong and the machine corrected it — this
+file's own §1 predicted *"no PR opened, because none was asked for"* and a PR was opened and merged
+anyway. **Believe the loop, not the paragraph, and run it TWICE.**
+
+**WHAT REV 57b DID ABOUT IT, so rev 58 can copy the shape:** the designated branch was 0 ahead /
+1 behind after the merge, so the remaining three commits were **rebased onto the new `origin/main`**
+(the merged history is finished — never stack on it) and force-pushed with `--force-with-lease`.
+`git diff --name-only HEAD...origin/main` was **empty**: **no photographs arrived.** `bootstrap.sh`
+**10/10** and `verify_clone.sh` **ALL 255 PASS** were both re-run FROM THE REBASED HEAD, not
+inherited from before it. **Run the ahead/behind loop again before you close, every time.**
 
 ---
 
@@ -416,9 +428,25 @@ this list is what executed rather than what was drafted:**
   it.** Fixed as above. **This is the one thing either pass broke.**
 * *"Do the gates still run from this head?"* — gate 1 runs and fails **exactly one** row,
   `Senor` 0.656.
+* **rev 57b's own question, added to the script as §10.5 asks:** *"the ceiling probe reports in the
+  SAME unit as `gloss_compare` — do the two agree where they overlap?"* It RUNS
+  `probe_rev58_ceiling.py` and checks it recovers the gate's own published **0.392** on the frame
+  the gate published it from. **It does, to three figures.** Watched failing: move the photograph
+  window 40 px and it reads 0.436 and BREAKS. On a fresh clone, where `out/` is empty, it SKIPS
+  **out loud** rather than passing silently.
+
+**AND ONE VERIFIER ROW HAD TO BE TIGHTENED BY THIS WORK, WHICH IS WORTH MORE THAN THE ROWS ADDED.**
+*"The duplicated studio rig still matches build.py"* **FAILED** on `probe_rev58_gloss.py` — it
+counted `ST.camera(` inside the COMMENT that explains F60 and read it as a fifth rig call.
+**That is the FIFTH time a row here has matched an explanation of a defect and called it the
+defect.** Fixed the way the `gloss_compare compares no colour IN CODE` row was — strip comments and
+docstrings, look only at what executes. **A tightening, not a relaxation**, and watched both ways:
+it fails on a real fifth `ST.camera()` call and passes with the comment in place. **§10.8's rule
+held: when a check fails on code you just wrote, suspect the code first — and here the answer was
+that both were slightly wrong, so both moved.**
 
 **AND BOTH AUDITS ARE COMMITTED SCRIPTS NOW.** `audit_brief.py` — 9 checks, **0 failed** — asks
-*is what the file says true?* `audit_adversary.py` — 10 questions, **0 broke** — asks *what would
+*is what the file says true?* `audit_adversary.py` — 11 questions, **0 broke** — asks *what would
 make it false?*, and it RECOMPUTES the headline figures from the renders and the source instead of
 re-reading them: the clearcoat ablation off `out/g0/g1_hero.png` (0.392 → 0.394, G/R +17.9 %), the
 exposure invariance, the budget's ordering, F51's single `ST.lighting` call, the delivery frame's
@@ -524,13 +552,37 @@ every run and report both: `gloss_compare.py` for the gloss and `flank_compare.p
 for the chroma. **If they trade against each other, that is a finding and a question for him, not a
 number to split the difference on.**
 
-**THE CEILING, AND IT IS REAL.** The rig's sources are large-area softboxes — `top` is 13.0 × 8.5 m.
-Even a mirror-smooth paint under a 13 m source gives a **broad, soft** highlight, where the
-photograph's market-hall lamps give small intense ones. **So `gloss_compare.py` will not reach 1.000
-under this rig and it is not supposed to.** The owner's *"keep studio, fix the model"* stands.
-What the gate can tell you is how much of the gap is the MODEL's, and it can tell you that in
-three runs. **Find out where the ceiling is and report it with the number, rather than tuning
-toward 1.0.**
+**THE CEILING IS NO LONGER A WARNING. IT IS MEASURED, AND IT IS THE BIGGEST NUMBER REV 57b
+PRODUCED — F59.** The owner authorised exactly this (*"quantify it, ship nothing"*), and it took one
+frame:
+
+| | spread | of the photograph |
+|---|---|---|
+| baseline studio, `out/g0_hero.png` | **0.4675** | **0.392** — and this reproduces `gloss_compare`'s own published figure, which is the probe's internal control |
+| **the SAME model** under three small sources on the mirror direction, softboxes dimmed to match, `out/c5_hero.png` | **1.0212** | **0.857** |
+| `ref_nolita_front34.jpg`, same window, 20,549 red px | 1.1921 | 1.000 |
+
+**NOT ONE CONSTANT DIFFERS BETWEEN THOSE TWO FRAMES.** −0.3 % exposure, 0.00 % clipping, one mask
+built on the baseline and applied to both. `python3 probe_rev58_ceiling.py out/g0_hero.png
+out/c5_hero.png`; the arm that makes the frame is `T1_GL_MIRROR=n` in `probe_rev58_gloss.py`, which
+overrides a BUILT scene in memory and writes no source.
+
+**SO READ ITEM A THIS WAY, AND DO NOT SPEND A REVISION ON IT.** The clearcoat buys **+0.5 %** and
+costs the red **18 %** of its saturation (F54). The surround is worth **+119 %**. The model's share
+of this gate is thin, and it has now been bounded rather than guessed. **The owner's *"keep studio,
+fix the model"* stands and nothing here ships** — but F59 is what you show him if the gloss is ever
+re-opened, and the honest sentence about the delivery frame is *"the paint is not far off; the room
+it stands in has nothing to reflect."* The one lever still untested is ROUGHNESS through the WEATHER
+group (**F53** — the BSDF socket is LINKED, so `T1_GL_RGH` is inert; the live value is
+`g.inputs["Roughness"].default_value` on the group node). **Ablate it before you tune it (rule 36).**
+
+**AND F58, WHICH CAME OUT OF DOING IT: `gloss_compare.py` CANNOT COMPARE TWO RENDERS AT DIFFERENT
+EXPOSURES.** Its mask is `R > 1.35 G` rebuilt per frame; brighten the paint and it desaturates out
+of that test and the window **retreats into the shadows** — 33,600 px → **5,711** on the
+over-exposed first attempt, and **0.00 % clipped inside the retreat against 53.32 % over the region
+it came from.** Its published exposure control is not refuted (a ratio is scale-invariant); its
+**domain** was never stated. Use `probe_rev58_ceiling.py` for render-against-render, which holds one
+mask and refuses above 1 % clipping or 10 % exposure drift.
 
 **F47, found while reading:** the `WEATHER` header comment still says *"nearly invisible at
 Specular IOR Level 0.21 / Roughness 0.42"*. **`Specular IOR Level` has been 0.50 since rev 8** —
@@ -694,6 +746,42 @@ radius with it; and **F39** — `Senor`'s ink deficit is in the artwork, which A
 
 ---
 
+## §4.1 THE OWNER'S STANDING INSTRUCTIONS — THE CARRIER DELETED AT REV 44, RESTORED
+
+**THIS SECTION IS A CARRIER (`CLAUDE.md` rule 16) AND IT IS BACK BECAUSE IT WENT MISSING ONCE
+ALREADY.** Every brief up to rev 43 carried **§7. INSTRUCTIONS OF MINE STILL OUTSTANDING, IN NO
+OTHER CARRIER** — fourteen items in the owner's own voice. It last appears at
+`NEXT_CONTEXT_PROMPT_rev43.md:685`. **No brief from rev 44 to rev 58 has had it or any successor.**
+The rev-49 survey found the loss (`SURVEY_rev49_photoreal.md` finding 39, MAJOR) and named **three**
+casualties. **Rev 56 recovered ONE of the three, as a one-line stub. Rev 57b restored the section.**
+
+> **Its own header is the instruction: GREP EACH BEFORE ACTING — A MEMORY ENTRY IS A CLAIM.**
+
+| # | the owner's item | where it stands, measured at rev 57b |
+|---|---|---|
+| 1 | drive fixes off the broadside render over `ref_side.jpg` | **CLOSED** rev 39–41. `probe_rev39_flank.py` is a standing instrument — **re-run it every revision that moves the flank**, and read SPEC §10.99 first: its Z-ladder has no power, only the JOINT registration may be quoted |
+| 2 | **"REMEMBER TO HOLD UP NEXT TO THE ACTUAL SOURCE PHOTOS"** | **LIVE, and two thirds never done — F61.** Show flank rev 39–41, cab door rev 42, **NOSE rev 51** (which found three defects by eye). **THE TAIL AND THE ROOF HAVE NEVER BEEN DONE** |
+| 3 | **the die-cut vinyl sticker — THE ORIGINAL DELIVERABLE** | **LIVE — F18, now carried in full.** Style and scene are **LOCKED BY HIM**; the art direction is already written in `AUDIT_rev43.md` §5; the asset has never been drawn. **His deferral has a TRIGGER — "build it after the model is done" — so this row is what makes the trigger reachable.** Do not re-put the papel-picado question until he opens it |
+| 4 | **the Playa hero is DEPRIORITISED, NOT CANCELLED** | **LIVE as a carrier — F62.** *"The agreed deliverable is the white-studio hero for fidelity PLUS a warm low-light Playa hero, and the Playa one carries the emotional bar that sits ABOVE clinical accuracy."* **From rev 52 the brief has said "not on the table"; that was an INFERENCE from W6, whose object is the studio RIG, not this second deliverable — rule 34.** Nothing here re-proposes `playa_env.py`; *"focus on the 3d model"* stands |
+| 5 | nine flower heads | **CLOSED** rev 39 — he answered TEN. SPEC §10.97.11 |
+| 6 | **"ABSOLUTE REPLICATION OF ALL ARTWORK" — a hard bar** | **LIVE — F64.** Mural board, flank paisley, script, Calidad decal, menu strips and cards, rear-lid lettering, plate surround. **Four of the seven have no row anywhere.** Rev 10's ceiling still stands: the lettered panel reads *"La S——— and no further"* and **"La Santa" is a RECONSTRUCTION** |
+| 7 | **the Señor Tacombi script — "I REJECTED IT TWICE"** | **LIVE — F01/F39**, and rev 57 narrowed it to the **artwork alpha and its placement**, not the render. A12 makes redrawing his call. *(Rev 43 already refuted "the silver is flat": `tex/senor.png` holds 5,856 unique opaque colours. The live defect is **VALUE**, not flatness.)* |
+| 8 | the front roof lid needs two-sided artwork | **KILLED, EXPLICITLY** at rev 44 — both refuters, because the contract it rested on was retired at rev 12. **This is the model for how an item should leave this table.** The trunk lid it also asked for is BUILT |
+| 9 | **"CLUTTER ON THE COUNTER"** | **LIVE — F66.** Raised more than once, **never recorded as closed**; rev 11 then dressed the galley with 51 objects |
+| 10 | **"the bus sits noticeably lower than stock"** | **ARGUABLY CLOSED — F66.** Rev 43 called it unadjudicated because every flank number is relative to the counter fascia. The **arch-to-tyre gap** is not: SPEC §2 has a photographed 41 ± 8 mm against a stock 90–120, and `STATE.md` measures **39.7 / 40.7 mm**. **Close it or state it** |
+| 11 | **Nolita is re-admitted for GEOMETRY ONLY, and every Nolita-derived number must be TAGGED** | **LIVE, AND IT NOW BITES — F65.** `gloss_compare.py`'s only reference is `ref_nolita_front34.jpg`, so **F44's 0.392 and F59's 0.857 are both Nolita-derived and neither is tagged.** Whether a paint FINISH statistic counts as geometry or as livery **has never been adjudicated** |
+| 12 | the GitHub migration | **CLOSED** — executed by him at rev 42 |
+| 13 | region 3 | **CLOSED BY HIM** at rev 40 — the pale band is the counter's front face. **Do not re-put it** |
+| 14 | **the standard, in his words** | **HALF CARRIED.** *"A photo realistic version of that exact bus"* and *"any single measurement off is unacceptable"* are in §0 and §7 of this brief. **The other half — "4K non-overlapping textures and no floating artifacts" — was in no carrier at all: F63. Re-measured at rev 57b: ONE of EIGHT textures meets SPEC §5's 3K floor**, and the 55.97 % self-overlap is `INHERITED-rev42`, sixteen revisions un-re-measured |
+
+**WHAT THE RESTORATION ACTUALLY FOUND, so the next context knows the shape of the risk.** Rev 56
+reinstated the register and believed the rev-44 loss was closed. It was not: **the sticker came back
+as a one-line row with none of his locked art direction in it, and the other two casualties did not
+come back at all.** A recovery that keeps the NAME and drops the CONTENT reads as closed and is not.
+**When you carry something, carry what makes it actionable — the lock, the trigger, the pointer.**
+
+---
+
 ## §5. THE RULES — `CLAUDE.md` CARRIES THE METHOD, NOT THE NUMBERED CANON
 
 The canon (rules 1–33) is printed in `NEXT_CONTEXT_PROMPT_rev50.md` §11. **Rules 34 and 35 live only
@@ -757,6 +845,13 @@ T1_SUB=2 /tmp/blender/blender -b -P audit.py                 # rewrites STATE.md
 python3 lid_gen.py                                           # regenerates tex/lidmural.png
 python3 flank_compare.py out/r58_side.png /tmp/fc.png        # GATE 1.  FAILS 1 of 4 today.
 python3 gloss_compare.py out/r58_hero.png                    # GATE 3.  FAILS at 0.392 today.
+#   ^ RENDER-vs-PHOTOGRAPH ONLY.  Its mask is rebuilt per frame, so it CANNOT
+#     compare two renders at different exposures -- F58.  For that:
+python3 probe_rev58_ceiling.py out/g0_hero.png out/c5_hero.png   # ONE mask, refuses on clipping
+T1_SUB=1 T1_KEY=0.12 T1_GL_MIRROR=3 T1_GL_SPOTPOW=120 T1_GL_PFX=c5 \
+  /tmp/blender/blender -b -P probe_rev58_gloss.py            # F59's frame.  SHIPS NOTHING.
+T1_SUB=1 T1_GL_MIRROR=3 T1_GL_NORENDER=1 \
+  /tmp/blender/blender -b -P probe_rev58_gloss.py            # placement check, ~25 s, no render
 python3 visibility_budget.py 3840                            # THE RANKING.  Run it before choosing.
 T1_SUB=1 T1_GL_COATW=1.0 T1_GL_COATR=0.03 T1_GL_PFX=g1 \
   /tmp/blender/blender -b -P probe_rev58_gloss.py            # ITEM A's ablation, changes NO source
@@ -913,7 +1008,7 @@ nothing had gated them and the old rule could not see anything it could not gate
 
 | horizon | the work | worth | why it is in this order |
 |---|---|---|---|
-| **next** | **the paint's GLOSS.** `gloss_compare.py` fails at 0.392 of the photograph's spread | 3.4 × 10⁶ px² | The largest surface in the frame, newly gated, and never measured before rev 57b |
+| **next, but SMALLER THAN IT LOOKS** | **the paint's GLOSS.** `gloss_compare.py` fails at 0.392 of the photograph's spread — **and rev 57b measured that the SURROUND owns most of that gap (F59: the same model reads 0.857 under structured light).** The clearcoat is refuted (F54); one model lever is left (F53) | 3.4 × 10⁶ px² | Still the largest surface in the frame, but the MODEL's share of the deficit is now bounded and thin. **Do not spend a revision here** |
 | **next** | **the untextured galley and roof-aperture interiors** | 7.4 × 10⁵ px² | Bright, central, seen through four openings, and pure placeholder |
 | **next** | **F15 — A7.** Illumination, not dressing | 8.2 × 10⁵ px² | A large unlit region changes how the whole rear reads |
 | **near** | **F01/F39 — `Senor`**, now known to be the artwork alpha and its placement | 2.7 × 10⁴ px² | Small but HARD-EDGED, so it reads louder per pixel than the table implies |

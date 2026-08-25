@@ -319,6 +319,79 @@ G3 = (float(img[_gy0:_gy1, _gx0:_gx1].mean()) / OPEN
 print("  G3 UNDER-BODY POOL = %.4f of open ground over %dx%d px"
       % (G3, _gx1 - _gx0, _gy1 - _gy0))
 
+# ---------------------------------------------------------------------------
+# G4 -- THE CAVITY FLOOR.  rev 60, F67 / item D.
+#
+# G3 above averages a 193 x 50 px box that is MOSTLY OPEN FLOOR, so it dilutes
+# the very thing item D built: the dark band under the sill.  ON THIS PROBE'S
+# OWN FRAME, ablation against built:
+#
+#     T1_NOUNDER=1   G3 0.8375   G4 0.5475
+#     built          G3 0.7714   G4 0.2519
+#
+# G3 moves by 0.066, G4 by 0.296.  Every one of those four was watched print.
+# (An independent window on the 1600x1100 `hero` -- a different camera and a
+# different scale -- reads the same band 0.545 -> 0.219, which is why G4 is
+# quoted to two figures and not three.)  Both are reported; this is the one
+# that tracks the geometry.
+#
+# THE WINDOW IS LOCATED FROM THIS PROBE'S OWN PROJECTED CONTACT PATCHES, not
+# typed: a column band about the midpoint of the two camera-side contacts,
+# walked UP from the contact row.  The minimum along that walk is the cavity
+# floor.  Nothing here goes stale when a camera or a constant moves.
+#
+# THE PHOTOGRAPH: the same profile down `ref_side.jpg` at cols 350-500 --
+# between the wheels, clear of both -- reads a floor of 8.0 DN against an open
+# plateau of 139.0, i.e. 0.057.  THAT IS A SUNLIT OUTDOOR FRAME AND THIS IS A
+# WHITE CYCLORAMA, so it is a DIRECTION, not a bar (rule 6): the owner ruled
+# "keep studio, fix the model" and a white floor under a 13 x 8.5 m softbox
+# fills a 90 mm cavity from every side.  C5 is therefore armed at the
+# ABLATION, which is a render-against-render test and free of that caveat.
+# THE FIRST CUT OF THIS WINDOW WAS WRONG AND IT PRINTED 0.3134, WHICH IS A
+# BELIEVABLE NUMBER ABOUT THE WRONG PIXELS.  It walked up from
+# `min(PX[k][1])` -- the SMALLEST row among the contact patches, i.e. the
+# farthest one on screen, not the ground line at mid-span -- and the band
+# landed on the RED FLANK across the "Tacombi" lettering.  Its minimum was the
+# dark of a letter stroke.  PAINTED AND LOOKED AT, which is the only reason it
+# was caught (rule 8).
+#
+# THE WINDOW NOW: a column band at the mid-span of the camera-side contacts,
+# from their MEAN row (the ground line under the sill) up by 2.6 tyre widths.
+# The cavity and the flank are separated by CHROMA, not by height: the cavity
+# is neutral, the flank is saturated red, so only near-neutral rows are
+# eligible.  The silver lettering is neutral too and survives the filter --
+# and it does not matter, because it is BRIGHT and this takes a MINIMUM.
+_cx = int((PX[READABLE[0]][0] + PX[READABLE[-1]][0]) / 2.0)
+_c0, _c1 = max(_cx - 30, 0), min(_cx + 30, W)
+_grow = sum(PX[k][1] for k in READABLE) / len(READABLE)
+_ctop = max(int(_grow - 2.6 * TW), 0)
+_cbot = min(int(_grow - 0.10 * TW), H)
+G4, _g4row = 1.0, -1
+if _cbot > _ctop and _c1 > _c0:
+    _rows = img[_ctop:_cbot, _c0:_c1].mean(axis=1)          # (n, 3)
+    _mx = _rows.max(axis=1); _mn = _rows.min(axis=1)
+    _neutral = (_mx - _mn) / np.maximum(_mx, 1.0) < 0.15
+    _lum = _rows.mean(axis=1)
+    if _neutral.any():
+        _cand = np.where(_neutral)[0]
+        _k = _cand[int(_lum[_cand].argmin())]
+        G4, _g4row = float(_lum[_k]) / OPEN, _ctop + int(_k)
+print("  G4 CAVITY FLOOR = %.4f of open ground (min %.1f DN at row %d, "
+      "cols %d-%d)  -- photograph ref_side.jpg 0.057, a DIRECTION not a bar"
+      % (G4, G4 * OPEN, _g4row, _c0, _c1))
+ctl("C5", G4 < 0.45,
+    "G4: there IS a cavity under the sill.  Armed at the ABLATION, which is "
+    "render-against-render and so free of the studio caveat: T1_NOUNDER=1 "
+    "must fail this row and the built vehicle must pass it")
+if os.environ.get("T1_PG_PAINT"):
+    _pi = img.copy()
+    _pi[_ctop:_cbot, _c0:_c1] = 0.45 * _pi[_ctop:_cbot, _c0:_c1] + 0.55 * np.array([255, 0, 255])
+    if _g4row >= 0:
+        _pi[_g4row, _c0:_c1] = np.array([0, 255, 255])
+    Image.fromarray(_pi.astype(np.uint8)).save(
+        os.path.join(HERE, "out", "pg_g4_window.png"))
+    print("  G4 window PAINTED -> out/pg_g4_window.png  (rule 8: look at it)")
+
 G1 = (sum(vals) / len(vals) / OPEN) if vals else 1.0
 print("  G1 CONTACT DARKENING = %.4f of OPEN GROUND   (1.0000 = the vehicle "
       "floats)" % G1)
@@ -337,7 +410,7 @@ if not os.environ.get("T1_PG_KEEP"):
         pass
 
 nfail = sum(1 for v in CTL.values() if not v)
-print("G1=%.4f  G2=%.2f  G3=%.4f" % (G1, far, G3))
+print("G1=%.4f  G2=%.2f  G3=%.4f  G4=%.4f" % (G1, far, G3, G4))
 print("CONTROLS: %d checked, %d FAILED%s"
       % (len(CTL), nfail,
          "" if not nfail else " -- " + ",".join(k for k, v in CTL.items() if not v)))

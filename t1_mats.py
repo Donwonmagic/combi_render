@@ -146,7 +146,30 @@ V_APEX_AUTH = 0.4050                    # un-dropped == t1_shell.V_APEX_Z
 Z_BELT0 = Z_BELT_AUTH - T.RAKE_Z0       # above ground at x = 0
 V_APEX0 = V_APEX_AUTH - T.RAKE_Z0       # above ground at x = 0
 V_RISE = 0.8670
+# rev 60 -- T1_VRISE, A DIAGNOSTIC ABLATION, NOT A SHIPPED LEVER.
+# Item B needs to know WHICH constant actually moves the break at the
+# HEADLAMP's own station, because a V_POW sweep over 0.15..1.20 moves it by
+# 0.004 lamp radii -- nothing.  The identity V_APEX0 + V_RISE == Z_BELT0 is
+# asserted below, so this re-derives V_APEX0 to keep it.  THAT DE-REGISTERS THE
+# PRESSED SWAGE in t1_shell (which is authored off V_APEX_AUTH), so this switch
+# is for MEASUREMENT ONLY and must never be shipped set.
+if os.environ.get("T1_VRISE"):
+    V_RISE = float(os.environ["T1_VRISE"])
+    V_APEX0 = Z_BELT0 - V_RISE
 V_POW = 0.60
+# rev 60 -- T1_VPOW is an ABLATION ONLY.  It exists so the break's true
+# sensitivity to V_POW can be measured in a RENDER instead of predicted by a
+# hand-written copy of the node graph.  The shipped value is the literal above
+# and nothing but this env var changes it.
+#
+# THE LITERAL STAYS ON ITS OWN LINE ON PURPOSE.  The first cut of this wrote
+# `V_POW = float(os.environ.get("T1_VPOW", 0.60))` and broke THREE
+# verify_clone.sh rows at once -- "V_POW is 0.60", "V_POW_Z is 0.60" and
+# "V_POW and V_POW_Z agree" -- because all three grep for `^V_POW = 0.60`.
+# The rev-60 brief warned about exactly those three rows by name.  An ablation
+# that disarms a by-value guard is not an ablation, it is a regression.
+if os.environ.get("T1_VPOW"):
+    V_POW = float(os.environ["T1_VPOW"])
 
 # Above-ground value at any station, for probes and reports.
 def z_belt(x):
@@ -2131,6 +2154,19 @@ def build_all():
     # old D4: at 0.03 albedo the galley was a black void behind the hatches.
     # Lifted so the openings read as depth once fill_galley is on.
     M["dark"] = interior_wear("interior_dark", (0.1150, 0.1080, 0.1000), 0.78)
+    # rev 60, F67 / item D.  THE UNDERBODY IS NOT CAB TRIM.  The pan first
+    # shipped on M["dark"], the cab-interior grey at 0.115 albedo, because
+    # that was the nearest dark key -- which is an inheritance, not a
+    # measurement.  A vehicle's underside is underseal plus road dirt and is
+    # very much darker than a cab lining.
+    #
+    # THE VALUE IS A STATED ASSUMPTION AND THE FRAMES CANNOT SETTLE IT: in
+    # `ref_side.jpg` this region is 8.0 DN with a standard deviation of 1.9 --
+    # it resolves nothing inside itself, so no albedo can be recovered from
+    # it.  What IS measured is the ratio the cavity has to reach; see
+    # probe_rev45_ground.py's G4.  Ablation T1_UNDERSEAL=0 puts the pan back on
+    # M["dark"] so the difference this key makes stays testable.
+    M["underseal"] = interior_wear("underseal", (0.0380, 0.0370, 0.0360), 0.88)
     M["amber"] = simple("amber", (0.9200, 0.3400, 0.0250), rough=0.09,
                         transmit=0.75, ior=1.49)
     M["ruby"] = simple("ruby", (0.7000, 0.0350, 0.0250), rough=0.09,
