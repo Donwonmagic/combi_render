@@ -368,12 +368,81 @@ t("does judge_set.sh still exist, so photorealism is judged WITH the optics?",
   "1/10 on that alone.  --backdrop headroom is REQUIRED or the vignette and "
   "grain do not render at all (F146)")
 
+# ===========================================================================
+#  REV 62's QUESTIONS.  Rule 10.5: REPLACE these each revision -- a question
+#  that can no longer fail is not a control.  Every one below is about a claim
+#  REV 62 published, and every one can go red.
+# ===========================================================================
+
+t("does C8's target still get SWEPT, or is it a single unguarded window again?",
+  os.path.exists('probe_rev62_landmarks.py')
+  and 'C11' in open('probe_rev62_landmarks.py').read()
+  and 'crop-window sweep' in open('probe_rev62_landmarks.py').read(),
+  "cell_elongation inscribes its measuring disc in THE MASK ARRAY'S RECTANGLE, "
+  "not in the badge.  At +-3 px of crop the disc escapes the roundel, the nose "
+  "paint outside the ring becomes a 479 px 'cream cell' against the true "
+  "cells' 215, and the target reads 1.553 against the BUILT glyph's 1.49 -- "
+  "i.e. the owner's top defect reads CLOSED and nothing fires.  C1 sweeps five "
+  "windows for L1-L6; this target was swept by NOTHING for two revisions "
+  "(F151).  THIS ROW IS EXPECTED TO SHOW C11 FAILING -- that failure IS the "
+  "finding, and if C11 ever passes without the disc being re-derived from the "
+  "badge's own fitted ellipse, someone relaxed it")
+
+t("is the point 2.27x still absent, i.e. is C8's verdict still quoted as a RANGE?",
+  '1.99' in open('LEDGER_rev62.md').read()
+  and 'RANGE' in open('LEDGER_rev62.md').read().upper(),
+  "four documents published 'the built cells are 2.27x too round' as a POINT.  "
+  "Swept over its own window and segmentation the target is 2.969..3.415, so "
+  "the honest figure is 1.99x..2.27x.  If the range collapses back to a point "
+  "in any outgoing document, the ceiling was dropped and only the headline "
+  "survived -- which is how this project has lost figures before (F151)")
+
+t("is the stroke-weight lever still recorded as REFUTED against C8?",
+  'F152' in open('OPEN_FINDINGS.md').read()
+  and 'REFUTED-rev62' in open('OPEN_FINDINGS.md').read(),
+  "F102 swept T1_VW_WFRAC and called it inert -- against C6, THE COUNT.  C8 "
+  "did not exist then.  Ablated against C8 it moves 1.07..1.82 and moves the "
+  "WRONG WAY, and thinning to the construction's limit reaches 1.82 against "
+  "3.39.  So abandoning L6 ENTIRELY cannot reach the target and L6 IS NOT THE "
+  "ANSWER (F152).  If this row goes, the next context re-tries the thinning "
+  "exactly as rev 62 nearly did")
+
+t("can the owner's rev-62 Senor ruling be undone behind a passing checksum?",
+  'SENOR_TARNISH' in open('script_gen.py').read()
+  and 'T1_SENOR_TARNISH=1 restores' in open('verify_clone.sh').read(),
+  "he was shown the figure and chose 'bright silver, same as Tacombi', which "
+  "OVERRIDES SPEC sec.3's WEATHERED lock for that word (F157).  The hash "
+  "re-base is licensed ONLY by the companion row asserting that "
+  "T1_SENOR_TARNISH=1 reproduces the PRE-RULING texture byte for byte.  "
+  "Without that row the re-base is a rubber stamp and the measured TARNISH_K "
+  "and SENOR_MICHELSON are unreachable")
+
+t("is F156's trap still flagged -- that the Senor gate row now scores a DEPARTURE?",
+  'F156' in open('OPEN_FINDINGS.md').read()
+  and 'DELIBERATE DEPARTURE' in open('OPEN_FINDINGS.md').read(),
+  "flank_compare's `Senor` row IMPROVED -- ink 973 -> 1488 against a reference "
+  "1261, of-ceiling 0.717 -> 0.751, crossing its 0.75 bar -- BY MOVING AWAY "
+  "FROM THE PHOTOGRAPH, because the owner ruled a departure from it.  A "
+  "revision reading that as convergence is wrong; one 'fixing' the 118 % "
+  "overshoot undoes an owner ruling.  Rev 62 did NOT re-base the row and said "
+  "so (F156)")
+
+t("does probe_rev62_landmarks still LIFT its ruler rather than re-type it?",
+  'ast.parse' in open('probe_rev62_landmarks.py').read()
+  and 'probe_rev46_vw.py' in open('probe_rev62_landmarks.py').read(),
+  "the cross-frame landmark comparison is only meaningful if both sides use "
+  "the SAME definition of a landmark.  The probe lifts runs_of/transitions/"
+  "landmarks/cell_elongation SOURCE TEXT out of probe_rev46_vw.py with ast at "
+  "run time, and C0w asserts the lift reproduces that probe's published nolita "
+  "figures to 0.00003.  If someone re-types those functions the two rulers "
+  "drift silently and every delta in F153 becomes meaningless")
+
 P("-" * 78)
 P("  %d asked, %d BROKE%s" % (NQ[0], len(bad),
                               ("  --  " + "; ".join(bad)) if bad else ""))
-P("  A question that can no longer fail is not a control.  The last six were")
-P("  REPLACED at rev 61 and are about what REV 61 shipped and retracted;")
-P("  the rev-60c batch above them is the next one to replace.")
+P("  A question that can no longer fail is not a control.  The last SIX were")
+P("  REPLACED at rev 62 and are about what REV 62 shipped, refuted and ruled;")
+P("  the rev-61 batch above them is the next one to replace.")
 sys.exit(1 if bad else 0)
 
 
