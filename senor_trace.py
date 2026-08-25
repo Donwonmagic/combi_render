@@ -283,6 +283,7 @@ USE
     import senor_trace
     senor_trace.draw_senor(canvas, ypad=16)
 """
+import os
 import numpy as np
 
 # script_gen.py mask-space origin in ref_side.jpg pixels, for reference only.
@@ -648,6 +649,75 @@ def _chunks(pts, w, max_turn=0.45, max_len=6.0):
     return out
 
 
+# ---------------------------------------------------------------------- rev 61
+# THE OWNER'S RULING, AND IT IS THE ONE THIS FILE HAS BEEN WAITING FOR.
+#
+# *[owner, rev 61]* "senor Tacombi should be clearer in the render than in that
+# photo. Well defined. I want this 3d model to look like new. Enhanced from
+# the photo"
+#
+# The block above says, in this file's own words: "THE S IS STILL BROKEN AND
+# THAT IS DELIBERATE ... bridging _STROKES[0]->[1]->[2] would be inventing ink.
+# It is an OWNER decision, not this file's."  It is now his decision and he has
+# made it.  The `S` arrives from the chromaticity segmentation in three pieces
+# ONLY because the word is tarnished in ref_side.jpg -- this file already
+# recorded that "they are almost certainly artefacts of the tarnish and not of
+# the paint -- the real letter is surely continuous".  So the breaks are
+# bridged, and the RESTORED letter is what ships.
+#
+# WHAT IS AND IS NOT INVENTED.  The bridges span measured endpoint to measured
+# endpoint, and the half-width at each end is the MEASURED half-width there;
+# only the path between them is constructed, as a quadratic Bezier whose
+# control point is where the two measured tangents intersect, so the join is
+# tangent-continuous with the ink either side of it.  Nothing outside the two
+# measured endpoints moves.
+#
+# THE ABLATION.  T1_SENOR_BREAKS=1 restores the tarnish-faithful `S`, which is
+# what every figure in the ACCURACY block above was scored against.  Any
+# re-score of those figures must set it.
+_S_FRAG = (0, 1, 2)                      # the three `S` pieces, in stroke order
+
+
+def _bezier_bridge(a, b, n=9):
+    """Tangent-continuous span from the END of fragment a to the START of b."""
+    p0, p1 = a[-1, :2], b[0, :2]
+    t0 = p0 - a[-2, :2]
+    t1 = b[1, :2] - p1
+    n0 = np.linalg.norm(t0) or 1.0
+    n1 = np.linalg.norm(t1) or 1.0
+    t0, t1 = t0 / n0, t1 / n1
+    # control point: intersection of the two tangent rays, clamped to a sane
+    # distance so a near-parallel pair cannot throw it to infinity.
+    den = t0[0] * (-t1[1]) - t0[1] * (-t1[0])
+    gap = float(np.linalg.norm(p1 - p0))
+    if abs(den) < 1e-6:
+        ctrl = (p0 + p1) * 0.5
+    else:
+        d = p1 - p0
+        u = (d[0] * (-t1[1]) - d[1] * (-t1[0])) / den
+        u = float(np.clip(u, 0.0, 1.5 * gap))
+        ctrl = p0 + t0 * u
+    w0, w1 = float(a[-1, 2]), float(b[0, 2])
+    ts = np.linspace(0.0, 1.0, n + 2)[1:-1]
+    out = []
+    for t in ts:
+        q = ((1 - t) ** 2) * p0 + 2 * (1 - t) * t * ctrl + (t ** 2) * p1
+        out.append((q[0], q[1], w0 + (w1 - w0) * t))
+    return np.array([[p0[0], p0[1], w0]] + out + [[p1[0], p1[1], w1]])
+
+
+def _senor_bridges():
+    """The two spans that make the `S` one continuous letter.  [] if ablated."""
+    if os.environ.get("T1_SENOR_BREAKS") == "1":
+        return []
+    out = []
+    for i, j in zip(_S_FRAG[:-1], _S_FRAG[1:]):
+        a, b = _STROKES[i][1], _STROKES[j][1]
+        if len(a) >= 2 and len(b) >= 2:
+            out.append(("S_bridge", _bezier_bridge(a, b)))
+    return out
+
+
 def draw_senor(c, ypad=0):
     """Draw `Senor` into a script_gen.Canvas.
 
@@ -655,7 +725,7 @@ def draw_senor(c, ypad=0):
     space, so ypad must be at least 12 for the top of the `S` to be drawn.
     Uses only c.stroke(pts, w) and c.cut(pts); no canvas dimension is read.
     """
-    for _name, a in _STROKES:
+    for _name, a in list(_STROKES) + _senor_bridges():
         pts = np.c_[a[:, 0], a[:, 1] + ypad]
         w = a[:, 2]
         if len(pts) < 2:                      # a lone inscribed disc
@@ -946,6 +1016,60 @@ def selftest(threshold=96, verbose=True):
         print()
         print("  strokes %d, points %d, cuts %d"
               % (len(_STROKES), sum(len(a) for _, a in _STROKES), len(_CUTS)))
+        print()
+        # ------------------------------------------------------- rev 61 guard
+        # THE OWNER'S RULING IS ABOUT CONNECTIVITY, SO CONNECTIVITY IS WHAT IS
+        # GUARDED -- NOT IoU.  He ruled the word must read "well defined ...
+        # like new, enhanced from the photo".  IoU against the TARNISHED mask
+        # cannot express that and in fact moves the WRONG WAY when the letter
+        # is restored: bridging lifts the `S`'s drawn ink 334 -> 369 px while
+        # its intersection with the reference moves 323 -> 324, because the
+        # bridged spine covers ink the tarnished photograph does not show.
+        # That is the ruling working as intended, not a regression, and the
+        # `S` IoU MUST NOT be "repaired" by removing the bridges.
+        # WATCHED BOTH WAYS (rule 3 -- a guard is finished when it has been
+        # watched failing): shipped 1 component, T1_SENOR_BREAKS=1 gives 3.
+        from scipy import ndimage as _ndi
+        _nS = _nR = -1
+        for _n, _x0, _y0, _x1, _y1 in _GLYPH_BOXES:
+            if _n != "S":
+                continue
+            _sl = (slice(_y0 - oy, _y1 - oy), slice(_x0 - ox, _x1 - ox))
+            _lg, _nS = _ndi.label(G[_sl])
+            _lr, _nR = _ndi.label(R[_sl])
+            _gs = sorted((int(v) for v in _ndi.sum(G[_sl], _lg,
+                                                   range(1, _nS + 1))),
+                         reverse=True)
+            _rs = sorted((int(v) for v in _ndi.sum(R[_sl], _lr,
+                                                   range(1, _nR + 1))),
+                         reverse=True)
+            # AREA FLOOR: count LETTER PIECES, not specks.  The `S` box
+            # (x 4-32) overlaps the `e` box (x 26-42), so a few px of the `e`
+            # fall inside it; an 8 px speck is not a broken letter.  Floor at
+            # 5 % of the largest piece -- watched: restored [361, 8] -> 1,
+            # ablated [256, 61, 23, 15] -> 4.
+            _gs = [v for v in _gs if v >= 0.05 * max(_gs or [1])]
+            _rs = [v for v in _rs if v >= 0.05 * max(_rs or [1])]
+            _nS, _nR = len(_gs), len(_rs)
+            print("     component sizes (>=5%% of largest)  gen %s   ref %s"
+                  % (_gs, _rs))
+        _abl = os.environ.get("T1_SENOR_BREAKS") == "1"
+        print("  S CONNECTIVITY -- the owner's rev-61 ruling, and NOT IoU")
+        print("     rasterised `S` components: %d      (measured/tarnished "
+              "reference mask: %d)" % (_nS, _nR))
+        print("     bridges drawn: %d   %s" % (len(_senor_bridges()),
+              "TARNISH-FAITHFUL (ablated)" if _abl else "RESTORED per the ruling"))
+        # WATCHED BOTH WAYS (rule 3): restored gen [361] -> 1 component,
+        # ablated gen [251, 61, 14] -> 3.  The 3 confirms this file's own
+        # prose ("an upper C, a detached lower bowl and a 15 px tail
+        # fragment").  RETRACTED IN THE SAME EDIT, rev 61: a first cut of this
+        # guard counted specks and read 2/4, and a comment here "corrected"
+        # the prose to 4.  The prose was right and the guard was wrong -- the
+        # 4 is the REFERENCE mask [256, 61, 23, 15], not the generated one.
+        _want = 3 if _abl else 1
+        print("     [%s] the `S` rasterises as %d component(s); this build "
+              "wants %d" % ("PASS" if _nS == _want else "FAIL", _nS, _want))
+        res["S_components"] = float(_nS)
         print()
         # THE GUARD RUNS HERE, not in a comment.  A green IoU against a
         # reference nobody checked is what shipped the missing tilde.
