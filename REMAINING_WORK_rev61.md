@@ -177,7 +177,7 @@ project revisions.**
 | # | row | the ceiling |
 |---|---|---|
 | **E1** | **F44 / F60 / F62 — THE PAINT'S GLOSS.** `gloss_compare.py` **FAILS at 0.426** (bar 0.60) on `out/r60c_hero.png`, measured this session | **The model-side lever is EXHAUSTED.** F62 measured what this flank actually reflects: a featureless white cyclorama **19.3 m** away. The frame reads as clay because the paint has nothing to reflect. **The owner was shown this, told the cost, offered four routes, and ruled *"keep studio, fix the model"*.** The gate is a RULER, not a verdict |
-| **E2** | **F67's RESIDUE — the ground shadow.** G4 **0.3599** built / 0.5607 ablated / **0.2590** at the top of the photographed ceiling band / **0.057** photographed. Measured this session | **APPORTIONED at rev 60c, which is new:** the assumed 0.090 m drop owns **0.0995** of the residue; even at the most generous drop the photograph is still **0.202** away, **and that remainder is the studio — E1's ceiling**. The shipped constant stays 0.090 deliberately: the 0.137–0.155 m band is a CEILING containing both the metal and the ground shadow, and setting a constant to a ceiling would assume the band is all metal. **A low raking shot under the sill is the one new frame that would settle it** |
+| **E2** | **F67's RESIDUE — the ground shadow.** G4 **0.3602** built / 0.5475 ablated / **0.2581** at the top of the photographed ceiling band / **0.057** photographed. Measured this session | **APPORTIONED at rev 60c, which is new:** the assumed 0.090 m drop owns **0.1021** of the residue; even at the most generous drop the photograph is still **0.202** away, **and that remainder is the studio — E1's ceiling**. The shipped constant stays 0.090 deliberately: the 0.137–0.155 m band is a CEILING containing both the metal and the ground shadow, and setting a constant to a ceiling would assume the band is all metal. **A low raking shot under the sill is the one new frame that would settle it** |
 | **E3** | **F83 — the front arch** | Real, but **4.4 mm rms**, inside SPEC §2's ±8 mm lock, forward half unrecoverable. **Owner ruled *"leave it circular"*. Do not build it and do not mirror it.** `probe_rev59_door` M3 stays failing as the honest open record |
 | **E4** | **F80 — the headlamp reads as a dark hole** | **Ceiled to the surround** — the photograph has a sky for the lens to reflect and the studio does not. **F86 is the part that is NOT ceiled (see B6)** |
 | **E5** | **F08 — the badge STROKE WEIGHT** | **CEILED-rev57.** Different finding from F63. The photograph cannot resolve the V/W centre gap at 68 px |
@@ -237,7 +237,7 @@ verify_clone.sh       ALL 268 PASS on a clean tree   <- 0 FIDELITY, 268 SELF-CON
 VERIFY (in build)     0 fail, 0 warn at SUB=1 AND SUB=2
   underbody proudness worst -55.8 mm, INBOARD of the skin everywhere
   underbody/shell fit worst intrusion +10.5 mm over 1400 perimeter stations, both signs of y
-probe_rev45_ground    5 checked, 0 FAILED.  G4 0.3599 built / 0.5607 ablated / 0.057 photographed
+probe_rev45_ground    5 checked, 0 FAILED.  G4 0.3602 built / 0.5475 ablated / 0.057 photographed
 flank_compare.py      FAIL  worst region `i` 0.684 (bar 0.75)
 gloss_compare.py      FAIL  0.426 (bar 0.60)
 textures              8 of 9 >= 3072 px; emblem.png 1024 BLOCKED

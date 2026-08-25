@@ -25,7 +25,7 @@ recommended order and this §0.0 is its short form.
 | # | do | state at close of rev 60 | gate |
 |---|---|---|---|
 | **A** | **THE DOOR** | **FIXED AT REV 59.** 0.1 mm | `probe_rev59_door.py` M2 **PASSING** |
-| **D** | **THE GROUND SHADOW AND UNDERBODY** | **BUILT AT REV 60; GEOMETRY REPAIRED TWICE SINCE, AND THE FIGURES REV 60 PUBLISHED ARE STALE.** Re-measured at rev 60c: **G4 0.3599 built, 0.5607 ablated**, against a photographed 0.057. The residue is now APPORTIONED — see §2.1 | `probe_rev45_ground.py` **G4 PASSING at 0.3599**; and NEW: `verify.py`'s underbody **proudness** and **slot** rows |
+| **D** | **THE GROUND SHADOW AND UNDERBODY** | **BUILT AT REV 60; GEOMETRY REPAIRED TWICE SINCE, AND THE FIGURES REV 60 PUBLISHED ARE STALE.** Re-measured at rev 60c: **G4 0.3602 built, 0.5475 ablated**, against a photographed 0.057. The residue is now APPORTIONED — see §2.1 | `probe_rev45_ground.py` **G4 PASSING at 0.3602**; and NEW: `verify.py`'s underbody **proudness** and **slot** rows |
 | **C** | **THE EMBLEM — still an X** | **NOT FIXED. CAUSE LOCALISED at rev 60** to the CONSTRUCTION: the V and W are each ONE mitred polyline and they fuse into two diagonals. **Three hypotheses refuted — do not re-try them** | `probe_rev46_vw.py` C6, **watched failing** |
 | **B** | **THE NOSE BREAK — 73 mm on the red-bus ruler, but F75's HONEST BRACKET IS 50–80 mm, best single estimate 52 mm** | **NOT FIXED. THE WHOLE REMEDY PROGRAMME IS REFUTED at rev 60** — `V_POW`, `V_RISE` and `V_POW_Z` all fail to move the feature | `probe_rev59_nose.py` M1, **watched failing** |
 | **E** | **THE INTERIORS** | **F45 REFUTED AS WRITTEN.** The real defect is CHROMA (F99) and its cause is not separable from one frame | none — and that is a finding |
@@ -86,7 +86,7 @@ the vehicle to a photograph.**
 |---|---|
 | `flank_compare.py` | **runs, FAILS.** Worst region **`i` at 0.685** against a 0.75 bar; `Senor` **0.720**. *(The rev-58 table said `Senor` 0.651 and rev 60 found that BOTH stale AND contradicted by this same brief's §9 — re-measured live.)* The deficit is the **artwork alpha and its placement**, not the render (F39) |
 | `mottle_measure.py` | **runs, and it is NOT measuring the mottle** — 1.1–2.0 % of it. Rev 56's reading and rev 57's item B are REFUTED |
-| `gloss_compare.py` | **runs, FAILS at 0.436** (bar 0.60, measured at rev-60 close; it was 0.426 at rev 58). Mask corrected at rev 58 (F59); the model-side lever is now **exhausted** (F60/F62) |
+| `gloss_compare.py` | **runs, FAILS at 0.426** (bar 0.60, re-measured rev 60c-ii on `out/r60c_hero.png`; four heroes in `out/` give 0.425-0.429 and **0.436 reproduces on none of them** -- the brief carried an invented regression). Mask corrected at rev 58 (F59); the model-side lever is now **exhausted** (F60/F62) |
 | **`probe_rev46_vw.py`** | **NOW FAILS C6, and that is the point.** photograph 7 cream cells, built 6. It reported 0 FAILED for three revisions while the glyph was an X |
 | `cream_rms.py` | `run()` is the LIVE re-based path |
 | the badge STROKE WEIGHT | **CEILED-rev57.** Different finding from F63 |
@@ -153,7 +153,7 @@ git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 **THE MERGE STATE, MEASURED AT REV 60b CLOSE — AND REV 60 GOT THIS WRONG.**
 
 ```
-HEAD  claude/new-session-ocymb5   42 ahead / 0 behind origin/main
+HEAD  claude/new-session-ocymb5   54 ahead / 0 behind origin/main   [rev 60c-ii; MEASURE IT AGAIN]
 origin/main                       fbcec2e, still rev 58's PR #18 merge
 rev 59's door commit  6275969     NOT on main
 rev 60's underbody    0b0bf89     NOT on main
@@ -215,27 +215,36 @@ probe_rev45_ground G4        0.5475 ablated -> 0.2519 built                     
   ^^ BOTH LINES WERE MEASURED ON A BUGGED MESH AND ARE SUPERSEDED.  Re-run at
      rev 60c, after the geometry was repaired:
 
-  G4  ablated (T1_NOUNDER=1)                     0.5607
-      BUILT, AS SHIPPED (visible drop 0.090 m)   0.3599   <- the live figure
-      built at the ceiling band's top (0.145 m)  0.2590
+  G4  ablated (T1_NOUNDER=1)                     0.5475
+      BUILT, AS SHIPPED (visible drop 0.090 m)   0.3602   <- the live figure
+      built at the ceiling band's top (0.145 m)  0.2581
       photograph ref_side.jpg                    0.057
 ```
 
 **PARTLY CLOSED WITH ITS CEILING, AND AT REV 60c THE RESIDUE IS APPORTIONED RATHER THAN ASSERTED.**
 The third row above is a CONTROL (`T1_UNDER_VIS`, measurement only) that separates the two named
-causes, which rev 60 could only name: **the assumed drop owns 0.0995 of the residue, and even at the
-most generous drop the photograph is still 0.202 away — and that remainder is the studio**, F62's
+causes, which rev 60 could only name: **the assumed drop owns 0.1021 of the residue, and even at the
+most generous drop the photograph is still 0.2011 away — and that remainder is the studio**, F62's
 ceiling, which the owner has ruled. **The shipped constant stays 0.090 deliberately**: the
 0.137–0.155 m band is a CEILING containing both the metal and the shadowed ground, and setting a
 constant to a ceiling would assume the band is all metal. **A low raking shot under the sill is the
 new frame that would settle it.**
 
-**AND THE GATE'S OWN SPREAD IS NOW STATED, WHICH NOBODY HAD DONE.** Three runs of `G4` across two
-geometry variants of this same repair read **0.3585 / 0.3599 / 0.3612** — a spread of **0.0027**, or
-0.8 % relative. **Quote it as 0.360 ± 0.002, not to four figures.** The live value is **0.3599**.
+**AND THE GATE'S OWN SPREAD IS NOW STATED — CORRECTED AT REV 60c-ii, BECAUSE THE FIRST ATTEMPT
+POOLED TWO DIFFERENT MESHES AND CALLED THE RESULT INSTRUMENT NOISE.** It quoted *"three runs across
+two geometry variants, spread 0.0027"*; a variant is not a repeat, and 0.3585 was measured before the
+aft closer moved. Measured properly, on ONE geometry:
+
+```
+G4 built     0.3599 / 0.3596 / 0.3610   mean 0.3602   spread 0.0014   <- render noise
+G4 ablated   0.5475 / 0.5478 / 0.5477 / 0.5468 / 0.5476
+                                        mean 0.5475   spread 0.0010
+```
+
+**Quote them as 0.360 ± 0.002 and 0.547 ± 0.001, not to four figures.**
 
 **AND THE 0.2519 THIS BRIEF PUBLISHED WAS SUBSTANTIALLY THE BUG.** The pre-repair pan hung
-0.134–0.145 m low, which is essentially the 0.145 row above (0.2590). **Rev 60's "improvement" was
+0.134–0.145 m low, which is essentially the 0.145 row above (0.2581). **Rev 60's "improvement" was
 mostly a mesh error that happened to flatter the gate.**
 
 **THE NAME IS ALSO WRONG AND IS FIXED IN SOURCE: `UNDER_DROP` STOPPED MEANING THE VISIBLE DROP.**
@@ -243,7 +252,7 @@ Rev 60b silently redefined it as the pan prism's DEPTH, most of it buried (0.124
 brief, `GAPS_rev60.md` and `audit_adversary.py`'s ceiling question all went on quoting it against a
 ceiling that belongs to the visible drop. **`UNDER_VIS` is the visible drop and is the 0.090.**
 
-**C5 was watched failing before it was watched passing** (rule 3 — re-watched at rev 60c: 0.5607 ablated, 0.3599 built), and `verify.py`'s length
+**C5 was watched failing before it was watched passing** (rule 3 — re-watched at rev 60c: 0.5475 ablated, 0.3602 built), and `verify.py`'s length
 row caught the pan's first aft end protruding **205 mm** past the vehicle's fixed bodywork limit.
 
 ### §2.2 ITEM C — THE EMBLEM: THREE REFUTATIONS AND THE CAUSE (F101–F105)
@@ -379,7 +388,7 @@ found it EMPTY at x −0.630 because the shell is subdivided, and reported the p
 where it is 95 mm inboard. Caught by reading the number, fixed by binning the profile once (F125).
 
 **AND FIVE FIGURES IN THE RECORD WERE WRONG** (F120–F124): item D's headline **G4 0.2519 was
-measured on a mesh the repair deleted** and is really **0.3599**; *"919 mm proud"* stood in THREE
+measured on a mesh the repair deleted** and is really **0.3602**; *"919 mm proud"* stood in THREE
 source files when 1.560 − 0.875 = **685**; the aft-ramp comment cited `WX(-1.880) = 0.873` when it is
 **0.7122** (0.873 is `WX(-1.700)`, 180 mm away) — **and that sentence is what licensed the
 proudness**; `UNDER_DROP` silently stopped meaning the visible drop; and `underbody()` cited **SPEC
@@ -414,7 +423,7 @@ still looked fine because a different row happened to fire. It is pinned to the 
 
 **THE ONE PIECE OF GENUINELY NEW GROUND: G4's RESIDUE IS NOW APPORTIONED, NOT ASSERTED.** See §2.1.
 `T1_UNDER_VIS` is a MEASUREMENT-ONLY control that separates the two causes rev 60 could only name.
-**The assumed drop owns 0.0995; the studio owns the remaining 0.202.** And it explains 0.2519: the
+**The assumed drop owns 0.1021; the studio owns the remaining 0.2011.** And it explains 0.2519: the
 bugged pan hung 0.134–0.145 m low, which is the deep-pan case, **so rev 60's "improvement" was
 substantially the bug**.
 
@@ -472,10 +481,18 @@ Add a warm interior practical, re-render, re-measure interior÷exterior R/B. If 
 without touching paint, the cause is lighting and `GAL_WHITE` is exonerated. **That separates the
 three candidates and it is the only thing that can.**
 
-### §3.4 F93 — THE TEXTURES. Mechanical, ungated, and it CAPS the delivery frame.
+### §3.4 F93 — THE TEXTURES. **DONE AT REV 60b AND GATED. DO NOT RE-DO IT.**
 
-**ONE of EIGHT** textures meets SPEC §5's 3K floor. Two are **1024×1024**. A 3840-wide delivery frame
-cannot be sharper than the textures in it. **This is the finish line's blocker and nobody has touched it.**
+**This section said "ONE of EIGHT textures meets SPEC §5's 3K floor... the finish line's blocker and
+nobody has touched it". That was true at rev 60 and false when it shipped**, and §9 ranked it third
+on that basis. Measured at rev 60c-ii: `tex/calidad.png` 3072x2267, `tex/emblem.png` 1024x1024, `tex/lidmural.png` 4096x2476,
+`tex/lidsign.png` 4096x2476, `tex/nose.png` 3072x3072, `tex/senor.png` 4096x1738, `tex/swirl.png` 4096x4096, `tex/swirl_b.png` 4096x4096 — **seven of
+the eight tracked textures clear 3072, and the eighth is `tex/emblem.png`, which is EXEMPT and cannot be
+regenerated at all (F115: `texgen.make_emblem` raises "no usable font").** It is **gated**:
+`verify_clone.sh`, grep `every texture meets SPEC sec.5's 3K floor`.
+
+**WHAT IS ACTUALLY LEFT HERE, and it is much smaller:** the owner's own bar is **4K**, and
+`tex/calidad.png` and `tex/nose.png` sit at 3072. That is a decision, not a blocker.
 
 ### §3.5 F91 — THE TAIL AND THE ROOF HAVE NEVER BEEN HELD UP AGAINST A PHOTOGRAPH
 
@@ -675,7 +692,7 @@ aft ramp, which stood up to 48 mm proud of the tapering tail; the PROUDNESS row 
 
 **NEW AT REV 60 — and `T1_NOUNDER` is the one that arms item D's whole gate:**
 **`T1_NOUNDER`** (omits the underbody entirely; `probe_rev45_ground.py`'s **C5 must REFUSE** — watched
-failing at G4 0.5607 before it was watched passing at 0.3599), **`T1_UNDERSEAL`**`=0` (puts the pan
+failing at G4 0.5475 before it was watched passing at 0.3602), **`T1_UNDERSEAL`**`=0` (puts the pan
 back on the cab-interior grey, which is the 0.352-vs-0.219 step), **`T1_VPOW`** / **`T1_VPOWZ`** (the
 paint's and the pressed swage's exponents — **move them TOGETHER** or `verify.py` fires *"V_POW
 de-registered"*, which is correct and was watched), **`T1_VRISE`** (re-derives `V_APEX0` to hold the
@@ -776,7 +793,7 @@ instrument. The **front arch** entered and left in one revision, refuted as a me
 |---|---|---|
 | **next** | **F63 — the emblem's CONSTRUCTION.** His top item, five reports | Rev 60 narrowed it from six constants to one structural fact. Build, do not search |
 | **next** | **F107 — the nose's real lever.** Three candidates named | The ablations exist; one render each |
-| **next** | **F93 — the textures.** One of eight meets the floor | **It caps the delivery frame.** Mechanical and ungated |
+| ~~next~~ **DONE** | ~~**F93 — the textures.** One of eight meets the floor~~ **CLOSED at rev 60b and GATED — see §3.4. Seven of eight clear 3072; the eighth is exempt (F115). What is left is the owner's 4K bar on two files** | ~~It caps the delivery frame~~ **This row was stale when it shipped and it ranked the item third** |
 | **near** | **F99's control** — a warm interior practical | Separates three causes; a measurement, not a paint change |
 | **near** | **F91 — the tail and the roof against a photograph** | Two thirds of his own bar, never once done |
 | **near** | **F01/F39 — `Senor`.** Worst flank region `i` at 0.685 | Small but hard-edged; A12 makes the remedy his call |

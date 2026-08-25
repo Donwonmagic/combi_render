@@ -129,20 +129,96 @@ def walk(lum, u_start, v_start, u_end, half, mind):
 def feet(pts, frac=0.18):
     """The two flats and the ramp between them, segmented BY THE FLAT LEVELS
     THEMSELVES rather than by a slope threshold -- the same code then works at
-    both image scales.  A slope threshold did not (rms 9.9 px on the render)."""
+    both image scales.  A slope threshold did not (rms 9.9 px on the render).
+
+    rev 60c-ii -- THE RAMP IS FITTED u-ON-v, NOT v-ON-u, AND THAT IS THE WHOLE
+    POINT.  The shut line steps down about 78 px over roughly 25 px of u, so
+    |dv/du| ~ 3: fitting v as a function of u across it is ILL-CONDITIONED,
+    and the returned feet -- (zl - p1)/p0 -- divide by that badly-determined
+    slope.  Measured consequence: the rev-60c underbody let the tracked walk
+    run THREE COLUMNS further before its `mind` break (116 points against
+    113), and on walks otherwise IDENTICAL to under 1.1 px the old fit flipped
+    from (b 347.96, a 376.19, rms 1.13) to (b 289.84, a 425.79, rms 12.47).
+    C4 and C5 both went red on a door that had not moved, and NOTHING in the
+    tree reported it -- verify.py, verify_clone.sh and both audits were green
+    throughout.  An independent adversary found it by rendering the live tree
+    and re-running this probe.
+
+    v spans the full step while u spans only the ramp's width, so u-on-v is
+    the conditioned regression and the feet come straight out of it with no
+    division by a slope at all."""
     u, v = pts[:, 0], pts[:, 1]
     o = np.argsort(u); u, v = u[o], v[o]
     k = max(3, int(frac * len(u)))
     zl, zr = np.median(v[:k]), np.median(v[-k:])
     D = zl - zr
     band = (v > zr + 0.18 * D) & (v < zl - 0.18 * D)
-    p = np.polyfit(u[band], v[band], 1)
-    res = v[band] - np.polyval(p, u[band])
-    return ((zl - p[1]) / p[0], (zr - p[1]) / p[0], zl, zr,
+    # rev 60c-ii -- AND THE BAND MUST BE THE CONTIGUOUS RUN, NOT EVERY POINT
+    # WHOSE v HAPPENS TO LIE IN THE RANGE.  The shut line does not stop at the
+    # lower flat: past it the tracked feature RISES again at the door's
+    # forward end, and that rise re-enters the same v range 48 columns away
+    # from the ramp.  Measured: on the live tree the band held u 305 (v 820.2)
+    # and u 306 (v 824.0) alongside the ramp at u 353-372, and the fit's rms
+    # went to 13.7 px.  Whether those two columns exist at all depends on
+    # where the walk's `mind` break happens to land -- the rev-60c underbody
+    # moved it by three columns, which is how a door that had not moved took
+    # C4 and C5 red.  The ramp is ONE connected segment between the flats;
+    # anything disconnected from it is a different feature.
+    if band.any():
+        idx = np.nonzero(band)[0]
+        cut = np.nonzero(np.diff(idx) > 1)[0]
+        runs = np.split(idx, cut + 1)
+        keep = max(runs, key=len)
+        band = np.zeros_like(band); band[keep] = True
+    q = np.polyfit(v[band], u[band], 1)          # u = q0*v + q1  -- CONDITIONED
+    res = u[band] - np.polyval(q, v[band])
+    return (np.polyval(q, zl), np.polyval(q, zr), zl, zr,
             np.sqrt((res ** 2).mean()), int(band.sum()))
 
 
+def selftest():
+    """RUN THE INSTRUMENT ON A CASE WHOSE ANSWER YOU KNOW.
+
+    rev 60c-ii.  `feet()` had two defects that took C4 and C5 red on a door
+    that had not moved (F131), and neither could be watched through an
+    ablation: T1_DOOR_STALE refuses at BUILD time, so it never produces a
+    frame this probe could read.  This is the control instead -- a synthetic
+    flat/ramp/flat whose feet are known BY CONSTRUCTION, with and without the
+    contaminant that caused the failure (the door's forward-end rise
+    re-entering the ramp's v band 40-odd columns away).
+
+    Watched, and this is what makes the fix a fix rather than an opinion:
+
+        clean step                OLD  b -0.00   a +0.00     NEW  b -0.00  a -0.00
+        with the forward-end RISE OLD  b -50.37  a +47.59    NEW  b -0.00  a -0.00
+    """
+    us, vs = [], []
+    for u in range(372, 421):
+        us.append(u); vs.append(765.0)                       # upper flat
+    for u in range(348, 372):
+        us.append(u); vs.append(765.0 + (372 - u) * (78.0 / 24.0))   # the ramp
+    for u in range(310, 348):
+        us.append(u); vs.append(843.0)                       # lower flat
+    clean = np.array(list(zip(us, vs)), dtype=float)
+    for u in (307, 306, 305):
+        us.append(u); vs.append(843.0 - (308 - u) * 6.0)     # the CONTAMINANT
+    dirty = np.array(list(zip(us, vs)), dtype=float)
+
+    bad = 0
+    for tag, pts in (("clean step", clean), ("with the forward-end rise", dirty)):
+        b, a, zl, zr, rms, n = feet(pts)
+        ok = abs(b - 348.0) < 0.5 and abs(a - 372.0) < 0.5
+        bad += 0 if ok else 1
+        print("  %-4s %-26s b %7.2f (%+6.2f)  a %7.2f (%+6.2f)  rms %.3f"
+              % ("PASS" if ok else "FAIL", tag, b, b - 348.0, a, a - 372.0, rms))
+    print("  feet() selftest: %d checked, %d FAILED  -- the feet are known BY "
+          "CONSTRUCTION, so a failure here is the INSTRUMENT" % (2, bad))
+    return 1 if bad else 0
+
+
 def main():
+    if "--selftest" in sys.argv:
+        return selftest()
     frame = sys.argv[1] if len(sys.argv) > 1 else None
     if not frame or not os.path.exists(frame):
         print("NO RENDER -- pass a side-elevation render as argv[1]; out/ is "
