@@ -20,16 +20,57 @@ bloom → CA → vignette → grain, defaults every gain to **0.0**, and the pre
 called it**, so *sixty revisions of fidelity judgement were made on raw frames* (F146). Judge
 photorealism on the `_post` set, never on the raw one.
 
-**READ `LEDGER_rev61.md` §4 BEFORE YOU PROPOSE ANY FIX.** It lists **NINE proposals killed by
-ablation at rev 61**, four of them from the expert panel the owner commissioned. If your idea is
-on that list it is already dead and the measurement is there.
+**READ `LEDGER_rev61.md` §4 BEFORE YOU PROPOSE ANY FIX** — and read its ⚠ block first. It lists
+nine proposals rev 61 killed, **five** of them from the expert panel the owner commissioned.
+**FOUR were killed by ABLATION; four by source inspection or mesh measurement, which is weaker;
+and ROW 1 IS NOT A KILL AT ALL — it is a RETRACTION, and the lever it names (the 0.860 divisor)
+is ALIVE.** An adversary caught an earlier draft of this very sentence telling you to strike it.
 
 ---
 
 ## §0.05 THIS BRIEF WAS AUDITED AGAINST THE MACHINE, AND SO WAS THE LAST ONE
 
-**Rule 15/17.** An independent adversary was put on the OUTGOING document, not only the incoming
-one. What it found is recorded in §0.07 below rather than quietly fixed.
+**Rule 15/17.** An independent adversary was put on the OUTGOING documents — this brief,
+`LEDGER_rev61.md`, `PANEL_rev61.md` and the F134–F150 rows — not only the incoming one.
+**IT RETURNED TWENTY FINDINGS, and the first draft of THIS SECTION was one of them**: it claimed
+the audit had happened and pointed at §0.07, which contains gate output and nothing else. **The
+worst five, all fixed rather than argued away:**
+
+* **§0.0 TOLD YOU TO TREAT `LEDGER_rev61.md` §4 AS A KILL LIST — AND ITS ROW 1 IS A LEVER §0.06
+  SAYS IS ALIVE.** Row 1 is a RETRACTION of a false refutation: the 0.860 divisor **does** move
+  the nose break (1.789 → 3.917). Two sections of one brief said opposite things about one
+  constant. **Fixed in both documents.** *Also: only FOUR of the nine were killed by ABLATION —
+  four fell to source inspection or mesh measurement, which is weaker — and FIVE are
+  panel-sourced, not four.*
+* **FOUR HEADLINE RESULTS RESTED ON INSTRUMENTS THAT WERE NEVER COMMITTED** — the
+  8,174-candidate emblem solve, the cream's blotch, the `T1_WORLD` trade and the bulb ratio.
+  In a project whose rule 8 is *"a measurement's window is part of the measurement"*, a figure
+  whose instrument cannot be re-run or re-windowed is a CLAIM. **All four are now
+  `probe_rev61.py`, each painting its window.**
+* **F139 PUBLISHED MEASURED FIGURES FOR AN INSTRUMENT THAT DOES NOT EXIST.** It said `midruns`
+  was *"watched failing"* at photograph 5 / build 3; `grep -rn midruns *.py` returns nothing.
+  **The figures are withdrawn; the idea is kept and marked as needing to be BUILT.**
+* **`audit_adversary.py` HAD THE INCOMING BRIEF HARDCODED**, so its "0 BROKE" was about the
+  document rev 61 *received*, never the one it ships. **Fixed to auto-detect — and it
+  immediately fired on a carrier this brief had dropped.**
+* **THE M1 FIGURES CAME FROM AN ABLATION FRAME.** `2.114 / 1.550` reproduce only on
+  `out/vp052_front.png`; the shipped-state frame reads **2.115** and **1.549 / 1.585** — and
+  that bezel pair is TWO LAMPS 2.3 % APART, published as one number in four documents.
+
+**AND `verify_clone.sh` DID NOT PASS AT THE HANDOFF COMMIT.** It ended **267 PASSED, 4 FAILED**
+at `810f361` — two of them because this brief had dropped `cream_rms` and the ranking rule, and
+one because `STATE.md` and the replaced adversary questions were left uncommitted. Fixed at
+`f3d864a`. **The claim `verify_clone.sh` **ALL 271 PASS** was published true-of-the-tree-later and untrue-of-the-
+commit-that-shipped-it. Run it yourself.**
+
+**WHAT SURVIVED THE ATTACK, and it is worth as much as what fell:** C8 and C9 in full; the
+nose's +24 mm (the adversary measured +24.5 against F77's predicted +24.5); the bezel bug and
+its hand-walk cross-check to 0.001; every `flank_compare` and `senor_trace` figure exactly;
+`post.py`'s four-frame numbers exactly; F77 end to end; and `T1_WORLD`'s direction and magnitude
+on a DIFFERENT red window (1.226× against this brief's 1.218×). **And it STRENGTHENED C8**: the
+probe tests only 276 and 69 rows, both inside the range where C6 is also stable — the adversary
+ran the full ladder and found C8 holds at **41 rows, the photograph's own scale, where C6
+collapses 6 → 4.** The claim is better-supported than this brief made it.
 
 **AND REV 61 RETRACTED THREE OF ITS OWN PUBLISHED CLAIMS.** *"M1 PASSES — item B is fixed"*
 (a ruler mismatch, F136); *"the 0.860 divisor is dead"* (the gate was blind, F134); and a source
@@ -52,7 +93,7 @@ offset from the lamp centre, so M1 returned ~1.18 **whatever the paint did**.
 render                 M1 said     TRUE break
 V_POW 0.60 (was)         1.183       1.789
 V_POW 0.15               1.186       3.800
-T1_VNOSE_DIV 0.600       1.184       3.788
+T1_VNOSE_DIV 0.600       1.184       3.917
 ```
 
 **THEREFORE F106 AND F107 ARE RETRACTED.** `V_POW`, `V_POW_Z`, `V_RISE` and the 0.860 divisor
@@ -79,8 +120,11 @@ estimate **52 mm**, no single constant fixes it.
 ```
 bootstrap.sh          ALL 10 PASS
 verify_clone.sh       ALL 271 PASS on a clean tree   <- 0 FIDELITY, 271 SELF-CONSISTENCY
-probe_rev59_nose      M1 PASSES lens-ruled at 2.114  <- NOT item B closed, see F136
-                      BEZEL-ruled 1.550 against a rim-ruled bar 1.951..2.121
+probe_rev59_nose      on out/r61f_front.png, THE SHIPPED-STATE FRAME:
+                      M1 PASSES lens-ruled at 2.115  <- NOT item B closed, see F136
+                      BEZEL-ruled 1.549 / 1.585  <- TWO LAMPS, 2.3 % APART.  Quote BOTH.
+                      (2.114 / 1.550 reproduce only on out/vp052_front.png, a T1_VPOW
+                       ablation frame -- an adversary caught four documents quoting it)
 probe_rev46_vw        9 checked, 2 FAILED -- C6 and C8
                       C8 photograph 3.39, built 1.49, A PLAIN CROSS 1.39
 flank_compare.py      FAILS: worst region `i` 0.687;  `Senor` 979 px of ink against 1261
@@ -93,7 +137,7 @@ evidence about the vehicle. **Not one of those 271 rows compares the model to a 
 
 ---
 
-## §0 THE GOAL, AND HOW FAR OFF IT WE ACTUALLY ARE
+## §0. THE GOAL, AND HOW FAR OFF IT WE ACTUALLY ARE
 
 **CARRIED FORWARD FROM THE REV-55…61 BRIEFS. It is not mine and it is not to be dropped —
 rule 16.**
@@ -103,6 +147,23 @@ Señor Tacombi combi in the frames on this repo. **Any single measurement off is
 per-measurement and not on average.** A model right in ninety places and wrong in one is not
 99 % done, because he will look straight at the one. **At rev 58 he did exactly that, at the
 emblem, for the fifth time. At rev 61 he did it again, for the sixth.**
+
+**AND HERE IS THE HONEST DISTANCE — THE GATE TABLE, WHICH AN ADVERSARY CAUGHT THIS BRIEF
+DROPPING.** `verify_clone.sh` ends **ALL 271 PASS** and its own verdict block says what that is
+worth: **0 FIDELITY, 271 SELF-CONSISTENCY.**
+
+| gate | state MEASURED at close of rev 61 |
+|---|---|
+| `flank_compare.py` | **runs, FAILS.** Worst region **`i` at 0.687**; `Senor` **979 px of ink against 1261 (77.6 %)** at 0.721 of its ceiling. The deficit is the **artwork's alpha and its placement**, not the render (F39) |
+| `gloss_compare.py` | **runs, FAILS at 0.426** (bar 0.60). The model-side lever is EXHAUSTED (F60/F62) — **but F62's ceiling is now DISPUTED on measurements, see §3 item 4** |
+| `probe_rev46_vw.py` | **C6 AND C8 both FAIL.** C8: photograph 3.39, built 1.49, a plain cross 1.39 |
+| `probe_rev59_nose.py` | **M1 PASSES lens-ruled — AND THAT IS NOT CLOSURE (F136).** Bezel-ruled 1.549 / 1.585 against a rim-ruled 1.951–2.121 |
+| `mottle_measure.py` | **runs, and it is NOT measuring the mottle** — 1.1–2.0 % of it. Rev 56's reading and rev 57's item B are REFUTED |
+| `probe_rev45_ground.py` | item D's gate, and `T1_NOUNDER`'s only consumer. **G4 0.3602 built / 0.5475 ablated / 0.057 photographed** |
+| `probe_rev59_door.py` | item A's gate, and `T1_DOOR_STALE`'s. **8 checked, 1 FAILED (M3, BY DESIGN)** |
+| `cream_rms.py` | `run()` is the LIVE photograph-side cream path |
+| `visibility_budget.py` | the RANKING, not a gate — and **pass it the frame** (F132) |
+| everything else | self-consistency |
 
 **AND AT REV 61 HE ADDED A STANDARD.** *"I want this 3d model to look like new. Enhanced from
 the photo."* That is not the same as WEATHERED, which SPEC §3 locks. **Where the two collide,
@@ -133,6 +194,9 @@ a time:
   chrome PRESSING, which is geometry and DOES transfer; only its colour is artwork (F141).*
 * **AND RULE 11 APPLIES BETWEEN LIVERY STATES OF THE SAME VEHICLE**, which is what killed F99,
   F100 and F140: `ref_nolita_front34b.jpg` has a chalkboard lid and no folk art.
+* **derived/annotated** — `ref_grid.png`, `ref_side_grid.png`, `ref_nose_grid.png`,
+  `ref_band_grid.png`, `ref_x6_lanczos.png` *(the last is a 6× upsample of the RETIRED
+  thumbnail — "interpolation, no new information", so it adds nothing)*
 * **retired** — `ref_source.jpeg`, a 246×197 thumbnail the record itself retired
 * a **floor of 54** reference-class tracked images, and **the five byte-identical pairs are
   asserted to stay five** — a sixth group means a frame arrived that duplicates one we hold,
@@ -161,6 +225,11 @@ git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 were merged by PR #19, which the rev-61 brief did **not** know. **That is the eighth consecutive
 revision whose prose guessed the merge state. Measure it.**
 
+**AND MEASURE IT AGAIN BEFORE YOU FINISH.** `origin/main` moved mid-revision at rev 51 and
+rev 55. **At rev 61's CLOSE, HEAD was 16+ ahead / 0 behind `origin/main`** — the pickup
+figure above is NOT the close figure, and an adversary caught this section shipping only
+the pickup one.
+
 **AND THE ELEVENTH DELETION HAPPENED, ON SCHEDULE.** `fetch --prune` printed
 `- [deleted] origin/claude/senor-tacombi-rev-61-99pz2u` — **this revision's own branch**, before
 anything had been pushed to it, the SIXTH RUNNING. It was recreated by the first push.
@@ -180,8 +249,11 @@ six-constant cell-count solve            7 cells only at residual 0.2498  (F103)
 separate strokes                         rev 8 did it and got an X        (F113)
 the V/W kink                             the PHOTOGRAPHS have the same kink, OPPOSITE SIGN
                                          (-8..-10 deg photographed vs +10.1 built)  (F138)
-the terminal angles off the badges       BUILT IT: elongation 1.54, residual 0.1800,
-                                         both WORSE than shipped           (F141)
+the terminal angles off the badges       BUILT IT: residual 0.1800, WORSE than the
+                                         deliberately-bad rev-45 control (0.1167).
+                                         NOTE elongation went 1.49 -> 1.54, i.e. very
+                                         slightly BETTER -- an adversary caught an
+                                         earlier draft calling both 'worse'    (F141)
 ```
 
 **THE X IS NOW A NUMBER (F137).** C6 counts cells and F105 showed that count is not
@@ -224,6 +296,11 @@ pixels are not visibility — a hard-edged error reads louder per pixel than a s
 for ORDERS OF MAGNITUDE, not to rank neighbours. And the owner outranks it**, which he used at
 rev 58 and again at rev 61.
 
+
+**WHICH RANKING GOVERNS: THIS ONE.** `REMAINING_WORK_rev61.md` remains a CARRIER and its
+§I still holds 27 untriaged rows — but it predates rev 61's retractions and its §A/§B
+ordering is superseded by the list below. `PANEL_rev61.md` is a carrier too and its
+ranked programme is **annotated in place** where rev 61 refuted it — read the ⚠ marks.
 
 **Ranked. `PANEL_rev61.md` carries the full merged programme with the panels' own point
 estimates — but read §4 of `LEDGER_rev61.md` first, because FOUR of the panel's top items are
@@ -278,6 +355,13 @@ studio *"keep studio — ruling stands"* (twice); the front arch *"leave it circ
 Well defined. I want this 3d model to look like new. Enhanced from the photo."*** That closed
 `senor_trace.py`'s standing owner-decision. **It also creates a live tension with SPEC §3's
 WEATHERED lock — surface it, do not silently pick a side.**
+
+**CARRIED FROM REV 53, AND STILL IN NO OTHER DOCUMENT — an adversary caught rev 62's first
+draft dropping it, which is the mechanism that lost the die-cut sticker at rev 44 and the
+findings register at rev 45:** a frame showing the cream **where it IS chipped**. Rev 54 and
+rev 55 both lowered its urgency — the band is 0.27 px at every scale this project ships, and
+the gate that would place those chips is not built — but it is **not struck**, and F19 covers
+the MODELLING of chipping, not the photograph request.
 
 **AND HE VOLUNTEERED, STILL BINDING:** the emblem needs a fix, and **the full delivery render
 waits until the model is right.**
@@ -363,6 +447,40 @@ python3 audit_brief.py ; python3 audit_adversary.py          # rules 15 and 17, 
 `T1_DOOR_STALE`, `T1_NORIG`, `T1_RIG`, `T1_WORLD`, `T1_MOT_AMP`, `T1_GL_WRGH`, `T1_BODY_RGH`,
 `T1_GC_ABSSPREAD`, `T1_GC_LOOSEMASK`, `T1_GL_TILES`, `T1_PG_PAINT`, `T1_BAREMAT`, `T1_CLAY`.
 
+**THE GATES THE ABLATIONS EXIST TO MAKE REFUSE — an adversary caught this brief listing the
+switches without the gates, which is rule 3 with its second half deleted:**
+
+```bash
+T1_SUB=1 T1_NOUNDER=1 /tmp/blender/blender -b -P probe_rev45_ground.py  # C5 must REFUSE
+T1_SUB=1 T1_PG_PAINT=1 ... probe_rev45_ground.py    # paints G4's window -- LOOK before quoting
+python3 probe_rev59_door.py out/r62_side.png        # ITEM A.  M3 fails BY DESIGN
+T1_SUB=1 T1_MM_ALBEDO=1 T1_MM_SAMP=16 ... mottle_measure.py             # GATE 2
+python3 probe_rev61.py emblem|blotch|world|bulb [--paint]   # NEW at rev 61 -- see below
+```
+
+**`probe_rev61.py` IS NEW AND IT EXISTS BECAUSE AN ADVERSARY FOUND FOUR HEADLINE REV-61 RESULTS
+RESTING ON UNCOMMITTED INSTRUMENTS.** It carries the emblem solve, the cream blotch, the
+`T1_WORLD` trade and the bulb ratio, and **every mode paints its window on `--paint`**.
+
+**FACTS ABOUT THIS MACHINE THAT BITE, AND WHICH THIS BRIEF NEARLY DROPPED:**
+* **EVERY MEASUREMENT THROUGH `shader_solve._render` IS 8-BIT (F42)**, whatever `color_depth` says.
+* **`mottle_measure.py` names its output by `MOTTLE_AMP`**, so two runs differing only in
+  `MOTTLE_M` **OVERWRITE EACH OTHER'S PNG**.
+* **`probe_rev54_aov.py` and `probe_rev55_truenorm.py` write EXR into `probe_scratch/`** — delete
+  them before committing and keep the PNGs.
+* **`lid_gen.py` is NOT called by `build.py`.** Change it and regenerate by hand, or the render
+  silently uses the old texture.
+* **`audit.py` rewrites `STATE.md`. COMMIT FIRST** — and regenerate it after ANY geometry change.
+  **Rev 61 shipped a stale `STATE.md` and an adversary caught it**: `V_POW_Z` is the pressed
+  swage, i.e. geometry, and 19 verify rows read that file.
+
+**THE DELIVERY CHAIN, WHICH IS NOT THE PREVIEW CHAIN:**
+```bash
+T1_SUB=2 /tmp/blender/blender -b -P hq_render.py    # ONE build, 10 bands, WITH MARGIN
+python3 stitch.py out/hq_hero_raw.png ...           # CHECK ITS EXIT CODE -- 2 on a seam (F49)
+python3 post.py out/hq_hero_raw.png out/hq_hero.png # optics LAST, never per strip
+```
+
 **THE DELIVERY FRAME — DO NOT RUN IT UNTIL THE MODEL IS RIGHT (owner, rev 58, STILL BINDING).**
 
 ---
@@ -423,7 +541,7 @@ board with two of this project's ceilings **disputed on measurements**.
 | **near** | **Glass, tyres, the tail's barrel, the shut lines** | The surviving panel items, none touched |
 | **near** | **F143 — the roof loudspeakers** | Unmodelled since rev 12, in no carrier for 49 revisions |
 | **then** | **F10–F14 — the galley cluster** | F14 is NINE revisions inherited |
-| **CEILED** | **F44/F60/F62 gloss; F83 the front arch; F67's residue; F142's roof colour; F148's dark chrome** | **But F62 is now DISPUTED — see §3.4. Do not quote it without testing it** |
+| **CEILED** | **F44/F60/F62 gloss; F83 the front arch; F67's residue; F142's roof colour; F148's dark chrome** | **But F62 is now DISPUTED — see §3 item 4. Do not quote it without testing it** |
 | **standing** | **F18 — the die-cut sticker** | The original deliverable. Open since rev 44 |
 
 ---

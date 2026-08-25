@@ -13,6 +13,33 @@ rendered at the rev-61 state (V_POW 0.52, the restored `Señor`).
 
 ---
 
+## ⚠ ANNOTATED IN PLACE AT REV 61 — FOUR OF THE RANKED ITEMS BELOW ARE REFUTED
+
+**This file is a CARRIER and it is annotated rather than rewritten (rule 16), for the reason
+rev 60c annotated `GAPS_rev60.md` the same way (F124): a carrier that goes stale sends the next
+context to work on dead items.** An adversary caught this file un-annotated while a third of its
+programme had already been refuted in the same revision.
+
+| row | status |
+|---|---|
+| **#1 Run `post.py` on every judged frame** | **DONE at rev 61** — `judge_set.sh` (F146) |
+| **#7 Cut the cream's dust/mottle** (*"26.6 % — 2.7× DIRTIER"*) | **REFUTED (F147).** `T1_MOT_AMP` **0.00** — the texture GONE — moves the statistic 11.8 → 11.9 %. It is the SHADING GRADIENT on the curved nose panel. *And its 26.6 % does not reproduce: an independent window gives 11.8 % render / 7.8 % photograph, a ratio of 1.52× not 2.7×* |
+| **#8 Make the bright metal metal** | **THE LEVER IS REFUTED (F148).** `T1_WORLD` 0.05 → 1.00 brightens the mirror 100 → 170 DN but desaturates the red 0.459 → 0.377, and the render's red is already below every reference. **The BOUNCE-CARD proposal survives and is the owner's call** |
+| **#9 Regenerate `lidmural`/`lidsign` at TRUE 4K** (*"12 % effective resolution"*) | **REFUTED (F150).** `lid_gen.py` already draws at W = 4096; the softness is two Gaussians expressed as FRACTIONS of W, encoding a fixed real-world softness. A 4K regeneration buys nothing |
+| **#12 tail lamps to tall ovals** | **REFUTED (F149), and F128 predicted the error.** `small_lamp` is `T.revolve(axis='X')` — circular in 3D — on the tail's CORNER ROUNDING, where a circle projects as a tall ellipse. `TAIL_LAMP_OD = 1.1627 * PLATE_OUTER_H` against a photographed 1.119, within 4 % |
+
+**WHAT SURVIVES AND IS UNTOUCHED:** the glass as a flat slab (0.5 % sd against 12.8 %); the
+tyres (no tread, no lettering, 35 % too light); the tail modelled as a box where the real one is
+a barrel; every shut line a 1-px ink stroke with no leading-edge highlight; the galley's
+monochrome props; the counter as a floating slab. **Those are the rows to work.**
+
+**AND THE TWO DISPUTED CEILINGS BELOW ARE STILL WORTH TESTING** — they are the most valuable
+thing in this file, and rev 61 did not test them.
+
+---
+
+---
+
 ## THE SCORE: **83 / 240**
 
 | panel | score | headline |

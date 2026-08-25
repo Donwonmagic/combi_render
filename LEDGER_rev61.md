@@ -45,8 +45,10 @@ whatever the paint did.
 render                  M1 said     TRUE break
 V_POW 0.60 (shipped)      1.183       1.789
 V_POW 0.15                1.186       3.800
-T1_VNOSE_DIV 0.600        1.184       3.788
+T1_VNOSE_DIV 0.600        1.184       3.917
 ```
+
+**⚠ CORRECTED-rev61 BY AN ADVERSARY: the third row was a HAND-WALK OF ONE COLUMN mixed into a table of the probe's TWO-LAMP MEANS — rule 38's own defect, in the document that introduces rule 38. Re-run with the shipped probe it is **3.917**, not the 3.788 first published. Rows 1 and 2 reproduce exactly.**
 
 **CROSS-CHECKED TWO WAYS BEFORE ACTING.** A separately-written hand-walk of the same column
 gives **1.730** where the fixed probe gives **1.731** — agreement to 0.001 lamp radii. And the
@@ -124,14 +126,25 @@ on a glyph that still reads as an X once the artefact is excluded** — F64 agai
 
 ---
 
-## §4 NINE PROPOSALS REFUTED BY ABLATION BEFORE ANYTHING WAS TUNED
+## §4 NINE PROPOSALS KILLED — AND **THIS IS NOT A KILL LIST FOR EVERYTHING IN IT**
 
-**Rule 36 earned nine more times. Four of these came from the expert panel the owner
-commissioned; the panel's point estimates are therefore NOT bankable.**
+**⚠ READ THIS BEFORE USING THE TABLE. An independent adversary caught the outgoing brief
+telling the next context *"if your idea is on that list it is already dead"* — and ROW 1 IS A
+LEVER THAT IS ALIVE.** Row 1 is a RETRACTION of my own false refutation: the 0.860 divisor
+**does** move the nose break (1.789 → 3.917), and §0.06 of the brief says so in bold. **Rows
+2–9 are dead. Row 1 is live and its entry is the retraction, not the kill.**
+
+**AND ONLY FOUR OF THE NINE WERE KILLED BY ABLATION.** Rows 2, 3, 4 and 5 were. Rows 6, 7, 8
+and 9 were killed by SOURCE INSPECTION or MESH MEASUREMENT, which is a different and weaker
+class of evidence — a source reading can be wrong about what the renderer does, where an
+ablation cannot be. **Five of the nine are panel-sourced, not four**, as this heading previously
+said and as the brief repeated twice.
+
+**The panel's point estimates are NOT bankable.**
 
 | proposal | source | ablation | verdict |
 |---|---|---|---|
-| the 0.860 divisor moves the nose break | rev-61 brief §3.2 | 0.860 → 0.600 gives 1.183 → 1.184 by M1 | **my own reading, RETRACTED** — the gate was blind; the true break moves 1.789 → 3.788 |
+| ~~the 0.860 divisor is inert~~ **NOT A KILL — THIS ROW IS A RETRACTION AND THE LEVER IS ALIVE** | rev-61 brief §3.2 | 0.860 → 0.600 gives 1.183 → 1.184 **by a BLIND M1** | **my own reading, RETRACTED.** The true break moves **1.789 → 3.917**. **DO NOT strike this lever** |
 | bulb emission strength | F144 | `T1_BULB_STR=60` (6.7×) moves the saturation ratio **1.40 → 0.88** | **WORSE.** The bead clips toward white and clipped pixels are neutral |
 | bulb envelope reflectance | F144 | `T1_BULB_BASEV=0.30` moves it **1.40 → 1.50** | nothing |
 | cut the cream's dust/mottle (+3.0) | lookdev panel #1 | `T1_MOT_AMP` **0.55 → 0.30 → 0.00** moves the blotch **11.8 → 11.9 → 11.9 %** | **INERT.** At AMP = 0 the texture is GONE and the number does not move — it is the shading gradient on the curved nose panel |

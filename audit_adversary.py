@@ -51,7 +51,14 @@ P = print
 bad = []
 NQ = [0]
 
-BRIEF = 'NEXT_CONTEXT_PROMPT_rev61.md'
+# rev 61, CAUGHT BY AN ADVERSARY: this was HARDCODED to the INCOMING brief, so
+# every question that greps `B` tested the document this revision RECEIVED and
+# never the one it SHIPS -- while sec.10.5 says to run both audits on the
+# outgoing brief and record what they found IN it.  `audit_brief.py` had always
+# auto-detected; this one had not.  It is the newest brief now, by the same
+# rule the rest of the project uses: find it with ls, never by a typed name.
+BRIEF = sorted(glob.glob('NEXT_CONTEXT_PROMPT_rev*.md'),
+               key=lambda f: int(re.search(r'rev(\d+)', f).group(1)))[-1]
 
 
 def t(q, ok, d=""):
