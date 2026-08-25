@@ -156,7 +156,7 @@ V_RISE = 0.8670
 if os.environ.get("T1_VRISE"):
     V_RISE = float(os.environ["T1_VRISE"])
     V_APEX0 = Z_BELT0 - V_RISE
-V_POW = 0.60
+V_POW = 0.52
 # rev 60 -- T1_VPOW is an ABLATION ONLY.  It exists so the break's true
 # sensitivity to V_POW can be measured in a RENDER instead of predicted by a
 # hand-written copy of the node graph.  The shipped value is the literal above

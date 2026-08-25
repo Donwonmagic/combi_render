@@ -108,8 +108,31 @@ def main():
     for _, cu, cv, v0, v1 in lamps:
         ucol = int(round(cu))
         v = int(v0) - 2
+        # ------------------------------------------------------- rev 61, F135
+        # THIS WALK USED TO STOP ON THE HEADLAMP'S OWN CHROME BEZEL.
+        #
+        # `v0` is the top row of the LENS blob, which is segmented as
+        # (~cream) & (~redm) -- i.e. dark AND unsaturated.  The chrome bezel
+        # around the lens is BRIGHT and unsaturated, so `cream` is TRUE on it,
+        # and a walk that starts at v0-2 and stops at the first cream pixel
+        # stopped on the bezel, two pixels up, every single time.
+        #
+        # The bezel's top sits at a FIXED offset from the lamp centre -- its
+        # own outer radius -- so M1 returned ~1.18 lamp radii NO MATTER WHAT
+        # THE PAINT DID.  That is why V_POW, V_POW_Z, V_RISE and the 0.860
+        # divisor all read "inert" (F106/F107): they are not inert, this
+        # instrument was blind to them.  MEASURED on three renders by walking
+        # the same column by hand -- M1 said 1.183 / 1.186 / 1.184 where the
+        # true break is 1.730 / 3.701 / 3.788 lamp radii.
+        #
+        # THE FIX: cross the lamp assembly FIRST.  Walk up until the column is
+        # on RED PAINT, and only then look for cream.  A bezel pixel is
+        # neither, so it can no longer terminate the walk.  Rule 8: the
+        # window is part of the measurement.
+        while v > 500 and not redm[v, ucol]:
+            v -= 1                      # cross the bezel, onto the paint
         while v > 500 and not cream[v, ucol]:
-            v -= 1
+            v -= 1                      # then up to the true cream/red break
         hi = np.median(red[v + 3:v + 9, ucol])
         lo = np.median(red[max(v - 8, 0):v - 2, ucol])
         half = 0.5 * (hi + lo)

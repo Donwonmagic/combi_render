@@ -107,8 +107,8 @@ per-measurement and not on average.** A model right in ninety places and wrong i
 done, because he will look straight at the one. **At rev 58 he did exactly that, at the emblem,
 for the fifth time, while every automated check was green.**
 
-**AND HERE IS THE HONEST DISTANCE.** `verify_clone.sh` ends **ALL 270 PASS** and its own verdict
-block says what that is worth: **0 FIDELITY, 270 SELF-CONSISTENCY. Not one of those rows compares
+**AND HERE IS THE HONEST DISTANCE.** `verify_clone.sh` ends **ALL 271 PASS** and its own verdict
+block says what that is worth: **0 FIDELITY, 271 SELF-CONSISTENCY. Not one of those rows compares
 the vehicle to a photograph.**
 
 | gate | state MEASURED at close of rev 60 |
@@ -168,7 +168,7 @@ time**, so a loss says *which*:
 
 ```
 bootstrap.sh          ALL 10 PASS
-verify_clone.sh       ALL 270 PASS on a clean tree   <- 0 FIDELITY, 270 SELF-CONSISTENCY
+verify_clone.sh       ALL 271 PASS on a clean tree   <- 0 FIDELITY, 271 SELF-CONSISTENCY
 VERIFY (in build)     0 fail, 0 warn at SUB=1 AND SUB=2
   underbody proudness worst -55.8 mm (SUB=2) / -50.1 mm (SUB=1)  INBOARD everywhere
   underbody/shell fit worst intrusion +10.5 mm over 1400 perimeter stations, both signs of y
@@ -202,7 +202,7 @@ for b in $(git branch -r | grep -v HEAD); do
 done
 git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 ./bootstrap.sh          # 9 of 10 at rev 60 close.  MEASURE IT ANYWAY
-./verify_clone.sh       # ALL 270 PASS in ~70 s -- and read its verdict block
+./verify_clone.sh       # ALL 271 PASS in ~70 s -- and read its verdict block
 ```
 
 **THE MERGE STATE, MEASURED AT REV 60b CLOSE — AND REV 60 GOT THIS WRONG.**
