@@ -158,7 +158,26 @@ def main():
 
     built = float(np.mean(ratios))
     lo_p, hi_p = min(PHOTO.values()), max(PHOTO.values())
-    ck("M1 the break sits as high above the lamp as the photographs put it",
+    # ----------------------------------------------------------- rev 61, F136
+    # M1'S TWO SIDES ARE MEASURED WITH DIFFERENT RULERS, AND THAT IS NOT A
+    # DETAIL -- IT IS WHY A "PASS" HERE MUST NOT BE READ AS ITEM B CLOSED.
+    #
+    # This probe's ruler is the DARK LENS INTERIOR (see the header).  The bar
+    # below is F75's RED-BUS readings, and F75 says in terms what ruler those
+    # used: "73-80 mm on the red-bus frames WHOSE RULER IS THE CHROME RIM --
+    # the model's rim stands 16.5 mm outside its own bore and NO FRAME WE HOLD
+    # SHOWS A RIM AND ITS APERTURE TOGETHER, so that 1.19 conversion CANNOT BE
+    # CHECKED."  A lens-ruled figure and a rim-ruled bar differ by roughly that
+    # unverifiable 1.19, so M1 comparing them is apples to oranges by ~19 %.
+    #
+    # IT IS LEFT AS THE LIVE ROW because it is the only nose gate that runs,
+    # and because the BEZEL-ruled figure is printed beside it below so the
+    # reader can see both.  What must never happen again is this line's PASS
+    # being quoted as "the nose is right": rev 61 did exactly that for one
+    # commit before the register was re-read.  F75's own verdict stands --
+    # HONEST RANGE 50-80 mm, BEST SINGLE ESTIMATE 52 mm.
+    ck("M1 the break sits as high above the lamp as the photographs put it"
+       "  [RULER MISMATCH -- see F136 above; a PASS here is NOT item B closed]",
        lo_p <= built <= hi_p,
        "elevation %.3f lamp radii against the photographs' %.3f .. %.3f "
        "(%s; ref_workshop 2.127 is the GREEN vehicle and is EXCLUDED -- "
@@ -178,7 +197,18 @@ def main():
         print("       %s" % detail)
     print("-" * 78)
     for cu, cv, rad, vb, r, mm in out:
-        print("  lamp u %7.1f  centre row %7.1f  vertical radius %5.2f px" % (cu, cv, rad))
+        # the BEZEL-ruled figure, on the SAME ruler as F75's red-bus bar.  The
+        # bezel's outer top is where the upward walk first met RED PAINT, so
+        # it costs nothing to report and it is the like-for-like number.
+        ucol = int(round(cu))
+        vv = int(cv)
+        while vv > 500 and not redm[vv, ucol]:
+            vv -= 1
+        bez = cv - vv
+        print("  lamp u %7.1f  centre row %7.1f  LENS radius %5.2f px  "
+              "BEZEL radius %5.2f px" % (cu, cv, rad, bez))
+        print("       BEZEL-RULED elevation %.3f  <- compare THIS with F75's "
+              "red-bus 1.951..2.121, which is rim-ruled" % ((cv - vb) / bez))
         print("       break row %7.2f  ->  %.1f mm above centre  =  %.3f lamp radii"
               % (vb, mm, r))
     print("-" * 78)

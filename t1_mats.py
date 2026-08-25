@@ -164,8 +164,11 @@ V_POW = 0.52
 #
 # THE LITERAL STAYS ON ITS OWN LINE ON PURPOSE.  The first cut of this wrote
 # `V_POW = float(os.environ.get("T1_VPOW", 0.60))` and broke THREE
-# verify_clone.sh rows at once -- "V_POW is 0.60", "V_POW_Z is 0.60" and
-# "V_POW and V_POW_Z agree" -- because all three grep for `^V_POW = 0.60`.
+# verify_clone.sh rows at once -- "V_POW is 0.52", "V_POW_Z is 0.52" and
+# "V_POW and V_POW_Z agree" -- because all three grep for `^V_POW = 0.52`.
+# (Those rows read 0.60 until rev 61 and were re-based WITH the constant; the
+# cause is F77's pose-invariant fit -- 0.517 / 0.521 / 0.531 on three frames,
+# render control recovers a source truth of 0.600 to +/-0.02.)
 # The rev-60 brief warned about exactly those three rows by name.  An ablation
 # that disarms a by-value guard is not an ablation, it is a regression.
 if os.environ.get("T1_VPOW"):
