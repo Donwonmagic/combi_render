@@ -52,6 +52,7 @@
 
 import os
 import sys
+import zipfile
 
 import numpy as np
 import scipy.ndimage as ndi
@@ -243,6 +244,25 @@ def main():
     if bad:
         print("\n  PACKAGE IS NOT TRUSTWORTHY -- a failing row is a finding.")
         return 1
+    # ONE FILE TO HAND OVER.  The package is four folders and ~50 MB; a person
+    # receiving it wants one thing to download, not twenty-five.  Written LAST,
+    # and only on a fully-verified package -- a zip of an unverified set is just
+    # a tidier way to ship the wrong thing.
+    zp = os.path.join(OUTDIR, "combi_promo_pack.zip")
+    if os.path.exists(zp):
+        os.remove(zp)
+    n = 0
+    with zipfile.ZipFile(zp, "w", zipfile.ZIP_DEFLATED, compresslevel=6) as z:
+        for root, _d, fs in os.walk(OUTDIR):
+            for f in sorted(fs):
+                fp = os.path.join(root, f)
+                if os.path.abspath(fp) == os.path.abspath(zp):
+                    continue
+                z.write(fp, os.path.relpath(fp, OUTDIR))
+                n += 1
+    print("  wrote %s  (%d files, %.1f MB)"
+          % (os.path.relpath(zp, HERE), n, os.path.getsize(zp) / 1e6))
+
     print("\n  -> %s" % os.path.relpath(OUTDIR, HERE))
     return 0
 
