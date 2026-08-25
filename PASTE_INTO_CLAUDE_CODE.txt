@@ -61,7 +61,7 @@ seen none. **Assume this brief carries defects of that class and put an agent on
 C8's 3.39 is **not** inflated by the badge's foreshortening — `cell_elongation` already corrects
 it with `squash = mask.shape[0]/mask.shape[1]`.
 
-**`verify_clone.sh` WAS RUN ON THE ACTUAL HANDOFF COMMIT, not on the tree later.** ALL 275 PASS.
+**`verify_clone.sh` WAS RUN ON THE ACTUAL HANDOFF COMMIT, not on the tree later.** ALL 278 PASS.
 
 ---
 ## §0.06 THE BIG ONE: C8's TARGET HAS A SILENT FAILURE MODE, AND NOTHING SWEEPS IT
@@ -99,8 +99,8 @@ gate here. It is not a coincidence; it is the pattern.**
 
 ```
 bootstrap.sh          ALL 10 PASS
-verify_clone.sh       ALL 275 PASS on a clean tree, AT THE HANDOFF COMMIT
-                      <- 0 FIDELITY, 275 SELF-CONSISTENCY.  THREE rows added this
+verify_clone.sh       ALL 278 PASS on a clean tree, AT THE HANDOFF COMMIT
+                      <- 0 FIDELITY, 278 SELF-CONSISTENCY.  THREE rows added this
                          revision: the T1_SENOR_TARNISH companion row and the two
                          that guard the T1_ALPHA delivery path
 flank_compare.py      FAILS: worst region `i` 0.686 of its own ceiling
@@ -131,8 +131,8 @@ per-measurement and not on average.** A model right in ninety places and wrong i
 emblem, for the fifth time. At rev 61 he did it again, for the sixth.**
 
 **AND HERE IS THE HONEST DISTANCE — THE GATE TABLE, WHICH AN ADVERSARY CAUGHT THIS BRIEF
-DROPPING.** `verify_clone.sh` ends **ALL 275 PASS** and its own verdict block says what that is
-worth: **0 FIDELITY, 275 SELF-CONSISTENCY.**
+DROPPING.** `verify_clone.sh` ends **ALL 278 PASS** and its own verdict block says what that is
+worth: **0 FIDELITY, 278 SELF-CONSISTENCY.**
 
 | gate | state MEASURED at close of rev 61 |
 |---|---|
@@ -200,7 +200,7 @@ for b in $(git branch -r | grep -v HEAD); do
 done
 git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 ./bootstrap.sh          # read ROW 9, and read the "N ahead / M behind" NOTE line
-./verify_clone.sh       # ALL 275 PASS -- and read its verdict block
+./verify_clone.sh       # ALL 278 PASS -- and read its verdict block
 ```
 
 **MEASURED AT REV 62 PICKUP:** HEAD was **0 ahead / 0 behind** `origin/main` after `git fetch --unshallow` -- **and BEFORE that fetch the clone was at rev 43, EIGHTEEN REVISIONS STALE, with `verify_clone.sh` passing 65 of 66 on it.** A content check cannot see that you are on an old commit of the same repository; only this loop can. **The rev-61 branch was NOT deleted this time, breaking a six-revision run.** The rev-62 figure that follows is the PREVIOUS revision's and is kept for the pattern:
@@ -221,7 +221,26 @@ anything had been pushed to it, the SIXTH RUNNING. It was recreated by the first
 
 ---
 
-## §2 THE EMBLEM — HIS TOP ITEM, SIX REPORTS, AND REV 62 KILLED THE LEADING SUSPECT
+## §2 THE EMBLEM — **READ `EMBLEM_HANDOFF.md` FIRST. IT IS THE CARRIER FOR THIS ITEM.**
+
+> *[owner, rev 62]* **"I am sick and tired of not being able to execute a publicly available
+> emblem."**
+
+**HE IS RIGHT, AND THAT SENTENCE IS THE FINDING. THE VW ROUNDEL IS A PUBLISHED, SPECIFIED,
+REGISTERED TRADEMARK, AND THIS PROJECT HAS SPENT EIGHTEEN REVISIONS REVERSE-ENGINEERING IT FROM A
+41 × 69 PIXEL PHOTOGRAPH.** Rev 45 wrote the correct method down — *"build the canonical mark and
+use the photograph to VERIFY"* — and it was never done, and it survived in **no live carrier**,
+which is rule 16's exact failure mode costing this project its owner's top item for seventeen
+revisions. **`EMBLEM_HANDOFF.md` is that carrier now, and `README.md` and `START_HERE.md` name
+it.**
+
+**REV 62 DID NOT FIX IT EITHER.** It fitted the glyph to a bigger badge with a better objective —
+**the same error in nicer clothes** — and got the best glyph this project has made, still 25 %
+short. Interim constants, converged and unclipped, are in `EMBLEM_HANDOFF.md` §4; what shipping
+them costs is §6; the open opportunities are §5. **The first move is not another search: it is to
+go and get the specification.**
+
+## §2b THE EMBLEM — WHAT REV 62 KILLED, KEPT HERE SO IT IS NOT RE-TRIED
 
 **IT STILL READS AS AN X.** Confirmed at rev 62 by looking at `out/r62_front_post.png` — four fat
 wedges meeting in a knot where the photograph has thin slivers. His sixth report stands.

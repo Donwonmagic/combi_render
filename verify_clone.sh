@@ -632,6 +632,35 @@ ck "tex/nose.png"    34b3d81a74f366a6fd849612b2293e0c "$(md5of tex/nose.png)"
 #      information -- which is exactly the failure that went unnoticed for
 #      sixty-two revisions.  This row is ORDINAL and needs no render.
 # ===========================================================================
+# ===========================================================================
+# rev 62 -- THE EMBLEM CARRIER.  THIS ROW EXISTS BECAUSE THE PROJECT ALREADY
+# LOST THIS EXACT THING ONCE.
+#
+# At rev 45 the correct method for the owner's top item was written down --
+# "build the canonical mark and use the photograph to VERIFY" -- and it then
+# survived ONLY in LEDGER_rev45.md and NEXT_CONTEXT_PROMPT_rev46.md, both
+# superseded and never opened again.  Seventeen revisions kept deriving the
+# glyph from a 41 px badge because no live document carried the instruction.
+# That is rule 16's failure mode, and prose cannot guard against it -- a
+# sentence saying "do not drop this" is exactly what got dropped.
+#
+# So: the file must EXIST, and the three intake doors must NAME it.  If a
+# future context compacts it away, this goes red instead of the loss going
+# unnoticed for seventeen revisions.
+# ===========================================================================
+ck "EMBLEM_HANDOFF.md exists"  1 "$(ls EMBLEM_HANDOFF.md >/dev/null 2>&1 && echo 1 || echo 0)"
+# THIS ROW'S FIRST CUT WAS WRONG AND SCORED 2 ON A CORRECT TREE, twice over:
+# `grep -lc` is contradictory (-c overrides -l), and it referenced
+# $_LATEST_BRIEF five hundred lines BEFORE that variable is assigned, so it
+# grepped an empty filename.  It finds the brief itself now.  Watched failing
+# by removing the pointer from START_HERE.md, and watched passing on restore.
+_EMB_BRIEF="$(ls NEXT_CONTEXT_PROMPT_rev*.md 2>/dev/null | sort -V | tail -1)"
+ck "README, START_HERE and the newest brief NAME the emblem carrier" 3 \
+   "$(( $(grep -q EMBLEM_HANDOFF.md README.md 2>/dev/null && echo 1 || echo 0) \
+      + $(grep -q EMBLEM_HANDOFF.md START_HERE.md 2>/dev/null && echo 1 || echo 0) \
+      + $(grep -q EMBLEM_HANDOFF.md "$_EMB_BRIEF" 2>/dev/null && echo 1 || echo 0) ))"
+ck "the carrier still states the OWNER'S OWN sentence" 1 \
+   "$(grep -c 'publicly available emblem' EMBLEM_HANDOFF.md)"
 ck "T1_ALPHA defaults OFF -- the shipped path is still white" 1 \
    "$(grep -c 'os.environ.get("T1_ALPHA", "0")' studio.py)"
 # NOTE ON THIS ROW, because its first cut was WRONG and passed nothing:
