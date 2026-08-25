@@ -29,7 +29,7 @@ every gain to **0.0**, and the preview path **never calls it** (F146). Judge pho
 plainly, and it is shorter than what it did.
 
 ---
-## §0.05 HOW THIS BRIEF WAS AUDITED — AND IT IS WEAKER THAN THE LAST ONE
+## §0.05 THIS BRIEF WAS AUDITED AGAINST THE MACHINE — AND MORE WEAKLY THAN THE LAST ONE
 
 **SAY THIS FIRST BECAUSE IT MATTERS MORE THAN ANYTHING ELSE IN THE SECTION: NO INDEPENDENT
 ADVERSARY AGENT WAS RUN ON THIS DOCUMENT.** Rev 62's session was instructed not to spawn
