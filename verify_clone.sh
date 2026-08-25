@@ -580,7 +580,24 @@ ck "tex/nose.png"    34b3d81a74f366a6fd849612b2293e0c "$(md5of tex/nose.png)"
 # the whole thing fifty revisions ago.  Mask space is NOT bit-identical across
 # this change and is not claimed to be: compare_script's `Senor` box goes
 # 0.825 -> 0.889 and the whole lockup 0.942 -> 0.950, both watched printing.
-ck "tex/senor.png"   2c6d221fb2d80a8adf3419153c9b1de6 "$(md5of tex/senor.png)"
+# rev 61: RE-BASED AGAIN, and the cause is an OWNER RULING, not a measurement.
+#   [owner, rev 61] "senor Tacombi should be clearer in the render than in that
+#   photo. Well defined. I want this 3d model to look like new. Enhanced from
+#   the photo"
+# The `S` arrived from the chromaticity segmentation in three pieces because
+# the word is TARNISHED in ref_side.jpg.  senor_trace.py reproduced those
+# breaks deliberately and recorded that undoing them "is an OWNER decision,
+# not this file's".  He has now made it, so the `S` is bridged and the texture
+# legitimately changed.
+# THE CAUSE IS SEPARATELY TESTABLE, which is what licenses this re-base: the
+# row below counts the `S`'s CONNECTED COMPONENTS off the raster, so a future
+# context cannot quietly undo the ruling and still pass this checksum.
+# WATCHED BOTH WAYS: shipped 1 component [361 px]; T1_SENOR_BREAKS=1 gives 3
+# [251, 61, 14].  IoU against the TARNISHED mask FALLS by design (Senor
+# 0.8859 -> 0.8602) and MUST NOT be "repaired" -- see senor_trace.py.
+ck "tex/senor.png"   adcf908f0c3c078c45f8d305d470796a "$(md5of tex/senor.png)"
+ck "the S is ONE letter, per the owner's rev-61 ruling"  1 \
+   "$(python3 senor_trace.py 2>/dev/null | grep -o 'rasterised `S` components: [0-9]*' | awk '{print $NF}')"
 # rev 45, SPEC 10.112: RE-BASED because the texture legitimately changed.
 # cal_gen.gradient's bias was 0.42 and `t` is zero at the burst's own centre by
 # construction, so the core evaluated to 84 % ORANGE and NOTHING in the shipped
@@ -654,8 +671,8 @@ ck "tex/emblem.png"  574ba2d733353387568b412da48fd436 "$(md5of tex/emblem.png)"
 # was written to guard is not a check.
 # ---------------------------------------------------------------------------
 say "-- locked VALUES --"
-ck "V_POW is 0.60"                  1 "$(grep -c '^V_POW = 0.60' t1_mats.py)"
-ck "V_POW_Z is 0.60"                1 "$(grep -c '^V_POW_Z = 0.60' t1_shell.py)"
+ck "V_POW is 0.52"                  1 "$(grep -c '^V_POW = 0.52' t1_mats.py)"
+ck "V_POW_Z is 0.52"                1 "$(grep -c '^V_POW_Z = 0.52' t1_shell.py)"
 ck "V_POW and V_POW_Z agree"       yes "$(if [ \"$(grep -o '^V_POW = [0-9.]*' t1_mats.py | awk '{print $3}')\" = \"$(grep -o '^V_POW_Z = [0-9.]*' t1_shell.py | awk '{print $3}')\" ]; then echo yes; else echo NO; fi)"
 ck "DOOR_H art datum is 1.013467"   1 "$(grep -c '1.013467 m' folk_gen.py)"
 # POLARITY, not presence.  The signboard is RETIRED from the vehicle; flipping

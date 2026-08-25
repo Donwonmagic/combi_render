@@ -156,7 +156,7 @@ V_RISE = 0.8670
 if os.environ.get("T1_VRISE"):
     V_RISE = float(os.environ["T1_VRISE"])
     V_APEX0 = Z_BELT0 - V_RISE
-V_POW = 0.60
+V_POW = 0.52
 # rev 60 -- T1_VPOW is an ABLATION ONLY.  It exists so the break's true
 # sensitivity to V_POW can be measured in a RENDER instead of predicted by a
 # hand-written copy of the node graph.  The shipped value is the literal above
@@ -164,8 +164,11 @@ V_POW = 0.60
 #
 # THE LITERAL STAYS ON ITS OWN LINE ON PURPOSE.  The first cut of this wrote
 # `V_POW = float(os.environ.get("T1_VPOW", 0.60))` and broke THREE
-# verify_clone.sh rows at once -- "V_POW is 0.60", "V_POW_Z is 0.60" and
-# "V_POW and V_POW_Z agree" -- because all three grep for `^V_POW = 0.60`.
+# verify_clone.sh rows at once -- "V_POW is 0.52", "V_POW_Z is 0.52" and
+# "V_POW and V_POW_Z agree" -- because all three grep for `^V_POW = 0.52`.
+# (Those rows read 0.60 until rev 61 and were re-based WITH the constant; the
+# cause is F77's pose-invariant fit -- 0.517 / 0.521 / 0.531 on three frames,
+# render control recovers a source truth of 0.600 to +/-0.02.)
 # The rev-60 brief warned about exactly those three rows by name.  An ablation
 # that disarms a by-value guard is not an ablation, it is a regression.
 if os.environ.get("T1_VPOW"):
@@ -1614,7 +1617,14 @@ def body_paint(name="T1_paint"):
 
     # u = |y| / 0.86
     absy = _math(nt, 'ABSOLUTE', sep.outputs["Y"], None, -1240, 240)
-    u = _math(nt, 'DIVIDE', absy, 0.860, -1080, 240, clamp=True)
+    # rev 61: T1_VNOSE_DIV is the FIRST of the three untested nose levers the
+    # rev-61 brief names for item B (M1 reads 1.187 lamp radii against a
+    # photographed 1.951-2.121).  V_POW/V_RISE/V_POW_Z are REFUTED (F106/F107):
+    # an 8x V_POW sweep moves the break by 0.004 lamp radii.  This divisor has
+    # never been swept.  MEASUREMENT ONLY -- the shipped value is the 0.860
+    # literal below, which stays on its own line so a by-value guard can see it.
+    _vdiv = float(os.environ.get("T1_VNOSE_DIV", 0.860))
+    u = _math(nt, 'DIVIDE', absy, _vdiv, -1080, 240, clamp=True)
     up = _math(nt, 'POWER', u, V_POW, -920, 240)
     zv = _math(nt, 'MULTIPLY_ADD', up, V_RISE, -760, 240)
     zv.inputs[2].default_value = V_APEX0          # value at x = 0; rake applied below
@@ -2147,8 +2157,20 @@ def build_all():
     # in-service photographs the bulbs are LIT and read warm -- they are the
     # brightest thing on the vehicle after the cream. Emissive, low power: they
     # are festoon bulbs in daylight, not a key light.
-    M["bulb"] = emissive("bulb", (1.000, 0.760, 0.442), strength=9.0,
-                         base=(0.900, 0.880, 0.840))
+    # rev 61, F134: T1_BULB_STR / T1_BULB_BASEV are MEASUREMENT-ONLY ablations
+    # for the festoon bulbs' two candidate levers.  They exist because the
+    # rendered bead reads sat 0.087 against a photographed 0.561 (ref_side.jpg,
+    # painted window), while THIS emission colour's own saturation is 0.558 --
+    # i.e. the hue is right to 0.003 and something is swamping it.  The
+    # envelope `base` below has saturation 0.067, which is what the render
+    # actually reads, so the null hypothesis is that the emission contributes
+    # nothing at studio exposure and we are seeing the base lit by the
+    # cyclorama.  Rule 36: ablate the lever BEFORE tuning it.  Neither switch
+    # changes what ships -- the shipped values are the literals here.
+    _bs = float(os.environ.get("T1_BULB_STR", 9.0))
+    _bv = float(os.environ.get("T1_BULB_BASEV", 1.0))
+    M["bulb"] = emissive("bulb", (1.000, 0.760, 0.442), strength=_bs,
+                         base=(0.900 * _bv, 0.880 * _bv, 0.840 * _bv))
     M["script"] = silver_script()
     M["calidad"] = paint_calidad()
     # old D4: at 0.03 albedo the galley was a black void behind the hatches.

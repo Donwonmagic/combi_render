@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-24 22:57:54 UTC |
-| git commit | `3b38a1b` |
-| git subject | rev 60c-ii: the adversary re-ran against the fix and found a -53 mm slot behind my own guard's last sample |
+| generated | 2026-08-25 14:35:02 UTC |
+| git commit | `810f361` |
+| git subject | rev 61: the handoff set -- LEDGER_rev61, NEXT_CONTEXT_PROMPT_rev62, and the intake doors |
 | working tree | clean |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=2 (applied, destructive, before booleans) |
@@ -65,7 +65,7 @@ VERIFY: 0 fail, 0 warn
 |---|---|
 | cutters rolled back | none |
 | non-manifold edges (body) | 0 |
-| body faces | 229485 quad, 1048 tri, 5186 ngon |
+| body faces | 229489 quad, 1040 tri, 5186 ngon |
 
 ## Measured dimensions
 
@@ -153,7 +153,7 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 |---|---|
 | mesh objects | 228 |
 | vertices (all meshes) | 330551 |
-| faces (all meshes) | 321194 |
+| faces (all meshes) | 321190 |
 
 | prefix | n |
 |---|---|

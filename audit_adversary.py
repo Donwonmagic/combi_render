@@ -51,7 +51,14 @@ P = print
 bad = []
 NQ = [0]
 
-BRIEF = 'NEXT_CONTEXT_PROMPT_rev61.md'
+# rev 61, CAUGHT BY AN ADVERSARY: this was HARDCODED to the INCOMING brief, so
+# every question that greps `B` tested the document this revision RECEIVED and
+# never the one it SHIPS -- while sec.10.5 says to run both audits on the
+# outgoing brief and record what they found IN it.  `audit_brief.py` had always
+# auto-detected; this one had not.  It is the newest brief now, by the same
+# rule the rest of the project uses: find it with ls, never by a typed name.
+BRIEF = sorted(glob.glob('NEXT_CONTEXT_PROMPT_rev*.md'),
+               key=lambda f: int(re.search(r'rev(\d+)', f).group(1)))[-1]
 
 
 def t(q, ok, d=""):
@@ -181,10 +188,11 @@ t("is the underseal really DARKER than the interior grey it replaced?",
 
 # ----------------------------------------------- the guard I broke, from source
 t("is V_POW's by-value pin STILL greppable, with the ablation beside it?",
-  len(re.findall(r'^V_POW = 0\.60$', open('t1_mats.py').read(), re.M)) == 1
+  len(re.findall(r'^V_POW = 0\.52$', open('t1_mats.py').read(), re.M)) == 1
   and 'T1_VPOW' in open('t1_mats.py').read(),
-  "three verify_clone rows grep '^V_POW = 0.60'.  Rev 60's first ablation cut "
-  "took out all three at once; the literal must stay on its own line")
+  "three verify_clone rows grep '^V_POW = 0.52'.  Rev 60's first ablation cut "
+  "took out all three at once; the literal must stay on its own line.  The "
+  "VALUE moved 0.60 -> 0.52 at rev 61 (F135) and all three rows moved WITH it")
 
 t("do T1_VPOW and T1_VPOWZ BOTH exist, so paint and swage can move together?",
   'T1_VPOW' in open('t1_mats.py').read()
@@ -300,10 +308,72 @@ t("is the ranked work list still named by README, START_HERE and the brief?",
   "whole revision -- which is how the standing-instructions carrier went at "
   "rev 44 and the open-findings register at rev 45 (rule 16)")
 
+# =====================================================================
+# REPLACED AT REV 61 (sec.10.5 -- a question that can no longer fail is not a
+# control).  These six are about what REV 61 shipped and what it retracted.
+# =====================================================================
+
+_pn = open('probe_rev59_nose.py').read()
+_i_red = _pn.find('not redm[v, ucol]')
+_i_cream = _pn.find('not cream[v, ucol]')
+t("does M1 still cross the lamp assembly before it looks for cream?",
+  0 <= _i_red < _i_cream,
+  "for two revisions M1 stopped on the headlamp's CHROME BEZEL -- bright and "
+  "unsaturated, so `cream` is TRUE on it -- and returned ~1.18 lamp radii "
+  "WHATEVER the paint did.  That is what refuted F106/F107 falsely.  If this "
+  "walk loses its red-paint step the gate goes blind again (F134).  THIS ROW "
+  "IS STRUCTURAL, NOT BEHAVIOURAL, AND THAT IS ITS CEILING: it asserts the "
+  "red-paint walk appears BEFORE the cream walk, so it catches deletion and "
+  "reordering but NOT a disarmed loop condition.  A first cut grepped only for "
+  "the symbol and survived `while False and not redm[...]` -- watched")
+
+t("does M1 still PRINT the bezel-ruled figure beside its lens-ruled one?",
+  'BEZEL-RULED' in open('probe_rev59_nose.py').read(),
+  "M1's ruler is the LENS interior; F75's bar is RIM-ruled and F75 says that "
+  "1.19 conversion CANNOT BE CHECKED.  Rev 61 quoted M1's PASS as 'item B "
+  "fixed' for one commit.  Without the like-for-like figure printed beside it, "
+  "that misreading is one grep away from happening again (F136)")
+
+t("is C8, the scale-stable emblem statistic, still armed and still failing?",
+  'cell_elongation' in open('probe_rev46_vw.py').read()
+  and 'C8' in open('probe_rev46_vw.py').read(),
+  "C6 counts CELLS and F105 showed that count is not scale-stable; F139 showed "
+  "its target of 7 is CONTAMINATED by a cell lying entirely inside the ring "
+  "band.  C8 measures cream-cell ELONGATION -- built 1.49, a plain CROSS 1.39, "
+  "photograph 3.39.  It is the only instrument that measures what the owner "
+  "actually reports (F137)")
+
+t("is C9's kill still the SYNTHETIC pair, not the W-collapse ablation?",
+  '_bars' in open('probe_rev46_vw.py').read()
+  and '_cross' in open('probe_rev46_vw.py').read(),
+  "C9's first cut used the W-collapse ablation and moved C8 only 1.49 -> 1.56. "
+  "A 0.07 margin is a coincidence waiting to happen, not a control.  The "
+  "synthetic pair -- a plain cross and six parallel bars -- has an answer known "
+  "BY CONSTRUCTION (1.39 and 10.71)")
+
+t("can the owner's Senor ruling still be undone behind a passing checksum?",
+  'S_bridge' in open('senor_trace.py').read()
+  and 'the S is ONE letter' in open('verify_clone.sh').read(),
+  "the owner ruled the word must read 'clearer than the photo, well defined'. "
+  "IoU against the TARNISHED mask FALLS when the letter is restored (0.8859 -> "
+  "0.8602) and MUST NOT be 'repaired'.  The checksum re-base is licensed only "
+  "by the companion row that counts the S's CONNECTED COMPONENTS off the raster")
+
+t("does judge_set.sh still exist, so photorealism is judged WITH the optics?",
+  os.path.exists('judge_set.sh')
+  and '--backdrop headroom' in open('judge_set.sh').read(),
+  "post.py implements bloom -> CA -> vignette -> grain, defaults every gain to "
+  "0.0, and the preview path never called it -- so SIXTY revisions of fidelity "
+  "judgement were made on raw frames, and a photography panel scored optics "
+  "1/10 on that alone.  --backdrop headroom is REQUIRED or the vignette and "
+  "grain do not render at all (F146)")
+
 P("-" * 78)
 P("  %d asked, %d BROKE%s" % (NQ[0], len(bad),
                               ("  --  " + "; ".join(bad)) if bad else ""))
 P("  A question that can no longer fail is not a control.  The last six were")
-P("  REPLACED at rev 60c-ii and are about what rev 60c SHIPPED; the ones above")
-P("  them are about rev 60's claims and are the next batch to replace.")
+P("  REPLACED at rev 61 and are about what REV 61 shipped and retracted;")
+P("  the rev-60c batch above them is the next one to replace.")
 sys.exit(1 if bad else 0)
+
+

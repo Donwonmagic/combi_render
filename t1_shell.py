@@ -2915,9 +2915,12 @@ def signboard():
 # difference, which is exactly the 65 mm mistake this frame invites.
 V_APEX_Z = 0.4050        # t1_mats.V_APEX 0.340 above ground + RIDE_DROP 0.065
 V_RISE_Z = 0.8670        # == t1_mats.V_RISE
-V_POW_Z = 0.60
+V_POW_Z = 0.52
 # rev 60 -- T1_VPOWZ, the PRESSED SWAGE's half of the T1_VPOW ablation.  The
-# literal above stays on its own line: verify_clone.sh greps `^V_POW_Z = 0.60`
+# literal above stays on its own line: verify_clone.sh greps `^V_POW_Z = 0.52`
+# (0.52 since rev 61 -- F77 fitted the exponent POSE-INVARIANTLY on three
+# frames at 0.517 / 0.521 / 0.531, with a render control recovering 0.600 to
+# +/-0.02.  The old 0.60 was refuted only behind a BROKEN gate; see F135.)
 # and t1_mats' V_POW is pinned to agree with it.  Set BOTH env vars to the same
 # value to move paint and swage together and keep verify.py's registration row
 # satisfied; set one alone and that row must FAIL, which is the point.

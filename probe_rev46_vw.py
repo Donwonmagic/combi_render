@@ -530,6 +530,114 @@ ctl("C7", _nh != nb,
     "count %d -> %d, so this control follows the glyph's topology rather than "
     "reporting a constant" % (nb, _nh))
 
+# ---------------------------------------------------------------- rev 61, C8
+# THE CELL *COUNT* IS NOT WHAT THE OWNER IS LOOKING AT, AND IT IS NOT SCALE-
+# STABLE.  F105 already found the count depends on the raster scale.  What he
+# reports -- five times -- is that the glyph "reads as an X", and F104 said the
+# cause in words: the photograph's cream is SEVEN THIN SLIVERS, the build's is
+# FOUR FAT WEDGES.  That is a statement about cell SHAPE, and nothing measured
+# it.  C6 can be satisfied by six cells of any shape whatever.
+#
+# ELONGATION -- sqrt of the ratio of the two principal moments of each cream
+# cell, area-weighted median over the cells -- is that statement as a number.
+# It is a pure ratio, so it needs no scale, no exposure and no axis fit, and it
+# is measured through the SAME function on both sides (rule: a second copy of a
+# measurement is how one gets quietly relaxed).
+#
+# THE PHOTOGRAPH'S CROP IS FORESHORTENED -- 69 rows by 41 cols on a roundel
+# that is circular -- so x is stretched by 69/41 before the moments are taken.
+# rev 44's own note licenses exactly this: a rotation about a vertical axis
+# preserves vertical ratios.  The built raster is square and takes squash 1.
+#
+# WATCHED, all of it (rule 5 -- no figure here was typed before it printed):
+#     photograph            3.33   (69 rows, squash 69/41)
+#     built, shipped        1.49   at 276 rows AND 1.49 at 69 rows  <- STABLE
+#     built, T1_VW_CAPMIN   1.58   -- so F101's refutation of CAPMIN is
+#                                     CONFIRMED by a second, independent
+#                                     statistic, not just by the count
+def cell_elongation(mask, squash, frac=0.97):
+    """Area-weighted median elongation of the cream cells.  See C8 above."""
+    n0, n1 = mask.shape
+    yy, xx = np.mgrid[0:n0, 0:n1]
+    cy, cx = (n0 - 1) / 2.0, (n1 - 1) / 2.0
+    disc = (((yy - cy) / (n0 / 2.0)) ** 2 + ((xx - cx) / (n1 / 2.0)) ** 2) <= frac ** 2
+    bg = disc & (~mask)
+    lab, k = ndi.label(bg)
+    if k == 0:
+        return 0.0
+    out = []
+    for i in range(1, k + 1):
+        m = lab == i
+        n = int(m.sum())
+        if n < 0.002 * disc.sum():
+            continue
+        ys, xs = np.where(m)
+        X = (xs - cx) * squash
+        Y = -(ys - cy)
+        P = np.stack([X, Y]).astype(float)
+        P = P - P.mean(1, keepdims=True)
+        w, _ = np.linalg.eigh(np.cov(P))
+        out.append((n, (w[-1] / max(w[0], 1e-9)) ** 0.5))
+    if not out:
+        return 0.0
+    tot = sum(o[0] for o in out)
+    acc = 0.0
+    for n, e in sorted(out, key=lambda t: t[1]):
+        acc += n
+        if acc >= tot / 2.0:
+            return e
+    return out[-1][1]
+
+
+def photo_elongation():
+    a = np.asarray(Image.open(os.path.join(HERE, "ref_nolita_front34.jpg"))
+                   .convert("RGB")).astype(float)
+    R, G, B = a[..., 0], a[..., 1], a[..., 2]
+    red = (R > 110) & (G < 0.60 * R) & (B < 0.60 * R)
+    lab, n = ndi.label(red)
+    sub = lab[192:261, 153:194]
+    ids, counts = np.unique(sub[sub > 0], return_counts=True)
+    m = sub == ids[int(np.argmax(counts))]
+    return cell_elongation(m, m.shape[0] / float(m.shape[1]))
+
+
+_eb = cell_elongation(glyph_only_mask(**CURRENT), 1.0)
+_ep = photo_elongation()
+_e69 = cell_elongation(glyph_only_mask(rows=69, **CURRENT), 1.0)
+print("")
+print("    SHAPE -- are the cream cells SLIVERS or WEDGES?  (C6 cannot see this)")
+print("        PHOTOGRAPH  elongation %.2f" % _ep)
+print("        BUILT       elongation %.2f at 276 rows, %.2f at 69 rows"
+      % (_eb, _e69))
+ctl("C8", _eb >= 0.70 * _ep,
+    "THE BUILT CREAM CELLS ARE AS ELONGATED AS THE PHOTOGRAPH'S.  photo %.2f, "
+    "built %.2f -- the built cells are %.2fx TOO ROUND.  Four fat wedges "
+    "meeting at the centre IS the X the owner has reported five times; the "
+    "photograph's cream is seven thin slivers.  Unlike C6's count this is a "
+    "pure ratio and does NOT move with raster scale (%.2f at 276 rows against "
+    "%.2f at 69), which is the defect F105 found in the count"
+    % (_ep, _eb, _ep / max(_eb, 1e-9), _eb, _e69))
+
+# THE KILL -- ON TWO SYNTHETIC CASES WHOSE ANSWER IS KNOWN BY CONSTRUCTION.
+# Collapsing the W was tried first and moved the statistic only 1.49 -> 1.56;
+# a 0.07 margin is not a control, it is a coincidence waiting to happen.  So
+# C9 feeds cell_elongation two masks it CANNOT be wrong about:
+#   WEDGES  a plain cross -- four isotropic quadrants, must read near 1
+#   SLIVERS six parallel bars -- long thin cells, must read well above 3
+# If the function cannot separate those two it cannot separate a W from an X.
+_N = 276
+_yy, _xx = np.mgrid[0:_N, 0:_N]
+_cross = (np.abs(_xx - _N / 2.0) < 7) | (np.abs(_yy - _N / 2.0) < 7)
+_bars = (((_xx + _yy) // 20) % 2 == 0) & (((_xx + _yy) % 20) < 7)
+_e_wedge = cell_elongation(_cross, 1.0)
+_e_sliver = cell_elongation(_bars, 1.0)
+ctl("C9", _e_wedge < 1.6 < 3.0 < _e_sliver,
+    "KILL, SYNTHETIC: on a plain cross (four isotropic quadrants) "
+    "cell_elongation reads %.2f, and on six parallel bars it reads %.2f.  It "
+    "separates wedges from slivers by construction, so C8's %.2f-vs-%.2f is a "
+    "shape reading and not an artefact of the rasteriser"
+    % (_e_wedge, _e_sliver, _eb, _ep))
+
 nfail = sum(1 for v in CTL.values() if not v)
 print("\nCONTROLS: %d checked, %d FAILED%s"
       % (len(CTL), nfail,
