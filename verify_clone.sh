@@ -615,6 +615,36 @@ ck "tex/nose.png"    34b3d81a74f366a6fd849612b2293e0c "$(md5of tex/nose.png)"
 # against a clean silver of 210.9, and the b flag, i dot and swash zones are
 # untouched.
 # ===========================================================================
+# ===========================================================================
+# rev 62 -- THE DELIVERY PATH (T1_ALPHA).  The owner ruled the render goes on
+# "different backgrounds for promotional material", so studio.py grew an RGBA
+# branch.  TWO THINGS MUST STAY TRUE and neither is obvious from reading it:
+#
+#   1  IT IS OFF BY DEFAULT.  Every frame this project has ever judged came
+#      through composite_on_white's AlphaOver onto SPEC sec.6's pure white.  If
+#      T1_ALPHA ever defaults ON, every gate in this repository starts scoring
+#      a transparent frame against a white-background reference and the whole
+#      fidelity lane goes quietly wrong.
+#   2  THE BRANCH RETURNS BEFORE THE AlphaOver, NOT AFTER.  matte_tap.__doc__
+#      records the defect it exists to avoid: downstream of that node the alpha
+#      is 1 everywhere and the silhouette is UNRECOVERABLE.  A branch placed one
+#      node too late produces a file that HAS an alpha channel and carries no
+#      information -- which is exactly the failure that went unnoticed for
+#      sixty-two revisions.  This row is ORDINAL and needs no render.
+# ===========================================================================
+ck "T1_ALPHA defaults OFF -- the shipped path is still white" 1 \
+   "$(grep -c 'os.environ.get("T1_ALPHA", "0")' studio.py)"
+# NOTE ON THIS ROW, because its first cut was WRONG and passed nothing:
+# `T1_ALPHA` is read TWICE in studio.py -- once in composite_on_white (the
+# branch) and once in setup_render (the colour mode), and setup_render sits
+# BELOW the AlphaOver.  A bare `{a=NR}` keeps overwriting and lands on the
+# second one, so the row reported "no" about correct code.  It must take the
+# FIRST occurrence.  Watched failing on the wrong version and on a branch moved
+# below the AlphaOver by hand.
+ck "the T1_ALPHA branch returns BEFORE the AlphaOver" yes \
+   "$(awk '/if _alpha_delivery\(\):/{if(!a)a=NR} /lay over pure white/{if(!b)b=NR} END{print (a&&b&&a<b)?"yes":"no"}' studio.py)"
+ck "deliver.py refuses a set it cannot verify" 1 \
+   "$(grep -c 'PACKAGE IS NOT TRUSTWORTHY' deliver.py)"
 ck "tex/senor.png"   3491b72149707950e51d6be4ca31f33f "$(md5of tex/senor.png)"
 ck "T1_SENOR_TARNISH=1 restores the PRE-RULING texture byte for byte" yes \
    "$(cp tex/senor.png /tmp/_vc_senor.png 2>/dev/null; \
