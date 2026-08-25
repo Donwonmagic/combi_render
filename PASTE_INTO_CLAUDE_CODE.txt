@@ -16,15 +16,19 @@ nohup env T1_SUB=1 T1_PREVIEW=front,side,hero T1_PFX=r61 T1_RX=1600 T1_RY=1100 T
 importable, and the script rebuilt both from nothing. Then start the render, then read.
 **`grep -c Saved: /tmp/r61.log` must be 3** — a backgrounded runner's exit code is the redirect's.
 
-**READ `GAPS_rev60.md` BEFORE THE WORK LIST.** The owner asked for it by name at rev 60: the whole
-render-against-photograph gap review, graded MEASURED / OBSERVED / REFUTED. §6 of that file is the
-recommended order and this §0.0 is its short form.
+**READ `REMAINING_WORK_rev61.md` FIRST — IT IS THE RANKED EXECUTION LIST.** The owner asked for it in
+those words: *"a comprehensive list of just what exactly is left, so we know what we need to
+execute."* It sorts the register's 83 open rows into **REAL WORK (9) / CEILED-do-not-touch (4) /
+the owner's call (3) / process debt (7)**, and its **§I carries 27 open rows that were in no
+document at all**, including **F79** (the nose roundel 10–24 % too large, on the owner's top item)
+and **F77**. `GAPS_rev60.md` is still worth reading, **but two adversary passes have found NINE
+defects in it** — read its ⚠ block before leaning on any figure in it.
 
 **THE OWNER'S REV-58b RANKING IS NOW FULLY WORKED. TWO CLOSED, TWO REFRAMED.**
 
 | # | do | state at close of rev 60 | gate |
 |---|---|---|---|
-| **A** | **THE DOOR** | **FIXED AT REV 59.** 0.1 mm | `probe_rev59_door.py` M2 **PASSING** |
+| **A** | **THE DOOR** | **FIXED AT REV 59 and STILL FIXED — but its probe was BROKEN for a revision and nothing reported it (F131).** The rev-60c underbody took C4 and C5 red on a door that had NOT moved; both were instrument defects and both are fixed | `probe_rev59_door.py` **8 checked, 1 FAILED (M3, by design)** — and NEW: `--selftest`, a synthetic step with feet known BY CONSTRUCTION |
 | **D** | **THE GROUND SHADOW AND UNDERBODY** | **BUILT AT REV 60; GEOMETRY REPAIRED TWICE SINCE, AND THE FIGURES REV 60 PUBLISHED ARE STALE.** Re-measured at rev 60c: **G4 0.3602 built, 0.5475 ablated**, against a photographed 0.057. The residue is now APPORTIONED — see §2.1 | `probe_rev45_ground.py` **G4 PASSING at 0.3602**; and NEW: `verify.py`'s underbody **proudness** and **slot** rows |
 | **C** | **THE EMBLEM — still an X** | **NOT FIXED. CAUSE LOCALISED at rev 60** to the CONSTRUCTION: the V and W are each ONE mitred polyline and they fuse into two diagonals. **Three hypotheses refuted — do not re-try them** | `probe_rev46_vw.py` C6, **watched failing** |
 | **B** | **THE NOSE BREAK — 73 mm on the red-bus ruler, but F75's HONEST BRACKET IS 50–80 mm, best single estimate 52 mm** | **NOT FIXED. THE WHOLE REMEDY PROGRAMME IS REFUTED at rev 60** — `V_POW`, `V_RISE` and `V_POW_Z` all fail to move the feature | `probe_rev59_nose.py` M1, **watched failing** |
@@ -38,9 +42,13 @@ read OPEN, the cook's bare forearm is at full saturation with no veil over it, a
 *"open serving apertures on +Y: 3"* already matches. **Do not spend his one question on any of
 them.** *Do not re-ask anything in §4.*
 
-**RANK BY PIXELS OF THE DELIVERY FRAME**, `python3 visibility_budget.py` — **which was repaired at
-rev 60 and is worth trusting for the first time**: it had named a frame that cannot exist, so it
-always reported a FALLBACK scale, and its table omitted three of the owner's own five items.
+**RANK BY PIXELS OF THE DELIVERY FRAME**, `python3 visibility_budget.py 3840` — **and PASS IT THE
+FRAME.** Rev 60 "repaired" it and rev 60c-ii found it had reproduced the defect it fixed (F132): it
+took its scale off whichever hero was rendered LAST, in an untracked directory, so the ranking that
+decides what counts as WORK depended on `out/` mtimes — 724 px/m against 801 with a different newest
+frame. It now names the frame it used on every run. **Every px² figure in `REMAINING_WORK` was
+measured at the 801 scale and is ~22 % high; the ORDERS OF MAGNITUDE, which is all that column is
+for, are unaffected.**
 
 ---
 
@@ -53,10 +61,27 @@ then `LEDGER_rev60.md` (where every number in §2 comes from), then `OPEN_FINDIN
 
 ---
 
-## §0.05 THIS BRIEF WAS AUDITED AGAINST THE MACHINE — AND WHAT THE AUDIT FOUND
+## §0.05 THIS BRIEF WAS AUDITED AGAINST THE MACHINE BY AN INDEPENDENT ADVERSARY — AND IT FOUND EIGHTEEN THINGS
 
-**Rule 17: audit the brief you WRITE, not only the one you receive.** Both halves ran as scripts;
-the run is recorded at close of rev 60.
+**Rule 15/17: an adversary was put on the documents being HANDED ON, not only the ones received.**
+It returned **18 findings**, and **the two worst were written in the same session that shipped them**:
+
+* **I broke `probe_rev59_door.py` and every gate stayed green.** Live tree 3 FAILED, `T1_NOUNDER=1`
+  1 FAILED. The door never moved — the walks are identical to **under 1.1 px** — but my underbody
+  let the tracked walk run **three columns further**, and `feet()` flipped. Two instrument defects
+  (an ill-conditioned axis, and a band selected by value with no contiguity test). **F131.**
+* **G4's ablated headline `0.5607` was wrong in five documents.** It is **0.5475** — five runs,
+  spread 0.0010 — and `probe_rev45_ground.py`'s own header had said so all along. `T1_NOUNDER`
+  builds no underbody, so no mesh change can move it, and the brief's justification for striking
+  the correct value was invalid on its face. **F130.**
+
+**AND MY OWN TAIL FINDING WAS RETRACTED (F133).** F128 called a "133× spread ratio" decisive; its
+two photograph readings came from **different instruments**. Under one consistent painted window the
+photograph's spread is the **larger**. The level difference survives (~1.7–2.4×, not 4.7×); the
+argument does not.
+
+**THE LESSON, AND IT IS THE PROJECT'S RULE 4 VERBATIM: every instrument built this session was
+wrong at least once, and every one produced a plausible number first.**
 
 **AND THE REV-60 LESSON IS RULE 36's, EARNED THREE MORE TIMES.** *Ablate the thing you are about to
 tune, FIRST.* Rev 58 and rev 59 both proposed inverting nose constants that four renders now show
@@ -136,6 +161,32 @@ time**, so a loss says *which*:
 ---
 
 ---
+
+---
+
+## §0.06 THE MACHINE'S VERDICT AT CLOSE OF REV 60c-ii — every one watched print
+
+```
+bootstrap.sh          ALL 10 PASS
+verify_clone.sh       ALL 270 PASS on a clean tree   <- 0 FIDELITY, 270 SELF-CONSISTENCY
+VERIFY (in build)     0 fail, 0 warn at SUB=1 AND SUB=2
+  underbody proudness worst -55.8 mm (SUB=2) / -50.1 mm (SUB=1)  INBOARD everywhere
+  underbody/shell fit worst intrusion +10.5 mm over 1400 perimeter stations, both signs of y
+probe_rev45_ground    5 checked, 0 FAILED.  G4 0.3602 built / 0.5475 ablated / 0.057 photographed
+probe_rev59_door      8 checked, 1 FAILED (M3, BY DESIGN);  --selftest 2 checked, 0 FAILED
+probe_rev46_vw        C6 FAILS: photograph 7 cream cells, built 6 (4 at the photograph's scale)
+probe_rev59_nose      M1 FAILS: 1.187 lamp radii against 1.951-2.121
+flank_compare.py      FAILS: worst region `i` 0.684 (bar 0.75), `Senor` 0.721
+gloss_compare.py      FAILS: 0.426 (bar 0.60)
+textures              7 of 8 tracked >= 3072; tex/emblem.png 1024 and BLOCKED (F115)
+audit_brief.py        10 checked, 0 FAILED
+audit_adversary.py    24 asked, 0 BROKE   <- six questions REPLACED for rev 61
+```
+
+**AND THE STANDING WARNING, WHICH `verify_clone.sh` PRINTS ITSELF.** A green check is not evidence
+about the vehicle. **Not one of those 270 rows compares the model to a photograph.** The trunk lid
+that opened inwards, the board buried in the roof, the disc of body red in every tail lamp, the
+five-petal hubcaps — every one passed this script and was found by **LOOKING AT A CROP**.
 
 ---
 
