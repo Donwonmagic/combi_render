@@ -595,7 +595,93 @@ ck "tex/nose.png"    34b3d81a74f366a6fd849612b2293e0c "$(md5of tex/nose.png)"
 # WATCHED BOTH WAYS: shipped 1 component [361 px]; T1_SENOR_BREAKS=1 gives 3
 # [251, 61, 14].  IoU against the TARNISHED mask FALLS by design (Senor
 # 0.8859 -> 0.8602) and MUST NOT be "repaired" -- see senor_trace.py.
-ck "tex/senor.png"   adcf908f0c3c078c45f8d305d470796a "$(md5of tex/senor.png)"
+# ===========================================================================
+# rev 62 -- RE-BASED, AND THE CAUSE IS AN OWNER RULING, NOT A REPAIR.
+#
+# He was shown probe_scratch/rev62_q_senor.png -- the photograph and the render
+# of the same word at the same mm/px -- and asked which finish he wanted on
+# `Senor`.  Four options; he chose "Bright silver, same as Tacombi".  That
+# overrides SPEC sec.3's WEATHERED lock FOR THIS WORD ONLY, and the rev-62 brief
+# sec.4 had already flagged the collision and required it be surfaced to him
+# rather than decided silently.  script_gen.SENOR_TARNISH = 0.0 ships it.
+#
+# THE COMPANION ROW, which is what makes this a re-base and not a rubber stamp
+# (CLAUDE.md, "a re-base is allowed only with the cause named AND a companion
+# row that makes the cause separately testable"): the row below re-runs
+# script_gen with T1_SENOR_TARNISH=1 and asserts it reproduces the PRE-RULING
+# texture BYTE FOR BYTE.  So the ruling is reversible, the measured TARNISH_K
+# and SENOR_MICHELSON are provably still live, and this hash moved for the
+# stated cause and no other.  WATCHED: the word's luma goes 117.1 -> 201.1
+# against a clean silver of 210.9, and the b flag, i dot and swash zones are
+# untouched.
+# ===========================================================================
+# ===========================================================================
+# rev 62 -- THE DELIVERY PATH (T1_ALPHA).  The owner ruled the render goes on
+# "different backgrounds for promotional material", so studio.py grew an RGBA
+# branch.  TWO THINGS MUST STAY TRUE and neither is obvious from reading it:
+#
+#   1  IT IS OFF BY DEFAULT.  Every frame this project has ever judged came
+#      through composite_on_white's AlphaOver onto SPEC sec.6's pure white.  If
+#      T1_ALPHA ever defaults ON, every gate in this repository starts scoring
+#      a transparent frame against a white-background reference and the whole
+#      fidelity lane goes quietly wrong.
+#   2  THE BRANCH RETURNS BEFORE THE AlphaOver, NOT AFTER.  matte_tap.__doc__
+#      records the defect it exists to avoid: downstream of that node the alpha
+#      is 1 everywhere and the silhouette is UNRECOVERABLE.  A branch placed one
+#      node too late produces a file that HAS an alpha channel and carries no
+#      information -- which is exactly the failure that went unnoticed for
+#      sixty-two revisions.  This row is ORDINAL and needs no render.
+# ===========================================================================
+# ===========================================================================
+# rev 62 -- THE EMBLEM CARRIER.  THIS ROW EXISTS BECAUSE THE PROJECT ALREADY
+# LOST THIS EXACT THING ONCE.
+#
+# At rev 45 the correct method for the owner's top item was written down --
+# "build the canonical mark and use the photograph to VERIFY" -- and it then
+# survived ONLY in LEDGER_rev45.md and NEXT_CONTEXT_PROMPT_rev46.md, both
+# superseded and never opened again.  Seventeen revisions kept deriving the
+# glyph from a 41 px badge because no live document carried the instruction.
+# That is rule 16's failure mode, and prose cannot guard against it -- a
+# sentence saying "do not drop this" is exactly what got dropped.
+#
+# So: the file must EXIST, and the three intake doors must NAME it.  If a
+# future context compacts it away, this goes red instead of the loss going
+# unnoticed for seventeen revisions.
+# ===========================================================================
+ck "EMBLEM_HANDOFF.md exists"  1 "$(ls EMBLEM_HANDOFF.md >/dev/null 2>&1 && echo 1 || echo 0)"
+# THIS ROW'S FIRST CUT WAS WRONG AND SCORED 2 ON A CORRECT TREE, twice over:
+# `grep -lc` is contradictory (-c overrides -l), and it referenced
+# $_LATEST_BRIEF five hundred lines BEFORE that variable is assigned, so it
+# grepped an empty filename.  It finds the brief itself now.  Watched failing
+# by removing the pointer from START_HERE.md, and watched passing on restore.
+_EMB_BRIEF="$(ls NEXT_CONTEXT_PROMPT_rev*.md 2>/dev/null | sort -V | tail -1)"
+ck "README, START_HERE and the newest brief NAME the emblem carrier" 3 \
+   "$(( $(grep -q EMBLEM_HANDOFF.md README.md 2>/dev/null && echo 1 || echo 0) \
+      + $(grep -q EMBLEM_HANDOFF.md START_HERE.md 2>/dev/null && echo 1 || echo 0) \
+      + $(grep -q EMBLEM_HANDOFF.md "$_EMB_BRIEF" 2>/dev/null && echo 1 || echo 0) ))"
+ck "the carrier still states the OWNER'S OWN sentence" 1 \
+   "$(grep -c 'publicly available emblem' EMBLEM_HANDOFF.md)"
+ck "T1_ALPHA defaults OFF -- the shipped path is still white" 1 \
+   "$(grep -c 'os.environ.get("T1_ALPHA", "0")' studio.py)"
+# NOTE ON THIS ROW, because its first cut was WRONG and passed nothing:
+# `T1_ALPHA` is read TWICE in studio.py -- once in composite_on_white (the
+# branch) and once in setup_render (the colour mode), and setup_render sits
+# BELOW the AlphaOver.  A bare `{a=NR}` keeps overwriting and lands on the
+# second one, so the row reported "no" about correct code.  It must take the
+# FIRST occurrence.  Watched failing on the wrong version and on a branch moved
+# below the AlphaOver by hand.
+ck "the T1_ALPHA branch returns BEFORE the AlphaOver" yes \
+   "$(awk '/if _alpha_delivery\(\):/{if(!a)a=NR} /lay over pure white/{if(!b)b=NR} END{print (a&&b&&a<b)?"yes":"no"}' studio.py)"
+ck "deliver.py refuses a set it cannot verify" 1 \
+   "$(grep -c 'PACKAGE IS NOT TRUSTWORTHY' deliver.py)"
+ck "tex/senor.png"   3491b72149707950e51d6be4ca31f33f "$(md5of tex/senor.png)"
+ck "T1_SENOR_TARNISH=1 restores the PRE-RULING texture byte for byte" yes \
+   "$(cp tex/senor.png /tmp/_vc_senor.png 2>/dev/null; \
+      T1_SENOR_TARNISH=1 python3 script_gen.py >/dev/null 2>&1; \
+      if cmp -s tex/senor.png /tmp/_vc_senor_pre.png 2>/dev/null || \
+         [ "$(md5of tex/senor.png)" = "adcf908f0c3c078c45f8d305d470796a" ]; \
+      then echo yes; else echo no; fi; \
+      cp /tmp/_vc_senor.png tex/senor.png 2>/dev/null)"
 ck "the S is ONE letter, per the owner's rev-61 ruling"  1 \
    "$(python3 senor_trace.py 2>/dev/null | grep -o 'rasterised `S` components: [0-9]*' | awk '{print $NF}')"
 # rev 45, SPEC 10.112: RE-BASED because the texture legitimately changed.

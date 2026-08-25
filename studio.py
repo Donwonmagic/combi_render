@@ -875,6 +875,18 @@ def _grain_texture():
     return t
 
 
+def _alpha_delivery():
+    """T1_ALPHA -- the RGBA delivery switch, read LITERALLY rather than through
+    _envi().  Both verify_clone.sh and audit_brief.py require that a T1_* named
+    in the brief appear as a literal `os.environ.get("T1_...")`, and the header
+    of that check says in terms: *"If this ever needs loosening again, loosen
+    BOTH or neither.  The fix belonged in the new code."*  Rev 57b loosened one
+    copy and not the other and was caught by the repository's own verifier.  So
+    this reads the environment the way the check demands instead of relaxing the
+    check.  Evaluated per call, so the switch can be toggled between renders."""
+    return int(os.environ.get("T1_ALPHA", "0") or 0)
+
+
 def composite_on_white(scene, rgb=None, optics=True):
     """
     Render with alpha, then lay it over pure white -- and impose the artefacts
@@ -1036,6 +1048,43 @@ def composite_on_white(scene, rgb=None, optics=True):
             x += 250
         except Exception as e:
             log.append("bloom SKIPPED (%s)" % e)
+
+    # --- rev 62: THE DELIVERY BRANCH.  STOP HERE AND KEEP THE ALPHA. -----
+    #
+    # WHY THIS EXISTS.  The owner ruled the render is "to plug into company
+    # merch with different backgrounds" (F155), and F155 spelled out the
+    # consequence: the white cyclorama is SCAFFOLDING, not the deliverable.
+    # Everything below this point bakes the backdrop in and cannot be undone
+    # downstream -- an AlphaOver destroys the alpha, and a vignette darkens the
+    # corners of a background he is going to replace.
+    #
+    # WHAT IS KEPT AND WHY, rather than "optics off":
+    #   contact shadow  KEPT.  It is the reason this works at all.  The shadow
+    #                   is PARTIAL ALPHA, not grey pixels, so it composites
+    #                   correctly over a background of ANY colour.  Baked on
+    #                   white it would only ever be right on white.
+    #   bloom           KEPT.  It runs on the linear render BEFORE the white,
+    #                   so it is a property of the subject and the taking lens,
+    #                   not of the backdrop.
+    #   CA              DROPPED.  Dispersion is a property of the whole
+    #                   PROJECTED IMAGE including whatever he composites behind
+    #                   it; applying it to the cut-out alone puts colour
+    #                   fringes on the vehicle's silhouette that will not match
+    #                   his background.  His compositor applies it, or nobody
+    #                   does.
+    #   vignette, grain DROPPED, same argument and more strongly: a vignette on
+    #                   a transparent asset darkens the corners of nothing, and
+    #                   grain that stops at the silhouette is a visible tell.
+    #
+    # SPEC sec.6 locks the BACKDROP to pure white.  This does not contradict
+    # that: it declines to render a backdrop at all, and the shipped default is
+    # unchanged -- T1_ALPHA is OFF unless asked for.
+    if _alpha_delivery():
+        out = nt.nodes.new("CompositorNodeComposite"); out.location = (x + 240, -60)
+        nt.links.new(src, out.inputs[0])
+        log.append("T1_ALPHA: RGBA delivery -- white backdrop, CA, vignette "
+                   "and grain all SKIPPED; contact shadow and bloom KEPT")
+        return log
 
     # --- lay over pure white --------------------------------------------
     bg = nt.nodes.new("CompositorNodeRGB"); bg.location = (x - 200, -300)
@@ -1342,6 +1391,15 @@ def setup_render(res=(1600, 1100), samples=64, transparent=False):
     sc.render.dither_intensity = 1.0
     sc.render.image_settings.file_format = 'PNG'
     sc.render.image_settings.compression = 15
+    # rev 62, T1_ALPHA: the DELIVERY mode.  The owner's ruling is that this
+    # render goes "on different backgrounds for promotional material", so the
+    # backdrop is not the deliverable and must not be baked in.  RGBA keeps the
+    # film alpha -- and with it the CONTACT SHADOW, which lives in partial
+    # alpha, not in grey pixels.  See composite_on_white's T1_ALPHA branch.
+    if _alpha_delivery():
+        sc.render.image_settings.color_mode = 'RGBA'
+    else:
+        sc.render.image_settings.color_mode = 'RGB'
     # a real lens is not a box filter. 1.5 px is close to a photographic MTF
     # and stops the render looking laser-etched at hero resolution.
     # (Cycles owns this in 4.x; RenderSettings.filter_width is BI-era.)

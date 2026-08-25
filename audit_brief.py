@@ -86,13 +86,22 @@ bad = sorted(p for p in paths
              if not os.path.exists(os.path.join(ROOT, p)) or p not in _tracked)
 # a path may legitimately name something this revision creates in out/, which
 # is untracked and starts empty -- say so rather than failing on it.
-outp = [p for p in bad if p.startswith("out/")]
-bad = [p for p in bad if not p.startswith("out/")]
+#
+# rev 62 EXTENDS THIS TO delivery/, WITH THE CAUSE NAMED.  deliver.py writes the
+# owner's promotional asset package there, and it is untracked for exactly the
+# reason out/ is: it is ~100 MB of generated RGBA PNGs regenerated from the
+# renders by one command.  A repository is not an asset store.  THE EXEMPTION IS
+# BY PREFIX AND IS NOT A BLANKET PASS -- a path anywhere else in the tree still
+# has to resolve, and the exempted ones are PRINTED, not silently dropped.
+_GEN = ("out/", "delivery/")
+outp = [p for p in bad if p.startswith(_GEN)]
+bad = [p for p in bad if not p.startswith(_GEN)]
 ck("every path the brief names resolves", not bad,
    "%d checked, %d unresolved%s" % (len(paths), len(bad),
                                     ("  " + " ".join(bad)) if bad else ""))
 if outp:
-    print("       (%d in out/, which is untracked and starts empty: %s)"
+    print("       (%d in out/ or delivery/, both untracked and both starting "
+          "empty: %s)"
           % (len(outp), " ".join(outp)))
 
 # --------------------------------------------------------- 2. T1_* switches
