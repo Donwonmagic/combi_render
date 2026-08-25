@@ -246,6 +246,10 @@ in 60 revisions.
 ## §9 EVERY WINDOW I PAINTED AND THREW AWAY
 
 **Eleven, which is normal here (rule 4), and every one produced a plausible number first.**
+**⚠ AN ADVERSARY CORRECTED THE COUNT'S DESCRIPTION: items 9, 10 and 11 are not painted
+windows — they are a spectral statistic, a saturating edge-width instrument and a control
+whose margin was too thin — and item 11 was caught by REASONING about that margin, which
+§7 of the brief elsewhere denies happens. EIGHT painted windows, THREE bad instruments.**
 
 1. A `ref_rear34.jpg` "bulb string" window that swallowed the **MURAL LID** and returned a
    believable **4.48** against the true 3.82.

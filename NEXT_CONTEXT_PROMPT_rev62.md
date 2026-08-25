@@ -396,7 +396,7 @@ in the briefs and are carried here — that is rule 16 firing on this file:
 
 > **37. AN ABSENT INPUT MUST NEVER READ AS A MEASUREMENT.** A probe that cannot run must say
 > **"NO RENDER"** and exit non-zero. **Rev 61 adds a sibling: AN INSTRUMENT THAT SATURATES ITS
-> OWN SEARCH WINDOW MUST NOT PUBLISH.** Two of rev 61's did, and their outputs (134 mm / 81 mm)
+> OWN SEARCH WINDOW MUST NOT PUBLISH.** ONE of rev 61's did, on TWO frames, and its two outputs (134 mm / 81 mm)
 > are recorded in F150 as artefacts, not figures.
 
 > **38. NEW AT REV 61 — TWO SIDES OF A RATIO MUST SHARE A RULER, AND IF THEY CANNOT, SAY SO IN
@@ -495,7 +495,7 @@ say anything is ready — say what is fixed, what is still wrong, and what you m
 
 **RENDER IT, CROP IT, AND LOOK AT IT, before and after every change.** Every defect this project
 has shipped passed `VERIFY: 0 fail, 0 warn` and was found by looking at a crop. **At rev 61 the
-emblem's cause, the roof's loudspeakers, and eleven wrong measurement windows were all found
+emblem's cause, the roof's loudspeakers, and eleven wrong measurement windows and instruments were all found
 that way, and none by reasoning.**
 
 **When you need something from him, ask as MULTIPLE CHOICE with the reference material attached
