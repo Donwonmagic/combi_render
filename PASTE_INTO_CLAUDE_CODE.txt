@@ -88,7 +88,7 @@ the vehicle to a photograph.**
 
 | gate | state MEASURED at close of rev 60 |
 |---|---|
-| `flank_compare.py` | **runs, FAILS.** Worst region **`i` at 0.685** against a 0.75 bar; `Senor` **0.720**. *(The rev-58 table said `Senor` 0.651 and rev 60 found that BOTH stale AND contradicted by this same brief's §9 — re-measured live.)* The deficit is the **artwork alpha and its placement**, not the render (F39) |
+| `flank_compare.py` | **runs, FAILS.** Worst region **`i` at 0.684** against a 0.75 bar; `Senor` **0.721** (re-measured rev 60c-ii). *(The rev-58 table said `Senor` 0.651 and rev 60 found that BOTH stale AND contradicted by this same brief's §9 — re-measured live.)* The deficit is the **artwork alpha and its placement**, not the render (F39) |
 | `mottle_measure.py` | **runs, and it is NOT measuring the mottle** — 1.1–2.0 % of it. Rev 56's reading and rev 57's item B are REFUTED |
 | `gloss_compare.py` | **runs, FAILS at 0.426** (bar 0.60, re-measured rev 60c-ii on `out/r60c_hero.png`; four heroes in `out/` give 0.425-0.429 and **0.436 reproduces on none of them** -- the brief carried an invented regression). Mask corrected at rev 58 (F59); the model-side lever is now **exhausted** (F60/F62) |
 | **`probe_rev46_vw.py`** | **NOW FAILS C6, and that is the point.** photograph 7 cream cells, built 6. It reported 0 FAILED for three revisions while the glyph was an X |

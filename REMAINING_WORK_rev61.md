@@ -231,7 +231,7 @@ for.
 | **H3** | **F41 — the ALBEDO arm is blind to the larger half of the mottle BY CONSTRUCTION**; **F05** — the BEAUTY arm refuses (100 % clipped), **cheap now that F51 is fixed** | |
 | **H4** | **F88 / F95 — `gloss_compare.py` rebuilds its red mask from every frame so the mask can WALK OFF the defect**, and it reads the target's paint finish off a **NOLITA** frame, which is admitted for GEOMETRY ONLY (rule 11) | |
 | **H5** | **F49 / F50 — `stitch.py`'s guard fired and the runner ignored it**; its docstring describes a better design than its code implements | matters only at delivery |
-| **H6** | **F97 — the shell's n-gon count has grown 1.8×** (2,876 → **5,191**) and nothing tracks it. 0 non-manifold edges | **LOW.** Deliverables are stills and a sticker, so nothing reads the topology — but the original handoff's condition was *"if the mesh is ever delivered"* |
+| **H6** | **F97 — the shell's n-gon count has grown 1.8×** (2,876 → **5186**) and nothing tracks it. 0 non-manifold edges | **LOW.** Deliverables are stills and a sticker, so nothing reads the topology — but the original handoff's condition was *"if the mesh is ever delivered"* |
 | **H7** | **F115 — `tex/emblem.png` is 1024×1024 and BLOCKED** from regeneration (`texgen.make_emblem` raises *"no usable font"*). ~~8 of 9 textures~~ **SEVEN OF THE EIGHT TRACKED textures meet SPEC §5's 3K floor** — the "9" counted `tex/prev_calidad.png`, an **untracked scratch file the gate itself excludes** (`verify_clone.sh`, grep `startswith('prev_')`). **Two copies of one check disagreeing is §10.8's own prohibition, and I wrote the second copy.** Against the owner's **4K** bar, `tex/calidad.png` and `tex/nose.png` sit at 3072 | the 3K floor is an asserted row; the 4K bar is a decision, not a blocker |
 
 ---
@@ -242,8 +242,12 @@ for.
 bootstrap.sh          ALL 10 PASS
 verify_clone.sh       ALL 268 PASS on a clean tree   <- 0 FIDELITY, 268 SELF-CONSISTENCY
 VERIFY (in build)     0 fail, 0 warn at SUB=1 AND SUB=2
-  underbody proudness worst -55.8 mm, INBOARD of the skin everywhere
-  underbody/shell fit worst intrusion +10.5 mm over 1400 perimeter stations, both signs of y
+  underbody proudness worst -55.8 mm at SUB=2 (under_close_a, x -1.800)
+                            -50.1 mm at SUB=1 (underpan,      x +1.680)  <- DIFFERENT PART
+  underbody/shell fit worst intrusion +10.5 mm (SUB=2) / +10.6 mm (SUB=1)
+                            over 1400 perimeter stations, both signs of y
+  ^ the proudness row's worst STATION is subdivision-dependent; both are
+    comfortably inboard, but quote the level WITH its SUB (rule 12)
 probe_rev45_ground    5 checked, 0 FAILED.  G4 0.3602 built / 0.5475 ablated / 0.057 photographed
 flank_compare.py      FAIL  worst region `i` 0.684 (bar 0.75)
 gloss_compare.py      FAIL  0.426 (bar 0.60)

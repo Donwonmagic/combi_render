@@ -23,8 +23,27 @@ need the source read the source.
 
     python3 audit_adversary.py
 """
-import os, re, subprocess, sys
+import os, re, subprocess, sys, glob
 import numpy as np
+
+
+def _newest(pattern):
+    """Highest-numbered rev file.  LEXICAL sort is WRONG here and was: it puts
+    NEXT_CONTEXT_PROMPT_rev9.md after rev61, so the question below asked
+    whether rev 9's brief names the rev-61 work list.  verify_clone.sh gets
+    this right with `sort -V`; this copy did not.  CLAUDE.md's own rule: find
+    it with a sort that understands the number, never trust a typed name."""
+    return max(glob.glob(pattern),
+               key=lambda f: int(re.search(r'rev(\d+)', f).group(1)))
+
+
+def _code(path):
+    """Source with comments stripped.  A row about a STRING must not match its
+    own explanatory comment -- that has happened FIVE times in this repository
+    (brief §10.4), and it happened again here on the first run of the
+    visibility_budget question below."""
+    return "\n".join(l.split('#')[0] for l in open(path).read().split("\n"))
+
 from PIL import Image
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -232,9 +251,59 @@ t("does the brief promise a lever for item B that rev 60 already refuted?",
   "rev 58's 0.345 is refuted by four renders; if the brief still offers it as "
   "the fix, rev 61 will spend itself on it exactly as rev 59 did")
 
+# ==========================================================================
+# REPLACED AT REV 60c-ii FOR REV 61 (§10.5: "a question that can no longer
+# fail is not a control").  The questions above are about REV 60's claims and
+# most can no longer fail.  Each of these is about something that WAS wrong in
+# this tree within the last revision, so each can fail again.
+# ==========================================================================
+
+t("does the ledger's ABLATED G4 still match the probe's own header?",
+  "T1_NOUNDER=1   G3 0.8375   G4 0.5475" in open('probe_rev45_ground.py').read()
+  and "0.5607" not in open('LEDGER_rev60.md').read(),
+  "T1_NOUNDER omits the underbody ENTIRELY, so no mesh change can move this "
+  "number.  0.5607 was published in five documents against a five-run mean of "
+  "0.5475 (F130); if it reappears, something transcribed it back")
+
+t("does probe_rev59_door's feet() still pass its own selftest?",
+  subprocess.run(['python3', 'probe_rev59_door.py', '--selftest'],
+                 capture_output=True, text=True).returncode == 0,
+  "those feet are known BY CONSTRUCTION, so a failure there is the INSTRUMENT. "
+  "C4/C5 went red on a door that had not moved and nothing reported it (F131)")
+
+t("does every F-number cited by verify_clone.sh exist in the register?",
+  all(("| **%s**" % f) in open('OPEN_FINDINGS.md').read()
+      for f in set(re.findall(r'\bF\d{2,3}\b', open('verify_clone.sh').read()))),
+  "verify_clone.sh justified its ONLY texture exemption with F115 while the "
+  "register ran F1-F129 missing exactly F115 (F115).  A gate resting on a "
+  "dangling citation is resting on nothing")
+
+t("does visibility_budget.py still pick its scale frame by MTIME?",
+  "getmtime" not in _code('visibility_budget.py'),
+  "it takes the scale off whichever hero was rendered LAST, in an UNTRACKED "
+  "directory, so the ranking that decides what counts as work depends on out/ "
+  "mtimes -- 724 px/m today against 801 with a different newest frame (F132). "
+  "THIS QUESTION IS EXPECTED TO FAIL UNTIL THE FRAME IS PINNED")
+
+t("is F128's refuted SPREAD argument still marked as retracted?",
+  "RETRACTED" in open('OPEN_FINDINGS.md').read().split("| **F128** |")[1][:400],
+  "F128 called a 133x spread ratio DECISIVE, from two DIFFERENT instruments on "
+  "the two photograph frames.  Under one consistent window the photograph's "
+  "spread is the LARGER (F133).  If the mark goes, the retraction went with it")
+
+t("is the ranked work list still named by README, START_HERE and the brief?",
+  all(_rw in open(_f).read()
+      for _rw in [_newest('REMAINING_WORK_rev*.md')]
+      for _f in ('README.md', 'START_HERE.md',
+                 _newest('NEXT_CONTEXT_PROMPT_rev*.md'))),
+  "it declared itself a CARRIER and NO FILE in the repository named it for a "
+  "whole revision -- which is how the standing-instructions carrier went at "
+  "rev 44 and the open-findings register at rev 45 (rule 16)")
+
 P("-" * 78)
 P("  %d asked, %d BROKE%s" % (NQ[0], len(bad),
                               ("  --  " + "; ".join(bad)) if bad else ""))
-P("  A question that can no longer fail is not a control.  REPLACE THESE")
-P("  for rev 61 -- they are about rev 60's claims.")
+P("  A question that can no longer fail is not a control.  The last six were")
+P("  REPLACED at rev 60c-ii and are about what rev 60c SHIPPED; the ones above")
+P("  them are about rev 60's claims and are the next batch to replace.")
 sys.exit(1 if bad else 0)

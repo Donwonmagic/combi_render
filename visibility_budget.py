@@ -41,13 +41,31 @@ BUS_L = 4.065                       # STATE.md, overall length ex counter
 # whatever hero frame the tree actually has, newest first, and REFUSES in
 # those words if there is none.
 import glob as _glob, os
-_heroes = sorted(_glob.glob("out/*hero*.png"), key=os.path.getmtime, reverse=True)
+# rev 60c-ii -- AND THE "REPAIR" ABOVE REPRODUCED THE DEFECT IT FIXED (F132).
+# `key=os.path.getmtime` took the scale off whichever hero was rendered LAST,
+# in an UNTRACKED directory, so the ranking that decides what counts as WORK
+# depended on out/ mtimes.  An independent adversary reproduced every px^2
+# figure in REMAINING_WORK exactly by restoring one file's mtime, and got a
+# scale of 801 px/m where a fresh run gave 724 -- a 22 % swing with no source
+# change at all.  Rule 37: an AMBIGUOUS input must never read as a measurement
+# any more than an absent one may.
+#
+# The frame is now NAMED, not inferred: pass it as the second argument.  With
+# no argument the choice is deterministic (sorted BY NAME, not by clock) and
+# the frame used is PRINTED on every run, so the number can be reproduced.
+_heroes = sorted(_glob.glob("out/*hero*.png"))
+_named = [x for x in sys.argv[1:] if x.endswith(".png")]
+if _named:
+    _heroes = _named
 if not _heroes:
     print("NO RENDER -- visibility_budget needs a hero frame to measure its "
           "own scale off, and out/ holds none.  Render one first:")
     print("  T1_SUB=1 T1_PREVIEW=hero T1_PFX=rNN /tmp/blender/blender -b -P build.py")
     sys.exit(2)
 try:
+    print("  scale frame: %s%s" % (_heroes[0],
+          "" if _named else "  (chosen BY NAME from %d in out/; pass one "
+                            "explicitly to pin it)" % len(_heroes)))
     a = np.asarray(Image.open(_heroes[0]).convert("RGB")).astype(int)
     # rev 60b -- THE MASK WAS 27 % BACKDROP AND NOBODY HAD PAINTED IT.
     # The backdrop's lower half renders at 234 DN, ONE code value under the old
