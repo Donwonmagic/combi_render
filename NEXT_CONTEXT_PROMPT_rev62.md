@@ -215,6 +215,16 @@ X on both independently.
 
 ## §3 THE WORK LIST FOR REV 62
 
+**RANK BY PIXELS OF THE DELIVERY FRAME** — `python3 visibility_budget.py 3840` — **and PASS IT
+THE FRAME.** Rev 60 "repaired" that script and rev 60c-ii found it had reproduced the defect it
+fixed (F132): it took its scale off whichever hero was rendered LAST, in an untracked directory,
+so the ranking that decides what counts as WORK depended on `out/` mtimes — 724 px/m against 801
+with a different newest frame. It names the frame it used on every run now. **Its own ceiling:
+pixels are not visibility — a hard-edged error reads louder per pixel than a soft one, so use it
+for ORDERS OF MAGNITUDE, not to rank neighbours. And the owner outranks it**, which he used at
+rev 58 and again at rev 61.
+
+
 **Ranked. `PANEL_rev61.md` carries the full merged programme with the panels' own point
 estimates — but read §4 of `LEDGER_rev61.md` first, because FOUR of the panel's top items are
 already refuted and their point estimates are NOT bankable.**
@@ -336,6 +346,8 @@ python3 probe_rev59_nose.py out/r62_front.png                # ITEM B -- READ BO
 T1_SUB=1 /tmp/blender/blender -b -P probe_rev46_vw.py        # ITEM C -- C6 and C8 both FAIL
 T1_SUB=1 T1_VW_DUMP=1 ... probe_rev46_vw.py                  # PAINT the cells.  LOOK.
 python3 senor_trace.py                                       # the `S` connectivity guard
+python3 cream_rms.py                                         # the LIVE photograph-side cream
+python3 visibility_budget.py 3840                            # THE RANKING -- pass it the FRAME
 T1_SUB=2 /tmp/blender/blender -b -P audit.py                 # rewrites STATE.md -- COMMIT FIRST
 python3 audit_brief.py ; python3 audit_adversary.py          # rules 15 and 17, MECHANICAL half
 ```
