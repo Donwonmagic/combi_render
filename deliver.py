@@ -78,6 +78,7 @@ def _opt(name, default):
 
 
 PFX = _opt("--prefix", "deliv")
+WEB_EDGE = int(_opt("--web-edge", "1400"))
 OUTDIR = os.path.join(HERE, _opt("--outdir", "delivery"))
 SRC = os.path.join(HERE, "out")
 
@@ -145,7 +146,7 @@ def main():
               "package: %s" % (len(missing), ", ".join(missing)))
 
     os.makedirs(OUTDIR, exist_ok=True)
-    for sub in ("full_frame", "trimmed", "layers"):
+    for sub in ("full_frame", "trimmed", "layers", "web"):
         os.makedirs(os.path.join(OUTDIR, sub), exist_ok=True)
 
     print("\n  BUILDING THE PACKAGE -- %d view(s) from %s_*.png\n" % (len(have), PFX))
@@ -169,6 +170,18 @@ def main():
         save(sha, os.path.join(OUTDIR, "layers", "combi_%s_shadow_only.png" % stem))
         ta, bb = trim(a)
         save(ta,  os.path.join(OUTDIR, "trimmed", "combi_%s.png" % stem))
+        # web/ -- the same trimmed asset at WEB_EDGE px on its longest side.
+        # Not a different picture, a different weight class: a 2400 px RGBA PNG
+        # is ~9 MB and nobody puts that on a page.  Downscaled with LANCZOS from
+        # the full-res frame rather than re-rendered, so it cannot drift from
+        # the master.
+        wi = Image.fromarray(np.clip(ta, 0, 255).astype(np.uint8), "RGBA")
+        sc = WEB_EDGE / float(max(wi.width, wi.height))
+        if sc < 1.0:
+            wi = wi.resize((max(1, int(wi.width * sc)),
+                            max(1, int(wi.height * sc))), Image.LANCZOS)
+        wi.save(os.path.join(OUTDIR, "web", "combi_%s_web.png" % stem),
+                optimize=True)
         print("  %-20s %10s %8d %7.1f%% %8.3f %8.4f"
               % (stem, "%dx%d" % (a.shape[1], a.shape[0]), st["foot"],
                  100.0 * st["shadow"] / max(st["foot"], 1),
@@ -250,12 +263,20 @@ def manifest(rows, missing):
     A("              the shadow's opacity, blur it, or move it, to sit the")
     A("              vehicle on a background that has its own lighting.")
     A("")
+    A("web/          The trimmed images resized for screen use -- %d px on the"
+      % WEB_EDGE)
+    A("              longest side, a fraction of the file size. Same picture,")
+    A("              lighter. For anything going on a web page or a deck.")
+    A("")
     A("contact_sheet.png   Every view on four backgrounds. Check here first.")
     A("")
     A("THE VIEWS")
     A("-" * 72)
     for v, stem, w, h, bb, st in rows:
-        A("%s  (%d x %d)" % (stem, w, h))
+        _fp = os.path.join(OUTDIR, "full_frame", "combi_%s.png" % stem)
+        _mb = os.path.getsize(_fp) / 1e6 if os.path.exists(_fp) else 0.0
+        A("%s  (%d x %d full frame, %.1f MB;  artwork occupies %d x %d of it)"
+          % (stem, w, h, _mb, bb[2] - bb[0], bb[3] - bb[1]))
         for line in _wrap(VIEWS[v][1], 68):
             A("    " + line)
         A("")
