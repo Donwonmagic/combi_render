@@ -151,7 +151,22 @@ def landmarks(m):
                 # AN INSTRUMENT THAT HAS NEVER BEEN WRONG HAS NEVER BEEN
                 # TESTED (SPEC 10.116.6).  This one was, by its own control.
                 last3 = [f for f, n in t if n == 3]
-                if last3:
+                # ------------------------------------------------ rev 66, F203
+                # L4 MUST NOT SILENTLY BE L2.  If the raster presents only ONE
+                # 3-run row, "the last 3-run row" and "the first 3-run row" are
+                # THE SAME ROW, and L4 then reports the V's apex while the
+                # photograph's L4 reports the W's troughs -- two different
+                # features scored against each other (rule 38).  That is what
+                # C4 was doing: at 276 rows the built L4 read 0.3673, which is
+                # built L2 exactly, and the resulting -0.4387 error was 96.4 %
+                # of the whole residual.  Swept over the raster row count the
+                # built L4 flips between 0.366 and 0.866 -- a 0.50 swing driven
+                # by a parameter that is no property of the glyph.
+                #
+                # AN ABSENT LANDMARK MUST NEVER READ AS A MEASUREMENT (rule 37).
+                # Dropped instead, so err() penalises it as the lost landmark
+                # it is rather than scoring the survivors.
+                if last3 and abs(last3[-1] - L["L2"]) > 1e-12:
                     L["L4"] = last3[-1]
     if len(L) < 4:
         return None
@@ -263,7 +278,7 @@ BAND = 0.20                     # t1_detail.roundel: band 0.028 on R 0.140
 NPX = 69 * 8
 
 
-def built_mask(rows=69):
+def built_mask(rows=69, shrink=1.0):
     """Rasterise the glyph WITH the ring band, in the glyph's own plane.
 
     `rows` is the row count the landmarks are read at.  The photograph has 69,
@@ -281,6 +296,10 @@ def built_mask(rows=69):
                NPX - 1 - NPX * BAND / 2, NPX - 1 - NPX * BAND / 2], fill=0)
 
     def P(y, z):
+        # rev 66: `shrink` scales THE GLYPH ONLY, leaving the ring where it is,
+        # so a floating stroke can be planted and C7's kill can be WATCHED
+        # FIRING on the very defect C6 exists to detect (rule 3, rule 42).
+        y, z = y * shrink, z * shrink
         return (NPX / 2 + y / RING_R * (NPX / 2), NPX / 2 - z / RING_R * (NPX / 2))
 
     for o in obs:
@@ -298,7 +317,19 @@ PARAMS = ("VW_V_TIP_X", "VW_APEX_Z", "VW_W_ARM_X", "VW_W_ARM_Z",
           "VW_W_TROUGH_X", "VW_W_TROUGH_Z")
 
 
-def built_landmarks(rows=276, **over):
+# ------------------------------------------------------------- rev 66, F203
+# THE BUILT SIDE IS READ AT A ROW COUNT THAT HAS CONVERGED.
+#
+# built_mask's own docstring says "the agreement across row counts is
+# reported".  It was not, and it does not hold at 276: the built landmarks read
+# residual 0.4455 at 276 rows and 0.1001 at 552, because L4 sits on a
+# quantisation knife-edge there (F203).  552, 1104 and 2208 agree to the fourth
+# decimal, so 552 is converged.  C10 checks that claim on every run instead of
+# trusting this comment.
+BUILT_ROWS = 552
+
+
+def built_landmarks(rows=BUILT_ROWS, **over):
     old = {k: getattr(C, k) for k in over}
     for k, v in over.items():
         setattr(C, k, v)
@@ -455,7 +486,7 @@ ctl("C5", eC < e45 * 0.6,
 BAND_INNER = 1.0 - BAND          # 0.80 of the outer R, the band's inner edge
 
 
-def glyph_only_mask(rows=276, **over):
+def glyph_only_mask(rows=276, shrink=1.0, **over):
     """The glyph WITH its ring band, rasterised in its own plane -- the same
     construction built_mask uses, kept separate only so overrides can be passed
     per call without disturbing the landmark path above."""
@@ -463,13 +494,13 @@ def glyph_only_mask(rows=276, **over):
     for k, v in over.items():
         setattr(C, k, v)
     try:
-        return built_mask(rows)
+        return built_mask(rows, shrink=shrink)
     finally:
         for k, v in old.items():
             setattr(C, k, v)
 
 
-def cream_cells(mask, frac=0.97):
+def cream_cells(mask, frac=0.97, interior=False):
     """How many separate CREAM cells the strokes cut the ring's interior into.
 
     STRUCTURAL, like every landmark here: a region count, not a thresholded
@@ -479,7 +510,15 @@ def cream_cells(mask, frac=0.97):
     one per floating stroke, whatever the stroke's width or angle.
 
     The photograph and the built raster go through this SAME function.  A second
-    copy of a measurement is how one of them gets quietly relaxed."""
+    copy of a measurement is how one of them gets quietly relaxed.
+
+    rev 66, F200 -- `interior` KEEPS ONLY THE CELLS THE STROKES ACTUALLY CUT.
+    A cell is interior iff it lies inside the ring's own filled outline.  On the
+    photograph the ring is not concentric with its 41 x 69 crop box, so the
+    0.97 disc reaches PAST the ring's outer edge at one point and catches a
+    crescent of background; that crescent was C6's seventh cell.  The built
+    raster draws its ring out to the canvas edge and so can never produce one,
+    which means the two sides were not sharing a ruler (rule 38)."""
     n0, n1 = mask.shape
     yy, xx = np.mgrid[0:n0, 0:n1]
     cy, cx = (n0 - 1) / 2.0, (n1 - 1) / 2.0
@@ -488,12 +527,20 @@ def cream_cells(mask, frac=0.97):
     lab, k = ndi.label(bg)
     if k == 0:
         return 0, []
-    sz = ndi.sum(bg, lab, range(1, k + 1))
-    big = [int(s) for s in sz if s >= 0.002 * disc.sum()]
+    inside = ndi.binary_fill_holes(mask) if interior else None
+    big = []
+    for i in range(1, k + 1):
+        m = lab == i
+        n = int(m.sum())
+        if n < 0.002 * disc.sum():
+            continue
+        if inside is not None and float((m & inside).sum()) / n <= 0.5:
+            continue                      # background beyond the ring's rim
+        big.append(n)
     return len(big), sorted(big, reverse=True)
 
 
-def photo_cells():
+def photo_cells(interior=False):
     """The same count on ref_nolita_front34.jpg's own roundel."""
     a = np.asarray(Image.open(os.path.join(HERE, "ref_nolita_front34.jpg"))
                    .convert("RGB")).astype(float)
@@ -502,33 +549,91 @@ def photo_cells():
     lab, n = ndi.label(red)
     sub = lab[192:261, 153:194]
     ids, counts = np.unique(sub[sub > 0], return_counts=True)
-    return cream_cells(sub == ids[int(np.argmax(counts))])
+    return cream_cells(sub == ids[int(np.argmax(counts))], interior=interior)
 
 
-nb, sb = cream_cells(glyph_only_mask(**CURRENT))
-npho, sp = photo_cells()
+def terminal_reach():
+    """The glyph outline's vertex radii in units of the RING radius, MEASURED
+    off the built mesh.  Sorted descending.  Nothing here is typed -- that is
+    the whole point of this function (F198)."""
+    obs = D.vw_logo_fit(RING_R, x=0.0)
+    rs = []
+    for o in obs:
+        xm = max(v.co.x for v in o.data.vertices)
+        for v in o.data.vertices:
+            if abs(v.co.x - xm) < 1e-6:
+                rs.append(((v.co.y ** 2 + v.co.z ** 2) ** 0.5) / RING_R)
+        bpy.data.objects.remove(o, do_unlink=True)
+    return sorted(rs, reverse=True)
+
+
+# ------------------------------------------------------------- rev 66, F200
+# C6's TARGET WAS 7 AND THE MARK CANNOT MAKE 7.
+#
+# The photographed roundel's SEVENTH cell is not a cell the strokes cut: it is
+# a crescent of background OUTSIDE the ring's outer edge, caught because the
+# 0.97 disc is concentric with the 41 x 69 crop box and the ring is not.
+# Measured, it sits at mean radius 0.932 and is 0.0 % inside the ring's own
+# filled outline, while the six real cells are 100 % inside.  Shrink the disc
+# and it dies: the photographed RAW count runs 8, 7, 7, 8, 6, 6, 6 over frac
+# 0.99..0.84 while the built count is 6 at every one.
+#
+# AND THE MARK'S TOPOLOGY FIXES THE ANSWER AT SIX.  A V fused to a W is ONE
+# connected figure meeting the band at SIX points, and a connected figure
+# attached to a disc's boundary at k points cuts it into exactly k regions.
+# Seven would need a seventh contact.  Swept over 144 builds perturbing all six
+# spine constants by +-50 % and the stroke weight over 0.12..0.30, the count
+# came out 6 in 143 and 5 in one.  It was never once 7.
+#
+# SO THE TARGET IS RE-BASED FROM 7 TO THE PHOTOGRAPH'S OWN INTERIOR COUNT,
+# WHICH IS COMPUTED HERE AND NOT TYPED, AND C11 MAKES THE CAUSE SEPARATELY
+# TESTABLE (rule: a re-base needs its cause named AND a companion row).
+nb, sb = cream_cells(glyph_only_mask(**CURRENT), interior=True)
+npho, sp = photo_cells(interior=True)
+nb_raw, _sbr = cream_cells(glyph_only_mask(**CURRENT))
+npho_raw, _spr = photo_cells()
+_reach = terminal_reach()
+_ext = _reach[0]
+_inband = sum(1 for r in _reach if r >= BAND_INNER)
 print("")
 print("    REACH / TOPOLOGY -- cream cells the strokes cut the ring into")
-print("        PHOTOGRAPH  %d cells   sizes %s" % (npho, sp))
-print("        BUILT       %d cells   sizes %s" % (nb, sb[:8]))
+print("        PHOTOGRAPH  %d interior cells (raw %d)   sizes %s"
+      % (npho, npho_raw, sp))
+print("        BUILT       %d interior cells (raw %d)   sizes %s"
+      % (nb, nb_raw, sb[:8]))
+print("        BUILT reach: extreme %.4f R, %d of %d outline vertices in the "
+      "band (inner edge %.4f)" % (_ext, _inband, len(_reach), BAND_INNER))
 ctl("C6", nb == npho,
-    "THE BUILT GLYPH CUTS THE RING INTO THE SAME NUMBER OF CELLS AS THE "
-    "PHOTOGRAPH.  photo %d, built %d.  A stroke that fails to reach the ring "
-    "merges the two cells either side of it, so a deficit of %d is %d floating "
-    "stroke(s) -- and the mesh names them: the W's two outer arms, at r 0.6638 "
-    "against a band inner edge of 0.7988, floating 18.9 mm"
-    % (npho, nb, npho - nb, max(0, npho - nb)))
+    "THE BUILT GLYPH CUTS THE RING INTO THE SAME NUMBER OF INTERIOR CELLS AS "
+    "THE PHOTOGRAPH.  photo %d, built %d.  A stroke that fails to reach the "
+    "ring merges the two cells either side of it, so a deficit of %d is %d "
+    "floating stroke(s).  MEASURED off the mesh this run, not quoted: the "
+    "outline's extreme is %.4f R and %d of its %d vertices lie in the band, "
+    "whose inner edge is %.4f R"
+    % (npho, nb, npho - nb, max(0, npho - nb), _ext, _inband, len(_reach),
+       BAND_INNER))
 
 # THE KILL.  A topology control that cannot go red proves nothing.  Erase the
 # W entirely and the count must collapse.
-_gone = glyph_only_mask(**CURRENT).copy()
-_nk, _ = cream_cells(_gone)
-_half = glyph_only_mask(VW_W_ARM_X=0.05, VW_W_TROUGH_X=0.05)
-_nh, _ = cream_cells(_half)
-ctl("C7", _nh != nb,
-    "KILL: collapsing the W's arms and troughs onto the axis moves the cell "
-    "count %d -> %d, so this control follows the glyph's topology rather than "
-    "reporting a constant" % (nb, _nh))
+# -------------------------------------------------------------- rev 66, F201
+# THE KILL NOW PLANTS THE DEFECT C6 IS ABOUT, WHICH THE OLD ONE DID NOT.
+#
+# It used to collapse the W's arms and troughs onto the axis and check the
+# count moved.  Once C6 counts INTERIOR cells that no longer fires -- a
+# collapsed W still cuts the ring into six -- and a control whose kill cannot
+# go red makes its own PASS meaningless (rule 42).  So the kill now plants
+# EXACTLY the failure C6 claims to detect: shrink the glyph until no terminal
+# reaches the band and every stroke floats.  The cells either side of each
+# floating stroke must then merge.
+_float = glyph_only_mask(shrink=0.88, **CURRENT)
+_nf, _ = cream_cells(_float, interior=True)
+_rfloat = max(terminal_reach()) * 0.88
+ctl("C7", _nf < nb,
+    "KILL, WATCHED FIRING ON THE DEFECT: shrinking the glyph so its extreme "
+    "falls to %.4f R -- inside the band's inner edge of %.4f -- makes every "
+    "stroke float, and the interior cell count collapses %d -> %d.  So C6 "
+    "follows reach, and is not reporting a constant"
+    % (_rfloat, BAND_INNER, nb, _nf))
 
 # ---------------------------------------------------------------- rev 61, C8
 # THE CELL *COUNT* IS NOT WHAT THE OWNER IS LOOKING AT, AND IT IS NOT SCALE-
@@ -637,6 +742,85 @@ ctl("C9", _e_wedge < 1.6 < 3.0 < _e_sliver,
     "separates wedges from slivers by construction, so C8's %.2f-vs-%.2f is a "
     "shape reading and not an artefact of the rasteriser"
     % (_e_wedge, _e_sliver, _eb, _ep))
+
+# ---------------------------------------------------------------- rev 66, C10
+# THE BUILT SIDE MUST BE READ AT A ROW COUNT THAT HAS CONVERGED.
+# built_mask's docstring has claimed since rev 46 that "the agreement across
+# row counts is reported".  It never was, and it does not hold at 276.
+_Lc = built_landmarks(rows=BUILT_ROWS, **CURRENT)
+_Lf = built_landmarks(rows=2 * BUILT_ROWS, **CURRENT)
+_conv = (_Lc is not None and _Lf is not None
+         and max(abs(_Lc[0][k] - _Lf[0][k]) for k in _Lc[0] if k in _Lf[0]) < 0.01)
+_L276 = built_landmarks(rows=276, **CURRENT)
+_swing = (max(abs(_Lc[0][k] - _L276[0][k]) for k in _Lc[0] if k in _L276[0])
+          if (_Lc and _L276) else 9.9)
+print("\n    CONVERGENCE -- is the built raster read where the answer has settled?")
+print("        %d rows vs %d rows: worst landmark move %.4f"
+      % (BUILT_ROWS, 2 * BUILT_ROWS,
+         max(abs(_Lc[0][k] - _Lf[0][k]) for k in _Lc[0] if k in _Lf[0])
+         if (_Lc and _Lf) else 9.9))
+print("        %d rows vs 276 rows: worst landmark move %.4f  <- why 276 was "
+      "not enough" % (BUILT_ROWS, _swing))
+ctl("C10", _conv,
+    "the built landmarks have CONVERGED: doubling the raster to %d rows moves "
+    "no landmark by more than 0.01.  Reading them at 276 instead moves one by "
+    "%.4f, which is the whole of F203" % (2 * BUILT_ROWS, _swing))
+
+# ---------------------------------------------------------------- rev 66, C11
+# THE COMPANION ROW C6's RE-BASE OWES.  It makes the cause of the re-base
+# separately testable: the photograph's RAW count must exceed its INTERIOR
+# count by exactly the rim crescent, and the built raster must have no such
+# cell at all.  If the crop or the mask ever changes so that the decomposition
+# is not 6 + 1, this goes red and C6's target is back under question.
+_planted = glyph_only_mask(**CURRENT).copy()
+_pn0, _pn1 = _planted.shape
+_pyy, _pxx = np.mgrid[0:_pn0, 0:_pn1]
+_pr = (((_pyy - (_pn0 - 1) / 2.0) / (_pn0 / 2.0)) ** 2
+       + ((_pxx - (_pn1 - 1) / 2.0) / (_pn1 / 2.0)) ** 2) ** 0.5
+_planted[(_pr > 0.93) & (_pxx > _pn1 * 0.62)] = False
+_pl_raw, _ = cream_cells(_planted)
+_pl_int, _ = cream_cells(_planted, interior=True)
+print("\n    THE SEVENTH CELL -- is it a cell, or the rim?")
+print("        PHOTOGRAPH  raw %d = %d interior + %d outside the ring"
+      % (npho_raw, npho, npho_raw - npho))
+print("        BUILT       raw %d = %d interior + %d outside the ring"
+      % (nb_raw, nb, nb_raw - nb))
+print("        PLANTED rim gap in the built band: raw %d, interior %d"
+      % (_pl_raw, _pl_int))
+ctl("C11", (npho_raw - npho == 1) and (nb_raw - nb == 0)
+    and _pl_raw > nb_raw and _pl_int == nb,
+    "C6's RE-BASE IS SEPARATELY TESTABLE.  The photograph's raw %d is %d "
+    "interior cells plus %d crescent outside the ring; the built raster has "
+    "%d outside.  KILL, WATCHED FIRING: cutting a rim gap into the BUILT band "
+    "raises its raw count to %d and leaves its interior count at %d, so the "
+    "filter removes exactly the class of cell C6 was counting as a stroke"
+    % (npho_raw, npho, npho_raw - npho, nb_raw - nb, _pl_raw, _pl_int))
+
+# ---------------------------------------------------------------- rev 66, C12
+# C6's MESSAGE MUST BE A MEASUREMENT (F198).  For five revisions it printed
+# "the W's two outer arms, at r 0.6638 against a band inner edge of 0.7988,
+# floating 18.9 mm" -- three figures HARD-CODED into the message string.  They
+# were rev 60's, at rev 60's constants; rev 63 moved all six spine constants
+# and the sentence did not move.  No audit can catch a number that prints
+# without being measured, so this control moves a constant and insists the
+# reported figures move with it.
+_r_before = terminal_reach()
+_keep = C.VW_W_ARM_X
+C.VW_W_ARM_X = _keep * 0.80
+try:
+    _r_after = terminal_reach()
+finally:
+    C.VW_W_ARM_X = _keep
+_moved = sum(1 for a, b in zip(sorted(_r_before), sorted(_r_after))
+             if abs(a - b) > 1e-6)
+print("\n    IS C6's MESSAGE A MEASUREMENT?  (F198's kill)")
+print("        VW_W_ARM_X %.4f -> %.4f moves %d of %d outline radii"
+      % (_keep, _keep * 0.80, _moved, len(_r_before)))
+ctl("C12", _moved > 0 and len(_r_before) == len(_reach),
+    "THE REACH FIGURES IN C6's MESSAGE ARE READ OFF THE MESH, NOT TYPED.  "
+    "Perturbing VW_W_ARM_X by 20 %% moves %d of %d of them.  A string literal "
+    "would move none -- which is exactly how F198 survived five revisions"
+    % (_moved, len(_r_before)))
 
 nfail = sum(1 for v in CTL.values() if not v)
 print("\nCONTROLS: %d checked, %d FAILED%s"
