@@ -61,7 +61,7 @@ seen none. **Assume this brief carries defects of that class and put an agent on
 C8's 3.39 is **not** inflated by the badge's foreshortening — `cell_elongation` already corrects
 it with `squash = mask.shape[0]/mask.shape[1]`.
 
-**`verify_clone.sh` WAS RUN ON THE ACTUAL HANDOFF COMMIT, not on the tree later.** ALL 278 PASS.
+**`verify_clone.sh` WAS RUN ON THE ACTUAL HANDOFF COMMIT, not on the tree later.** ALL 280 PASS.
 
 ---
 ## §0.06 THE BIG ONE: C8's TARGET HAS A SILENT FAILURE MODE, AND NOTHING SWEEPS IT
@@ -99,8 +99,8 @@ gate here. It is not a coincidence; it is the pattern.**
 
 ```
 bootstrap.sh          ALL 10 PASS
-verify_clone.sh       ALL 278 PASS on a clean tree, AT THE HANDOFF COMMIT
-                      <- 0 FIDELITY, 278 SELF-CONSISTENCY.  THREE rows added this
+verify_clone.sh       ALL 280 PASS on a clean tree, AT THE HANDOFF COMMIT
+                      <- 0 FIDELITY, 280 SELF-CONSISTENCY.  THREE rows added this
                          revision: the T1_SENOR_TARNISH companion row and the two
                          that guard the T1_ALPHA delivery path
 flank_compare.py      FAILS: worst region `i` 0.686 of its own ceiling
@@ -131,8 +131,8 @@ per-measurement and not on average.** A model right in ninety places and wrong i
 emblem, for the fifth time. At rev 61 he did it again, for the sixth.**
 
 **AND HERE IS THE HONEST DISTANCE — THE GATE TABLE, WHICH AN ADVERSARY CAUGHT THIS BRIEF
-DROPPING.** `verify_clone.sh` ends **ALL 278 PASS** and its own verdict block says what that is
-worth: **0 FIDELITY, 278 SELF-CONSISTENCY.**
+DROPPING.** `verify_clone.sh` ends **ALL 280 PASS** and its own verdict block says what that is
+worth: **0 FIDELITY, 280 SELF-CONSISTENCY.**
 
 | gate | state MEASURED at close of rev 61 |
 |---|---|
@@ -200,7 +200,7 @@ for b in $(git branch -r | grep -v HEAD); do
 done
 git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 ./bootstrap.sh          # read ROW 9, and read the "N ahead / M behind" NOTE line
-./verify_clone.sh       # ALL 278 PASS -- and read its verdict block
+./verify_clone.sh       # ALL 280 PASS -- and read its verdict block
 ```
 
 **MEASURED AT REV 62 PICKUP:** HEAD was **0 ahead / 0 behind** `origin/main` after `git fetch --unshallow` -- **and BEFORE that fetch the clone was at rev 43, EIGHTEEN REVISIONS STALE, with `verify_clone.sh` passing 65 of 66 on it.** A content check cannot see that you are on an old commit of the same repository; only this loop can. **The rev-61 branch was NOT deleted this time, breaking a six-revision run.** The rev-62 figure that follows is the PREVIOUS revision's and is kept for the pattern:
