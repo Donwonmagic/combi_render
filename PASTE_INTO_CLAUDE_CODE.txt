@@ -78,8 +78,8 @@ per-measurement and not on average.** A model right in ninety places and wrong i
 done, because he will look straight at the one. This paragraph is first because every revision has
 drifted toward whatever was measurable that week, and the goal is not "add rows".
 
-**AND HERE IS THE HONEST DISTANCE, MEASURED AT REV 57.** `verify_clone.sh` ends **ALL 255 PASS** and
-its own verdict block says what that is worth: **0 FIDELITY, 255 SELF-CONSISTENCY. Not one of those
+**AND HERE IS THE HONEST DISTANCE, MEASURED AT REV 57.** `verify_clone.sh` ends **ALL 257 PASS** and
+its own verdict block says what that is worth: **0 FIDELITY, 257 SELF-CONSISTENCY. Not one of those
 rows compares the vehicle to a photograph.** *(The rev-57 brief quoted the right ALL-n-PASS
 total and then, four words later, gave a self-consistency figure SIX LOWER than it — two numbers for
 one line, in one sentence. The wrong figure is DESCRIBED here and deliberately NOT reprinted; see
@@ -156,7 +156,7 @@ for b in $(git branch -r | grep -v HEAD); do
 done
 git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 ./bootstrap.sh          # ALL 10 PASS  -- THE BRANCH CHECK IS ROW 9
-./verify_clone.sh       # ALL 255 PASS -- and read what its verdict block says
+./verify_clone.sh       # ALL 257 PASS -- and read what its verdict block says
 ```
 
 **AT PICKUP, REV 57 MEASURED:** rev 56 **was merged, through PR #16** — not the "no PR opened"
@@ -201,7 +201,7 @@ anyway. **Believe the loop, not the paragraph, and run it TWICE.**
 1 behind after the merge, so the remaining three commits were **rebased onto the new `origin/main`**
 (the merged history is finished — never stack on it) and force-pushed with `--force-with-lease`.
 `git diff --name-only HEAD...origin/main` was **empty**: **no photographs arrived.** `bootstrap.sh`
-**10/10** and `verify_clone.sh` **ALL 255 PASS** were both re-run FROM THE REBASED HEAD, not
+**10/10** and `verify_clone.sh` **ALL 257 PASS** were both re-run FROM THE REBASED HEAD, not
 inherited from before it. **Run the ahead/behind loop again before you close, every time.**
 
 ---
