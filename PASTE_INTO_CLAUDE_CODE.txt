@@ -29,7 +29,18 @@ documents said "every per-stage gain" until rev 64; F189a.)*
 things it got wrong in its own work.
 
 ---
-## §0.05 AN ADVERSARY DID RUN ON THE INCOMING BRIEF THIS TIME, AND IT FOUND FOURTEEN THINGS
+## §0.05 THIS BRIEF WAS AUDITED AGAINST THE MACHINE — AND AN ADVERSARY DID RUN ON ITS
+## PREDECESSOR, WHICH IS WHY FOURTEEN OF ITS CLAIMS CHANGED
+
+**HOW THIS DOCUMENT WAS AUDITED, so the next context knows where it is weak (rule 17).**
+Every figure in §0.07 was RE-RUN at the handoff commit, not transcribed — that is how the
+inherited `36 asked` was caught reading 42. Every path it names resolves (`audit_brief.py`,
+**10 checked, 0 FAILED**) and `audit_adversary.py` asks **48, 0 BROKE**. **THAT IS THE
+MECHANICAL HALF ONLY.** The half no script can do — recomputing every figure — was done by
+hand for §0.06, §0.07 and §2, and **NOT** for §0's inherited gate table beyond the four
+gates re-run this revision. **The weakest part of this document is §4: it is the longest
+carrier, it is almost entirely inherited text, and rev 64 found a SEVEN-REVISION
+misattribution sitting in it (F188). Start an adversary there.**
 
 **Rev 62 and rev 63 both shipped with no independent adversary. Rev 64 ran one (rule 15) and
 it returned FOURTEEN findings the author had not seen** — including that the brief's top item
