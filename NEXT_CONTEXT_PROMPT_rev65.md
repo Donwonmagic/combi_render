@@ -96,8 +96,8 @@ the shear that first matches the photographs' own mirror IoU the elongation is *
 
 ```
 bootstrap.sh            ALL 10 PASS   <- row 9 GREEN for the first time in SEVEN revisions
-verify_clone.sh         ALL 298 PASS on a clean tree, AT THE HANDOFF COMMIT
-                        <- 0 FIDELITY, 298 SELF-CONSISTENCY.  285 -> 287 (the stranded
+verify_clone.sh         ALL 303 PASS on a clean tree, AT THE HANDOFF COMMIT
+                        <- 0 FIDELITY, 303 SELF-CONSISTENCY.  285 -> 287 (the stranded
                            merge) -> 298 (eleven rows).  NO row was relaxed.
 audit.py                0 fail, 0 warn at T1_SUB=2, 228 meshes.  STATE.md REGENERATED and
                         IDENTICAL apart from provenance -- THAT IS THE CONTROL
@@ -144,7 +144,7 @@ outer arms visibly FLOAT short of the ring — C6 measures it at 18.9 mm and you
 would score a fix are now known not to mean what they were taken to mean** (§0.06).
 
 **AND HERE IS THE HONEST DISTANCE — THE GATE TABLE, WHICH AN ADVERSARY ONCE CAUGHT A BRIEF
-DROPPING.** `verify_clone.sh` ends **ALL 298 PASS**: **0 FIDELITY, 298 SELF-CONSISTENCY.**
+DROPPING.** `verify_clone.sh` ends **ALL 303 PASS**: **0 FIDELITY, 303 SELF-CONSISTENCY.**
 
 | gate | state MEASURED at close of rev 64 |
 |---|---|
@@ -221,7 +221,7 @@ for b in $(git branch -r | grep -v HEAD); do
 done
 git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 ./bootstrap.sh          # read ROW 9, and read the "N ahead / M behind" NOTE line
-./verify_clone.sh       # ALL 298 PASS -- and read its verdict block
+./verify_clone.sh       # ALL 303 PASS -- and read its verdict block
 ```
 
 **MEASURED AT REV 64 PICKUP:** the clone was **SHALLOW**; `fetch --prune` printed
