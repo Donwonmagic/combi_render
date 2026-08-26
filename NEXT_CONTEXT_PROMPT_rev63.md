@@ -116,7 +116,8 @@ STATE.md              UNCHANGED, and that is a CONTROL: rev 62 touched zero file
 ```
 
 **AND THE STANDING WARNING, WHICH `verify_clone.sh` PRINTS ITSELF.** A green check is not
-evidence about the vehicle. **Not one of those 274 rows compares the model to a photograph.**
+evidence about the vehicle. **Not one of those rows compares the model to a photograph.**
+*(The count is deliberately NOT repeated here. It stood four rows short of the script's own total and had been stale across at least one revision — §10.3's trap again: `--fix-count` rewrites `ALL n PASS` and `n SELF-CONSISTENCY` and cannot see a bare `n` sitting in a sentence. **The stale figure is described and not reprinted**, because this project has four times re-committed a defect inside the very line written to explain it. The fix is to delete the number, not to chase it.)*
 
 ---
 ## §0. THE GOAL, AND HOW FAR OFF IT WE ACTUALLY ARE
@@ -382,7 +383,20 @@ target and paint/artwork do not transfer between vehicles; the tail board IS on 
 marks above the burst are STARS; `lid_rail`'s width *"narrow lip, ~as wide as it is tall"*; the
 roughness trade *"ship 0.250"*; the stranded rev-57b branch *"merge it, renumber its IDs"*; the
 studio *"keep studio — ruling stands"* (twice); the front arch *"leave it circular"*.
-**`playa_env.py` is not on the table.**
+
+> **AND ONE LINE OF THAT LIST WAS NEVER HIS — CORRECTED BY ASKING HIM, AFTER REV 62.**
+> It carried *"`playa_env.py` is not on the table — do not re-propose it"* from rev 52 to rev 63.
+> **That entered as a brief's INFERENCE from W6, whose object is the studio RIG, and was applied to
+> a SECOND DELIVERABLE — rule 34 exactly.** Put to him as multiple choice with both readings quoted,
+> he ruled the Playa hero **"DEPRIORITISED, NOT CANCELLED"** — which is what his own rev-43 words
+> said before that carrier was deleted at rev 44 (**F92**).
+>
+> **WHAT IT LICENSES: NOTHING TO DO NOW.** *"Focus on the 3d model"* stands, *"keep studio"* stands,
+> **no revision works the Playa hero until he opens it**, and **nothing re-proposes `playa_env.py`
+> as the delivery frame** — which is also why **F57** (that path renders no vehicle) stays recorded
+> rather than fixed. What changes is that it is a LIVE agreed second deliverable carried in the
+> register, not a closed one, and that *"the emotional bar that sits ABOVE clinical accuracy"* is
+> back in the record. **Do not re-ask it; do not act on it either.**
 
 **RULED AT REV 62, NEW, AND BOTH ARE BINDING:**
 

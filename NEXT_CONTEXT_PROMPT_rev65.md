@@ -1,4 +1,4 @@
-# NEXT CONTEXT PROMPT — rev 66
+# NEXT CONTEXT PROMPT — rev 65
 
 ## §0.0 DO THIS FIRST — THE WHOLE DECISION, IN TWENTY LINES
 
@@ -7,145 +7,120 @@
 ```bash
 cd /home/user/combi_render
 ./bootstrap.sh                 # the toolchain is NOT on the clone -- this builds it
-nohup setsid env T1_SUB=1 T1_PREVIEW=front,side,hero,hero34r T1_PFX=r66 T1_RX=1600 T1_RY=1100 \
-  T1_SAMP=96 /tmp/blender/blender -b -P build.py > /tmp/r66.log 2>&1 < /dev/null &
+nohup setsid env T1_SUB=1 T1_PREVIEW=front,side,hero,hero34r T1_PFX=r65 T1_RX=1600 T1_RY=1100 \
+  T1_SAMP=96 /tmp/blender/blender -b -P build.py > /tmp/r65.log 2>&1 < /dev/null &
 ```
 
 `out/` is untracked and **starts EMPTY**. **`bootstrap.sh` first**: at rev 58–62
 `/tmp/blender/blender` did not exist. Then start the render, then read.
-**`grep -c Saved: /tmp/r66.log` must be 4** — a backgrounded runner's exit code is the
+**`grep -c Saved: /tmp/r65.log` must be 4** — a backgrounded runner's exit code is the
 redirect's. **USE `setsid`, NOT A BARE `nohup &`** (F173).
 
-**AND CHECK YOUR CLONE IS THE TIP.** Rev 62, 63, 64 **and 65** all arrived **SHALLOW**. A content
+**AND CHECK YOUR CLONE IS THE TIP.** Rev 62, 63 **and 64** all arrived **SHALLOW**. A content
 check cannot detect that you are on an old commit of the same repository. **Only `git fetch
 --unshallow` and the ahead/behind loop in §1 find it.** Run §1 before you trust anything.
 
-**THEN RUN `./judge_set.sh r66`.** `post.py` implements bloom → CA → vignette → grain and the
+**THEN RUN `./judge_set.sh r65`.** `post.py` implements bloom → CA → vignette → grain and the
 preview path **never calls it** (F146). Judge photorealism on the `_post` set, never the raw
 one. *(**ONLY `bloom` defaults to 0.0** — `ca`, `vig` and `grain` default to **1.0**. Three
 documents said "every per-stage gain" until rev 64; F189a.)*
 
-**READ `LEDGER_rev65.md` §7 AND §4 BEFORE YOU PLAN** — what rev 65 did NOT do, and the four
+**READ `LEDGER_rev64.md` §4 AND §5 BEFORE YOU PLAN** — what rev 64 did NOT do, and the four
 things it got wrong in its own work.
 
 ---
-## §0.05 THIS BRIEF WAS AUDITED AGAINST THE MACHINE — AND WHERE IT IS WEAKEST
+## §0.05 THIS BRIEF WAS AUDITED AGAINST THE MACHINE — AND AN ADVERSARY DID RUN ON ITS
+## PREDECESSOR, WHICH IS WHY FOURTEEN OF ITS CLAIMS CHANGED
 
-**HOW IT WAS AUDITED (rule 17).** Every figure in §0.06, §0.065 and §0.07 was RE-RUN at the
-handoff commit, not transcribed. Every path resolves (`audit_brief.py` **10 checked, 0
-FAILED**) and `audit_adversary.py` asks **48, 0 BROKE**. **THAT IS THE MECHANICAL HALF ONLY.**
+**HOW THIS DOCUMENT WAS AUDITED, so the next context knows where it is weak (rule 17).**
+Every figure in §0.07 was RE-RUN at the handoff commit, not transcribed — that is how the
+inherited `36 asked` was caught reading 42. Every path it names resolves (`audit_brief.py`,
+**10 checked, 0 FAILED**) and `audit_adversary.py` asks **48, 0 BROKE**. **THAT IS THE
+MECHANICAL HALF ONLY.** The half no script can do — recomputing every figure — was done by
+hand for §0.06, §0.07 and §2, and **NOT** for §0's inherited gate table beyond the four
+gates re-run this revision. **The weakest part of this document is §4: it is the longest
+carrier, it is almost entirely inherited text, and rev 64 found a SEVEN-REVISION
+misattribution sitting in it (F188). Start an adversary there.**
 
-**AND REV 65 IS THE REVISION THAT FOUND OUT WHY THAT MATTERS.** The figure this project has
-quoted for the emblem's defect since rev 60 — *"r 0.6638 … floating 18.9 mm"* — **is a
-string literal in a probe's message** (F198). It passed every audit, every brief, every
-register row and two of my own reports, because **no script can catch a number that prints
-without being measured.** **Assume this document contains another one. Go looking.**
+**Rev 62 and rev 63 both shipped with no independent adversary. Rev 64 ran one (rule 15) and
+it returned FOURTEEN findings the author had not seen** — including that the brief's top item
+carried a diagnosis that was **not in the probe it credited**, and that a **question about to
+be put to the owner rested on a figure that is in no source file**. **PUT ONE ON THIS
+DOCUMENT TOO. Assume it carries defects of the same class.**
 
-**WHERE THIS BRIEF IS WEAKEST:** **§0's inherited gate table** and **§4**, which are the two
-longest carriers and are almost entirely inherited text. Rev 64 found a seven-revision
-misattribution in §4 and rev 65 found the literal above. **Start an adversary there.**
-
-**WHAT REV 65 GOT WRONG IN ITS OWN WORK — FOUR, in `LEDGER_rev65.md` §4**, including a
-rotation search that scored better and rendered as horizontal bars, and a reach clustering
-that nearly published two interior vertices as floating terminals.
+**WHAT REV 64 CAUGHT IN ITS OWN WORK — four, and they are listed in `LEDGER_rev64.md` §5:**
+a column carrying a THIRD ruler under a SECOND one's label; a re-implementation that differs
+from the original by half a pixel *because the original was wrong*; **a grade guard going red
+on rev 64's own register row, and the vocabulary NOT being widened to make it pass**; and the
+near-miss on the owner question above.
 
 **`verify_clone.sh` WAS RUN ON THE ACTUAL HANDOFF COMMIT, not on the tree later.**
 
 ---
-## §0.06 THE BIG ONE: THE SENTENCE THAT HAS NAMED THIS DEFECT FOR FIVE REVISIONS IS A
-## STRING LITERAL — AND THE REACH, MEASURED LIVE, IS NOT WHAT IT SAYS
+## §0.06 THE BIG ONE: THE EMBLEM'S TARGETS ARE MEASURED ON IMAGES THAT ARE NOT MIRROR-SYMMETRIC
 
-> *[owner, rev 65]* **"I can't believe that we can't even accomplish a publicly available
-> emblem, and we still have work to do on the shape of the nose."**
-
-**`probe_rev46_vw.py`'s C6 prints:** *"the mesh names them: the W's two outer arms, at r
-0.6638 against a band inner edge of 0.7988, floating 18.9 mm"*. **THOSE THREE FIGURES ARE
-HARD-CODED IN THE MESSAGE STRING.** They are rev 60's, at rev 60's constants. **Rev 63 moved
-all six spine constants and the sentence did not move.** It prints identically under
-`T1_VW_CAPMIN=1` while the cell count goes 6 → 2 — which is how it was caught. **F198.**
-
-**SO THE REACH WAS MEASURED LIVE OFF THE MESH, FOR THE FIRST TIME (F199).** R=1 units,
-extreme 0.8140, band inner edge 0.7752:
+**THE VW MARK IS MIRROR-SYMMETRIC ABOUT ITS VERTICAL. THE MODEL IS. THE TWO PHOTOGRAPHS ARE
+NOT.** Mirror IoU of each mask against its own left-right flip:
 
 ```
-    TEN corner vertices at 0.8089 .. 0.8140  -- within 0.6 % of the extreme, PAST the band
-    TWO cap corners at 80..97 % of the extreme -- a HAIR INSIDE the band's inner edge
-    six more vertices under 80 %             -- INTERIOR points, NOT terminals
+    the BUILT glyph  (symmetric by construction)     0.9777
+    the WORKSHOP badge -- what rev 63 traced         0.4111
+    the TARGET BUS badge, ref_nolita_front34.jpg     0.4812
+    KILL: the built glyph sheared by 0.30            0.2732
 ```
 
-**ALL SIX TERMINALS REACH. The defect is TWO CAP CORNERS**, at the 3 and 9 o'clock strokes.
-One hairline of cream merges the two cells either side, and that is C6's 6-instead-of-7.
-**It is NOT "the W's two outer arms".** Painted: `probe_scratch/rev65_reach_paint.png`.
-
-**AND EVERY KNOWN LEVER IS NOW MEASURED, NOT ARGUED:**
+`probe_rev63_angles.desquash()` rescales the axes and **NEVER ROTATES**, so a three-quarter
+view's shear survives it. **Then shear the BUILT glyph and change nothing else:**
 
 ```
-    as shipped                       6 cells   elongation 2.39
-    T1_VW_CAPMIN=1                   2 cells   elongation 1.31
-    T1_VW_PUREFIT=1                  6 cells   elongation 2.40
-    T1_VW_CAPMIN=1 T1_VW_PUREFIT=1   6 cells   elongation 2.24   <- THE PAIR, TRIED, REFUTED
+    shear   mirror IoU   elongation   cells
+     0.00     0.9777       2.388        6
+     0.20     0.3574       2.809        8
+     0.40     0.2716       3.400        8
+     0.60     0.2294       3.853        8
+    PHOTO   0.411/0.481    3.390        7
 ```
 
-**CAPMIN's failure mechanism, measured:** its extreme runs **0.8140 → 0.9250**, and
-`t1_detail._fit_glyph` re-normalises by the GLOBAL extreme, dragging every other terminal
-12 % off the band. **And the pair the rev-58 note has called *"half of one fix"* each for
-five revisions — *"the pair the rev-58 note says was never tried"* — IS NOW TRIED. Refuted.**
+**C8's 3.390 TARGET AND C6's 7 BOTH LIE INSIDE THE RANGE A PURE SHEAR OF THE GLYPH ALREADY IN
+THE TREE SWEEPS.** Neither gate can separate *"the glyph is the wrong shape"* from *"the frame
+is oblique"*. F175 showed the gates pass on a bad glyph; **this shows their TARGETS carry the
+viewing angle.** Rule 39. `python3 probe_rev64_shear.py`, and **look at
+`probe_scratch/rev64_shear.png` before you believe any of it.** **F184.**
 
-**WHAT IS LEFT, AND IT IS §3 ITEM 1:** cut each terminal **ON THE BAND'S ARC** instead of
-perpendicular to the stroke. Both corners then land on the band by construction, **the extreme
-does not move**, and `_fit_glyph` has nothing to re-normalise away. It is what a stamped mark
-disappearing under a band actually is. **Nobody has written it.**
+**CEILING, AND IT IS NOT AN OVERCLAIM (F185).** This does NOT show shear is the WHOLE gap: at
+the shear that first matches the photographs' own mirror IoU the elongation is **2.809, not
+3.390**. **That is §3 item 1.**
 
 ---
-## §0.065 AND THE TARGETS THEMSELVES WERE WRONG — THE RING IS FITTED AS AN ELLIPSE AT LAST
-
-**The badge is a CIRCLE on the real object.** Fitted from the second moments of the filled
-badge it reproduces the region's own area to **0.05 %** and **0.11 %**; photographed axis
-ratios **0.6596** and **0.5810** come out **0.9970** and **0.9994** — circles.
-**Proved on a known answer first:** the built glyph (mirror IoU 0.9777), squashed 0.72 and
-sheared 0.35 to 0.2369, comes back at **0.9585**.
+## §0.07 THE MACHINE'S VERDICT AT CLOSE OF REV 64 — every one watched print
 
 ```
-                                    cells   elongation
-    C6/C8 as they stand (squashed)    7        3.390
-    UN-SQUASHED workshop              6        2.960
-    UN-SQUASHED target bus            7        2.627
-    the BUILT glyph, unchanged        6        2.388
-```
-
-**THE FAMOUS "1.42× TOO ROUND" IS 1.24×, OR 1.10× AGAINST THE TARGET BUS'S OWN BADGE** — and
-the residual shear still inflates even those (F185 is NOT closed), so the true target is lower
-still, **nearer what is already built**. Cells are not stably 7 either. **F194.**
-**`python3 probe_rev65_unproject.py`, and LOOK at `probe_scratch/rev65_norot.png`.**
-
----
-## §0.07 THE MACHINE'S VERDICT AT CLOSE OF REV 65 — every one watched print
-
-```
-bootstrap.sh              ALL 10 PASS
-verify_clone.sh           ALL 303 PASS on a clean tree, AT THE HANDOFF COMMIT
-                          <- 0 FIDELITY, 303 SELF-CONSISTENCY.  298 -> 303.  NO row relaxed.
-probe_rev65_unproject.py  10 checked, 0 FAILED   -- NEW.  The ellipse fit and its POSITIVE
-                          CONTROL.  C4 was RE-BASED on what the method claims, not relaxed
-probe_rev64_shear.py      6 checked, 0 FAILED
-probe_rev63_trace.py      ALL CONTROLS PASS
-vw_pressing.py            5 checked, 0 FAILED
-probe_rev46_vw.py         9 checked, 3 FAILED -- C4, C5, C6.  UNCHANGED from rev 63, and its
-                          C6 MESSAGE IS STILL THE LITERAL (F198 is recorded, NOT fixed)
-probe_rev63_canon.py      5 checked, 0 FAILED
-probe_rev63_reach.py      ALL CONTROLS PASS
-trace_outline.py          SELFTEST PASS (10);  svgraster.py SELFTEST PASS (9)
-audit_brief.py            10 checked, 0 FAILED
-audit_adversary.py        48 asked, 0 BROKE
-flank_compare.py          FAILS.  worst region `i` at 0.687 of its own ceiling
-gloss_compare.py          FAILS at 0.442 of the photograph's spread (bar 0.60)
-probe_rev59_nose.py       5 checked, 0 FAILED -- AND IT DOES NOT MEASURE THE NOSE'S SECTION,
-                          which is what he asked about (F197)
-probe_rev59_door.py       8 checked, 1 FAILED (M3, BY DESIGN)
+bootstrap.sh            ALL 10 PASS   <- row 9 GREEN for the first time in SEVEN revisions
+verify_clone.sh         ALL 303 PASS on a clean tree, AT THE HANDOFF COMMIT
+                        <- 0 FIDELITY, 303 SELF-CONSISTENCY.  285 -> 287 (the stranded
+                           merge) -> 298 (eleven rows).  NO row was relaxed.
+audit.py                0 fail, 0 warn at T1_SUB=2, 228 meshes.  STATE.md REGENERATED and
+                        IDENTICAL apart from provenance -- THAT IS THE CONTROL
+probe_rev63_trace.py    ALL CONTROLS PASS   (rev 63: FAILED T3)
+probe_rev64_shear.py    6 checked, 0 FAILED   -- NEW
+vw_pressing.py          5 checked, 0 FAILED   -- NEW
+probe_rev46_vw.py       9 checked, 3 FAILED -- C4, C5, C6.  UNCHANGED from rev 63
+probe_rev63_canon.py    5 checked, 0 FAILED
+probe_rev63_reach.py    ALL CONTROLS PASS
+trace_outline.py        SELFTEST PASS (10 shapes);  svgraster.py SELFTEST PASS (9)
+audit_brief.py          10 checked, 0 FAILED
+audit_adversary.py      48 asked, 0 BROKE   <- rev 63's brief claimed 36 when it was 42
+                        (F189b).  SIX questions REPLACED at rev 64, and ONE RETIRED IN
+                        PLACE because its own text repeated the false "RING (0.508)"
+flank_compare.py        FAILS.  worst region `i` at 0.687 of its own ceiling
+gloss_compare.py        FAILS at 0.442 of the photograph's spread (bar 0.60)
+probe_rev59_nose.py     5 checked, 0 FAILED.  BEZEL-ruled 1.550 / 1.584 vs rim-ruled
+                        1.951..2.121 -- F136 stands, a PASS here is NOT closure
+probe_rev59_door.py     8 checked, 1 FAILED (M3, BY DESIGN)
 ```
 
 **AND THE STANDING WARNING, WHICH `verify_clone.sh` PRINTS ITSELF.** A green check is not
-evidence about the vehicle. **Not one of those 303 rows compares the model to a photograph.**
+evidence about the vehicle. **Not one of those 298 rows compares the model to a photograph.**
 
 ---
 ## §0. THE GOAL, AND HOW FAR OFF IT WE ACTUALLY ARE
@@ -302,76 +277,54 @@ TRACING THE PRESSING AND MESHING IT      BUILT, RENDERED, WORSE.  It traced
    TOP ITEM, refuted by doing it)        exists and MUST STAY OFF      (F183)
 TUNING AGAINST C6 OR C8 AS THEY STAND    their targets carry the viewing
   (new at rev 64)                        angle -- a pure shear spans both   (F184)
-C8's 3.390 AS A TARGET AT ALL            un-squashed it is 2.63..2.96 and
-  (new at rev 65)                        the build reads 2.388              (F194)
-SEARCHING THE MARK'S VERTICAL BY         scores BETTER, renders as
-  MIRROR IoU (new at rev 65)             horizontal bars.  The bus is
-                                         UPRIGHT in both frames             (F195)
-T1_VW_CAPMIN, ALONE OR WITH PUREFIT      2 cells alone; 6 / 2.24 together.
-  (the pair, new at rev 65 -- the         THE PAIR THE REV-58 NOTE CALLED
-   rev-58 note called it "never tried")   "never tried" IS NOW TRIED        (F199)
-QUOTING C6's "0.6638 / 18.9 mm"          IT IS A STRING LITERAL in the
-  (new at rev 65)                        message.  Measure it, do not
-                                         quote it                          (F198)
 ```
 
 ---
-## §3 THE WORK LIST FOR REV 66
+## §3 THE WORK LIST FOR REV 65
 
-> **HE IS OUT OF PATIENCE, AND HE IS RIGHT TO BE.** *"I can't believe that we can't even
-> accomplish a publicly available emblem, and we still have work to do on the shape of the
-> nose."* **Items 1 and 2 are his two sentences. Do them. Everything else waits.**
+**RANK BY PIXELS OF THE DELIVERY FRAME** — `python3 visibility_budget.py 3840 out/r65_hero.png`
+— **and PASS IT A `.png`, or it globs `out/` by mtime and reproduces F132.** Its ceiling:
+pixels are not visibility, so use it for ORDERS OF MAGNITUDE. **And the owner outranks it.**
 
-1. **BUILD THE ARC-CUT TERMINAL. THIS IS THE EMBLEM'S FIX AND IT IS THE ONLY ROUTE LEFT
-   STANDING.** Every terminal cap is currently cut PERPENDICULAR to its stroke, so its two
-   corners sit at different radii and one of them lands a hair inside the band (F199, and it
-   is painted). **Cut the cap ON THE BAND'S ARC instead** — `t1_core._mitre_outline`'s
-   terminal ends, in `vw_bars`. Then **both corners land on the band by construction, the
-   GLOBAL EXTREME DOES NOT MOVE, and `t1_detail._fit_glyph` has nothing to re-normalise
-   away** — which is exactly what kills `T1_VW_CAPMIN` (its extreme runs 0.8140 → 0.9250 and
-   drags every other terminal 12 % inboard). **It is also what a stamped mark disappearing
-   under a band physically IS.** Nobody has written it.
-   **ACCEPTANCE, and it is not C6 alone: `probe_rev46_vw.py` C6 → 7 cells, AND the rendered
-   nose crop held next to `probe_scratch/rev65_norot.png` panels 2 and 4. Rule 41 — the
-   render is the arbiter, and it has refuted two winners in two revisions.**
-2. **THE NOSE'S SHAPE — HE ASKED FOR IT BY NAME AND THERE IS NO INSTRUMENT FOR IT (F197).**
-   `probe_rev59_nose.py` measures the lamp break's ELEVATION, not the nose's SECTION. Rev 51
-   held the nose against the photographs and found **a FLAT NOSE** by eye, alongside the
-   roundel's short V-arms; the V-arms became the emblem and swallowed fourteen revisions and
-   **the flat nose was never worked.** The levers are `t1_shell`'s `V_POW` / `V_POWZ` /
-   `V_RISE` — **move `V_POW` and `V_POWZ` TOGETHER** — and they have never been fitted to a
-   photographed section. **Build the instrument first: extract the nose's silhouette from
-   `ref_nolita_front34.jpg` and `ref_playa_34.png` and compare it with the mesh's own
-   section. Then fit. Then render, crop, and LOOK.**
-3. **REPAIR C6's MESSAGE (F198).** It is recorded, not fixed. The literal still prints
-   *"the W's two outer arms, at r 0.6638 ... floating 18.9 mm"* on every run, whatever the
-   glyph does. **Make it name the strokes it actually measured**, and add the kill that goes
-   red if it ever stops being a measurement. Until then every quotation of it is wrong.
-4. **PUT AN ADVERSARY ON THIS BRIEF (rule 15).** Rev 64's found fourteen.
-5. **F156 — `flank_compare`'s `Senor` row scores a DELIBERATE DEPARTURE. FIVE revisions
-   unacted.** Re-base the reference or annotate the row.
-6. **FIX `probe_rev63_shapefit.py`**, which §6 tells you to run: its baseline is stale and it
-   reads `CAP_EMBLEM_WFRAC`, the HUBCAP's stroke weight, where the nose ships 0.1800 —
-   F178's exact trap, still unfixed. **F198 is the same disease in a different file: go and
-   look for the third case before it bites.**
-7. **TRIAGE `REMAINING_WORK_rev61.md` §I** — 27 rows, FIVE revisions.
-8. **THE SURVIVING PANEL ITEMS**, untouched for five revisions: the glass is a flat slab
-   (0.5 % sd against the photograph's 12.8 %); **the tyres have no tread, no sidewall
-   lettering, and are 35 % too light — CONFIRMED BY EYE at rev 64**; the tail is a box where
-   the real one is a barrel; every shut line is a 1-px ink stroke with no leading-edge
-   highlight; the galley is monochrome; the counter is a floating slab.
-9. **F143 — TWO LOUDSPEAKERS STAND ON THE ROOF AND ARE UNMODELLED.** 53 revisions.
-10. **THE INHERITED CLUSTER** — F14 (**thirteen** revisions un-re-measured), F15, F10, F20.
-11. **`delivery/READ_ME_FIRST.txt` LISTS THE MODEL'S KNOWN DEFECTS TO HIM.** It does not yet
-    mention the rev-63 emblem change, F184, F194 or F197.
+**WHICH RANKING GOVERNS: THIS ONE.** `REMAINING_WORK_rev61.md` remains a CARRIER and its §I
+still holds **27 untriaged rows** — **FOUR revisions running**. `PANEL_rev61.md` is a carrier.
 
-**RANKING NOTE — AND THE RULE IT CARRIES IS NOT DROPPED.**
-**RANK BY PIXELS OF THE DELIVERY FRAME** — `python3 visibility_budget.py 3840
-out/r66_hero.png` — **and PASS IT A `.png`**, or
-it globs `out/` by mtime and reproduces F132. Its ceiling: pixels are not visibility, so use
-it for ORDERS OF MAGNITUDE. **But he has now overridden the ranking twice in two revisions
-with two sentences, and the owner outranks it — which is why items 1 and 2 above are his,
-not the budget's.**
+1. **FIT THE BADGE'S RING AS AN ELLIPSE AND UN-PROJECT BOTH FRAMES (F185). THIS IS THE
+   EMBLEM'S CLOSE AND IT IS WELL-POSED.** The ring is a **circle on the real object**, so its
+   image is an ellipse whose centre, axes AND ROTATION give the homography outright. Fit it
+   on `ref_workshop.jpg` and on `ref_nolita_front34.jpg`, invert it, and **re-read every
+   emblem target on the mark instead of on a photograph of it**: C6's 7, C8's 3.390, L1–L6,
+   and F181's six contact angles, which have had no target since rev 63. **The acceptance
+   test is already written: `probe_rev64_shear.py`'s mirror-IoU must come up from 0.41/0.48
+   toward the built glyph's 0.9777 after un-projection.** If it does not, the fit is wrong.
+   **Nothing in this project has ever fitted that ellipse.**
+2. **PUT AN ADVERSARY ON THIS BRIEF (rule 15).** Rev 64 did; it found fourteen.
+3. **F156 — `flank_compare`'s `Senor` row scores a DELIBERATE DEPARTURE. FOUR revisions
+   unacted.** Re-base the reference or annotate the row. Rev 62, 63 and 64 all did neither.
+4. **FIX `probe_rev63_shapefit.py`, WHICH THIS BRIEF'S §6 TELLS YOU TO RUN.** Its baseline is
+   **stale** (reads `_vw.C` live, and rev 63 moved those constants: the brief's "shipped"
+   row of 0.4172 / 1.485 measures **0.4752 / 2.497** now) **and it reads `SHIP_W =
+   CAP_EMBLEM_WFRAC`, the HUBCAP's stroke weight, where the nose ships 0.1800 — F178's exact
+   trap, still unfixed.** F189, from the adversary.
+5. **TRIAGE `REMAINING_WORK_rev61.md` §I** — 27 rows, four revisions.
+6. **PROVE THE LARGE-FORMAT PATH (F192).** He ruled **"bigger — large-format print"**.
+   `hq_render.py` defaults 3840×2640 and **`stitch.py`'s seam check (F49, exit 2) has never
+   been exercised above it**. Prove the chain at a larger size **without** running the
+   delivery frame, which he has held (F191). **Ask him the medium only when you have
+   something to show him** — do not re-ask it cold.
+7. **TEST THE TWO DISPUTED CEILINGS** (specular-event census **0.024 % against 7.07 %**; the
+   ground shadow). Recorded, NOT adopted.
+8. **THE SURVIVING PANEL ITEMS**, untouched by rev 61–64: the glass is a flat slab (0.5 % sd
+   against the photograph's 12.8 %); **the tyres have no tread, no sidewall lettering, and
+   are 35 % too light — CONFIRMED BY EYE at rev 64 in `probe_scratch/rev64_hub_front.png`**;
+   the tail is a box where the real one is a barrel; every shut line is a 1-px ink stroke
+   with no leading-edge highlight; the galley is monochrome; the counter is a floating slab.
+9. **F143 — TWO LOUDSPEAKERS STAND ON THE ROOF AND ARE UNMODELLED.** Known since
+   `AUDIT_rev12.md` — **52 revisions**. *(Its register row still says it is in no carrier;
+   it has been in `OPEN_FINDINGS.md` since rev 61. F189.)*
+10. **THE INHERITED CLUSTER** — F14 (**twelve** revisions un-re-measured), F15, F10, F20.
+11. **`delivery/READ_ME_FIRST.txt` LISTS THE MODEL'S KNOWN DEFECTS TO HIM.** Keep it current
+    or it becomes a lie — it does not yet mention the rev-63 emblem change or F184.
 
 ---
 ## §4 WHAT WAS ASKED OF HIM — A CARRIER, NOT A LIST OF BLOCKERS
@@ -407,23 +360,7 @@ studio — ruling stands"* (twice); the front arch *"leave it circular"*.
 > register, and that *"the emotional bar that sits ABOVE clinical accuracy"* is back in the
 > record. **Do not re-ask it; do not act on it either.**
 
-**RULED AT REV 65 — BOTH NEW, BOTH BINDING, AND THEY SET THE WORK LIST:**
-
-> ***"I don't think the bus is ready yet. We need the bus to be ready before investing
-> seriously in the render."*** — **HIS THIRD HOLD** (rev 58, rev 64, rev 65), and this one
-> was VOLUNTEERED, not asked for. It also settles what the render will be when it comes:
-> **MULTIPLE SIZES, MAX RESOLUTION, MAX FIDELITY, ALL IN ONE FOLDER.** **F193.**
-> **CONSEQUENCE: F192's "prove the large-format chain" drops BELOW the model defects.**
-> Do not spend a revision on the pipeline.
-
-> ***"we still have work to do on the shape of the nose."*** — **A SECOND DEFECT, AND IT IS
-> NOT THE EMBLEM.** The emblem sits on the nose; he named the nose's SHAPE separately.
-> **It corroborates a finding the record already held and never acted on**: rev 51 held the
-> nose against the photographs and found **flush headlamps, the roundel's short V-arms, and
-> A FLAT NOSE**. The V-arms became the emblem item; **the flat nose was never worked, and
-> there is still no instrument for it.** **F197. It is §3 item 2.**
-
-**RULED AT REV 64 — BOTH STILL BINDING:**
+**RULED AT REV 64 — BOTH NEW, BOTH BINDING:**
 
 > ***"Keep holding — fix the emblem first."*** — the full delivery render. **His rev-58 gate
 > is REAFFIRMED, and this time against a revision that could have shipped.** Asked with the
@@ -542,10 +479,10 @@ Blender CLI. **Check whether a probe needs `blender -b -P` before you budget min
 ```bash
 ./bootstrap.sh                                               # THE TOOLCHAIN IS NOT ON THE CLONE
 T1_SUB=1 T1_VERIFY=1 /tmp/blender/blender -b -P build.py     # -> "VERIFY: 0 fail, 0 warn"
-./judge_set.sh r66                                           # the optics chain (F146)
-python3 flank_compare.py out/r66_side.png /tmp/fc.png        # GATE 1
-python3 gloss_compare.py out/r66_hero.png                    # GATE 3
-python3 probe_rev59_nose.py out/r66_front.png                # READ BOTH RULERS
+./judge_set.sh r65                                           # the optics chain (F146)
+python3 flank_compare.py out/r65_side.png /tmp/fc.png        # GATE 1
+python3 gloss_compare.py out/r65_hero.png                    # GATE 3
+python3 probe_rev59_nose.py out/r65_front.png                # READ BOTH RULERS
 python3 probe_rev46_vw.py                    # THE EMBLEM GATE -- read C7 first, and read F184
 python3 probe_rev64_shear.py                 # WHY C6 AND C8 CANNOT DECIDE IT -- START HERE
 python3 probe_rev63_trace.py                 # ALL CONTROLS PASS.  T3 was a rasteriser defect
@@ -556,7 +493,7 @@ python3 probe_rev63_shapefit.py              # F175's counterexample -- BUT SEE 
 python3 probe_rev63_reach.py                 # contacts with the ring, and angles
 python3 trace_outline.py ; python3 svgraster.py ; python3 senor_trace.py
 python3 cream_rms.py                         # the LIVE photograph-side cream
-python3 visibility_budget.py 3840 out/r66_hero.png   # PASS IT A .png -- see F132/F189
+python3 visibility_budget.py 3840 out/r65_hero.png   # PASS IT A .png -- see F132/F189
 T1_SUB=2 /tmp/blender/blender -b -P audit.py         # rewrites STATE.md -- COMMIT FIRST
 python3 audit_brief.py ; python3 audit_adversary.py  # rules 15/17, MECHANICAL half only
 ```
@@ -566,7 +503,7 @@ python3 audit_brief.py ; python3 audit_adversary.py  # rules 15/17, MECHANICAL h
 ```bash
 T1_SUB=1 T1_NOUNDER=1 /tmp/blender/blender -b -P probe_rev45_ground.py  # C5 must REFUSE
 T1_SUB=1 T1_PG_PAINT=1 /tmp/blender/blender -b -P probe_rev45_ground.py # paints G4's window
-python3 probe_rev59_door.py out/r66_side.png        # M3 fails BY DESIGN
+python3 probe_rev59_door.py out/r65_side.png        # M3 fails BY DESIGN
 python3 probe_rev61.py emblem --paint               # every mode paints its window
 T1_VW_TRACED=1 T1_SUB=1 T1_VERIFY=1 /tmp/blender/blender -b -P build.py  # F183's refutation,
                                                     # rebuildable.  IT MUST NOT SHIP
@@ -636,55 +573,55 @@ a figure that exists in no source file (F189d).**
 **IT IS A CARRIER (rule 16). Rows leave it only by being CLOSED with the measurement that
 closed them, or RETIRED with the ruling that retired them. Never by being dropped.**
 
-**Rev 65 added F193–F199**, of which **three are refutations** — two of work done in the same
-revision — and **two are OWNER STATEMENTS**. **F198 is the one that changes what the emblem's
-defect even IS: the sentence naming it was a string literal.** Rev 64 added F183–F192.
+**Rev 64 added F183–F192**, of which **five are refutations** — two of work done in the same
+revision — and **two are OWNER RULINGS**. **F184 is the one that changes what "better" means
+on the top item.**
 
 **THE POINT OF THE FILE IS THE PROVENANCE GRADE, NOT THE LIST.** An `INHERITED` row is a
 claim. **GRADE DECAY IS ITSELF A FINDING.** *(And the grade vocabulary is
 MEASURED / RECOMPUTED / INHERITED / RULED / CEILED / OBSERVED. **Do not widen it** — rule 44.)*
 
-**STILL INHERITED AND OLDEST:** **F14** (`gal_end_f`'s sight lines, **rev 52 — THIRTEEN
+**STILL INHERITED AND OLDEST:** **F14** (`gal_end_f`'s sight lines, **rev 52 — TWELVE
 revisions un-re-measured**), F15, F20, F10, and **F18** (the die-cut sticker, rev 44 — the
 oldest live row and the project's original deliverable).
 
-**AND `REMAINING_WORK_rev61.md` §I IS STILL NOT TRIAGED** — 27 rows, **five revisions**.
+**AND `REMAINING_WORK_rev61.md` §I IS STILL NOT TRIAGED** — 27 rows, **four revisions**.
 
 ---
 
-## §9 THE HORIZON BEYOND REV 66
+## §9 THE HORIZON BEYOND REV 65
 
 **CARRIER: re-rank it, do not rewrite it, and say what moved.**
 
-**WHAT MOVED AT REV 65.** The badge's ring was **fitted as an ellipse** for the first time in
-the project's life, which **re-based C8's target from 3.390 to 2.63–2.96** and shrank the
-emblem's headline defect from 1.42× to 1.10–1.24×; the reach was **measured live off the mesh
-for the first time**, which showed the defect is two cap corners and **not** what the record
-says; **the sentence naming that defect was found to be a string literal**; and **three more
-routes were refuted**, one of them the pair the record had called "never tried" for five
-revisions. **Two owner statements arrived.** **What did NOT move: the emblem itself, the
-nose, and everything outside them.**
+**WHAT MOVED AT REV 64.** The brief's top item was **built and refuted by doing it**; the
+reason **refuted both emblem gates with it** and gave the item its first well-posed close in
+eighteen revisions; `bootstrap.sh` row 9 went **green after seven revisions** and an
+**owner ruling that had been stranded on a branch since rev 57** reached the record; rule 13
+was discharged on a carrier that had contradicted the tree for a revision; an adversary ran
+for the first time since rev 61 and found fourteen things; and **two new owner rulings**
+arrived. **What did NOT move: the emblem itself, and anything outside it.**
 
-**WHAT MOVED AT REV 64.** The traced pressing was built, rendered and refuted; the reason
-refuted both emblem gates with it; `bootstrap.sh` row 9 went green after seven revisions.
+**WHAT MOVED AT REV 63.** The emblem changed on the nose and now reads as a V over a W; the
+construction was ablated and F137 overturned; a canonical vector was obtained and disqualified
+by rule 11; the gate was refuted as sufficient by a rendered counterexample.
 
 | horizon | the work | why |
 |---|---|---|
-| **next** | **THE ARC-CUT TERMINAL (§3 item 1)** | The only emblem route left standing, and the geometry asks for it |
-| **next** | **THE NOSE'S SECTION (§3 item 2, F197)** | **He asked for it by name** and there is no instrument for it |
-| **next** | **REPAIR C6's LITERAL (F198)** | Every quotation of it is currently wrong |
-| **next** | **AN ADVERSARY ON THIS BRIEF** | Rev 64's found fourteen; rev 65 found a literal no script could |
-| **near** | **F156 — the `Senor` gate row scores a DEPARTURE** | FIVE revisions unacted |
-| **near** | **Fix `probe_rev63_shapefit.py`** | Stale baseline AND the hubcap's weight (F178/F189) |
-| **near** | **Triage `REMAINING_WORK_rev61.md` §I** | 27 rows, five revisions |
-| **near** | **Glass, tyres, the tail's barrel, the shut lines** | Untouched for five revisions |
-| **near** | **F143 — the roof loudspeakers** | Unmodelled since rev 12 — 53 revisions |
-| **LOWERED** | **F192 — prove the large-format chain** | **He ruled the MODEL comes first (F193).** Do not spend a revision on the pipeline |
-| **then** | **F10–F14 — the galley cluster** | F14 is THIRTEEN revisions inherited |
-| **CEILED** | **F153; F168; F183 the traced pressing; F195 the rotation search; F44/F60/F62 gloss; F83; F67; F142; F148** | **F62 is DISPUTED — do not quote it without testing it** |
+| **next** | **FIT THE RING AS AN ELLIPSE AND UN-PROJECT (F185)** | The emblem's close, well-posed, never attempted, and its acceptance test is already written |
+| **next** | **AN ADVERSARY ON THIS BRIEF** | Rev 64's found fourteen |
+| **next** | **F156 — the `Senor` gate row scores a DEPARTURE** | FOUR revisions unacted |
+| **next** | **Fix `probe_rev63_shapefit.py`** | §6 tells you to run it and it is stale AND reads the hubcap's weight (F178/F189) |
+| **near** | **Prove the large-format chain (F192)** | He ruled he needs it; `stitch.py`'s seam check has never run above 3840 |
+| **near** | **Triage `REMAINING_WORK_rev61.md` §I** | 27 rows, four revisions |
+| **near** | **Test the two disputed ceilings** | A ceiling attributed to a studio that F155 says gets thrown away |
+| **near** | **Glass, tyres, the tail's barrel, the shut lines** | The surviving panel items, none touched in four revisions |
+| **near** | **F143 — the roof loudspeakers** | Unmodelled since rev 12 — 52 revisions |
+| **then** | **F10–F14 — the galley cluster** | F14 is TWELVE revisions inherited |
+| **CEILED** | **F153 the workshop landmarks; F168 the 2019 vector; F183 the traced pressing; F44/F60/F62 gloss; F83 the front arch; F67's residue; F142's roof colour; F148's dark chrome** | **But F62 is DISPUTED — do not quote it without testing it** |
 | **standing** | **F18 — the die-cut sticker** | The original deliverable. Open since rev 44 |
 
 ---
+
 ## §10 HOW TO GROW THIS HANDOFF WITHOUT BREAKING IT
 
 1. **The set is three files.** `LEDGER_rev<N>.md`, `NEXT_CONTEXT_PROMPT_rev<N+1>.md`, and

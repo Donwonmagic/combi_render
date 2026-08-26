@@ -481,16 +481,25 @@ t("is the canonical vector still marked as a DIFFERENT OBJECT, and not named ref
   "would invite the next context to treat it as a reference frame OF THE BUS, "
   "which is the exact rule-11 error it exists to document (F168)")
 
-t("is the half-built traced-pressing route still flagged as UNFINISHED?",
-  os.path.exists('probe_rev63_trace.py')
-  and 'T3' in open('probe_rev63_trace.py').read()
-  and 'LEDGER_rev63.md' in open('PASTE_INTO_CLAUDE_CODE.txt').read(),
-  "probe_rev63_trace.py traces the REAL pressing's outline instead of "
-  "approximating it with seven constants, and scores IoU 0.7129 against the "
-  "target bus's own badge where the shipped glyph scores 0.5367 -- but it "
-  "FAILS ITS OWN T3 at 0.6504 and is not in the mesh.  The diagnosis is done: "
-  "the disagreement is the RING (0.508), not the glyph (interior 0.78).  A "
-  "context that reads the IoU and not the FAIL would ship an unreproduced trace")
+# RETIRED AT REV 64, IN PLACE, WITH ITS CAUSE NAMED RATHER THAN DELETED.
+# This asked whether the traced-pressing route was still flagged UNFINISHED.
+# Rev 64 finished it, meshed it, rendered it and REFUTED it, so the question
+# can no longer mean what it meant -- and worse, its own text repeated the
+# rev-63 brief's diagnosis, "the disagreement is the RING (0.508), not the
+# glyph (interior 0.78)", which was NEVER IN THE PROBE and is FALSE: both
+# figures were one 9 % scale error in raster() (F186).  Because the mechanical
+# half of rule 15 repeated the same unbacked number, it could never have caught
+# it -- which is the argument for running a REAL adversary, not this file.
+# Replaced by the rev-64 batch below; the successor is "is the traced pressing
+# still flagged as REFUTED and OFF?".
+t("is the rev-63 trace route's FALSE ring diagnosis still retracted?",
+  '0.508' not in open('PASTE_INTO_CLAUDE_CODE.txt').read()
+  and 'ctl("T3b"' in open('probe_rev63_trace.py').read(),
+  "The 0.508/0.78 pair was prose in three documents and in THIS FILE's own "
+  "question text, and in no probe.  Measured: the ring reads 0.6758 and no "
+  "concentric annulus beats it, and the glyph reproduces at 0.9496 once both "
+  "sides share a ruler.  If that number returns to the brief, the next context "
+  "will re-diagnose a rasteriser bug as a defect of the trace (F186, rule 38)")
 
 t("does the construction-ablation result still stand against F137?",
   'F174' in open('OPEN_FINDINGS.md').read()
@@ -502,12 +511,67 @@ t("does the construction-ablation result still stand against F137?",
   "topology fix is spending itself on a refuted premise (F174, rule 36)")
 
 
+# ===================================================================== rev 64
+# The rev-63 batch above is now HISTORY -- rev 64 built its half-built route,
+# rendered it and refuted it, and the "diagnosis is done: the RING (0.508)"
+# that its last question repeats turned out NOT TO BE IN THE PROBE AT ALL
+# (F186).  These six are about what REV 64 measured, refuted and left open.
+
+t("is the traced pressing still flagged as REFUTED and OFF?",
+  'F183' in open('OPEN_FINDINGS.md').read()
+  and 'T1_VW_TRACED' in open('t1_core.py').read()
+  and os.path.exists('vw_pressing.py'),
+  "The rev-64 brief's TOP item was to put the traced pressing in the mesh.  It "
+  "went in, it WON on cells (7 vs 6), on elongation and on IoU (0.7487 vs "
+  "0.6049) -- and it RENDERS AS AN UNRECOGNISABLE BLOB.  A context that reads "
+  "the table and not the crop would ship it.  T1_VW_TRACED must stay OFF")
+
+t("do C6 and C8 still carry F184's warning?",
+  os.path.exists('probe_rev64_shear.py')
+  and 'F184' in open('OPEN_FINDINGS.md').read(),
+  "A PURE SHEAR of the glyph already in the tree -- no constant, no spine, no "
+  "shape change -- carries cells 6 -> 8 and elongation 2.388 -> 3.853.  C8's "
+  "3.390 target and C6's 7 BOTH lie inside that.  Quoting either as a fidelity "
+  "target without saying so is steering by a viewing angle (rule 39, rule 43)")
+
+t("is the ring-ellipse fit still named as the emblem's close?",
+  'F185' in open('OPEN_FINDINGS.md').read()
+  and 'ELLIPSE' in open('PASTE_INTO_CLAUDE_CODE.txt').read().upper(),
+  "The badge's ring is a CIRCLE on the real object, so its image gives the "
+  "homography outright and every emblem target could be re-read on the mark "
+  "instead of on a photograph of it.  Nothing in this project has ever fitted "
+  "it.  Drop this and the item goes back to tuning against sheared targets")
+
+t("does the record still say rev 63's constants SHIPPED?",
+  'RETRACTED AT REV 64' in open('EMBLEM_HANDOFF.md').read(),
+  "EMBLEM_HANDOFF.md is the carrier for the top item and its SS5b.2 said 'No "
+  "constant in t1_core.py was changed ... and that is a control' for a whole "
+  "revision while the tree carried all six.  F170 still said 'DO NOT ship'.  "
+  "Rule 13 undischarged.  If that retraction is smoothed away the carrier "
+  "contradicts the tree again (F190)")
+
+t("is T3's registration repair still held by a kill?",
+  'ctl("T3d"' in open('probe_rev63_trace.py').read(),
+  "T3's 0.6504 was a RASTERISER defect -- the trace drawn 9.1 % too big -- not "
+  "a trace defect (F186).  Registered it reads 0.9496.  T3d goes red if the "
+  "registration is removed.  Without that kill the same 0.30 of IoU can be "
+  "lost again and read as a defect of the trace, which is what happened once")
+
+t("are rev 64's two owner rulings still in a live carrier?",
+  all(k in open('OPEN_FINDINGS.md').read()
+      for k in ('Keep holding', 'large-format print')),
+  "He REAFFIRMED the delivery hold against a revision that could have shipped, "
+  "and he ruled he needs LARGE-FORMAT print over the 3840 default.  A ruling "
+  "in no carrier is exactly how this project lost the Playa hero for six "
+  "revisions and then published the misattribution for seven more (F92, F188)")
+
+
 P("-" * 78)
 P("  %d asked, %d BROKE%s" % (NQ[0], len(bad),
                               ("  --  " + "; ".join(bad)) if bad else ""))
 P("  A question that can no longer fail is not a control.  The last SIX were")
-P("  REPLACED at rev 63 and are about what REV 63 shipped, refuted and")
-P("  HALF-BUILT; the rev-62 batch above them is the next one to replace.")
+P("  REPLACED at rev 64 and are about what REV 64 measured, refuted and left")
+P("  open; the rev-63 batch above them is the next one to replace.")
 sys.exit(1 if bad else 0)
 
 
