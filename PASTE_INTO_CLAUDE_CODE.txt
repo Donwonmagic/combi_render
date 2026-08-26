@@ -237,8 +237,14 @@ AGAIN AT REV 65.**
 > INCLUDING THIS ONE.**
 
 **AND MEASURE IT AGAIN BEFORE YOU FINISH.** `origin/main` moved mid-revision at rev 51 and
-rev 55. **At rev 64's CLOSE, HEAD was 4+ ahead / 0 behind `origin/main`** — the pickup figure
-is NOT the close figure.
+rev 55. **At rev 64's CLOSE, HEAD was 11 ahead / 0 behind `origin/main`** — the pickup figure is
+NOT the close figure, and an adversary once caught a brief shipping only the pickup one.
+
+> **AND ONE THING THE LOOP WILL SHOW YOU THAT IS NOT A FINDING:**
+> `origin/claude/bus-model-rev57-yvrlhi` still reads **6 ahead of `origin/main`** at rev 64's
+> close. **It is merged into HEAD**, which is why `bootstrap.sh` row 9 — which asks about
+> HEAD, not about main — is green. It goes to 0 the moment rev 64's branch reaches `main`.
+> **If row 9 is RED at your pickup, that is a different branch and a real finding.**
 
 ---
 ## §2 THE EMBLEM — **READ `EMBLEM_HANDOFF.md` FIRST, AND READ ITS §5b.2 RETRACTION.**

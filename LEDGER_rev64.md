@@ -291,3 +291,23 @@ cells are 1.42× too round"* were read off images that are not mirror-symmetric,
 shear of the glyph already in the tree spans both targets. **The ring is a circle on the real
 object. Fit it, and every emblem target can be re-read on the mark instead of on a
 photograph of it.**
+
+---
+
+## §7 THE BRANCH, MEASURED AT CLOSE — NOT AT PICKUP
+
+```
+HEAD                                     11 ahead / 0 behind origin/main
+origin/claude/bus-model-rev57-yvrlhi      6 ahead of origin/main -- MERGED INTO HEAD
+                                          (bootstrap row 9 asks about HEAD, and is GREEN;
+                                           this goes to 0 when rev 64 reaches main)
+every other branch                        0 ahead
+bootstrap.sh        ALL 10 PASS      at the handoff commit, clean tree
+verify_clone.sh     ALL 298 PASS     at the handoff commit, clean tree
+audit_brief.py      10 checked, 0 FAILED
+audit_adversary.py  48 asked, 0 BROKE
+```
+
+**The pickup figure is not the close figure. `origin/main` moved mid-revision at rev 51 and
+rev 55, and an adversary once caught a brief shipping only the pickup one.**
+
