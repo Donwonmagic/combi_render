@@ -461,9 +461,32 @@ t("is C7 still recorded as a PRECONDITION on C6 rather than a peer of it?",
   "into the region where its own alarm fires.  Read the kill BEFORE the pass "
   "(F176, rule 42)")
 
+# rev 66 -- THIS QUESTION FROZE ONE OF THE TWO VALUES AND F204 MOVED IT.
+# NOT WIDENED TO ADMIT THE NEW VALUE (rule 44): re-asked so it tests the
+# INTENT -- that both weights are checked BY VALUE, that the two values DIFFER,
+# and that each row agrees with the source it claims to pin.  That is strictly
+# stronger than the frozen literal, and it still goes red if anyone writes one
+# constant into the other, drops a row, or lets a row drift off its source.
+def _two_weights():
+    import re
+    vc = open('verify_clone.sh').read()
+    nose_row = re.search(r'NOSE stroke weight is ([\d.]+)', vc)
+    hub_row = re.search(r'HUBCAP stroke weight is ([\d.]+)', vc)
+    if not (nose_row and hub_row):
+        return False
+    nose_src = re.search(r'def vw_logo_fit\([^)]*wfrac=([\d.]+)\)',
+                         open('t1_detail.py').read())
+    hub_src = re.search(r'^CAP_EMBLEM_WFRAC = ([\d.]+)',
+                        open('t1_detail.py').read(), re.M)
+    if not (nose_src and hub_src):
+        return False
+    return (nose_row.group(1) == nose_src.group(1)
+            and hub_row.group(1) == hub_src.group(1)
+            and nose_row.group(1) != hub_row.group(1))
+
+
 t("are the TWO stroke-weight constants still distinguished by value?",
-  "NOSE stroke weight is 0.1800" in open('verify_clone.sh').read()
-  and "HUBCAP stroke weight is 0.2087" in open('verify_clone.sh').read(),
+  _two_weights(),
   "the NOSE roundel's weight is vw_logo_fit()'s wfrac SIGNATURE DEFAULT; the "
   "HUBCAP's is CAP_EMBLEM_WFRAC; and T1_VW_WFRAC overrides the NOSE one ONLY, "
   "so every weight sweep in this project's history -- F152's included -- has "
@@ -567,6 +590,64 @@ t("are rev 64's two owner rulings still in a live carrier?",
 
 
 P("-" * 78)
+
+# =========================================================== rev 66's BATCH
+# Rule: replace the questions each revision -- a question that can no longer
+# fail is not a control.  These five are about what REV 66 measured, and each
+# one goes red on a specific way rev 66's work could be silently undone.
+
+t("is C6 still counting INTERIOR cells on BOTH sides?",
+  'def cream_cells(mask, frac=0.97, interior=False)' in open('probe_rev46_vw.py').read()
+  and 'photo_cells(interior=True)' in open('probe_rev46_vw.py').read()
+  and 'cream_cells(glyph_only_mask(**CURRENT), interior=True)' in open('probe_rev46_vw.py').read(),
+  "C6's target of SEVEN was the PHOTOGRAPH'S RIM -- a crescent of background "
+  "outside the ring, caught because the 0.97 disc is concentric with the 41x69 "
+  "CROP BOX and the ring is not.  Measured 0.0 %% inside the ring's own filled "
+  "outline against 100 %% for the six real cells.  If EITHER side stops "
+  "filtering, the two stop sharing a ruler and the unreachable 7 comes back "
+  "(F200).  A V fused to a W meets the band at SIX points and so cuts the disc "
+  "into SIX; 144 perturbed builds gave 7 not once")
+
+t("can C6's kill still go red?",
+  'KILL, WATCHED FIRING ON THE DEFECT' in open('probe_rev46_vw.py').read()
+  and 'shrink=0.88' in open('probe_rev46_vw.py').read()
+  and 'def built_mask(rows=69, shrink=1.0)' in open('probe_rev46_vw.py').read(),
+  "correcting C6 KILLED ITS OWN KILL: a collapsed W still cuts the ring into "
+  "six, so C7 read 6 -> 6 and went red.  A control whose kill cannot go red "
+  "makes its own PASS meaningless (rule 42).  The kill now plants the actual "
+  "defect -- the glyph shrunk until nothing reaches the band -- and collapses "
+  "the count 6 -> 1.  If `shrink` goes, C6 is unguarded again (F201)")
+
+t("is the built landmark raster still read where it has CONVERGED?",
+  'BUILT_ROWS = 552' in open('probe_rev46_vw.py').read()
+  and 'ctl("C10"' in open('probe_rev46_vw.py').read()
+  and 'if last3 and abs(last3[-1] - L["L2"]) > 1e-12:' in open('probe_rev46_vw.py').read(),
+  "L4 is 'the last 3-run row'; when the raster shows only ONE, that is L2's "
+  "row, so L4 reported the built V's APEX against the photograph's W TROUGHS. "
+  "Built L4 flips between 0.366 and 0.866 with the row count alone.  Its error "
+  "was 96.4 %% of the squared residual: 0.4455 at 276 rows against 0.1001 "
+  "converged.  BOTH halves must stand -- the refusal AND the row count (F203)")
+
+t("does C6's message still MEASURE its reach rather than print it?",
+  'def terminal_reach():' in open('probe_rev46_vw.py').read()
+  and 'ctl("C12"' in open('probe_rev46_vw.py').read()
+  and 'the mesh names them' not in open('probe_rev46_vw.py').read(),
+  "for five revisions C6 printed three HARD-CODED figures as a diagnosis, and "
+  "no audit could catch them because a literal prints without being measured "
+  "(F198).  C12 perturbs VW_W_ARM_X and insists the reported figures MOVE.  "
+  "If C12 goes, the message can quietly freeze again")
+
+t("is the arc cut still ablatable, and still holding the extreme?",
+  'def _mitre_outline(spine, w, arc_r=None, arc_n=24)' in open('t1_core.py').read()
+  and 'T1_VW_NOARC' in open('t1_core.py').read()
+  and 'for t in _drive:' in open('t1_core.py').read(),
+  "the arc cut trims each rail where it MEETS the band circle, so both cap "
+  "corners land on the band BY CONSTRUCTION and the global extreme cannot "
+  "move -- which is exactly what kills T1_VW_CAPMIN, whose extreme runs "
+  "0.8140 -> 0.9250 and drags every other terminal 12 %% inboard.  The four "
+  "true end caps must stay OUT of the fixed point (`_drive`), or the "
+  "corner-choice the arc cut removes comes straight back (F202)")
+
 P("  %d asked, %d BROKE%s" % (NQ[0], len(bad),
                               ("  --  " + "; ".join(bad)) if bad else ""))
 P("  A question that can no longer fail is not a control.  The last SIX were")

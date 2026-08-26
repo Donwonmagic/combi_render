@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-26 17:38:11 UTC |
-| git commit | `ee28f55` |
-| git subject | rev 64c: the register, the retractions rule 13 owed from rev 63, and eleven rows that hold rev 64's work |
+| generated | 2026-08-26 21:54:29 UTC |
+| git commit | `0394f63` |
+| git subject | rev 66a: the arc-cut terminal, the stroke weight, and three emblem instruments that were not measurements |
 | working tree | clean |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=2 (applied, destructive, before booleans) |
@@ -152,8 +152,8 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 | | |
 |---|---|
 | mesh objects | 228 |
-| vertices (all meshes) | 330551 |
-| faces (all meshes) | 321190 |
+| vertices (all meshes) | 331471 |
+| faces (all meshes) | 321650 |
 
 | prefix | n |
 |---|---|
