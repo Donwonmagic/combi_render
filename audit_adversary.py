@@ -437,12 +437,77 @@ t("does probe_rev62_landmarks still LIFT its ruler rather than re-type it?",
   "figures to 0.00003.  If someone re-types those functions the two rulers "
   "drift silently and every delta in F153 becomes meaningless")
 
+# ---------------------------------------------------------------------------
+# REPLACED AT REV 63 (§10.5 -- a question that can no longer fail is not a
+# control).  These six are about what REV 63 shipped, refuted and half-built.
+# The rev-62 batch above them is the next one to replace.
+
+t("is the emblem gate's INSUFFICIENCY still on the record, with its counterexample?",
+  'F175' in open('OPEN_FINDINGS.md').read()
+  and os.path.exists('probe_rev63_shapefit.py'),
+  "rev 63 found constants scoring 7 cells, elongation 3.322 and IoU 0.5363 -- "
+  "C6 PASS, C8 PASS, IoU up -- that render on the nose as a Y-shaped trident "
+  "WORSE than the X they replaced.  If this row goes, the next context reads a "
+  "green C6+C8 as evidence the emblem is right, which is exactly the mistake "
+  "that has kept the owner's top item open.  The probe is kept so the "
+  "refutation is REPRODUCIBLE and not just asserted (F175, rule 41)")
+
+t("is C7 still recorded as a PRECONDITION on C6 rather than a peer of it?",
+  'F176' in open('OPEN_FINDINGS.md').read()
+  and 'PRECONDITION' in open('OPEN_FINDINGS.md').read(),
+  "at F175's constants probe_rev46_vw.py prints '[FAIL] C7 KILL: ... moves the "
+  "cell count 7 -> 7'.  A kill that cannot go red is not a control (rule 3), "
+  "so C6's simultaneous PASS is worthless there.  Nobody had driven the gate "
+  "into the region where its own alarm fires.  Read the kill BEFORE the pass "
+  "(F176, rule 42)")
+
+t("are the TWO stroke-weight constants still distinguished by value?",
+  "NOSE stroke weight is 0.1800" in open('verify_clone.sh').read()
+  and "HUBCAP stroke weight is 0.2087" in open('verify_clone.sh').read(),
+  "the NOSE roundel's weight is vw_logo_fit()'s wfrac SIGNATURE DEFAULT; the "
+  "HUBCAP's is CAP_EMBLEM_WFRAC; and T1_VW_WFRAC overrides the NOSE one ONLY, "
+  "so every weight sweep in this project's history -- F152's included -- has "
+  "been driving the nose.  Rev 63 wrote a nose-fitted value into the hubcap "
+  "constant and the gate read 6 cells / 2.659 where the search had read "
+  "7 / 3.322.  Neither was checked BY VALUE by anything before rev 63 (F178)")
+
+t("is the canonical vector still marked as a DIFFERENT OBJECT, and not named ref_*?",
+  os.path.exists('vw_canonical_2019.svg')
+  and not os.path.exists('ref_vw_canonical.svg')
+  and 'F168' in open('OPEN_FINDINGS.md').read(),
+  "the 2019 redraw reads 3 cells / elongation 1.597 against the photographed "
+  "badge's 7 / 3.390 AT AN IDENTICAL RASTER: its V does not touch its W and "
+  "its legs stop short of the ring, and the pressing has both.  A ref_ prefix "
+  "would invite the next context to treat it as a reference frame OF THE BUS, "
+  "which is the exact rule-11 error it exists to document (F168)")
+
+t("is the half-built traced-pressing route still flagged as UNFINISHED?",
+  os.path.exists('probe_rev63_trace.py')
+  and 'T3' in open('probe_rev63_trace.py').read()
+  and 'LEDGER_rev63.md' in open('PASTE_INTO_CLAUDE_CODE.txt').read(),
+  "probe_rev63_trace.py traces the REAL pressing's outline instead of "
+  "approximating it with seven constants, and scores IoU 0.7129 against the "
+  "target bus's own badge where the shipped glyph scores 0.5367 -- but it "
+  "FAILS ITS OWN T3 at 0.6504 and is not in the mesh.  The diagnosis is done: "
+  "the disagreement is the RING (0.508), not the glyph (interior 0.78).  A "
+  "context that reads the IoU and not the FAIL would ship an unreproduced trace")
+
+t("does the construction-ablation result still stand against F137?",
+  'F174' in open('OPEN_FINDINGS.md').read()
+  and os.path.exists('probe_rev63_ablate.py'),
+  "F137 said no spine arrangement can satisfy the photograph's cell shape.  A "
+  "24000-point ablation over SEVEN spine constants AND the stroke width jointly "
+  "reaches elongation 6.877 AT 7 CELLS -- twice the photograph's 3.390.  The "
+  "construction was never the ceiling, so a revision that goes looking for a "
+  "topology fix is spending itself on a refuted premise (F174, rule 36)")
+
+
 P("-" * 78)
 P("  %d asked, %d BROKE%s" % (NQ[0], len(bad),
                               ("  --  " + "; ".join(bad)) if bad else ""))
 P("  A question that can no longer fail is not a control.  The last SIX were")
-P("  REPLACED at rev 62 and are about what REV 62 shipped, refuted and ruled;")
-P("  the rev-61 batch above them is the next one to replace.")
+P("  REPLACED at rev 63 and are about what REV 63 shipped, refuted and")
+P("  HALF-BUILT; the rev-62 batch above them is the next one to replace.")
 sys.exit(1 if bad else 0)
 
 
