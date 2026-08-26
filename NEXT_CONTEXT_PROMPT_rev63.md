@@ -116,7 +116,8 @@ STATE.md              UNCHANGED, and that is a CONTROL: rev 62 touched zero file
 ```
 
 **AND THE STANDING WARNING, WHICH `verify_clone.sh` PRINTS ITSELF.** A green check is not
-evidence about the vehicle. **Not one of those 274 rows compares the model to a photograph.**
+evidence about the vehicle. **Not one of those rows compares the model to a photograph.**
+*(The count is deliberately NOT repeated here. It stood four rows short of the script's own total and had been stale across at least one revision — §10.3's trap again: `--fix-count` rewrites `ALL n PASS` and `n SELF-CONSISTENCY` and cannot see a bare `n` sitting in a sentence. **The stale figure is described and not reprinted**, because this project has four times re-committed a defect inside the very line written to explain it. The fix is to delete the number, not to chase it.)*
 
 ---
 ## §0. THE GOAL, AND HOW FAR OFF IT WE ACTUALLY ARE
