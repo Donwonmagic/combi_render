@@ -302,9 +302,26 @@ Not another statistic on the face-on raster. **The three we have are jointly sat
 a wrong glyph, which is now measured.** What is missing is a term that would have rejected
 the trident, and rev 63 did not build it. The candidates, NOT measured:
 
-1. **A REACH term measured on the BUILT MESH, not the raster.** In the AFTER crop the
-   stroke ends visibly stop short of the ring while the raster says 7 cells. `STATE.md`
-   already carries a wheel-house reach idiom that does this kind of thing properly.
+1. ~~**A REACH term measured on the BUILT MESH, not the raster.**~~ **BUILT IT, AND IT IS
+   REFUTED — F179.** `probe_rev63_reach.py` counts how many separate places the glyph
+   TOUCHES the ring band (six by design; parameter-free and pose-free, since no terminal
+   has to be located or named). **The trident touches in all SIX. Reach is not what is
+   wrong with it.** The instrument is kept because it earns its place elsewhere: it reads
+   the SHIPPED glyph at **four** contacts — 62°/118°/212°/328°, nothing near 0° or 180° —
+   which corroborates F63/F64's two floating W arms from a second, independent ruler
+   (F180).
+
+1b. **WHAT DOES SEPARATE IT: WHERE the six contacts sit round the ring (F181).** The one
+   axis C6, C8, IoU and reach are ALL blind to, because none of them looks at position.
+   Tightest neighbour gap, at 276 rows: shipped **55°**, rev 62's photo-fit **40°**,
+   **the trident 15°** — its two W legs converge to almost one point at the bottom, and
+   *that convergence is the spike that makes it read as a Y*. See
+   `probe_scratch/rev63_reach_trident.png`. **A tightest-gap floor would have rejected the
+   trident where every other statistic passed it.**
+   **CEILING, and it is the next instrument: the TARGET is NOT derived.** The photograph's
+   own six angles need the badge's ring fitted ON THE FRAME, and `_annulus()` is synthetic
+   — it reconstructs `built_mask`'s ring, not a photographed one. So this separates
+   candidates from each other; it does not yet say which is right.
 2. **Judge on the RENDER.** One orthographic front render per candidate is minutes, not
    milliseconds, so it cannot go inside a 24000-point sweep — but it can gate the top ten.
 3. **Keep the landmark residual as a HARD CONSTRAINT rather than an objective**, per F177.
@@ -384,6 +401,7 @@ python3 probe_rev63_canon.py --fit       # ...and fitted, then VERIFIED on the p
 python3 svgraster.py                     # its rasteriser's OWN selftest, 9 known shapes
 python3 probe_rev63_ablate.py            # NEW -- ABLATES vw_bars.  ~20 min, 24000 pts
 python3 probe_rev63_shapefit.py          # NEW -- the joint fit.  BUILDS F175's counterexample
+python3 probe_rev63_reach.py             # NEW -- contacts with the ring, and their ANGLES
 T1_VW_DUMP=1 python3 probe_rev46_vw.py    # paints the cream cells.  LOOK at them
 T1_VW_WFRAC=0.14 python3 probe_rev46_vw.py   # the stroke-weight ablation (F152)
 ```
