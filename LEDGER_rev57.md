@@ -767,3 +767,29 @@ either of them survived in this repository.**
 empty in all three transitions. The rev-51 compaction (25 sections → 9) dropped the rule canon, the
 parallelism section and the machine-state dump, but **all three were handed on by name or absorbed
 into `CLAUDE.md`**, which is what rule 16 permits. **The goal statement itself has never drifted.**
+
+### §7.7 THE ONE THING PUT TO HIM — AND HE OVERTURNED A BRIEF'S INFERENCE
+
+The audit found one live contradiction it could not settle from the repository, so it went to him
+as multiple choice with both readings quoted, which is what `CLAUDE.md` says to do:
+
+* his rev-43 words — *"the agreed deliverable is the white-studio hero for fidelity PLUS a warm
+  low-light Playa hero, and the Playa one carries the emotional bar that sits ABOVE clinical
+  accuracy"*, against
+* the brief from rev 52 — *"reviving `playa_env.py` as the delivery frame is **not** on the table —
+  do not re-propose it"*, which was **inferred from W6**, a ruling whose object is the studio RIG.
+
+> **HE RULED: "DEPRIORITISED, NOT CANCELLED."**
+
+**So a line that sat in HIS SETTLED RULINGS for six revisions was not his.** It entered as a brief's
+inference at rev 52, was shortened at rev 54 to a bare *"`playa_env.py` is not on the table"*, and
+by rev 57 was indistinguishable from the rulings around it. **Rule 34 was written at rev 51–52 for
+exactly this move and did not catch it, because nobody re-read the list it was in.**
+
+**WHAT THE RULING CHANGES AND WHAT IT DOES NOT.** F62 is now `RULED-rev57b` and the emotional-bar
+sentence is back in both live carriers. **No revision works the Playa hero until he opens it**,
+*"focus on the 3d model"* stands, and nothing re-proposes `playa_env.py` as the delivery frame —
+which is also why **F57** (that path renders no vehicle) stays recorded rather than fixed. Two more
+verifier rows hold it: the phrase *"the emotional bar that sits ABOVE clinical accuracy"* must be in
+**both** the newest brief and the register — it was in **neither** from rev 44 to rev 57 — and F62
+must carry his words **and** the `RULED` grade. Both watched failing on the pre-ruling text.

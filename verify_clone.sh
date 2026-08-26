@@ -1514,6 +1514,26 @@ i=t.find('| **F18**'); row=t[i:t.find(chr(10),i)]
 print(sum(k in row for k in ('cartoon with rendered depth','papel picado',
                              'build it after the model is done')))" 2>&1 | tail -1)"
 
+# AND THE ONE THING THE DELETION COST THAT NOBODY NOTICED FOR FOURTEEN
+# REVISIONS: the phrase "the emotional bar that sits ABOVE clinical accuracy".
+# It is in every brief to rev 43 and in NONE from rev 44 to rev 57.  It is the
+# owner's own sentence about his SECOND deliverable, and losing it is what let
+# rev 52 infer the item away.  Both live carriers must hold it.
+ck "the emotional bar is in BOTH live carriers" 2 \
+   "$(python3 -c "
+import glob,re,sys
+b=max(glob.glob('NEXT_CONTEXT_PROMPT_rev*.md'), key=lambda f:int(re.search(r'rev(\d+)',f).group(1)))
+print(sum('emotional bar' in open(f,errors='replace').read()
+          for f in (b,'OPEN_FINDINGS.md')))" 2>&1 | tail -1)"
+
+# F62 records an OWNER RULING, not a brief's inference -- which is the whole
+# point of the row.  Its grade must say so, and the ruling must be in his own
+# words.  WATCHED FAILING on the pre-ruling text, which graded INHERITED.
+ck "F62 carries his ruling AND its grade" 2 "$(python3 -c "
+t=open('OPEN_FINDINGS.md',errors='replace').read()
+i=t.find('| **F62**'); row=t[i:t.find(chr(10),i)]
+print(sum(k in row for k in ('DEPRIORITISED, NOT CANCELLED','RULED-rev57b')))" 2>&1 | tail -1)"
+
 # README carried a rev-42 row count and a rev-42 object inventory for sixteen
 # revisions.  CLAUDE.md's own first line: if you find a number here, that is
 # the bug.  This row forbids README asserting a verify_clone total at all --
