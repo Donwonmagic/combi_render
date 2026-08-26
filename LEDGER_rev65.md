@@ -172,3 +172,23 @@ audit_adversary.py        48 asked, 0 BROKE
    all untouched.
 6. **`probe_rev46_vw.py`'s C6 message is NOT yet repaired** — F198 is recorded, not fixed.
    The literal still prints.
+
+---
+
+## §8 THE BRANCH, MEASURED AT CLOSE
+
+```
+HEAD                                   17 ahead / 0 behind origin/main
+origin/claude/bus-model-rev57-yvrlhi    6 ahead of origin/main -- MERGED INTO HEAD at rev 64
+                                        (bootstrap row 9 asks about HEAD; it is GREEN)
+bootstrap.sh        ALL 10 PASS    at the handoff commit, clean tree
+verify_clone.sh     ALL 303 PASS   at the handoff commit, clean tree
+audit_brief.py      10 checked, 0 FAILED
+audit_adversary.py  48 asked, 0 BROKE
+NEXT_CONTEXT_PROMPT_rev66.md is byte-identical to PASTE_INTO_CLAUDE_CODE.txt (§10.1)
+```
+
+**THE ONE THING TO CARRY IF ONLY ONE THING IS CARRIED.** *Measure the defect before you fix
+it, and check the measurement is a measurement.* This project spent five revisions aiming at
+a number that was typed into a message string. **`grep` for the figures your brief quotes,
+and if they are not inside an expression, they are not measurements.**
