@@ -234,8 +234,19 @@ re-run on widened bounds, watched failing as C27b**, which is rev 62's same corr
 
 **§6 BELOW STILL GOVERNS AND NONE OF IT WAS DONE AT REV 63:** nothing was rendered on the
 nose with new constants, the six `verify_clone.sh` rows were not re-based, and the hubcaps
-were not checked. **No constant in `t1_core.py` was changed. `STATE.md` is untouched, and
-that is a control: rev 63 edited zero files under `t1_*.py` / `build.py` / `studio.py`.**
+were not checked. ~~**No constant in `t1_core.py` was changed. `STATE.md` is untouched, and
+that is a control: rev 63 edited zero files under `t1_*.py` / `build.py` / `studio.py`.**~~
+
+> **RETRACTED AT REV 64 — THIS SENTENCE WAS FALSE FOR A WHOLE REVISION, IN THE CARRIER FOR
+> THE PROJECT'S TOP ITEM (F190).** Rev 63 changed its mind between writing it and closing,
+> and **rule 13 was not discharged**: the constants above SHIPPED. The machine, which
+> outranks this file: `t1_core.py` reads `VW_V_TIP_X = 0.3287`, `VW_APEX_Z = 0.0538`,
+> `VW_W_ARM_X = 1.1002`, `VW_W_ARM_Z = 0.4350`, `VW_W_TROUGH_X = 0.3111`,
+> `VW_W_TROUGH_Z = -0.6445`; `t1_detail.py` reads `wfrac=0.1800`; `STATE.md` WAS
+> regenerated. So §5b.2's heading — *"AND IT IS NOT TO BE SHIPPED"* — describes a decision
+> that was REVERSED, and everything under it is the case AGAINST what is now in the tree.
+> Read it that way. **Found by the rev-64 adversary, confirmed against the SOURCE, not
+> against this file.** And rev 64 rendered the nose at last: §6's first item is discharged.
 
 **ONE MORE, SMALL BUT IT IS IN THIS FILE (F171): §4 above quotes rev 62's fit as elongation
 2.56. Re-run on this ruler it prints 2.529.** Recorded rather than silently corrected.

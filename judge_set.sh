@@ -4,7 +4,10 @@
 # EVERY FIDELITY JUDGEMENT THIS PROJECT MADE FOR SIXTY REVISIONS WAS MADE ON A
 # RAW, UN-POST-PROCESSED FRAME, while post.py sat in the tree implementing
 # bloom -> chromatic aberration -> vignette -> grain in the correct physical
-# order with every per-stage gain defaulting to 0.0.  An independent
+# order.  ONLY `bloom` defaults to 0.0; ca, vig and grain default to 1.0
+# -- post.py's _FLOATS.  This comment said "every per-stage gain" until
+# rev 64 and the same wrong sentence was in the brief and in F146 (F189a).
+# An independent
 # photography panel scored OPTICS 1/10 and SENSOR CHARACTER 2/10 on that
 # omission alone and put it at +4 to +6 points of 80.
 #

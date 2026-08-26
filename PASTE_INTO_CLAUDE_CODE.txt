@@ -97,8 +97,8 @@ F139 stand — but it **inverts the presumption**, and `EMBLEM_HANDOFF.md` §5 i
 
 ```
 bootstrap.sh            ALL 10 PASS
-verify_clone.sh         ALL 287 PASS on a clean tree, AT THE HANDOFF COMMIT
-                        <- 0 FIDELITY, 287 SELF-CONSISTENCY.  THIRTEEN rows moved this
+verify_clone.sh         ALL 298 PASS on a clean tree, AT THE HANDOFF COMMIT
+                        <- 0 FIDELITY, 298 SELF-CONSISTENCY.  THIRTEEN rows moved this
                            revision: SIX emblem constants RE-BASED TOGETHER with the
                            cause named, plus SEVEN companion rows
 audit.py                VERIFY: 0 fail, 0 warn at T1_SUB=2.  STATE.md REGENERATED --
@@ -137,8 +137,8 @@ fill its ring the way both photographs do, the V is too narrow, the W's outer ar
 short, and the strokes are thinner than the pressing's.
 
 **AND HERE IS THE HONEST DISTANCE — THE GATE TABLE, WHICH AN ADVERSARY ONCE CAUGHT A BRIEF
-DROPPING.** `verify_clone.sh` ends **ALL 287 PASS** and its own verdict block says what
-that is worth: **0 FIDELITY, 287 SELF-CONSISTENCY.**
+DROPPING.** `verify_clone.sh` ends **ALL 298 PASS** and its own verdict block says what
+that is worth: **0 FIDELITY, 298 SELF-CONSISTENCY.**
 
 | gate | state MEASURED at close of rev 63 |
 |---|---|
@@ -211,7 +211,7 @@ for b in $(git branch -r | grep -v HEAD); do
 done
 git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 ./bootstrap.sh          # read ROW 9, and read the "N ahead / M behind" NOTE line
-./verify_clone.sh       # ALL 287 PASS -- and read its verdict block
+./verify_clone.sh       # ALL 298 PASS -- and read its verdict block
 ```
 
 **MEASURED AT REV 63 PICKUP:** the clone was **SHALLOW**, and `fetch --prune` printed

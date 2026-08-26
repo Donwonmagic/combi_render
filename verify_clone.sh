@@ -1897,6 +1897,65 @@ ck "README, START_HERE and the newest brief all name it" OK "$(
   done
   [ "$_n" = 3 ] && echo OK || echo "only $_n of 3 name $_RW")"
 
+# ------------- REV 64.  THE TRACED PRESSING WAS BUILT, RENDERED AND REFUTED,
+# and the reason -- that every emblem target is read off a photograph that is
+# not mirror-symmetric -- is the emblem's real blocker (F183/F184).  These rows
+# hold the parts of that which can go stale silently.
+
+# The trace is a LITERAL and a GENERATOR and the selftest holds the two
+# together.  A traced constant nobody can re-derive is a number somebody typed.
+ck "vw_pressing carries the trace AND its generator" 3 "$(python3 -c "
+import vw_pressing as V
+print(sum(bool(x) for x in (V.PRESSING_OUTER, V.PRESSING_HOLES, callable(V.trace))))" 2>&1 | tail -1)"
+
+# Every terminal on the band's inner edge -- that is what makes the outline
+# scale-free, so _fit_glyph can size it to any ring without encoding a diameter.
+ck "the traced outline is scale-free (terminals on the band)" OK "$(python3 -c "
+import vw_pressing as V
+r = max((x*x+y*y)**0.5 for x, y in V.PRESSING_OUTER)
+print('OK' if abs(r - V.BAND_INNER) < 0.01 else 'r max %.4f vs band %.4f' % (r, V.BAND_INNER))" 2>&1 | tail -1)"
+
+# THE HOLES ARE LOAD-BEARING.  The V and the W touch, so the cream cells
+# between them are enclosed holes; dropping them changes the topology C6 counts.
+ck "the traced glyph keeps its enclosed holes" 2 "$(python3 -c "
+import vw_pressing as V; print(len(V.PRESSING_HOLES))" 2>&1 | tail -1)"
+
+# T1_VW_TRACED IS MEASUREMENT-ONLY AND MUST STAY OFF.  It was built, rendered
+# and refuted (F183); a default flip would ship the blob.  Asserted, not trusted.
+ck "T1_VW_TRACED is OFF by default" 1 "$(grep -c 'os.environ.get("T1_VW_TRACED") == "1"' t1_core.py)"
+ck "nothing sets T1_VW_TRACED for the build" 0 "$(grep -l 'T1_VW_TRACED=1' build.py studio.py t1_detail.py 2>/dev/null | wc -l | tr -d ' ')"
+
+# solid_with_holes must NOT be reached by any cutter.  The rev-44 cap
+# triangulation inside solid_prism broke two wheel-arch booleans; this is a
+# separate function and that separation is the whole reason it is safe.
+ck "solid_with_holes is not used by any cutter" 0 "$(grep -n 'solid_with_holes' t1_core.py t1_shell.py t1_detail.py build.py 2>/dev/null | grep -cE 'cut|arch|boolean|gap_prism')"
+
+# F184's instrument: a mirror-symmetry statistic with a KILL that was watched
+# firing.  A control whose kill cannot go red is not a control (rule 42).
+ck "the shear probe carries its own KILL" 1 "$(grep -c 'ck("S1k"' probe_rev64_shear.py)"
+
+# F186's repair is load-bearing and must stay red if registration is removed.
+ck "T3's registration repair is held by a kill" 1 "$(grep -c 'ctl("T3d"' probe_rev63_trace.py)"
+
+# F190 -- the carrier for the top item said the constants were NOT shipped
+# while the tree carried them, for a whole revision.  Rule 13.  Both the
+# carrier and the register now say so; assert it so it cannot be smoothed away.
+ck "EMBLEM_HANDOFF retracts its false control sentence" 1 \
+   "$(grep -c 'RETRACTED AT REV 64' EMBLEM_HANDOFF.md)"
+ck "the six shipped constants are what the carrier now names" 6 "$(python3 -c "
+import re
+s = open('t1_core.py').read()
+want = {'VW_V_TIP_X': '0.3287', 'VW_APEX_Z': '0.0538', 'VW_W_ARM_X': '1.1002',
+        'VW_W_ARM_Z': '0.4350', 'VW_W_TROUGH_X': '0.3111', 'VW_W_TROUGH_Z': '-0.6445'}
+print(sum(bool(re.search(r'^%s = %s$' % (k, re.escape(v)), s, re.M))
+          for k, v in want.items()))" 2>&1 | tail -1)"
+
+# F191/F192 -- two owner rulings arrived at rev 64.  A ruling in no carrier is
+# how this project lost the Playa hero for six revisions (F92).
+ck "rev 64's owner rulings are in the register" 2 "$(python3 -c "
+t = open('OPEN_FINDINGS.md', errors='replace').read()
+print(sum(k in t for k in ('Keep holding', 'large-format print')))" 2>&1 | tail -1)"
+
 ck "newest brief states THIS script's row count" "$((PASS+1))" "${_BRIEF_TOTAL:-0}"
 
 UNTRACKED="$(git status --porcelain 2>/dev/null | grep -c '^??')"
