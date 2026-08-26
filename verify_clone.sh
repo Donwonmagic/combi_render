@@ -1827,6 +1827,32 @@ ck "T1_RIG lets a measuring tool ask for the rig" 1 "$(grep -c 'os.environ.get("
 ck "newest brief drops the retired sec.4 heading" 0 \
    "$(if [ -n "$_LATEST_BRIEF" ]; then grep -cE '^#+ .*WHAT ONLY HE CAN GIVE' "$_LATEST_BRIEF"; else echo 99; fi)"
 
+# ------------- THE PLAYA HERO: A LINE THAT WAS IN "HIS SETTLED RULINGS" AND
+# WAS NEVER HIS.  From rev 52 to rev 63 that list carried "playa_env.py is not
+# on the table -- do not re-propose it".  It entered as a brief's INFERENCE
+# from W6, whose object is the studio RIG, and was applied to a SECOND
+# DELIVERABLE -- rule 34, written at rev 51-52 for exactly this move.  Asked
+# after rev 62 with both readings quoted, he ruled "DEPRIORITISED, NOT
+# CANCELLED".  These two rows hold the ruling and the sentence the rev-44
+# carrier deletion cost, which was in NO live carrier from rev 44 to rev 57b.
+
+# The owner's own sentence about his SECOND deliverable.  Losing it is what let
+# rev 52 infer the item away, so both live carriers must hold it.
+ck "the emotional bar is in BOTH live carriers" 2 \
+   "$(python3 -c "
+import glob,re
+b=max(glob.glob('NEXT_CONTEXT_PROMPT_rev*.md'), key=lambda f:int(re.search(r'rev(\d+)',f).group(1)))
+print(sum('emotional bar' in open(f,errors='replace').read()
+          for f in (b,'OPEN_FINDINGS.md')))" 2>&1 | tail -1)"
+
+# F92 records an OWNER RULING now, not a brief's inference -- which is the
+# point of the row.  His words AND the grade, or it is half a retraction
+# (rule 15).  WATCHED FAILING on the pre-ruling row, which scored 0 on both.
+ck "F92 carries his ruling AND its grade" 2 "$(python3 -c "
+t=open('OPEN_FINDINGS.md',errors='replace').read()
+i=t.find('| **F92**'); row=t[i:t.find(chr(10),i)]
+print(sum(k in row for k in ('DEPRIORITISED, NOT CANCELLED','RULED-rev57b')))" 2>&1 | tail -1)"
+
 _BRIEF_TOTAL="$(if [ -n "$_LATEST_BRIEF" ]; then grep -E '\./verify_clone\.sh' "$_LATEST_BRIEF" 2>/dev/null | grep -oE 'ALL [0-9]+ PASS' | grep -oE '[0-9]+' | head -1; else echo 0; fi)"
 # rev 60c-ii -- REMAINING_WORK_rev61.md declared itself a CARRIER and NO FILE
 # IN THE REPOSITORY NAMED IT for a whole revision.  That is exactly how the
