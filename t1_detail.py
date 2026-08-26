@@ -1342,7 +1342,15 @@ def galley():
     # Found as the CONTROL for the cab-floor test, and the control FAILING is
     # what showed the defect is systemic rather than a cab quirk.  1.400 was
     # AUTHORED -- it appears nowhere in SPEC.md or REF_MEASUREMENTS.md.
-    pts = T.rrect(FLOOR_W, 2.700, 0.02, seg=3)
+    # rev 59.  NOTCHED round the rear wheel houses -- see _notched_rrect for
+    # the measurement that forced it and for why FLOOR_W itself does not move.
+    # T1_WHFLAT=1 restores the un-notched slab so the census stays testable.
+    if os.environ.get("T1_WHFLAT") == "1":
+        pts = T.rrect(FLOOR_W, 2.700, 0.02, seg=3)
+    else:
+        pts = _notched_rrect(FLOOR_W, 2.700, 0.02,
+                             floor_notches(-0.500, (T.X_AXLE_R,)),
+                             WH_Y_IN - 0.002, seg=3)
     obs.append(T.solid_prism((-0.500, 0.000, 0.5400), (0, 1, 0), (1, 0, 0),
                              (0, 0, 1), pts, 0.040, name="van_floor"))
     # rev 11 carried two 0.900 x 0.240 steel slabs at x -1.500 and -1.780,
@@ -1395,16 +1403,121 @@ def galley():
 # number that is possible.  Its ceiling: no photograph shows this vehicle's
 # cab floor, and none is claimed.
 FLOOR_W = 1.200                     # AUTHORED, rev 38; see SPEC 10.96
-WH_R = 0.3735                       # = t1_shell.ARCH_R, the arch cut's radius
+WH_R = 0.3735                       # FRONT ARCH ONLY: = t1_shell.ARCH_R, and
+                                    # the front cutter really is a circle of
+                                    # that radius -- grep
+                                    # `T.cylinder((T.X_AXLE_F`.  THE REAR
+                                    # APERTURE IS NOT A CIRCLE and has not been
+                                    # since rev 16 (grep `ARCH_W_REAR` and
+                                    # `rear_arch_outline`); the rear liner is
+                                    # driven off that outline, see
+                                    # wheel_houses().
 WH_T = 0.010                        # house shell thickness
 WH_Y_IN = 0.500                     # inboard face; wheel spans y 0.604..0.760
 WH_INSET = 0.0026                   # outboard face this far inside flank_y (skin 2.8 mm)
 WH_SWEEP = 2.0                      # degrees past horizontal each side
 
 
-def _arc_liner(xa, zc, sgn, a0, a1, seg, name):
+def wh_x_halfspan(xa):
+    """Half the x extent the wheel-house tub occupies at axle xa.
+
+    Taken from the APERTURE ITSELF -- the rear's `rear_arch_outline`, the
+    front's circle of ARCH_R -- so ARCH_W_REAR's +-0.03 m moves the floor
+    notch with it and no second width constant exists to go stale.  The 10 mm
+    is clearance, not a measurement.
+    """
+    import t1_shell as S
+    if abs(xa - T.X_AXLE_R) < 1e-9:
+        return max(abs(dx) for dx, _ in S.rear_arch_outline(xa)[:-2]) + 0.010
+    return S.ARCH_R + 0.010
+
+
+def floor_notches(x_origin, axles):
+    """(v0, v1) bands, in a floor prism's own v axis, for the given axles."""
+    out = []
+    for xa in axles:
+        h = wh_x_halfspan(xa)
+        out.append((xa - h - x_origin, xa + h - x_origin))
+    return out
+
+
+def _notched_rrect(w, h, r, notches, hu, seg=3):
+    """`T.rrect` with rectangular NOTCHES cut into BOTH long edges.
+
+    rev 59, F: THE FLOOR PANS PASS 100 mm THROUGH THE WHEEL-HOUSE WALL, AND
+    THAT IS WHY THE BAR IS STILL THERE AFTER THE LINER WAS FIXED.
+
+    MEASURED, not argued.  With the rear liner corrected to the aperture, the
+    census through the side ortho still reads 177 van_floor rays -- 176 before
+    the fix.  The reason is geometric and it applies to a liner of ANY radius:
+    an ORTHOGRAPHIC side ray keeps its radius about the axle all the way in,
+    so it NEVER crosses the tub's cylindrical band.  The only surface that can
+    stop it is the tub's INBOARD wall, which stands at WH_Y_IN = 0.500 -- and
+    both floor pans reach FLOOR_W / 2 = 0.600, i.e. 100 mm OUTBOARD of it.
+    The ray therefore lands on the floor's 40 mm side face before the wall.
+
+    THE FRONT AXLE PROVES IT IS NOT THE LINER'S RADIUS.  The front liner has
+    always filled its circular aperture exactly (the reach row reads
+    -0.0 .. +0.0 mm) and the same census reads 151 `cab_floor` rays.
+
+    rev 38 sized FLOOR_W against the TYRES -- "clears the front tyre's inner
+    face (0.609) by 9 mm and the rear's (0.604) by 4 mm" -- and the wheel
+    houses, added in the SAME revision, were never in that sum.  FLOOR_W is
+    NOT changed here: a real T1's floor is notched round its wheel houses and
+    that is what this does, over the wheel house's own x span only, taken from
+    the aperture outline rather than from a second constant.
+
+    `notches` is a list of (v0, v1) bands in the outline's own v axis; `hu` is
+    the half-width the floor drops to inside them.  Winding matches
+    `T.rrect` -- CCW, first point on the +u edge -- because the notches are
+    inserted INTO the two straight edges in the direction each is already
+    travelling.
+    """
+    r = min(r, w / 2 - 1e-4, h / 2 - 1e-4)
+    a, b = w / 2 - r, h / 2 - r
+    bands = []
+    for v0, v1 in notches:
+        v0, v1 = max(min(v0, v1), -b), min(max(v0, v1), b)
+        if v1 - v0 > 1e-6:
+            bands.append((v0, v1))
+    bands.sort()
+    arcs = []
+    for cx, cy, a0 in ((a, b, 0.0), (-a, b, math.pi / 2),
+                       (-a, -b, math.pi), (a, -b, 1.5 * math.pi)):
+        arcs.append([(cx + r * math.cos(a0 + (math.pi / 2) * i / seg),
+                      cy + r * math.sin(a0 + (math.pi / 2) * i / seg))
+                     for i in range(seg + 1)])
+    pts = list(arcs[0]) + list(arcs[1])
+    for v0, v1 in reversed(bands):                 # -u edge runs v HIGH -> LOW
+        pts += [(-w / 2, v1), (-hu, v1), (-hu, v0), (-w / 2, v0)]
+    pts += list(arcs[2]) + list(arcs[3])
+    for v0, v1 in bands:                           # +u edge runs v LOW -> HIGH
+        pts += [(w / 2, v0), (hu, v0), (hu, v1), (w / 2, v1)]
+    # A band clamped exactly onto b lands its first (or last) point on top of a
+    # corner arc's end point.  A zero-length edge is not a self-intersection but
+    # every segment test says it is, and `solid_prism` caps the outline -- so it
+    # is removed rather than tolerated.  WATCHED: without this the cab pan's
+    # outline reported 2 self-intersections and the van pan's 0.
+    out = []
+    for q in pts:
+        if not out or abs(q[0] - out[-1][0]) > 1e-9 or abs(q[1] - out[-1][1]) > 1e-9:
+            out.append(q)
+    while len(out) > 3 and abs(out[0][0] - out[-1][0]) < 1e-9 \
+            and abs(out[0][1] - out[-1][1]) < 1e-9:
+        out.pop()
+    return out
+
+
+def _arc_liner(xa, zc, sgn, a0, a1, seg, name, outline=None):
     """A wheel-house shell: an arc tube about the axle whose OUTBOARD face
     follows the flank skin instead of sitting at a fixed y.
+
+    rev 59 -- AND WHOSE RADIUS NOW FOLLOWS THE APERTURE INSTEAD OF A CONSTANT.
+    Pass `outline` a list of (dx, dz) stations about (xa, zc) -- the aperture's
+    OWN outline, dropped of its two floor points -- and the sweep runs through
+    those stations at their own radii instead of round a circle of WH_R.  Pass
+    None and the behaviour is the circle, bit for bit, which is what the FRONT
+    arch wants and what T1_WHCIRC=1 restores for the rear.
 
     TWO THINGS THIS FIXES, BOTH CAUGHT BY LOOKING RATHER THAN BY A GUARD:
       1. A FULL 360 revolve is wrong.  The bodywork exists only above the
@@ -1422,19 +1535,48 @@ def _arc_liner(xa, zc, sgn, a0, a1, seg, name):
     R_IN = 0.030
     verts, faces = [], []
     n = 6
+    if outline is not None:
+        seg = len(outline) - 1
     for k in range(seg + 1):
-        a = a0 + (a1 - a0) * k / seg
-        ca, sa = math.cos(a), math.sin(a)
-        x = xa + WH_R * ca
-        z = zc + WH_R * sa
+        if outline is None:
+            a = a0 + (a1 - a0) * k / seg
+            ca, sa = math.cos(a), math.sin(a)
+            R = WH_R
+        else:
+            # The aperture's own station, at its own radius and its own
+            # direction.  a0/a1/WH_SWEEP are NOT applied here: t = +-1 is the
+            # outline's foot by construction, and sweeping past it would put
+            # the flat end caps back below the rocker -- the mid-air skirt
+            # rev 38 removed.
+            dx, dz = outline[k]
+            R = math.hypot(dx, dz)
+            ca, sa = dx / R, dz / R
+        x = xa + R * ca
+        z = zc + R * sa
+        # rev 59 RISK 1.  This was `try: ... except: y_out = 0.870 - WH_INSET`.
+        # A silent substitution here is the rev-38 defect exactly: 0.870 stands
+        # PROUD of the skin wherever the flank is narrower than that, and
+        # widening the sector drives the end stations to x -1.5600 / -0.6400
+        # where flank_y reads 0.8176.  It now RAISES.  (T.flank_y is
+        # WX(x) * G(z), two np.interp calls that clamp rather than throw, so
+        # the branch was dead already -- a completed build is the evidence it
+        # never fires, and both SUB levels complete.)
         try:
             y_out = T.flank_y(x, z) - WH_INSET
-        except Exception:
-            y_out = 0.870 - WH_INSET
-        prof = [(WH_Y_IN,        WH_R),
-                (y_out,          WH_R),
-                (y_out,          WH_R - WH_T),
-                (WH_Y_IN + WH_T, WH_R - WH_T),
+        except Exception as e:
+            raise RuntimeError(
+                "%s: flank_y(%.4f, %.4f) failed and there is no safe "
+                "substitute -- a fixed outboard y stands proud of the skin "
+                "(rev 38): %s" % (name, x, z, e))
+        if y_out <= WH_Y_IN + WH_T:
+            raise RuntimeError(
+                "%s: outboard face y %.4f is not outboard of the inboard face "
+                "%.4f at (x %.4f, z %.4f) -- the profile would be inverted"
+                % (name, y_out, WH_Y_IN + WH_T, x, z))
+        prof = [(WH_Y_IN,        R),
+                (y_out,          R),
+                (y_out,          R - WH_T),
+                (WH_Y_IN + WH_T, R - WH_T),
                 (WH_Y_IN + WH_T, R_IN),
                 (WH_Y_IN,        R_IN)]
         if sgn < 0:
@@ -1456,16 +1598,333 @@ def _arc_liner(xa, zc, sgn, a0, a1, seg, name):
     return ob
 
 
+# ===========================================================================
+# rev 60 -- THE UNDERBODY.  F67, the owner's item D, never attempted.
+#
+# THE DEFECT, MEASURED IN THE FRAME AND NOT ARGUED.  A vertical luminance
+# profile down `out/r59a_hero.png` at cols 930-990 -- between the wheels,
+# clear of both -- runs: red flank 152 DN, darkening to 131 at the body's
+# lower edge (v 828), and then the very next rows are GROUND, rising 155 ->
+# 224 by v 880.  THERE IS NO DARK BAND AT ALL.  The same profile on
+# `ref_side.jpg` at cols 350-500 runs: body 63, then a FORTY-ROW BAND AT
+# 8.5 DN (v 609-648), then the ground emerging at 650 and reaching its open
+# plateau of ~140 by v 700.
+#
+#     under-sill ground / open ground   render 0.68   photograph 0.14
+#     the dark band's floor / open      render  none  photograph 0.061
+#
+# WHY IT WAS BRIGHT: `t1_mats.body_paint` drives the two-tone off object-space
+# Z, and the shell's bottom face at `t1_core.ZB` ~ 0.386 sits BELOW the belt
+# line, so the underside was being painted BODY RED and lit like a flank.
+# Sampled in the hero it reads (159, 117, 112) -- 0.509 of open ground where
+# the photograph's cavity is 0.061.  The pan below hides that face rather than
+# re-plumbing the paint graph, because a normal-based selector in the paint
+# would also have to be right about every OTHER downward face on the vehicle.
+#
+# THE DEPTH IS AN ASSUMPTION AND IT IS STATED AS ONE (rule 12), AND THE SCALE
+# IT RESTS ON WAS PUBLISHED WRONG TWICE BEFORE IT WAS RIGHT.
+#
+# RETRACTED, rev 60b: this comment first said "258.6 px/m from the REAR tyre's
+# horizontal extent at its own hub row (172 px)", then "251-284, threshold
+# dependent".  BOTH ARE DEAD.  An independent audit painted that window and the
+# dark run is not the tyre: at the hub row the tyre reads 11-13 DN and the
+# wheel-arch shadow above it reads 15-22 DN, so the two are CONTIGUOUS and a
+# luminance threshold cannot separate them.  The "tyre span" ran from inside
+# the arch shadow out onto the kerb.  Painted and looked at -- rule 8, on the
+# instrument that set the scale for the whole revision.
+#
+# THE SCALE, RE-DERIVED AND PAINTED.  Both cream rim rings are fitted as
+# circles instead:
+#     rear rim   centre (749.5, 604.6)  r 39.79 px   n=828   rms 1.11 px
+#     front rim  centre fixed to that radius (241.8, 609.8)  rms 2.25 px, n=107
+#     hub-to-hub 507.8 px / 2.400 m LOCKED  ->  211.6 px/m
+# The rear rim fits a CIRCLE to 1.11 px, i.e. it images round, so there is no
+# yaw foreshortening at that wheel and this scale applies to VERTICAL extents
+# too -- which matters, because the band below is vertical.  (A wheelbase and a
+# tyre are foreshortened by the SAME cosine, so the two routes must agree; when
+# they disagreed by 23 % one of them was simply mis-measured, and it was mine.)
+#
+# THE CEILING, RECOMPUTED.  The photograph's dark band is threshold-dependent
+# too -- 33 px at 15 DN to 66 px at 60 DN -- which the first cut corrected for
+# the tyre and NOT for the band it divides, in the same paragraph:
+#     33..66 px / 211.6 px/m  =  0.156 .. 0.312 m
+# THAT BAND CONTAINS BOTH THE UNDERBODY AND THE SHADOWED GROUND UNDER IT, and
+# no feature in the profile separates them, so this is a CEILING and NOT a
+# value.  The pan's visible drop below the shell is 0.090-0.100 m, under even
+# the lowest of those.  What the frames cannot give is the underbody's true
+# depth: that is a NEW-FRAME item (a low raking shot under the sill).
+#
+# NOT BUILT, deliberately: exhaust, fuel tank, spare, engine.  `ref_side.jpg`'s
+# cavity is a featureless 8.5 DN with a std of 1.9 -- it resolves NOTHING
+# inside itself, so anything modelled in there would be invention.
+# `ref_nolita_flank.jpg` does show ONE member and that is the single rail pair
+# below.
+# ===========================================================================
+UNDER_W    = 1.560                  # ASSUMPTION: inboard of the sills (1.750)
+# rev 60b -- THE PAN IS DEFINED BY ITS FLOOR, NOT BY ITS TOP.
+#
+# The floor is the only edge anyone can see; the top is buried inside the
+# shell.  Defining the top and subtracting a depth (the first cut) left a
+# HAIRLINE SLOT at the aft end, because `t1_core.ZB` is not flat.
+#
+# rev 60c -- AND `ZB` IS NOT THE SHELL'S UNDERSIDE EITHER, WHICH IS WHY THE
+# SLOT SURVIVED THAT FIX.  rev 60b set UNDER_TOP 0.410 "above max(ZB) = 0.397"
+# and declared the top could not leave a gap.  Ray-cast up at the shell from
+# below and the shell's own bottom face, in the AUTHORED frame, is a curve
+# that RISES AT BOTH ENDS, well above ZB at the tail:
+#
+#     x      -1.760  -1.800  -1.820  -1.830  -1.840  -1.850     +1.780  +1.850  +1.900
+#     shell   0.4055  0.4098  0.4170  0.4224  0.4299  0.4391     0.4084  0.4122  0.4165
+#
+# so a flat top at 0.410 was BELOW the shell over the last 60 mm of the tail
+# and at the very front, and the measured gaps were -29.1 mm at x -1.85 and
+# -2.3 mm at x +1.85 on the centreline.  Each end now has its OWN outer top,
+# set from the table above plus a stated margin, and the flat is raised.
+#
+# rev 60b's stated cause for the first slot was ALSO wrong and is retracted
+# here: it blamed the rake shear.  Step 8b subtracts RAKE_Z0 + RAKE_DZDX*x
+# from pan and shell alike, so a shear that is a pure function of x cannot
+# open a gap between two things at the SAME x.  The cause was only ever the
+# shell's underside varying with x -- which is what the table measures.
+UNDER_FLOOR = 0.2960                # the visible underside.  ZB - 0.090 amidships
+UNDER_TOP  = 0.4200                 # buried.  Clears the shell by >= 11.6 mm
+#                                   # at BOTH pan ends (see the table above)
+UNDER_DROP = UNDER_TOP - UNDER_FLOOR
+# UNDER_DROP IS NOT THE VISIBLE DROP and has not been since rev 60b, which
+# changed its meaning without saying so: it is the pan prism's DEPTH, most of
+# it buried.  What a photograph could compare against is the floor's drop
+# below the shell, which is this:
+UNDER_VIS  = 0.0900                 # ZB - UNDER_FLOOR amidships.  The STATED
+#                                   # ASSUMPTION under a measured 0.137-0.155 m
+#                                   # ceiling -- the photograph's band contains
+#                                   # both the metal and the shadowed ground.
+# rev 60c -- T1_UNDER_VIS OVERRIDES IT, FOR MEASUREMENT ONLY.  It exists to
+# SEPARATE the two named contributors to G4's residue (rule 29.3): the white
+# cyclorama filling a shallow cavity (F62's ceiling) and this assumed drop.
+# It is not a tuning knob -- the shipped value stays 0.090, because the
+# 0.137-0.155 band is a CEILING that contains both the metal and the ground
+# shadow, and setting the constant to a ceiling would assume the band is all
+# metal.  What the override buys is an attribution, not a fix.
+UNDER_VIS = float(os.environ.get("T1_UNDER_VIS", UNDER_VIS))
+UNDER_FLOOR = UNDER_FLOOR - (UNDER_VIS - 0.0900)
+UNDER_DROP = UNDER_TOP - UNDER_FLOOR   # recomputed: the floor may have moved
+UNDER_X0, UNDER_X1 = 1.780, -1.700  # clear of BOTH wheel-house notches:
+#   front notch 0.9165..1.6835 (X_AXLE_F +- ARCH_R + 10 mm)
+#   rear  notch -1.570..-0.630 (X_AXLE_R +- ARCH_W_REAR/2 + 10 mm)
+# so both ends of the pan are at FULL width and the end ramps below can close
+# them.  The first cut of this stopped at -1.800 while the body runs on to
+# -2.108, and the pan's square aft cap then hung in open air behind the rear
+# wheel -- plainly visible in the hero, found by CROPPING THE RENDER, not by
+# any check.
+#
+# AND THE AFT END IS BOUNDED BY THE LENGTH ROW, NOT BY THE SHEET METAL.  The
+# first cut ran the pan to -1.980 with its ramp reaching -2.100 and
+# `verify.py` went red: "length 4.260 vs spec 4.055 (+205 mm)".  The body's
+# skin does run to -2.108, but everything aft of -1.905 is on a SWUNG part
+# (lid_trunk, glass_rear, englid_handle, plate_1963), which `_bounds()`
+# excludes -- so the vehicle's FIXED aft limit is -1.905 and the pan may not
+# reach it.  The guard caught this in the same edit; the number above is set
+# from the guard's own limit rather than from the skin.
+RAIL_DROP  = 0.0350                 # the rail's VISIBLE drop below the floor
+RAIL_EMBED = 0.0100                 # rev 60c: and this much buried INSIDE the
+# pan.  rev 60b's "origins are centres" fix was applied to the pan and the rail
+# independently and made their shared face EXACTLY coincident -- pan floor and
+# rail top both landed on 0.29599999999999999, bit-identical, two opaque faces
+# back to back over the rails' whole 3.14 m footprint on one material.  Before
+# that fix the rail was 27.5 mm inside the pan and there was no coincidence.
+# A flush condition is not a construction: the rail now OVERLAPS the pan.
+RAIL_TAPER = 0.120                  # rev 60c: each rail end ramps up into the
+# pan floor over this much x.  rev 60b freed the rails from being 78 % buried
+# and so exposed, for the first time, that they stop 200 mm short of the pan at
+# each end with a SQUARE 35 mm face -- a step in the underbody silhouette
+# directly behind the rear wheel, which is the same "ends in mid-air" defect
+# UNDER_RAMP was introduced to remove for the pan itself.  Found by an
+# independent adversary reading the extents, not by any check.
+RAIL_Y     = 0.300
+RAIL_W     = 0.090
+RAIL_INSET = 0.100                  # rail ends, inboard of the pan's own ends
+# THE END CLOSERS.  Each end gets its OWN length and its OWN outer top: the
+# body is symmetric in neither.
+UNDER_RAMP_F = 0.120                # front: to x +1.900
+UNDER_RAMP_A = 0.100                # aft:   to x -1.800, and NOT further --
+# rev 60c: the aft ramp ran to -1.880 at a FLAT 0.780 half-width while the
+# tail tapers away under it.  Measured on the mesh, body max|y| against that
+# 0.780:
+#     x      -1.800  -1.820  -1.840  -1.850  -1.860  -1.870
+#     max|y|  0.8358  0.8175  0.7894  0.7729  0.7565  0.7322
+#     proud   -55.8   -37.5    -9.4    +7.1   +23.5   +47.8   mm
+# so the closer stood up to 48 mm PROUD of the skin over the last 30 mm of the
+# tail, and its final 7 mm hung past the rearmost bodywork (x -1.8730) in open
+# air -- a black wedge 156 mm across, lit on its top face, in the lower third
+# of the delivery frame.  That is the SAME defect class as the 685 mm error
+# this function was repaired for, 40 mm away from where it was repaired.
+# rev 60c-ii -- AND -1.830 WAS STILL TOO FAR AFT, FOR A SECOND AND DIFFERENT
+# REASON: not the skin's width but the shell's UNDERSIDE at the CORNERS.  The
+# tail's underside is a DISH that turns up violently into the flank over the
+# last 30 mm.  Authored frame, ray-cast at the pan's own outer edge:
+#
+#     x        -1.700  -1.740  -1.760  -1.780  -1.800  -1.830
+#     y 0.05    0.4045  0.4052  0.4054  0.4059  0.4096  0.4224
+#     y 0.777   0.3995  0.4012  0.4027  0.4066  0.4167  0.4863   <- the corner
+#
+# The corner is FLAT to -1.780 and then climbs 80 mm in 30 mm of x.  A ramp
+# reaching -1.830 at a flat top left a measured **-53.4 mm OPEN SLOT** at both
+# outer corners -- which the first version of verify.py's slot row could not
+# see, because its outermost sample was y 0.74 (F126).  The aft closer now
+# stops at -1.800, where the corner is still only 0.4167, and the pan itself
+# starts its ramp 60 mm further forward so the run stays a ramp (53 deg) and
+# does not become a wall.  Everything aft of -1.800 is closed by the shell's
+# OWN sheet metal, which is what that dish is.
+# A ramp reaching further would have to taper in y, and nothing a photograph
+# shows would settle its shape.
+UNDER_TOP_F  = 0.4270               # >= shell 0.4165 at x +1.900, +10.5 mm
+UNDER_TOP_A  = 0.4300               # >= shell 0.4167 at x -1.800, +13.3 mm
+#                                   # -- and that is the CORNER value, not the
+#                                   # centreline's 0.4096.  See the table below.
+UNDER_RAMP_W = UNDER_W              # the ramps are the PAN's OWN width.
+# The first cut made them 1.400 against the pan's 1.560, and the 80 mm ledge
+# of pan left proud on each side kept its square aft face -- so the block
+# still ended in mid-air behind the rear wheel and the ramp fixed nothing.
+# Found by cropping the render AGAIN, at the same place, after the first fix.
+# 1.400 had been chosen against WX at x -2.070 (0.777), a station the ramp no
+# longer reaches.
+#
+# rev 60c RETRACTS what rev 60b then wrote here.  It read: "at its real
+# stations, x 1.900 and -1.880, WX is 0.866 and 0.873, so the pan's own 0.780
+# half-width clears the body at both."  WX(+1.900) is 0.8664, but
+# WX(-1.880) is 0.7122 -- 0.873 is WX(-1.700), a station 180 mm away.  The
+# sentence licensed the proudness above with a reading of the wrong station,
+# in the commit whose subject was that a constant had been misused.
+
+
+def underbody():
+    """The closed pan under the body, plus the one chassis member a frame
+    actually shows.  Ablations: T1_NOUNDER=1 omits the lot and
+    probe_rev45_ground.py's C5 must REFUSE; T1_UNDER_YBUG / T1_UNDER_ZBUG /
+    T1_UNDER_PROUD each restore one shipped defect so verify.py's underbody
+    rows stay WATCHABLE (rule 3).
+
+    NO SPEC SECTION.  rev 60b's docstring cited "SPEC 10.117", which is
+    "rev 45 -- THE PAINT, INSTRUMENTED"; SPEC.md ends at 10.123 and has no
+    underbody section at all.  Rule 34: the citation is withdrawn rather than
+    replaced, because writing one would be inventing the record.  What this
+    assembly is answerable to is `probe_rev45_ground.py` and verify.py's
+    underbody rows, not a paragraph."""
+    obs = []
+    if os.environ.get("T1_NOUNDER") == "1":
+        return obs
+    # T1_UNDER_ZBUG=1 restores rev 60's z error -- the pan half its own depth
+    # low, leaving a 45 mm slot, and the rails 78 % buried.  An independent
+    # adversary reinstated exactly this on the repaired tree and every check
+    # stayed green, because the rev-60b repair guarded only the ONE axis
+    # STATE.md happened to already print.  verify.py's slot row must REFUSE it.
+    _zbug = os.environ.get("T1_UNDER_ZBUG") == "1"
+    _ztop = UNDER_TOP - UNDER_DROP / 2.0 if _zbug else UNDER_TOP
+    xc = (UNDER_X0 + UNDER_X1) / 2.0
+    ln = UNDER_X0 - UNDER_X1
+    pts = _notched_rrect(UNDER_W, ln, 0.030,
+                         floor_notches(xc, (T.X_AXLE_F, T.X_AXLE_R)),
+                         WH_Y_IN - 0.002, seg=3)
+    # rev 60b -- `_frame` extrudes +-depth/2 ABOUT THE ORIGIN ("extruded
+    # +-depth/2 along w", its own docstring).  The first cut of this function
+    # was written as if it extruded origin -> origin+depth, so EVERY prism here
+    # was placed half its own depth wrong.  Origins are CENTRES.
+    obs.append(T.solid_prism((xc, 0.000, _ztop - UNDER_DROP / 2.0),
+                             (0, 1, 0), (1, 0, 0), (0, 0, 1), pts,
+                             UNDER_DROP, name="underpan"))
+    # the rails: built in the (x, z) plane and extruded across y, which is the
+    # only orientation that can taper their ends into the pan.
+    _rz_t = _ztop - UNDER_DROP + RAIL_EMBED
+    _rz_b = _ztop - UNDER_DROP - RAIL_DROP
+    if _zbug:                       # rev 60's rails: top flush, 78 % buried
+        _rz_t, _rz_b = _rz_t + RAIL_DROP / 2.0, _rz_b + RAIL_DROP / 2.0
+    _rx0, _rx1 = UNDER_X1 + RAIL_INSET, UNDER_X0 - RAIL_INSET
+    rp = [(_rx0 + RAIL_TAPER, _rz_b), (_rx1 - RAIL_TAPER, _rz_b),
+          (_rx1, _rz_t), (_rx0, _rz_t)]
+    for sy in (1, -1):
+        obs.append(T.solid_prism((0.0, sy * RAIL_Y, 0.0),
+                                 (1, 0, 0), (0, 0, 1), (0, 1, 0), rp,
+                                 RAIL_W, name="chassis_rail%+d" % sy))
+    # the end closers: a ramp from the pan's floor up INTO the body's own
+    # underside, so neither end stops in mid-air and neither leaves a slot.
+    # Built in the (x, z) plane and extruded across y, which is the only
+    # orientation that can taper in z.
+    zb = _ztop - UNDER_DROP
+    for xe, xo, zt_out, nm in ((UNDER_X0,  UNDER_RAMP_F, UNDER_TOP_F, "f"),
+                               (UNDER_X1, -UNDER_RAMP_A, UNDER_TOP_A, "a")):
+        # T1_UNDER_PROUD=1 restores rev 60b's aft ramp, which ran to x -1.880
+        # at a flat half-width and top, and stood up to 48 mm proud of the
+        # tapering tail.  verify.py's proudness row must REFUSE it.
+        # rev 60c-ii: PINNED TO THE ABSOLUTE STATION, not to a length.  It was
+        # written as `xo = -0.120`, which reproduced -1.880 only while the pan
+        # ended at -1.760; when the pan's end moved to -1.700 the ablation
+        # silently became a -1.820 ramp, which is INBOARD of the skin, and it
+        # stopped exercising the proudness row at all.  An ablation expressed
+        # as an offset from a constant that moves is not an ablation.
+        if os.environ.get("T1_UNDER_PROUD") == "1" and nm == "a":
+            xo, zt_out = (-1.880 - xe), UNDER_TOP
+        prof = [(xe, zb), (xe + xo, zt_out), (xe, _ztop)]
+        # y origin is 0.0 -- the CENTRELINE.  The first cut passed
+        # -UNDER_RAMP_W/2 as well as the depth, so the two offsets ADDED and
+        # both closers were built wholly on the off side, y -1.560..0.000,
+        # 685 mm proud of the bodywork at their own station (1.560 - 0.875;
+        # rev 60b wrote 919 mm in three files and it is reachable from no
+        # half-width this vehicle has).  STATE.md printed the extent --
+        # full-Y [-1.064, 1.150] -> [-1.560, 1.150] -- and nobody read the line.
+        # T1_UNDER_YBUG=1 restores that error so verify.py's lateral-extent
+        # row stays WATCHABLE (rule 3).  It must FAIL under it.
+        _y0 = -UNDER_RAMP_W / 2.0 if os.environ.get("T1_UNDER_YBUG") == "1" else 0.0
+        obs.append(T.solid_prism((0.0, _y0, 0.0),
+                                 (1, 0, 0), (0, 0, 1), (0, 1, 0), prof,
+                                 UNDER_RAMP_W, name="under_close_%s" % nm))
+    return obs
+
+
 def wheel_houses():
-    """Close each wheel arch from inside -- the missing feature behind report 6."""
+    """Close each wheel arch from inside -- the missing feature behind report 6.
+
+    rev 59, THE OWNER: "a weird arc above the back wheel just kind of floating
+    there".  Both liners were built as circles of radius WH_R and WH_R's own
+    comment said that was `= t1_shell.ARCH_R, the arch cut's radius`.  THAT
+    COMMENT WAS TRUE OF THE FRONT ARCH ONLY.  The front cutter is
+    `T.cylinder((T.X_AXLE_F` -- a plain circle of ARCH_R, which the circular
+    liner fills exactly, and the front wheel renders clean.  The REAR cutter
+    is `T.solid_prism(... rear_arch_outline(T.X_AXLE_R) ...)`: superelliptical,
+    ARCH_W_REAR = 0.920 m wide but only ARCH_R tall above the hub.  A 0.747 m
+    circle inside a 0.920 m hole left the aperture UNLINED at both ends --
+    measured on the outline itself, the circle is short by up to 87.2 mm of
+    radius -- and through that crescent the render showed (a) the liner's rim
+    and flat end caps as a dark arc stopping in mid-air and (b) van_floor's
+    40 mm edge, seen edge-on, as a horizontal bar at hub height.  ref_side.jpg
+    shows the real arch dropping to a uniform dark void with neither.
+
+    ONE CAUSE, BOTH ARTEFACTS: the bar is only visible BECAUSE the liner
+    under-fills the aperture, so nothing here touches FLOOR_W.
+
+    The rear liner is driven from `rear_arch_outline` ITSELF, called exactly as
+    the cutter calls it, so the two share their stations and ARCH_W_REAR's
+    +-0.03 m cannot leave the liner behind.  Its two FLOOR points are dropped:
+    they are the cutter's skirt down to z -0.400, not lip.
+    """
+    import os
     import t1_shell as S
     obs = []
     a0 = -math.radians(WH_SWEEP)
     a1 = math.pi + math.radians(WH_SWEEP)
+    # ABLATION.  T1_WHCIRC=1 restores the circular rear liner so verify.py's
+    # wheel-house reach row stays separately testable (rule 3: a control is
+    # finished when you have WATCHED IT FAIL).
+    circ = os.environ.get("T1_WHCIRC", "") == "1"
     for xa in (T.X_AXLE_F, T.X_AXLE_R):
         zc = S.arch_z(xa)
+        # The FRONT stays on the circle -- it is the negative control, and its
+        # cutter really is one.
+        outline = None
+        if xa == T.X_AXLE_R and not circ:
+            outline = S.rear_arch_outline(xa)[:-2]
         for sgn in (1, -1):
-            ob = _arc_liner(xa, zc, sgn, a0, a1, 56, f"wheelhouse{xa:.0f}{sgn}")
+            ob = _arc_liner(xa, zc, sgn, a0, a1, 56, f"wheelhouse{xa:.0f}{sgn}",
+                            outline=outline)
             # Bake the offset into the MESH, not the object transform.  Setting
             # ob.location tripped build.py's step-8b assert -- the shear reads
             # v.co.x as world x and requires an identity transform on every
@@ -1831,7 +2290,16 @@ def interior():
     a void (SPEC 10.104).
     """
     obs = []
-    pts = T.rrect(FLOOR_W, 0.960, 0.05, seg=4)
+    # rev 59, same cause as van_floor: this pan reached 100 mm past the front
+    # wheel house's inboard wall and its edge shows through the front arch --
+    # 151 census rays through the side ortho, with a liner that fits its
+    # aperture to -0.0 .. +0.0 mm.  See _notched_rrect.
+    if os.environ.get("T1_WHFLAT") == "1":
+        pts = T.rrect(FLOOR_W, 0.960, 0.05, seg=4)
+    else:
+        pts = _notched_rrect(FLOOR_W, 0.960, 0.05,
+                             floor_notches(1.360, (T.X_AXLE_F,)),
+                             WH_Y_IN - 0.002, seg=4)
     obs.append(T.solid_prism((1.360, 0, 0.6400), (0, 1, 0), (1, 0, 0),
                              (0, 0, 1), pts, 0.070, name="cab_floor"))
     obs += interior_fill()
@@ -2218,9 +2686,35 @@ def vw_logo_fit(ring_r, x=2.1215, depth=0.0110, wfrac=0.1986):
     # 1/0.84, and it is the arms, not just the ends, that go under the band.
     # Fitted instead so the extreme sits 20 % into the band, the ends still
     # visibly run into it and the arms stay clear.
+    # rev 60, F63 / item C.  wfrac is the STROKE WEIGHT as a fraction of the
+    # ring radius.  T1_VW_WFRAC overrides it so the weight can be swept against
+    # the photograph's own topology without editing a constant -- see
+    # probe_rev46_vw.py's T1_VW_WSWEEP.
+    # rev 60b: the DEFAULT STAYS IN THE SIGNATURE.  The first cut moved it to
+    # None and read it here, which broke `probe_rev54_wfrac.py` -- that probe
+    # reads this default OUT OF THE SIGNATURE (inspect.signature) to reconcile
+    # the nose and hubcap stroke weights, and it died with
+    # "TypeError: must be real number, not NoneType".  Nothing invokes it, so
+    # nothing caught it.
+    wfrac = float(os.environ.get("T1_VW_WFRAC", wfrac))
     _BAND_FRAC = 0.028 / 0.140              # roundel()'s band / outer radius
-    _fit_glyph(obs := vw_logo(R=1.0, w=wfrac, x=x, depth=depth),
-               ring_r * (1.0 - 0.8 * _BAND_FRAC))
+    obs = vw_logo(R=1.0, w=wfrac, x=x, depth=depth)
+    # rev 60, F63 / item C.  T1_VW_PUREFIT=1 makes this a PURE UNIT CONVERSION.
+    # t1_core.vw_bars' fixed point has already placed every terminal against
+    # the band in R=1 units; re-normalising by the GLOBAL EXTREME here is a
+    # SECOND normalisation that undoes it, dragging whichever end is not the
+    # extreme back inside the band.  Rev 58 removed this on its own (cells
+    # 6 -> 4, worse) and drove the near cap corner on its own (6 -> 4, worse);
+    # neither works alone because each is half of one fix.  Together they are
+    # the pair the rev-58 note says was never tried.
+    if os.environ.get("T1_VW_PUREFIT") == "1":
+        for o in obs:
+            for v in o.data.vertices:
+                v.co.y *= ring_r
+                v.co.z *= ring_r
+            o.data.update()
+    else:
+        _fit_glyph(obs, ring_r * (1.0 - 0.8 * _BAND_FRAC))
     return obs
 
 

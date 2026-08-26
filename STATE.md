@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-23 04:22:24 UTC |
-| git commit | `5378d78` |
-| git subject | rev 57: the top job TAKEN and ceiled with a measured bracket; item B REFUTED -- the gate does not measure the mottle |
+| generated | 2026-08-25 14:35:02 UTC |
+| git commit | `810f361` |
+| git subject | rev 61: the handoff set -- LEDGER_rev61, NEXT_CONTEXT_PROMPT_rev62, and the intake doors |
 | working tree | clean |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=2 (applied, destructive, before booleans) |
@@ -28,12 +28,15 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 length excludes opened lids: 4.311 with them, 4.065 without (what projects: counter, counter_nosing, counter_top, tail_board, tail_board_stay, tb_bulbflex, tb_bulbs, tb_edge_dark, tb_edge_red)
 bounds EXCLUDE 9 non-bodywork part(s): counter, counter_nosing, counter_top, tail_board, tail_board_stay, tb_bulbflex, tb_bulbs, tb_edge_dark, tb_edge_red
 x range [-2.151, 2.160]   full-Y [-1.064, 1.150]
+lateral extent full-Y [-1.0637, 1.1500] holds its baseline (brackets +y, mir_head-1 -y)
+underbody proudness: worst -55.8 mm (under_close_a at x -1.8000, |y| 0.7800 against skin 0.8358) -- INBOARD of the skin everywhere
+underbody/shell fit: worst intrusion +10.5 mm at (x +1.897, y -0.03) over 1400 perimeter station(s), both signs of y
 dims  L=4.065 W=1.750 roof@rear-axle=1.9833 (regression baseline 1.9835, -0.2 mm; dome deficit +0 mm still unmodelled) (bbox top 3.132)
 H_ROOF 1.960 is RETIRED as an accuracy target (rev 22, owner's call): its only ground-line-free support was withdrawn by SPEC 10.34. The model reads 1.9833; the real vehicle's absolute roof height is OPEN and UNMEASURED. The +23 mm warn is gone because THE TEST WAS WITHDRAWN, not because the model improved -- the mesh did not move.
 rear overhang 0.7730 m = 0.3221 of the wheelbase (measured 0.773 +- 0.022 m)
 measured TRACK_F=1.3713  TRACK_R=1.3613  TYRE_D=0.6650
 SPEC 10.91 ban-exemption control: 2 exempt names, 4 planted near-misses all still banned
-zero-area sweep: 0 of 223 meshes have zero area; 0 exempt (rev 56: lid_rail was the only exemption and it is BUILT now)
+zero-area sweep: 0 of 228 meshes have zero area; 0 exempt (rev 56: lid_rail was the only exemption and it is BUILT now)
 lid_rail width = RAIL_PROUD 0.0213 m (owner, rev 56, off ref_workshop.jpg: 'narrow lip, ~as wide as it is tall')
 open serving apertures on +Y: 3
 roof at tail = 1.988
@@ -53,6 +56,8 @@ CARGO_GAP outline samples 154 (rev 22: 28, of which 20 on the corner arcs = 5.2 
 band 1.372-1.775 un-dropped (1.307-1.710 AG)  bay widths 0.516 0.515 0.516
 hubcap badge: 4 rings R 0.043429 (= CAP_EMBLEM_D/2), glyph extreme 0.043429, spread 0.00e+00 m
 hubcap badge is SELF-CONSISTENCY ONLY -- CAP_EMBLEM_WFRAC has never been compared to a frame; see PHOTOS_WANTED item 7
+wheel-house reach front: liner minus aperture radius -0.0 .. +0.0 mm over 0 station(s) short of it; rim inset inside flank_y +2.6 mm; 0 station(s) beyond the outline's feet
+wheel-house reach rear : liner minus aperture radius -0.0 .. +0.0 mm over 0 station(s) short of it; rim inset inside flank_y +2.6 mm; 0 station(s) beyond the outline's feet
 VERIFY: 0 fail, 0 warn
 ```
 
@@ -60,7 +65,7 @@ VERIFY: 0 fail, 0 warn
 |---|---|
 | cutters rolled back | none |
 | non-manifold edges (body) | 0 |
-| body faces | 229493 quad, 1032 tri, 5191 ngon |
+| body faces | 229489 quad, 1040 tri, 5186 ngon |
 
 ## Measured dimensions
 
@@ -133,8 +138,8 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 
 | | |
 |---|---|
-| datablocks built | 44 |
-| bound to >=1 mesh | 42 |
+| datablocks built | 45 |
+| bound to >=1 mesh | 43 |
 | **still a CONSTANT roughness** | 5 — amber, glass, lens, reflector, ruby |
 
 > SPEC §3 locks the finish as WEATHERED. A constant roughness is the
@@ -146,9 +151,9 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 
 | | |
 |---|---|
-| mesh objects | 223 |
-| vertices (all meshes) | 329920 |
-| faces (all meshes) | 320641 |
+| mesh objects | 228 |
+| vertices (all meshes) | 330551 |
+| faces (all meshes) | 321190 |
 
 | prefix | n |
 |---|---|
@@ -170,6 +175,7 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 | `gal_band` | 3 |
 | `gal_can_u` | 3 |
 | `menucard` | 3 |
+| `chassis_rail` | 2 |
 | `doorback` | 2 |
 | `doorcard` | 2 |
 | `gal_caddy` | 2 |
@@ -280,6 +286,9 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 | `tb_edge_dark` | 1 |
 | `tb_edge_red` | 1 |
 | `trunk_bay` | 1 |
+| `under_close_a` | 1 |
+| `under_close_f` | 1 |
+| `underpan` | 1 |
 | `van_floor` | 1 |
 | `vw_disc` | 1 |
 | `vw_ring` | 1 |

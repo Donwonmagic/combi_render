@@ -78,8 +78,8 @@ per-measurement and not on average.** A model right in ninety places and wrong i
 done, because he will look straight at the one. This paragraph is first because every revision has
 drifted toward whatever was measurable that week, and the goal is not "add rows".
 
-**AND HERE IS THE HONEST DISTANCE, MEASURED AT REV 57.** `verify_clone.sh` ends **ALL 257 PASS** and
-its own verdict block says what that is worth: **0 FIDELITY, 257 SELF-CONSISTENCY. Not one of those
+**AND HERE IS THE HONEST DISTANCE, MEASURED AT REV 57.** `verify_clone.sh` ends **ALL 255 PASS** and
+its own verdict block says what that is worth: **0 FIDELITY, 255 SELF-CONSISTENCY. Not one of those
 rows compares the vehicle to a photograph.** *(The rev-57 brief quoted the right ALL-n-PASS
 total and then, four words later, gave a self-consistency figure SIX LOWER than it — two numbers for
 one line, in one sentence. The wrong figure is DESCRIBED here and deliberately NOT reprinted; see
@@ -156,7 +156,7 @@ for b in $(git branch -r | grep -v HEAD); do
 done
 git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 ./bootstrap.sh          # ALL 10 PASS  -- THE BRANCH CHECK IS ROW 9
-./verify_clone.sh       # ALL 257 PASS -- and read what its verdict block says
+./verify_clone.sh       # ALL 255 PASS -- and read what its verdict block says
 ```
 
 **AT PICKUP, REV 57 MEASURED:** rev 56 **was merged, through PR #16** — not the "no PR opened"
@@ -201,7 +201,7 @@ anyway. **Believe the loop, not the paragraph, and run it TWICE.**
 1 behind after the merge, so the remaining three commits were **rebased onto the new `origin/main`**
 (the merged history is finished — never stack on it) and force-pushed with `--force-with-lease`.
 `git diff --name-only HEAD...origin/main` was **empty**: **no photographs arrived.** `bootstrap.sh`
-**10/10** and `verify_clone.sh` **ALL 257 PASS** were both re-run FROM THE REBASED HEAD, not
+**10/10** and `verify_clone.sh` **ALL 255 PASS** were both re-run FROM THE REBASED HEAD, not
 inherited from before it. **Run the ahead/behind loop again before you close, every time.**
 
 ---
@@ -369,18 +369,7 @@ revision does not spend itself on it.
   retired; the wipers withdrawn entire, commented not deleted; the lower bay SHUT; the RED bus is
   the target and **paint and artwork do not transfer between vehicles**; the tail board IS on the
   vehicle; the marks above the burst are STARS. **Do not re-open or re-ask any of them.**
-  **And rev 54's ruling stands: "Keep studio, fix the model".**
-
-> **THE ONE LINE OF §2b THAT WAS NOT HIS, CORRECTED AT REV 57b BY ASKING HIM.** From rev 52 that
-> list also carried *"`playa_env.py` is not on the table — do not re-propose it"*. **That was a
-> brief's INFERENCE from W6, whose object is the studio RIG, and it was applied to a SECOND
-> DELIVERABLE — rule 34 exactly.** Put to him as multiple choice at rev 57b, he ruled
-> **"DEPRIORITISED, NOT CANCELLED"**, which is what his own rev-43 words said before the carrier
-> was deleted. **What that does and does not license:** the white-studio hero remains the fidelity
-> deliverable and *"focus on the 3d model"* still stands, so **no revision works the Playa hero
-> until he says** and **nothing re-proposes `playa_env.py` as the delivery frame**. What changed is
-> that it is a live agreed deliverable again — **F62**, carrying *"the emotional bar that sits
-> ABOVE clinical accuracy"* — and not a closed one. **Do not re-ask it; do not act on it either.**
+  `playa_env.py` is not on the table. **And rev 54's ruling stands: "Keep studio, fix the model".**
 
 ### §2.6 REV 57 ASKED HIM NOTHING
 
@@ -773,7 +762,7 @@ casualties. **Rev 56 recovered ONE of the three, as a one-line stub. Rev 57b res
 | 1 | drive fixes off the broadside render over `ref_side.jpg` | **CLOSED** rev 39–41. `probe_rev39_flank.py` is a standing instrument — **re-run it every revision that moves the flank**, and read SPEC §10.99 first: its Z-ladder has no power, only the JOINT registration may be quoted |
 | 2 | **"REMEMBER TO HOLD UP NEXT TO THE ACTUAL SOURCE PHOTOS"** | **LIVE, and two thirds never done — F61.** Show flank rev 39–41, cab door rev 42, **NOSE rev 51** (which found three defects by eye). **THE TAIL AND THE ROOF HAVE NEVER BEEN DONE** |
 | 3 | **the die-cut vinyl sticker — THE ORIGINAL DELIVERABLE** | **LIVE — F18, now carried in full.** Style and scene are **LOCKED BY HIM**; the art direction is already written in `AUDIT_rev43.md` §5; the asset has never been drawn. **His deferral has a TRIGGER — "build it after the model is done" — so this row is what makes the trigger reachable.** Do not re-put the papel-picado question until he opens it |
-| 4 | **the Playa hero is DEPRIORITISED, NOT CANCELLED** | **LIVE — F62, AND HE RE-RULED IT AT REV 57b IN THOSE EXACT TERMS.** *"The agreed deliverable is the white-studio hero for fidelity PLUS a warm low-light Playa hero, and the Playa one carries the emotional bar that sits ABOVE clinical accuracy."* **From rev 52 to rev 57 the brief said "not on the table"; that was an INFERENCE from W6, whose object is the studio RIG, not this second deliverable — rule 34, and he has now overturned it.** Nothing here re-proposes `playa_env.py` and no revision works it until he opens it; *"focus on the 3d model"* stands |
+| 4 | **the Playa hero is DEPRIORITISED, NOT CANCELLED** | **LIVE as a carrier — F62.** *"The agreed deliverable is the white-studio hero for fidelity PLUS a warm low-light Playa hero, and the Playa one carries the emotional bar that sits ABOVE clinical accuracy."* **From rev 52 the brief has said "not on the table"; that was an INFERENCE from W6, whose object is the studio RIG, not this second deliverable — rule 34.** Nothing here re-proposes `playa_env.py`; *"focus on the 3d model"* stands |
 | 5 | nine flower heads | **CLOSED** rev 39 — he answered TEN. SPEC §10.97.11 |
 | 6 | **"ABSOLUTE REPLICATION OF ALL ARTWORK" — a hard bar** | **LIVE — F64.** Mural board, flank paisley, script, Calidad decal, menu strips and cards, rear-lid lettering, plate surround. **Four of the seven have no row anywhere.** Rev 10's ceiling still stands: the lettered panel reads *"La S——— and no further"* and **"La Santa" is a RECONSTRUCTION** |
 | 7 | **the Señor Tacombi script — "I REJECTED IT TWICE"** | **LIVE — F01/F39**, and rev 57 narrowed it to the **artwork alpha and its placement**, not the render. A12 makes redrawing his call. *(Rev 43 already refuted "the silver is flat": `tex/senor.png` holds 5,856 unique opaque colours. The live defect is **VALUE**, not flatness.)* |

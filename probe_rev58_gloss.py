@@ -51,17 +51,16 @@ P = print
 # same root cause as F05, `mottle_measure.py`'s dead beauty arm, whose note
 # says "shader_solve._render() builds no studio rig".
 #
-# These four calls MIRROR build.py's block and must track it.  A verify_clone
-# row compares the two sequences so the duplication cannot rot silently; the
-# real fix is to factor them into one function, which is rev 58's to do.
+# rev 58 DID factor them into one function.  This calls studio.rig(), the
+# single definition, so there is no longer a copy here to drift.  The unlit
+# case is now refused by studio.assert_lit() inside render_set().
 _KEY = float(os.environ.get("T1_KEY", "1.0"))
 if os.environ.get("T1_SCENE", "studio") != "studio":
     raise SystemExit("FATAL: this script mirrors build.py's STUDIO rig only")
-ST.cyclorama()
-ST.lighting(_KEY)
-ST.cabin_fill(_KEY)
-ST.camera()
-P("rig built: cyclorama + lighting + cabin_fill + camera  (key %.2f)" % _KEY)
+# rev 58, F51: ONE definition, in studio.rig().  This used to be four calls
+# copied out of build.py, with a verify_clone row comparing the copies so they
+# could not rot -- a workaround for the absence of this function.
+ST.rig(key=_KEY, scene="studio", log=P)
 
 def _f(v, d):
     """v is the RAW value already read from the environment by name below.
@@ -112,6 +111,49 @@ P("  %d of 4 inputs changed this run" % moved)
 if not moved:
     P("  BASELINE RUN -- nothing overridden.")
 
+# ------------------------------------------------------------- rev 58, F53
+# THE ROUGHNESS ARM -- THE ONE MODEL-SIDE LEVER ITEM A HAS LEFT.
+#
+# `T1_GL_RGH` above sets the BSDF's Roughness socket, and F53 established that
+# socket is LINKED: `apply_weather()` re-routes it through the WEATHER group,
+# so writing default_value on it is INERT.  Setting it there and reading a flat
+# gate is exactly how rev 57 lost item B -- a lever that was not connected to
+# the thing it was being read against (rule 36).
+#
+# The live path, traced through t1_mats.py rather than assumed:
+#   body_paint()    sets bsdf["Roughness"].default_value = 0.420 (unlinked yet)
+#   apply_weather() finds it unlinked, so copies it into the GROUP's own
+#                   Roughness input, then links group.outputs[1] -> bsdf
+#   weather_group() rlo = rgh - W_ROUGH_SWING (0.09), rhi = rgh + 0.09, and the
+#                   noise field is mapped between them; then peel, steel, dust,
+#                   a 0.85 ceiling, a 0.030 floor and the FadeRough term
+# So the GROUP's Roughness input is what shifts the whole band, and that is
+# what T1_GL_WRGH writes.  It REFUSES rather than silently doing nothing if the
+# node or the socket is not where the trace says.
+_WRGH = os.environ.get("T1_GL_WRGH")
+if _WRGH is not None:
+    _grp = [n for n in m.node_tree.nodes
+            if n.type == 'GROUP' and n.node_tree
+            and "Roughness" in n.inputs and "FadeVert" in n.inputs]
+    if len(_grp) != 1:
+        raise SystemExit(
+            "T1_GL_WRGH: expected exactly one WEATHER group in T1_paint, found "
+            "%d -- REFUSING to set a lever I cannot locate" % len(_grp))
+    _g = _grp[0]
+    if _g.inputs["Roughness"].is_linked:
+        raise SystemExit(
+            "T1_GL_WRGH: the GROUP's own Roughness input is itself LINKED, so "
+            "writing default_value here is inert too -- REFUSING (this is F53 "
+            "one level up, and it must not pass for a null result)")
+    _was = float(_g.inputs["Roughness"].default_value)
+    _g.inputs["Roughness"].default_value = float(_WRGH)
+    P("")
+    P("  ROUGHNESS ARM: WEATHER group %r Roughness %.3f -> %.3f"
+      % (_g.node_tree.name, _was, float(_WRGH)))
+    P("    (the BSDF socket is LINKED and inert -- F53.  This is the live path.)")
+    P("    band becomes %.3f .. %.3f before peel/dust/fade"
+      % (float(_WRGH) - 0.09, float(_WRGH) + 0.09))
+
 # ------------------------------------------------------------- rev 57b
 # THE RIG-CEILING ARM.  OWNER-AUTHORISED MEASUREMENT, SHIPS NOTHING.
 #
@@ -146,6 +188,43 @@ if _SPOT:
         _o.rotation_euler = _v.to_track_quat('-Z', 'Y').to_euler()
     P("RIG-CEILING ARM: %d small bright source(s) added, size %.2f m, %.0f W each"
       % (_SPOT, _d.size, _d.energy))
+    P("  MEASUREMENT ONLY -- nothing here ships, and the studio ruling stands.")
+
+# ------------------------------------------------------------- rev 58, F55
+# THE DARK-CARD ARM -- and it exists because the SPOT arm answered the wrong
+# question.  MEASUREMENT ONLY, ships nothing, same standing as the spot arm.
+#
+# T1_GL_SPOT adds small BRIGHT sources on the theory that the photograph's
+# market-hall lamps are what the studio lacks.  Measured at rev 58, that theory
+# is REFUTED: 3 x 250 W moved the gate BACKWARDS, spread ratio 0.4261 -> 0.3435,
+# median L 104.7 -> 124.2, G/R 0.4364 -> 0.4860.  At the arm's own default
+# 3 x 4000 W the panel washed out entirely and the gate REFUSED it (0 red px).
+# Adding sources adds FILL: it lifts p5 and compresses the relative spread.
+#
+# Spread needs the reflected field to be NON-UNIFORM, and a featureless white
+# cyclorama has no DARK in it at all.  So the thing the surround is missing is
+# not brightness, it is DARKNESS -- and that is a testable claim rather than an
+# argument.  T1_GL_DARK=1 puts one large low-albedo card in the flank's
+# reflected field, low and outboard so it does NOT occlude the key strip at
+# y 8.30 z 5.90 or strip_lo at y 7.40 z 1.95, and changes nothing else.
+#
+# READ IT AS A CEILING, NOT A PROPOSAL.  "Keep studio, fix the model" stands.
+if os.environ.get("T1_GL_DARK"):
+    _dm = bpy.data.materials.new("ceil_darkcard")
+    _dm.use_nodes = True
+    _db = next(n for n in _dm.node_tree.nodes if n.type == 'BSDF_PRINCIPLED')
+    _db.inputs["Base Color"].default_value = (0.02, 0.02, 0.02, 1.0)
+    _db.inputs["Roughness"].default_value = 0.9
+    bpy.ops.mesh.primitive_plane_add(size=1.0, location=(0.0, 10.0, 1.25))
+    _dc = bpy.context.active_object
+    _dc.name = "ceil_darkcard"
+    _dc.rotation_euler = (1.5707963, 0.0, 0.0)      # stand it up, facing -Y
+    _dc.scale = (20.0, 4.5, 1.0)
+    _dc.data.materials.append(_dm)
+    P("")
+    P("RIG-CEILING ARM (DARK): one 20.0 x 4.5 m card, albedo 0.02, at y +10.0,")
+    P("  centred z 1.25 -- BELOW the key strip (z 5.90), so it adds dark to the")
+    P("  reflected field without removing any light from the scene.")
     P("  MEASUREMENT ONLY -- nothing here ships, and the studio ruling stands.")
 
 # ------------------------------------------------------------- rev 57b

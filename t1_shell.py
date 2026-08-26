@@ -702,8 +702,53 @@ def _arch_radial(pt):
 _NRES = 76                                      # rev 41's, restored with it
 
 DOOR_LOBE_DROP = (264.58 - 238.58) / (273.50 - 238.58)      # 0.7443
-DOOR_LOBE_A = (91.1 - 56.0) / 39.54                         # 0.8877 * ARCH_R
-DOOR_LOBE_B = (91.1 - 46.0) / 39.54                         # 1.1406 * ARCH_R
+
+# ===========================================================================
+# rev 59 -- THE RAMP IS THE RIGHT SIZE AND IN THE WRONG PLACE.  probe_rev59_door.
+#
+# THE TWO STALE CONSTANTS, AND WHY EACH IS WRONG.  rev 44b wrote the feet as
+# (91.1 - 56.0) / 39.54 and (91.1 - 46.0) / 39.54.  The FEET are right --
+# re-traced at rev 59 to 56.069 and 46.741, ramp rms 0.112 px.  The other two
+# numbers are not:
+#   * 91.1 is the WHEEL HUB column.  The datum these are used against is
+#     `_ARCH_CX`, the ARCH's centre.  Fitted on the lip they are 9.83 px apart
+#     in this frame, which is rule 34 exactly -- a requirement inherits its
+#     object, and this one changed object silently.
+#   * 39.54 px is not the arch's radius in that image.  It is ARCH_R * 105.9,
+#     a scale obtained by ASSUMING the radius it is then used to measure.
+#     Fitted directly the radius is 37.28 px.
+#
+# BOTH ARE NOW MEASURED, IN ONE FRAME, IN THE FLANK PLANE.  The door line and
+# the arch lip are both on the flank, so this ratio carries NO px/m and NO
+# parallax term -- which is why it is stated without the +-4 % floor the rev-59
+# brief attached to it.  That floor came from mixing the flank plane (the
+# crown) with the wheel plane (the hub); nothing here does.
+#
+# THE CONTROL, and it is the reason to believe the number.  The identical
+# pixel code run on the SIDE RENDER -- whose front arch is a circle of ARCH_R
+# about X_AXLE_F by construction -- recovers ARCH_R to -0.05 %, the arch
+# centre to 0.17 px, and the built DOOR_LOBE_A / DOOR_LOBE_B to -0.22 % and
+# +1.30 % end to end.  And the ramp's WIDTH in the photograph comes back at
+# 0.2502 of R against the built 0.2529, -1.07 %: the step is the right SIZE.
+# Only its POSITION is wrong, and BOTH feet move by the same amount -- 66.5 mm
+# and 67.5 mm -- which is a translation, not a re-shaping.
+#
+# NOT 95 mm.  The rev-59 brief section 3.10 says ~95 mm, from A = 41.50 px.
+# Measured here A is 38.66 px vertically and the fitted R is 37.28 px; the
+# render control recovers A to +1.7 % and R to -0.05 %, so the ruler is the
+# smaller one.  Retracted in the brief and the register in the same revision.
+# ===========================================================================
+_DS_ARCH_CX = 82.53          # ref_nolita_doorshut.jpg, arch lip circle fit
+_DS_ARCH_R  = 37.28          # px, same fit, rms 0.437 px over n=54
+_DS_FOOT_A  = 56.069         # aft foot of the ramp, tracked walk
+_DS_FOOT_B  = 46.741         # forward foot
+DOOR_LOBE_A = (_DS_ARCH_CX - _DS_FOOT_A) / _DS_ARCH_R       # 0.7096 * ARCH_R
+DOOR_LOBE_B = (_DS_ARCH_CX - _DS_FOOT_B) / _DS_ARCH_R       # 0.9598 * ARCH_R
+if os.environ.get("T1_DOOR_STALE"):
+    # THE ABLATION.  rev 44b's two constants, put back verbatim.  The rev-59
+    # clearance guard below must REFUSE them -- that is how it was watched
+    # failing, and a guard that has not been watched fail reports nothing.
+    DOOR_LOBE_A, DOOR_LOBE_B = (91.1 - 56.0) / 39.54, (91.1 - 46.0) / 39.54
 
 
 def _rail_z(x):
@@ -756,14 +801,45 @@ assert (abs(DOOR_BOT_RUN[0][0] - _DOOR_X_REAR) < 1e-9
 # that the wrap is gone, but the invariant is the one worth asserting, so the
 # rev-42 form is KEPT rather than reverted with the geometry.
 _MIN_RAD = min(_arch_radial(p) for p in DOOR_GAP_S)
-assert _MIN_RAD >= DOOR_ARCH_G - 5e-4, (
-    "cab-door shut line is CLOSER to the front wheel arch than rev 41's was: "
-    "min radial clearance %.4f m against rev 41's %.4f m. That is the "
-    "condition that collapsed the boolean at T1_SUB=2 for six revisions."
-    % (_MIN_RAD, DOOR_ARCH_G))
-assert _MIN_RAD > 0.010, (
-    "cab-door shut line within 10 mm of the front wheel arch lip (%.4f m)."
-    % _MIN_RAD)
+
+# rev 59 -- RE-BASED, WITH THE CAUSE NAMED, AND THE PROXY DEMOTED.
+#
+# THE CAUSE.  Both thresholds below were REGRESSION BASELINES armed at rev 41's
+# own clearance, never at a measured one.  rev 41 happened to clear the arch by
+# 0.0244 m = 0.0653 * ARCH_R, and that accident became the bar.  Traced on
+# ref_nolita_doorshut.jpg by probe_rev59_door, THE REAL VEHICLE'S OWN MINIMUM
+# CLEARANCE between its cab-door shut line and its front arch lip is
+# 0.844 px = 0.0226 * ARCH_R = 8.4 mm -- about a THIRD of what rev 41 demanded.
+# So the old bar was not a physical limit; it forbade the vehicle.
+#
+# AND THE RATIONALE IT INHERITED IS ALREADY REFUTED IN THIS REPO.  The message
+# blamed the 205562 v -> 12 v collapse.  SPEC 10.62 says of exactly that
+# rationale: "That does not transfer: all six crossings were live at SUB=2 with
+# zero non-manifold edges."
+#
+# THE COMPANION TEST, so the cause is separately testable rather than re-proxied
+# (CLAUDE.md's condition for a re-base).  The collapse is a TOPOLOGY event and
+# verify.py already tests it DIRECTLY, at both subdivision levels and with no
+# threshold to tune: "no boolean may have rolled back" and the non-manifold edge
+# count on the shell.  Those rows are what catch the failure this assert was
+# only ever a proxy for.  This assert is therefore re-armed as what it can
+# actually see -- A FIDELITY TEST against the photographed clearance.
+#
+# ABLATION: T1_DOOR_STALE=1 restores rev 44b's lobes and this guard must REFUSE.
+_ARCH_G_PHOTO = 0.0226               # probe_rev59_door, ref_nolita_doorshut.jpg
+assert abs(_MIN_RAD / ARCH_R - _ARCH_G_PHOTO) < 0.030, (
+    "cab-door shut line does not clear the front arch the way the photograph "
+    "does: built %.4f m = %.4f of ARCH_R, photograph %.4f of ARCH_R "
+    "(probe_rev59_door, ref_nolita_doorshut.jpg). For scale, rev 41's "
+    "accidental clearance -- the bar this guard used to inherit -- was "
+    "%.4f m = %.4f of ARCH_R, about three times what the vehicle has."
+    % (_MIN_RAD, _MIN_RAD / ARCH_R, _ARCH_G_PHOTO,
+       DOOR_ARCH_G,
+       DOOR_ARCH_G / ARCH_R))
+assert _MIN_RAD > 0.004, (
+    "cab-door shut line within 4 mm of the front wheel arch lip (%.4f m). The "
+    "photograph reads 8.4 mm; below 4 mm the two features are not separable in "
+    "any frame we hold and the boolean has no material to work in." % _MIN_RAD)
 # and it must still not fall through the body's own lower edge
 _MIN_SILL = min(z - T.ZB(x) for (x, z) in DOOR_GAP_S)
 assert _MIN_SILL > 0.005, (
@@ -788,6 +864,36 @@ assert _BOT_SPREAD < 0.030, (
     "x %.4f to the arch's forward lip. ref_nolita_doorshut.jpg holds it flat "
     "to 1 px there (SPEC 10.106)."
     % (_BOT_SPREAD * 1000.0, _RAIL_SPAN[0][0]))
+
+# rev 59 -- AND THE SAME INVARIANT ON THE OUTLINE THAT ACTUALLY CUTS.
+#
+# The guard above is armed on FOUR raw table points, because DOOR_GAP simply has
+# no more between the door's rear corner and the ramp.  Four points cannot see a
+# sag between them, and the object the boolean uses is not that table -- it is
+# DOOR_GAP_S, resampled to 76 and smoothed twice.  So the same invariant is armed
+# again, densely, on the smoothed outline.
+#
+# THE SPAN IS STATED RATHER THAN ASSUMED, which is the whole lesson of 10.102 ->
+# 10.106: both END CORNERS are excluded by 60 mm, because the outline turns UP at
+# the rear corner (z 0.8700 against the rail's 0.8007 -- reading it as rail sag
+# reports 76.7 mm of descent that is not there) and DOWN into the ramp at the
+# forward one.  What is left is rail and only rail.
+#
+# rev 59 measured the photograph's own rail over the same feature: flat to
+# 0.81 px = 8 mm across cols 70-123 of ref_nolita_doorshut.jpg.
+_RAIL_DENSE = [q for q in DOOR_GAP_S
+               if q[1] < 0.90 and _DOOR_X_REAR + 0.060 <= q[0] <= _LOBE_XA - 0.060]
+_DENSE_SPREAD = max(q[1] for q in _RAIL_DENSE) - min(q[1] for q in _RAIL_DENSE)
+assert len(_RAIL_DENSE) >= 10, (
+    "the dense bottom-rail span has collapsed to %d point(s) -- moving _LOBE_XA "
+    "aft has eaten the span this guard covers, which is exactly the silent "
+    "weakening rev 59 was warned about." % len(_RAIL_DENSE))
+assert _DENSE_SPREAD < 0.030, (
+    "cab-door bottom rail is not flat on the outline that CUTS: %.1f mm of "
+    "descent over x %.4f .. %.4f (%d samples of DOOR_GAP_S). The photograph "
+    "holds it flat to 8 mm over the same feature."
+    % (_DENSE_SPREAD * 1000.0, _RAIL_DENSE[0][0], _RAIL_DENSE[-1][0],
+       len(_RAIL_DENSE)))
 
 # rev 44b -- AND THE FORWARD LOBE MUST NOT SILENTLY VANISH AGAIN.  This is the
 # guard 10.102 should have had: it deleted a feature that a photograph holds,
@@ -1377,6 +1483,61 @@ def _lid_face(x0, x1, w, name, inset=0.030, off=0.0):
             uvl.data[li].uv = uvs[me.loops[li].vertex_index]
     T.fix_normals(ob)
     return ob
+
+
+def _decal_aspect_guard(ob, tol=0.010, filename="lidmural.png"):
+    """The mural decal quad must carry tex/lidmural.png at its authored aspect.
+
+    rev 59, ITEM 1's guard, added in the SAME edit as the fix.
+
+    TWO INDEPENDENTLY OBTAINED QUANTITIES, so it is not a tautology (rule 6):
+      * the aspect of the quad AS BUILT, measured off `ob`'s own vertices --
+        not recomputed from LID_X0/LID_X1/LID_W, which is what the call site
+        already knows;
+      * the aspect of the IMAGE FILE, read out of the PNG's IHDR on disk --
+        `lid_gen.py` authors that file and nothing here can influence it.
+
+    A stretched decal is invisible to every existing check: the panel is the
+    right size, the material is bound, the texture is not stale, and VERIFY
+    reads 0 fail.  It is only visible as distortion of the printed artwork.
+
+    WATCH IT FAIL:  T1_LIDINSET=0.030 restores the rev-8..58 inset and this
+    must refuse (built 1.6963 against the file's 1.6543, +2.54 %).
+
+    An ABSENT texture is reported as "NO TEXTURE" and is NOT a pass (rule 37).
+    """
+    import struct
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                        "tex", filename)
+    if not os.path.exists(path):
+        print("_decal_aspect_guard: NO TEXTURE at %s -- NOT CHECKED, and this "
+              "is an absent input, not a pass" % path)
+        return None
+    with open(path, "rb") as fh:
+        head = fh.read(24)
+    if head[:8] != b"\x89PNG\r\n\x1a\n" or head[12:16] != b"IHDR":
+        print("_decal_aspect_guard: %s is not a PNG IHDR -- NOT CHECKED"
+              % filename)
+        return None
+    iw, ih = struct.unpack(">II", head[16:24])
+    co = [v.co for v in ob.data.vertices]
+    # ASK THE MESH, not the pose or the constants (rule 35): the quad's own
+    # two edge lengths, taken as the bbox spans in the frame it was built in.
+    bl = max(c.x for c in co) - min(c.x for c in co)
+    bw = max(c.y for c in co) - min(c.y for c in co)
+    built, authored = bl / bw, iw / float(ih)
+    err = built / authored - 1.0
+    print("decal aspect: built %.4f (%.4f x %.4f m) vs %s %d x %d = %.4f "
+          "-> %+.2f %%" % (built, bl, bw, filename, iw, ih, authored,
+                           err * 100.0))
+    assert abs(err) <= tol, (
+        "SPEC/rev 59 item 1: the mural decal quad is %.4f but tex/%s is "
+        "authored %d x %d = %.4f, so the printed image is stretched %+.2f %% "
+        "along the vehicle (tolerance %.1f %%).  lid_gen.py traces the OUTER "
+        "edge of the yellow strips as the board boundary; a border inset here "
+        "makes the two files disagree about what that edge means."
+        % (built, filename, iw, ih, authored, err * 100.0, tol * 100.0))
+    return err
 
 
 # ============================================================ rev 48, JOB 1
@@ -2379,7 +2540,35 @@ def roof_lids():
     # z in [-LID_T, 0]; a board at -0.0016 sits just under the UPPER face, and
     # _lid_panel's pressed seams dip to -0.0028 and poke through the decal
     # plane.  The underside is at -LID_T.
-    b = _lid_face(LID_X0, LID_X1, LID_W, "lid_board", off=-(LID_T + 0.0016))
+    # rev 59, ITEM 1 -- THE 30 mm INSET IS DROPPED AT THIS CALL SITE ONLY.
+    # `_lid_face`'s DEFAULT stays 0.030 because `signboard()` shares it; this
+    # is a call-site override, not a change of the function's contract.
+    #
+    # THE TWO FILES DISAGREED ABOUT WHAT THE TEXTURE'S BORDER MEANS.
+    # `lid_gen.py` traces the OUTER EDGE OF THE YELLOW STRIPS as the board
+    # boundary, i.e. the image already runs to the panel edge; this call then
+    # treated that same edge as 30 mm INBOARD of the panel.  The 30 mm was
+    # applied on all four sides of a 2.0340 x 1.2237 m panel -- 1.47 % of the
+    # length but 2.45 % of the width -- so it did two things at once:
+    #   * a bare-cream border all round that ref_side.jpg does not have
+    #     (a thin specular lip on the top and right edges only, <= 0.4 % of
+    #     the board's height at 6 columns, against 3.7 % rendered);
+    #   * it STRETCHED the printed image along the vehicle.  Decal quad
+    #     1.9740 x 1.1637, aspect 1.6963, against tex/lidmural.png's authored
+    #     2048 x 1238 = 1.6543 -> +2.54 % along X.  At inset 0.0 the quad is
+    #     2.0340 x 1.2237 = 1.6621 and the residual stretch is +0.47 %.
+    # Both figures recomputed from LID_X0/LID_X1/LID_ASPECT/LID_OPEN_DEG here,
+    # not transcribed.
+    #
+    # THE BOARD'S SIZE IS A SEPARATE, OPEN FINDING AND IS NOT TOUCHED HERE:
+    # LID_W, LID_X0, LID_X1 and LID_ASPECT are all unchanged.
+    #
+    # T1_LIDINSET restores the old value so the border can be WATCHED coming
+    # back -- the ablation for this item.
+    _LID_INSET = float(os.environ.get("T1_LIDINSET", 0.0))
+    b = _lid_face(LID_X0, LID_X1, LID_W, "lid_board",
+                  inset=_LID_INSET, off=-(LID_T + 0.0016))
+    _decal_aspect_guard(b)
     _hinge(b, 0.0, LID_Y_HINGE, zh, LID_OPEN_DEG)
     boards.append(b)
 
@@ -2726,7 +2915,17 @@ def signboard():
 # difference, which is exactly the 65 mm mistake this frame invites.
 V_APEX_Z = 0.4050        # t1_mats.V_APEX 0.340 above ground + RIDE_DROP 0.065
 V_RISE_Z = 0.8670        # == t1_mats.V_RISE
-V_POW_Z = 0.60           # == t1_mats.V_POW.  < 1: the profile is CONCAVE.
+V_POW_Z = 0.52
+# rev 60 -- T1_VPOWZ, the PRESSED SWAGE's half of the T1_VPOW ablation.  The
+# literal above stays on its own line: verify_clone.sh greps `^V_POW_Z = 0.52`
+# (0.52 since rev 61 -- F77 fitted the exponent POSE-INVARIANTLY on three
+# frames at 0.517 / 0.521 / 0.531, with a render control recovering 0.600 to
+# +/-0.02.  The old 0.60 was refuted only behind a BROKEN gate; see F135.)
+# and t1_mats' V_POW is pinned to agree with it.  Set BOTH env vars to the same
+# value to move paint and swage together and keep verify.py's registration row
+# satisfied; set one alone and that row must FAIL, which is the point.
+if os.environ.get("T1_VPOWZ"):
+    V_POW_Z = float(os.environ["T1_VPOWZ"])           # == t1_mats.V_POW.  < 1: the profile is CONCAVE.
 V_HALF_W = 0.86
 
 

@@ -61,6 +61,7 @@ sys.path.insert(0, HERE)
 os.environ.setdefault("T1_SUB", "1")
 
 import numpy as np                                           # noqa: E402
+import scipy.ndimage as ndi                                  # noqa: E402
 from PIL import Image, ImageDraw                             # noqa: E402
 import bpy                                                   # noqa: E402
 import t1_core as C                                          # noqa: E402
@@ -408,7 +409,441 @@ ctl("C5", eC < e45 * 0.6,
     "converges to values the build does not use proves nothing, so this reads "
     "t1_core's own constants, not the solver's output" % (e45 / max(eC, 1e-9)))
 
+# =====================================================================
+# rev 58 -- THE AXIS THIS PROBE NEVER MEASURED, AND THE OWNER'S FIFTH REPORT.
+#
+# *[owner, rev 58]* "the vw emblems still need a fix, and the nose still does
+# not look right."
+#
+# HIS REPEAT IS A MEASUREMENT.  That sentence is already in t1_core, written at
+# rev 46 about his FOURTH report: when he reports the same thing again, the
+# prior closure was wrong or incomplete.  This is the fifth, and this probe has
+# reported "5 controls, 0 FAILED" throughout.
+#
+# WHY IT COULD NOT SEE IT.  Every landmark above (L1..L6) is a VERTICAL
+# position -- a row index down the emblem.  Not one of them is a RADIUS.  So a
+# stroke can terminate 18.9 mm short of the ring band with every landmark still
+# landing, because where a stroke ENDS vertically and how far it REACHES
+# radially are independent.  This is rev 46's own discovery -- "the axis nobody
+# checked" -- recurring on the axis rev 46 did not check.
+#
+# MEASURED OFF THE BUILT MESH, as a fraction of the ring's OUTER R, band inner
+# edge 0.7988:
+#     V arm tips ............ 0.8400, 0.8400   on the band
+#     W legs (troughs) ...... 0.8394, 0.8394   on the band
+#     W OUTER ARM tips ...... 0.6638, 0.6638   FLOAT 18.9 mm short
+#
+# THE MECHANISM, traced rather than guessed.  A terminal cap is cut PERPENDICULAR
+# TO THE STROKE, so its two corners sit at different radii.  vw_bars' fixed
+# point drives each terminal's *MAX* corner onto the band, which leaves the
+# other corner short by the cap's whole radial span; the W's outer arm meets the
+# ring at 0.12 deg while travelling at 55.5 deg, so that span is 0.176 R and the
+# far corner lands at 0.6638.  Then t1_detail.vw_logo_fit re-normalises the
+# whole glyph by its GLOBAL EXTREME, which is the very mechanism rev 44b named
+# and fixed one stage higher up -- "_fit_glyph scales by the SINGLE FURTHEST
+# VERTEX ... and drags every other end short" -- still live, one stage below.
+#
+# THREE CANDIDATE FIXES WERE TRIED AT REV 58 AND ALL THREE MADE IT WORSE OR NO
+# BETTER, WHICH IS WHY NONE OF THEM SHIPPED:
+#     drive the MIN corner instead of the MAX ....... cells 6 -> 4 (worse)
+#     make vw_logo_fit a pure unit conversion ....... cells 6 -> 4 (worse)
+#     raise VW_W_ARM_Z 0.0019 -> 0.30/0.55/0.77 ..... cells 6, 6, 6 (no change)
+# The glyph stays an X in all of them.  The V's arms and the W's outer arms
+# cross over the same region BY CONSTRUCTION, so this is a re-solve of the W's
+# spine against reach, not a one-constant tweak.  Recorded so the next attempt
+# does not spend itself re-trying these three.
+BAND_INNER = 1.0 - BAND          # 0.80 of the outer R, the band's inner edge
+
+
+def glyph_only_mask(rows=276, **over):
+    """The glyph WITH its ring band, rasterised in its own plane -- the same
+    construction built_mask uses, kept separate only so overrides can be passed
+    per call without disturbing the landmark path above."""
+    old = {k: getattr(C, k) for k in over}
+    for k, v in over.items():
+        setattr(C, k, v)
+    try:
+        return built_mask(rows)
+    finally:
+        for k, v in old.items():
+            setattr(C, k, v)
+
+
+def cream_cells(mask, frac=0.97):
+    """How many separate CREAM cells the strokes cut the ring's interior into.
+
+    STRUCTURAL, like every landmark here: a region count, not a thresholded
+    position, so it survives blur and exposure and needs no axis ratio.  It is
+    the right statistic for THIS defect because a stroke that fails to reach the
+    ring MERGES THE TWO CELLS EITHER SIDE OF IT -- the count drops by exactly
+    one per floating stroke, whatever the stroke's width or angle.
+
+    The photograph and the built raster go through this SAME function.  A second
+    copy of a measurement is how one of them gets quietly relaxed."""
+    n0, n1 = mask.shape
+    yy, xx = np.mgrid[0:n0, 0:n1]
+    cy, cx = (n0 - 1) / 2.0, (n1 - 1) / 2.0
+    disc = (((yy - cy) / (n0 / 2.0)) ** 2 + ((xx - cx) / (n1 / 2.0)) ** 2) <= frac ** 2
+    bg = disc & (~mask)
+    lab, k = ndi.label(bg)
+    if k == 0:
+        return 0, []
+    sz = ndi.sum(bg, lab, range(1, k + 1))
+    big = [int(s) for s in sz if s >= 0.002 * disc.sum()]
+    return len(big), sorted(big, reverse=True)
+
+
+def photo_cells():
+    """The same count on ref_nolita_front34.jpg's own roundel."""
+    a = np.asarray(Image.open(os.path.join(HERE, "ref_nolita_front34.jpg"))
+                   .convert("RGB")).astype(float)
+    R, G, B = a[..., 0], a[..., 1], a[..., 2]
+    red = (R > 110) & (G < 0.60 * R) & (B < 0.60 * R)
+    lab, n = ndi.label(red)
+    sub = lab[192:261, 153:194]
+    ids, counts = np.unique(sub[sub > 0], return_counts=True)
+    return cream_cells(sub == ids[int(np.argmax(counts))])
+
+
+nb, sb = cream_cells(glyph_only_mask(**CURRENT))
+npho, sp = photo_cells()
+print("")
+print("    REACH / TOPOLOGY -- cream cells the strokes cut the ring into")
+print("        PHOTOGRAPH  %d cells   sizes %s" % (npho, sp))
+print("        BUILT       %d cells   sizes %s" % (nb, sb[:8]))
+ctl("C6", nb == npho,
+    "THE BUILT GLYPH CUTS THE RING INTO THE SAME NUMBER OF CELLS AS THE "
+    "PHOTOGRAPH.  photo %d, built %d.  A stroke that fails to reach the ring "
+    "merges the two cells either side of it, so a deficit of %d is %d floating "
+    "stroke(s) -- and the mesh names them: the W's two outer arms, at r 0.6638 "
+    "against a band inner edge of 0.7988, floating 18.9 mm"
+    % (npho, nb, npho - nb, max(0, npho - nb)))
+
+# THE KILL.  A topology control that cannot go red proves nothing.  Erase the
+# W entirely and the count must collapse.
+_gone = glyph_only_mask(**CURRENT).copy()
+_nk, _ = cream_cells(_gone)
+_half = glyph_only_mask(VW_W_ARM_X=0.05, VW_W_TROUGH_X=0.05)
+_nh, _ = cream_cells(_half)
+ctl("C7", _nh != nb,
+    "KILL: collapsing the W's arms and troughs onto the axis moves the cell "
+    "count %d -> %d, so this control follows the glyph's topology rather than "
+    "reporting a constant" % (nb, _nh))
+
+# ---------------------------------------------------------------- rev 61, C8
+# THE CELL *COUNT* IS NOT WHAT THE OWNER IS LOOKING AT, AND IT IS NOT SCALE-
+# STABLE.  F105 already found the count depends on the raster scale.  What he
+# reports -- five times -- is that the glyph "reads as an X", and F104 said the
+# cause in words: the photograph's cream is SEVEN THIN SLIVERS, the build's is
+# FOUR FAT WEDGES.  That is a statement about cell SHAPE, and nothing measured
+# it.  C6 can be satisfied by six cells of any shape whatever.
+#
+# ELONGATION -- sqrt of the ratio of the two principal moments of each cream
+# cell, area-weighted median over the cells -- is that statement as a number.
+# It is a pure ratio, so it needs no scale, no exposure and no axis fit, and it
+# is measured through the SAME function on both sides (rule: a second copy of a
+# measurement is how one gets quietly relaxed).
+#
+# THE PHOTOGRAPH'S CROP IS FORESHORTENED -- 69 rows by 41 cols on a roundel
+# that is circular -- so x is stretched by 69/41 before the moments are taken.
+# rev 44's own note licenses exactly this: a rotation about a vertical axis
+# preserves vertical ratios.  The built raster is square and takes squash 1.
+#
+# WATCHED, all of it (rule 5 -- no figure here was typed before it printed):
+#     photograph            3.33   (69 rows, squash 69/41)
+#     built, shipped        1.49   at 276 rows AND 1.49 at 69 rows  <- STABLE
+#     built, T1_VW_CAPMIN   1.58   -- so F101's refutation of CAPMIN is
+#                                     CONFIRMED by a second, independent
+#                                     statistic, not just by the count
+def cell_elongation(mask, squash, frac=0.97):
+    """Area-weighted median elongation of the cream cells.  See C8 above."""
+    n0, n1 = mask.shape
+    yy, xx = np.mgrid[0:n0, 0:n1]
+    cy, cx = (n0 - 1) / 2.0, (n1 - 1) / 2.0
+    disc = (((yy - cy) / (n0 / 2.0)) ** 2 + ((xx - cx) / (n1 / 2.0)) ** 2) <= frac ** 2
+    bg = disc & (~mask)
+    lab, k = ndi.label(bg)
+    if k == 0:
+        return 0.0
+    out = []
+    for i in range(1, k + 1):
+        m = lab == i
+        n = int(m.sum())
+        if n < 0.002 * disc.sum():
+            continue
+        ys, xs = np.where(m)
+        X = (xs - cx) * squash
+        Y = -(ys - cy)
+        P = np.stack([X, Y]).astype(float)
+        P = P - P.mean(1, keepdims=True)
+        w, _ = np.linalg.eigh(np.cov(P))
+        out.append((n, (w[-1] / max(w[0], 1e-9)) ** 0.5))
+    if not out:
+        return 0.0
+    tot = sum(o[0] for o in out)
+    acc = 0.0
+    for n, e in sorted(out, key=lambda t: t[1]):
+        acc += n
+        if acc >= tot / 2.0:
+            return e
+    return out[-1][1]
+
+
+def photo_elongation():
+    a = np.asarray(Image.open(os.path.join(HERE, "ref_nolita_front34.jpg"))
+                   .convert("RGB")).astype(float)
+    R, G, B = a[..., 0], a[..., 1], a[..., 2]
+    red = (R > 110) & (G < 0.60 * R) & (B < 0.60 * R)
+    lab, n = ndi.label(red)
+    sub = lab[192:261, 153:194]
+    ids, counts = np.unique(sub[sub > 0], return_counts=True)
+    m = sub == ids[int(np.argmax(counts))]
+    return cell_elongation(m, m.shape[0] / float(m.shape[1]))
+
+
+_eb = cell_elongation(glyph_only_mask(**CURRENT), 1.0)
+_ep = photo_elongation()
+_e69 = cell_elongation(glyph_only_mask(rows=69, **CURRENT), 1.0)
+print("")
+print("    SHAPE -- are the cream cells SLIVERS or WEDGES?  (C6 cannot see this)")
+print("        PHOTOGRAPH  elongation %.2f" % _ep)
+print("        BUILT       elongation %.2f at 276 rows, %.2f at 69 rows"
+      % (_eb, _e69))
+ctl("C8", _eb >= 0.70 * _ep,
+    "THE BUILT CREAM CELLS ARE AS ELONGATED AS THE PHOTOGRAPH'S.  photo %.2f, "
+    "built %.2f -- the built cells are %.2fx TOO ROUND.  Four fat wedges "
+    "meeting at the centre IS the X the owner has reported five times; the "
+    "photograph's cream is seven thin slivers.  Unlike C6's count this is a "
+    "pure ratio and does NOT move with raster scale (%.2f at 276 rows against "
+    "%.2f at 69), which is the defect F105 found in the count"
+    % (_ep, _eb, _ep / max(_eb, 1e-9), _eb, _e69))
+
+# THE KILL -- ON TWO SYNTHETIC CASES WHOSE ANSWER IS KNOWN BY CONSTRUCTION.
+# Collapsing the W was tried first and moved the statistic only 1.49 -> 1.56;
+# a 0.07 margin is not a control, it is a coincidence waiting to happen.  So
+# C9 feeds cell_elongation two masks it CANNOT be wrong about:
+#   WEDGES  a plain cross -- four isotropic quadrants, must read near 1
+#   SLIVERS six parallel bars -- long thin cells, must read well above 3
+# If the function cannot separate those two it cannot separate a W from an X.
+_N = 276
+_yy, _xx = np.mgrid[0:_N, 0:_N]
+_cross = (np.abs(_xx - _N / 2.0) < 7) | (np.abs(_yy - _N / 2.0) < 7)
+_bars = (((_xx + _yy) // 20) % 2 == 0) & (((_xx + _yy) % 20) < 7)
+_e_wedge = cell_elongation(_cross, 1.0)
+_e_sliver = cell_elongation(_bars, 1.0)
+ctl("C9", _e_wedge < 1.6 < 3.0 < _e_sliver,
+    "KILL, SYNTHETIC: on a plain cross (four isotropic quadrants) "
+    "cell_elongation reads %.2f, and on six parallel bars it reads %.2f.  It "
+    "separates wedges from slivers by construction, so C8's %.2f-vs-%.2f is a "
+    "shape reading and not an artefact of the rasteriser"
+    % (_e_wedge, _e_sliver, _eb, _ep))
+
 nfail = sum(1 for v in CTL.values() if not v)
 print("\nCONTROLS: %d checked, %d FAILED%s"
       % (len(CTL), nfail,
          "" if not nfail else " -- " + ",".join(k for k, v in CTL.items() if not v)))
+
+
+# =====================================================================
+# rev 60 -- T1_VW_CELLSOLVE: PUT cream_cells INTO THE OBJECTIVE.
+#
+# The rev-60 brief's item C says the missing piece is exactly this, and that
+# if no setting of the six parameters reaches the photograph's 7 cells, the
+# honest result is to SAY SO WITH THE NUMBER.  So this searches and reports,
+# and it does NOT write anything into t1_core.
+#
+# WHY REACH ALONE IS KNOWN NOT TO BE THE ANSWER (rev 60, measured).  Driving
+# the cap's near corner onto the band -- which removes the 18.9 mm float that
+# F63 named as the defect -- makes the topology WORSE, not better:
+#     T1_VW_CAPMIN=0 T1_VW_PUREFIT=0    6 cells   (as shipped)
+#     T1_VW_CAPMIN=0 T1_VW_PUREFIT=1    6 cells
+#     T1_VW_CAPMIN=1 T1_VW_PUREFIT=0    2 cells
+#     T1_VW_CAPMIN=1 T1_VW_PUREFIT=1    4 cells
+# So the float is a SYMPTOM and not the cause: strokes pushed further into the
+# band merge with their neighbours and swallow the cream between them.  The
+# cell count is a property of where the strokes LAND ANGULARLY, which is the
+# spine's business, not the cap's.
+# =====================================================================
+if os.environ.get("T1_VW_CELLSOLVE"):
+    import random as _rnd
+    _rnd.seed(60)
+    _NEV = int(os.environ.get("T1_VW_CELLSOLVE_N", 900))
+    _lo = {"VW_V_TIP_X": 0.20, "VW_APEX_Z": 0.15, "VW_W_ARM_X": 0.55,
+           "VW_W_ARM_Z": -0.40, "VW_W_TROUGH_X": 0.30, "VW_W_TROUGH_Z": -0.90}
+    _hi = {"VW_V_TIP_X": 0.55, "VW_APEX_Z": 0.45, "VW_W_ARM_X": 1.05,
+           "VW_W_ARM_Z": 0.55, "VW_W_TROUGH_X": 0.70, "VW_W_TROUGH_Z": -0.30}
+
+    def _score(p):
+        try:
+            n, sz = cream_cells(glyph_only_mask(**p))
+            e, _L = err(built_landmarks(**p))
+        except Exception:
+            return None
+        return n, e, sz
+
+    print("\n    T1_VW_CELLSOLVE -- searching %d points for the photograph's "
+          "%d cells" % (_NEV, npho))
+    _best = {}          # cells -> (residual, params, sizes)
+    _cur = dict(CURRENT)
+    _r = _score(_cur)
+    if _r:
+        _best[_r[0]] = (_r[1], dict(_cur), _r[2])
+    _seen = 0
+    for _it in range(_NEV):
+        # half the budget random over the box, half a local walk from the best
+        # 7-cell (or else best-celled) point found so far
+        if _it % 2 == 0 or not _best:
+            _p = {k: _rnd.uniform(_lo[k], _hi[k]) for k in PARAMS}
+        else:
+            _target = max(_best)
+            _base = _best[_target][1]
+            _sc = 0.12 * (1.0 - _it / float(_NEV)) + 0.01
+            _p = {k: min(_hi[k], max(_lo[k],
+                  _base[k] + _rnd.gauss(0.0, _sc) * (_hi[k] - _lo[k])))
+                  for k in PARAMS}
+        _r = _score(_p)
+        _seen += 1
+        if not _r:
+            continue
+        _n, _e, _sz = _r
+        if _n not in _best or _e < _best[_n][0]:
+            _best[_n] = (_e, dict(_p), _sz)
+    print("    evaluated %d points" % _seen)
+    print("    cells reached: %s" % ", ".join(str(k) for k in sorted(_best)))
+    for _n in sorted(_best):
+        _e, _p, _sz = _best[_n]
+        _mark = "  <-- THE PHOTOGRAPH'S COUNT" if _n == npho else ""
+        print("      %d cells  best landmark residual %.4f%s" % (_n, _e, _mark))
+        if _n == npho or _n == max(_best):
+            print("          " + "  ".join("%s %.4f" % (k, _p[k])
+                                           for k in PARAMS))
+            print("          sizes %s" % (_sz,))
+    if npho in _best:
+        print("    RESULT: %d cells IS reachable; best landmark residual there "
+              "is %.4f against C4's bar of 0.045"
+              % (npho, _best[npho][0]))
+    else:
+        print("    RESULT: NO setting of the six spine parameters reached %d "
+              "cells in %d evaluations.  Best was %d.  The current spine "
+              "family cannot reach the photograph's topology."
+              % (npho, _seen, max(_best)))
+
+
+# rev 60 -- T1_VW_DUMP: PAINT THE CELLS AND LOOK AT THEM.
+# A cell COUNT is a statistic about a picture nobody in this project has ever
+# looked at.  Rule 8 applies to a topology exactly as it applies to a window.
+if os.environ.get("T1_VW_DUMP"):
+    def _paint_cells(mask, name, frac=0.97):
+        """Paint what cream_cells() actually counts, in ITS OWN colours."""
+        n0, n1 = mask.shape
+        yy, xx = np.mgrid[0:n0, 0:n1]
+        cy, cx = (n0 - 1) / 2.0, (n1 - 1) / 2.0
+        disc = (((yy - cy) / (n0 / 2.0)) ** 2
+                + ((xx - cx) / (n1 / 2.0)) ** 2) <= frac ** 2
+        bg = disc & (~mask)
+        lab, k = ndi.label(bg)
+        sz = ndi.sum(bg, lab, range(1, k + 1))
+        keep = 0.002 * disc.sum()
+        out = np.zeros((n0, n1, 3), np.uint8)
+        out[mask] = (40, 40, 40)
+        cols = [(235, 60, 60), (60, 205, 95), (70, 125, 245), (240, 195, 45),
+                (205, 80, 225), (55, 215, 215), (250, 135, 40)]
+        big = sorted(((int(sz[i]), i + 1) for i in range(k) if sz[i] >= keep),
+                     reverse=True)
+        for rank, (_s, idx) in enumerate(big):
+            out[lab == idx] = cols[rank % len(cols)]
+        for i in range(k):                       # slivers below the size floor
+            if sz[i] < keep:
+                out[lab == i + 1] = (255, 255, 255)
+        os.makedirs(os.path.join(HERE, "out"), exist_ok=True)
+        sc = max(1, int(420 / max(n0, n1)))
+        Image.fromarray(out).resize((n1 * sc, n0 * sc), Image.NEAREST).save(
+            os.path.join(HERE, "out", "vw_cells_%s.png" % name))
+        print("    %-8s %d counted cells (white = below the 0.2 %% floor) "
+              "-> out/vw_cells_%s.png" % (name, len(big), name))
+        return len(big)
+
+    _a = np.asarray(Image.open(os.path.join(HERE, "ref_nolita_front34.jpg"))
+                    .convert("RGB")).astype(float)
+    _R, _G, _B = _a[..., 0], _a[..., 1], _a[..., 2]
+    _red = (_R > 110) & (_G < 0.60 * _R) & (_B < 0.60 * _R)
+    _lab, _n = ndi.label(_red)
+    _sub = _lab[192:261, 153:194]
+    _ids, _counts = np.unique(_sub[_sub > 0], return_counts=True)
+    _paint_cells(_sub == _ids[int(np.argmax(_counts))], "photo")
+    _paint_cells(glyph_only_mask(rows=69, **CURRENT), "built_69")
+    _alt = os.environ.get("T1_VW_DUMP_P")
+    if _alt:
+        import json as _json
+        _ap = dict(CURRENT); _ap.update(_json.loads(_alt))
+        _paint_cells(glyph_only_mask(rows=69, **_ap), "alt_69")
+        print("    alt params: " + "  ".join("%s %.4f" % (k, _ap[k])
+                                             for k in PARAMS))
+    _paint_cells(glyph_only_mask(**CURRENT), "built_276")
+
+
+# rev 60 -- T1_VW_RES: IS C6's 6-vs-7 A SHAPE DEFECT OR A RESOLUTION ARTEFACT?
+#
+# THE TWO SIDES OF C6 ARE NOT RASTERISED AT THE SAME SCALE.  photo_cells()
+# counts inside a 41 x 69 px crop of ref_nolita_front34.jpg; glyph_only_mask
+# defaults to 276 ROWS.  A cell count is a TOPOLOGY, and topology is
+# resolution-sensitive: a cream gap one pixel wide at 69 rows is four pixels
+# wide at 276 and survives where the other merges.  C6 has compared the two
+# directly since rev 58 without this ever being checked.  Rule 36 -- run the
+# instrument on a case whose answer you already know.
+if os.environ.get("T1_VW_RES"):
+    print("\n    T1_VW_RES -- the BUILT glyph's cell count against raster scale")
+    print("    (the photograph's own count, at its native 41 x 69, is %d)" % npho)
+    for _rows in (41, 55, 69, 90, 138, 207, 276, 414, 552):
+        try:
+            _n, _s = cream_cells(glyph_only_mask(rows=_rows, **CURRENT))
+            print("      rows %4d   cells %d   sizes %s" % (_rows, _n, _s[:8]))
+        except Exception as _e:
+            print("      rows %4d   FAILED %s" % (_rows, _e))
+
+
+# rev 60 -- T1_VW_WSWEEP: THE STROKE WEIGHT, MEASURED AGAINST THE PHOTOGRAPH.
+#
+# PAINTING THE COUNTED CELLS (T1_VW_DUMP) SHOWED WHAT NO COUNT COULD.  The
+# photograph's cream cells are LONG THIN SLIVERS; the built glyph's are FAT
+# WEDGES.  That is not a reach difference and no spine solves it: the
+# photographed strokes are HEAVY and the built ones are LIGHT.  So the defect
+# behind "it builds as an X" is STROKE WEIGHT, and the cell count is merely
+# how it shows up in the topology.
+#
+# THE SCALE-FREE STATISTIC IS INK FRACTION inside the roundel disc -- ink
+# pixels over disc pixels.  It needs no axis ratio, no px/m and no landmark,
+# so an oblique 41 x 69 crop and a 276-row raster can be compared directly.
+if os.environ.get("T1_VW_WSWEEP"):
+    def _ink_frac(mask, frac=0.97):
+        n0, n1 = mask.shape
+        yy, xx = np.mgrid[0:n0, 0:n1]
+        cy, cx = (n0 - 1) / 2.0, (n1 - 1) / 2.0
+        disc = (((yy - cy) / (n0 / 2.0)) ** 2
+                + ((xx - cx) / (n1 / 2.0)) ** 2) <= frac ** 2
+        return float((mask & disc).sum()) / float(disc.sum())
+
+    _a = np.asarray(Image.open(os.path.join(HERE, "ref_nolita_front34.jpg"))
+                    .convert("RGB")).astype(float)
+    _R, _G, _B = _a[..., 0], _a[..., 1], _a[..., 2]
+    _red = (_R > 110) & (_G < 0.60 * _R) & (_B < 0.60 * _R)
+    _lab, _n = ndi.label(_red)
+    _sub = _lab[192:261, 153:194]
+    _ids, _counts = np.unique(_sub[_sub > 0], return_counts=True)
+    _pm = (_sub == _ids[int(np.argmax(_counts))])
+    _pf = _ink_frac(_pm)
+    print("\n    T1_VW_WSWEEP -- stroke weight against the photograph")
+    print("    PHOTOGRAPH ink fraction %.4f, cells %d" % (_pf, npho))
+    print("    %-8s %-8s %-6s %s" % ("wfrac", "inkfrac", "cells", "sizes"))
+    for _wf in (0.1986, 0.24, 0.28, 0.32, 0.36, 0.40, 0.44, 0.48):
+        os.environ["T1_VW_WFRAC"] = "%.4f" % _wf
+        try:
+            _m = glyph_only_mask(**CURRENT)
+            _if = _ink_frac(_m)
+            _c, _sz = cream_cells(_m)
+            print("    %-8.4f %-8.4f %-6d %s%s"
+                  % (_wf, _if, _c, _sz[:7],
+                     "   <-- photograph's cell count" if _c == npho else ""))
+        except Exception as _e:
+            print("    %-8.4f FAILED %s" % (_wf, _e))
+    os.environ.pop("T1_VW_WFRAC", None)

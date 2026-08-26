@@ -691,6 +691,364 @@ def _measure_wheels():
     return out
 
 
+def _wheelhouse_reach(log=print):
+    """DOES EACH WHEEL-HOUSE LINER REACH ITS OWN ARCH APERTURE?
+
+    rev 59.  THE OWNER: "a weird arc above the back wheel just kind of
+    floating there".  `t1_detail.wheel_houses()` built BOTH liners as circles
+    of radius `WH_R`, whose own comment read
+    `WH_R = 0.3735   # = t1_shell.ARCH_R, the arch cut's radius`.
+    That is true of the FRONT cutter (`T.cylinder((T.X_AXLE_F`) and false of
+    the REAR one, which since rev 16 is `rear_arch_outline` through
+    `T.solid_prism` -- `ARCH_W_REAR` 0.920 m wide against a liner 0.747 m
+    across.  Nothing measured the result: `ARCH_W_REAR`, `_ARCH_PROFILE` and
+    `rear_arch_outline` appeared ZERO times in this file, which is the same
+    hole rev 18 found for the arch-to-tyre gap.
+
+    WHAT THIS ROW MEASURES.  For every liner object, at every one of its own
+    rim stations, the radius from that axle's centre against the radius of the
+    aperture THE CUTTER ACTUALLY CUTS in the same direction -- the front's
+    circle of ARCH_R, the rear's own `rear_arch_outline`.  Both in the
+    AUTHORED frame: step 8b shears `v.co.z -= rake_drop(v.co.x)` and leaves x
+    alone, so `_frame_dz(x)` undoes it exactly, per vertex.
+
+      delta < 0   the liner stops SHORT of the hole -- you see the body
+                  interior, and van_floor's edge, through the crescent
+      delta > lap the rim lands OUTBOARD of the lip, which trades an inner
+                  dark arc for a dark ring outside it (WH_INSET is 2.6 mm)
+
+    AND IT ALSO ASKS WHETHER THE RIM STANDS PROUD OF THE SKIN, because
+    widening the sector drives the end stations fore/aft and DOWN, where
+    `flank_y` is smaller -- the exact defect rev 38 fixed with a fixed
+    outboard y of 0.870.
+
+    WHICH AXES THIS DOES NOT SEE (rule 36).  It is a RADIUS test and a
+    HALF-WIDTH test at the rim only.  It says nothing about the liner between
+    its rim and its inboard flange, nothing about the aperture below the
+    outline's own feet (the cutter's skirt, which is not lip), and its
+    proud-of-skin arm compares against `flank_y`, which is the LOFT CONTROL
+    HULL -- the subdivided skin sits inboard of it, so a small positive inset
+    here is not proof the rim is behind the rendered surface.
+    """
+    import math
+    import t1_shell as S
+    fails, worst = [], []
+    LAP_MAX = 0.005          # rim may bury this far behind the lip, no more
+    SHORT_TOL = 0.0005       # 0.5 mm: chord/round-off, not a hole
+    MIN_INSET = 0.0005       # rim must be at least this far inside flank_y
+
+    for tag, xa in (("front", _T.X_AXLE_F), ("rear", _T.X_AXLE_R)):
+        zc = S.arch_z(xa)
+        ap = None
+        if tag == "rear":
+            pts = S.rear_arch_outline(xa)[:-2]     # drop the two FLOOR points
+            ap = sorted((math.atan2(dz, dx), math.hypot(dx, dz))
+                        for dx, dz in pts)
+        obs = []
+        for ob in bpy.data.objects:
+            if ob.type != 'MESH' or not ob.name.startswith("wheelhouse"):
+                continue
+            vs = [ob.matrix_world @ v.co for v in ob.data.vertices]
+            if not vs or abs(sum(v.x for v in vs) / len(vs) - xa) > 0.60:
+                continue
+            obs.append((ob, vs))
+        if len(obs) != 2:
+            fails.append("wheel-house reach: found %d liner(s) at the %s axle, "
+                         "expected 2" % (len(obs), tag))
+            continue
+        d_lo = d_hi = None
+        inset_lo = None
+        n_short = 0
+        n_out = 0
+        for ob, vs in obs:
+            rim = {}
+            for w in vs:
+                dx = w.x - xa
+                dz = (w.z - _frame_dz(w.x)) - zc     # -> AUTHORED frame
+                r = math.hypot(dx, dz)
+                th = math.atan2(dz, dx)
+                b = round(math.degrees(th))
+                if r > rim.get(b, (-1.0,))[0]:
+                    rim[b] = (r, th, w.x, w.z, abs(w.y))
+            for b in sorted(rim):
+                r, th, wx, wz, ay = rim[b]
+                if ap is None:
+                    r_ap = S.ARCH_R
+                else:
+                    if th < ap[0][0] - 1e-9 or th > ap[-1][0] + 1e-9:
+                        n_out += 1          # past the outline's own feet
+                        continue
+                    r_ap = _np_interp(th, [a for a, _ in ap],
+                                      [v for _, v in ap])
+                d = r - r_ap
+                d_lo = d if d_lo is None else min(d_lo, d)
+                d_hi = d if d_hi is None else max(d_hi, d)
+                if d < -SHORT_TOL:
+                    n_short += 1
+                # proud-of-skin arm, at the rim station's own (x, z)
+                fy = _T.flank_y(wx, wz - _frame_dz(wx))
+                ins = fy - ay
+                inset_lo = ins if inset_lo is None else min(inset_lo, ins)
+        if d_lo is None:
+            fails.append("wheel-house reach: no comparable station at the %s "
+                         "axle" % tag)
+            continue
+        log("  wheel-house reach %-5s: liner minus aperture radius %+.1f .. "
+            "%+.1f mm over %d station(s) short of it; rim inset inside "
+            "flank_y %+.1f mm; %d station(s) beyond the outline's feet"
+            % (tag, d_lo * 1000, d_hi * 1000, n_short, inset_lo * 1000, n_out))
+        if d_lo < -SHORT_TOL:
+            fails.append("the %s wheel-house liner stops SHORT of its own arch "
+                         "aperture by up to %.1f mm of radius (%d station(s)) "
+                         "-- the body interior shows through the crescent; "
+                         "t1_detail.wheel_houses / _arc_liner"
+                         % (tag, -d_lo * 1000, n_short))
+        if d_hi > LAP_MAX:
+            fails.append("the %s wheel-house liner rim sits %.1f mm PAST its "
+                         "arch aperture (lap limit %.1f mm) -- a dark ring "
+                         "outside the lip" % (tag, d_hi * 1000, LAP_MAX * 1000))
+        if inset_lo < MIN_INSET:
+            fails.append("the %s wheel-house liner rim stands %.1f mm PROUD of "
+                         "flank_y (WH_INSET is %.1f mm) -- rev 38's defect"
+                         % (tag, -inset_lo * 1000, 2.6))
+    return fails
+
+
+def _np_interp(x, xs, ys):
+    """1-D linear interpolation without importing numpy into this module."""
+    if x <= xs[0]:
+        return ys[0]
+    if x >= xs[-1]:
+        return ys[-1]
+    lo, hi = 0, len(xs) - 1
+    while hi - lo > 1:
+        mid = (lo + hi) // 2
+        if xs[mid] <= x:
+            lo = mid
+        else:
+            hi = mid
+    span = xs[hi] - xs[lo]
+    if span <= 0:
+        return ys[lo]
+    f = (x - xs[lo]) / span
+    return ys[lo] + f * (ys[hi] - ys[lo])
+
+
+# ===========================================================================
+# rev 60c -- THE UNDERBODY, ON ALL THREE AXES.
+#
+# WHY THIS EXISTS.  rev 60 shipped the underbody with every prism placed half
+# its own depth wrong on TWO axes.  rev 60b repaired it and added ONE guard,
+# on y -- the axis STATE.md happened to already print.  An independent
+# adversary then reinstated rev 60's *z* error in full on the repaired tree
+# (pan 45 mm low leaving an open slot, rails 78 % buried) and reported:
+#
+#     "the tree stays all-green ... verify.py contains no row naming
+#      underpan, chassis_rail, under_close_f or under_close_a"
+#
+# which was exactly true.  The clone-level row was worse: it greps STATE.md
+# for the four object NAMES, so it passed throughout rev 60 with both closers
+# 685 mm proud and the pan 45 mm low (rule 10: grepping for an object name is
+# not a test that a feature is built).
+#
+# WHAT THESE TWO ROWS SEE, and rule 36 says to write down what they do not:
+#
+#   PROUD  asks, at stations along each underbody part's OWN x range, whether
+#          it reaches outboard of the body's skin at that station.  It asks
+#          the mesh for both quantities, so it encodes no pose and no
+#          constant.  It does NOT see: any part not named in _UNDER_PARTS;
+#          fore/aft overhang (the length row owns that); z.
+#   SLOT   asks, on a grid over the pan's span, whether the underbody's top
+#          surface reaches the shell's own underside -- ray-cast up at the
+#          shell from below, NOT computed from ZB, which is what made rev
+#          60b's fix miss the tail by 29 mm.  It does NOT see: the pan's
+#          FLOOR (nothing here bounds how low the underbody hangs -- that is
+#          probe_rev45_ground.py's G4, off a photograph); y-proudness; a slot
+#          narrower than the grid.
+#
+# Neither row derives its threshold from the expression it checks (rule 6):
+# both compare the underbody against the BODY, which is built by other code.
+# Ablations, each watched failing: T1_UNDER_YBUG (y), T1_UNDER_ZBUG (z),
+# T1_UNDER_PROUD (the aft ramp's real shipped proudness, 48 mm).
+# ===========================================================================
+_UNDER_PARTS = ("underpan", "chassis_rail+1", "chassis_rail-1",
+                "under_close_f", "under_close_a")
+# The two bars.  Neither is derived from the underbody's own constants.
+# PROUD: zero is the physical condition -- outboard of the skin is visible.
+# 2 mm of slack covers the sampling slab, nothing else; the shipped defect
+# was 48 mm and rev 60's was 685 mm, so the bar's exact value is not load-
+# bearing in either direction.
+_UNDER_PROUD_TOL = 2.0
+# SLOT: the underbody's top must INTRUDE into the shell, not merely touch it.
+# 5 mm is the smallest overlap that survives the subdivision difference
+# between SUB=1 and SUB=2; the shipped defects were -29.1 mm and -2.3 mm and
+# the built margin is +11.8 mm at its worst, so this bar sits between them
+# with room on both sides.
+_UNDER_SLOT_MIN = 5.0
+
+
+def _under_objs():
+    return [bpy.data.objects[n] for n in _UNDER_PARTS if n in bpy.data.objects]
+
+
+def _skin_profile(body, step=0.010):
+    """The BODY's own half-width as a function of x, binned off its vertices.
+
+    rev 60c -- THE FIRST CUT OF THIS SAMPLED A 6 mm SLAB AND IT WAS WRONG.
+    The shell is subdivided, so its vertices sit at discrete stations and a
+    thin slab is EMPTY at plenty of x.  The proudness row read that empty
+    slab as `skin = 0` and reported the pan 780 mm proud at x -0.630, where
+    the real half-width is 0.875 and the pan is 95 mm INBOARD.  A guard whose
+    first run reports a 780 mm defect on a part that is fine is measuring its
+    own sampling.  Watched, then fixed: bin ONCE, then interpolate between
+    non-empty bins, so no query station can fall in a hole."""
+    key = body.name
+    if getattr(_skin_profile, "_cache", {}).get(key) is not None:
+        return _skin_profile._cache[key]
+    M = body.matrix_world
+    bins = {}
+    for v in body.data.vertices:
+        w = M @ v.co
+        b = int(round(w.x / step))
+        a = abs(w.y)
+        if a > bins.get(b, -1.0):
+            bins[b] = a
+    xs = sorted(bins)
+    prof = ([b * step for b in xs], [bins[b] for b in xs])
+    if not hasattr(_skin_profile, "_cache"):
+        _skin_profile._cache = {}
+    _skin_profile._cache[key] = prof
+    return prof
+
+
+def _skin_halfwidth(body, x):
+    """The body's own half-width at station x, interpolated off the profile.
+    None only when x is outside the body altogether."""
+    xs, ys = _skin_profile(body)
+    if not xs or x < xs[0] - 0.02 or x > xs[-1] + 0.02:
+        return None
+    return _np_interp(x, xs, ys)
+
+
+def _under_proud(body, log=print):
+    """Worst outboard reach of any underbody part past the skin, in mm."""
+    obs = _under_objs()
+    if not obs:
+        return None, None
+    worst, where = -1e9, None
+    for ob in obs:
+        M = ob.matrix_world
+        vs = [M @ v.co for v in ob.data.vertices]
+        x0, x1 = min(v.x for v in vs), max(v.x for v in vs)
+        n = max(4, int((x1 - x0) / 0.010) + 1)
+        for i in range(n + 1):
+            x = x0 + (x1 - x0) * i / float(n)
+            sel = [abs(v.y) for v in vs if abs(v.x - x) < 0.008]
+            if not sel:
+                continue
+            skin = _skin_halfwidth(body, x)
+            if skin is None:
+                # no bodywork at this station at all: the part is in open air
+                skin = 0.0
+            d = (max(sel) - skin) * 1000.0
+            if d > worst:
+                worst, where = d, (ob.name, x, max(sel), skin)
+    return worst, where
+
+
+def _under_slot(body, log=print):
+    """Worst OPEN SLOT between the underbody and the shell, in mm, along the
+    underbody's OUTWARD-FACING PERIMETER.  Negative = a gap you could see
+    daylight through.
+
+    rev 60c-ii -- TWO WINDOWS WERE WRONG BEFORE THIS ONE, AND BOTH FAILED THE
+    SAME WAY: they measured somewhere the defect was not.
+
+    (1) The first sampled five typed y stations ending at 0.74 and reported
+        "CLOSED everywhere the pan spans".  The shell's underside at the tail
+        is a DISH that turns up sharply into the flank, so the margin at
+        x -1.823 ran +24.5 mm at y 0.700, +16.0 at 0.740 -- the LAST SAMPLE --
+        then +3.5 at 0.760 and -20.8 mm at 0.778.  A -15 mm slot was live at
+        both outer corners, symmetric, while the row printed CLOSED into
+        STATE.md.  An independent adversary found it; the author did not.
+        It also never sampled -y at all, which is the side the rev-60 defect
+        lived on.
+
+    (2) Sampling the parts' whole footprint then fired at -357 mm over the
+        WHEEL WELLS, where the body's nearest downward face is the inner arch
+        350-400 mm up.  Capping the comparison at a gap threshold only moved
+        the false positive (x +0.965 read -148 mm, just inside a 150 mm cap):
+        across the notch boundary the gap is a CONTINUUM from 0 to 357 mm, so
+        NO threshold separates the two cases.  A threshold was the wrong
+        instrument, not a badly-chosen one.
+
+    WHAT IT ASKS NOW.  A slot only matters if you can SEE it, and the surfaces
+    you can see are the underbody's outward-facing perimeter: the outboard
+    edge where the pan runs at FULL width (the notched edges face the wheel
+    wells and are covered by the tub and the tyre), and the fore and aft end
+    stations.  Both are taken from the MESH -- full width means "within 2 mm
+    of this part's own widest", not a typed constant -- so the notch is
+    excluded because it is narrower, not because anything was hard-coded.
+
+    WHAT IT DOES NOT SEE (rule 36): anything under the wheel wells; the pan's
+    FLOOR (nothing here bounds how low the underbody hangs -- that is
+    probe_rev45_ground.py's G4, off a photograph); y-proudness (the row
+    above); a slot narrower than the sample step."""
+    obs = _under_objs()
+    if not obs:
+        return None, None
+    def ray_up(ob, x, y):
+        M = ob.matrix_world.inverted()
+        o = M @ Vector((x, y, -1.0))
+        d = (M.to_3x3() @ Vector((0.0, 0.0, 1.0))).normalized()
+        h, l, nn, i = ob.ray_cast(o, d)
+        return (ob.matrix_world @ l).z if h else None
+    def ray_down(ob, x, y):
+        M = ob.matrix_world.inverted()
+        o = M @ Vector((x, y, 3.5))
+        d = (M.to_3x3() @ Vector((0.0, 0.0, -1.0))).normalized()
+        h, l, nn, i = ob.ray_cast(o, d)
+        return (ob.matrix_world @ l).z if h else None
+    # Build the perimeter sample set from each part's own mesh.
+    pts = set()
+    for ob in obs:
+        M = ob.matrix_world
+        vs = [M @ v.co for v in ob.data.vertices]
+        x0, x1 = min(v.x for v in vs), max(v.x for v in vs)
+        ygl = max(abs(v.y) for v in vs)
+        nx = max(8, int((x1 - x0) / 0.006) + 1)
+        for i in range(nx + 1):
+            x = x0 + (x1 - x0) * i / float(nx)
+            loc = [abs(v.y) for v in vs if abs(v.x - x) < 0.010]
+            if not loc:
+                continue
+            ym = max(loc)
+            if ym >= ygl - 0.002:          # FULL WIDTH -> this edge faces out
+                for sgn in (1.0, -1.0):
+                    pts.add((round(x, 4), round(sgn * (ym - 0.003), 4)))
+        # the two END stations, right across the part
+        ny = max(8, int(ygl / 0.008) + 1)
+        for xe in (x0 + 0.003, x1 - 0.003):
+            for j in range(ny + 1):
+                y = ygl * j / float(ny)
+                for yy in (y, -y):
+                    pts.add((round(xe, 4), round(yy, 4)))
+    worst, where, n = 1e9, None, 0
+    for x, y in sorted(pts):
+        tops = [t for t in (ray_down(ob, x, y) for ob in obs) if t is not None]
+        if not tops:
+            continue                # no underbody here: the shell closes it
+        sb = ray_up(body, x, y)
+        if sb is None:
+            continue                # no shell above: the length row owns this
+        n += 1
+        d = (max(tops) - sb) * 1000.0
+        if d < worst:
+            worst, where = d, (x, y, max(tops), sb)
+    _under_slot.n = n
+    return (None, None) if where is None else (worst, where)
+
+
 def run(body, log=print):
     fails, warns = [], []
 
@@ -718,6 +1076,88 @@ def run(body, log=print):
     log("  bounds EXCLUDE %d non-bodywork part(s): %s"
         % (len(_drop), ", ".join(_drop) if _drop else "none"))
     log(f"  x range [{lo.x:.3f}, {hi.x:.3f}]   full-Y [{lo.y:.3f}, {hi.y:.3f}]")
+    # rev 60b -- LATERAL EXTENT IS NOW ASSERTED, NOT MERELY LOGGED.
+    #
+    # THE DEFECT THIS ROW EXISTS FOR.  Rev 60's underbody end-closers were
+    # built with `_frame`'s centred convention misused on the Y axis, so both
+    # were placed wholly on the off side, reaching y -1.560 against a body
+    # half-width of 0.875 -- 685 mm proud of the skin at their own station.
+    # (rev 60c: this row said 919 mm, as did t1_detail.py and
+    # audit_adversary.py.  1.560 - 0.875 = 0.685, and 919 mm is reachable
+    # from no half-width this vehicle has.  Corrected in all three.)
+    # It rendered invisibly in `front`, `side` and `hero`, and it moved the
+    # DELIVERY camera solve, because studio.subject_bbox() sees every mesh.
+    #
+    # THE LINE ABOVE PRINTED IT -- full-Y went [-1.064, 1.150] -> [-1.560,
+    # 1.150] in that commit -- and nobody read it.  A quantity that is logged
+    # and never asserted is not a guard (rule 27's shape).  The width row two
+    # rows down cannot see this: it reads `body.bound_box`, the T1_body object
+    # ONLY, so no add-on part on any axis can ever move it.
+    #
+    # THE BOUND IS THE BODY'S OWN, not a typed constant: nothing that is not
+    # bodywork may reach outboard of the widest bodywork, plus a stated 30 mm
+    # for the mirrors and handles that legitimately do.
+    # A FIXED BOUND WOULD BE WRONG.  Two fixtures legitimately reach outboard
+    # of the 0.875 skin and they were measured, not assumed: +y 1.1500 is the
+    # counter's `bracket*` set, -y -1.0637 is `mir_head-1`, the off-side
+    # mirror.  So this is a REGRESSION row against those two, which is the
+    # shape that would have caught the ramps.
+    #
+    # rev 60c -- AND WHAT IT CANNOT SEE, WHICH THIS COMMENT USED TO OVERSTATE.
+    # It read "any NEW part straying outboard moves one of them and this
+    # fires".  That is false and the tree already held the counter-example.
+    # The bound is two fixed scalars, so a part may reach anywhere inboard of
+    # +1.1500 / -1.0637 and never move either -- against a skin at 0.875 that
+    # is 280 mm of permitted proudness on +y.  The aft ramp was standing 48 mm
+    # proud INSIDE that window while this row read green.  It also cannot see
+    # the nine parts _bounds() excludes, three of which (counter_nosing at
+    # +-1.1730, counter, counter_top) are the most outboard meshes on the
+    # vehicle and are what the delivery camera actually solves against.
+    # This row is a REGRESSION row on two extrema, nothing more.  The
+    # per-station proudness row below is what actually watches the skin.
+    _YBASE_HI, _YBASE_LO, _YTOL = 1.1500, -1.0637, 0.005
+    if abs(hi.y - _YBASE_HI) > _YTOL or abs(lo.y - _YBASE_LO) > _YTOL:
+        fails.append(
+            "lateral extent MOVED: full-Y [%.4f, %.4f] against the baseline "
+            "[%.4f, %.4f] (%+.0f / %+.0f mm). The baseline is set by the "
+            "counter brackets on +y and mir_head-1 on -y; if neither moved, a "
+            "NEW part is standing proud of the skin"
+            % (lo.y, hi.y, _YBASE_LO, _YBASE_HI,
+               1000 * (lo.y - _YBASE_LO), 1000 * (hi.y - _YBASE_HI)))
+    else:
+        log("  lateral extent full-Y [%.4f, %.4f] holds its baseline "
+            "(brackets +y, mir_head-1 -y)" % (lo.y, hi.y))
+    # rev 60c -- THE UNDERBODY ON ALL THREE AXES.  See _under_proud /
+    # _under_slot above for what these two rows can and cannot see.
+    if bpy.data.objects.get("underpan") is None:
+        log("  underbody: NOT BUILT (T1_NOUNDER) -- proud and slot rows are "
+            "NOT APPLICABLE, stated rather than silently skipped")
+    else:
+        _pw, _pwh = _under_proud(body)
+        if _pw is not None and _pw > _UNDER_PROUD_TOL:
+            fails.append(
+                "underbody PROUD of the skin: %s reaches |y| %.4f at x %+.4f "
+                "where the body's own skin is %.4f -- %+.1f mm outboard "
+                "(tolerance %.0f mm). A part standing outboard of the "
+                "bodywork is visible from the side."
+                % (_pwh[0], _pwh[2], _pwh[1], _pwh[3], _pw,
+                   _UNDER_PROUD_TOL))
+        elif _pw is not None:
+            log("  underbody proudness: worst %+.1f mm (%s at x %+.4f, |y| "
+                "%.4f against skin %.4f) -- INBOARD of the skin everywhere"
+                % (_pw, _pwh[0], _pwh[1], _pwh[2], _pwh[3]))
+        _sw, _swh = _under_slot(body)
+        if _sw is not None and _sw < _UNDER_SLOT_MIN:
+            fails.append(
+                "underbody OPEN SLOT: the underbody's top reaches z %.4f at "
+                "(x %+.3f, y %+.2f) but the shell's own underside there is "
+                "%.4f -- a %+.1f mm gap (must intrude at least %.0f mm). "
+                "ZB is NOT the shell's underside; this asks the shell."
+                % (_swh[2], _swh[0], _swh[1], _swh[3], _sw, _UNDER_SLOT_MIN))
+        elif _sw is not None:
+            log("  underbody/shell fit: worst intrusion %+.1f mm at (x %+.3f, "
+                "y %+.2f) over %d perimeter station(s), both signs of y"
+                % (_sw, _swh[0], _swh[1], getattr(_under_slot, "n", 0)))
     # rev 8: HEIGHT IS NOT A SCALAR ANY MORE, twice over. The vehicle is raked,
     # so the roof is a sloping line; and the roof lids are modelled OPEN, so the
     # bbox top is ~3.0 m, not the vehicle.
@@ -1814,6 +2254,12 @@ def run(body, log=print):
                                      max(_rr) - min(_rr)))
         log("  hubcap badge is SELF-CONSISTENCY ONLY -- CAP_EMBLEM_WFRAC has "
             "never been compared to a frame; see PHOTOS_WANTED item 7")
+
+    # rev 59.  The wheel-house liners against the apertures they line.
+    try:
+        fails += _wheelhouse_reach(log)
+    except Exception as e:                       # never let the guard vanish
+        fails.append("wheel-house reach assertion could not run: %s" % e)
 
     # Buried detail must never pass again: both wipers shipped for six
     # revisions fully enclosed in the nose skin. Casts camera -> object, not

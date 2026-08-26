@@ -34,9 +34,13 @@ def views(dist=1.0):
     return v
 ST.views = views
 
-ST.cyclorama()
-ST.lighting(1.0)
-ST.camera()
+# rev 58, F51: ONE definition of the rig, in studio.rig().
+# STATED BEHAVIOUR CHANGE, not a silent one: the three calls this replaces did
+# NOT include cabin_fill, so this rev-36 bumper preview rendered the cab dark
+# while every other view in the project lit it (SPEC 10.105, "the cab was built
+# and then rendered invisible").  rig() includes it.  Nothing gates this script,
+# and the change moves it TOWARDS the shipped rig rather than away from it.
+ST.rig(key=1.0, scene="studio")
 ST.render_set([VIEW],
               os.environ.get("T1_OUT", "/tmp/prev"),
               prefix=os.environ.get("T1_PFX", "r36"),

@@ -46,17 +46,16 @@ P = print
 # same root cause as F05, `mottle_measure.py`'s dead beauty arm, whose note
 # says "shader_solve._render() builds no studio rig".
 #
-# These four calls MIRROR build.py's block and must track it.  A verify_clone
-# row compares the two sequences so the duplication cannot rot silently; the
-# real fix is to factor them into one function, which is rev 58's to do.
+# rev 58 DID factor them into one function.  This calls studio.rig(), the
+# single definition, so there is no longer a copy here to drift.  The unlit
+# case is now refused by studio.assert_lit() inside render_set().
 _KEY = float(os.environ.get("T1_KEY", "1.0"))
 if os.environ.get("T1_SCENE", "studio") != "studio":
     raise SystemExit("FATAL: this script mirrors build.py's STUDIO rig only")
-ST.cyclorama()
-ST.lighting(_KEY)
-ST.cabin_fill(_KEY)
-ST.camera()
-P("rig built: cyclorama + lighting + cabin_fill + camera  (key %.2f)" % _KEY)
+# rev 58, F51: ONE definition, in studio.rig().  This used to be four calls
+# copied out of build.py, with a verify_clone row comparing the copies so they
+# could not rot -- a workaround for the absence of this function.
+ST.rig(key=_KEY, scene="studio", log=P)
 
 RX = int(os.environ.get("T1_HQ_RX", 3840))
 RY = int(os.environ.get("T1_HQ_RY", 2640))

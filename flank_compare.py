@@ -1220,7 +1220,12 @@ def main():
     Rc = raster(sampler_ref(Rf, ea, eb), bx0, bx1, bz0, bz1, PITCH)
     # rev 55, item C.  IS THE `Senor` REGION FAILURE DOWNSTREAM OF THE HEIGHT
     # SHORTFALL, or is it the glyph?  senor_trace.py's redraw scores 0.913 IoU
-    # against the measured 934 px mask, so the SHAPE is not in question; the
+    # against the measured 934 px mask, so the SHAPE is not in question -- rev
+    # 59: THAT PREMISE IS RETRACTED.  The 934 px mask had no tilde in it, the
+    # redraw was fitted to it, and the shape WAS in question all along; against
+    # the re-baked 1062 px reference the rev-9 strokes score 0.8135 and, with
+    # the tilde drawn, 0.8859.  The height question below is untouched by this
+    # and still stands on its own evidence; the
     # region scores 0.377 here.  `Senor` sits at the top-left extreme of the
     # lockup, which is where a height error hurts most once the global shift
     # has absorbed the translation.  T1_FC_ZSTRETCH scales the RENDER mask
@@ -1657,7 +1662,12 @@ def main():
     #
     # AND THE `Senor` ROW IS THE SAME UNKNOWN, NOT A SECOND DEFECT.
     # senor_trace.py's redraw scores 0.913 IoU against the measured 934 px
-    # mask, so the GLYPH is not in question.  `Senor` sits at the top-left
+    # mask, so the GLYPH is not in question -- rev 59: RETRACTED, the 934 px
+    # mask was missing the `n~`'s tilde and the redraw was fitted to it.  Part
+    # of the `Senor` row WAS the glyph: the tex-only column moves 0.696 ->
+    # 0.757 (bar 0.750) on the artwork alone, with no render.  The height story
+    # below is measured separately and is NOT withdrawn.  `Senor` sits at the
+    # top-left
     # extreme of the lockup, where a height error hurts most once the global
     # shift has absorbed the translation.  T1_FC_ZSTRETCH (rev 55) stretches
     # the render mask vertically before scoring, and it moves exactly as that

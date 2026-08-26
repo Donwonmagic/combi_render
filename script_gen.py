@@ -144,7 +144,11 @@ def stroke_poly(pts, w):
 # Their control points are samples of the TRUE MEDIAL AXIS of the reference ink
 # mask (skimage.morphology.medial_axis on the mask upsampled x6 and Gaussian-
 # filtered at sigma = 0.55 source px, exactly the pipeline senor_trace.py
-# documents and validates at IoU 0.913), and the third number of each triple is
+# documents -- rev 59: that "and validates at IoU 0.913" is RETRACTED.  0.913 was
+# scored against a reference baked into senor_trace.py that was missing the
+# tilde; against the re-baked one the word reads 0.8859.  See THE TILDE, REV 59
+# in senor_trace.py.  The PIPELINE described here is unchanged), and the third
+# number of each triple is
 # the exact distance transform at that sample -- i.e. the measured HALF-WIDTH.
 # Nothing is added to it.  Branches shorter than 3 source px are dropped as
 # spurs; the half-width at a Y-junction is the inscribed radius there and is
@@ -581,13 +585,21 @@ def draw_i(c):
 # segmented".  That belief was tested in rev 10 and is false: the word is
 # invisible in LUMA (Michelson contrast 0.132) but obvious in CHROMATICITY --
 # the red ground carries B = 6.0 +/- 3.6 DN while the word carries B = 21-81.
-# Segmented properly it is 934 px of real ink (SPEC 10.20).
+# Segmented properly it is 934 px of real ink (SPEC 10.20) -- rev 59: 934 was the
+# count of a segmentation THAT HAD NO TILDE IN IT.  Over the same window
+# compare_script.ref_mask(), which is what the live gate scores against, carries
+# 1176 px, and senor_trace.py's reference is now the re-baked 1062 (1176 less the
+# 88 px of Tacombi swash crossing rows 23..27 and the 26 px of swash crossing the
+# rows above them).  The 934 is kept here because SPEC 10.20 quotes it; it is not
+# the number to measure against.
 #
 # senor_trace.py carries the reconstruction: the measured mask's medial axis,
 # smoothed to 0.20 source px RMS, with the half-width taken from the Euclidean
 # distance transform at every sample.  Every half-width is measured; none is
-# invented.  It scores IoU 0.913 against the measured mask where the eyeballed
-# version scored 0.089.
+# invented.  It scored IoU 0.913 against the measured mask where the eyeballed
+# version scored 0.089 -- rev 59: RETRACTED, same reason.  Against the re-baked
+# reference the rev-9 strokes score 0.8135 and, with the tilde restored, 0.8859.
+# The 0.913 was a trace agreeing with its own blind spot.
 #
 # The tarnish is warm brown, not green-black: darkest quartile a* +14.0 against
 # lightest +6.9, a 6-sigma WARM shift.  That is applied in the RGB layer in
@@ -746,6 +758,37 @@ TARNISH_K = (0.675, 0.374, 0.276)        # 'Senor' median / clean silver median
 #
 # The lift is DERIVED from the target, not typed (SPEC 10.25), so it re-solves
 # if the silver albedo, the mottle or the body red ever move.
+# ===================================================== rev 62, THE OWNER'S RULING
+# HE WAS ASKED, WITH THE FIGURE, AND HE CHOSE: "Bright silver, same as Tacombi."
+#
+# THE QUESTION PUT TO HIM.  probe_scratch/rev62_q_senor.png -- the photograph and
+# the render of the same word at the SAME mm/px, off flank_compare's own
+# registered panels.  In the render `Senor` is a faint ghost against the red
+# while `Tacombi` below it is bright silver, because `Senor` carries the tarnish
+# and `Tacombi` does not.  The four options offered were: bright silver like
+# `Tacombi`; clearer than the photograph but still aged; match the photograph
+# exactly; or fix the size first and re-ask.  HE CHOSE BRIGHT SILVER.
+#
+# WHAT IT OVERRIDES, STATED RATHER THAN BURIED.  SPEC sec.3 locks the finish as
+# WEATHERED.  The rev-62 brief sec.4 flagged this collision in advance -- his
+# rev-61 ruling *"I want this 3d model to look like new.  Enhanced from the
+# photo"* against that lock -- and instructed that it be SURFACED, not silently
+# decided either way.  It was surfaced and he decided.  THE OVERRIDE IS FOR THIS
+# WORD ONLY.  The b flag, the i dot and the swash keep their measured tarnish:
+# he ruled on `Senor`, and TARNISH_ZONES is not `Senor`.
+#
+# WHAT SURVIVES THE OVERRIDE.  TARNISH_K and SENOR_MICHELSON are MEASUREMENTS and
+# they are not deleted -- they are what T1_SENOR_TARNISH=1 restores, and the lift
+# is still solved on the `Senor` zone so the zones' K is bit-for-bit what it was.
+# If he ever reverses this, nothing has to be re-measured.
+#
+# AND THE RETIREMENT CONDITION ON THE REV-46 LIFT IS NOW MOOT FOR THIS WORD.
+# That lift existed to drag a fully-tarnished `Senor` up to the photograph's
+# Michelson 0.1922.  With the tarnish gone the word is clean silver and the
+# 0.058 "declared departure" recorded below no longer applies to it.  It still
+# applies to the zones.
+SENOR_TARNISH = float(os.environ.get("T1_SENOR_TARNISH", 0.0))
+
 SENOR_MICHELSON = 0.1922                 # ref_side.jpg, +-0.0060, 6 th x 4 windows
 BODY_RED_L = 0.2126 * 196 + 0.7152 * 49 + 0.0722 * 36    # t1_mats body red sRGB
 MOTTLE_REL = 0.059                       # 7.4 DN on a mean of 125.8
@@ -856,7 +899,8 @@ def main():
     sen = senor_only_hi()[y0 * SS:(y1 + 1) * SS, x0 * SS:(x1 + 1) * SS]
     sen = np.array(Image.fromarray(sen.astype(np.uint8))
                    .resize((OUT_W, h), Image.LANCZOS)).astype(np.float32) / 255.0
-    tw = np.clip(sen * 1.15, 0, 1)               # 'Senor': full strength
+    tw_sen = np.clip(sen * 1.15, 0, 1)           # 'Senor': full strength
+    tw_zones = np.zeros_like(tw_sen)             # the b flag, i dot, swash
 
     rng = np.random.default_rng(731)
     blot = nd.gaussian_filter(rng.standard_normal((h, OUT_W)).astype(np.float32),
@@ -872,8 +916,14 @@ def main():
         z = np.zeros((h, OUT_W), np.float32)
         z[gy0:gy1, gx0:gx1] = 1.0
         z = nd.gaussian_filter(z, sigma=1.2 * ppm, mode='constant')
-        tw = np.maximum(tw, z * s * np.clip(blot * 0.7 + 0.45, 0, 1))
-    tw = np.clip(tw, 0, 1)[..., None]
+        tw_zones = np.maximum(tw_zones, z * s * np.clip(blot * 0.7 + 0.45, 0, 1))
+    # The lift below is SOLVED ON THE `Senor` ZONE and its target was measured
+    # there, so the solve must see that zone whatever SENOR_TARNISH is.  Only
+    # what is APPLIED changes.  At SENOR_TARNISH = 1 the two are identical and
+    # this file behaves exactly as it did before rev 62.
+    tw = np.clip(np.maximum(tw_sen, tw_zones), 0, 1)[..., None]
+    tw_apply = np.clip(np.maximum(tw_sen * SENOR_TARNISH, tw_zones),
+                       0, 1)[..., None]
 
     # ------------------------------------------- rev 46, W3: SOLVE THE LIFT
     # Luminance is LINEAR in the lift -- K' = K + (1-K)*lift gives
@@ -895,7 +945,12 @@ def main():
         TARNISH_LIFT = 0.0
         print("  Senor lift: NO TARNISH ZONE FOUND -- lift 0")
     _K = _K0 + (1.0 - _K0) * TARNISH_LIFT
-    rgb = rgb * (1.0 - tw) + rgb * _K * tw
+    rgb = rgb * (1.0 - tw_apply) + rgb * _K * tw_apply
+    if SENOR_TARNISH < 1.0:
+        print("  Senor tarnish: SENOR_TARNISH=%.2f -- the owner's rev-62 "
+              "ruling.  The word renders as CLEAN SILVER, the same albedo as "
+              "`Tacombi`; the b flag, i dot and swash zones are UNTOUCHED."
+              % SENOR_TARNISH)
 
     rgb = np.clip(rgb, 0, 255).astype(np.uint8)
     out = np.dstack([rgb, al])
@@ -903,16 +958,27 @@ def main():
     Image.fromarray(out).save(os.path.join(TEX, "senor.png"))
     ink = al > 96
     lm = (0.2126 * rgb[..., 0] + 0.7152 * rgb[..., 1] + 0.0722 * rgb[..., 2])
-    clean = ink & (tw[..., 0] < 0.05)
+    clean = ink & (tw_apply[..., 0] < 0.05)
     print("wrote tex/senor.png  %dx%d  AR %.4f" % (OUT_W, h, OUT_W / h))
     print("  base albedo sRGB %s" % np.round(base, 1))
     print("  clean-silver luma %.1f +/- %.1f  (relative std %.3f, measured 0.059)"
           % (lm[clean].mean(), lm[clean].std(),
              lm[clean].std() / max(lm[clean].mean(), 1e-9)))
-    tar = ink & (tw[..., 0] > 0.6)
+    # REPORT WHAT WAS APPLIED, NOT WHAT WOULD HAVE BEEN.  Before rev 62 these
+    # were the same array; now they are not, and reading `tw` here would have
+    # printed a "tarnished luma" of 201.1 that is a blend of the cleaned `Senor`
+    # and the still-tarnished zones -- a plausible number about no pixel set.
+    tar = ink & (tw_apply[..., 0] > 0.6)
     if tar.sum():
         print("  tarnished luma    %.1f  (%.1f%% of ink; measured 'Senor' is "
               "0.43x clean)" % (lm[tar].mean(), 100.0 * tar.sum() / ink.sum()))
+    else:
+        print("  tarnished luma    none applied (SENOR_TARNISH=%.2f and the "
+              "zones fall below the 0.6 reporting cut)" % SENOR_TARNISH)
+    _sen_ink = ink & (tw[..., 0] > 0.6)
+    if _sen_ink.sum():
+        print("  the `Senor` word  luma %.1f  (was 117.1 fully tarnished; "
+              "clean silver is %.1f)" % (lm[_sen_ink].mean(), lm[clean].mean()))
     return OUT_W / h
 
 

@@ -46,7 +46,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 TEX = os.path.join(HERE, "tex")
 
 AR = 1.355                       # measured 100 x 74 px
-W = 2400
+W = 3072                         # rev 60b: 2400 -> 3072 (F93, SPEC 5 3K floor).
+# NOT 4096: this generator supersamples and 4096 is OOM-killed on this box
+# (15 GB, rc=137).  3072 clears the floor and fits.
 H = int(round(W / AR))           # 1771
 SS = 3
 w, h = W * SS, H * SS

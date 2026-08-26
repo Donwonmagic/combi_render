@@ -694,6 +694,113 @@ def camera():
     return o
 
 
+# --------------------------------------------------------------------- rig
+# rev 58, F51.  THE ONE DEFINITION OF THE SHOOTING RIG.
+#
+# Until this revision the four calls that build the rig lived INSIDE
+# `build.py`'s `if os.environ.get("T1_PREVIEW"):` block, so the rig was a side
+# effect of asking for a preview.  Anything that exec'd build.py to MEASURE got
+# a scene with no lights, and the failure is silent: an unlit render is a valid
+# PNG, it is cheap, and every automated check passes it.  It produced a BLACK
+# BUS delivery frame at 3840x2640 that passed stitch.py (exit 0), the seam
+# detector (a clean z = 3.63) and looked like a 2.94x speed win.  Only LOOKING
+# at it found it (F52).  It is also the cause of F05, `mottle_measure.py`'s
+# dead beauty arm, whose note reads "shader_solve._render() builds no studio
+# rig".
+#
+# Four scripts then DUPLICATED the sequence and a verify_clone row compared
+# them so the copies could not rot.  That row was a workaround for the absence
+# of this function, and it is replaced by the behavioural rows described in
+# `assert_lit` below.
+#
+# ORDER IS LOAD-BEARING and is the order build.py used: backdrop, then clay
+# (which must overwrite materials before the lights are placed against them),
+# then the lights, then the cabin fill, then the camera.
+def rig(key=1.0, scene="studio", clay=False, log=None):
+    """Build the whole shooting rig and return the camera.
+
+    THE SINGLE DEFINITION.  Call this instead of re-typing the sequence; a
+    hand-rolled copy is how F51 happened.  `scene` is "studio" (cyclorama +
+    lighting) or "playa" (ground_playa + playa).
+    """
+    if scene == "playa":
+        ground_playa()
+    else:
+        cyclorama()
+    if clay:
+        clay_all()
+    if scene == "playa":
+        playa(key)
+    else:
+        lighting(key)
+    # rev 44, SPEC 10.105 -- the cab was built and then rendered invisible.
+    cabin_fill(key)
+    cam = camera()
+    if log:
+        log("rig built: %s + lighting + cabin_fill + camera  (key %.2f%s)"
+            % ("ground_playa" if scene == "playa" else "cyclorama", key,
+               ", CLAY" if clay else ""))
+    return cam
+
+
+def rig_from_env(log=None):
+    """`rig()` with the switches build.py has always read from the environment.
+
+    The reads are written out literally rather than folded into a helper:
+    `verify_clone.sh` asserts every T1_ switch appears as `os.environ.get(
+    "NAME")` in source, and a helper taking the name as a variable hides it
+    from that row.  Rev 57b was caught by exactly that (sec.10.8).
+    """
+    return rig(key=float(os.environ.get("T1_KEY", "1.0")),
+               scene=os.environ.get("T1_SCENE", "studio"),
+               clay=bool(os.environ.get("T1_CLAY")),
+               log=log)
+
+
+def lit_report(scene=None):
+    """What is actually lighting this scene, as numbers.  Reports, never raises.
+
+    Returns (n_lights, total_watts, world_strength).  Emissive MATERIALS are
+    deliberately NOT counted: the black-bus frame had a lit bulb string and
+    nothing else, so "something is emitting" is exactly the reading that let
+    it pass.  This counts the RIG.
+    """
+    sc = scene or bpy.context.scene
+    lights = [o for o in sc.objects if o.type == 'LIGHT']
+    watts = sum(getattr(o.data, "energy", 0.0) for o in lights)
+    ws = 0.0
+    w = sc.world
+    if w is not None and w.use_nodes:
+        bg = w.node_tree.nodes.get("Background")
+        if bg is not None:
+            ws = float(bg.inputs[1].default_value)
+    return len(lights), watts, ws
+
+
+def assert_lit(scene=None, why="render"):
+    """REFUSE to render a scene with no rig.  This is the guard F51 lacked.
+
+    F51's cost was not that the rig was easy to forget -- it is that forgetting
+    it is SILENT.  Factoring `rig()` removes the duplication; this removes the
+    silence, which is the half that actually bit.  It is deliberately placed in
+    `render_set`, the one choke point every preview render goes through, so a
+    future script cannot opt out of it by forgetting to call it.
+
+    WATCHED FAILING (rule 3): `T1_SUB=1 T1_NORIG=1 ... build.py` builds the
+    scene, skips the rig and reaches this, and it raises rather than writing a
+    black frame.  A guard that has not been watched failing reports nothing.
+    """
+    n, watts, ws = lit_report(scene)
+    if n == 0 and ws <= 0.0:
+        raise RuntimeError(
+            "REFUSING TO %s AN UNLIT SCENE -- 0 light objects and world "
+            "strength %.3f.  The studio rig was never built.  Call "
+            "studio.rig() (or rig_from_env()) before rendering; that is F51, "
+            "and it shipped a BLACK BUS delivery frame that passed every "
+            "other automated check." % (why.upper(), ws))
+    return n, watts, ws
+
+
 def dof_limits(lens_mm, fstop, dist_m):
     """near / far sharp limits and hyperfocal, metres -- reported, not claimed"""
     f = float(lens_mm)
@@ -766,6 +873,18 @@ def _grain_texture():
     if not t:
         t = bpy.data.textures.new("__grain", type='NOISE')
     return t
+
+
+def _alpha_delivery():
+    """T1_ALPHA -- the RGBA delivery switch, read LITERALLY rather than through
+    _envi().  Both verify_clone.sh and audit_brief.py require that a T1_* named
+    in the brief appear as a literal `os.environ.get("T1_...")`, and the header
+    of that check says in terms: *"If this ever needs loosening again, loosen
+    BOTH or neither.  The fix belonged in the new code."*  Rev 57b loosened one
+    copy and not the other and was caught by the repository's own verifier.  So
+    this reads the environment the way the check demands instead of relaxing the
+    check.  Evaluated per call, so the switch can be toggled between renders."""
+    return int(os.environ.get("T1_ALPHA", "0") or 0)
 
 
 def composite_on_white(scene, rgb=None, optics=True):
@@ -929,6 +1048,43 @@ def composite_on_white(scene, rgb=None, optics=True):
             x += 250
         except Exception as e:
             log.append("bloom SKIPPED (%s)" % e)
+
+    # --- rev 62: THE DELIVERY BRANCH.  STOP HERE AND KEEP THE ALPHA. -----
+    #
+    # WHY THIS EXISTS.  The owner ruled the render is "to plug into company
+    # merch with different backgrounds" (F155), and F155 spelled out the
+    # consequence: the white cyclorama is SCAFFOLDING, not the deliverable.
+    # Everything below this point bakes the backdrop in and cannot be undone
+    # downstream -- an AlphaOver destroys the alpha, and a vignette darkens the
+    # corners of a background he is going to replace.
+    #
+    # WHAT IS KEPT AND WHY, rather than "optics off":
+    #   contact shadow  KEPT.  It is the reason this works at all.  The shadow
+    #                   is PARTIAL ALPHA, not grey pixels, so it composites
+    #                   correctly over a background of ANY colour.  Baked on
+    #                   white it would only ever be right on white.
+    #   bloom           KEPT.  It runs on the linear render BEFORE the white,
+    #                   so it is a property of the subject and the taking lens,
+    #                   not of the backdrop.
+    #   CA              DROPPED.  Dispersion is a property of the whole
+    #                   PROJECTED IMAGE including whatever he composites behind
+    #                   it; applying it to the cut-out alone puts colour
+    #                   fringes on the vehicle's silhouette that will not match
+    #                   his background.  His compositor applies it, or nobody
+    #                   does.
+    #   vignette, grain DROPPED, same argument and more strongly: a vignette on
+    #                   a transparent asset darkens the corners of nothing, and
+    #                   grain that stops at the silhouette is a visible tell.
+    #
+    # SPEC sec.6 locks the BACKDROP to pure white.  This does not contradict
+    # that: it declines to render a backdrop at all, and the shipped default is
+    # unchanged -- T1_ALPHA is OFF unless asked for.
+    if _alpha_delivery():
+        out = nt.nodes.new("CompositorNodeComposite"); out.location = (x + 240, -60)
+        nt.links.new(src, out.inputs[0])
+        log.append("T1_ALPHA: RGBA delivery -- white backdrop, CA, vignette "
+                   "and grain all SKIPPED; contact shadow and bloom KEPT")
+        return log
 
     # --- lay over pure white --------------------------------------------
     bg = nt.nodes.new("CompositorNodeRGB"); bg.location = (x - 200, -300)
@@ -1235,6 +1391,15 @@ def setup_render(res=(1600, 1100), samples=64, transparent=False):
     sc.render.dither_intensity = 1.0
     sc.render.image_settings.file_format = 'PNG'
     sc.render.image_settings.compression = 15
+    # rev 62, T1_ALPHA: the DELIVERY mode.  The owner's ruling is that this
+    # render goes "on different backgrounds for promotional material", so the
+    # backdrop is not the deliverable and must not be baked in.  RGBA keeps the
+    # film alpha -- and with it the CONTACT SHADOW, which lives in partial
+    # alpha, not in grey pixels.  See composite_on_white's T1_ALPHA branch.
+    if _alpha_delivery():
+        sc.render.image_settings.color_mode = 'RGBA'
+    else:
+        sc.render.image_settings.color_mode = 'RGB'
     # a real lens is not a box filter. 1.5 px is close to a photographic MTF
     # and stops the render looking laser-etched at hero resolution.
     # (Cycles owns this in 4.x; RenderSettings.filter_width is BI-era.)
@@ -1479,6 +1644,12 @@ def _cull_foreground(loc, tgt, margin=2.20, log=print):
 def render_set(names, outdir, prefix="r", res=(1600, 1100), samples=64,
                transparent=True, log=print, matte=None):
     sc = setup_render(res, samples, transparent)
+    # rev 58, F51: the choke point every preview render goes through.  An
+    # unlit scene is a valid, cheap, silently-wrong PNG; refuse it here rather
+    # than let a later reader discover it by looking.  T1_NORIG=1 is the
+    # ablation that watches this fail.
+    _nl, _w, _ws = assert_lit(sc, why="render")
+    log("rig: %d light(s), %.0f W total, world %.3f" % (_nl, _w, _ws))
     fx = []
     if transparent:
         fx = composite_on_white(sc)

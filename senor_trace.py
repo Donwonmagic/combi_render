@@ -2,6 +2,12 @@
 senor_trace.py -- the word `Senor` of the flank lockup, reconstructed by
 medial-axis tracing of the MEASURED ink mask.
 
+READ `THE TILDE, REV 59` BELOW BEFORE YOU TRUST ANY NUMBER IN THIS HEADER.
+Everything between `HOW THE GEOMETRY WAS DERIVED` and `ACCURACY ACHIEVED`
+describes the rev-9 trace and its 934 px reference.  THAT REFERENCE WAS
+MISSING THE TILDE.  It has been re-baked (1062 px), the tilde is drawn, and
+the figures in `ACCURACY ACHIEVED` are superseded by the rev-59 block.
+
 WHY THIS FILE EXISTS
 `script_gen.py` draws `Tacombi` from control points read off ref_side.jpg by
 eye, and it drew `Senor` the same way -- except that `Senor` is tarnished to a
@@ -29,7 +35,11 @@ lockup used to be 99 px tall against the reference's 114: the top third of the
 `S` was never drawn at all.  draw_senor() adds `ypad` to every y it emits, so
 the caller must pass ypad >= 12 for the whole word to land on the canvas.
 
-HOW THE GEOMETRY WAS DERIVED  (no control point in this file was placed by eye)
+HOW THE GEOMETRY WAS DERIVED  (no control point in this file was placed by eye
+-- rev 59: still true of every coordinate, INCLUDING the tilde, whose points
+are a distance-transform ridge.  What WAS chosen rather than measured is the
+window the tilde was cut out of, and it was chosen by ablation with the sweep
+printed -- see THE TILDE, REV 59.)
   1. Crop labels 1-5 of glyph_lab.npy -- 934 px, 6 connected components.
   2. Upsample x6 (bilinear on the indicator), Gaussian sigma = 0.55 SOURCE px
      (3.3 px at 6x), rethreshold at 0.5.  That sigma is chosen to erase the
@@ -129,7 +139,11 @@ WHAT THIS REPRODUCES, INCLUDING ITS WARTS
   right, bridge _STROKES[0]->[1]->[2] and re-score.  Doing it now would be
   inventing ink the photograph does not show.
 
-ACCURACY ACHIEVED  (python3 senor_trace.py re-derives these)
+ACCURACY ACHIEVED  (rev 9 -- SUPERSEDED AT REV 59, see THE TILDE, REV 59)
+  RETRACTED, NOT DELETED: every figure in this block is scored against the
+  934 px bake that had no tilde in it.  `python3 senor_trace.py` no longer
+  prints any of them.  The live figures are in the rev-59 block below.
+
   IoU against the 934 px measured `Senor` mask, rasterised through a faithful
   clone of script_gen.Canvas at SS=12 and thresholded the way compare_script
   does (alpha > 96):
@@ -152,10 +166,124 @@ ACCURACY ACHIEVED  (python3 senor_trace.py re-derives these)
   on the outline (script_ink.md sec.8).  Agreement with the mask is not the
   same as agreement with the paint.
 
+THE TILDE, REV 59 -- THE ONE STROKE THIS FILE NEVER DREW
+  THE DEFECT.  The `n~` had no tilde.  `_STROKES` carried two remnants of one
+  and nothing else: a 3 px vertical stub at (45.33, 7.33)..(45.00, 10.33) and a
+  lone inscribed disc at (51.67, 4.33, 1.67), which draw_senor() has a special
+  branch for.  That is the signature of SPUR_PRUNE_PX = 3.0 eating a stroke
+  that arrived thin and in fragments -- and the header above already records
+  the source mask arriving in SIX pieces, two of them 16 and 15 px.
+
+  WHY NOTHING CAUGHT IT.  The trace graded itself against a mask baked into
+  this file from out/glyph_lab.npy, and THAT mask had no tilde either.  Two
+  reference masks over the identical window, mask x 6..88 / y -12..27:
+
+      senor_trace._ref_mask()      934 px    (what the trace was fitted to)
+      compare_script.ref_mask()   1176 px    (what the live gate scores against)
+      both 930, trace-only 4, live-only 246, IoU 0.788
+
+  The trace's was a strict SUBSET.  Of the 246: 118 px the tilde, 88 px the
+  Tacombi swash crossing rows 23..27 (not this trace's ink), the rest edge
+  slop.  Nothing in the repo compared the two, so the trace reported 0.913
+  while the owner reported he could not read the word.  check_ref_agrees()
+  is that comparison, and it is now a row.
+
+  THE INK IS REAL, AND THIS IS NOT A12.  In mask rows y 1..9, cols x 35..63
+  (ref_side.jpg x 360-388, y 487-495) compare_script.ref_mask() carries 186 px
+  against the pre-rev-59 generator's 73 -- less than half of it drawn.  Mean RGB
+  over that rectangle is (76.1, 40.5, 34.8) against clean red 30 rows above, same
+  columns, at (64.0, 13.8, 9.3): G +27 and B +26 on a red channel that is if
+  anything HIGHER, which is the tarnish signature script_gen.TARNISH_K already
+  documents, not a shadow.  Redness 0.279 against a red ground of
+  0.604 +- 0.045 -- 7.3 sigma.  31.4 % of that rectangle passes the strict
+  T_SILVER = 0.1409 rule against 10.0 % of the whole `Senor` box.  A12 forbids
+  inventing ink the photograph does not show; this restores ink the photograph
+  DOES show and a superseded segmentation dropped.
+
+  ONE CORRECTION TO THE BRIEF THAT SENT ME HERE, since it will be quoted again:
+  it put that band at "reference 230 px, generated 115", redness 0.290 against
+  0.687 +- 0.076 (5.2 sigma), and 47.4 % / 28.0 % under T_SILVER.  Re-measured
+  over the window it names, on this tree, the figures above are what print.
+  THE CONCLUSION IS UNCHANGED AND IF ANYTHING STRONGER (7.3 sigma, not 5.2) --
+  but the figures moved, so they are corrected here rather than transcribed.
+
+  THE DEPARTURE, DECLARED: NO skimage.  Step 3 of HOW THE GEOMETRY WAS DERIVED
+  calls skimage.morphology.medial_axis.  SKIMAGE IS NOT INSTALLED IN THIS TREE
+  AND out/glyph_lab.npy IS GONE, so step 3 cannot be re-run as written and the
+  tilde could not be derived the way the other 24 strokes were.  What was used
+  instead, and it is a different instrument, not the same one:
+
+      3'. scipy.ndimage.distance_transform_edt on the upsampled, sigma = 0.55
+          smoothed indicator (steps 1-2 unchanged).  RIDGE = the crest of that
+          transform: a pixel where E >= both neighbours along at least one of
+          the four axes, closed 3x3, largest component kept.
+      4'. Spine = the LONGEST GEODESIC PATH across that ridge (double Dijkstra
+          on the 8-connected ridge graph).  This replaces step 4's junction
+          clustering and its 3.0 px leaf prune: taking the longest path drops
+          every shorter branch by construction, so the prune length is not a
+          free parameter here.  It also means THIS STROKE HAS NO BRANCHES,
+          which the medial axis would have given it.
+      5-6 unchanged: half-width is the distance transform sampled along the
+          spine, nothing added; cubic smoothing spline; 1.25 px point spacing.
+
+  Achieved on this stroke, watched printing: spine 160 ridge px, geodesic
+  length 30.85 source px, axis 0.283 px RMS / 0.740 px peak (the file's
+  AXIS_TOL_RMS_PX is 0.20 / 0.60 -- THIS STROKE IS LOOSER THAN THE OTHER 24 AND
+  THAT IS STATED, not smoothed away), half-width RMS 0.100 px, half-width
+  p50 2.01 / p90 2.76 source px, 26 points.
+
+  THE BAND, AND THE ABLATION THAT SET IT.  The tilde is fused to the `e`, the
+  `n~` and the `o` -- one ink mass, as COUNTERS above already says -- so the
+  source has to be cut out of the reference by a window.  Window mask
+  x 38..64, y <= YB, largest component.  YB was ABLATED BEFORE IT WAS CHOSEN
+  (rule 36), scoring the whole word against the re-baked reference:
+
+      YB              5      6      7      8*     9     10     11
+      Senor IoU     .8336  .8634  .8752  .8859  .8727  .8727  .8608
+      ref-only px    150    114    101     91    102    102    116
+      gen-only px     32     36     36     34     38     38     37
+
+  Over-draw (gen-only) is FLAT across the whole sweep at 32-38 px, so this is
+  not a wider stroke buying score: past YB = 8 the spine simply stops following
+  the tilde and starts descending into the `n~`, and the IoU falls.  That is
+  where the tilde's own ink ends.  The x limits are a plateau, not a knife
+  edge: XA 36/37/38/39/40 -> .8840/.8827/.8859/.8815/.8743 and XB saturates at
+  63 (.8786/.8841/.8859/.8859 for 61/62/63/64) because the ink stops there.
+
+  THE S IS STILL BROKEN AND THAT IS DELIBERATE.  NOT TOUCHED AT REV 59 and NOT
+  re-measured at rev 59 either.  WHAT THIS REPRODUCES above is the record: the
+  break is what the chromaticity segmentation measured, the render shows the `S`
+  in three pieces because this file draws it in three pieces, and bridging
+  _STROKES[0]->[1]->[2] would be inventing ink.  It is an OWNER decision, not
+  this file's.  The re-baked reference does not change it -- the rev-9 bake and
+  the live mask agree across the `S` (the `S` box moved 351 -> 355 ref px).
+
+  WHAT REV 59 DID NOT FIX, with its number.  Against the re-baked reference the
+  word scores 0.8859 and 91 px of reference ink are still undrawn (34 px are
+  drawn that the reference does not carry).  The 91 are SCATTERED -- no cluster
+  larger than about 15 px.  The two largest are ~15 px at mask x 28..31,
+  y 8..14 (the `S`-to-`e` junction) and ~14 px at x 51..55, y 8..12 (the fused
+  `n~`/`o` mass).  One tilde stroke cannot reach either; they are a separate,
+  unfixed deficit and they are NOT the tilde.
+
+  ACCURACY, REV 59 (python3 senor_trace.py re-derives all of these):
+
+      before: Senor 0.9134 against the 934 px bake  -- BUT THE BAKE WAS WRONG
+      re-baked reference alone, strokes untouched:  Senor 0.8135
+      with the tilde stroke:                        Senor 0.8859
+
+      S 0.8825   e 0.7824   n~ 0.8713   o 0.8340   r 0.9144
+
+  The first number and the third are not comparable and must not be quoted as a
+  regression: the reference under them is a different mask.  0.8135 is what the
+  rev-9 strokes were always worth against the ink the photograph actually
+  carries; 0.9134 was the score of a trace against its own blind spot.
+
 USE
     import senor_trace
     senor_trace.draw_senor(canvas, ypad=16)
 """
+import os
 import numpy as np
 
 # script_gen.py mask-space origin in ref_side.jpg pixels, for reference only.
@@ -296,12 +424,6 @@ _STROKES = [
     (  45.83,   15.83,  2.54),
     ])),
     ("ntilde", np.array([
-    (  45.33,    7.33,  0.70),
-    (  45.38,    8.35,  0.98),
-    (  45.19,    9.34,  1.80),
-    (  45.00,   10.33,  2.69),
-    ])),
-    ("ntilde", np.array([
     (  45.17,   10.50,  2.78),
     (  46.36,   10.49,  1.75),
     (  47.40,   10.50,  1.04),
@@ -346,8 +468,43 @@ _STROKES = [
     (  52.83,   14.83,  3.11),
     (  52.83,   14.83,  3.11),
     ])),
-    ("o", np.array([
-    (  51.67,    4.33,  1.67),
+    # ------------------------------------------------------------ REV 59
+    # THE TILDE.  Derived by this file's own step 5 from the RE-BAKED
+    # reference (see THE TILDE, REV 59 in the header): ridge of the
+    # distance transform over the band mask x 38..64, y <= 8, spline-fitted
+    # at the same tolerances as every other stroke here.  It ABSORBS the
+    # 3 px vertical stub that used to sit at (45.33, 7.33)..(45.00, 10.33)
+    # and the lone inscribed disc at (51.67, 4.33, 1.67) -- both were
+    # remnants of a tilde that SPUR_PRUNE_PX had eaten, and both are gone
+    # from the list above.  Deleting the stub costs 0.0000 IoU and deleting
+    # the disc costs 0.0010; watched, both ways.
+    ("ntilde", np.array([
+    (  38.55,    3.47,  0.35),
+    (  39.53,    3.42,  1.12),
+    (  40.50,    3.78,  1.81),
+    (  41.48,    4.43,  2.18),
+    (  42.46,    5.24,  2.29),
+    (  43.46,    6.07,  2.20),
+    (  44.48,    6.80,  2.00),
+    (  45.55,    7.30,  1.75),
+    (  46.64,    7.49,  1.53),
+    (  47.74,    7.42,  1.45),
+    (  48.79,    7.13,  1.61),
+    (  49.80,    6.70,  2.01),
+    (  50.78,    6.16,  2.48),
+    (  51.73,    5.58,  2.71),
+    (  52.69,    5.00,  2.57),
+    (  53.66,    4.49,  2.28),
+    (  54.69,    4.10,  2.05),
+    (  55.77,    3.88,  2.02),
+    (  56.87,    3.89,  2.18),
+    (  57.96,    4.18,  2.48),
+    (  59.01,    4.73,  2.80),
+    (  60.02,    5.45,  2.90),
+    (  60.97,    6.26,  2.57),
+    (  61.86,    7.06,  1.80),
+    (  62.70,    7.78,  0.90),
+    (  63.48,    8.32,  0.35),
     ])),
     ("o", np.array([
     (  59.17,    4.67,  1.72),
@@ -492,6 +649,75 @@ def _chunks(pts, w, max_turn=0.45, max_len=6.0):
     return out
 
 
+# ---------------------------------------------------------------------- rev 61
+# THE OWNER'S RULING, AND IT IS THE ONE THIS FILE HAS BEEN WAITING FOR.
+#
+# *[owner, rev 61]* "senor Tacombi should be clearer in the render than in that
+# photo. Well defined. I want this 3d model to look like new. Enhanced from
+# the photo"
+#
+# The block above says, in this file's own words: "THE S IS STILL BROKEN AND
+# THAT IS DELIBERATE ... bridging _STROKES[0]->[1]->[2] would be inventing ink.
+# It is an OWNER decision, not this file's."  It is now his decision and he has
+# made it.  The `S` arrives from the chromaticity segmentation in three pieces
+# ONLY because the word is tarnished in ref_side.jpg -- this file already
+# recorded that "they are almost certainly artefacts of the tarnish and not of
+# the paint -- the real letter is surely continuous".  So the breaks are
+# bridged, and the RESTORED letter is what ships.
+#
+# WHAT IS AND IS NOT INVENTED.  The bridges span measured endpoint to measured
+# endpoint, and the half-width at each end is the MEASURED half-width there;
+# only the path between them is constructed, as a quadratic Bezier whose
+# control point is where the two measured tangents intersect, so the join is
+# tangent-continuous with the ink either side of it.  Nothing outside the two
+# measured endpoints moves.
+#
+# THE ABLATION.  T1_SENOR_BREAKS=1 restores the tarnish-faithful `S`, which is
+# what every figure in the ACCURACY block above was scored against.  Any
+# re-score of those figures must set it.
+_S_FRAG = (0, 1, 2)                      # the three `S` pieces, in stroke order
+
+
+def _bezier_bridge(a, b, n=9):
+    """Tangent-continuous span from the END of fragment a to the START of b."""
+    p0, p1 = a[-1, :2], b[0, :2]
+    t0 = p0 - a[-2, :2]
+    t1 = b[1, :2] - p1
+    n0 = np.linalg.norm(t0) or 1.0
+    n1 = np.linalg.norm(t1) or 1.0
+    t0, t1 = t0 / n0, t1 / n1
+    # control point: intersection of the two tangent rays, clamped to a sane
+    # distance so a near-parallel pair cannot throw it to infinity.
+    den = t0[0] * (-t1[1]) - t0[1] * (-t1[0])
+    gap = float(np.linalg.norm(p1 - p0))
+    if abs(den) < 1e-6:
+        ctrl = (p0 + p1) * 0.5
+    else:
+        d = p1 - p0
+        u = (d[0] * (-t1[1]) - d[1] * (-t1[0])) / den
+        u = float(np.clip(u, 0.0, 1.5 * gap))
+        ctrl = p0 + t0 * u
+    w0, w1 = float(a[-1, 2]), float(b[0, 2])
+    ts = np.linspace(0.0, 1.0, n + 2)[1:-1]
+    out = []
+    for t in ts:
+        q = ((1 - t) ** 2) * p0 + 2 * (1 - t) * t * ctrl + (t ** 2) * p1
+        out.append((q[0], q[1], w0 + (w1 - w0) * t))
+    return np.array([[p0[0], p0[1], w0]] + out + [[p1[0], p1[1], w1]])
+
+
+def _senor_bridges():
+    """The two spans that make the `S` one continuous letter.  [] if ablated."""
+    if os.environ.get("T1_SENOR_BREAKS") == "1":
+        return []
+    out = []
+    for i, j in zip(_S_FRAG[:-1], _S_FRAG[1:]):
+        a, b = _STROKES[i][1], _STROKES[j][1]
+        if len(a) >= 2 and len(b) >= 2:
+            out.append(("S_bridge", _bezier_bridge(a, b)))
+    return out
+
+
 def draw_senor(c, ypad=0):
     """Draw `Senor` into a script_gen.Canvas.
 
@@ -499,7 +725,7 @@ def draw_senor(c, ypad=0):
     space, so ypad must be at least 12 for the top of the `S` to be drawn.
     Uses only c.stroke(pts, w) and c.cut(pts); no canvas dimension is read.
     """
-    for _name, a in _STROKES:
+    for _name, a in list(_STROKES) + _senor_bridges():
         pts = np.c_[a[:, 0], a[:, 1] + ypad]
         w = a[:, 2]
         if len(pts) < 2:                      # a lone inscribed disc
@@ -520,15 +746,64 @@ def draw_senor(c, ypad=0):
 # ---------------------------------------------------------------------------
 _SS = 12
 
+# ---------------------------------------------------------------------------
+# THE REFERENCE, RE-BAKED AT REV 59 -- AND WHY IT HAD TO BE
+#
+# The bits below USED to be labels 1-5 of out/glyph_lab.npy, 934 px.  That file
+# and the skimage install that produced it are BOTH GONE from this repo, and
+# _crosscheck() had been printing "(glyph_lab.npy not present -- baked mask not
+# cross-checked)" ever since, silently.  So the trace was grading itself against
+# a mask nobody could reproduce, and that mask WAS MISSING THE TILDE: 118 px of
+# `Senor` ink, dead centre over the `n`, that the live segmentation has and the
+# baked one did not.  The trace scored 0.913 against it and the owner still
+# could not read the word.
+#
+# NOT A12.  A12 forbids "inventing ink the photograph does not show".  This is
+# the opposite: the photograph DOES show it, compare_script.ref_mask() -- the
+# mask the LIVE gate scores against -- carries it, and it survives the strict
+# T_SILVER rule.  This restores ink a superseded segmentation dropped.
+#
+# HOW THESE BITS WERE MADE, so they can be made again:
+#   rows y in -12..22   compare_script.ref_mask(), window mask x 6..88,
+#                       minus _SWASH_EXCLUDE below.  _rebake_ref() does exactly
+#                       this and check_ref_agrees() asserts the two still agree.
+#   rows y in 23..27    KEPT VERBATIM from the rev-9 bake.  The Tacombi swash
+#                       runs right through those rows on its way under the word
+#                       (88 px of it inside this window), it is script_gen's ink
+#                       and not this trace's, and connectivity cannot separate
+#                       it -- the whole lockup is ONE component of 8967 px.
+#                       Those rows are therefore NOT re-baked and NOT guarded;
+#                       that is the guard's declared blind spot.
+# Total 1062 px against the old bake's 934.  Watched printing.
+#
+# _SWASH_EXCLUDE is the swash where it crosses rows -12..22 of this window.
+# It was NOT placed by eye: it is script_gen's own lockup built with
+# draw_senor() suppressed -- i.e. the Tacombi half, drawn from control points
+# that have nothing to do with this file -- intersected with this window and
+# with the complement of the rev-9 bake.  30 px, painted and looked at before
+# it was adopted; 27 of them are the swash rising past the `r` at the right
+# edge and 3 are isolated crossings under the word.  FOUR OF THE THIRTY ARE
+# NO-OPS -- the generator's swash covers them but the photograph's mask does
+# not -- so the re-bake actually removes 26.  1176 - 88 (the swash in rows
+# 23..27, which is why those rows are not re-baked) - 26 = 1062.
+_SWASH_EXCLUDE = (
+    (86, 15), (88, 16), (87, 17), (88, 17), (86, 18), (87, 18),
+    (88, 18), (47, 19), (85, 19), (86, 19), (87, 19), (88, 19),
+    (84, 20), (85, 20), (86, 20), (87, 20), (88, 20), (43, 21),
+    (83, 21), (84, 21), (85, 21), (86, 21), (87, 21), (88, 21),
+    (54, 22), (84, 22), (85, 22), (86, 22), (87, 22), (88, 22),
+)
+_REBAKE_Y_MAX = 22              # rows above this are re-baked AND guarded
+
 _REF_B64 = (
-    "AeAAAAAAAAAAAAH/AAAAAAAAAAAAf/AAAAAAAAAAAB//AAAAAAAAAAAD//AAAAAAAAAAAH8/"
-    "AAAAAAAAAAAf5/AAAAAAAAAAA/z/AAAAAAAAAAD/j8AAAAAAAAAAH/AAAAAAAAAAAAP+AAAA"
-    "AAAAAAAAP+AAAAAAAAAAAAP/8AAAAAAAAAAAf/+ABAAAAAAAAAf/+APAAcEAAAAAf/+A8AB8"
-    "cAAAAAf/+DwADx4AAAAAP/+HAAHDwAAAAAH/8GAAED4AAAAAAH4OAIAH4AAAAAADn8D4APwH"
-    "AAAAAAf8P5AfgfIAAAAAf5//g/B88AAAAA///nh//w8AAAAD//+Ph//g8AAEAH/4cfh//A4E"
-    "AcAGHw8/D/+A4YAcAgPz/+Hx+B8wA4Dgf//8Hh8H/AB4Pg///4PD4P8AB//B/+Bg/HwPwAB/"
-    "8B/8AA/PwfAAB/wA//gA8Ph8AAAfAAB/gAAPjwAAAAAAD/wAAP/AAAAAAAH/+AAHwAAABAAA"
-    "P//wADAAAAHgAAAP/wAAAAAAPgAAAP/gAAAAAAPgAAAAGAAAAA=="
+    "AeAAAAAAAAAAAAH/AAAAAAAAAAAAf/AAAAAAAAAAAB//AAAAAAAAAAAD//AAAAAAAAAAAH"
+    "8/AAAAAAAAAAAf5/AAAAAAAAAAA/z/AAAAAAAAAAD/j8AAAAAAAAAAH/AAAAAAAAAAAAP+"
+    "AAAAAAAAAAAAP+AAAAAAAAAAAAP/8AAAAAAAAAAAf//ABAAADAAAAAf//gPeA//gAAAAf/"
+    "/g/+D//gAAAAf//j5+H//AAAAAP//Hz+P/8AAAAAAf8Hj//H4AAAAAAH4PD/+H4AAAAAAD"
+    "n/H/+PwHAAAAAAf///+fgfIAAAAAf///8/B88AAAAA///n5//w8AAAAD//+Px//g8AAEAH"
+    "/4cfh//A4EAcAGPw8/D/+A4YAcAgfz/+Hx+B8wA4Dg///8Hh8H/AB4Ph///4PD4P8AB//B"
+    "/+Bg/HwPwAB/8B/8AA/PwfAAB/wA//gA8Ph8AAAfAAB/gAAPjwAAAAAAD/wAAP/wAAAAAA"
+    "H/+AAHwAAABAAAP//wADAAAAHgAAAP/wAAAAAAPgAAAP/gAAAAAAPgAAAAGAAAAA=="
 )
 _REF_X0, _REF_Y0, _REF_W, _REF_H = 6, -12, 83, 40
 _GLYPH_BOXES = [
@@ -540,11 +815,90 @@ _GLYPH_BOXES = [
 ]
 
 def _ref_mask():
-    """The measured `Senor` ink: labels 1-5 of out/glyph_lab.npy, 934 px,
-    packed row-major over mask-space x 6..88, y -12..27."""
-    import base64
+    """The measured `Senor` ink, packed row-major over mask-space
+    x 6..88, y -12..27.  1062 px.  Rows y <= _REBAKE_Y_MAX come from
+    compare_script.ref_mask() minus _SWASH_EXCLUDE (re-baked at rev 59);
+    rows below that are the rev-9 bake, kept because the Tacombi swash
+    crosses them.  See THE REFERENCE, RE-BAKED AT REV 59 above.
+
+    T1_ST_REFDRIFT=1 is the ABLATION: it flips one bit of these constants so
+    that check_ref_agrees() must go red.  Watched failing, both ways."""
+    import base64, os
     bits = np.unpackbits(np.frombuffer(base64.b64decode(_REF_B64), np.uint8))
-    return bits[:_REF_H * _REF_W].reshape(_REF_H, _REF_W).astype(bool)
+    m = bits[:_REF_H * _REF_W].reshape(_REF_H, _REF_W).astype(bool)
+    if os.environ.get("T1_ST_REFDRIFT"):
+        m = m.copy()
+        m[10, 40] = ~m[10, 40]          # mask (x, y) = (46, -2), inside the guard
+    return m
+
+
+def _rebake_ref():
+    """Recompute the reference from the LIVE mask the gate scores against.
+
+    This is the derivation _REF_B64 was baked from, kept runnable so the bake
+    is reproducible now that out/glyph_lab.npy is gone.  Returns the same
+    (_REF_H, _REF_W) array: rows y <= _REBAKE_Y_MAX from
+    compare_script.ref_mask() minus _SWASH_EXCLUDE, rows below kept from the
+    baked constants.  Raises rather than guessing if compare_script's window
+    origin ever moves away from this file's.
+    """
+    import compare_script as C
+    if (C.X0, C.Y0) != (X0, Y0):
+        raise RuntimeError("compare_script window moved: (%d,%d) vs (%d,%d)"
+                           % (C.X0, C.Y0, X0, Y0))
+    live = C.ref_mask()
+    r0 = _REF_Y0 + C.YPAD                        # mask y -> ref_mask() row
+    sub = live[r0:r0 + _REF_H, _REF_X0:_REF_X0 + _REF_W].copy()
+    for x, y in _SWASH_EXCLUDE:
+        sub[y - _REF_Y0, x - _REF_X0] = False
+    baked = _ref_mask()
+    sub[_REBAKE_Y_MAX + 1 - _REF_Y0:, :] = baked[_REBAKE_Y_MAX + 1 - _REF_Y0:, :]
+    return sub
+
+
+def check_ref_agrees(verbose=True):
+    """THE GUARD (rev 59).  Two reference masks over the same window silently
+    disagreed for fifty revisions -- senor_trace's baked 934 px against
+    compare_script's live 1176 px, IoU 0.788 -- and the difference WAS the
+    missing tilde.  Nothing compared them, so nothing said so.
+
+    This does: exact, pixel-for-pixel, over the guarded window (mask
+    x 6..88, y -12..%d, minus the %d _SWASH_EXCLUDE pixels).  A divergence is
+    a FINDING, not a tolerance.  Returns (ok, n_disagree, n_guarded).
+
+    It NEEDS ref_side.jpg in the working directory.  If it cannot read it the
+    answer is "NO REFERENCE", not a number (rule 37).
+    """ % (_REBAKE_Y_MAX, len(_SWASH_EXCLUDE))
+    try:
+        live = _rebake_ref()
+    except Exception as e:                       # missing frame, moved window
+        if verbose:
+            print("  NO REFERENCE -- cannot read the live mask: %s" % e)
+        return (False, -1, -1)
+    baked = _ref_mask()
+    rows = slice(0, _REBAKE_Y_MAX + 1 - _REF_Y0)
+    d = baked[rows] != live[rows]
+    n = int(d.sum())
+    guard = np.ones_like(d)
+    for x, y in _SWASH_EXCLUDE:
+        if y <= _REBAKE_Y_MAX:
+            guard[y - _REF_Y0, x - _REF_X0] = False
+    ng = int(guard.sum())
+    ok = n == 0
+    if verbose:
+        print("  baked reference AGREES with compare_script.ref_mask(): "
+              "%s (%d disagree of %d guarded px, baked %d, live %d)"
+              % ("yes" if ok else "NO", n, ng, int(baked.sum()),
+                 int(live.sum())))
+        if not ok:
+            ys, xs = np.nonzero(d)
+            first = ["(%d,%d)" % (x + _REF_X0, y + _REF_Y0)
+                     for x, y in list(zip(xs, ys))[:8]]
+            print("  THE TWO REFERENCES HAVE DIVERGED at mask %s%s"
+                  % (", ".join(first), " ..." if n > 8 else ""))
+            print("  Re-bake with _rebake_ref() and say in the ledger WHY the "
+                  "live mask moved -- do not relax this row.")
+    return (ok, n, ng)
 
 
 class _Canvas:
@@ -662,15 +1016,84 @@ def selftest(threshold=96, verbose=True):
         print()
         print("  strokes %d, points %d, cuts %d"
               % (len(_STROKES), sum(len(a) for _, a in _STROKES), len(_CUTS)))
+        print()
+        # ------------------------------------------------------- rev 61 guard
+        # THE OWNER'S RULING IS ABOUT CONNECTIVITY, SO CONNECTIVITY IS WHAT IS
+        # GUARDED -- NOT IoU.  He ruled the word must read "well defined ...
+        # like new, enhanced from the photo".  IoU against the TARNISHED mask
+        # cannot express that and in fact moves the WRONG WAY when the letter
+        # is restored: bridging lifts the `S`'s drawn ink 334 -> 369 px while
+        # its intersection with the reference moves 323 -> 324, because the
+        # bridged spine covers ink the tarnished photograph does not show.
+        # That is the ruling working as intended, not a regression, and the
+        # `S` IoU MUST NOT be "repaired" by removing the bridges.
+        # WATCHED BOTH WAYS (rule 3 -- a guard is finished when it has been
+        # watched failing): shipped 1 component, T1_SENOR_BREAKS=1 gives 3.
+        from scipy import ndimage as _ndi
+        _nS = _nR = -1
+        for _n, _x0, _y0, _x1, _y1 in _GLYPH_BOXES:
+            if _n != "S":
+                continue
+            _sl = (slice(_y0 - oy, _y1 - oy), slice(_x0 - ox, _x1 - ox))
+            _lg, _nS = _ndi.label(G[_sl])
+            _lr, _nR = _ndi.label(R[_sl])
+            _gs = sorted((int(v) for v in _ndi.sum(G[_sl], _lg,
+                                                   range(1, _nS + 1))),
+                         reverse=True)
+            _rs = sorted((int(v) for v in _ndi.sum(R[_sl], _lr,
+                                                   range(1, _nR + 1))),
+                         reverse=True)
+            # AREA FLOOR: count LETTER PIECES, not specks.  The `S` box
+            # (x 4-32) overlaps the `e` box (x 26-42), so a few px of the `e`
+            # fall inside it; an 8 px speck is not a broken letter.  Floor at
+            # 5 % of the largest piece -- watched: restored [361, 8] -> 1,
+            # ablated [256, 61, 23, 15] -> 4.
+            _gs = [v for v in _gs if v >= 0.05 * max(_gs or [1])]
+            _rs = [v for v in _rs if v >= 0.05 * max(_rs or [1])]
+            _nS, _nR = len(_gs), len(_rs)
+            print("     component sizes (>=5%% of largest)  gen %s   ref %s"
+                  % (_gs, _rs))
+        _abl = os.environ.get("T1_SENOR_BREAKS") == "1"
+        print("  S CONNECTIVITY -- the owner's rev-61 ruling, and NOT IoU")
+        print("     rasterised `S` components: %d      (measured/tarnished "
+              "reference mask: %d)" % (_nS, _nR))
+        print("     bridges drawn: %d   %s" % (len(_senor_bridges()),
+              "TARNISH-FAITHFUL (ablated)" if _abl else "RESTORED per the ruling"))
+        # WATCHED BOTH WAYS (rule 3): restored gen [361] -> 1 component,
+        # ablated gen [251, 61, 14] -> 3.  The 3 confirms this file's own
+        # prose ("an upper C, a detached lower bowl and a 15 px tail
+        # fragment").  RETRACTED IN THE SAME EDIT, rev 61: a first cut of this
+        # guard counted specks and read 2/4, and a comment here "corrected"
+        # the prose to 4.  The prose was right and the guard was wrong -- the
+        # 4 is the REFERENCE mask [256, 61, 23, 15], not the generated one.
+        _want = 3 if _abl else 1
+        print("     [%s] the `S` rasterises as %d component(s); this build "
+              "wants %d" % ("PASS" if _nS == _want else "FAIL", _nS, _want))
+        res["S_components"] = float(_nS)
+        print()
+        # THE GUARD RUNS HERE, not in a comment.  A green IoU against a
+        # reference nobody checked is what shipped the missing tilde.
+        res["ref_agrees"] = float(check_ref_agrees(verbose=True)[0])
     return res
 
 
 def _crosscheck():
-    """If the measurement outputs are still on disk, confirm the baked mask."""
+    """SUPERSEDED AT REV 59 by check_ref_agrees(), which is the row that runs.
+
+    out/glyph_lab.npy has not existed in this repo for as long as anyone has
+    looked, so this printed its "not present" line every single run and no
+    human read it -- which is exactly how the baked mask went fifty revisions
+    without being compared to anything.  It is kept, not deleted, because it is
+    the only record of where the rev-9 bake came from; it is no longer the
+    check.  It says NOT CROSS-CHECKED in those words and never returns a number
+    when the input is absent (rule 37).
+    """
     import os
     p = "/home/claude/work/measure/out/glyph_lab.npy"
     if not os.path.exists(p):
-        print("  (glyph_lab.npy not present -- baked mask not cross-checked)")
+        print("  NOT CROSS-CHECKED against glyph_lab.npy -- the file is absent "
+              "and has been for the life of this repo.")
+        print("  (superseded: check_ref_agrees() above is the live comparison.)")
         return
     lab = np.load(p)
     ink = np.load("/home/claude/work/measure/out/ink_mask.npy")
@@ -684,6 +1107,9 @@ def _crosscheck():
 
 
 if __name__ == "__main__":
-    selftest()
+    import sys
+    _res = selftest()
     print()
     _crosscheck()
+    # A failing guard must be a non-zero exit, not a line in a log nobody reads.
+    sys.exit(0 if _res.get("ref_agrees", 0.0) == 1.0 else 1)

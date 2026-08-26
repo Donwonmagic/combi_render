@@ -340,6 +340,11 @@ for _o, _k in D.cab_fitout():
 # floor is in plain sight from outside -- which is what his report 6, "there
 # seems to be a bar obstructing the front wheel?", was looking at.
 A(D.wheel_houses(), "dark")
+# rev 60 -- F67 / item D.  The pan that closes the underbody, and the one
+# chassis member a frame shows.  See t1_detail.underbody.__doc__ and the
+# block above it for the measurement and for the STATED assumption in its
+# depth.  T1_NOUNDER=1 omits it -- probe_rev45_ground.py's C5 must REFUSE.
+A(D.underbody(), "dark" if os.environ.get("T1_UNDERSEAL") == "0" else "underseal")
 log("conversion fit-out")
 
 # ------------------------------------------------------------- 7 brightwork
@@ -1141,22 +1146,31 @@ if _abl:
             bpy.data.objects.remove(_o, do_unlink=True)
     log("T1_ABLATE removed %d object(s): %s" % (len(_gone), ", ".join(_gone)))
 
+# --------------------------------------------------------------- rev 58, F51
+# THE RIG IS NO LONGER A SIDE EFFECT OF ASKING FOR A PREVIEW.
+#
+# These four calls used to live inside the `if T1_PREVIEW:` below, so every
+# tool that exec'd this file to MEASURE got a scene with no lights -- silently,
+# because an unlit render is a valid and cheap PNG.  That shipped a BLACK BUS
+# delivery frame past every automated check (F51/F52) and it is the cause of
+# F05's dead beauty arm.  The sequence now has ONE definition, `studio.rig()`,
+# and four scripts that duplicated it call that instead.
+#
+# It is built whenever a preview is asked for, and on demand via T1_RIG=1 for
+# anything that execs this file to measure and then renders for itself.
+# T1_NORIG=1 suppresses it: that is the ABLATION that watches `assert_lit`
+# fail, and it must stay reachable or the guard is untested (rule 3).
+_scene = os.environ.get("T1_SCENE", "studio")
+_want_rig = (os.environ.get("T1_PREVIEW") or os.environ.get("T1_RIG")) \
+            and not os.environ.get("T1_NORIG")
+if _want_rig:
+    import studio as ST; importlib.reload(ST)
+    ST.rig_from_env(log=log)
+elif os.environ.get("T1_NORIG"):
+    log("T1_NORIG: rig SUPPRESSED -- studio.assert_lit should now refuse")
+
 if os.environ.get("T1_PREVIEW"):
     import studio as ST; importlib.reload(ST)
-    _scene = os.environ.get("T1_SCENE", "studio")
-    if _scene == "playa":
-        ST.ground_playa()
-    else:
-        ST.cyclorama()
-    if os.environ.get("T1_CLAY"):
-        ST.clay_all()
-    if _scene == "playa":
-        ST.playa(float(os.environ.get("T1_KEY", "1.0")))
-    else:
-        ST.lighting(float(os.environ.get("T1_KEY", "1.0")))
-    # rev 44, SPEC 10.105 -- the cab was built and then rendered invisible.
-    ST.cabin_fill(float(os.environ.get("T1_KEY", "1.0")))
-    ST.camera()
     # rev 9: the Playa scene must NOT go through the studio's alpha-over path.
     # With transparent=True the film is keyed and composite_on_white() lays the
     # frame over pure white -- so ground_playa() renders but the WORLD does

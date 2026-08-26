@@ -17,7 +17,7 @@ straight at the one.
 
 1. **The highest-numbered `NEXT_CONTEXT_PROMPT_rev*.md`** — the live brief. Read
    it first, in full. **Find it with `ls`; do not trust a filename typed in any
-   document, including this line** (`CLAUDE.md`). It was rev 58 when this line was
+   document, including this line** (`CLAUDE.md`). It was rev 63 when this line was
    last touched. Then `CLAUDE.md` (method, loads every session) and the
    highest-numbered `LEDGER_rev*.md`.
 2. **`STATE.md`** — machine-written by `audit.py`. If it and any prose in this
@@ -204,7 +204,8 @@ comment, which is why the historical documents could be foldered.
                                    photographs, SPEC.md, STATE.md,
                                    REF_MEASUREMENTS.md, README.md, the live
                                    brief NEXT_CONTEXT_PROMPT_rev*.md (highest
-                                   number wins -- rev 58 at this edit), CLAUDE.md,
+                                   number wins -- rev 63 at this edit), EMBLEM_HANDOFF.md (the
+                                   CARRIER for the owner's top item), CLAUDE.md,
                                    .gitignore
   docs/                 83 files   37 handoffs, 37 superseded context prompts,
                                    the audit documents, START_HERE, SKEPTIC_PASS
@@ -267,8 +268,16 @@ git push -u origin main
 
 **This section used to be a ranked work list dated rev 42, and it sat here for
 sixteen revisions competing with the live brief.** It is deliberately gone.
-There are exactly two live registers and this file is neither:
+There are exactly three live registers and this file is none of them:
 
+* **`REMAINING_WORK_rev61.md`** — the RANKED EXECUTION LIST, written at rev 60c
+  because the owner asked for *"a comprehensive list of just what exactly is
+  left, so we know what we need to execute"*. It sorts the register's open rows
+  into REAL WORK / CEILED / the owner's call / process debt, and its **§I**
+  carries the rows that were in no document at all. **It is a CARRIER.** It was
+  an ORPHAN for one revision — no file in the repository named it — which is how
+  a carrier gets lost (rule 16); it is named here, in `START_HERE.md`, in the
+  brief's reading order and in `verify_clone.sh` so that cannot recur.
 * **`OPEN_FINDINGS.md`** — every open finding with an ID and a **provenance
   grade** (`MEASURED` / `RECOMPUTED` / `INHERITED` / `RULED` / `CEILED`). It is
   a CARRIER: rows leave it only by being closed with the measurement that closed
