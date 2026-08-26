@@ -246,7 +246,18 @@ AT PICKUP   clone SHALLOW -- the NINTH revision running.  git fetch --unshallow.
             git diff --name-only HEAD...origin/main -> EMPTY (no new photographs).
             origin/claude/bus-model-rev57-yvrlhi now reads 0 ahead, as the rev-66 brief
             predicted it would once rev 64 reached main.
-AT CLOSE    see §8 of NEXT_CONTEXT_PROMPT_rev67.md -- measured there, not transcribed here.
+AT CLOSE    measured after the push, with `git fetch --all --prune` first:
+              shallow: false
+              origin/claude/next-context-prompt-rev66-0rd3kg   ahead 3 / behind 0
+              HEAD                                             3 ahead / 0 behind origin/main
+              NO OTHER remote branch is ahead of origin/main at all.
+              bootstrap.sh row 9 GREEN -- "no branch carries work HEAD does not have".
+              bootstrap.sh ALL 10 PASS ;  verify_clone.sh ALL 322 PASS, clean tree.
+            (The pickup figure is NOT the close figure, and an adversary once caught a
+             brief shipping only the pickup one.  This citation was ALSO wrong on its
+             first writing -- it pointed at the rev-67 brief's SS8, which is the
+             REGISTER section, not the branch.  Rule 18: cite strings, not section
+             numbers you have not re-opened.)
 ```
 
 **THE ONE THING TO CARRY IF ONLY ONE THING IS CARRIED.** *A target is an instrument.* Rev 65
