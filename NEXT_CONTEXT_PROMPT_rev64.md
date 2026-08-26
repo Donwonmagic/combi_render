@@ -97,8 +97,8 @@ F139 stand — but it **inverts the presumption**, and `EMBLEM_HANDOFF.md` §5 i
 
 ```
 bootstrap.sh            ALL 10 PASS
-verify_clone.sh         ALL 285 PASS on a clean tree, AT THE HANDOFF COMMIT
-                        <- 0 FIDELITY, 285 SELF-CONSISTENCY.  THIRTEEN rows moved this
+verify_clone.sh         ALL 287 PASS on a clean tree, AT THE HANDOFF COMMIT
+                        <- 0 FIDELITY, 287 SELF-CONSISTENCY.  THIRTEEN rows moved this
                            revision: SIX emblem constants RE-BASED TOGETHER with the
                            cause named, plus SEVEN companion rows
 audit.py                VERIFY: 0 fail, 0 warn at T1_SUB=2.  STATE.md REGENERATED --
@@ -137,8 +137,8 @@ fill its ring the way both photographs do, the V is too narrow, the W's outer ar
 short, and the strokes are thinner than the pressing's.
 
 **AND HERE IS THE HONEST DISTANCE — THE GATE TABLE, WHICH AN ADVERSARY ONCE CAUGHT A BRIEF
-DROPPING.** `verify_clone.sh` ends **ALL 285 PASS** and its own verdict block says what
-that is worth: **0 FIDELITY, 285 SELF-CONSISTENCY.**
+DROPPING.** `verify_clone.sh` ends **ALL 287 PASS** and its own verdict block says what
+that is worth: **0 FIDELITY, 287 SELF-CONSISTENCY.**
 
 | gate | state MEASURED at close of rev 63 |
 |---|---|
@@ -211,7 +211,7 @@ for b in $(git branch -r | grep -v HEAD); do
 done
 git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 ./bootstrap.sh          # read ROW 9, and read the "N ahead / M behind" NOTE line
-./verify_clone.sh       # ALL 285 PASS -- and read its verdict block
+./verify_clone.sh       # ALL 287 PASS -- and read its verdict block
 ```
 
 **MEASURED AT REV 63 PICKUP:** the clone was **SHALLOW**, and `fetch --prune` printed
@@ -321,7 +321,21 @@ bus is the target and paint/artwork do not transfer between vehicles; the tail b
 the vehicle; the marks above the burst are STARS; `lid_rail`'s width *"narrow lip, ~as wide
 as it is tall"*; the roughness trade *"ship 0.250"*; the stranded rev-57b branch *"merge
 it, renumber its IDs"*; the studio *"keep studio — ruling stands"* (twice); the front arch
-*"leave it circular"*. **`playa_env.py` is not on the table.**
+*"leave it circular"*.
+
+> **AND ONE LINE OF THAT LIST WAS NEVER HIS — CORRECTED BY ASKING HIM, AFTER REV 62.**
+> It carried *"`playa_env.py` is not on the table — do not re-propose it"* from rev 52 to rev 63.
+> **That entered as a brief's INFERENCE from W6, whose object is the studio RIG, and was applied
+> to a SECOND DELIVERABLE — rule 34 exactly.** Put to him as multiple choice with both readings
+> quoted, he ruled the Playa hero **"DEPRIORITISED, NOT CANCELLED"** — which is what his own
+> rev-43 words said before that carrier was deleted at rev 44 (**F92**).
+>
+> **WHAT IT LICENSES: NOTHING TO DO NOW.** *"Focus on the 3d model"* stands, *"keep studio"*
+> stands, **no revision works the Playa hero until he opens it**, and **nothing re-proposes
+> `playa_env.py` as the delivery frame** — which is also why **F57** (that path renders no
+> vehicle) stays recorded rather than fixed. What changes is that it is a LIVE agreed second
+> deliverable carried in the register, not a closed one, and that *"the emotional bar that sits
+> ABOVE clinical accuracy"* is back in the record. **Do not re-ask it; do not act on it either.**
 
 **RULED AT REV 62, STILL BINDING:**
 
