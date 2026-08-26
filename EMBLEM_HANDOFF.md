@@ -242,6 +242,75 @@ that is a control: rev 63 edited zero files under `t1_*.py` / `build.py` / `stud
 
 ---
 
+## §5c THE GATE IS NOT SUFFICIENT — REV 63 BUILT THE COUNTEREXAMPLE AND RENDERED IT
+
+**READ THIS BEFORE §5, AND BEFORE RUNNING ANY SEARCH. IT CHANGES WHAT "BETTER" MEANS
+ON THIS ITEM.**
+
+**1. THE CONSTRUCTION IS NOT THE CEILING (F174).** §2.3 candidate 1 — *"ablate the
+construction"* — is done. `probe_rev63_ablate.py` swept **24000 points over seven spine
+constants AND the stroke width jointly**, and `vw_bars` reaches **elongation 6.877 at 7
+cells, twice the photograph's 3.390**. The objective was watched moving first, and the
+10.9 % refusal rate is reported. **Eighteen revisions of "it reads as an X" were a SEARCH
+problem, not a geometry problem.** Do not spend another revision looking for a topology fix.
+
+**2. BUT RANGE IS NOT FIDELITY.** That 6.877 point is a degenerate crown of parallel
+slivers — `probe_scratch/rev63_ablate_best.png`. It is not a VW. **The target is 3.390,
+not "as high as possible", and any objective that maximises C8 will walk straight into
+this.**
+
+**3. AND HERE IS THE ONE THAT MATTERS (F175). C6 AND C8 CAN BOTH GO GREEN ON A GLYPH THAT
+IS VISIBLY WORSE.** `probe_rev63_shapefit.py` implements §5 item 4's own prescription —
+IoU jointly with the elongation and cell-count statistics — and finds constants that score:
+
+```
+                        IoU      cells   elongation   landmark residual
+    shipped            0.4172      6        1.485          0.0317
+    rev 63 joint fit   0.5363      7        3.322          0.2135
+    THE PHOTOGRAPH        --       7        3.390            --
+```
+
+**C6 PASSES (7 = 7). C8 PASSES ("1.02x too round"). IoU improves. And rendered on the nose
+it is a Y-shaped trident, WORSE than the X it replaced.** Look at
+`probe_scratch/rev63_emblem_ba.png` — BEFORE | AFTER — before you believe any number in
+this file. **The constants were REVERTED. Nothing shipped.**
+
+**4. THE GATE CONTAINS THE ALARM FOR ITS OWN FAILURE, AND IT FIRED (F176).** At those
+constants `probe_rev46_vw.py` prints **`[FAIL] C7 KILL: collapsing the W's arms and troughs
+onto the axis moves the cell count 7 -> 7`**. A kill that cannot fail is not a control
+(rule 3), so **C6's simultaneous PASS is worthless there**. Nobody had ever driven the gate
+into the region where its own kill dies. **Read C7 as a PRECONDITION on C6: C7 red means
+C6's pass means nothing.**
+
+**5. THE LANDMARK RESIDUAL WAS THE ONLY STATISTIC THAT STAYED RED, AND IT WAS RIGHT
+(F177).** C4 failed at 0.2135 against the shipped 0.0347 while every shape statistic
+improved. That is ONE counterexample and it does not rehabilitate L1–L6 — F137 and F139
+stand — but **it inverts the presumption, and §5 item 5's "retire them" option should not
+be taken on the current evidence.**
+
+**6. AND A TRAP IN THE SOURCE THAT COST ONE MISLEADING RENDER (F178). THERE ARE TWO STROKE-
+WEIGHT CONSTANTS.** The **NOSE** roundel's weight is `vw_logo_fit()`'s `wfrac` **signature
+default, 0.1986**. The **HUBCAP's** is `CAP_EMBLEM_WFRAC`, **0.2087**. **`T1_VW_WFRAC`
+overrides the NOSE one only** — so every weight sweep in this project's history, F152's
+included, has been driving the nose. Rev 63 wrote a nose-fitted value into
+`CAP_EMBLEM_WFRAC` and the gate promptly read 6 cells / 2.659 where the search had read
+7 / 3.322. **Check which constant before you touch either.**
+
+### §5c.1 SO WHAT IS THE NEXT OBJECTIVE, CONCRETELY
+
+Not another statistic on the face-on raster. **The three we have are jointly satisfiable by
+a wrong glyph, which is now measured.** What is missing is a term that would have rejected
+the trident, and rev 63 did not build it. The candidates, NOT measured:
+
+1. **A REACH term measured on the BUILT MESH, not the raster.** In the AFTER crop the
+   stroke ends visibly stop short of the ring while the raster says 7 cells. `STATE.md`
+   already carries a wheel-house reach idiom that does this kind of thing properly.
+2. **Judge on the RENDER.** One orthographic front render per candidate is minutes, not
+   milliseconds, so it cannot go inside a 24000-point sweep — but it can gate the top ten.
+3. **Keep the landmark residual as a HARD CONSTRAINT rather than an objective**, per F177.
+
+---
+
 ## §5 WHAT TO DO NEXT — AND THE OPPORTUNITY IS DELIBERATELY LEFT OPEN
 
 **THE FIRST MOVE IS NOT A SEARCH. IT IS TO GO AND GET THE SPECIFICATION.**
@@ -313,6 +382,8 @@ python3 probe_rev62_landmarks.py --paint  # the cross-frame landmark route + C8'
 python3 probe_rev63_canon.py             # NEW at rev 63 -- the canonical mark, measured
 python3 probe_rev63_canon.py --fit       # ...and fitted, then VERIFIED on the photograph
 python3 svgraster.py                     # its rasteriser's OWN selftest, 9 known shapes
+python3 probe_rev63_ablate.py            # NEW -- ABLATES vw_bars.  ~20 min, 24000 pts
+python3 probe_rev63_shapefit.py          # NEW -- the joint fit.  BUILDS F175's counterexample
 T1_VW_DUMP=1 python3 probe_rev46_vw.py    # paints the cream cells.  LOOK at them
 T1_VW_WFRAC=0.14 python3 probe_rev46_vw.py   # the stroke-weight ablation (F152)
 ```
