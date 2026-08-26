@@ -635,6 +635,58 @@ def solid_prism(origin, u, v, w, pts, depth, name="cut"):
     return ob
 
 
+def solid_with_holes(origin, u, v, w, outer, holes, depth, name="glyph"):
+    """closed solid whose CROSS-SECTION HAS HOLES: `outer` plus enclosed
+    `holes`, extruded +-depth/2 along w and capped both ends.
+
+    `solid_prism` caps with ONE n-gon, so it cannot express a hole -- feed it a
+    ring and the hole fills in solid.  That is not cosmetic here: the V and the
+    W of the factory pressing TOUCH, so the cream cells between them are
+    enclosed holes of a single outline, and filling them changes the mark's
+    TOPOLOGY -- which is the thing probe_rev46_vw.py's C6 counts.  A hole-free
+    trace of the pressing reads as a blob, not as a VW.
+
+    The caps are tessellated with mathutils.geometry.tessellate_polygon, which
+    is hole-aware and indexes into the concatenation of the contours.  It is NOT
+    the cap triangulation that was tried inside `solid_prism` at rev 44 and
+    reverted for breaking two wheel-arch booleans: this is a separate function,
+    no cutter calls it, and `solid_prism` is untouched.
+    """
+    from mathutils.geometry import tessellate_polygon
+    ori = Vector(origin)
+    U = Vector(u).normalized(); V = Vector(v).normalized()
+    W = Vector(w).normalized()
+    contours = [list(outer)] + [list(h) for h in holes]
+
+    verts, base = [], []
+    for s in (-depth / 2, depth / 2):
+        for c in contours:
+            base.append(len(verts))
+            for (a, b) in c:
+                verts.append(tuple(ori + U * a + V * b + W * s))
+
+    nc = len(contours)
+    faces = []
+    for ci in range(nc):                                   # the side walls
+        b0, b1, n = base[ci], base[nc + ci], len(contours[ci])
+        for i in range(n):
+            j = (i + 1) % n
+            faces.append((b0 + i, b0 + j, b1 + j, b1 + i))
+
+    flat = [(ci, i) for ci, c in enumerate(contours) for i in range(len(c))]
+    for t in tessellate_polygon([[Vector(p) for p in c] for c in contours]):
+        a, b, c2 = (flat[k] for k in t)
+        faces.append(tuple(base[ci] + i for ci, i in (a, b, c2)))
+        faces.append(tuple(base[nc + ci] + i for ci, i in (c2, b, a)))
+
+    me = bpy.data.meshes.new(name)
+    me.from_pydata([list(x) for x in verts], [], faces)
+    me.validate()
+    ob = bpy.data.objects.new(name, me)
+    bpy.context.collection.objects.link(ob)
+    return fix_normals(ob)
+
+
 def gap_prism(origin, u, v, w, pts, gap, depth, name="gap"):
     """closed solid ring (panel-gap cutter) of width `gap` following `pts`"""
     inner = poly_offset(pts, -gap / 2)
@@ -1027,6 +1079,31 @@ def vw_bars(R, w, origin, u_ax, v_ax, n_ax, depth, tag="vw"):
             _rad[t] *= e
         if worst < 1e-9:
             break
+    # ------------------------------------------------------- rev 64, THE TRACE
+    # T1_VW_TRACED=1 replaces the seven-constant spine with the FACTORY
+    # PRESSING'S OWN OUTLINE, traced off ref_workshop.jpg and carried in
+    # vw_pressing.py.  Eighteen revisions approximated this mark with constants
+    # and the owner reported it wrong five times; the trace is the alternative
+    # to approximating it at all.
+    #
+    # MEASUREMENT-ONLY WHILE IT IS 0.  The switch exists so the traced glyph and
+    # the constant glyph can be rendered from the same tree and held side by
+    # side (rule 41: the render is the arbiter, a gate passing is not evidence).
+    #
+    # `w` IS NOT USED ON THIS PATH, AND THAT IS THE POINT.  The stroke weight is
+    # a property of the pressing, so it comes in with the outline instead of
+    # being a tuned constant -- which is why F152's sweep could never fix it.
+    # `_fit_glyph` still scales the finished outline to whatever ring the caller
+    # has, exactly as it does for the constant path, so nothing here encodes a
+    # diameter.
+    if os.environ.get("T1_VW_TRACED") == "1":
+        import vw_pressing
+        outer = [(x * R, y * R) for (x, y) in vw_pressing.PRESSING_OUTER]
+        holes = [[(x * R, y * R) for (x, y) in h]
+                 for h in vw_pressing.PRESSING_HOLES]
+        return [solid_with_holes(origin, u_ax, v_ax, n_ax, outer, holes,
+                                 depth, name=f"{tag}0")]
+
     V_SPINE, W_SPINE = _spines()
 
     obs = []
