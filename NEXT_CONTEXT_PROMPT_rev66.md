@@ -365,9 +365,12 @@ QUOTING C6's "0.6638 / 18.9 mm"          IT IS A STRING LITERAL in the
 11. **`delivery/READ_ME_FIRST.txt` LISTS THE MODEL'S KNOWN DEFECTS TO HIM.** It does not yet
     mention the rev-63 emblem change, F184, F194 or F197.
 
-**RANKING NOTE.** `visibility_budget.py 3840 out/r66_hero.png` still ranks — **pass it a
-`.png`** or it globs `out/` by mtime and reproduces F132. **But he has now overridden the
-ranking twice in two revisions, and the owner outranks it.**
+**RANKING NOTE — AND THE RULE IT CARRIES IS NOT DROPPED.** **RANK BY PIXELS OF THE DELIVERY
+FRAME** — `python3 visibility_budget.py 3840 out/r66_hero.png` — **and PASS IT A `.png`**, or
+it globs `out/` by mtime and reproduces F132. Its ceiling: pixels are not visibility, so use
+it for ORDERS OF MAGNITUDE. **But he has now overridden the ranking twice in two revisions
+with two sentences, and the owner outranks it — which is why items 1 and 2 above are his,
+not the budget's.**
 
 ---
 ## §4 WHAT WAS ASKED OF HIM — A CARRIER, NOT A LIST OF BLOCKERS
