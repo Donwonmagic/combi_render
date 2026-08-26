@@ -204,7 +204,7 @@ comment, which is why the historical documents could be foldered.
                                    photographs, SPEC.md, STATE.md,
                                    REF_MEASUREMENTS.md, README.md, the live
                                    brief NEXT_CONTEXT_PROMPT_rev*.md (highest
-                                   number wins -- rev 63 at this edit), EMBLEM_HANDOFF.md (the
+                                   number wins -- rev 64 at this edit), EMBLEM_HANDOFF.md (the
                                    CARRIER for the owner's top item), CLAUDE.md,
                                    .gitignore
   docs/                 83 files   37 handoffs, 37 superseded context prompts,

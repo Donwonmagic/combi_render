@@ -2626,7 +2626,7 @@ def _fit_glyph(obs, target_r, ax=('y', 'z')):
     return s
 
 
-def vw_logo_fit(ring_r, x=2.1215, depth=0.0110, wfrac=0.1986):
+def vw_logo_fit(ring_r, x=2.1215, depth=0.0110, wfrac=0.1800):
     """V over W sized so its strokes run INTO the roundel ring and stop flush
     with the ring's OUTER radius -- which is what the emblem does.
 

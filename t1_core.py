@@ -794,12 +794,12 @@ def _mitre_outline(spine, w):
 # correct.  Both were caught by their own control before shipping.
 #
 # probe_rev46_vw.py re-solves these from the photograph and is the guard.
-VW_V_TIP_X = 0.3806
-VW_APEX_Z = 0.1250
-VW_W_ARM_X = 0.9200
-VW_W_ARM_Z = 0.0019
-VW_W_TROUGH_X = 0.4925
-VW_W_TROUGH_Z = -0.6200
+VW_V_TIP_X = 0.3287
+VW_APEX_Z = 0.0538
+VW_W_ARM_X = 1.1002
+VW_W_ARM_Z = 0.4350
+VW_W_TROUGH_X = 0.3111
+VW_W_TROUGH_Z = -0.6445
 VW_W_PEAK_Z = -0.075
 
 

@@ -955,12 +955,41 @@ ck "calidad BUNT colour retired"     0 "$(grep -c '^BUNT = ' cal_gen.py)"
 # whole point of section 6 item 5's warning is that `grep -c '^VW_APEX_Z'`
 # returns 1 whether the constant reads 0.284 or 0.1250, and 0.284 is the value
 # the owner reported wrong four times running.
-ck "VW_APEX_Z is 0.1250"            1 "$(grep -c '^VW_APEX_Z = 0.1250' t1_core.py)"
-ck "VW_V_TIP_X is 0.3806"           1 "$(grep -c '^VW_V_TIP_X = 0.3806' t1_core.py)"
-ck "VW_W_ARM_X is 0.9200"           1 "$(grep -c '^VW_W_ARM_X = 0.9200' t1_core.py)"
-ck "VW_W_ARM_Z is 0.0019"           1 "$(grep -c '^VW_W_ARM_Z = 0.0019' t1_core.py)"
-ck "VW_W_TROUGH_X is 0.4925"        1 "$(grep -c '^VW_W_TROUGH_X = 0.4925' t1_core.py)"
-ck "VW_W_TROUGH_Z is -0.6200"       1 "$(grep -c '^VW_W_TROUGH_Z = -0.6200' t1_core.py)"
+# rev 63 -- RE-BASED, ALL SIX TOGETHER, WITH THE CAUSE NAMED.
+# CAUSE: the six rev-46 values built a glyph the owner reported as an X SIX
+# times.  They are replaced by the spine fitted to a CANONICAL VECTOR of the
+# mark (`vw_canonical_2019.svg`, obtained at rev 63 -- the first non-photographic
+# source this project has ever had), at IoU 0.7979 against it, converged with no
+# parameter on a bound.  Rendered on the nose it reads as a V over a W where the
+# old one read as an X: probe_scratch/rev63_emblem_ba2.png, BEFORE | AFTER.
+# WHAT IT COSTS, STATED: C6 is still one cell short (6 against the photograph's
+# 7) and C4/C5 go red because the landmark set no longer describes this
+# topology -- EMBLEM_HANDOFF.md sec.6 predicted exactly that and says to re-read
+# them, not to assume them.  C7, C6's own kill, is ALIVE here (6 -> 5), which
+# F176 makes a PRECONDITION for reading C6 at all.
+ck "VW_APEX_Z is 0.0538"            1 "$(grep -c '^VW_APEX_Z = 0.0538' t1_core.py)"
+ck "VW_V_TIP_X is 0.3287"           1 "$(grep -c '^VW_V_TIP_X = 0.3287' t1_core.py)"
+ck "VW_W_ARM_X is 1.1002"           1 "$(grep -c '^VW_W_ARM_X = 1.1002' t1_core.py)"
+ck "VW_W_ARM_Z is 0.4350"           1 "$(grep -c '^VW_W_ARM_Z = 0.4350' t1_core.py)"
+ck "VW_W_TROUGH_X is 0.3111"        1 "$(grep -c '^VW_W_TROUGH_X = 0.3111' t1_core.py)"
+ck "VW_W_TROUGH_Z is -0.6445"       1 "$(grep -c '^VW_W_TROUGH_Z = -0.6445' t1_core.py)"
+# THE COMPANION ROWS, which is what licenses the re-base above.
+# 1. THE NOSE'S STROKE WEIGHT IS A SEPARATE CONSTANT FROM THE HUBCAP'S, and
+#    rev 63 shipped one into the other for a whole render before the raster and
+#    the render disagreeing exposed it (F178).  Neither was checked BY VALUE by
+#    anything.  Both are now, so that trap cannot be re-entered silently.
+ck "NOSE stroke weight is 0.1800"   1 "$(grep -c 'def vw_logo_fit(ring_r, x=2.1215, depth=0.0110, wfrac=0.1800)' t1_detail.py)"
+ck "HUBCAP stroke weight is 0.2087" 1 "$(grep -c '^CAP_EMBLEM_WFRAC = 0.2087' t1_detail.py)"
+# 2. the provenance of the new spine is ON THE REPO and is not a sentence.
+ck "the canonical mark is committed" 1 "$(ls vw_canonical_2019.svg 2>/dev/null | wc -l | tr -d '[:space:]')"
+ck "it is NOT named ref_*"          0 "$(ls ref_vw_canonical.svg 2>/dev/null | wc -l | tr -d '[:space:]')"
+ck "the canonical probe exists"     1 "$(ls probe_rev63_canon.py 2>/dev/null | wc -l | tr -d '[:space:]')"
+# 3. AND THE STANDING WARNING THIS REVISION EARNED: C6+C8+IoU passing is NOT
+#    evidence the emblem is right -- rev 63 built a counterexample that passed
+#    all three and rendered as a Y (F175).  The counterexample's own probe is
+#    kept so the next context can re-run it rather than take my word.
+ck "F175's counterexample is reproducible" 1 "$(ls probe_rev63_shapefit.py 2>/dev/null | wc -l | tr -d '[:space:]')"
+ck "the ablation that sized the search space" 1 "$(ls probe_rev63_ablate.py 2>/dev/null | wc -l | tr -d '[:space:]')"
 ck "vw_bars reads the constants"    1 "$(grep -c '_apex    = (0.000, VW_APEX_Z)' t1_core.py)"
 
 # ------------------------------- rev 58: THE EMBLEM'S REACH AXIS, F63/F64
