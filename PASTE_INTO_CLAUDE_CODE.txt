@@ -73,8 +73,11 @@ of background was counted as a cream cell.
 **C4/C5's RESIDUAL WAS 96.4 % ONE BROKEN LANDMARK (F203).** L4 is *"the last 3-run row"*;
 when the raster shows only one, that is **L2's row**, so L4 compared the built V's **APEX**
 against the photograph's W **TROUGHS**. Built L4 flips between **0.366 and 0.866** with the
-raster row count. **Converged, the residual is 0.1001, not 0.4455 — the shipped constants
-were 2.8× BETTER than rev 45 where C5 reported them 1.6× worse.**
+raster row count. **Converged, the residual is 0.1001, not 0.4455 — the constants AS THEY STOOD AT REV 65
+were 2.8× BETTER than rev 45 (0.2814/0.1001) where C5 reported them 1.6× WORSE
+(0.4469/0.2814).** *(Those four figures are all the PRE-rev-66 state, quoted together so
+F203 can be checked in isolation. After F202 and F204 the probe prints residual 0.0755
+against a rev-45 comparison of 0.2471, a factor of 3.3 — do not mix the two sets.)*
 
 **AND WITH THE INSTRUMENTS CORRECTED THE REAL DEFECT WAS ALREADY IN THE PROBE.** `L6` —
 stroke width over ring width **at the same row**, a horizontal over a horizontal so the
@@ -106,7 +109,7 @@ BEFORE YOU PLAN ANYTHING.**
 ```
 bootstrap.sh              ALL 10 PASS
 verify_clone.sh           ALL 322 PASS on a clean tree, AT THE HANDOFF COMMIT
-                          <- 0 FIDELITY, 322 SELF-CONSISTENCY.  303 -> 321.
+                          <- 0 FIDELITY, 322 SELF-CONSISTENCY.  303 -> 322.
                           ONE row RE-BASED with its cause named (C7's kill, F201) and
                           17 companion rows added.  NO row relaxed.
 probe_rev46_vw.py         12 checked, 1 FAILED -- C4 ONLY, at 0.0755 against a bar of
@@ -129,7 +132,7 @@ probe_rev59_door.py       8 checked, 1 FAILED (M3, BY DESIGN).  PASS IT THE **si
 ```
 
 **AND THE STANDING WARNING, WHICH `verify_clone.sh` PRINTS ITSELF.** A green check is not
-evidence about the vehicle. **Not one of those 321 rows compares the model to a photograph.**
+evidence about the vehicle. **Not one of those 322 rows compares the model to a photograph.**
 The three that do are `flank_compare`, `gloss_compare` and `probe_rev46_vw` — **and two of the
 three still fail.**
 

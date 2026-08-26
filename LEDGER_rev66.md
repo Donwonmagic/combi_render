@@ -14,7 +14,10 @@ wrong as well:
 * **C6's target of 7 cells is the photograph's RIM.** The build already matched the
   photograph. It has been red for six revisions against a count the mark cannot make.
 * **C4/C5's residual was 96.4 % ONE BROKEN LANDMARK.** Corrected, the shipped constants were
-  **2.8× BETTER** than rev 45, where C5 was reporting them **1.6× worse**.
+  **2.8× BETTER** than rev 45 (0.2814/0.1001), where C5 was reporting them **1.6× worse**
+  (0.4469/0.2814). *(All PRE-rev-66 figures, quoted together so F203 can be checked on its
+  own. After F202 and F204 the probe prints 0.0755 against 0.2471 — a factor of 3.3. Two
+  different states; do not mix them.)*
 * **C8's target was already re-based by rev 65 (F194).**
 
 **AND WITH THE INSTRUMENTS CORRECTED, THE REAL DEFECT WAS SITTING IN THE PROBE ALL ALONG.**
