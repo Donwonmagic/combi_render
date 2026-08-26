@@ -1956,6 +1956,32 @@ ck "rev 64's owner rulings are in the register" 2 "$(python3 -c "
 t = open('OPEN_FINDINGS.md', errors='replace').read()
 print(sum(k in t for k in ('Keep holding', 'large-format print')))" 2>&1 | tail -1)"
 
+# ------------- REV 65.  THE BADGE'S RING IS FITTED AS AN ELLIPSE AND C8's
+# TARGET IS RE-BASED (F194).  These rows hold the parts that can go stale.
+
+# The un-projection must be PROVED ON A KNOWN ANSWER before it is pointed at a
+# photograph.  If that positive control is ever removed, the method is a guess.
+ck "the un-projection carries its positive control" 1 \
+   "$(grep -c 'C2. THE POSITIVE CONTROL' probe_rev65_unproject.py)"
+
+# F195 -- the mirror-IoU rotation search scored BETTER and produced a non-VW.
+# It is kept unused as a control; if it is ever re-enabled, this goes red.
+ck "the refuted rotation search is not used to produce a target" 0 \
+   "$(grep -cE '^[^#]*OUT\[nm\] = normalise\(best_upright' probe_rev65_unproject.py)"
+ck "the rotation search is held by a control" 1 "$(grep -c 'ctl("C7"' probe_rev65_unproject.py)"
+
+# F194 -- C8's target moved because the RULER moved, not the model.  The
+# register must carry both numbers or the next context quotes the old one.
+ck "the register carries C8's re-based target" 2 "$(python3 -c "
+t = open('OPEN_FINDINGS.md', errors='replace').read()
+print(sum(k in t for k in ('2.960', '2.627')))" 2>&1 | tail -1)"
+
+# F193 -- his third hold on the delivery render, and the multi-size spec that
+# comes with it.  A ruling in no carrier is how the Playa hero was lost.
+ck "rev 65's owner ruling is in the register" 1 "$(python3 -c "
+t = open('OPEN_FINDINGS.md', errors='replace').read()
+print(int('MULTIPLE SIZES, MAX RESOLUTION, MAX FIDELITY' in t))" 2>&1 | tail -1)"
+
 ck "newest brief states THIS script's row count" "$((PASS+1))" "${_BRIEF_TOTAL:-0}"
 
 UNTRACKED="$(git status --porcelain 2>/dev/null | grep -c '^??')"
