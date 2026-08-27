@@ -466,12 +466,7 @@ def headlamp_recess_cutters(hl_x, hl_y, hl_z, r_lens=0.0862):
         for i in range(n):                       # mouth ring, at the skin
             a = T.TAU * i / n
             prof.append((r_lens * math.cos(a), r_lens * math.sin(a)))
-        # rev 67, F214 -- FOLLOW THE NOSE'S PLAN RECESS.  nose_shape() runs
-        # BEFORE this cut, so when the face's outer half is drawn back the
-        # cutter's mouth has to come with it or the boolean stops breaking the
-        # skin.  WATCHED ROLLING BACK at NOSE_BULGE 0.060 before this line.
-        dx = nose_bulge_at(hl_x, s * hl_y, hl_z)
-        mouth = T.solid_prism((hl_x + 0.010 + dx, s * hl_y, hl_z),
+        mouth = T.solid_prism((hl_x + 0.010, s * hl_y, hl_z),
                               (0, s, 0), (0, 0, 1), (-1, 0, 0),
                               prof, 0.052, name=f"cut_hlbowl{s}")
         obs.append(mouth)
@@ -2959,25 +2954,6 @@ def zV(y):
     return V_APEX_Z + V_RISE_Z * (min(abs(y), V_HALF_W) / V_HALF_W) ** V_POW_Z
 
 
-
-def nose_bulge_at(x, y, z):
-    """The plan-bulge offset `nose_shape()` applies at (x, y, z), UN-DROPPED.
-
-    ONE EXPRESSION, TWO CALLERS.  `nose_shape()` moves the nose's face by this;
-    `headlamp_recess_cutters()` moves the bore cutter's mouth by the SAME
-    amount so the cutter keeps meeting the skin.  They are not allowed to drift
-    -- rev 67 watched the two headlamp booleans ROLL BACK at NOSE_BULGE 0.060
-    when only one of them knew about the recess.
-    """
-    if x < 1.86:
-        return 0.0
-    w = min(1.0, max(0.0, (x - 1.86) / 0.17))
-    w = w * w * (3 - 2 * w)
-    r = ((y / 0.80) ** 2 + ((z - 1.00) / 0.46) ** 2)
-    r0 = ((z - 1.00) / 0.46) ** 2
-    return NOSE_BULGE * w * (max(0.0, 1.0 - r) - max(0.0, 1.0 - r0))
-
-
 def nose_shape(ob):
     me = ob.data
     bm = bmesh.new(); bm.from_mesh(me)
@@ -2990,23 +2966,7 @@ def nose_shape(ob):
         w = min(1.0, max(0.0, (x - 1.86) / 0.17))
         w = w * w * (3 - 2 * w)
         r = ((y / 0.80) ** 2 + ((z - 1.00) / 0.46) ** 2)
-        # ------------------------------------------------- rev 67, F214
-        # TIP-PRESERVING PLAN BULGE.  The rev-67 form was
-        #     bulge = NOSE_BULGE * w * max(0, 1 - r)
-        # which pushes the CENTRELINE FORWARD and so LENGTHENS THE VEHICLE.
-        # Overall length is SPEC-locked at 4.055 and verify.py measures it, so
-        # that form cannot be raised: WATCHED, T1_NOSE_BULGE at 0.055 gives
-        # "length 4.083 vs spec 4.055 (+28 mm)" and at 0.090 the two
-        # headlamp-bowl booleans roll back as well.  The owner was shown a
-        # 0.055 frame and asked for ROUNDER STILL, which that form cannot give.
-        #
-        # Subtracting the value ON THE CENTRELINE AT THE SAME HEIGHT makes the
-        # offset exactly 0 at y = 0 for every z, so the nose TIP NEVER MOVES
-        # and the length guard is untouched, while the face's outer half is
-        # drawn BACK -- which is the same plan convexity, achieved from the
-        # other end.  x(y=0) - x(|y|=0.70) is unchanged in meaning; only who
-        # moves changes.
-        bulge = nose_bulge_at(x, y, z)
+        bulge = NOSE_BULGE * w * max(0.0, 1.0 - r)
         d = z - zV(y)
         s = 0.5 * (1.0 + math.tanh(d / 0.016))
         step = -0.0062 * w * (1.0 - s)
