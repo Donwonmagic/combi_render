@@ -282,11 +282,11 @@ AT PICKUP   clone SHALLOW -- the NINTH revision running.  git fetch --unshallow.
             predicted it would once rev 64 reached main.
 AT CLOSE    measured after the push, with `git fetch --all --prune` first:
               shallow: false
-              origin/claude/next-context-prompt-rev66-0rd3kg   ahead 3 / behind 0
-              HEAD                                             3 ahead / 0 behind origin/main
+              origin/claude/next-context-prompt-rev66-0rd3kg   ahead 7 / behind 0
+              HEAD                                             7 ahead / 0 behind origin/main
               NO OTHER remote branch is ahead of origin/main at all.
               bootstrap.sh row 9 GREEN -- "no branch carries work HEAD does not have".
-              bootstrap.sh ALL 10 PASS ;  verify_clone.sh ALL 322 PASS, clean tree.
+              bootstrap.sh ALL 10 PASS ;  verify_clone.sh ALL 329 PASS, clean tree.
             (The pickup figure is NOT the close figure, and an adversary once caught a
              brief shipping only the pickup one.  This citation was ALSO wrong on its
              first writing -- it pointed at the rev-67 brief's SS8, which is the
