@@ -13,7 +13,7 @@ nohup setsid env T1_SUB=1 T1_PREVIEW=front,side,hero,hero34r T1_PFX=r69 T1_RX=16
 
 **⚠ `bootstrap.sh` FAILED 3 OF 10 AT REV 68's PICKUP AND THE FIX IS ONE LINE.**
 `numpy, pillow, scipy — missing: PIL`, which also fails the shim-import row and
-`verify_clone.sh`. **`pip install pillow`, then re-run — it goes ALL 342 PASS.** Do not
+`verify_clone.sh`. **`pip install pillow`, then re-run — bootstrap then reports 10 of 10.** Do not
 debug it; the toolchain simply does not come up clean here.
 
 `out/` is untracked and **starts EMPTY**. **`bootstrap.sh` first**, then start the render,
@@ -161,8 +161,8 @@ empirical to 0.40). What actually binds a bulge change is `length`: **0.045 give
 ```
 bootstrap.sh              ALL 10 PASS -- but only after `pip install pillow`.
                           Clone arrived SHALLOW, the ELEVENTH running
-verify_clone.sh           ALL <<ROWS>> PASS on a clean tree, AT THE HANDOFF COMMIT
-                          <- 0 FIDELITY, <<ROWS>> SELF-CONSISTENCY.  336 -> <<ROWS>>.
+verify_clone.sh           ALL 342 PASS on a clean tree, AT THE HANDOFF COMMIT
+                          <- 0 FIDELITY, 342 SELF-CONSISTENCY.  336 -> 342.
                           ONE row RE-BASED, cause named + FIVE companion rows.
                           NO row relaxed.
 build.py T1_VERIFY=1      VERIFY: 0 fail, 0 warn at SUB=1
@@ -238,7 +238,7 @@ are thinner than the pressing's. **The W's two outer arms visibly FLOAT short of
 looked at again on `out/r68b_front.png` at rev 68, unchanged.**
 
 **AND HERE IS THE HONEST DISTANCE — THE GATE TABLE, WHICH AN ADVERSARY ONCE CAUGHT A BRIEF
-DROPPING.** `verify_clone.sh` ends **ALL <<ROWS>> PASS**: **0 FIDELITY, <<ROWS>>
+DROPPING.** `verify_clone.sh` ends **ALL 342 PASS**: **0 FIDELITY, 342
 SELF-CONSISTENCY.**
 
 | gate | state MEASURED at close of rev 64 unless noted |
@@ -330,7 +330,7 @@ for b in $(git branch -r | grep -v HEAD); do
 done
 git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 ./bootstrap.sh          # read ROW 9, and read the "N ahead / M behind" NOTE line
-./verify_clone.sh       # ALL <<ROWS>> PASS -- and read its verdict block
+./verify_clone.sh       # ALL 342 PASS -- and read its verdict block
 ```
 
 **MEASURED AT REV 68 PICKUP:** the clone was **SHALLOW** — the **ELEVENTH running**, and
