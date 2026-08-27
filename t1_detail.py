@@ -2626,7 +2626,7 @@ def _fit_glyph(obs, target_r, ax=('y', 'z')):
     return s
 
 
-def vw_logo_fit(ring_r, x=2.1215, depth=0.0110, wfrac=0.1800):
+def vw_logo_fit(ring_r, x=2.1215, depth=0.0110, wfrac=0.2283):
     """V over W sized so its strokes run INTO the roundel ring and stop flush
     with the ring's OUTER radius -- which is what the emblem does.
 
@@ -2696,6 +2696,29 @@ def vw_logo_fit(ring_r, x=2.1215, depth=0.0110, wfrac=0.1800):
     # the nose and hubcap stroke weights, and it died with
     # "TypeError: must be real number, not NoneType".  Nothing invokes it, so
     # nothing caught it.
+    # ----------------------------------------------------------- rev 66, F204
+    # THE NOSE'S STROKE WEIGHT WAS 0.1800 AND THE PRESSING'S IS 0.2283.
+    #
+    # *[owner, rev 64]* "the strokes are thinner than the pressing's" -- and he
+    # was right by two independent statistics that share no ruler:
+    #
+    #   probe_rev46_vw.py's OWN L6 -- stroke width / ring width AT THE SAME ROW,
+    #     a horizontal divided by a horizontal, so the viewing angle's cosine
+    #     cancels and it needs neither an axis ratio nor a radial registration.
+    #     Built 0.1178 against the photograph's 0.1528.  L6 crosses 0.1528 at
+    #     wfrac 0.2283 (converged 552-row raster: L6 0.1530).
+    #   INK INSIDE THE BAND -- the red fraction of the disc strictly inboard of
+    #     the band, photograph and build through one function.  Photograph
+    #     0.525 +- 0.055, built 0.432.  Crosses at wfrac 0.2280.
+    #
+    # THE TWO AGREE TO 0.1 %.  L6 had read -0.0350 low since rev 46 and was
+    # never acted on because it was buried in a residual that was 96 % ONE
+    # BROKEN LANDMARK (F203).
+    #
+    # CEILING: the photographed roundel is 41 x 69 px and its ring is not
+    # concentric with its own bbox (its annulus never reads 100 % red), so the
+    # INK side is good to about +-0.02 in wfrac.  L6 does not depend on that
+    # registration, which is why it is the one quoted first.
     wfrac = float(os.environ.get("T1_VW_WFRAC", wfrac))
     _BAND_FRAC = 0.028 / 0.140              # roundel()'s band / outer radius
     obs = vw_logo(R=1.0, w=wfrac, x=x, depth=depth)

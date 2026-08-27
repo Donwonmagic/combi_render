@@ -831,9 +831,42 @@ def _nose_x(y, z):
 # because it is the record and because the drape reads it.
 _n_dr = _n_miss = 0
 _dx_lo, _dx_hi = 9e9, -9e9
-for _plate, _mount in (([vr, vd], ROUNDEL_X),
-                       ([o for o in _EMBLEM_PLATE if o not in (vr, vd)], GLYPH_X)):
-    _n, _lo, _hi, _ms = T.drape_x(_plate, _nose_x, _mount, standoff=0.0016)
+# ----------------------------------------------------------------- rev 66, F205
+# THE GLYPH AND THE ROUNDEL'S CREAM DISC WERE DRAPED TO THE SAME STANDOFF, SO
+# THEY LANDED COPLANAR -- BY CONSTRUCTION, NOT BY ACCIDENT.
+#
+# *[owner, rev 66]* "the strokes still don't reach the ring."  He is right, and
+# this is why.  Measured on the built scene: the glyph's front face reached
+# x 2.1340 and the disc's 2.1341 -- COINCIDENT TO 0.1 mm -- over the whole outer
+# half of every stroke.  The cream disc (radius 0 .. 0.1162, i.e. 0.83 R) then
+# wins the depth test over much of each stroke, and the render shows plain nose
+# cream where the mesh has red.  Sampled across the V's left arm tip in
+# out/r66b_front.png the pixels run red to r 0.63, NEUTRAL CREAM (131,131,127,
+# saturation +4) from 0.66 to 0.78, then the ring's red from 0.81.
+#
+# NOTHING CHECKED IT.  The proud-guard below measures every emblem front face
+# against the NOSE, and both plates passed it -- 6.96 .. 15.10 mm proud -- because
+# each was correct against the nose and neither was ever compared to the OTHER.
+# That is rule 38's shape: two quantities that had to be compared, and never were.
+#
+# THE GLYPH GETS ITS OWN STANDOFF, and the guard added in the same edit (rule 13)
+# measures the clearance BETWEEN them rather than each against the nose.
+# REVERTED IN THE SAME REVISION THAT PROPOSED IT (rule 13).  The 1.5 mm was
+# added on the hypothesis that the cream disc was winning the depth test over
+# the strokes.  THE GUARD BELOW REFUTED IT: at the ORIGINAL 0.0016 the glyph
+# already stands +2.04 mm proud of the disc at the terminals, so the disc was
+# never in front and the 1.5 mm fixed nothing.  What made the hypothesis look
+# right was comparing the glyph's max x against the disc's max x over one WIDE
+# radial bin (0.11-0.12 m): the disc's maximum in that bin comes from r 0.110,
+# where its cone is most forward, and the glyph's from r 0.1178.  Two different
+# radii, read as one coincidence -- rule 38, in my own diagnostic.
+# THE VALUE IS BACK WHERE IT WAS.  The guard stays, because the comparison it
+# makes was genuinely missing; it is NOT the fix for what the owner reported.
+GLYPH_STANDOFF = 0.0016          # same as the ring/disc plate -- see above
+for _plate, _mount, _so in (([vr, vd], ROUNDEL_X, 0.0016),
+                            ([o for o in _EMBLEM_PLATE if o not in (vr, vd)],
+                             GLYPH_X, GLYPH_STANDOFF)):
+    _n, _lo, _hi, _ms = T.drape_x(_plate, _nose_x, _mount, standoff=_so)
     _n_dr += _n; _n_miss += _ms
     _dx_lo = min(_dx_lo, _lo); _dx_hi = max(_dx_hi, _hi)
 log("roundel draped onto the nose: %d verts, dx %+.1f..%+.1f mm, %d lattice misses"
@@ -860,6 +893,50 @@ assert max(_pr) < 0.030, (
     "curved panel again" % (max(_pr) * 1000))
 log("  emblem front faces proud of nose: %.2f .. %.2f mm over %d verts"
     % (min(_pr) * 1000, max(_pr) * 1000, len(_pr)))
+
+# GUARD, IN THE SAME EDIT AS THE CHANGE (rule 13).  F205: the guard above
+# measures every plate against the NOSE and passed while the glyph and the
+# cream disc were coincident to 0.1 mm.  This one measures them against EACH
+# OTHER -- which is the comparison that was missing, not a stricter version of
+# one that was there.  The glyph must stand PROUD OF THE DISC everywhere the
+# two overlap in radius, or the disc wins the depth test and the strokes render
+# as nose cream (the owner's "the strokes still don't reach the ring").
+_gl = [o for o in _EMBLEM_PLATE if o not in (vr, vd)]
+if _gl:
+    import math as _math
+    _dz = ROUNDEL_Z
+    _BW = 0.002                                   # 2 mm radial buckets
+
+    def _silhouette(obs):
+        """radius bucket -> the FORWARD-most x in it.  Both sides are built
+        this way, from ALL vertices, so the comparison is front-to-front.
+
+        THIS INSTRUMENT WAS WRONG TWICE BEFORE IT WAS RIGHT, and both times it
+        was watched failing rather than reasoned about.  Reading `_EMBLEM_FRONT`
+        gave the disc only its RIM ring, so every inner radius clamped to the
+        rim's x and the guard cried -0.48 mm on sound geometry.  Reading ALL
+        vertices without bucketing to a FORWARD-most then compared the glyph's
+        BACK face against the disc's front and cried -7.73 mm.  The threshold
+        was never moved (rule 44); the instrument was, twice."""
+        out = {}
+        for _o in obs:
+            for _v in _o.data.vertices:
+                _b = int(_math.hypot(_v.co.y, _v.co.z - _dz) / _BW)
+                out[_b] = max(out.get(_b, -9e9), _v.co.x)
+        return out
+
+    _G, _D = _silhouette(_gl), _silhouette([vd])
+    _shared = sorted(set(_G) & set(_D))
+    if _shared:
+        _worst = min(((_G[_b] - _D[_b], (_b + 0.5) * _BW) for _b in _shared),
+                     key=lambda t: t[0])
+        log("  glyph clearance over the cream disc: worst %+.2f mm at r %.4f "
+            "over %d shared radial buckets (F205)"
+            % (_worst[0] * 1000, _worst[1], len(_shared)))
+        assert _worst[0] > 0.0005, (
+            "F205: a glyph front face is only %.2f mm proud of the cream disc "
+            "at r %.4f -- coplanar surfaces, and the disc wins the depth test "
+            "over the strokes" % (_worst[0] * 1000, _worst[1]))
 
 # SPEC sec.4 detail inventory: rear-quarter louvres (10 per side), fuel filler
 # flap, aperture bobble fringe, drip-rail bulb string, pillar menu cards,

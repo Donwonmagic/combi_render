@@ -444,6 +444,65 @@ arm tips visibly float short of the ring).
 
 ---
 
+## §7b WHAT REV 66 CHANGED — READ THIS BEFORE ANY FIGURE ABOVE
+
+**TWO OF THE THREE GATES THIS DOCUMENT ARGUES FROM WERE MIS-REPORTING, AND TWO OF THE THREE
+TARGETS WERE UNREACHABLE. Every reach figure quoted above section 7b is F198's string literal
+or was scored against one of those targets. Check before you quote.**
+
+* **F200 — C6's target of SEVEN cells is the photograph's RIM.** `photo_cells()` labels
+  background inside a `frac=0.97` disc concentric with the **41×69 CROP BOX**, and the
+  photographed ring is not concentric with that box, so a crescent of background outside the
+  ring was counted as a cream cell: **0.0 % inside the ring's own filled outline at mean
+  radius 0.932**, against 100 % for the six real cells. The photographed RAW count runs
+  **8, 7, 7, 8, 6, 6, 6** over `frac` 0.99→0.84 and settles at 6; the built count is 6 at
+  every one. **And the topology fixes it: a V fused to a W meets the band at SIX points, and
+  a connected figure attached to a disc's boundary at k points cuts it into k regions.** Over
+  144 perturbed builds the count was 6 in 143, 5 in one, **never 7**. Target re-based to the
+  photograph's own INTERIOR count. **C6 PASSES, 6 = 6.**
+* **F203 — C4/C5's residual was 96.4 % ONE BROKEN LANDMARK.** L4 is *"the last 3-run row"*;
+  when the built raster shows only one, that is **L2's row**, so L4 compared the built V's
+  APEX against the photograph's W TROUGHS. Built L4 flips between **0.366 and 0.866** with the
+  raster row count alone. L4 is now dropped when it collapses (rule 37) and the built side is
+  read at `BUILT_ROWS = 552`, checked every run by the new **C10**.
+* **F198 — C6's message is repaired.** `terminal_reach()` measures off the mesh; **C12** is
+  the kill that holds it there.
+
+**WHAT SHIPPED ON THE MODEL:**
+
+* **F202 — THE ARC-CUT TERMINAL.** Each rail is trimmed where it MEETS the band circle and
+  the cap closes along the arc, so **both corners land on the band by construction and the
+  global extreme does not move** (0.8140 → 0.8140). `T1_VW_NOARC=1` restores rev 65's
+  perpendicular cap. 144 perturbed builds: 0 refusals, extreme at the band radius in all.
+* **F204 — the NOSE's stroke weight 0.1800 → 0.2283**, by two statistics that share no ruler:
+  the probe's own **L6** (a horizontal over a horizontal, so the viewing angle cancels)
+  crosses the photograph at **0.2283**, and **ink** inboard of the band crosses at **0.2280**.
+  **The HUBCAP's `CAP_EMBLEM_WFRAC = 0.2087` is untouched** (F178's trap).
+
+**ON THE RENDER, WHICH IS THE ARBITER:** ink inside the band **0.418 → 0.502** against the
+photograph's **0.510**. See `probe_scratch/rev66_emblem_ba.png` (BEFORE | AFTER) and
+`probe_scratch/rev66_photo_before_after.png` (PHOTOGRAPH | BEFORE | AFTER).
+
+**AND THEN THE OWNER LOOKED AT THE RENDER, AND C6's PASS TURNED OUT TO BE A RASTER FACT
+(F205).** Asked with the crop attached, he answered **"the W's outer arms sit too low"** AND
+**"the strokes still don't reach the ring"**. Run C6's OWN `cream_cells(..., interior=True)` on
+the FRAME rather than on `glyph_only_mask`: **the photograph cuts 6 interior cells, the render
+cuts 4 (rev-65 geometry) and 3 (as shipped).** The flat raster reads 6 for both. Raw pixels
+outward along the V's left arm at 115° are red to r 0.63, **neutral cream (131,131,127),
+saturation +4**, from 0.66 to 0.78, then the ring's red from 0.81 — **cream in the gap, not
+shadow.** The mesh meanwhile puts every terminal at **0.8400 R** against a band inner edge of
+0.8000. **THE MESH AND THE RENDER DISAGREE AND REV 66 DID NOT FIND WHERE.** One hypothesis —
+the cream disc winning the depth test — was built, guarded and **REFUTED (F206), and the
+change reverted**; do not re-try it. Painted: `probe_scratch/rev66_render_cells.png`.
+
+**WHAT IS STILL WRONG:** **C4 is red at 0.0755 against a bar of 0.045** (L1 −0.0307,
+L3 −0.0239, L4 +0.0634) — the six spine constants have NOT been re-solved, and with L4 working
+the solver can see the trough landmark for the first time. **And the stroke tips still show a
+visible gap to the ring where the photograph shows none**; the glyph's extreme is fitted 20 %
+into the band and nobody has measured what it should be.
+
+---
+
 ## §8 THE STANDING WARNING
 
 **A green check here is not evidence about the badge.** `verify_clone.sh` checks that the

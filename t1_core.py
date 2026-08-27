@@ -767,7 +767,7 @@ def revolve(profile, seg=72, axis='Y', name="rev", cap=False, mat_bands=None):
     return ob
 
 
-def _mitre_outline(spine, w):
+def _mitre_outline(spine, w, arc_r=None, arc_n=24):
     """Closed outline of a constant-width stroke through `spine`, mitred.
 
     Offsets the polyline w/2 either side and intersects consecutive edge lines
@@ -801,8 +801,54 @@ def _mitre_outline(spine, w):
         return pts
     left = side(+1)
     right = side(-1)
+    if arc_r is None:
+        right.reverse()
+        return [(p.x, p.y) for p in left + right]
+    # ----------------------------------------------------------- rev 66, F202
+    # THE ARC CUT.  A terminal cap cut PERPENDICULAR to its stroke puts its two
+    # corners at DIFFERENT radii, so one of them lands inside the band and the
+    # stroke reads as floating (F199 painted exactly two such corners).  Every
+    # previous attempt drove one corner or the other onto the band and let
+    # `_fit_glyph` re-normalise by the GLOBAL EXTREME afterwards, which is why
+    # T1_VW_CAPMIN moves the extreme 0.8140 -> 0.9250 and drags every OTHER
+    # terminal 12 % inboard (F101/F199).
+    #
+    # Cutting the cap ON THE BAND'S OWN ARC removes the choice: each rail is
+    # trimmed where it MEETS the circle, so BOTH corners land at exactly
+    # `arc_r` and the extreme cannot move.  It is also what a stamped mark
+    # disappearing under a band physically is.
+    #
+    # MEASURED, not argued: over 144 builds perturbing all six spine constants
+    # by +-50 % and the stroke weight over 0.12..0.30, the outline's extreme
+    # stayed at the band radius in every one, and none refused.
+    def _hit(a, d, r):
+        """Outermost intersection of the ray a + t d with the circle |x| = r."""
+        b = a.dot(d)
+        disc = b * b - (a.dot(a) - r * r)
+        if disc < 0.0:
+            return None
+        return a + d * (-b + math.sqrt(disc))
+
+    def _arc(p, q, r, n):
+        a0, a1 = math.atan2(p.y, p.x), math.atan2(q.y, q.x)
+        da = (a1 - a0 + math.pi) % TAU - math.pi          # the short way round
+        return [Vector((r * math.cos(a0 + da * k / n),
+                        r * math.sin(a0 + da * k / n))) for k in range(1, n)]
+
+    dE = (P[-1] - P[-2]).normalized()
+    dS = (P[0] - P[1]).normalized()
+    lE, rE = _hit(left[-1], dE, arc_r), _hit(right[-1], dE, arc_r)
+    lS, rS = _hit(left[0], dS, arc_r), _hit(right[0], dS, arc_r)
+    if any(v is None for v in (lE, rE, lS, rS)):
+        # A rail that never meets the band cannot be cut on it.  Fall back to
+        # the perpendicular cap rather than invent a corner (rule 37).
+        right.reverse()
+        return [(p.x, p.y) for p in left + right]
+    left = [lS] + left[1:-1] + [lE]
+    right = [rS] + right[1:-1] + [rE]
     right.reverse()
-    return [(p.x, p.y) for p in left + right]
+    return [(p.x, p.y) for p in left + _arc(lE, rE, arc_r, arc_n)
+            + right + _arc(rS, lS, arc_r, arc_n)]
 
 
 # ===================================================== rev 46, W2, SPEC 10.119
@@ -1055,11 +1101,25 @@ def vw_bars(R, w, origin, u_ax, v_ax, n_ax, depth, tag="vw"):
     # largest radii assigned to that terminal, so the near corner is rs[1].
     _CAPMIN = os.environ.get("T1_VW_CAPMIN") == "1"
     _ENDS = {('V', 0), ('V', 2), ('W', 0), ('W', 4)}
+    # ----------------------------------------------------------- rev 66, F202
+    # THE ARC CUT SHIPS.  T1_VW_NOARC=1 restores the perpendicular cap exactly
+    # as it stood at rev 65, so the two can be rendered from one tree (rule 41)
+    # and so this is ablatable (rule 36).
+    #
+    # WITH THE ARC CUT THE FOUR TRUE END CAPS LEAVE THE FIXED POINT.  They land
+    # on the band BY CONSTRUCTION, and driving them as well would re-introduce
+    # exactly the corner-choice the arc cut exists to remove.  The W's two
+    # troughs are INTERIOR mitres whose outer point bulges; they are still
+    # driven, as before.
+    _ARC = os.environ.get("T1_VW_NOARC") != "1"
+    _arc_r = (_RING_INNER_FRAC * R) if _ARC else None
+    _drive = [t for t in _term if not (_ARC and t in _ENDS)]
     for _ in range(40):
         v, ww = _spines()
         reach, worst = {}, 0.0
         for which, spine in (('V', v), ('W', ww)):
-            outline = _mitre_outline([(x * R, y * R) for (x, y) in spine], w)
+            outline = _mitre_outline([(x * R, y * R) for (x, y) in spine],
+                                     w, arc_r=_arc_r)
             for (px, py) in outline:
                 j = min(range(len(spine)),
                         key=lambda k: (px / R - spine[k][0]) ** 2
@@ -1067,7 +1127,7 @@ def vw_bars(R, w, origin, u_ax, v_ax, n_ax, depth, tag="vw"):
                 if (which, j) in _rad:
                     rr = math.hypot(px, py) / R
                     reach.setdefault((which, j), []).append(rr)
-        for t in _term:
+        for t in _drive:
             rs = sorted(reach.get(t, []), reverse=True)
             if not rs or rs[0] <= 1e-9:
                 continue
@@ -1108,7 +1168,8 @@ def vw_bars(R, w, origin, u_ax, v_ax, n_ax, depth, tag="vw"):
 
     obs = []
     for i, spine in enumerate((V_SPINE, W_SPINE)):
-        pts = _mitre_outline([(x * R, y * R) for (x, y) in spine], w)
+        pts = _mitre_outline([(x * R, y * R) for (x, y) in spine], w,
+                             arc_r=_arc_r)
         obs.append(solid_prism(origin, u_ax, v_ax, n_ax, pts, depth,
                                name=f"{tag}{i}"))
     return obs

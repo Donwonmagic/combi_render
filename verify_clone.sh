@@ -978,7 +978,20 @@ ck "VW_W_TROUGH_Z is -0.6445"       1 "$(grep -c '^VW_W_TROUGH_Z = -0.6445' t1_c
 #    rev 63 shipped one into the other for a whole render before the raster and
 #    the render disagreeing exposed it (F178).  Neither was checked BY VALUE by
 #    anything.  Both are now, so that trap cannot be re-entered silently.
-ck "NOSE stroke weight is 0.1800"   1 "$(grep -c 'def vw_logo_fit(ring_r, x=2.1215, depth=0.0110, wfrac=0.1800)' t1_detail.py)"
+# rev 66 -- RE-BASED 0.1800 -> 0.2283, WITH THE CAUSE NAMED (F204).
+# CAUSE: two independent statistics that share no ruler both say the nose's
+# stroke was ~24 % too thin, which is the owner's own words at rev 64 ("the
+# strokes are thinner than the pressing's").  probe_rev46_vw.py's OWN L6 --
+# stroke width / ring width at the SAME ROW, so the viewing angle cancels --
+# read built 0.1178 against the photograph's 0.1528 and crosses it at 0.2283.
+# Ink strictly inboard of the band, both sides through one function, read built
+# 0.432 against 0.525 +- 0.055 and crosses at 0.2280.  THE TWO AGREE TO 0.1 %.
+# L6 had been reading low since rev 46 and was never acted on because it sat
+# inside a residual that was 96 % ONE BROKEN LANDMARK (F203).
+ck "NOSE stroke weight is 0.2283"   1 "$(grep -c 'def vw_logo_fit(ring_r, x=2.1215, depth=0.0110, wfrac=0.2283)' t1_detail.py)"
+# THE COMPANION ROWS THAT MAKE THAT RE-BASE SEPARATELY TESTABLE.
+ck "and the ink fit records its ceiling" 1 "$(grep -c 'CEILING: the photographed roundel is 41 x 69 px' t1_detail.py)"
+ck "L6 is quoted first, not the ink"     1 "$(grep -c 'which is why it is the one quoted first' t1_detail.py)"
 ck "HUBCAP stroke weight is 0.2087" 1 "$(grep -c '^CAP_EMBLEM_WFRAC = 0.2087' t1_detail.py)"
 # 2. the provenance of the new spine is ON THE REPO and is not a sentence.
 ck "the canonical mark is committed" 1 "$(ls vw_canonical_2019.svg 2>/dev/null | wc -l | tr -d '[:space:]')"
@@ -991,6 +1004,60 @@ ck "the canonical probe exists"     1 "$(ls probe_rev63_canon.py 2>/dev/null | w
 ck "F175's counterexample is reproducible" 1 "$(ls probe_rev63_shapefit.py 2>/dev/null | wc -l | tr -d '[:space:]')"
 ck "the ablation that sized the search space" 1 "$(ls probe_rev63_ablate.py 2>/dev/null | wc -l | tr -d '[:space:]')"
 ck "vw_bars reads the constants"    1 "$(grep -c '_apex    = (0.000, VW_APEX_Z)' t1_core.py)"
+
+# ------------------------------------------------- rev 66: THE ARC-CUT TERMINAL
+# Every terminal cap was cut PERPENDICULAR to its stroke, so its two corners sat
+# at different radii and one landed inside the band (F199 painted exactly two).
+# Cut on the BAND'S OWN ARC both corners land on it by construction and the
+# global extreme cannot move -- which is what kills T1_VW_CAPMIN, whose extreme
+# runs 0.8140 -> 0.9250 and drags every other terminal 12 % inboard.
+ck "the arc cut is in _mitre_outline" 1 "$(grep -c 'def _mitre_outline(spine, w, arc_r=None, arc_n=24)' t1_core.py)"
+ck "vw_bars ships it ON"              1 "$(grep -c 'os.environ.get("T1_VW_NOARC") != "1"' t1_core.py)"
+ck "and it is ABLATABLE"              1 "$(grep -c 'T1_VW_NOARC=1 restores the perpendicular cap' t1_core.py)"
+ck "the four end caps leave the fixed point" 1 "$(grep -c 'for t in _drive:' t1_core.py)"
+ck "a rail that misses the band falls back" 1 "$(grep -c 'cannot be cut on it.  Fall back to' t1_core.py)"
+
+# -------------------------------- rev 66: THE THREE REPAIRED EMBLEM INSTRUMENTS
+# F198 -- C6's message carried THREE HARD-CODED FIGURES for five revisions.
+# The literal must be GONE, and C12 must hold the repair in place.
+# NOT `grep -c 0.6638`: the figure still appears in the COMMENTARY that records
+# what F198 was, and that commentary is the record (rule 16).  What must be gone
+# is the figure PRINTING AS A DIAGNOSIS, so the row greps the message's own
+# giveaway phrase and the replacement asserts the message is measured.
+ck "F198's literal is out of the message" 0 "$(grep -c 'the mesh names them' probe_rev46_vw.py)"
+ck "C6 reports a MEASURED reach instead"  1 "$(grep -c 'MEASURED off the mesh this run, not quoted' probe_rev46_vw.py)"
+ck "the reach is MEASURED off the mesh" 1 "$(grep -c 'def terminal_reach():' probe_rev46_vw.py)"
+ck "C12 holds it to being a measurement" 1 "$(grep -c 'ctl("C12"' probe_rev46_vw.py)"
+# F203 -- the built landmarks were read at an UNCONVERGED row count, and L4
+# silently collapsed onto L2.  Both are now guarded.
+ck "the built side is read converged" 1 "$(grep -c '^BUILT_ROWS = 552' probe_rev46_vw.py)"
+ck "C10 checks that claim every run"  1 "$(grep -c 'ctl("C10"' probe_rev46_vw.py)"
+ck "L4 refuses to be L2"              1 "$(grep -c 'if last3 and abs(last3\[-1\] - L\["L2"\]) > 1e-12:' probe_rev46_vw.py)"
+# F200 -- C6 counted the photograph's RIM as a seventh cell.  Both sides now
+# count INTERIOR cells, and C11 makes the re-base separately testable.
+ck "cream_cells can filter to interior" 1 "$(grep -c 'def cream_cells(mask, frac=0.97, interior=False)' probe_rev46_vw.py)"
+ck "C11 is the companion row"         1 "$(grep -c 'ctl("C11"' probe_rev46_vw.py)"
+ck "C7's kill plants the real defect" 1 "$(grep -c 'KILL, WATCHED FIRING ON THE DEFECT' probe_rev46_vw.py)"
+ck "and built_mask can plant it"      1 "$(grep -c 'def built_mask(rows=69, shrink=1.0)' probe_rev46_vw.py)"
+
+# ------------------------------- rev 66: F205 -- C6 PASSES ON THE RASTER ONLY
+# The owner looked at the render and said "the strokes still don't reach the
+# ring".  He is right, and it is C6's OWN statistic that says so -- run on the
+# FRAME instead of on glyph_only_mask, the photograph cuts 6 interior cells and
+# the render cuts 3.  The raster reads 6 for both and cannot see it.  These rows
+# hold the finding in the record so the next context cannot read C6's PASS as
+# evidence about the vehicle.
+ck "F205 is on the register"          1 "$(grep -c '^| \*\*F205\*\*' OPEN_FINDINGS.md)"
+ck "F206's refutation is too"         1 "$(grep -c '^| \*\*F206\*\*' OPEN_FINDINGS.md)"
+ck "the painted evidence is committed" 1 "$(ls probe_scratch/rev66_render_cells.png 2>/dev/null | wc -l | tr -d '[:space:]')"
+ck "the brief warns C6 is a RASTER fact" 1 "$(grep -c 'ON THE RASTER' PASTE_INTO_CLAUDE_CODE.txt)"
+# AND THE GUARD F206 LEFT BEHIND: the glyph-vs-disc clearance was a comparison
+# nothing made -- the proud-guard measures every plate against the NOSE and both
+# passed while I believed they were coincident.  The guard stays even though the
+# hypothesis it tested was refuted, because the comparison is real.
+ck "the glyph/disc clearance is measured" 1 "$(grep -c 'glyph clearance over the cream disc' build.py)"
+ck "it reads a FORWARD silhouette, both sides" 1 "$(grep -c 'def _silhouette(obs):' build.py)"
+ck "and the standoff is back where it was" 1 "$(grep -c '^GLYPH_STANDOFF = 0.0016' build.py)"
 
 # ------------------------------- rev 58: THE EMBLEM'S REACH AXIS, F63/F64
 # The six constants above are fitted to VERTICAL landmarks only.  None of them
@@ -1015,7 +1082,16 @@ src=open('probe_rev46_vw.py').read()
 fn=next(n for n in ast.parse(src).body if isinstance(n,ast.FunctionDef) and n.name=='photo_cells')
 body=ast.get_source_segment(src,fn)
 print('OK' if 'cream_cells(' in body else 'photo_cells RE-IMPLEMENTS the measure')" 2>&1 | tail -1)"
-ck "the reach control has a KILL"         1 "$(grep -c 'KILL: collapsing the W' probe_rev46_vw.py)"
+# rev 66 -- RE-BASED, WITH THE CAUSE NAMED (F201).  This row pinned the OLD
+# kill, "collapsing the W's arms and troughs onto the axis".  Once C6 was
+# corrected to count INTERIOR cells that kill STOPPED FIRING -- a collapsed W
+# still cuts the ring into six, so C7 read 6 -> 6 and went red.  A control
+# whose kill cannot go red makes its own PASS meaningless (rule 42), so the
+# kill was replaced with one that plants EXACTLY the defect C6 detects: the
+# glyph is shrunk until its extreme falls inside the band and every stroke
+# floats.  WATCHED FIRING: interior cells collapse 6 -> 1.
+ck "the reach control has a KILL"         1 "$(grep -c 'KILL, WATCHED FIRING ON THE DEFECT' probe_rev46_vw.py)"
+ck "and the kill plants a FLOAT, not a collapsed W" 1 "$(grep -c '_float = glyph_only_mask(shrink=0.88' probe_rev46_vw.py)"
 ck "F63 is on the register"               1 "$(grep -c '^| \*\*F63\*\*' OPEN_FINDINGS.md)"
 
 # ---------------------------------------------------------------------------
