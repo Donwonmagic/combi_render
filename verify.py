@@ -814,6 +814,123 @@ def _wheelhouse_reach(log=print):
     return fails
 
 
+def _nose_fixture_reg(body, log=print):
+    """rev 68, F217.  THE NOSE FIXTURES MUST STAY REGISTERED TO THE SKIN.
+
+    THE DEFECT THIS ROW EXISTS FOR, AND IT SHIPPED.  `HL_X` and the indicator's
+    `2.0960` were bare literals typed against a nose at NOSE_BULGE = 0.019.
+    Rev 67 re-parameterised the nose, the skin moved, the fixtures did not, and
+    `ind1_base` went 7.6 mm of OPEN AIR off the body with `VERIFY: 0 fail, 0
+    warn`.  NOTHING IN THIS FILE MEASURED FIXTURE-TO-SKIN REGISTRATION AT ALL.
+
+    WHY THE EXISTING ROWS COULD NOT SEE IT.  The only row that has ever stopped
+    a bulge change is `length`, a MAX-OVER-X.  A deformation that moves the face
+    rearward is invisible to a max-over-x BY CONSTRUCTION -- the identical
+    structure to F207's own argument that a side elevation cannot see plan
+    curvature.  The guard did not hold; it went blind.
+
+    WHAT IT ASKS THE GEOMETRY, NOT THE POSE (rule 7).  A fixture's mounting face
+    is its REARMOST face -- the lowest x on the object, whatever it is called and
+    however it was built.  For each vertex within 1 mm of that, cast the body
+    from x = +3.5 down -x and take the signed gap `v.x - skin.x`.  Negative is
+    embedded in the skin, positive is standing off it.
+
+    THE WINDOW IS PART OF THE MEASUREMENT (rule 8).  My first cut accepted the
+    ray's first hit.  At the headlamp station the ray goes STRAIGHT THROUGH the
+    cut headlamp bore and lands on the REAR of the bus at x = -1.8702, so the
+    "gap" read +3967 mm -- a number that looks like a measurement.  A hit must be
+    forward of x = 1.5; a ray that finds none is a MISS and is counted, never
+    scored.  `hl_bowl` sits wholly behind the bore and returns ALL misses, so it
+    is not gradeable and is reported as such rather than silently skipped.
+
+    THE BAND IS A REGRESSION BAND AND THE FIGURES WERE WATCHED PRINTING at rev
+    68 on the built mesh at T1_SUB=1, NOT typed (rule 5):
+
+        NOSE_BULGE 0.019 (shipped)  ind*_base  -15.12 .. -5.83 mm
+                                    ind*_lens  +11.01 .. +12.93
+                                    hl_lens    -10.79 .. -4.81
+                                    hl_ring    -17.26 .. -10.11
+        NOSE_BULGE 0.045, follow OFF  ind*_base -21.36 .. -8.26
+                                      ind*_lens  +5.17 .. +8.72
+                                      hl_lens   -27.89 .. -13.73
+
+    A +-3.0 mm band on the mean sits inside the 5-6 mm the ablation moves every
+    one of them, so this row REFUSES the defect it was written for and passes
+    the shipped tree.  WATCHED FAILING under T1_NOSE_FIXFOLLOW=0 -- a control is
+    finished when you have seen it go red, not when it passes (rule 3).
+
+    NOT A FIDELITY CLAIM.  It says the fixtures sit where they sat when their
+    literals were authored.  It does not say that is where the real bus's
+    indicators are; nothing in this tree measures that.
+    """
+    fails = []
+    mw = body.matrix_world
+    inv = mw.inverted()
+    d = (inv.to_3x3() @ Vector((-1.0, 0.0, 0.0))).normalized()
+
+    def skin_x(y, z):
+        hit, loc, _n, _i = body.ray_cast(inv @ Vector((3.5, y, z)), d)
+        if not hit:
+            return None
+        wx = (mw @ loc).x
+        return wx if wx > 1.5 else None          # fell through an aperture
+
+    # frozen means, mm, WATCHED PRINTING at rev 68 -- see the docstring
+    BASE = {"hl_ring": -13.46, "hl_lens": -7.64,
+            "ind1_base": -10.03, "ind1_lens": +11.68,
+            "ind-1_base": -10.03, "ind-1_lens": +11.68}
+    BAND = 3.0
+    got = {}
+    for nm in sorted(BASE) + ["hl_bowl"]:
+        obs = [o for o in bpy.data.objects if o.type == 'MESH'
+               and (o.name == nm or o.name.startswith(nm + "."))]
+        if not obs:
+            fails.append("SPEC 10.115: nose fixture %r is not in the scene, so "
+                         "its registration to the skin cannot be measured" % nm)
+            continue
+        for ob in obs:
+            co = [ob.matrix_world @ v.co for v in ob.data.vertices]
+            if not co:
+                continue
+            xmin = min(c.x for c in co)
+            gaps, miss = [], 0
+            for c in [c for c in co if c.x - xmin < 0.001]:
+                sx = skin_x(c.y, c.z)
+                if sx is None:
+                    miss += 1
+                else:
+                    gaps.append(1000.0 * (c.x - sx))
+            if not gaps:
+                # hl_bowl lives wholly behind the cut bore.  Stated, not
+                # silently skipped -- and NOT counted as a pass.
+                log("  nose fixture %-11s NOT GRADEABLE -- all %d back-face "
+                    "rays fall through the headlamp bore; no skin behind it"
+                    % (ob.name, miss))
+                continue
+            m = sum(gaps) / len(gaps)
+            got[ob.name] = m
+            base = BASE.get(nm)
+            if base is None:
+                continue
+            if abs(m - base) > BAND:
+                fails.append(
+                    "SPEC 10.115: nose fixture %s has come off the skin -- its "
+                    "back face averages %+.2f mm against the skin, %+.2f mm off "
+                    "the frozen %+.2f (band +-%.1f). The skin under it moved and "
+                    "the fixture did not (F217). Do NOT widen this band: make "
+                    "the fixture follow the skin via t1_shell.nose_fixture_dx"
+                    % (ob.name, m, m - base, base, BAND))
+    if got:
+        log("  nose fixture registration (F217): "
+            + ", ".join("%s %+.2f" % (k, v) for k, v in sorted(got.items()))
+            + " mm back-face-to-skin, frozen band +-%.1f mm" % BAND)
+    else:
+        fails.append("SPEC 10.115: no nose fixture was gradeable at all -- the "
+                     "registration row measured NOTHING and must not read as a "
+                     "pass (rule 37)")
+    return fails
+
+
 def _np_interp(x, xs, ys):
     """1-D linear interpolation without importing numpy into this module."""
     if x <= xs[0]:
@@ -2260,6 +2377,12 @@ def run(body, log=print):
         fails += _wheelhouse_reach(log)
     except Exception as e:                       # never let the guard vanish
         fails.append("wheel-house reach assertion could not run: %s" % e)
+
+    # rev 68, F217.  The nose fixtures against the skin they are mounted on.
+    try:
+        fails += _nose_fixture_reg(body, log)
+    except Exception as e:                       # never let the guard vanish
+        fails.append("nose fixture registration assertion could not run: %s" % e)
 
     # Buried detail must never pass again: both wipers shipped for six
     # revisions fully enclosed in the nose skin. Casts camera -> object, not

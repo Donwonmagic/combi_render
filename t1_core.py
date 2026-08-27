@@ -1114,6 +1114,40 @@ def vw_bars(R, w, origin, u_ax, v_ax, n_ax, depth, tag="vw"):
     _ARC = os.environ.get("T1_VW_NOARC") != "1"
     _arc_r = (_RING_INNER_FRAC * R) if _ARC else None
     _drive = [t for t in _term if not (_ARC and t in _ENDS)]
+    # ----------------------------------------------------------- rev 68, F208
+    # T1_VW_CAPMIN MUST REFUSE RATHER THAN NO-OP.  RULE 47.
+    #
+    # CAPMIN's whole action is `got = rs[1] ... if t in _ENDS`, and the line
+    # above removes every member of `_ENDS` from `_drive` whenever the arc cut
+    # is on -- which is the shipped configuration since rev 66 (F202).  So from
+    # rev 66 to rev 67 `T1_VW_CAPMIN=1` produced a run BIT-IDENTICAL to shipped:
+    # residual 0.0755, cells [5167, 5122, 2277, 2081, 2023, 1887], the same as
+    # no switch at all.  THREE REGISTER ROWS AND TWO LINES OF THE BRIEF'S
+    # REFUTED LIST rest on figures it can no longer produce (F101, F196, F199).
+    #
+    # WHY SILENCE IS THE WORST FAILURE MODE.  A dead ablation reads to the next
+    # agent as "no effect => not the lever" -- precisely the laundering the
+    # switches exist to stop.  It is not enough to document it; the switch has
+    # to say so itself, at the moment it is used.
+    #
+    # RETIRED, NOT REPAIRED, AND THE REASON IS A MEASUREMENT.  Re-pointing it at
+    # the arc-cut terminals would not reproduce F101's 2 cells either: the arc
+    # cut lands those four caps on the band BY CONSTRUCTION, so there is no
+    # near/far corner choice left for CAPMIN to make.  The configuration it was
+    # written for still exists and is still reachable -- with T1_VW_NOARC=1 --
+    # so the switch is kept, armed, for exactly that case, and refuses in the
+    # one where it cannot act.  When you remove what a switch acted on, retire
+    # the switch in the same edit.
+    if os.environ.get("T1_VW_CAPMIN") == "1" and _ARC:
+        raise SystemExit(
+            "T1_VW_CAPMIN REFUSES: it drives the four TRUE END CAPS "
+            "(V0, V2, W0, W4), and rev 66's arc cut (F202) removed all four "
+            "from `_drive`, so it has been a COMPLETE NO-OP since then -- its "
+            "run is bit-identical to shipped and gives 6 cells, NOT F101's 2 "
+            "(F208).  It is NOT silently ignored and it is NOT a measurement.  "
+            "To get the rev-65 behaviour it was written for, run it with "
+            "T1_VW_NOARC=1, which restores the perpendicular terminal cap.  "
+            "Do NOT quote F101, F196 or F199's figures from a shipped tree.")
     for _ in range(40):
         v, ww = _spines()
         reach, worst = {}, 0.0

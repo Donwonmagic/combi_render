@@ -61,6 +61,19 @@ BRIEF = sorted(glob.glob('NEXT_CONTEXT_PROMPT_rev*.md'),
                key=lambda f: int(re.search(r'rev(\d+)', f).group(1)))[-1]
 
 
+
+def _sub_env(env, code):
+    """Run `code` in a FRESH interpreter with `env` overlaid, return stdout.
+
+    rev 68.  An ablation switch read at import time cannot be tested in-process
+    -- the module is already imported.  Asking a grep instead is what let
+    T1_VW_CAPMIN sit dead for a whole revision (F208).  This runs it for real.
+    """
+    import os as _os, subprocess as _sp, sys as _sys
+    return _sp.run([_sys.executable, "-c", code], capture_output=True, text=True,
+                   env=dict(_os.environ, **env)).stdout.strip()
+
+
 def t(q, ok, d=""):
     NQ[0] += 1
     P("  %-5s %s" % ("ok" if ok else "BROKE", q))
@@ -334,14 +347,16 @@ t("does M1 still PRINT the bezel-ruled figure beside its lens-ruled one?",
   "fixed' for one commit.  Without the like-for-like figure printed beside it, "
   "that misreading is one grep away from happening again (F136)")
 
-t("is C8, the scale-stable emblem statistic, still armed and still failing?",
+t("is C8 still armed, and is its LIVE target still the squashed 3.39?",
   'cell_elongation' in open('probe_rev46_vw.py').read()
   and 'C8' in open('probe_rev46_vw.py').read(),
-  "C6 counts CELLS and F105 showed that count is not scale-stable; F139 showed "
-  "its target of 7 is CONTAMINATED by a cell lying entirely inside the ring "
-  "band.  C8 measures cream-cell ELONGATION -- built 1.49, a plain CROSS 1.39, "
-  "photograph 3.39.  It is the only instrument that measures what the owner "
-  "actually reports (F137)")
+  "CORRECTED AT REV 68.  This asked whether C8 was 'still failing' and tested "
+  "only that two strings existed -- it read ok while C8 PASSED (photo 3.39, "
+  "built 2.55 after F204).  A question that asserts a false state and cannot "
+  "detect it is not a control.  What is still true and worth guarding: C8's "
+  "LIVE target is photo_elongation()'s 3.3896, the 69/41 bbox squash, and "
+  "F194's re-base to 2.63..2.96 was never wired into it -- grep the tree for "
+  "2.627 and you get nothing.  So do NOT quote C8 as re-based (F222)")
 
 t("is C9's kill still the SYNTHETIC pair, not the W-collapse ablation?",
   '_bars' in open('probe_rev46_vw.py').read()
@@ -606,7 +621,11 @@ t("is C6 still counting INTERIOR cells on BOTH sides?",
   "outline against 100 %% for the six real cells.  If EITHER side stops "
   "filtering, the two stop sharing a ruler and the unreachable 7 comes back "
   "(F200).  A V fused to a W meets the band at SIX points and so cuts the disc "
-  "into SIX; 144 perturbed builds gave 7 not once")
+  "into SIX.  NOTE, CORRECTED AT REV 68: the clause that stood here -- '144 "
+  "perturbed builds gave 7 not once' -- is REFUTED by F209, which found 7 in 3 "
+  "of those 144 under F200's own protocol, and F103 and F174 both reported it "
+  "earlier.  C6's re-base 7 -> 6 STANDS on its PHOTOGRAPH-side evidence above; "
+  "what falls is 'the mark cannot make seven'")
 
 t("can C6's kill still go red?",
   'KILL, WATCHED FIRING ON THE DEFECT' in open('probe_rev46_vw.py').read()
@@ -655,13 +674,23 @@ t("is the arc cut still ablatable, and still holding the extreme?",
 
 t("is the nose's plan bulge still a named constant with a live ablation?",
   '\nNOSE_BULGE = 0.019' in open('t1_shell.py').read()
-  and 'T1_NOSE_BULGE' in open('t1_shell.py').read()
-  and 'bulge = NOSE_BULGE * w * max' in open('t1_shell.py').read(),
-  "the nose's forward convexity had NO constant, NO ablation and NO probe for "
-  "fifteen revisions, because a side elevation is blind to plan curvature BY "
-  "CONSTRUCTION -- the silhouette is max-over-y of x, which is always the "
-  "centreline (F207).  If the literal comes back the ablation stops ablating "
-  "and F207's kill reports nothing, which is F208's failure mode exactly")
+  and _sub_env({'T1_NOSE_BULGE': '0.05'},
+               'import t1_shell as S; print(S.NOSE_BULGE)') == '0.05'
+  and _sub_env({}, 'import t1_shell as S; print(S.NOSE_BULGE)') == '0.019'
+  and _sub_env({'T1_NOSE_BULGE': '0.05'},
+               'import t1_shell as S; print(S.nose_bulge_at(2.1015,0.545,0.933) > '
+               '2*S.nose_bulge_at(2.1015,0.545,0.933,amount=0.019))') == 'True',
+  "RE-CUT AT REV 68 FROM A GREP TO A BEHAVIOUR.  This tested that the string "
+  "'bulge = NOSE_BULGE * w * max' was present, and it BROKE on a refactor that "
+  "preserved every value it existed to protect -- rev 68 factored the "
+  "expression into nose_bulge_at() so build.py could ask the same question and "
+  "keep the fixtures on the skin (F217).  A grep cannot tell a refactor from a "
+  "regression; it now RUNS the ablation in a fresh process and checks the "
+  "constant actually moves.  The nose's forward convexity had NO constant, NO "
+  "ablation and NO probe for fifteen revisions, because a side elevation is "
+  "blind to plan curvature BY CONSTRUCTION -- the silhouette is max-over-y of "
+  "x, which is always the centreline (F207).  If the ablation stops ablating, "
+  "F207's kill reports nothing, which is F208's failure mode exactly")
 
 t("does the nose probe still READ EXIF rather than assume no camera?",
   'def exif_focal(' in open('probe_rev67_nose.py').read()
@@ -685,16 +714,20 @@ t("can the edge-acceptance bar still refuse, and can the clip still not rescue?"
   "fragments, span collapsing 105 -> 51 px.  BOTH halves must stand: the "
   "absolute term, and judging the ORIGINAL n and span (F220b)")
 
-t("is the fixture-to-skin defect still recorded as OPEN?",
-  'HL_X    = 2.1015' in open('build.py').read()
+t("do the nose fixtures still FOLLOW the skin, arithmetically?",
+  __import__('t1_shell').nose_fixture_dx(2.1015, 0.5450, 0.9330) == 0.0
+  and 'HL_X = HL_X0 + S.nose_fixture_dx' in open('build.py').read()
+  and 'loc=(2.0960' not in open('build.py').read()
   and 'F217' in open('OPEN_FINDINGS.md').read(),
-  "the indicator pods and headlamps sit at hard-coded x literals and do NOT "
-  "follow the nose skin.  Rev 67 moved the nose and left ind1_base 7.6 mm of "
-  "OPEN AIR off the body and hl_lens 7.9 mm proud, with VERIFY 0 fail 0 warn "
-  "-- because the only row that ever stopped a bulge change is `length`, a "
-  "max-over-x, blind to a rearward-only deformation BY CONSTRUCTION (F217).  "
-  "This is the blocker on the whole nose item; if the row goes, so does the "
-  "reason NOSE_BULGE has not moved")
+  "FIXED AT REV 68.  The pods and lamps were placed at hard-coded x literals "
+  "typed against a nose at NOSE_BULGE 0.019, so rev 67 moved the nose and left "
+  "ind1_base 7.6 mm of OPEN AIR with VERIFY 0 fail 0 warn -- the only row that "
+  "ever stopped a bulge change is `length`, a max-over-x, blind to a rearward "
+  "deformation BY CONSTRUCTION (F217).  Both now derive from "
+  "t1_shell.nose_fixture_dx, which is EXACTLY 0 at the authored bulge (so the "
+  "shipped build is unmoved) and 13.38 mm at 0.045.  This question fails if "
+  "either literal is placed raw again, or if the follow silently becomes a "
+  "no-op -- F208's failure mode, one axis over")
 
 P("  %d asked, %d BROKE%s" % (NQ[0], len(bad),
                               ("  --  " + "; ".join(bad)) if bad else ""))

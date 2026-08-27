@@ -2948,6 +2948,63 @@ NOSE_BULGE = 0.019
 if os.environ.get("T1_NOSE_BULGE"):
     NOSE_BULGE = float(os.environ["T1_NOSE_BULGE"])
 
+# ------------------------------------------------------------- rev 68, F217
+# THE VALUE THE NOSE FIXTURES' x LITERALS WERE AUTHORED AGAINST.
+#
+# `build.py` carries `HL_X = 2.1015` and `D.place(ibase, loc=(2.0960, ...))` as
+# BARE LITERALS.  Both were typed against a nose built at NOSE_BULGE = 0.019, so
+# each is only correct at that one value: move the constant and the skin under
+# the fixture moves while the fixture does not.  Rev 67 did exactly that and
+# shipped `ind1_base` in open air with VERIFY green (F217).
+#
+# THIS IS A DATUM, NOT A MEASUREMENT.  It records what the literals were tuned
+# against.  It must NOT track NOSE_BULGE -- if it did, the offset below would be
+# identically zero and the whole mechanism would be a tautology (rule 6).
+NOSE_BULGE_AUTHORED = 0.019
+
+
+def nose_bulge_at(x, y, z, amount=None):
+    """The forward displacement `nose_shape` applies at (x, y, z), in metres.
+
+    ONE EXPRESSION, MORE THAN ONE CALLER (SPEC 10.25).  `nose_shape` applies it
+    to the shell; `build.py` asks it how far the skin under a fixture has moved,
+    so the fixture can move with it.  Re-typing it in the second caller is the
+    defect class this project keeps paying for -- the same one the rev-45
+    comment on IND_Z names ("1.2360 is 1.0300 + 0.206 re-typed").
+
+    `amount` defaults to the live NOSE_BULGE; pass NOSE_BULGE_AUTHORED to get
+    the displacement the fixture literals already have baked into them.  The
+    expression is LINEAR in `amount`, so the difference of two calls is exactly
+    how far the skin has moved since the literals were authored.
+
+    NOT INCLUDED, DELIBERATELY: `nose_shape`'s `v.normal * step` V-swage term.
+    It does not depend on NOSE_BULGE, so it cancels out of any difference of two
+    calls, which is the only way this function is used.
+    """
+    if amount is None:
+        amount = NOSE_BULGE
+    if x < 1.86:
+        return 0.0
+    w = min(1.0, max(0.0, (x - 1.86) / 0.17))
+    w = w * w * (3 - 2 * w)
+    r = ((y / 0.80) ** 2 + ((z - 1.00) / 0.46) ** 2)
+    return amount * w * max(0.0, 1.0 - r)
+
+
+def nose_fixture_dx(x, y, z):
+    """How far the skin at (x, y, z) has moved since the fixture literals were
+    authored.  Zero at NOSE_BULGE == NOSE_BULGE_AUTHORED, BY CONSTRUCTION, so
+    the shipped build is bit-identical and this change is contained to the one
+    axis it is about.
+
+    T1_NOSE_FIXFOLLOW=0 disables the follow WITHOUT restoring old source -- it
+    is the ablation `verify.py`'s registration row is watched failing under
+    (rule 3, rule 36).  MEASUREMENT-ONLY; it must never ship."""
+    if os.environ.get("T1_NOSE_FIXFOLLOW", "1") == "0":
+        return 0.0
+    return (nose_bulge_at(x, y, z)
+            - nose_bulge_at(x, y, z, amount=NOSE_BULGE_AUTHORED))
+
 
 def zV(y):
     """height of the two-tone V at half-width y, UN-DROPPED"""
@@ -2965,8 +3022,10 @@ def nose_shape(ob):
             continue
         w = min(1.0, max(0.0, (x - 1.86) / 0.17))
         w = w * w * (3 - 2 * w)
-        r = ((y / 0.80) ** 2 + ((z - 1.00) / 0.46) ** 2)
-        bulge = NOSE_BULGE * w * max(0.0, 1.0 - r)
+        # rev 68, F217: the bulge is nose_bulge_at()'s expression and is no
+        # longer re-typed here -- build.py has to ask the same question to keep
+        # the fixtures on the skin, and two copies of it would drift apart.
+        bulge = nose_bulge_at(x, y, z)
         d = z - zV(y)
         s = 0.5 * (1.0 + math.tanh(d / 0.016))
         step = -0.0062 * w * (1.0 - s)

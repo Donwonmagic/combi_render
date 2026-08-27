@@ -356,7 +356,41 @@ def err(res):
 
 # ---- C2 the ring registration
 cur = built_landmarks()
-assert cur is not None, "the built glyph does not present L1..L4"
+# ----------------------------------------------------------------- rev 68
+# A CONFIGURATION THAT LOSES THE LANDMARKS MUST BE REFUSED, NOT CRASHED ON.
+# RULE 3: A GUARD THAT CRASHES REPORTS NOTHING.  RULE 37.
+#
+# This was a bare module-level `assert cur is not None`, and it fired -- with a
+# raw traceback and no summary line -- on at least four configurations, WATCHED
+# at rev 68 with true exit codes and no pipe:
+#     T1_VW_PUREFIT=1                     AssertionError
+#     T1_VW_WFRAC=0.1800                  AssertionError   <- see below
+#     T1_VW_NOARC=1 T1_VW_CAPMIN=1        AssertionError
+# and it takes `probe_rev63_reach.py`, `probe_rev63_ablate.py` and
+# `probe_rev64_shear.py` down with it, because all three import this module.
+#
+# THE ONE THAT MATTERS.  `T1_VW_WFRAC=0.1800` is the stroke weight that SHIPPED
+# through rev 65, i.e. F204's OWN BEFORE-SIDE.  The revision that changed the
+# stroke weight cannot re-run its own ablation on the gate that scored it --
+# rule 36 says ablate the thing you are about to tune, and the ablation dies.
+# That is a finding about this instrument, not about the glyph.
+#
+# LOSING THE LANDMARKS IS ITSELF A RESULT and is now REPORTED AS ONE: the glyph
+# at that configuration does not present L1..L4, so its topology has changed.
+# The probe prints a summary line and exits non-zero (rule 9: read the summary
+# line, never the exit code -- so there must BE one).  It does NOT print a
+# fabricated residual, and it does NOT read as a pass.
+if cur is None:
+    _cfg = " ".join("%s=%s" % (k, v) for k, v in sorted(os.environ.items())
+                    if k.startswith("T1_VW") or k == "T1_NOSE_BULGE") or "(shipped)"
+    print("\n  [REFUSE] the built glyph does not present L1..L4 at this "
+          "configuration, so NOTHING on the built side can be measured.")
+    print("           configuration: %s" % _cfg)
+    print("           This is a RESULT, not a crash: the glyph's landmark "
+          "topology has changed -- the V's arms or the W's have stopped "
+          "separating from the ring band. Compare against the shipped run.")
+    print("\n  CONTROLS: 0 checked, 0 FAILED -- REFUSED, nothing was measured")
+    raise SystemExit(3)
 _, (btop, bbot, bspan) = cur
 print("\n    BUILT   t1_core.vw_bars rasterised with the ring band")
 print("            ring span rows %.3f..%.3f  (photo %.3f..%.3f)"
@@ -752,19 +786,40 @@ _Lf = built_landmarks(rows=2 * BUILT_ROWS, **CURRENT)
 _conv = (_Lc is not None and _Lf is not None
          and max(abs(_Lc[0][k] - _Lf[0][k]) for k in _Lc[0] if k in _Lf[0]) < 0.01)
 _L276 = built_landmarks(rows=276, **CURRENT)
-_swing = (max(abs(_Lc[0][k] - _L276[0][k]) for k in _Lc[0] if k in _L276[0])
-          if (_Lc and _L276) else 9.9)
+# ----------------------------------------------------------- rev 68, F211
+# A SENTINEL IS NOT A MEASUREMENT.  This block used to fall back to 9.9 and
+# print it as "worst landmark move 9.9000".  Landmarks are FRACTIONS IN [0, 1],
+# so 9.9 is not a reachable move -- it is `err`'s "no landmarks at all" sentinel
+# leaking into a line that reads like a number, and it is what the row's own
+# message published as "the whole of F203".  At 276 rows `landmarks()` returns
+# None on the shipped glyph, so nothing moved and the fallback fired every run.
+#
+# THE ABSENCE IS A STRONGER RESULT THAN A BIG NUMBER, so it is now SAID.  A
+# raster that does not present L1..L4 at all has not merely moved them; it has
+# lost them.  Watched at rev 68: shipped prints the LOST branch; T1_VW_NOARC=1
+# prints a real 0.2148.  Rule 37 -- an absent input must never read as a
+# measurement.
+_lost276 = (_L276 is None)
+_swing = (None if _lost276 else
+          max(abs(_Lc[0][k] - _L276[0][k]) for k in _Lc[0] if k in _L276[0]))
+_why276 = ("reading them at 276 instead LOSES them entirely -- landmarks() "
+           "returns None there, which is the whole of F203"
+           if _lost276 else
+           "reading them at 276 instead moves one by %.4f, which is the whole "
+           "of F203" % _swing)
 print("\n    CONVERGENCE -- is the built raster read where the answer has settled?")
 print("        %d rows vs %d rows: worst landmark move %.4f"
       % (BUILT_ROWS, 2 * BUILT_ROWS,
          max(abs(_Lc[0][k] - _Lf[0][k]) for k in _Lc[0] if k in _Lf[0])
          if (_Lc and _Lf) else 9.9))
-print("        %d rows vs 276 rows: worst landmark move %.4f  <- why 276 was "
-      "not enough" % (BUILT_ROWS, _swing))
+print("        %d rows vs 276 rows: %s  <- why 276 was not enough"
+      % (BUILT_ROWS, "NO LANDMARKS AT ALL -- the glyph does not present "
+                     "L1..L4 at that raster" if _lost276
+                     else "worst landmark move %.4f" % _swing))
 ctl("C10", _conv,
     "the built landmarks have CONVERGED: doubling the raster to %d rows moves "
-    "no landmark by more than 0.01.  Reading them at 276 instead moves one by "
-    "%.4f, which is the whole of F203" % (2 * BUILT_ROWS, _swing))
+    "no landmark by more than 0.01.  And %s"
+    % (2 * BUILT_ROWS, _why276))
 
 # ---------------------------------------------------------------- rev 66, C11
 # THE COMPANION ROW C6's RE-BASE OWES.  It makes the cause of the re-base
