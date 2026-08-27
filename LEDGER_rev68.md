@@ -206,5 +206,11 @@ AT PICKUP   clone SHALLOW -- the ELEVENTH revision running.
             -- THE DESIGNATED BRANCH, before anything was pushed, THE ELEVENTH.
             HEAD 0 ahead / 0 behind origin/main.  bootstrap row 9 GREEN.
             git diff --name-only HEAD...origin/main -> EMPTY (no new photographs).
-AT CLOSE    see §8 of NEXT_CONTEXT_PROMPT_rev69.md -- re-measured after the push.
+AT CLOSE    re-measured with `git fetch --all --prune` first, AFTER the push:
+              HEAD 5 ahead / 0 behind origin/main
+              clone NOT shallow (unshallowed at pickup, 626 commits)
+              git diff --name-only HEAD...origin/main -> EMPTY -- origin/main did
+                NOT move during the revision and NO new photographs arrived
+              working tree CLEAN;  verify_clone.sh ALL 342 PASS;  bootstrap ALL 10 PASS
+            branch: claude/nose-fixture-alignment-r68-rrqyqx, pushed, tracking.
 ```
