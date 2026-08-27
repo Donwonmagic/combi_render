@@ -2928,6 +2928,26 @@ if os.environ.get("T1_VPOWZ"):
     V_POW_Z = float(os.environ["T1_VPOWZ"])           # == t1_mats.V_POW.  < 1: the profile is CONCAVE.
 V_HALF_W = 0.86
 
+# ------------------------------------------------------------- rev 67, F207
+# THE NOSE'S PLAN BULGE -- the forward convexity of the vehicle's whole face,
+# and until rev 67 it had never been measured, ablated or guarded.  It is the
+# ONE constant that answers the owner's *"we still have work to do on the shape
+# of the nose"* (F197) and rev 51's FLAT NOSE found by eye.
+#
+# It stays on its own line as a bare literal so a verifier row can grep
+# `^NOSE_BULGE = 0.019`.  T1_NOSE_BULGE scales it and is MEASUREMENT-ONLY: it
+# is `probe_rev67_nose.py`'s kill, and setting it to 0 must collapse the plan
+# bulge M1 reports.  A control is finished when you have WATCHED IT FAIL.
+#
+# WHY A SIDE ELEVATION CANNOT CHECK THIS.  In a side view the silhouette at
+# each height is max-over-y of x, which for a plan-convex nose is ALWAYS the
+# centreline -- whether this constant is 0.019 or 0.0.  The axis is invisible
+# there by construction, which is why fifteen revisions of nose work never
+# touched it.
+NOSE_BULGE = 0.019
+if os.environ.get("T1_NOSE_BULGE"):
+    NOSE_BULGE = float(os.environ["T1_NOSE_BULGE"])
+
 
 def zV(y):
     """height of the two-tone V at half-width y, UN-DROPPED"""
@@ -2946,7 +2966,7 @@ def nose_shape(ob):
         w = min(1.0, max(0.0, (x - 1.86) / 0.17))
         w = w * w * (3 - 2 * w)
         r = ((y / 0.80) ** 2 + ((z - 1.00) / 0.46) ** 2)
-        bulge = 0.019 * w * max(0.0, 1.0 - r)
+        bulge = NOSE_BULGE * w * max(0.0, 1.0 - r)
         d = z - zV(y)
         s = 0.5 * (1.0 + math.tanh(d / 0.016))
         step = -0.0062 * w * (1.0 - s)
