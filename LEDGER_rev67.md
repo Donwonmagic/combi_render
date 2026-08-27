@@ -6,11 +6,11 @@ The owner ruled at rev 66, asked directly whether rev 67 should do the nose or f
 emblem: **the nose.** F197 became a RULING, not an inference, and §3 item 1 was his.
 
 **THE NOSE NOW HAS AN INSTRUMENT. IT DID NOT BEFORE.** `probe_rev67_nose.py`,
-`t1_shell.NOSE_BULGE`, the `T1_NOSE_BULGE` ablation, and five verifier rows.
+`t1_shell.NOSE_BULGE`, the `T1_NOSE_BULGE` ablation, and SEVEN verifier rows.
 
 **AND RULE 15's ADVERSARY WAS DISPATCHED THIS TIME** — rev 66's was run in-context and missed
 what the owner caught. It came back with thirteen defects. **Five of the load-bearing ones I
-re-ran myself and confirmed; they are F208–F211 and they are the most consequential thing in
+re-ran myself and confirmed; they are F208–F212 and they are the most consequential thing in
 this revision after the nose.**
 
 ---
@@ -154,7 +154,7 @@ from the broken window.)*
 
 ```
 bootstrap.sh              ALL 10 PASS  (clone arrived SHALLOW -- the TENTH running)
-verify_clone.sh           ALL 334 PASS on a clean tree.  329 -> 334, five rows ADDED,
+verify_clone.sh           ALL 336 PASS on a clean tree.  329 -> 336, SEVEN rows ADDED,
                           NONE relaxed, NONE re-based
 probe_rev67_nose.py       NEW.  5 checked, 1 FAILED -- P3, which is a REFUSAL and is
                           correct: the render's whole-frame trace is fragments
@@ -168,7 +168,7 @@ F205 on the FRAME         photograph 6  |  out/r67_front.png 4 / 3 / 2 at thr 20
 render                    grep -c Saved: /tmp/r67.log == 4
 ```
 
-**AND THE STANDING WARNING.** Not one of those 334 rows compares the model to a photograph.
+**AND THE STANDING WARNING.** Not one of those 336 rows compares the model to a photograph.
 The three that do are `flank_compare`, `gloss_compare` and `probe_rev46_vw` — **and two of
 the three still fail.**
 

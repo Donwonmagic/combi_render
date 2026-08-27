@@ -142,8 +142,8 @@ owner's own second sentence.**
 ```
 bootstrap.sh              ALL 10 PASS  (clone arrived SHALLOW -- the TENTH running)
 verify_clone.sh           ALL 336 PASS on a clean tree, AT THE HANDOFF COMMIT
-                          <- 0 FIDELITY, 336 SELF-CONSISTENCY.  329 -> 334.
-                          FIVE rows ADDED.  NO row relaxed.  NO row re-based.
+                          <- 0 FIDELITY, 336 SELF-CONSISTENCY.  329 -> 336.
+                          SEVEN rows ADDED.  NO row relaxed.  NO row re-based.
 probe_rev67_nose.py       NEW.  5 checked, 1 FAILED -- P3, and that FAIL is a REFUSAL
                           and is correct: a whole-frame trace of a 3/4 render is
                           fragments (rms 61.85 px on 831), not one edge
@@ -178,7 +178,7 @@ probe_rev59_door.py       8 checked, 1 FAILED (M3, BY DESIGN).  PASS IT THE **si
 ```
 
 **AND THE STANDING WARNING, WHICH `verify_clone.sh` PRINTS ITSELF.** A green check is not
-evidence about the vehicle. **Not one of those 334 rows compares the model to a photograph.**
+evidence about the vehicle. **Not one of those 336 rows compares the model to a photograph.**
 The three that do are `flank_compare`, `gloss_compare` and `probe_rev46_vw` — **and two of the
 three still fail.**
 
