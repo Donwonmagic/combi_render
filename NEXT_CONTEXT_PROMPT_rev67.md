@@ -145,8 +145,8 @@ missing.**
 
 ```
 bootstrap.sh              ALL 10 PASS
-verify_clone.sh           ALL 322 PASS on a clean tree, AT THE HANDOFF COMMIT
-                          <- 0 FIDELITY, 322 SELF-CONSISTENCY.  303 -> 322.
+verify_clone.sh           ALL 329 PASS on a clean tree, AT THE HANDOFF COMMIT
+                          <- 0 FIDELITY, 329 SELF-CONSISTENCY.  303 -> 322.
                           ONE row RE-BASED with its cause named (C7's kill, F201) and
                           17 companion rows added.  NO row relaxed.
 probe_rev46_vw.py         12 checked, 1 FAILED -- C4 ONLY, at 0.0755 against a bar of
@@ -201,7 +201,7 @@ outer arms visibly FLOAT short of the ring — C6 measures it at 18.9 mm and you
 would score a fix are now known not to mean what they were taken to mean** (§0.06).
 
 **AND HERE IS THE HONEST DISTANCE — THE GATE TABLE, WHICH AN ADVERSARY ONCE CAUGHT A BRIEF
-DROPPING.** `verify_clone.sh` ends **ALL 322 PASS**: **0 FIDELITY, 322 SELF-CONSISTENCY.**
+DROPPING.** `verify_clone.sh` ends **ALL 329 PASS**: **0 FIDELITY, 329 SELF-CONSISTENCY.**
 
 | gate | state MEASURED at close of rev 64 |
 |---|---|
@@ -279,7 +279,7 @@ for b in $(git branch -r | grep -v HEAD); do
 done
 git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 ./bootstrap.sh          # read ROW 9, and read the "N ahead / M behind" NOTE line
-./verify_clone.sh       # ALL 322 PASS -- and read its verdict block
+./verify_clone.sh       # ALL 329 PASS -- and read its verdict block
 ```
 
 **MEASURED AT REV 66 PICKUP:** the clone was **SHALLOW** — the **NINTH running**;
@@ -452,7 +452,7 @@ studio — ruling stands"* (twice); the front arch *"leave it circular"*.
 
 **RULED AT REV 66 — BOTH NEW, BOTH BINDING, AND THEY SET THIS REVISION'S WORK LIST.**
 Asked as multiple choice with `probe_scratch/rev66_emblem_ba.png` and
-`rev66_photo_before_after.png` attached and the measured ink figures quoted:
+`probe_scratch/rev66_photo_before_after.png` attached and the measured ink figures quoted:
 
 > ***"The W's outer arms sit too low"*** AND ***"The strokes still don't reach the ring."***
 > — **BOTH, chosen together, as what is STILL wrong with the emblem.** He did **NOT**

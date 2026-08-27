@@ -192,7 +192,7 @@ photograph's artefact and C11 went red. Re-planted as a breach of the ring's **O
 ## §5 TWO RULINGS FROM THE OWNER, BOTH NEW, BOTH BINDING
 
 He was shown `probe_scratch/rev66_emblem_ba.png` (BEFORE | AFTER) and
-`rev66_photo_before_after.png` (PHOTOGRAPH | BEFORE | AFTER), with the measured ink figures,
+`probe_scratch/rev66_photo_before_after.png` (PHOTOGRAPH | BEFORE | AFTER), with the measured ink figures,
 and asked as multiple choice.
 
 > **WHAT IS STILL WRONG WITH THE EMBLEM: *"The W's outer arms sit too low"* AND *"The strokes
