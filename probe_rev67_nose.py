@@ -323,15 +323,19 @@ def main():
         # the ceiling below says the magnitude would not be comparable anyway.
         ck("P3 the RENDER's bumper top edge is traceable AS ONE EDGE by the "
            "same rule P1 uses -- and on a three-quarter frame it is NOT",
-           ren["rms"] <= rms_bar(ren["span"]),
-           "sagitta %+.2f px +- %.2f over %.0f px = %+.4f of chord, fit rms "
-           "%.2f px = %.0f %% of span -> %s.  MAGNITUDES ARE NOT COMPARABLE "
+           ren["rms"] <= rms_bar(ren["span"]) and not ren["rescued"],
+           "sagitta %+.2f px +- %.2f over %.0f px (pre-clip %.0f px, %d of %d "
+           "points clipped) = %+.4f of chord, fit rms %.2f px = %.0f %% of "
+           "span -> %s.  MAGNITUDES ARE NOT COMPARABLE "
            "ACROSS POSES (rule 43) in any case -- only the sign and the "
            "presence of curvature are"
-           % (ren["sag"], ren["se"], ren["span"], ren["frac"], ren["rms"],
+           % (ren["sag"], ren["se"], ren["span"], ren["span0"],
+              ren["n_clipped"], ren["n0"], ren["frac"], ren["rms"],
               100 * ren["rms"] / ren["span"],
-              "one edge" if ren["rms"] <= rms_bar(ren["span"])
-              else "REFUSED, fragments"))
+              "one edge" if (ren["rms"] <= rms_bar(ren["span"])
+                             and not ren["rescued"])
+              else ("REFUSED, the clip RESCUED it" if ren["rescued"]
+                    else "REFUSED, fragments")))
 
     # -------------------------------------------------- the mesh
     bulge = None

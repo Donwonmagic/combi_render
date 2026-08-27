@@ -31,29 +31,33 @@ things it got wrong in its own work.
 ## §0.05 THIS BRIEF WAS AUDITED AGAINST THE MACHINE — AND WHERE IT IS WEAKEST
 
 **HOW IT WAS AUDITED (rule 17).** Every figure in §0.06, §0.07 and §3 was RE-RUN at the
-handoff commit, not transcribed. `audit_brief.py` and `audit_adversary.py` were both run.
-**The outgoing audit found that §2's refuted list, which the rev-67 brief said had "14 rows",
-has SEVENTEEN**, and that the rev-67 brief named **the wrong three rows** as unsafe.
+handoff commit, not transcribed. `audit_brief.py` (10 checked, 0 FAILED) and
+`audit_adversary.py` (57 asked, 0 BROKE) were both run, **and the adversary's questions were
+REPLACED this revision** — §10 item 5 — with four about what rev 67 measured: the nose's
+constant, the EXIF this tree never read, the bar that could not refuse, and the fixtures that
+do not follow the skin. *(The rev-63 batch is now the oldest and is next.)*
 
-**AND RULE 15's ADVERSARY WAS DISPATCHED THIS TIME, NOT RUN IN-CONTEXT.** It returned
-thirteen defects; **five of the load-bearing ones were re-run and confirmed by hand before
-being carried here**, and they are F208–F212. **One of its claims I checked and it was WRONG
-in the brief's favour, so it is recorded as such: F179 re-runs and STANDS.**
+**AND THE RE-AUDIT AT HANDOFF FOUND A LIVE DEFECT, WHICH IS WHY IT IS WORTH DOING.** §0.07
+claimed `probe_rev67_nose.py` reads *"5 checked, 1 FAILED — P3"*. **Re-run, it read
+`5 checked, 0 FAILED`:** the outlier clip added for F220 had rescued the render's fragment
+trace into a false PASS. I had fixed exactly that for P1 and **not propagated it to P3.**
+Fixed, watched refusing again, and the row now matches. **Two earlier passes over this same
+brief ALSO found transcription defects — "FIVE rows added" for SEVEN and "329 → 334" for 336.
+Three audits, three finds, in a document whose own first section says not to transcribe.**
 
-**AND HERE IS THE LESSON REV 67 ADDS.** Rev 65 found a *sentence* that was a string literal.
-Rev 66 found *targets* that could not be reached. **Rev 67 found that the register ALREADY
-HELD the finding rev 66 spent a revision re-discovering — F139, at grade `MEASURED-rev61`,
-five revisions old, saying the same thing in the same words.** A literal is invisible; an
-unreachable target is invisible; **but F139 was neither. It was written down, graded MEASURED,
-and read past by five revisions.** **Assume this document contains another one, and that the
-way to find it is to READ THE REGISTER, not to re-derive.**
+**AND RULE 15's ADVERSARIES WERE DISPATCHED — THREE OF THEM, AND THE OWNER ASKED FOR THE
+SECOND ROUND HIMSELF.** The first returned thirteen defects on §2's refuted list (five re-run
+and confirmed by hand: F208–F212). Then, when he could not read the nose A/B and said
+***"Can you have an adversarial audit team attack this?"***, three more were pointed at the
+figure, at the geometry change, and at my own published ceiling. **All three landed**, and
+between them they produced **F215–F221** — including the revision's two worst self-inflicted
+defects and its best result.
 
 **WHERE THIS BRIEF IS WEAKEST:** **§0's inherited gate table** and **§4**, still the two
-longest carriers and still almost entirely inherited text. **AND §2's REFUTED LIST, which is
-WORSE than rev 67 was told:** three of its rows (**F101, F199, F196**) were scored on
+longest carriers and still mostly inherited text — though §4 now carries rev 67's two rulings.
+**AND §2's REFUTED LIST**, whose three unsafe rows (**F101, F199, F196**) all rest on
 `T1_VW_CAPMIN`, which **has done nothing at all since rev 66** (F208). Start an adversary
-there again — it paid twice running.
-
+there again — it has paid three revisions running.
 ---
 ## §0.06 THE NOSE HAS AN INSTRUMENT AT LAST — AND THE PHOTOGRAPHS CANNOT FINISH THE JOB
 
@@ -514,6 +518,34 @@ studio — ruling stands"* (twice); the front arch *"leave it circular"*.
 > than fixed. What changes is that it is a LIVE agreed second deliverable carried in the
 > register, and that *"the emotional bar that sits ABOVE clinical accuracy"* is back in the
 > record. **Do not re-ask it; do not act on it either.**
+
+**RULED AT REV 67 — TWO ASKINGS, BOTH SPENT, AND THE SECOND ONE CHANGED THE METHOD.**
+Asked as multiple choice with `probe_scratch/rev67_nose_ab.png` attached — the photograph
+beside the model at plan bulge 6.2 / 19.6 / ~48 mm — and told to ignore the emblem and the
+camera angle:
+
+> ***"Rounder than D."*** — i.e. **rounder than the roundest panel offered**. **THIS
+> CONFIRMS REV 51's FLAT NOSE, found by eye and never worked, and it is a RULING ON THE
+> DIRECTION. F214.** *(And the panel he was judging was a build that FAILS VERIFY —
+> `T1_NOSE_BULGE=0.055` gives "length 4.083 vs spec 4.055 (+28 mm)". He was told as soon as
+> it was known.)*
+
+Asked again with a second ladder at 70 / 99 / 135 mm, all three passing the guards:
+
+> ***"I can't quite tell. Can you have an adversarial audit team attack this?"***
+> — **AND HE WAS RIGHT ON BOTH COUNTS.** By `CLAUDE.md`'s own rule, *"if he does not
+> understand the question, THE FIGURE IS THE DEFECT"*, and it was, four ways (F215): I
+> **mirrored panels that already matched**, so the two were lit from opposite sides; the
+> **pose was 17.8° of azimuth apart**, an uncontrolled variable 2.4× the span of the question;
+> a 26 % anisotropic stretch; and **the ladder itself carried almost no signal** — across
+> 70 → 135 mm the roundel moves **2 px**, because my own tip-preserving change pins `y = 0`
+> and the emblem sits there. **The team he asked for then found the number (F221) and found
+> that I had shipped the nose 19 mm the WRONG WAY (F217).**
+>
+> **WHAT IT LICENSES, AND IT IS A STANDING METHOD CHANGE:** when a figure put to him fails,
+> **DISPATCH ADVERSARIES AT IT RATHER THAN REDRAWING IT AND ASKING AGAIN.** Rev 67 asked
+> twice and the second asking was worthless; the audit that followed produced the
+> measurement. **DO NOT ASK HIM THE NOSE AGAIN** — §3 item 1 says what to do instead.
 
 **RULED AT REV 66 — BOTH NEW, BOTH BINDING, AND THEY SET THIS REVISION'S WORK LIST.**
 Asked as multiple choice with `probe_scratch/rev66_emblem_ba.png` and

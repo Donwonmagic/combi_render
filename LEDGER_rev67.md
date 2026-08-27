@@ -138,7 +138,7 @@ from the broken window.)*
 
 ---
 
-## §4 WHAT REV 67 GOT WRONG IN ITS OWN WORK — FOUR
+## §4 WHAT REV 67 GOT WRONG IN ITS OWN WORK — NINE, AND THE OWNER CAUGHT THE WORST ONE
 
 1. **THE PAINT-NOT-THE-NOSE ERROR (F213), AND IT WAS THE HEADLINE MEASUREMENT.** I had a
    sagitta, a chord, sub-pixel edges and two corroborating frames before I asked what the
@@ -158,6 +158,26 @@ from the broken window.)*
    A purely fractional bar is too loose at long spans. Re-cut as `max(4 px, 3 % of span)`,
    which refuses both fragment traces and keeps the one real edge — **and that arithmetic is
    now a verifier row, so it cannot silently loosen again.**
+
+5. **I SHIPPED THE NOSE 19 mm THE WRONG WAY, IN THE REVISION HE RULED IT SHOULD BE ROUNDER
+   (F217).** My tip-preserving re-parameterisation moved the tip 2.12699 → 2.10800 while
+   `x(0) − x(0.70)` stayed at 19.6 mm *by construction*. **REVERTED.**
+6. **AND THE FIGURE I PUBLISHED AS EVIDENCE FOR IT WAS A TAUTOLOGY.** `old − new` is constant
+   in y, so the plan bulge is analytically identical between the two forms — watched, the
+   difference is **0.000e+00 at every z**. It could not have printed anything else. Rule 6.
+7. **THE A/B FIGURE WAS BROKEN FOUR WAYS AND HE CAUGHT IT (F215).** I mirrored panels that
+   already matched, so the two were lit from opposite sides; the pose was 17.8° apart; a 26 %
+   anisotropic stretch; and the second ladder had almost no signal — 2 px of roundel movement
+   across 70 → 135 mm, because my own change pins `y = 0` and the emblem sits there.
+8. **MY HEADLINE SAGITTA WAS CONTAMINATED BY A CHILD'S HAIR (F220)**, and **rule 48's bar,
+   which I wrote this revision to refuse exactly that, passed it.** −2.94 ± 0.46 → −2.05 ±
+   0.09; a 43 % move. **And the fix I wrote for it immediately turned a CORRECT refusal into
+   a false pass** on `ref_playa_34.png` — caught by re-running, fixed, recorded as F220b.
+   **Then the same defect was found still live in P3 when the §0.07 table was re-checked at
+   handoff: I had fixed P1 and not propagated it.**
+9. **AND I DELETED TWO TRACKED FILES.** `rm -f probe_scratch/*.npz` took
+   `rev54_tight_chips.npz` and `rev57_glyph.npz`, which are tracked. Rule 16, and it was an
+   adversary that noticed, not me. **Restored.**
 
 **AND ONE THING I DID NOT GET TO.** C4 is still red at **0.0755** against a bar of 0.045 and
 `T1_VW_SOLVE=1` is still sitting unrun. The nose took the revision, as it was ruled to.
@@ -194,9 +214,12 @@ the three still fail.**
 2. **F205 IS RE-CONFIRMED BUT NOT CLOSED.** The render cuts 3 cells where the photograph cuts
    6. Where the mesh and the render diverge is still not found — **and F210 now says the mesh
    half of that "contradiction" was never an independent observation.**
-3. **THE NOSE IS INSTRUMENTED BUT NOT FITTED.** `NOSE_BULGE` was not moved, because the
-   photograph cannot say what to move it to and a guess is what rule 12 forbids. **§7 asks
-   the owner instead.**
+3. **THE NOSE IS INSTRUMENTED AND NOW HAS A MEASURED TARGET — BUT IT IS NOT FITTED.**
+   `NOSE_BULGE` is unchanged at 0.019 / 19.6 mm. **F221 puts the real nose at B ≈ 40 mm,
+   bracketed 20–55**, so the shipped value is at or below the bottom of the bracket. It was
+   NOT moved because **F217 blocks it**: the indicator pods and headlamps sit at hard-coded
+   `x` literals and do not follow the skin, so any bulge change leaves them floating with
+   every guard green. **Fixtures first, then the guard, then the fit.**
 4. F156 — seven revisions unacted. `REMAINING_WORK_rev61.md` §I — 27 rows, seven revisions.
 5. `probe_rev63_shapefit.py` still reads the HUBCAP's weight where the nose ships its own.
 6. Tyres, glass, the tail's barrel, the shut lines, the galley, F143's roof loudspeakers.

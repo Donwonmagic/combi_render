@@ -648,11 +648,61 @@ t("is the arc cut still ablatable, and still holding the extreme?",
   "true end caps must stay OUT of the fixed point (`_drive`), or the "
   "corner-choice the arc cut removes comes straight back (F202)")
 
+
+# ---------------------------------------------------------------- rev 67
+# REPLACED THIS REVISION (SS10 item 5).  These are about what rev 67 measured,
+# refuted and left open, and every one of them CAN go red.
+
+t("is the nose's plan bulge still a named constant with a live ablation?",
+  '\nNOSE_BULGE = 0.019' in open('t1_shell.py').read()
+  and 'T1_NOSE_BULGE' in open('t1_shell.py').read()
+  and 'bulge = NOSE_BULGE * w * max' in open('t1_shell.py').read(),
+  "the nose's forward convexity had NO constant, NO ablation and NO probe for "
+  "fifteen revisions, because a side elevation is blind to plan curvature BY "
+  "CONSTRUCTION -- the silhouette is max-over-y of x, which is always the "
+  "centreline (F207).  If the literal comes back the ablation stops ablating "
+  "and F207's kill reports nothing, which is F208's failure mode exactly")
+
+t("does the nose probe still READ EXIF rather than assume no camera?",
+  'def exif_focal(' in open('probe_rev67_nose.py').read()
+  and 'FocalLengthIn35mmFilm' in open('probe_rev67_nose.py').read(),
+  "NOTHING in this tree had ever read EXIF, and the record said 'the focal "
+  "length of a camera nobody recorded' for FIVE revisions while "
+  "ref_nolita_front34.jpg carried SONY DSC-RX100 / 10.4 mm / 35mm-equiv 28, "
+  "3:2 uncropped -> f = 544.4 px.  That belief is what made the nose look "
+  "unmeasurable, and F26 was cited to block a frame it is not even about "
+  "(F219).  If exif_focal goes, the ceiling comes straight back")
+
+t("can the edge-acceptance bar still refuse, and can the clip still not rescue?",
+  'def rms_bar(span)' in open('probe_rev67_nose.py').read()
+  and 'max(4.0, 0.03 * span)' in open('probe_rev67_nose.py').read()
+  and 'rescued' in open('probe_rev67_nose.py').read()
+  and 'n_clipped' in open('probe_rev67_nose.py').read(),
+  "rev 67 wrote 'rms <= 12 %% of span' and watched an 831 px whole-frame scan "
+  "with rms 61.85 sail through at 7.4 %% -- a fraction-of-span bar cannot "
+  "refuse a long enough input (rule 48).  Then the outlier clip written for "
+  "F220 turned ref_playa_34's CORRECT refusal into a PASS by eating the "
+  "fragments, span collapsing 105 -> 51 px.  BOTH halves must stand: the "
+  "absolute term, and judging the ORIGINAL n and span (F220b)")
+
+t("is the fixture-to-skin defect still recorded as OPEN?",
+  'HL_X    = 2.1015' in open('build.py').read()
+  and 'F217' in open('OPEN_FINDINGS.md').read(),
+  "the indicator pods and headlamps sit at hard-coded x literals and do NOT "
+  "follow the nose skin.  Rev 67 moved the nose and left ind1_base 7.6 mm of "
+  "OPEN AIR off the body and hl_lens 7.9 mm proud, with VERIFY 0 fail 0 warn "
+  "-- because the only row that ever stopped a bulge change is `length`, a "
+  "max-over-x, blind to a rearward-only deformation BY CONSTRUCTION (F217).  "
+  "This is the blocker on the whole nose item; if the row goes, so does the "
+  "reason NOSE_BULGE has not moved")
+
 P("  %d asked, %d BROKE%s" % (NQ[0], len(bad),
                               ("  --  " + "; ".join(bad)) if bad else ""))
-P("  A question that can no longer fail is not a control.  The last SIX were")
-P("  REPLACED at rev 64 and are about what REV 64 measured, refuted and left")
-P("  open; the rev-63 batch above them is the next one to replace.")
+P("  A question that can no longer fail is not a control.  The last FOUR were")
+P("  REPLACED at rev 67 and are about what REV 67 measured, refuted and left")
+P("  open -- the nose's constant, the EXIF the tree never read, the bar that")
+P("  could not refuse, and the fixtures that do not follow the skin.  The")
+P("  rev-63 batch is still the oldest and is the next one to replace.")
 sys.exit(1 if bad else 0)
 
 
