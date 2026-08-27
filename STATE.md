@@ -8,10 +8,10 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-27 16:44:33 UTC |
-| git commit | `c1707cf` |
-| git subject | rev 67i: the ceiling is REFUTED -- the frames carry their own camera, and the nose measures ~40 mm (F219/F220/F221) |
-| working tree | **DIRTY** — this state is not committed |
+| generated | 2026-08-27 19:09:02 UTC |
+| git commit | `98e5c75` |
+| git subject | rev 68a: the nose fixtures FOLLOW THE SKIN, and a row that would have caught F217 |
+| working tree | clean |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=2 (applied, destructive, before booleans) |
 | geometry source | procedural, built this run |
@@ -58,6 +58,9 @@ hubcap badge: 4 rings R 0.043429 (= CAP_EMBLEM_D/2), glyph extreme 0.043429, spr
 hubcap badge is SELF-CONSISTENCY ONLY -- CAP_EMBLEM_WFRAC has never been compared to a frame; see PHOTOS_WANTED item 7
 wheel-house reach front: liner minus aperture radius -0.0 .. +0.0 mm over 0 station(s) short of it; rim inset inside flank_y +2.6 mm; 0 station(s) beyond the outline's feet
 wheel-house reach rear : liner minus aperture radius -0.0 .. +0.0 mm over 0 station(s) short of it; rim inset inside flank_y +2.6 mm; 0 station(s) beyond the outline's feet
+nose fixture hl_bowl     NOT GRADEABLE -- all 64 back-face rays fall through the headlamp bore; no skin behind it
+nose fixture hl_bowl.001 NOT GRADEABLE -- all 64 back-face rays fall through the headlamp bore; no skin behind it
+nose fixture registration (F217): hl_lens -7.64, hl_lens.001 -7.64, hl_ring -13.46, hl_ring.001 -13.46, ind-1_base -10.03, ind-1_lens +11.68, ind1_base -10.03, ind1_lens +11.68 mm back-face-to-skin, frozen band +-3.0 mm
 VERIFY: 0 fail, 0 warn
 ```
 
