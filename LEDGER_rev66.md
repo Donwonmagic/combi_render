@@ -125,9 +125,17 @@ extreme runs 0.8140 → 0.9250 and drags every other terminal 12 % inboard.
   every one.**
 * **ON by default. `T1_VW_NOARC=1` restores the perpendicular cap exactly as it stood at rev
   65**, so the two render from one tree (rules 36 and 41).
-* **IT DID NOT MOVE THE CELL COUNT (6 either way) — because F200 shows the count was never
-  the discriminator.** Stated plainly: the item's stated acceptance in the rev-66 brief
-  (*"C6 → 7 cells"*) **was unreachable when it was written**.
+* **IT DID NOT MOVE THE CELL COUNT ON THE RASTER (6 either way) — because F200 shows that
+  count was never the discriminator.** Stated plainly: the item's stated acceptance in the
+  rev-66 brief (*"C6 → 7 cells"*) **was unreachable when it was written**.
+* **AND ON THE RENDER IT MOVED THE COUNT THE WRONG WAY: 4 → 3 (F205).** The arc cut and the
+  heavier stroke together left the frame further from the photograph's 6 than the rev-65
+  geometry was. **I did not know that until the owner looked at the crop and said so**, because
+  every gate I had was reading the raster. It is recorded here rather than left in F205 alone,
+  since this is the section a reader uses to judge whether the shipped change was good.
+  **The change is NOT reverted** — the ink and L6 axes it was fitted on both improved and are
+  independently corroborated — but it is **not a net win on the frame, and this bullet is the
+  honest statement of that.**
 
 **MEASURED ON THE RENDER, WHICH IS THE ARBITER (rule 41), NOT ON THE RASTER:**
 
@@ -215,6 +223,30 @@ and asked as multiple choice.
 
 **HE HAS NOW REPORTED THIS EMBLEM SEVEN TIMES.** The two defects he names are both open and
 both instrumented; neither is a matter of taste.
+
+---
+
+## §5b RULE 15's ADVERSARY — RUN, BUT NOT DISPATCHED, AND SAID SO
+
+**Rule 15 says put an agent on the incoming brief whose only job is to refute it, and do not
+close until it reports. THIS SESSION WAS INSTRUCTED NOT TO DISPATCH SUBAGENTS**, so the
+refutation was done in-context instead. **It is recorded here as a limitation of the method
+this revision used, not as a claim that the rule was satisfied in its usual form.**
+
+**WHAT THE REFUTATION ACTUALLY FOUND, against the incoming rev-66 brief:**
+
+| the brief said | refuted by |
+|---|---|
+| C6 is short one cell = *"1 floating stroke"* | **F200** — the 7th is the photograph's rim; the mark cannot make 7 |
+| C4/C5 red, the constants worse than rev 45 | **F203** — 96.4 % of that residual is one landmark comparing two different features |
+| *"the only route left standing"* is the arc cut, acceptance *"C6 → 7 cells"* | **F200/F202** — that acceptance was unreachable when it was written |
+| F152: the stroke weight *"moves the WRONG way"* | **F204** — measured the other way it is the revision's actual fix |
+| C6's message names the floating strokes | **F198** (rev 65's find) — it was a literal; now measured, held by C12 |
+
+**AND THE ONE IT DID NOT CATCH, WHICH THE OWNER DID:** that C6 passes on a raster which does
+not predict the render (**F205**). **The in-context adversary refuted five inherited claims and
+missed the one that mattered most.** A dispatched agent with no stake in my own work might have
+caught it; I cannot claim it would have. **Rev 67 should dispatch one.**
 
 ---
 

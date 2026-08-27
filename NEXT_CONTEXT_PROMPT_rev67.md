@@ -30,9 +30,17 @@ things it got wrong in its own work.
 ---
 ## §0.05 THIS BRIEF WAS AUDITED AGAINST THE MACHINE — AND WHERE IT IS WEAKEST
 
-**HOW IT WAS AUDITED (rule 17).** Every figure in §0.06, §0.07 and §3 was RE-RUN at the
-handoff commit, not transcribed. `audit_brief.py` and `audit_adversary.py` were both run and
-their results are printed in §0.07.
+**HOW IT WAS AUDITED (rule 17).** Every figure in §0.06, §0.065, §0.07 and §3 was RE-RUN at
+the handoff commit, not transcribed. `audit_brief.py` and `audit_adversary.py` were both run
+and their results are printed in §0.07. **The outgoing-brief audit found four defects in this
+document and its ledger** — two stale row counts, a pair of correct figures from two different
+states sitting three lines apart with nothing saying so, two probe tiles cited without their
+directory, and a ledger bullet claiming the arc cut "did not move the cell count" when on the
+FRAME it moved it 4 → 3. **None of the four was caught by either script.**
+
+**AND RULE 15's ADVERSARY WAS RUN IN-CONTEXT, NOT DISPATCHED** — see §3 item 5 and
+`LEDGER_rev66.md` §5b. It refuted five inherited claims and **missed the one that mattered
+most, which the owner caught by looking at the frame.**
 
 **AND HERE IS THE LESSON REV 66 ADDS TO REV 65's.** Rev 65 found that the *sentence* naming
 the emblem's defect was a string literal — a number that printed without being measured.
@@ -391,8 +399,13 @@ CHASING C6 TO SEVEN CELLS                SEVEN IS THE PHOTOGRAPH'S RIM.
    and it is a MEASUREMENT, not a guess** — and the ring's own profile
    (`roundel()`: R, R−0.002, R−0.012, R−0.024, R−0.028, R−0.020) says where its visible inner
    lip actually is. Nobody has measured this.
-5. **PUT AN ADVERSARY ON THIS BRIEF (rule 15), AND POINT IT AT §2's REFUTED LIST** — see the
-   warning under it. Rev 64's adversary found fourteen.
+5. **PUT AN ADVERSARY ON THIS BRIEF (rule 15), AND *DISPATCH* IT — POINT IT AT §2's REFUTED
+   LIST.** See the warning under it. Rev 64's adversary found fourteen. **REV 66's WAS RUN
+   IN-CONTEXT, NOT DISPATCHED** (that session was instructed not to spawn subagents), and
+   `LEDGER_rev66.md` §5b records both what it refuted — five inherited claims, including C6's
+   target and C4's residual — **and the one it missed, which the OWNER caught: that C6 passes
+   on a raster the render contradicts (F205).** An adversary with no stake in the revision's
+   own work is the point of the rule; rev 66 could not supply one.
 6. **FIX `probe_rev63_shapefit.py`** — its baseline is stale and it reads `CAP_EMBLEM_WFRAC`,
    the HUBCAP's weight, where the nose ships its own (F178's trap). **F204 has now MOVED the
    nose's weight, so that probe is further out of date than it was.**
