@@ -741,6 +741,11 @@ oldest live row and the project's original deliverable).
 
 **CARRIER: re-rank it, do not rewrite it, and say what moved.**
 
+**AND WHAT REV 66 LEARNED LAST, WHICH RE-RANKS THE REST.** C6 was repaired, re-based, killed
+and swept until it PASSED — **on a raster that does not predict the render on the axis C6 is
+named for.** The owner looked at the frame and named the defect the gate could not see (F205).
+**Run the emblem gates on the FRAME before you believe them.**
+
 **WHAT MOVED AT REV 66.** The emblem's **stroke weight** was fitted and shipped, by two
 statistics that share no ruler; the **arc-cut terminal** was built and shipped; and **three of
 the project's own emblem instruments were found to be reporting things that were not
@@ -755,7 +760,8 @@ the reach was measured live off the mesh; the naming sentence was found to be a 
 | horizon | the work | why |
 |---|---|---|
 | **next** | **THE NOSE'S SECTION (§3 item 1, F197)** | **He asked for it by name TWO revisions ago and it has not been touched.** It is now the top item |
-| **next** | **C4 — re-solve the six constants (§3 item 2)** | The emblem's last red row, and **the solver can see L4 for the first time** |
+| **next** | **F205 — THE RENDER CUTS 3 CELLS WHERE THE PHOTOGRAPH CUTS 6 (§3 item 2)** | **The owner's own second sentence, and C6's own statistic says so — on the FRAME, which the raster does not predict.** The mesh says 0.8400 R and the render disagrees; rev 66 did not find where |
+| **next** | **C4 — re-solve the six constants (§3 item 3)** | The emblem's last red row, **the owner's first sentence** (*"the W's outer arms sit too low"*), and the solver can see L4 for the first time |
 | **next** | **THE TIP/RING GAP (§3 item 3)** | The photograph shows none; nobody has measured the fit depth |
 | **next** | **AN ADVERSARY ON THIS BRIEF, AIMED AT §2's REFUTED LIST** | **Three of its rows were scored on gates now known mis-targeted** |
 | **near** | **F156 — the `Senor` gate row scores a DEPARTURE** | SIX revisions unacted |
