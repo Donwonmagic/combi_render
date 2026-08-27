@@ -814,6 +814,88 @@ def _wheelhouse_reach(log=print):
     return fails
 
 
+def _bumper_bow(body, log=print):
+    """rev 69, F222/F232.  THE FRONT BUMPER MUST CARRY A PLAN BOW.
+
+    THE DEFECT THIS ROW EXISTS FOR, AND IT SHIPPED FOR SIXTY-EIGHT REVISIONS.
+    `t1_detail.bumper` appended eleven points at CONSTANT x under its own
+    comment `# flat nose face`, so the front bumper's plan bulge over
+    |y| <= 0.70 measured **+0.05 mm** -- dead flat, by construction, over
+    precisely the span the photographs are traced on. The photographed bumper's
+    near half is curved at 11-14 sigma, and that sign is PROJECTION-INVARIANT:
+    a straight 3-D line images straight under any pinhole camera at any pose.
+    So the defect needed no camera model to establish -- and nothing in this
+    file measured the bumper's plan shape at all.
+
+    TWO ARMS THAT DO NOT SHARE A RULER (rule 38). One measures the BUMPER's own
+    plan outline off `bumper_f`; the other measures the SHELL's at the station
+    the blade takes its shape from, off `T1_body`. Two separate meshes, and the
+    row asserts they agree -- which is the comparison that was missing, not a
+    stricter version of one that was there. A guard whose reference is the thing
+    it guards can only ever catch the object going missing.
+
+    THE FIGURES WERE WATCHED PRINTING at rev 69 on the built mesh, T1_SUB=1, and
+    are NOT typed from intent (rule 5):
+
+        shipped (BUMP_BOW 1.0)   bumper +21.45 mm   shell at the face ~+19.6
+        T1_BUMP_BOW=0            bumper  +0.05 mm   -- the old straight face,
+                                 bit for bit, and this row goes RED on it
+
+    NOT A FIDELITY CLAIM. It says the blade parallels the front face, which is
+    what a wrap-around pressing does. It does NOT say the bow is the real bus's
+    -- that magnitude cannot be recovered from the frames we hold (F231), and
+    when it arrives it moves NOSE_BULGE and the blade follows for free.
+    """
+    fails = []
+    ob = bpy.data.objects.get("bumper_f")
+    if ob is None:
+        return ["SPEC 10.22: bumper_f is not in the scene, so its plan bow "
+                "cannot be measured (rule 37 -- this is not a pass)"]
+
+    def bow(o, zlo=None, zhi=None):
+        mw = o.matrix_world
+        pts = [mw @ v.co for v in o.data.vertices]
+        if zlo is not None:
+            pts = [c for c in pts if zlo <= c.z <= zhi]
+        if not pts:
+            return None
+        out = {}
+        for y0 in (0.0, 0.70):
+            s = [c.x for c in pts if abs(abs(c.y) - y0) < 0.02]
+            if not s:
+                return None
+            out[y0] = max(s)
+        return 1000.0 * (out[0.0] - out[0.70])
+
+    b = bow(ob)
+    if b is None:
+        return ["SPEC 10.22: bumper_f presents no vertices at |y| = 0 and 0.70, "
+                "so its plan bow was NOT measured (rule 37)"]
+    # the shell, at the blade's own reference station, in the DROPPED frame
+    import t1_detail as _D69
+    zref = _D69.BUMP_BOW_Z - 0.085          # un-dropped -> dropped, at the nose
+    s = bow(body, zref - 0.02, zref + 0.02)
+
+    FLOOR = 8.0        # sits between the flat face (0.05) and the shipped 21.45
+    if b < FLOOR:
+        fails.append(
+            "SPEC 10.22: the front bumper's plan bow is %+.2f mm over |y| <= "
+            "0.70, below a floor of %.1f mm -- it is the FLAT NOSE FACE again "
+            "(F222). The photographed bumper is curved at 11-14 sigma and that "
+            "sign is projection-invariant. Do NOT lower this floor; make the "
+            "blade follow the face via t1_detail.BUMP_BOW" % (b, FLOOR))
+    if s is not None and abs(b - s) > 6.0:
+        fails.append(
+            "SPEC 10.22: the bumper's plan bow (%+.2f mm) and the SHELL's at "
+            "the station it takes its shape from (%+.2f mm) disagree by %+.2f "
+            "mm -- the blade has stopped paralleling the front face"
+            % (b, s, b - s))
+    log("  bumper plan bow (F222): %+.2f mm over |y| <= 0.70, against the shell's "
+        "%s at z=%.3f; floor %.1f mm"
+        % (b, ("%+.2f mm" % s) if s is not None else "NOT GRADEABLE", zref, FLOOR))
+    return fails
+
+
 def _nose_fixture_reg(body, log=print):
     """rev 68, F217.  THE NOSE FIXTURES MUST STAY REGISTERED TO THE SKIN.
 
@@ -2377,6 +2459,12 @@ def run(body, log=print):
         fails += _wheelhouse_reach(log)
     except Exception as e:                       # never let the guard vanish
         fails.append("wheel-house reach assertion could not run: %s" % e)
+
+    # rev 69, F222.  The front bumper's plan bow, against the shell's.
+    try:
+        fails += _bumper_bow(body, log)
+    except Exception as e:                       # never let the guard vanish
+        fails.append("bumper plan-bow assertion could not run: %s" % e)
 
     # rev 68, F217.  The nose fixtures against the skin they are mounted on.
     try:

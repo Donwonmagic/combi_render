@@ -2105,6 +2105,44 @@ import t1_shell as S
 a = S.nose_bulge_at(2.1015, 0.5450, 0.9330, amount=0.038)
 b = 2 * S.nose_bulge_at(2.1015, 0.5450, 0.9330, amount=0.019)
 print('OK' if abs(a - b) < 1e-12 else 'NONLINEAR %.8f %.8f' % (a, b))" 2>&1 | tail -1)"
+# ---------------------------------------------------- rev 69, F222/F232
+# THE FRONT BUMPER'S PLAN BOW.  It was DEAD FLAT for sixty-eight revisions --
+# eleven points at constant x under t1_detail.bumper's own `# flat nose face`
+# comment -- measuring +0.05 mm over |y| <= 0.70, the span the photographs are
+# traced on.  These rows are ARITHMETIC AND BEHAVIOUR, not greps (rule 50): the
+# grep row this block replaces in spirit went red at rev 68 on a refactor that
+# preserved every value it protected.
+ck "bumper: the plan bow is a named constant on its own line" 1 \
+   "$(grep -c '^BUMP_BOW = 1.0' t1_detail.py)"
+ck "bumper: T1_BUMP_BOW actually overrides it, in a fresh process" "0.35/1.0" \
+   "$(python3 -c "
+import os, subprocess, sys
+def g(env):
+    return subprocess.run([sys.executable, '-c',
+        'import t1_detail as D; print(D._bump_bow())'], capture_output=True,
+        text=True, env=dict(os.environ, **env)).stdout.strip()
+print('%s/%s' % (g({'T1_BUMP_BOW': '0.35'}), g({})))" 2>&1 | tail -1)"
+ck "bumper: the face takes its shape from the FACE's station, not the blade's" 1 \
+   "$(grep -c '_skin = _nose_plan_x(BUMP_BOW_Z)' t1_detail.py)"
+# THESE TWO WERE WRITTEN AS GREPS FIRST AND BOTH WERE WRONG -- RULE 50, TWICE
+# IN ONE BLOCK.  "the old constant-x face is gone" matched the HISTORICAL LINE
+# QUOTED IN THE NEW COMMENT, so it read 1 and failed; and "a partially draped
+# face REFUSES" never matched because the message is SPLIT ACROSS TWO SOURCE
+# LINES, which a line-oriented grep cannot see.  Both are behaviour now.
+#
+# THE CHANGE WAS SCOPED TO THE FRONT.  The REAR bumper still sweeps a flat tail
+# face and must keep doing so -- there is no photograph of a bowed tail bumper
+# and nothing was measured there.  This is the containment arm.
+ck "bumper: the change was scoped to the FRONT -- the tail face is untouched" 1 \
+   "$(grep -c '# flat tail face' t1_detail.py)"
+# THE REFUSAL'S PRECONDITION, EXERCISED FOR REAL: outside Blender there is no
+# body to follow, so the drape source must return None rather than inventing a
+# curve.  That is the branch the RuntimeError guards.
+ck "bumper: the drape source REFUSES to invent a curve with no body" "None" \
+   "$(python3 -c "
+import t1_detail as D
+print(D._nose_plan_x(1.10))" 2>&1 | tail -1)"
+
 # ------------------------------------------------------- rev 68, F217
 # COMPANION 3.  THE FIXTURE OFFSET IS EXACTLY ZERO WHERE IT SHIPS.  This is the
 # containment property: rev 68 changed no shipped vertex.  If it is ever
