@@ -314,8 +314,12 @@ AT PICKUP   clone SHALLOW -- the NINTH revision running.  git fetch --unshallow.
             predicted it would once rev 64 reached main.
 AT CLOSE    measured after the push, with `git fetch --all --prune` first:
               shallow: false
-              origin/claude/next-context-prompt-rev66-0rd3kg   ahead 7 / behind 0
-              HEAD                                             7 ahead / 0 behind origin/main
+              origin/claude/next-context-prompt-rev66-0rd3kg   ahead 10 / behind 0
+              HEAD                                            10 ahead / 0 behind origin/main
+              (10 as this line was written, and the commit that records it makes 11 --
+               that regress is exactly why bootstrap.sh row 9 outranks any sentence
+               about branch state, INCLUDING THIS ONE.  Row 9 is GREEN, which is the
+               claim that actually matters: no branch carries work HEAD does not have.)
               NO OTHER remote branch is ahead of origin/main at all.
               bootstrap.sh row 9 GREEN -- "no branch carries work HEAD does not have".
               bootstrap.sh ALL 10 PASS ;  verify_clone.sh ALL 329 PASS, clean tree.
