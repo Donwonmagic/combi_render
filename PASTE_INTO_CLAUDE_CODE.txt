@@ -104,6 +104,43 @@ that item — *"C6 → 7 cells"* — was unreachable when it was written.**
 BEFORE YOU PLAN ANYTHING.**
 
 ---
+## §0.065 AND THEN THE OWNER LOOKED AT IT AND C6's PASS TURNED OUT TO BE A **RASTER** FACT
+
+> *[owner, rev 66, shown the before/after crop]* **"The W's outer arms sit too low"** AND
+> **"The strokes still don't reach the ring."**
+
+**HE IS RIGHT, AND THE MEASUREMENT IS C6's OWN — JUST NOT ON C6's RASTER (F205).** Run
+`cream_cells(..., interior=True)` on the RENDER instead of on `glyph_only_mask`:
+
+```
+    PHOTOGRAPH   6 interior cells        <- every stroke reaches
+    RENDER before (rev-65 geometry)  4   <- the V's arms float; cells merge
+    RENDER after  (as shipped)       3   <- and the arc cut + heavier stroke made it WORSE
+    the FLAT RASTER reads 6 for BOTH, and cannot see any of this
+    raw pixels outward along the V's left arm, 115 deg:
+      red to r 0.63 | NEUTRAL CREAM (131,131,127) sat +4 from 0.66 to 0.78 | ring red from 0.81
+```
+
+**THE GAP IS NOSE CREAM, NOT SHADOW. AND THE MESH DISAGREES WITH THE RENDER:** it puts every
+terminal at **0.8400 R** against a band inner edge of 0.8000, and `terminal_reach()` finds
+**102 of 108** outline vertices inside the band. **REV 66 DID NOT FIND WHERE THEY DIVERGE.
+That is the honest state — a measured contradiction, not a diagnosis, and it is §3 item 2.**
+
+**ONE HYPOTHESIS WAS BUILT, GUARDED AND REFUTED — DO NOT RE-TRY IT (F206).** The roundel's
+cream disc and the glyph are draped as separate plates and their front faces looked coincident
+to 0.1 mm. A `GLYPH_STANDOFF` was added and a guard written in the same edit; **the guard
+refuted the hypothesis — at the original standoff the clearance is already +2.04 mm.** The
+apparent coincidence was two DIFFERENT radii inside one wide bin (rule 38, inside a
+diagnostic). **The change is reverted; the guard stays, because the comparison was genuinely
+missing.**
+
+> **AND THE LESSON, WHICH IS RULE 41 AGAIN AND COST THIS REVISION ITS HEADLINE.** C6 was
+> repaired, re-based and made to PASS — **on a raster that does not predict the render on the
+> very axis C6 is named for.** A gate can be corrected, guarded, killed, swept, and still be
+> measuring the wrong object. **The render is the arbiter. Run the emblem gates on the FRAME
+> before you believe them.**
+
+---
 ## §0.07 THE MACHINE'S VERDICT AT CLOSE OF REV 66 — every one watched print
 
 ```
@@ -114,7 +151,11 @@ verify_clone.sh           ALL 322 PASS on a clean tree, AT THE HANDOFF COMMIT
                           17 companion rows added.  NO row relaxed.
 probe_rev46_vw.py         12 checked, 1 FAILED -- C4 ONLY, at 0.0755 against a bar of
                           0.045.  WAS 9 checked, 3 FAILED (C4, C5, C6).
-                          C6 PASSES 6 = 6;  C10, C11, C12 are NEW
+                          C6 PASSES 6 = 6 -- **ON THE RASTER.  ON THE RENDER THE SAME
+                          FUNCTION READS 3 AGAINST THE PHOTOGRAPH'S 6 (F205).**
+                          C10, C11, C12 are NEW
+THE SAME FUNCTION ON      PHOTOGRAPH 6  |  out/r66_front.png 4  |  out/r66b_front.png 3
+THE RENDER (F205)         <- the gate that matters, and it is RED
 build.py T1_VERIFY=1      VERIFY: 0 fail, 0 warn at SUB=1
 audit.py T1_SUB=2         VERIFY: 0 fail, 0 warn -- STATE.md regenerated at the commit
 probe_rev65_unproject.py  10 checked, 0 FAILED
@@ -327,33 +368,45 @@ CHASING C6 TO SEVEN CELLS                SEVEN IS THE PHOTOGRAPH'S RIM.
    compare with the mesh's own section. **Then fit. Then render, crop, and LOOK.**
    *(And note the pattern rev 66 proved: build the instrument, and the defect may already be
    sitting in one you have. Check what `probe_rev59_nose.py` ALREADY measures before adding.)*
-2. **C4 IS THE EMBLEM'S LAST RED ROW — 0.0755 against a bar of 0.045.** With L4 working
+2. **F205 — THE RENDER CUTS THREE INTERIOR CELLS WHERE THE PHOTOGRAPH CUTS SIX, AND THE
+   RASTER CANNOT SEE IT. THIS IS THE EMBLEM'S TOP ITEM AND IT IS ONE OF HIS TWO SENTENCES.**
+   Run C6's own `cream_cells(..., interior=True)` on `out/r67_front.png` rather than on
+   `glyph_only_mask`: photograph **6**, render **4** (rev-65 geometry) and **3** (as shipped).
+   Raw pixels outward along the V's left arm at 115° read red to r 0.63, **neutral cream
+   (131,131,127), saturation +4**, from 0.66 to 0.78, then the ring from 0.81 — **cream in the
+   gap, not shadow.** Yet the mesh puts every terminal at **0.8400 R** against a band inner
+   edge of 0.8000, and `terminal_reach()` finds 102 of 108 outline vertices inside the band.
+   **THE MESH AND THE RENDER DISAGREE AND REV 66 DID NOT FIND WHERE.** One hypothesis — the
+   cream disc winning the depth test — was built, guarded and **REFUTED** (F206: the clearance
+   is already +2.04 mm at the original standoff). **Do not re-try that one.** Start by painting
+   `probe_scratch/rev66_render_cells.png` beside a fresh render.
+3. **C4 IS THE EMBLEM'S LAST RED ROW — 0.0755 against a bar of 0.045.** With L4 working
    (F203) the solver can see the trough landmark **for the first time**, and `T1_VW_SOLVE=1`
    is sitting there unrun. Errors now: **L1 −0.0307, L3 −0.0239, L4 +0.0634**; L5 and L6 are
    within 0.01. **RE-SOLVE THE SIX CONSTANTS AND THEN RENDER IT** — rule 41, and it has
    refuted a winner in three of the last four revisions.
-3. **THE STROKE TIPS STILL SHOW A GAP TO THE RING; THE PHOTOGRAPH SHOWS NONE.** The glyph's
+4. **THE FIT DEPTH IS STILL UNMEASURED — and F205 may or may not be the same defect.** The glyph's
    extreme is fitted **20 % into the band** (`1.0 - 0.8 * _BAND_FRAC` in `vw_logo_fit`).
    Rev 44 warns that fitting to the OUTER radius **buries the arms**. **The answer is between
    and it is a MEASUREMENT, not a guess** — and the ring's own profile
    (`roundel()`: R, R−0.002, R−0.012, R−0.024, R−0.028, R−0.020) says where its visible inner
    lip actually is. Nobody has measured this.
-4. **PUT AN ADVERSARY ON THIS BRIEF (rule 15), AND POINT IT AT §2's REFUTED LIST** — see the
+5. **PUT AN ADVERSARY ON THIS BRIEF (rule 15), AND POINT IT AT §2's REFUTED LIST** — see the
    warning under it. Rev 64's adversary found fourteen.
-5. **FIX `probe_rev63_shapefit.py`** — its baseline is stale and it reads `CAP_EMBLEM_WFRAC`,
+6. **FIX `probe_rev63_shapefit.py`** — its baseline is stale and it reads `CAP_EMBLEM_WFRAC`,
    the HUBCAP's weight, where the nose ships its own (F178's trap). **F204 has now MOVED the
    nose's weight, so that probe is further out of date than it was.**
-6. **F156 — `flank_compare`'s `Senor` row scores a DELIBERATE DEPARTURE. SIX revisions
+7. **F156 — `flank_compare`'s `Senor` row scores a DELIBERATE DEPARTURE. SIX revisions
    unacted.** Re-base the reference or annotate the row.
-7. **TRIAGE `REMAINING_WORK_rev61.md` §I** — 27 rows, SIX revisions.
-8. **THE SURVIVING PANEL ITEMS**, untouched for six revisions: the glass is a flat slab
+8. **TRIAGE `REMAINING_WORK_rev61.md` §I** — 27 rows, SIX revisions.
+9. **THE SURVIVING PANEL ITEMS**, untouched for six revisions: the glass is a flat slab
    (0.5 % sd against the photograph's 12.8 %); **the tyres have no tread, no sidewall
    lettering, and are 35 % too light**; the tail is a box where the real one is a barrel;
    every shut line is a 1-px ink stroke with no leading-edge highlight; the galley is
    monochrome; the counter is a floating slab.
-9. **F143 — TWO LOUDSPEAKERS STAND ON THE ROOF AND ARE UNMODELLED.** 54 revisions.
-10. **THE INHERITED CLUSTER** — F14 (**fourteen** revisions un-re-measured), F15, F10, F20.
-11. **`delivery/READ_ME_FIRST.txt` LISTS THE MODEL'S KNOWN DEFECTS TO HIM.** It does not yet
+10. **F143 — TWO LOUDSPEAKERS STAND ON THE ROOF AND ARE UNMODELLED.** 54 revisions.
+11. **THE INHERITED CLUSTER** — F14 (**fourteen** revisions un-re-measured), F15, F10, F20.
+12. **`delivery/READ_ME_FIRST.txt` LISTS THE MODEL'S KNOWN DEFECTS TO HIM.** It does not yet
     mention the rev-63 emblem change, F184, F194, F197, or **rev 66's F200/F202/F204**.
 
 **RANKING NOTE — AND THE RULE IT CARRIES IS NOT DROPPED.**
@@ -396,6 +449,23 @@ studio — ruling stands"* (twice); the front arch *"leave it circular"*.
 > than fixed. What changes is that it is a LIVE agreed second deliverable carried in the
 > register, and that *"the emotional bar that sits ABOVE clinical accuracy"* is back in the
 > record. **Do not re-ask it; do not act on it either.**
+
+**RULED AT REV 66 — BOTH NEW, BOTH BINDING, AND THEY SET THIS REVISION'S WORK LIST.**
+Asked as multiple choice with `probe_scratch/rev66_emblem_ba.png` and
+`rev66_photo_before_after.png` attached and the measured ink figures quoted:
+
+> ***"The W's outer arms sit too low"*** AND ***"The strokes still don't reach the ring."***
+> — **BOTH, chosen together, as what is STILL wrong with the emblem.** He did **NOT**
+> re-report the strokes as too thin, which is the axis rev 66 moved.
+> **Each maps onto a measurement this project already held:** the arms are **C4**, still red
+> at 0.0755 against a bar of 0.045 with L4 the largest error at **+0.0634**; the reach is
+> **F205** — C6's own interior-cell function run on the RENDER gives the photograph **6** cells
+> against the render's **4 before and 3 after**, where the raster reads 6 for both.
+> **HIS REPEAT IS A MEASUREMENT. This is his SEVENTH report of this emblem.**
+
+> ***The nose's shape — FIRST.*** Asked directly whether rev 67 should do the nose or finish
+> the emblem, he chose **the nose**. **F197 IS NOW A RULING, NOT AN INFERENCE**, and §3 item 1
+> is his, not the ranking's.
 
 **RULED AT REV 65 — BOTH NEW, BOTH BINDING, AND THEY SET THE WORK LIST:**
 

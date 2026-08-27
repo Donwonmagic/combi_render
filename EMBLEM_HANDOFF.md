@@ -483,6 +483,18 @@ or was scored against one of those targets. Check before you quote.**
 photograph's **0.510**. See `probe_scratch/rev66_emblem_ba.png` (BEFORE | AFTER) and
 `probe_scratch/rev66_photo_before_after.png` (PHOTOGRAPH | BEFORE | AFTER).
 
+**AND THEN THE OWNER LOOKED AT THE RENDER, AND C6's PASS TURNED OUT TO BE A RASTER FACT
+(F205).** Asked with the crop attached, he answered **"the W's outer arms sit too low"** AND
+**"the strokes still don't reach the ring"**. Run C6's OWN `cream_cells(..., interior=True)` on
+the FRAME rather than on `glyph_only_mask`: **the photograph cuts 6 interior cells, the render
+cuts 4 (rev-65 geometry) and 3 (as shipped).** The flat raster reads 6 for both. Raw pixels
+outward along the V's left arm at 115° are red to r 0.63, **neutral cream (131,131,127),
+saturation +4**, from 0.66 to 0.78, then the ring's red from 0.81 — **cream in the gap, not
+shadow.** The mesh meanwhile puts every terminal at **0.8400 R** against a band inner edge of
+0.8000. **THE MESH AND THE RENDER DISAGREE AND REV 66 DID NOT FIND WHERE.** One hypothesis —
+the cream disc winning the depth test — was built, guarded and **REFUTED (F206), and the
+change reverted**; do not re-try it. Painted: `probe_scratch/rev66_render_cells.png`.
+
 **WHAT IS STILL WRONG:** **C4 is red at 0.0755 against a bar of 0.045** (L1 −0.0307,
 L3 −0.0239, L4 +0.0634) — the six spine constants have NOT been re-solved, and with L4 working
 the solver can see the trough landmark for the first time. **And the stroke tips still show a

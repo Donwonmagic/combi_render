@@ -1040,6 +1040,25 @@ ck "C11 is the companion row"         1 "$(grep -c 'ctl("C11"' probe_rev46_vw.py
 ck "C7's kill plants the real defect" 1 "$(grep -c 'KILL, WATCHED FIRING ON THE DEFECT' probe_rev46_vw.py)"
 ck "and built_mask can plant it"      1 "$(grep -c 'def built_mask(rows=69, shrink=1.0)' probe_rev46_vw.py)"
 
+# ------------------------------- rev 66: F205 -- C6 PASSES ON THE RASTER ONLY
+# The owner looked at the render and said "the strokes still don't reach the
+# ring".  He is right, and it is C6's OWN statistic that says so -- run on the
+# FRAME instead of on glyph_only_mask, the photograph cuts 6 interior cells and
+# the render cuts 3.  The raster reads 6 for both and cannot see it.  These rows
+# hold the finding in the record so the next context cannot read C6's PASS as
+# evidence about the vehicle.
+ck "F205 is on the register"          1 "$(grep -c '^| \*\*F205\*\*' OPEN_FINDINGS.md)"
+ck "F206's refutation is too"         1 "$(grep -c '^| \*\*F206\*\*' OPEN_FINDINGS.md)"
+ck "the painted evidence is committed" 1 "$(ls probe_scratch/rev66_render_cells.png 2>/dev/null | wc -l | tr -d '[:space:]')"
+ck "the brief warns C6 is a RASTER fact" 1 "$(grep -c 'ON THE RASTER' PASTE_INTO_CLAUDE_CODE.txt)"
+# AND THE GUARD F206 LEFT BEHIND: the glyph-vs-disc clearance was a comparison
+# nothing made -- the proud-guard measures every plate against the NOSE and both
+# passed while I believed they were coincident.  The guard stays even though the
+# hypothesis it tested was refuted, because the comparison is real.
+ck "the glyph/disc clearance is measured" 1 "$(grep -c 'glyph clearance over the cream disc' build.py)"
+ck "it reads a FORWARD silhouette, both sides" 1 "$(grep -c 'def _silhouette(obs):' build.py)"
+ck "and the standoff is back where it was" 1 "$(grep -c '^GLYPH_STANDOFF = 0.0016' build.py)"
+
 # ------------------------------- rev 58: THE EMBLEM'S REACH AXIS, F63/F64
 # The six constants above are fitted to VERTICAL landmarks only.  None of them
 # is a radius, so a stroke can terminate 18.9 mm short of the ring band with

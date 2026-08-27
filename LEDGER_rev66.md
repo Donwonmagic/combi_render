@@ -146,21 +146,37 @@ had the CPU.
 
 ---
 
-## §4 WHAT REV 66 GOT WRONG IN ITS OWN WORK — THREE
+## §4 WHAT REV 66 GOT WRONG IN ITS OWN WORK — FOUR, AND THE FIRST IS THE WORST KIND
 
-1. **I READ A GAP IN THE RENDER THAT WAS NOT IN THE GEOMETRY.** Looking at the emblem crop I
-   said the stroke tips "visibly stop short of the ring, grey shows between each tip and the
-   band". **The mask says they touch: one connected component at every threshold 18–38.**
-   What I was reading is the ring's own shadowed inner lip. **The eye was wrong and the mask
-   was right** — the same class of error rev 65 recorded, and recorded here for the same
-   reason.
-2. **AND I DID IT A SECOND TIME, ON THE NOTCH.** I saw a step bitten out of each V tip in the
+1. **I RETRACTED A CORRECT OBSERVATION ON THE STRENGTH OF A TEST THAT COULD NOT SEE IT —
+   AND THE OWNER CAUGHT IT.** Looking at the emblem crop I said the stroke tips "visibly stop
+   short of the ring, grey shows between each tip and the band". I then withdrew that, because
+   the mark came back as **one connected component at every threshold 18–38**, and wrote it up
+   as "the eye was wrong and the mask was right".
+   **THE COMPONENT COUNT COULD NEVER HAVE SEEN IT.** The V and the W are FUSED at the centre
+   and the W reaches the band, so the mark is ONE component whether the V's tips touch or not.
+   I noticed that limitation, said so, and then quoted the test anyway.
+   **Put to the owner with the crop, he answered "the strokes still don't reach the ring" —
+   and the measurement is his: run C6's own interior-cell function on the RENDER and the
+   photograph cuts 6 cells where the render cuts 4 before and 3 after (F205).** The gap
+   sampled raw is neutral cream, saturation +4, not shadow.
+   **THE ORIGINAL EYE WAS RIGHT. THE RETRACTION WAS THE ERROR** — and it is a worse error than
+   the one it claimed to fix, because it retired a true report with a false clearance.
+2. **AND THEN A THIRD INSTRUMENT ERROR, WHICH NEARLY SHIPPED A CHANGE.** Chasing F205 I found
+   the cream disc and the glyph draped to the same standoff and their front faces at x 2.1340
+   and 2.1341 — coincident to 0.1 mm — and shipped a 1.5 mm `GLYPH_STANDOFF` to separate them.
+   **The guard I wrote in the same edit refuted it: at the ORIGINAL standoff the clearance is
+   already +2.04 mm.** The coincidence was two DIFFERENT radii inside one wide bin — rule 38,
+   in my own diagnostic. **Change reverted, guard kept, both recorded (F206).** The guard
+   itself was wrong twice before it was right, and each time it was caught by watching it fail
+   rather than by reasoning about it.
+3. **AND THE NOTCH, WHICH WAS THE ONE CASE WHERE THE EYE REALLY WAS WRONG.** I saw a step bitten out of each V tip in the
    AFTER render and suspected the arc cut, then the drape, then subdivision. **Rasterising
    the ACTUAL MESH's front face at 1600 px shows the caps clean and both arms crossing the
    band's inner edge.** The drape log agrees — 0 lattice misses, proud range 6.96–15.10 mm,
    identical before and after. It is shading on a 95-px crop upscaled 7×, not geometry.
    **Both times the instrument beat the eye; both times I checked before publishing.**
-3. **MY FIRST TWO NEW VERIFY ROWS WERE WRONG, AND ONE WAS RULE 16.** `ck "F198's literal is
+4. **MY FIRST TWO NEW VERIFY ROWS WERE WRONG, AND ONE WAS RULE 16.** `ck "F198's literal is
    gone" 0 "$(grep -c '0.6638' ...)"` fails on the COMMENTARY that records what F198 was —
    which is the record, not the defect. Re-aimed at the message's own giveaway phrase. The
    second row grepped `OPEN_FINDINGS.md` for the same figure and would have pressured me to
@@ -173,14 +189,32 @@ photograph's artefact and C11 went red. Re-planted as a breach of the ring's **O
 
 ---
 
-## §5 NOTHING WAS PUT TO THE OWNER THIS REVISION, AND WHY
+## §5 TWO RULINGS FROM THE OWNER, BOTH NEW, BOTH BINDING
 
-Every open question this revision raised was answerable from what is on the repo — which is
-his own rev-54 ruling working as intended. **The one thing worth his eye is the before/after
-crop**, and it is sent with this revision rather than held for the next.
+He was shown `probe_scratch/rev66_emblem_ba.png` (BEFORE | AFTER) and
+`rev66_photo_before_after.png` (PHOTOGRAPH | BEFORE | AFTER), with the measured ink figures,
+and asked as multiple choice.
 
-**HIS TWO STANDING SENTENCES ARE BOTH STILL LIVE:** the emblem (worked, measured, improved,
-**not finished** — C4 is still red) and **the nose's shape (F197), which is UNTOUCHED.**
+> **WHAT IS STILL WRONG WITH THE EMBLEM: *"The W's outer arms sit too low"* AND *"The strokes
+> still don't reach the ring."*** — BOTH, chosen together. **He did NOT re-report the strokes
+> as too thin**, which is the axis rev 66 moved.
+>
+> **AND BOTH ARE CORROBORATED BY A MEASUREMENT THIS PROJECT ALREADY HELD:**
+> * *"the W's outer arms sit too low"* is **C4**, the emblem's last red row, at 0.0755 against
+>   a bar of 0.045, with L4 the largest remaining error at **+0.0634**. His eye and the gate
+>   agree. **His repeat is a measurement.**
+> * *"the strokes still don't reach the ring"* is **F205**: run C6's own interior-cell function
+>   on the RENDER and the photograph cuts **6** cells where the render cuts **4 before and 3
+>   after**. The raster reads 6 for both and cannot see it. **He was right and I had retracted
+>   exactly this observation earlier in the revision (§4.1).**
+
+> **WHAT REV 67 SHOULD DO FIRST: *the nose's shape*.** Chosen over finishing the emblem.
+> **F197 IS NOW A RULING, NOT AN INFERENCE.** Build the instrument first — the nose's
+> silhouette off `ref_nolita_front34.jpg` and `ref_playa_34.png` against the mesh's own
+> section — then fit `V_POW` / `V_POWZ` / `V_RISE`, then render, crop and look.
+
+**HE HAS NOW REPORTED THIS EMBLEM SEVEN TIMES.** The two defects he names are both open and
+both instrumented; neither is a matter of taste.
 
 ---
 
