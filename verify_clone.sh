@@ -2058,6 +2058,53 @@ ck "rev 65's owner ruling is in the register" 1 "$(python3 -c "
 t = open('OPEN_FINDINGS.md', errors='replace').read()
 print(int('MULTIPLE SIZES, MAX RESOLUTION, MAX FIDELITY' in t))" 2>&1 | tail -1)"
 
+# ---------------------------------------------------- rev 67: THE NOSE (F197)
+# The owner named the nose's SHAPE at rev 65 and RULED it first at rev 66, over
+# finishing the emblem.  Until rev 67 the nose's PLAN BULGE -- the forward
+# convexity of the whole face -- had no constant of its own, no ablation, no
+# probe and no row here.  These rows are ARITHMETIC and BEHAVIOUR, not greps
+# for a name (SS10 item 4).
+
+# 1. The constant exists, is on its own line, and is the one nose_shape() uses.
+#    Anchored on the ARITHMETIC: NOSE_BULGE * w * max(0, 1-r) must be what the
+#    bulge is built from, so a literal creeping back in is caught.
+ck "nose: the plan bulge is a named constant, not a literal" 1 \
+   "$(grep -c '^NOSE_BULGE = 0.019' t1_shell.py)"
+ck "nose: nose_shape uses the constant, not a literal" 1 \
+   "$(grep -c 'bulge = NOSE_BULGE \* w \* max' t1_shell.py)"
+ck "nose: no bare 0.019 bulge literal survives in nose_shape" 0 \
+   "$(grep -c 'bulge = 0.019' t1_shell.py)"
+
+# 2. The ablation is wired.  T1_NOSE_BULGE must actually reach the constant --
+#    an ablation switch that no longer ablates is exactly what rev 67 found had
+#    happened to T1_VW_CAPMIN (F208), and it reads to the next agent as
+#    "no effect => not the lever".
+ck "nose: T1_NOSE_BULGE overrides the constant" 0.05 \
+   "$(T1_NOSE_BULGE=0.05 python3 -c "import t1_shell; print(t1_shell.NOSE_BULGE)" 2>&1 | tail -1)"
+ck "nose: without the env var the shipped constant stands" 0.019 \
+   "$(python3 -c "import t1_shell; print(t1_shell.NOSE_BULGE)" 2>&1 | tail -1)"
+
+# 3. The probe's edge-acceptance rule is ARITHMETIC, and it must refuse the two
+#    traces rev 67 watched it refuse.  A bar that cannot refuse is not a bar --
+#    rev 67's first cut (12 % of span) passed a whole-frame scan with an rms of
+#    61.85 px on 831 px, and the absolute term is what stops it.
+ck "nose: the probe's edge bar refuses fragments and keeps the one real edge" \
+   "EDGE-FRAG-FRAG" "$(python3 -c "
+import probe_rev67_nose as P
+print('-'.join('EDGE' if r <= P.rms_bar(s) else 'FRAG'
+               for r, s in ((2.8, 118.0), (17.6, 105.0), (61.85, 831.0))))" 2>&1 | tail -1)"
+
+# 4. The photographed bumper is CURVED -- the projection-invariant half of the
+#    nose measurement.  A straight 3-D line images straight under ANY pinhole
+#    camera, so this is shape, not pose.  Guarded on the SIGMA, not the pixels.
+ck "nose: the photographed bumper's curvature is many sigma, not noise" "OK" \
+   "$(python3 -c "
+import probe_rev67_nose as P
+a, e = P.bumper_top('ref_nolita_front34.jpg', (128, 256), (300, 395))
+s = P.sagitta(e)
+print('OK' if abs(s['sag']) > 3 * s['se'] and s['rms'] <= P.rms_bar(s['span']) else
+      'sag %.2f se %.2f rms %.2f' % (s['sag'], s['se'], s['rms']))" 2>&1 | tail -1)"
+
 ck "newest brief states THIS script's row count" "$((PASS+1))" "${_BRIEF_TOTAL:-0}"
 
 UNTRACKED="$(git status --porcelain 2>/dev/null | grep -c '^??')"

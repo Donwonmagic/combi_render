@@ -8,10 +8,10 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-27 03:13:37 UTC |
-| git commit | `9ed2be6` |
-| git subject | rev 66f: two probe tiles named without their directory, in my own ledger and brief |
-| working tree | clean |
+| generated | 2026-08-27 16:44:33 UTC |
+| git commit | `c1707cf` |
+| git subject | rev 67i: the ceiling is REFUTED -- the frames carry their own camera, and the nose measures ~40 mm (F219/F220/F221) |
+| working tree | **DIRTY** — this state is not committed |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=2 (applied, destructive, before booleans) |
 | geometry source | procedural, built this run |
