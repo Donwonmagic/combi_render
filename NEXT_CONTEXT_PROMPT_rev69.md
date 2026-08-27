@@ -172,7 +172,12 @@ audit.py T1_SUB=2         VERIFY: 0 fail, 0 warn -- STATE.md moved ONLY in
 verify.py nose fixtures   NEW.  WATCHED REFUSING: 8 fail at NOSE_BULGE 0.045 with
                           T1_NOSE_FIXFOLLOW=0; 0 fail with the follow ON
 probe_rev46_vw.py         12 checked, 1 FAILED -- C4 ONLY, at 0.0755 (bar 0.045).
-                          BUT SEE F210/F211/F226 before quoting any of it
+                          BUT SEE F210/F211/F226 before quoting any of it.
+                          C6 PASSES 6 = 6 -- **ON THE RASTER.  ON THE RENDER THE SAME
+                          FUNCTION READS 3 AGAINST THE PHOTOGRAPH'S 6 (F205), AND REV 67
+                          RE-MEASURED THAT ON ITS OWN FRAME (F212).**  A gate can be
+                          corrected, guarded, killed, swept and still be measuring the
+                          wrong object -- rule 41.  RUN THE EMBLEM GATES ON THE FRAME
 probe_rev67_nose.py       **PASS IT A FRAME**: `python3 probe_rev67_nose.py
                           out/r69_front.png` -> 5 checked, 1 FAILED (P3, a correct
                           REFUSAL).  BARE it now SAYS P3 did not run (F225)
@@ -537,10 +542,20 @@ stands"* (twice); the front arch *"leave it circular"*.
 > both readings quoted, he ruled the Playa hero **"DEPRIORITISED, NOT CANCELLED"** — which is
 > what his own rev-43 words said before that carrier was deleted at rev 44 (**F92**).
 >
+> **The correction sat on an UNMERGED BRANCH from rev 57 to rev 64 while every brief kept
+> publishing the misattribution (F188).**
+>
 > **WHAT IT LICENSES: NOTHING TO DO NOW.** *"Focus on the 3d model"* stands, *"keep studio"*
 > stands, **no revision works the Playa hero until he opens it**, and **nothing re-proposes
 > `playa_env.py` as the delivery frame** — which is also why **F57** stays recorded rather
-> than fixed. **Do not re-ask it; do not act on it either.**
+> than fixed. What changes is that it is a LIVE agreed second deliverable carried in the
+> register, and that ***"the emotional bar that sits ABOVE clinical accuracy"*** is back in
+> the record. **Do not re-ask it; do not act on it either.**
+>
+> ⚠ **AND REV 68 DROPPED THAT SENTENCE FROM THIS SECTION WHEN IT REWROTE THE BRIEF, AND
+> `verify_clone.sh` CAUGHT IT** — `"the emotional bar is in BOTH live carriers"  got 1 want 2`.
+> **Rule 16 firing on the file that carries rule 16.** Restored before the handoff shipped.
+> **If you compact §4, that row is what stops you.**
 
 **RULED AT REV 68 — NEW, BINDING, AND IT CHANGES WHERE MEASUREMENTS COME FROM.**
 Asked as multiple choice with `probe_scratch/rev68_bumper_ask.png` attached — the photograph
