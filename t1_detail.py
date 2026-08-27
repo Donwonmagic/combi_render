@@ -590,8 +590,12 @@ BUMP_PROFILE = [           # (outward, up)  channel section, 108 mm tall
 # When it arrives, from the parts literature or a frame shot from the other
 # side, it replaces the BODY's NOSE_BULGE and this constant does not move.
 #
-# T1_BUMP_BOW is MEASUREMENT-ONLY and 0.0 restores the straight face bit for
-# bit.  It is `verify.py`'s bumper-bow row's kill.
+# T1_BUMP_BOW is MEASUREMENT-ONLY and 0.0 restores the straight face's SHAPE.
+# NOT the mesh: `n_f` went 12 -> 24 in the same edit, so the ablated bumper is
+# 1105 verts against the pre-rev-69 949 and reads +0.22 mm rather than F222's
+# historical +0.05.  Shape-identical, RE-TESSELLATED -- an adversary caught this
+# stated as "bit for bit" in three places.  It is `verify.py`'s bumper-bow
+# row's kill, and both arms go red on it.
 BUMP_BOW = 1.0
 
 # THE STATION WHOSE PLAN CURVE THE BLADE PARALLELS, un-dropped.
@@ -607,10 +611,25 @@ BUMP_BOW = 1.0
 #
 # A REAL BUMPER IS NOT THE BODY'S SECTION AT ITS OWN HEIGHT.  It is a separate
 # pressing standing off on irons, and its plan curve PARALLELS the front face.
-# So the blade takes its SHAPE from the face and keeps its own standoff.  1.000
-# is the bulge ellipse's own centre height, where the face's plan curve is
-# best defined -- the shell reads +19.6 .. +20.0 mm of bow across the whole
-# face, so the choice of station inside it is worth well under a millimetre.
+# So the blade takes its SHAPE from the face and keeps its own standoff.
+#
+# WHY 1.100 AND NOT THE ELLIPSE'S CENTRE.  This paragraph argued for 1.000 --
+# "the bulge ellipse's own centre height" -- while the constant said 1.100, and
+# an adversary caught the mismatch: the station was moved to clear the HEADLAMP
+# BORES (at 1.000 the sampling ray runs through them at 4 of 23 stations, and
+# the refusal below fired) and the prose was not rewritten.
+#
+# AND THE BAND IT QUOTED WAS FROM THE WRONG INSTRUMENT.  It said "the shell
+# reads +19.6 .. +20.0 mm of bow across the whole face"; those are `verify`'s
+# max-x-in-a-y-bin figures, not the raycast THIS code uses.  Measured on the
+# drape's own quantity, s(0) - s(corner), over the build's own stations,
+# un-dropped:
+#     0.650 +14.64 | 0.800 +20.74 | 1.100 +21.07 <- SHIPPED | 1.200 +19.46
+#     1.300 +14.89 | 1.400  +9.71
+# So the true spread across the whole face is +9.7 .. +21.4 mm, and "worth well
+# under a millimetre" holds ONLY inside un-dropped 0.800..1.150 (spread
+# 0.63 mm).  1.100 sits in the middle of that plateau AND clears the bores by
+# 81 mm.  Both reasons are the reason; neither alone would fix the station.
 #
 # THIS INVENTS NO NUMBER.  The bow is the model's OWN front face, measured by
 # raycast at build time, not a figure taken from a photograph -- which is the
@@ -691,6 +710,30 @@ def bumper(front=True, z=0.4800, name="bumper"):
         _aft = max(p[0] for p in _SH.DOOR_GAP_S) + 0.010
         raw = _plan_curve(z, _aft, 2.108, 30)           # x increasing
         nose = raw[-1]
+        _bow = _bump_bow()
+        _skin = _nose_plan_x(BUMP_BOW_Z)       # the FACE's station, not the blade's
+        _s0 = _skin(0.0) if _skin is not None else None
+
+        def _drape(_y):
+            """the face's x offset at half-width _y: 0 at the centreline,
+            drawing back to the corner.  None if the skin cannot be read."""
+            if _skin is None or _bow == 0.0 or _s0 is None:
+                return 0.0
+            _v = _skin(abs(_y))
+            return None if _v is None else _bow * (_v - _s0)
+
+        TAPER_N = 8                    # wrap points that blend the offset in
+        _raw2, _tmiss = [], 0
+        for _i, (_x, _y) in enumerate(raw):
+            _t = max(0.0, (_i - (len(raw) - 1 - TAPER_N)) / float(TAPER_N))
+            _w = _t * _t * (3 - 2 * _t)
+            _d = _drape(_y) if _w > 0 else 0.0
+            if _d is None:
+                _tmiss += 1
+                _d = 0.0
+            _raw2.append((_x + _w * _d, _y))
+        raw = _raw2
+        nose = raw[-1]
         seq = [(x, -y) for (x, y) in raw]
         # ------------------------------------------------------ rev 69, F222
         # THE NOSE FACE FOLLOWS THE BODY'S PLAN CURVE.  IT USED TO BE A STRAIGHT
@@ -737,29 +780,54 @@ def bumper(front=True, z=0.4800, name="bumper"):
         # +0.15 mm, i.e. still flat.  The draped points had moved and the
         # missing ones had not, and nothing in the log said so.  The misses are
         # now COUNTED and a face that cannot be fully draped is REFUSED.
-        # ANCHORED AT THE CORNER, NOT AT THE CENTRELINE -- AND MY FIRST CUT HAD
-        # IT THE OTHER WAY ROUND, WHICH BUILT THE BOW BACKWARDS.
+        # ANCHORED AT THE CENTRELINE, AND THE WRAP IS TAPERED TO MEET IT.
         #
-        # `nose[0]` is the x of the corner where the face meets the wrap, and it
-        # is where `raw` ends, so the face must equal it AT THE CORNER or the
-        # two are discontinuous.  Anchoring instead at y = 0 and adding
-        # `skin(y) - skin(0)` -- which is <= 0 everywhere -- pushed the whole
-        # face BACKWARD from its own corners and left an 8 mm step at the
-        # junction.  Built and measured: the plan outline dipped -8.22 mm at
-        # |y| = 0.10 and RECOVERED to -0.22 at 0.70, a net bow of +0.22 mm.
-        # Still flat, and now lumpy.  Anchoring at the corner sends the CENTRE
-        # FORWARD instead, which is what a bow is.
-        _bow = _bump_bow()
-        _skin = _nose_plan_x(BUMP_BOW_Z)       # the FACE's station, not the blade's
+        # THE ANCHOR DECIDES WHERE THE WHOLE BLADE SITS, NOT JUST ITS SHAPE, AND
+        # AN ADVERSARY CAUGHT REV 69 GETTING THAT WRONG.  Anchoring at the
+        # CORNER holds the corners still and sends the centre 21 mm FORWARD.
+        # That built a correct bow and three side effects, all with VERIFY green:
+        #   - the blade's front face went 2.1403 -> 2.1614, i.e. +34.4 mm proud
+        #     of the nose crown, where the rev-10 scan recorded in this very
+        #     file says the bumper images 17-56 mm BEHIND the crown -- the same
+        #     direction as a move this project already REVERTED once;
+        #   - `bumper_irons` are frozen at x = 2.045 + 0.150, so the blade's back
+        #     face at IRON_Y pulled AWAY from its own brackets: +4.5 mm of
+        #     overlap became -10.1 mm of OPEN AIR, and nothing measured it;
+        #   - the subject bbox grew, and `studio.fit_view` centres and fills
+        #     0.92 of the frame from `subject_bbox()`, so EVERY preview reframed.
+        #
+        # ANCHORING AT THE CENTRELINE INSTEAD holds x(0) exactly where it was
+        # and draws the CORNERS BACK, which is the same bow and none of the
+        # three.  It also deepens the iron overlap instead of breaking it.
+        #
+        # THE STEP THAT MADE ME REJECT THIS FIRST TIME IS REAL AND IS FIXED
+        # HERE.  `raw` ends at the corner, so a face anchored at the centre no
+        # longer meets it -- my first cut left an 8 mm discontinuity and built a
+        # lumpy outline (-8.22 mm at |y| = 0.10, recovering to -0.22 at 0.70).
+        # The wrap's last TAPER_N points now take the same offset through a
+        # smoothstep, so the flank is untouched, the corner carries the full
+        # offset, and the junction is continuous BY CONSTRUCTION.
         n_f = 24                               # was 12; the curve needs samples
         _face, _miss = [], 0
-        _s0 = _skin(nose[1]) if _skin is not None else None
         for i in range(1, n_f):
             _y = -nose[1] + 2 * nose[1] * i / n_f
             _sy = _skin(_y) if (_skin is not None and _bow != 0.0) else None
             if _skin is not None and _bow != 0.0 and (_s0 is None or _sy is None):
                 _miss += 1
             _face.append((_y, _sy))
+        # AND THE NO-BODY PATH MUST REFUSE TOO.  An adversary found that the
+        # verifier row written for this refusal exercised the ONE BRANCH THAT
+        # DOES NOT REFUSE: with `_skin is None` the miss counter stays 0, no
+        # error is raised, and the face is built FLAT -- the exact defect this
+        # code exists to remove -- behind nothing but a suffix on a log line.
+        # A flat face is not a fallback, it is the defect (rule 37).
+        if _skin is None and _bow != 0.0:
+            raise RuntimeError(
+                "t1_detail.bumper: there is no T1_body in the scene to drape "
+                "the nose face onto, so the face would be built FLAT -- which "
+                "is the defect F222 exists to remove, not a safe fallback. "
+                "Build the body first, or set T1_BUMP_BOW=0 deliberately.")
+        _miss += _tmiss
         if _miss:
             raise RuntimeError(
                 "t1_detail.bumper: the nose face could not be draped onto the "
@@ -770,8 +838,9 @@ def bumper(front=True, z=0.4800, name="bumper"):
                 "NOT ship the half-draped face (F222, rule 37)."
                 % (_miss, n_f - 1, z))
         _prof = []
+        _x0 = nose[0] - (_drape(nose[1]) or 0.0)     # the centreline's own x
         for _y, _sy in _face:
-            _x = nose[0] if _sy is None else nose[0] + _bow * (_sy - _s0)
+            _x = nose[0] if _sy is None else _x0 + _bow * (_sy - _s0)
             _prof.append((_y, _x))
             seq.append((_x, _y))
         # LOG WHAT WAS ACTUALLY BUILT, not what was intended.  Rev 69 inferred

@@ -2135,13 +2135,27 @@ ck "bumper: the face takes its shape from the FACE's station, not the blade's" 1
 # and nothing was measured there.  This is the containment arm.
 ck "bumper: the change was scoped to the FRONT -- the tail face is untouched" 1 \
    "$(grep -c '# flat tail face' t1_detail.py)"
-# THE REFUSAL'S PRECONDITION, EXERCISED FOR REAL: outside Blender there is no
-# body to follow, so the drape source must return None rather than inventing a
-# curve.  That is the branch the RuntimeError guards.
-ck "bumper: the drape source REFUSES to invent a curve with no body" "None" \
+# THE REFUSAL, EXERCISED FOR REAL -- AND THE FIRST VERSION OF THIS ROW TESTED
+# THE ONE BRANCH THAT DOES NOT REFUSE.  It asserted only that `_nose_plan_x`
+# returns None with no body, and CALLED THAT "the branch the RuntimeError
+# guards".  It was not: with `_skin is None` the miss counter stayed 0, nothing
+# raised, and the face was built FLAT -- the very defect F222 removes -- behind
+# a suffix on a log line.  An adversary found it.  Both halves are now real:
+# the source returns None, AND building a face with no body RAISES.
+ck "bumper: the drape source returns None rather than inventing a curve" "None" \
    "$(python3 -c "
 import t1_detail as D
 print(D._nose_plan_x(1.10))" 2>&1 | tail -1)"
+ck "bumper: and building the face with NO BODY actually REFUSES" "RuntimeError" \
+   "$(python3 -c "
+import t1_detail as D
+try:
+    D.bumper(True, name='probe_nobody')
+    print('BUILT A FLAT FACE SILENTLY')
+except RuntimeError:
+    print('RuntimeError')
+except Exception as e:
+    print(type(e).__name__)" 2>&1 | tail -1)"
 
 # ------------------------------------------------------- rev 68, F217
 # COMPANION 3.  THE FIXTURE OFFSET IS EXACTLY ZERO WHERE IT SHIPS.  This is the

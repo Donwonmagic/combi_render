@@ -827,19 +827,34 @@ def _bumper_bow(body, log=print):
     So the defect needed no camera model to establish -- and nothing in this
     file measured the bumper's plan shape at all.
 
-    TWO ARMS THAT DO NOT SHARE A RULER (rule 38). One measures the BUMPER's own
-    plan outline off `bumper_f`; the other measures the SHELL's at the station
-    the blade takes its shape from, off `T1_body`. Two separate meshes, and the
-    row asserts they agree -- which is the comparison that was missing, not a
-    stricter version of one that was there. A guard whose reference is the thing
-    it guards can only ever catch the object going missing.
+    TWO ARMS, AND THE SECOND ONE IS WEAKER THAN I FIRST CLAIMED. An adversary
+    corrected this docstring: I described them as "two arms that do not share a
+    ruler (rule 38)", and they DO share one. `t1_detail.bumper` builds the face
+    from a raycast of `T1_body` at un-dropped BUMP_BOW_Z; this row's shell arm
+    slabs `T1_body` at the SAME station. So arm 1 is arm 2 times BUMP_BOW plus
+    constants, BY CONSTRUCTION -- rule 6, in a docstring invoking rule 38.
+
+    WHAT EACH ARM ACTUALLY BUYS, stated honestly:
+      - the FLOOR is the real guard. It refuses the flat face.
+      - the AGREEMENT arm detects the drape not happening, which the floor
+        already does. Its resolving power on BUMP_BOW itself is poor: a 6.0 mm
+        bar is reached only around BUMP_BOW ~ 0.7, so a 28 % error in the one
+        constant it exists to police would PASS. It is kept because it catches
+        the blade and the shell drifting apart for reasons other than BUMP_BOW
+        -- a moved station, a changed loft -- and it is labelled, not oversold.
+      - A GENUINELY INDEPENDENT second arm would need a different station, a
+        different method, or the photograph. None is available (F231).
 
     THE FIGURES WERE WATCHED PRINTING at rev 69 on the built mesh, T1_SUB=1, and
     are NOT typed from intent (rule 5):
 
-        shipped (BUMP_BOW 1.0)   bumper +21.45 mm   shell at the face ~+19.6
-        T1_BUMP_BOW=0            bumper  +0.05 mm   -- the old straight face,
-                                 bit for bit, and this row goes RED on it
+        shipped (BUMP_BOW 1.0)   bumper +21.54 mm   shell +20.31 mm
+        T1_BUMP_BOW=0            bumper  +0.22 mm   -- the straight face,
+                                 SHAPE-identical to the pre-rev-69 one but
+                                 RE-TESSELLATED (949 -> 1105 verts, n_f 12 ->
+                                 24), which is why it reads +0.22 and not
+                                 F222's historical +0.05. This row goes RED on
+                                 it, both arms.
 
     NOT A FIDELITY CLAIM. It says the blade parallels the front face, which is
     what a wrap-around pressing does. It does NOT say the bow is the real bus's
@@ -873,7 +888,13 @@ def _bumper_bow(body, log=print):
                 "so its plan bow was NOT measured (rule 37)"]
     # the shell, at the blade's own reference station, in the DROPPED frame
     import t1_detail as _D69
-    zref = _D69.BUMP_BOW_Z - 0.085          # un-dropped -> dropped, at the nose
+    # UN-DROPPED -> DROPPED, EXPRESSED, NOT TYPED. This was the literal 0.085,
+    # which an adversary measured as right to 0.3-0.7 mm and correct in its
+    # effect (under 0.02 mm on the reported bow) -- but SPEC 10.25's rule is
+    # that a constant tuned against another constant must be EXPRESSED in terms
+    # of it, or moving the rake silently leaves this behind. The z-slab sits on
+    # a 350 mm plateau, so nothing here would have noticed the drift.
+    zref = _D69.BUMP_BOW_Z - (_T.RAKE_Z0 + _T.RAKE_DZDX * 2.11)
     s = bow(body, zref - 0.02, zref + 0.02)
 
     FLOOR = 8.0        # sits between the flat face (0.05) and the shipped 21.45
