@@ -75,6 +75,42 @@ def rms_bar(span):
     return max(4.0, 0.03 * span)
 
 
+def exif_focal(path):
+    """The frame's OWN focal length, in PIXELS, from its EXIF.
+
+    ------------------------------------------------------------------ F219
+    NOTHING IN THIS TREE HAD EVER READ EXIF -- `grep -rniE
+    "getexif|_getexif|exifread|piexif|ExifTags"` over every .py and .sh
+    returned ZERO -- and the record published the OPPOSITE for five
+    revisions: `SURVEY_rev49_photoreal.md` says "the focal length of a camera
+    nobody recorded" and "no focal length, no camera distance, no px/m".
+
+    TWO of the seven target-bus frames carry their own intrinsics:
+        ref_nolita_front34.jpg   SONY DSC-RX100  f 10.4 mm, 35mm-equiv 28,
+                                 700x467 = 3:2 UNCROPPED, zoom ratio 1.0
+        ref_nolita_doorshut.jpg  Canon EOS 5D Mark II  f 24.0 mm, 480x320
+    Returns None when the frame carries nothing, which is the honest answer
+    for the other five.
+    """
+    try:
+        from PIL import ExifTags
+        im = Image.open(path)
+        ex = im.getexif()
+        d = {ExifTags.TAGS.get(k, k): v for k, v in ex.items()}
+        try:
+            d.update({ExifTags.TAGS.get(k, k): v
+                      for k, v in ex.get_ifd(0x8769).items()})
+        except Exception:
+            pass
+        w = im.size[0]
+        f35 = d.get("FocalLengthIn35mmFilm")
+        if f35:
+            return float(f35) / 36.0 * w, d.get("Model", "?"), float(f35)
+    except Exception:
+        pass
+    return None
+
+
 def _masks(a):
     R, G, B = a[..., 0], a[..., 1], a[..., 2]
     red = (R - 0.5 * (G + B)) > 40
@@ -98,15 +134,35 @@ def bumper_top(path, ucol, vrow):
     return a, edge
 
 
-def sagitta(edge):
+def sagitta(edge, clip=8.0):
     """fit v = a + b u + c u^2 ; sagitta = the parabola's max offset from its
     own chord.  Dimensionless when divided by the chord, and ZERO for any
-    straight 3-D line under any projection."""
+    straight 3-D line under any projection.
+
+    ------------------------------------------------------------------ F220
+    ONE PASS OF OUTLIER REJECTION, AND IT IS NOT COSMETIC.  Rev 67 published
+    "-2.94 px +- 0.46 over a 118 px chord, 6.4 sigma" from this function and
+    THREE of its 106 points were ON A CHILD'S HAIR -- residuals -16.7, -16.1,
+    -13.6 px, RGB (205,165,157), (204,172,161), (193,166,149).  Dropping them
+    moves the headline 43 % and its stated error 5.1x:
+        as published  -2.94 +- 0.46  rms 2.78   6.4 sigma
+        cleaned       -2.05 +- 0.09  rms 0.55  21.9 sigma
+    AND RULE 48's BAR, WRITTEN THIS SAME REVISION TO REFUSE EXACTLY THIS,
+    PASSED IT: max(4 px, 3 % of 118) = 4.00 against an rms of 2.78.  A bar
+    that cannot refuse contamination worth 43 % of the answer is not a bar
+    (rule 3).  `n_clipped` is REPORTED so the rejection can never be silent.
+    """
     if len(edge) < 25:
         return None
     u = np.array([e[0] for e in edge], float)
     v = np.array([e[1] for e in edge], float)
     c2, c1, c0 = np.polyfit(u, v, 2)
+    n0, span0 = len(u), float(u.max() - u.min())
+    keep = np.abs(v - np.polyval([c2, c1, c0], u)) < clip
+    n_clipped = int((~keep).sum())
+    if keep.sum() >= 25 and n_clipped:
+        u, v = u[keep], v[keep]
+        c2, c1, c0 = np.polyfit(u, v, 2)
     du = u.max() - u.min()
     sag = c2 * du * du / 8.0
     rms = float(np.sqrt(np.mean((v - np.polyval([c2, c1, c0], u)) ** 2)))
@@ -116,8 +172,18 @@ def sagitta(edge):
         se = float(np.sqrt(cov[0, 0]) * du * du / 8.0)
     except Exception:
         se = float("nan")
-    return dict(n=len(edge), span=float(du), sag=float(sag),
-                frac=float(sag / du), rms=rms, se=se)
+    # ---------------------------------------------------------------- F220b
+    # AND THE REJECTION PASS MUST NOT BE ABLE TO RESCUE A FRAGMENT TRACE.
+    # Watched immediately after F220's clip was added: `ref_playa_34.png`, whose
+    # refusal is CORRECT and was confirmed independently, went from rms 17.6 to
+    # rms 0.2 and PASSED -- the clip had eaten the fragments and fitted a clean
+    # parabola to one surviving scrap, with the span collapsing 105 -> 51 px.
+    # A rejection that turns a right refusal into a wrong pass is worse than no
+    # rejection at all.  So the ORIGINAL n and span are what the caller judges.
+    rescued = (n_clipped > 0.10 * n0) or (du < 0.70 * span0)
+    return dict(n=int(len(u)), n0=n0, n_clipped=n_clipped, span=float(du),
+                span0=span0, rescued=bool(rescued),
+                sag=float(sag), frac=float(sag / du), rms=rms, se=se)
 
 
 def paint(a, edge, out):
@@ -191,7 +257,8 @@ def main():
                 SCRATCH, "rev67_bumper_%s.png" % path.split(".")[0]))
 
     def clean(v):
-        return bool(v) and v["rms"] <= rms_bar(v["span"])
+        return (bool(v) and v["rms"] <= rms_bar(v["span"])
+                and not v["rescued"])
 
     ok_named = [k for k, v in photo.items() if clean(v)]
     ck("P1 the photographed bumper's top edge is traceable AS ONE EDGE  "
@@ -200,18 +267,25 @@ def main():
        "span) is fragments, not an edge, and REFUSES rather than reporting a "
        "number (rule 37)",
        len(ok_named) >= 1,
-       "; ".join("%s n=%d span=%.0f rms=%.1f px -> %s"
-                 % (k, v["n"], v["span"], v["rms"],
-                    "USED" if clean(v) else "REFUSED, not one edge")
+       "; ".join("%s n=%d/%d span=%.0f/%.0f rms=%.1f px -> %s"
+                 % (k, v["n"], v["n0"], v["span"], v["span0"], v["rms"],
+                    "USED" if clean(v)
+                    else ("REFUSED, the clip RESCUED it" if v["rescued"]
+                          else "REFUSED, not one edge"))
                  for k, v in photo.items() if v)
        + "".join("; %s NO TRACE" % k for k, v in photo.items() if not v))
 
     for k, v in photo.items():
         if not clean(v):
             continue
-        ck("P2 %s: the bumper's top edge is CURVED, not straight -- a straight "
-           "3-D line images straight under ANY pinhole camera, so a sagitta "
-           "many times its own standard error is SHAPE, not pose" % k,
+        ck("P2 %s: the bumper's top edge IS NOT A STRAIGHT 3-D LINE -- a "
+           "straight line images straight under ANY pinhole camera, so a "
+           "sagitta many times its own standard error is SHAPE, not pose.  "
+           "*** AND THAT IS ALL IT LICENSES (F220).  It does NOT say the nose "
+           "is curved IN PLAN: a plan-FLAT bumper whose top edge sweeps up at "
+           "its ends is curved in ELEVATION and gives the same sign.  This "
+           "frame does not separate the two, and rev 67 first published the "
+           "conclusion as though it did ***" % k,
            abs(v["sag"]) > 3.0 * v["se"] if v["se"] == v["se"] else False,
            "sagitta %+.2f px +- %.2f (%.1f sigma) over a %.0f px chord "
            "= %+.4f of chord; fit rms %.2f px"
@@ -305,13 +379,35 @@ def main():
         print("       %s" % detail)
     print("-" * 78)
     print("  CEILING, STATED (rule 12).  The plan bulge above is the MODEL's,")
-    print("  measured exactly on its own mesh.  The photograph side is a")
-    print("  STRAIGHTNESS test only: it establishes that the real bumper -- and")
-    print("  so the nose it follows -- IS curved in plan, which is a sign, not")
-    print("  a millimetre.  Converting a projected sagitta to a plan bulge")
-    print("  needs the camera, and F26's camera ambiguity is unresolved.  THE")
-    print("  REAL BUS's PLAN BULGE IN MILLIMETRES CANNOT BE RECOVERED FROM WHAT")
-    print("  WE HOLD BY THIS ROUTE.  That is a result, not a gap.")
+    print("  measured exactly on its own mesh.")
+    print()
+    print("  *** THE CEILING REV 67 FIRST PUBLISHED HERE IS REFUTED, IN THE")
+    print("  SAME REVISION THAT WROTE IT (F219/F221).  It read: 'converting a")
+    print("  projected sagitta needs the camera, and F26's camera ambiguity is")
+    print("  unresolved, so the real bus's plan bulge CANNOT BE RECOVERED FROM")
+    print("  WHAT WE HOLD'.  Three things were wrong with it:")
+    print("    1. THE FRAME CARRIES ITS OWN INTRINSICS.  ref_nolita_front34.jpg")
+    print("       is a SONY DSC-RX100, f 10.4 mm, 35mm-equiv 28, 3:2 UNCROPPED")
+    e = exif_focal(os.path.join(HERE, "ref_nolita_front34.jpg"))
+    if e:
+        print("       -> f = %.1f px, read live from EXIF just now" % e[0])
+    print("       NOTHING in this tree had ever read EXIF, and the record said")
+    print("       'the focal length of a camera nobody recorded' for FIVE revs.")
+    print("    2. F26 IS NOT ABOUT THIS FRAME.  Its row is an ATTRIBUTION")
+    print("       defect over ref_side.jpg and ref_playa_34.png.  Citing it to")
+    print("       block a third frame is rule 34, inside the revision whose own")
+    print("       brief carries rule 34.")
+    print("    3. AND A METRIC ROUTE EXISTS AND WAS RUN: forward-modelling the")
+    print("       bumper's plan profile through a camera built from the EXIF")
+    print("       focal and the two hubcap centroids gives B ~ 40 mm, bracketed")
+    print("       20-55 mm by lens distortion measured in-frame.  THE SHIPPED")
+    print("       NOSE IS 19.6 mm -- at or below the bottom of that range. ***")
+    print()
+    print("  WHAT IS STILL TRUE: this probe does not implement that route, and")
+    print("  the camera failed its own painted validation (belt line 18 px out),")
+    print("  so 40 mm is BRACKETED, not validated.  One straight-edge across the")
+    print("  two front bumper corners, photographed against a ruler, would")
+    print("  settle it outright with no camera model at all.")
     print("-" * 78)
     print("  %d checked, %d FAILED%s"
           % (len(checks), len(fails),
