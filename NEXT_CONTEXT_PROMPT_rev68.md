@@ -74,16 +74,41 @@ the silhouette at each height is **max-over-y of x**, which for a plan-convex no
 **ALWAYS the centreline** — whether the bulge is 0 mm or 100 mm. **A side view is blind to
 plan curvature by construction.** `probe_rev59_nose.py` says so in its own header.
 
-**THE CEILING, AND IT IS THE HALF THAT DECIDES WHAT REV 68 CAN DO.** The photograph side is a
-**STRAIGHTNESS TEST ONLY**: `ref_nolita_front34.jpg`'s bumper top edge reads sagitta
-**−2.94 px ± 0.46 over a 118 px chord, 6.4 σ**, and a straight 3-D line images straight under
-ANY pinhole camera — **so the real nose IS curved in plan.** But converting a projected
-sagitta to millimetres needs the camera, and F26's ambiguity is unresolved.
-**THE REAL BUS's PLAN BULGE IN MILLIMETRES CANNOT BE RECOVERED FROM WHAT WE HOLD BY THIS
-ROUTE.** `ref_playa_34.png` REFUSES (rms 17.6 px on 105 px, three fragments, painted).
-**ONE frame carries it, and the probe PRINTS the refusal rather than dropping the frame.**
+**⚠ THE CEILING REV 67 FIRST WROTE HERE IS REFUTED, IN ITS OWN REVISION (F219/F221), AND
+THE REPLACEMENT IS A NUMBER.** What stood here read: *"the bumper top edge reads sagitta
+−2.94 px ± 0.46 over a 118 px chord, 6.4 σ … converting to millimetres needs the camera, and
+F26's ambiguity is unresolved, so the real bus's plan bulge CANNOT BE RECOVERED FROM WHAT WE
+HOLD."* **Every part of that is wrong:**
 
-**SO `NOSE_BULGE` WAS NOT MOVED.** Rule 12 forbids the guess. **§3 item 1 puts it to him.**
+* **THE FRAME CARRIES ITS OWN CAMERA.** `ref_nolita_front34.jpg` is `SONY DSC-RX100,
+  FocalLength 10.4, FocalLengthIn35mmFilm 28`, 700×467 = **3:2 UNCROPPED**, zoom ratio 1.0 →
+  **f = 544.4 px**. `ref_nolita_doorshut.jpg` is a `Canon EOS 5D Mark II` at 24 mm → f = 320.0
+  px exactly. **NOTHING IN THIS TREE HAD EVER READ EXIF**, and `SURVEY_rev49_photoreal.md` has
+  said *"the focal length of a camera nobody recorded"* for FIVE REVISIONS. Nobody looked.
+* **F26 IS NOT ABOUT THAT FRAME** — it is an ATTRIBUTION defect over `ref_side.jpg` and
+  `ref_playa_34.png`. Citing it to block a third frame is **rule 34, inside the revision whose
+  own brief carries rule 34.**
+* **AND THE SAGITTA WAS CONTAMINATED BY A CHILD'S HAIR.** Three of 106 points at residuals
+  −16.7 / −16.1 / −13.6 px. Cleaned: **−2.05 ± 0.09 px, rms 0.55, 21.9 σ** — the headline
+  moves 43 % and its error 5.1×. **And rule 48's bar, written the same revision to refuse
+  exactly this, PASSED it** (4.00 against rms 2.78). *A bar that cannot refuse is not a bar.*
+
+**THE MEASURED ANSWER (F221): B ≈ 40 mm, BRACKETED 20–55 mm.** Closed form from the EXIF
+focal, the two hubcap centroids and the locked `TYRE_D`, with two quantities **held back as
+checks** — predicted wheelbase **2.4348** against the locked 2.4000 (+1.45 %), ring
+foreshortening 0.533 against 0.556. **The photographed bumper is 1.9–2.9× more curved than the
+built 19.6 mm nose would be through the same camera.** **CEILING: the camera FAILED its own
+painted validation** (belt line 18 px out) — **40 mm is BRACKETED, NOT VALIDATED**, and the
+dominant systematic is lens distortion, measured in-frame off two straight dolly rails at
++0.54 ± 0.32 px.
+
+**AND IT RECONCILES BOTH OWNER ANSWERS.** He said **"rounder than D"** — D was ≈ 48 mm, the
+top of the range — and then **"I can't quite tell"** of a **70 / 99 / 135 mm** ladder that was
+run **ENTIRELY ABOVE the measured range**, which is why all three read alike.
+
+**`NOSE_BULGE` IS STILL NOT MOVED, AND NOW FOR A DIFFERENT REASON — SEE F217.** It is not the
+number that blocks it any more; it is that **the indicator pods and headlamps sit at
+hard-coded `x` literals and do not follow the skin.**
 
 **AND REV 67's OWN HEADLINE MEASUREMENT WAS WRONG FIRST (F213).** I traced the side
 silhouette by segmenting on RED and called it the nose's section. **At y = 0 the nose is CREAM
@@ -386,16 +411,28 @@ CHASING C6 TO SEVEN CELLS                SEVEN IS THE PHOTOGRAPH'S RIM.
 > **The nose now HAS an instrument (F207). It has not been FITTED, and it cannot be fitted
 > from what we hold without asking him.**
 
-1. **ASK HIM THE NOSE QUESTION — IT IS THE ONLY THING THAT UNBLOCKS F207, AND IT IS ONE CROP.**
-   The model's nose bulges **19.6 mm** from centre to |y| = 0.70. The photographs establish
-   the real nose IS curved in plan (6.4 σ) **but cannot say by how much** — that needs the
-   camera and F26 is unresolved. **Render the nose at the SAME three-quarter angle as
-   `ref_nolita_front34.jpg` as nearly as you can, crop both to the nose alone, put them side
-   by side, and ask as MULTIPLE CHOICE with the crops attached: is the model's nose FLATTER
-   than the photograph's, ABOUT RIGHT, or ROUNDER?** He has never stood in the vehicle — ask
-   what the PHOTOGRAPH shows. **`T1_NOSE_BULGE` makes the A/B one command:**
-   `T1_NOSE_BULGE=0.040 T1_SUB=1 T1_PREVIEW=hero34r ... build.py`. **Show him a real A/B, not
-   a question about a number.**
+1. **THE NOSE: MAKE THE FIXTURES FOLLOW THE SKIN. DO NOT ASK HIM AGAIN, AND DO NOT MOVE
+   `NOSE_BULGE` FIRST.** He was asked twice at rev 67 and both askings are spent: he ruled
+   **"rounder than D"** (F214) and then **"I can't quite tell"** of a ladder that F221 shows
+   was run **entirely above the measured range**. **The number is no longer the blocker.**
+   * **THE MEASURED TARGET IS B ≈ 40 mm, BRACKETED 20–55 (F221), against a shipped 19.6 mm.**
+     Bracketed, NOT validated — the camera failed its own painted validation.
+   * **THE ACTUAL BLOCKER IS F217: the indicator pods and headlamps sit at HARD-CODED `x`
+     LITERALS** — `HL_X = 2.1015`, `D.place(ibase, loc=(2.0960, …))` — **and do not follow the
+     skin.** Rev 67 moved the nose and left them behind: **`ind1_base` 7.6 mm of OPEN AIR off
+     the body, `hl_lens` 7.9 mm proud, with `VERIFY: 0 fail, 0 warn`.** The pattern is one
+     screen away — the roundel uses `T.drape_x(...)` plus an *"emblem drape guard"*.
+   * **AND ADD THE ROW THAT WOULD HAVE CAUGHT IT.** Nothing in `verify.py` measures
+     fixture-to-skin registration on the nose. The only row that ever stopped a bulge change
+     is `length`, **a max-over-x — blind to a rearward-only deformation BY CONSTRUCTION**,
+     which is how rev 67 shipped a nose 19 mm less proud with every guard green (F217).
+   * **THEN re-parameterise, THEN fit to F221's bracket, THEN render, crop and LOOK.**
+     Above `NOSE_BULGE ≈ 0.13` the plan section FOLDS (F218) — that is the upper ceiling.
+   * **AND IF YOU WANT IT SETTLED OUTRIGHT, IT IS NOT A PHOTOGRAPH HE MUST TAKE BUT A
+     MEASUREMENT:** a straight edge laid across the two front bumper corners, photographed
+     against a ruler. **That gap IS the plan bulge in millimetres** — no camera, no F26, no
+     distortion. **That is the ONE thing worth asking him for, and `PHOTOS_WANTED_rev52.md` is
+     its carrier.**
 2. **F205/F212 — THE RENDER CUTS THREE INTERIOR CELLS WHERE THE PHOTOGRAPH CUTS SIX.**
    Re-measured at rev 67 on `out/r67_front.png`: **4 / 3 / 2 at ink thresholds 20 / 30 / 40**
    against the photograph's **6**, stable under crop padding. **THIS IS THE EMBLEM'S TOP ITEM

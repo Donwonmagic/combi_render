@@ -40,7 +40,9 @@ states (6.2 ablated, 19.6 shipped), so it is not derived from the expression it 
 
 ### §2a THE CEILING, WHICH IS THE HONEST HALF
 
-The photograph side is a **STRAIGHTNESS TEST ONLY**, and that is a real limit, not a gap:
+**⚠ REFUTED WITHIN THE REVISION (F219/F221) — READ THE CORRECTION UNDER THE BLOCK.** What
+this section claimed as a ceiling is not one. The photograph side was written as a
+**STRAIGHTNESS TEST ONLY**:
 
 ```
     ref_nolita_front34.jpg   bumper top edge   sagitta -2.94 px +- 0.46  over 118 px
@@ -52,10 +54,22 @@ The photograph side is a **STRAIGHTNESS TEST ONLY**, and that is a real limit, n
                              catching the counter nosing and the tail board too
 ```
 
-**THE REAL BUS's PLAN BULGE IN MILLIMETRES CANNOT BE RECOVERED FROM WHAT WE HOLD BY THIS
-ROUTE.** Converting a projected sagitta needs the camera and F26's ambiguity is unresolved.
-**ONE frame carries the straightness test, and the probe PRINTS that rather than leaving it
-in a paragraph.**
+**AND ALL OF THAT IS REFUTED (F219/F220/F221).** The frame carries its OWN camera —
+`ref_nolita_front34.jpg` is a `SONY DSC-RX100`, `FocalLength 10.4`, 35 mm-equiv 28, 3:2
+uncropped → **f = 544.4 px** — and **nothing in this tree had ever read EXIF**, while
+`SURVEY_rev49_photoreal.md` has said *"the focal length of a camera nobody recorded"* for five
+revisions. **F26 is an attribution defect about `ref_side.jpg` and `ref_playa_34.png` and was
+cited to block a third frame — rule 34, in the revision whose own brief carries rule 34.**
+**And the −2.94 ± 0.46 above is contaminated**: three of its 106 points sit on a child's hair;
+cleaned it is **−2.05 ± 0.09, rms 0.55, 21.9 σ**, a 43 % move — **and rule 48's bar, written
+this same revision, passed it.**
+
+**THE MEASURED ANSWER: B ≈ 40 mm, bracketed 20–55 mm**, closed-form from the EXIF focal, the
+two hubcap centroids and the locked `TYRE_D`, with the predicted wheelbase **2.4348 vs 2.4000**
+held back as a check. **The photographed bumper is 1.9–2.9× more curved than the built 19.6 mm
+nose would be through the same camera.** The camera failed its own painted validation, so this
+is **BRACKETED, NOT VALIDATED**. **It reconciles both owner answers: D ≈ 48 mm was the top of
+the range, and the 70/99/135 ladder was entirely above it.**
 
 ### §2b AND MY FIRST NOSE INSTRUMENT MEASURED THE PAINT, NOT THE NOSE (F213)
 
