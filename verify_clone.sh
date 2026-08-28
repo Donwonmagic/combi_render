@@ -2105,6 +2105,36 @@ import t1_shell as S
 a = S.nose_bulge_at(2.1015, 0.5450, 0.9330, amount=0.038)
 b = 2 * S.nose_bulge_at(2.1015, 0.5450, 0.9330, amount=0.019)
 print('OK' if abs(a - b) < 1e-12 else 'NONLINEAR %.8f %.8f' % (a, b))" 2>&1 | tail -1)"
+# ------------------------------------------------------- rev 69, F233
+# THE EMBLEM'S RENDER SIDE.  F205 stood for three revisions as "the render cuts
+# 3 cells where the photograph cuts 6" -- the project's top item -- and the
+# measurement behind it EXISTED IN NO COMMITTED FILE.  These rows are
+# BEHAVIOUR: they RUN the instrument, not grep for it.
+ck "emblem: the photograph still reads SIX interior cream cells" 6 \
+   "$(python3 -c "
+import probe_rev69_emblem as E, probe_rev46_vw as P, numpy as np, scipy.ndimage as ndi
+from PIL import Image
+a = np.asarray(Image.open('ref_nolita_front34.jpg').convert('RGB')).astype(float)
+ring, c = E.find_emblem(a, E.PHOTO_BOX)
+f = ndi.binary_fill_holes(ring); ys, xs = np.nonzero(f)
+sub = a[ys.min():ys.max()+1, xs.min():xs.max()+1]
+d = f[ys.min():ys.max()+1, xs.min():xs.max()+1]
+print(P.cream_cells(E.ink_mask(sub, d, 30), interior=True)[0])" 2>&1 | tail -1)"
+# THE FINDER MUST ADMIT THE OBLIQUE ROUNDEL.  My first cut used a squareness
+# bound of 0.6 and REJECTED THE REFERENCE FRAME -- the photograph's roundel is
+# 41 x 69 px, aspect 0.594.  An instrument whose finder cannot find the
+# reference is not an instrument.
+ck "emblem: the finder admits the PHOTOGRAPH's oblique roundel" "found" \
+   "$(python3 -c "
+import probe_rev69_emblem as E, numpy as np
+from PIL import Image
+a = np.asarray(Image.open('ref_nolita_front34.jpg').convert('RGB')).astype(float)
+r, c = E.find_emblem(a, E.PHOTO_BOX)
+print('found' if r is not None else 'REJECTED THE REFERENCE FRAME')" 2>&1 | tail -1)"
+# AND A CONTROL THAT DID NOT RUN MUST NOT READ AS A PASS (rule 3, F225's shape).
+ck "emblem: with no frame the probe SAYS the render rows did not run" 1 \
+   "$(python3 probe_rev69_emblem.py 2>/dev/null | grep -c 'render rows are ABSENT, NOT')"
+
 # ---------------------------------------------------- rev 69, F222/F232
 # THE FRONT BUMPER'S PLAN BOW.  It was DEAD FLAT for sixty-eight revisions --
 # eleven points at constant x under t1_detail.bumper's own `# flat nose face`
