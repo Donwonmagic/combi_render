@@ -1041,6 +1041,14 @@ were closed (F240). **What did NOT move: the back opening, the emblem's geometry
 the BUMPER (F222/F223); five instruments were found reporting things that are not measurements.
 **WHAT MOVED AT REV 67.** The nose got an instrument for the first time (F207); the frames were found to
 carry their own EXIF (F219); the register caught itself (F209).
+**WHAT MOVED AT REV 66.** The emblem's stroke weight and the arc-cut terminal shipped; three emblem
+instruments were found mis-targeted.
+**WHAT MOVED AT REV 65.** The badge's ring was fitted as an ELLIPSE; the reach was measured live off the
+mesh. *(⚠ THIS LINE WAS DROPPED BY REV 69's FIRST DRAFT OF THIS SECTION AND `audit_adversary.py` CAUGHT
+IT — the question "is the ring-ellipse fit still named as the emblem's close?" BROKE. §9 is a CARRIER:
+re-rank it, do not rewrite it. F185 stands: the badge's ring is a CIRCLE on the real object, so its
+image gives the homography outright, and **`probe_rev69_fitpose.py` is the first thing in this project
+to actually use that fact** — it fits the pose rather than assuming it.)*
 
 | horizon | the work | why |
 |---|---|---|
