@@ -161,8 +161,8 @@ empirical to 0.40). What actually binds a bulge change is `length`: **0.045 give
 ```
 bootstrap.sh              ALL 10 PASS -- but only after `pip install pillow`.
                           Clone arrived SHALLOW, the ELEVENTH running
-verify_clone.sh           ALL 348 PASS on a clean tree, AT THE HANDOFF COMMIT
-                          <- 0 FIDELITY, 348 SELF-CONSISTENCY.  336 -> 342.
+verify_clone.sh           ALL 351 PASS on a clean tree, AT THE HANDOFF COMMIT
+                          <- 0 FIDELITY, 351 SELF-CONSISTENCY.  336 -> 342.
                           ONE row RE-BASED, cause named + FIVE companion rows.
                           NO row relaxed.
 build.py T1_VERIFY=1      VERIFY: 0 fail, 0 warn at SUB=1
@@ -238,7 +238,7 @@ are thinner than the pressing's. **The W's two outer arms visibly FLOAT short of
 looked at again on `out/r68b_front.png` at rev 68, unchanged.**
 
 **AND HERE IS THE HONEST DISTANCE — THE GATE TABLE, WHICH AN ADVERSARY ONCE CAUGHT A BRIEF
-DROPPING.** `verify_clone.sh` ends **ALL 348 PASS**: **0 FIDELITY, 342
+DROPPING.** `verify_clone.sh` ends **ALL 351 PASS**: **0 FIDELITY, 342
 SELF-CONSISTENCY.**
 
 | gate | state MEASURED at close of rev 64 unless noted |
@@ -330,7 +330,7 @@ for b in $(git branch -r | grep -v HEAD); do
 done
 git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 ./bootstrap.sh          # read ROW 9, and read the "N ahead / M behind" NOTE line
-./verify_clone.sh       # ALL 348 PASS -- and read its verdict block
+./verify_clone.sh       # ALL 351 PASS -- and read its verdict block
 ```
 
 **MEASURED AT REV 68 PICKUP:** the clone was **SHALLOW** — the **ELEVENTH running**, and
