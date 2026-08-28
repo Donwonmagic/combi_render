@@ -763,6 +763,10 @@ python3 probe_rev59_nose.py out/r69_front.png                # READ BOTH RULERS
 python3 probe_rev67_nose.py out/r69_front.png   # **PASS IT A FRAME** -- bare, P3 does
                                                 # not run and SAYS SO (F225)
 python3 probe_rev46_vw.py                    # THE EMBLEM GATE -- C4 is the only red row
+python3 probe_rev69_emblem.py out/r69_front.png   # **PASS IT A FRAME** -- the RENDER
+                                             # side of F205, which existed in no file
+                                             # before rev 69.  Bare, it SAYS the render
+                                             # rows did not run (F233)
 python3 probe_rev64_shear.py ; python3 probe_rev65_unproject.py
 python3 probe_rev63_trace.py ; python3 vw_pressing.py ; python3 probe_rev63_canon.py
 python3 probe_rev63_ablate.py                # **PHOTO_N=7 IS A HARD SEARCH CONSTRAINT
