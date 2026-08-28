@@ -41,7 +41,7 @@ Rev 69 built five new instruments and shipped one visual change. **Do not repeat
 |---|---|---|---|
 | 1 | *"finish the nose render"* | the bumper's plan bow is **BUILT and guarded** (F232). What is NOT done is **rendering it and looking at it at delivery size** | §0.06 |
 | 2 | *"make the emblem correct"* | the glyph misses by **0.38 IoU with the pose fitted out**, against a control ceiling of 0.98, and **no constant in this tree expresses a stroke PATH** (F236/F237) | §0.07 |
-| 3 | *"the back opening"* | the rear hatch is **NOT MODELLED** — a 550 mm blade stands where a full-width propped panel belongs (F163/F165), **RULED by him at rev 62 and never built** | §0.05 |
+| 3 | *"the back opening"* | the rear hatch is **NOT MODELLED** — a flat blade with no thickness, no underside and no recess stands where a propped PANEL belongs, at **38.0° against a photographed 28.0°** (F163/F165/F241), **RULED by him at rev 62 and never built**. **Its WIDTH is a CEILING, not a task — see §0.05** | §0.05 |
 
 **RANK: 3, then 2, then 1.** The back opening is un-built geometry the owner ruled on eight revisions
 ago; the emblem needs a new construction and has a working instrument waiting; the nose needs a render
@@ -49,124 +49,185 @@ and a look. **But he listed them in his own order and the owner outranks the ran
 finish one, finish the one he names first when you ask.**
 
 ---
-## §0.02 THIS BRIEF WAS AUDITED AGAINST THE MACHINE — WHAT THE AUDIT FOUND, AND WHERE IT IS WEAKEST
+## §0.02 THIS BRIEF WAS AUDITED AGAINST THE MACHINE — AND THE AUDIT KILLED ITS OWN TOP ITEM
 
-**HOW (rule 17).** Every figure in §0.01, §0.05–§0.09 and §3 was RE-RUN or READ OFF THE SOURCE at the
-handoff commit, not transcribed. `audit_brief.py` and `audit_adversary.py` were both run as scripts,
-and **an adversary was DISPATCHED at this document** (rule 15) with instructions to recompute every
-figure, grep every quoted string, open every cited crop and **diff this brief against rev 69's for
-dropped carrier content**.
+**HOW (rule 17).** `audit_brief.py` and `audit_adversary.py` were both run as scripts, and **an
+adversary was DISPATCHED at this document** (rule 15) told to recompute every figure, grep every
+quoted string, open every cited crop, and **diff this brief against rev 69's for dropped carrier
+content.** **It returned TWENTY-ONE defects. Four were on the #1 item. They are fixed and the fixes
+are marked ⚠ in place, so you can see what was wrong rather than only what is right.**
 
-**WHAT THE AUDIT ACTUALLY FOUND — FOUR DEFECTS, ALL IN THIS BRIEF'S OWN FIRST DRAFT:**
+**THE FOUR THAT MATTER MOST, BECAUSE THEY WOULD HAVE COST YOU THE REVISION:**
 
-1. **A DROPPED CARRIER, CAUGHT BY THE MACHINE.** `audit_adversary.py`'s *"is the ring-ellipse fit still
-   named as the emblem's close?"* **BROKE.** My first draft of §9 kept *"what moved at rev 67"* and
-   **silently dropped the rev-66 and rev-65 lines**, taking **F185's ring-ellipse** with them. §9 is a
-   **CARRIER — re-rank it, do not rewrite it.** Restored, and the catch is recorded in the line itself.
-   **THIS IS THE FAILURE MODE RULE 16 EXISTS FOR AND IT HAPPENED ON THE FIRST TRY.**
-2. **`STATE.md` WAS STALE.** *"is STATE.md CURRENT for the geometry?"* **BROKE** — `t1_mats.py` moved
-   after it was written. Regenerated at `T1_SUB=2` on a clean tree: it moved **ONLY in provenance**,
-   every vertex count and dimension identical, **which is itself the evidence rev 69's one shipped
-   change touched no geometry.**
-3. **AN INHERITED CONTRADICTION IN §0.** The rev-69 brief said **"ALL 351 PASS … 342
-   SELF-CONSISTENCY"** in one sentence. Both halves must be the same number — every row is
-   self-consistency and none is fidelity. Carried from rev 68's re-base and fixed here.
-4. **A MISLABELLED COMMIT.** `6af7819` is titled *"rev 70: …"* and is **rev 69's work**. Recorded in
-   `LEDGER_rev69.md` §5 rather than hidden.
+1. **THE TOP ITEM WAS AIMED AT A REFUTED GOAL.** The first draft called the rear hatch *"a full-width
+   propped panel"* and told you to take `TB_WIDTH` as *"the one number nobody has ever measured"*.
+   **`t1_shell.py`, twenty lines above the constant, says the width is NOT MEASURABLE from anything we
+   hold — upper bound 0.59 m, NO lower bound — and REFUTES a full-width board at >2×.** **That is
+   F231's shape exactly: a documented CEILING re-labelled as an un-done task**, on the brief's own #1
+   item, one revision after the register caught the same thing. **AND IT IS THE THIRD REVISION RUNNING**
+   (F209, F222, now this). §0.05 is rewritten.
+2. **THE EMBLEM'S FIT TARGET WAS UNUSABLE.** The first draft set *"60.9° → ~28.6°"* as THE target.
+   `probe_rev69_angles.py`'s **own control A1 FAILS at 36.30° rms — larger than the 20.5° residual it
+   reports** — and the live photographed spread is **46.5°, not 28.6°**. The number came from a
+   probe named nowhere in the brief, quoted from its **docstring** (rule 10). §0.07 now forbids
+   fitting to an angle.
+3. **THE EMBLEM'S SECOND FRAME IS CLIPPED AND WAS NEVER PAINTED.** `IMG_2073`'s box discards **~14 % of
+   the mark's ink**; the probe paints only the best-scoring frame, so nobody looked (rule 8, in the
+   revision whose ledger already records three rule-8 catches). **F237's overfit magnitude rests on a
+   truncated target** — the direction survives, the number does not.
+4. **THREE CARRIERS WERE DROPPED** (rule 16): **F180's stale contact count**, **the unmeasured fit
+   depth**, and **the TheSamba literature URLs** that §4 still points at. All restored.
 
-**THE MACHINE'S OWN VERDICT ON THIS DOCUMENT:**
+**AND THE MACHINE CAUGHT THREE MORE BY ITSELF, BEFORE THE ADVERSARY REPORTED:**
+`audit_adversary.py`'s *"is the ring-ellipse fit still named as the emblem's close?"* **BROKE** — §9
+had silently lost its rev-65/66 lines, taking **F185** with them. *"is STATE.md CURRENT for the
+geometry?"* **BROKE** — regenerated, and it moved **only in provenance**, which is itself the evidence
+rev 69's shipped change touched no geometry. And `verify_clone.sh`'s *"the brief warns C6 is a RASTER
+fact"* **went red** — the machine-verdict block had lost it in the rewrite.
+
+**ALSO FIXED, FROM THE SAME PASS:** an inherited contradiction in §0 (*"ALL 351 PASS … 342
+SELF-CONSISTENCY"*); §8 saying `REMAINING_WORK_rev61.md` is untriaged when F230 triaged it eight
+revisions ago; §8 miscounting rev 69's rows as five when there are eleven; **F224's REFUTED half
+still published in the gate table** while §0.07 carried its correction; §0 republishing *"the strokes
+are too short / too thin"* which **F233 and F235 refute**; the gloss table naming **no frame** on any
+row; `flank_compare`'s worst region quoted at two different values, **neither of which reproduces on
+any frame in `out/`**; and §6's runnable block pointing at `r69` frames and at an `out/rNN_hero.png`
+that the render list never produces.
 
 ```
 audit_brief.py        10 checked, 0 FAILED   (71 paths, 55 T1_* switches, 31 scripts)
 audit_adversary.py    57 asked,   0 BROKE    -- FOUR questions REPLACED
+dispatched adversary  21 defects returned, 4 on the #1 item.  ALL ADDRESSED
 ```
 
 **THE FOUR REPLACED QUESTIONS ARE BEHAVIOURAL, NOT GREPS (rule 50).** The rev-63 batch was the oldest
 and all four replaced were greps. The new four **RUN something**: the tyre's road-film lift recomputed
-from `t1_mats.py`'s own constants; `_on_band` fed two points of the same direction and different
-magnitude (rule 54's basis); the emblem's INDEPENDENT frame re-extracted; and
-`probe_rev70_tyre`'s band finder re-run on a synthetic of known ratio. **THREE OF THE FOUR WERE WATCHED
-FAILING** — a wheel with no hubcap, an empty crop box, and a non-normalising stand-in — because a
-control that has only been seen passing is not a control (rule 3).
+from `t1_mats.py`'s own constants; `_on_band` fed two points of one direction and different magnitudes
+(rule 54's basis); the emblem's INDEPENDENT frame re-extracted; and `probe_rev70_tyre`'s band finder
+re-run on a synthetic of known ratio. **THREE OF THE FOUR WERE WATCHED FAILING** — a wheel with no
+hubcap, an empty crop box, and a non-normalising stand-in — because a control that has only been seen
+passing is not a control (rule 3).
 
-**WHERE THIS BRIEF IS WEAKEST, AND YOU SHOULD START AN ADVERSARY HERE:**
-* **§0.05's rear-hatch numbers are INHERITED from F165 (rev 62) and were NOT re-measured this
-  revision.** The angle, the chord and their two-significant-figure ceiling are seven revisions old.
-  **`TB_TILT_DEG`, `TB_CHORD` and `TB_WIDTH` were read off `t1_shell.py` live; the PHOTOGRAPHED pair
-  was not.** Re-measure before you fit to it.
-* **§2's REFUTED LIST**, which an adversary has broken in four consecutive revisions (fourteen at
-  rev 64, thirteen at rev 67, twelve at rev 68, and at rev 69 its own headline was found sitting under
-  **F104**, unread since rev 60).
+**WHERE THIS BRIEF IS STILL WEAKEST — START AN ADVERSARY HERE:**
+* **§0.05's PHOTOGRAPHED angle and chord are INHERITED from F165 (rev 62) and were NOT re-measured.**
+  The live constants were read off `t1_shell.py`; the photographed pair was not re-taken, **and F165's
+  "built" figures are a BBOX DIAGONAL, a different ruler from the constants (rule 38).** Re-measure on
+  one ruler before you fit.
+* **§2's REFUTED LIST**, broken by an adversary in four consecutive revisions, and **byte-unchanged
+  since rev 68 despite F234 retiring its central lever by OWNER RULING.**
 * **§0 and §4 remain the two longest carriers and are still mostly inherited text.**
+* **Every figure in §0.08's gloss table and §0.09's verdict block is from `out/`, which starts EMPTY.
+  Re-render before you quote any of them.**
 
 ---
 ## §0.05 THE BACK OPENING — RULED AT REV 62, MEASURED AT REV 62, NEVER BUILT
 
 > *[owner, rev 62, shown `probe_scratch/rev62_q_rear.png`]* ***"The bus's rear hatch, propped open."***
+> and, in the same ruling: ***"Use the geometry only, leave colour open."***
 
 **THIS IS THE OLDEST UN-BUILT THING THE OWNER HAS EXPLICITLY RULED ON. F163 is `RULED-rev62, NOT
-BUILT` and has sat for SEVEN revisions.**
+BUILT` and has sat for SEVEN revisions.** The register row is **F241**.
 
-**WHAT STANDS THERE NOW.** `t1_shell.tail_board()` builds a flat plate — measured off the mesh at
+> **⚠ READ THIS PARAGRAPH BEFORE THE TABLE. AN ADVERSARY DISPATCHED AT THIS BRIEF KILLED ITS FIRST
+> DRAFT OF THIS SECTION, AND THE ERROR WAS F231's SHAPE EXACTLY — A DOCUMENTED CEILING RE-LABELLED AS
+> AN UN-DONE TASK.** The first draft called the target *"a full-width propped panel"* and instructed
+> you to take `TB_WIDTH` as *"the one number nobody has ever measured"*. **`t1_shell.py` refutes both,
+> twenty lines above the constant, and neither the brief nor F241 had cited it:**
+>
+> ```
+> # THE WIDTH ACROSS THE VEHICLE IS NOT MEASURED, AND IT IS NOT MEASURABLE FROM
+> # ANYTHING WE HOLD.  The board's plane contains the lateral direction, so its
+> # width projects ONLY through parallax -- 33.5 px per metre ...
+> #   UPPER BOUND, admissible:  W <= 19.9/33.5 = 0.59 m.
+> #   LOWER BOUND:              NONE.
+> # That bound alone REFUTES a full-width board: the roof aperture is 1.11 m
+> # across and the body 1.750 m, both excluded by more than 2x.  ref_rear34.jpg
+> # cannot close it -- the candidate free edge runs off the frame at u=1199
+> ```
+>
+> **SO: A FULL-WIDTH HATCH IS REFUTED AT >2×, THE WIDTH HAS AN UPPER BOUND OF 0.59 m AND NO LOWER
+> BOUND, AND IT CANNOT BE RECOVERED FROM WHAT WE HOLD.** The shipped 0.5500 sits just under that
+> bound and is honestly labelled a POSE CHOICE. **DO NOT WIDEN IT. DO NOT "MEASURE" IT.** *(And the
+> first draft's own crop of `ref_rear34.jpg`, (820, 0)–(1200, 300), ends at exactly the column
+> u = 1199 that the source says the free edge runs off at — it could not have closed it either.)*
+
+**WHAT STANDS THERE NOW.** `t1_shell.tail_board()` builds a flat plate — F163 measured its bbox at
 x −2.420…−1.846, y −0.275…0.275, z 1.754…2.209 — which renders as **a thin blade carrying a bulb row
-on two wires, with no panel, no recess and no underside.** The live constants:
+on two wires, with no panel body, no recess and no underside.** The live constants, read off
+`t1_shell.py` at this commit:
 
 ```
-    TB_TILT_DEG = 38.0      # MEASURED +-2.3, FROM HORIZONTAL
-    TB_CHORD    = 0.7110    # MEASURED +-0.028, in the vehicle's XZ plane
-    TB_WIDTH    = 0.5500    # *** "POSE CHOICE, NOT MEASURED.  Inside the 0.59 bound" ***
+    TB_TILT_DEG = 38.0        # MEASURED +-2.3, FROM HORIZONTAL
+    TB_CHORD    = 0.7110      # MEASURED +-0.028, in the vehicle's XZ plane
+    TB_WIDTH    = 0.5500      # POSE CHOICE, NOT MEASURED.  Inside the 0.59 bound
 ```
 
-**F165 MEASURED THE TWO THAT ARE WRONG, ON `IMG_3840.jpeg` AT 107.92 px/m, EVERY LANDMARK PAINTED
-FIRST (`probe_scratch/rev62_hatch_marks.png`):**
+**SO THE DEFECT IS ANGLE, LENGTH AND FORM — NOT WIDTH.** F165 measured the first two on
+`IMG_3840.jpeg` at 107.92 px/m, every landmark PAINTED first (`probe_scratch/rev62_hatch_marks.png`):
 
 ```
-                       PHOTOGRAPHED        BUILT          verdict
-    angle above horiz.   28.0 deg          38.4 deg       ~10 deg TOO STEEP
-    visible chord        0.829 m           0.732 m        TOO SHORT -- and 0.829 is a
-                                                          LOWER BOUND: the hinge is
-                                                          OCCLUDED by the rear roof dome
+                       PHOTOGRAPHED        F165's "BUILT"      verdict
+    angle above horiz.   28.0 deg            38.4 deg          ~10 deg TOO STEEP
+    visible chord        0.829 m             0.732 m           TOO SHORT -- and 0.829 is a
+                                                               LOWER BOUND: the hinge is
+                                                               OCCLUDED by the rear roof dome
 ```
 
-**AND `TB_WIDTH` IS NOT A MEASUREMENT AT ALL — its own comment says so.** 550 mm on a **1750 mm** body
-is 31 % of the width. **Nothing has ever measured it.** That is the third defect and the largest.
+> **⚠ TWO RULERS ARE MIXED IN THAT TABLE AND YOU MUST NOT FIT ACROSS THEM (rule 38).** F165's BUILT
+> pair is the **bounding-box diagonal**: `atan(0.455/0.574) = 38.40°` and `hypot(0.574, 0.455) =
+> 0.7326`, which carries the board's own thickness `TB_T` and its rounded-rect corners. **The
+> CONSTANTS are 38.0 and 0.7110.** And the photographed 28.0° is read **along the panel's TOP edge**,
+> a third ruler again. **Re-measure the photographed pair against the same thing you intend to move
+> before you move it** — F165 is seven revisions old and was NOT re-measured at rev 69.
+> **AND F165's CEILING IS BINDING: the frame is 480×320 and the hatch spans ~90 px — TWO SIGNIFICANT
+> FIGURES. Do not fit to 28.0 as though it were 28.00** (rule 48).
 
-**WHAT THE PHOTOGRAPHS ACTUALLY SHOW — LOOKED AT AT REV 69, NOT TRANSCRIBED.**
-`IMG_3840.jpeg` cropped to (355, 85)–(480, 215) shows the hatch on the **chalkboard** vehicle: a panel
-with **visible EDGE THICKNESS**, an **orange top face**, a **dark angled recess cut into its
-forward-lower area**, emerging **from behind the rounded rear roof dome** — the hinge is not visible.
-`ref_rear34.jpg` cropped to (820, 0)–(1200, 300) shows the same panel **on the RED bus**: a **CREAM
-face, a RED edge stripe along its raised edge, and a string of lit BULBS running along that edge.**
+**WHAT THE PHOTOGRAPHS SHOW — LOOKED AT AT REV 69, NOT TRANSCRIBED (rule 1).**
 
-> **⚠ SO THE COLOUR IS ALREADY ROUGHLY RIGHT AND THE DEFECT IS FORM. F163's own correction says this
-> and a brief has never carried it forward:** *"OUR TAIL_BOARD'S COLOURING — cream blade, red edge,
-> bulbs — IS ALREADY ROUGHLY RIGHT, which narrows F163 to FORM rather than paint."*
-> **DO NOT re-open the colour. DO NOT paint it orange** — the orange face is `IMG_3840.jpeg`'s
-> **chalkboard livery**, and rule 11 forbids transferring paint between livery states. **Geometry
-> transfers; paint does not.**
+* **`ref_side.jpg`, rows 180–320, cols 855–1010 — THIS IS F163's OWN CITATION AND IT IS THE PRIMARY
+  FRAME.** It shows the hatch propped open **on the RED bus in its CURRENT livery**: a **CREAM face, a
+  RED edge stripe, a dark navy/black stripe on the lower edge, and a lit bulb string along it.**
+* **`IMG_3840.jpeg` cropped to (355, 85)–(480, 215)** shows the panel's **FORM** clearly: **visible
+  EDGE THICKNESS**, a **dark angled recess cut into its forward-lower area**, and the panel emerging
+  **from behind the rounded rear roof dome** — the hinge is not visible.
+* **`ref_rear34.jpg` (820, 0)–(1200, 300) is a POOR crop for this and the first draft used it as
+  primary. It is ~70 % the folk-art serving canopy — a DIFFERENT OBJECT — with the hatch a sliver at
+  the lower right.** Use it only to corroborate the bulb string.
 
-**WHAT TO BUILD, AND EVERY PART OF IT IS IN THE RECORD ALREADY:**
-1. a panel with **real thickness and an underside**, not a plate;
-2. at **28.0°**, not 38.0° — and re-derive `TB_CHORD` from the ≥0.829 m lower bound rather than the
-   0.711 that is in the file;
-3. **`TB_WIDTH` MEASURED, not chosen** — it is the one number nobody has ever taken, and both frames
-   show the panel's outer edge;
-4. the **dark angled recess** in its forward-lower area;
+> **⚠ AND A FRAME-IDENTITY FACT THIS PROJECT HAS NEVER RECORDED, WHICH §0.1's OWN WARNING EXISTS FOR:**
+> **`IMG_3840.jpeg` AND `ref_nolita_doorshut.jpg` ARE BYTE-IDENTICAL** — `md5
+> f1b6f98c6a12b6e9ea0ec3edc68e945a`. §0.1 lists `ref_nolita_doorshut.jpg` under *"the RED target bus"*
+> while F163 calls `IMG_3840.jpeg` *"the chalkboard livery"*. **Both are true and they are the same
+> bytes: it is the RED TARGET BUS in its CHALKBOARD LIVERY STATE.** So **geometry from it transfers and
+> paint from it does not** (rule 11, which killed F99/F100/F140 on exactly this frame). **A duplicate
+> is not corroboration.**
+
+**THE COLOUR IS SETTLED. DO NOT RE-OPEN IT.** F163's own correction: *"OUR TAIL_BOARD'S COLOURING —
+cream blade, red edge, bulbs — IS ALREADY ROUGHLY RIGHT, which narrows F163 to FORM rather than
+paint."* **No brief has ever carried that sentence forward**, so every revision since rev 62 has
+inherited the impression that the colour is open. **DO NOT paint it orange** — the orange face belongs
+to the chalkboard livery.
+
+**WHAT TO BUILD:**
+1. a panel with **real thickness and an underside**, not a plate — this is the largest visible defect
+   and it needs no new measurement at all;
+2. the **dark angled recess** in its forward-lower area;
+3. the angle and chord re-measured **on one ruler** and moved together, with F165's two-significant-
+   figure ceiling stated in the row;
+4. **`TB_WIDTH` LEFT ALONE** at 0.5500, with its ceiling carried;
 5. the bulb strip kept on the **OUTER/aft edge**, where it already is.
 
-**THE GUARD, IN THE SAME EDIT (rule 13).** There is no gate on this object at all. Build one that
-compares the built angle and chord against F165's photographed pair, **and watch it refuse at the
-shipped 38.0°/0.711 before you believe it passing at the new values** (rule 3). **F165's CEILING IS
-BINDING AND MUST BE IN THE ROW'S OWN TEXT: the frame is 480×320 and the hatch spans ~90 px — TWO
-SIGNIFICANT FIGURES. Do not fit to 28.0 as though it were 28.00** (rule 38, rule 48).
+**THE GUARD, IN THE SAME EDIT (rule 13). There is no gate on this object at all** — F165's pair has
+never been checked by anything that runs. Build one, **and watch it refuse at the shipped 38.0/0.711
+before you believe it passing** (rule 3). **Its row must name which ruler it uses** (rule 38).
 
-**AND ONE THING REV 69 SAW AND DID NOT MEASURE — HAND IT ON RATHER THAN ASSERT IT.** In
+**AND ONE THING REV 69 SAW AND DID NOT MEASURE — HAND IT ON RATHER THAN ASSERT IT (rule 37).** In
 `out/r69_hero34r.png` a **large dark rectangle** sits below the blade with red visible through it.
-Rev 69 did **not** establish whether that is `glass_rear` rendering black (which would be F71's flat
-glazing, a different finding) or an actual hole in the shell. **`STATE.md` says the roof aperture is
-"open, and solid fore / aft / both sides", which is about a DIFFERENT aperture.** **Measure it before
-you name it** — and note `lid_trunk` is a **different object** (a plate at x −1.87, z 0.608…1.103,
-below the counter) and is **NOT** this hatch (F163).
+Rev 69 did **not** establish whether that is `glass_rear` rendering black — which would be F71's flat
+glazing, a **DIFFERENT** finding — or an actual hole in the shell. **`STATE.md`'s *"roof aperture:
+open, and solid fore / aft / both sides"* is about a DIFFERENT aperture and must not be quoted at it.**
+**Measure it before you name it.** And note `lid_trunk` is a **different object** (a plate at x −1.87,
+z 0.608…1.103, below the counter) and is **NOT** this hatch.
 
 ---
 ## §0.06 THE NOSE — THE SHAPE IS BUILT AND GUARDED. WHAT IS MISSING IS THE LOOK.
@@ -177,6 +238,12 @@ own front-face plan curve, raycast at build time**. `BUMP_BOW = 1.0`, station `B
 ablation `T1_BUMP_BOW`. **Measured on the mesh: +0.05 mm → +21.55 mm** (`STATE.md`, row
 *"bumper plan bow (F222)"*), against the shell's +20.38 mm at the same station, floor 8.0 mm.
 **`verify._bumper_bow` was WATCHED FAILING: `T1_BUMP_BOW=0` → `VERIFY: 2 fail`, both arms red.**
+
+> **⚠ AND THE GUARD'S OWN CEILING TRAVELS WITH THAT CLAIM (rule 12). ITS DOCSTRING SAYS SO AND THE
+> FIRST DRAFT OF THIS BRIEF DROPPED IT:** *"Its resolving power on BUMP_BOW itself is poor: a 6.0 mm
+> bar is reached only around BUMP_BOW ~ 0.7, so **a 28 % error in the one constant it exists to police
+> would PASS**."* and *"**NOT A FIDELITY CLAIM.**"* **"Guarded" here means the face is not FLAT. It
+> does NOT mean the bow is right.**
 
 **SO "FINISH THE NOSE RENDER" IS NOT MORE GEOMETRY. IT IS THE STEP THIS PROJECT SKIPS (rule 1):**
 
@@ -194,8 +261,19 @@ differing by >8 levels, worst channel 40**. Publish it beside any render A/B.
 independent number. **F231: it cannot be recovered from the frames we hold** — three painted mechanisms,
 and every front-facing frame we hold is shot from the SAME front-left quarter, so the far-side symmetric
 landmarks are on or beyond the silhouette in all of them. **F229's literature route was `EGRESS_BLOCKED`
-in two consecutive containers** (`thesamba.com`, `en.wikipedia.org`, HTTP 000). **TRY IT AGAIN — the
-network policy is per-environment** — but do not budget the revision on it. **F223's bracket
+in two consecutive containers** (HTTP 000). **TRY IT AGAIN — the network policy is per-environment** —
+but do not budget the revision on it. ⚠ **THE SOURCES BY NAME, WHICH REV 69's FIRST DRAFT DROPPED
+WHILE §4 STILL POINTED AT THEM (rule 16):**
+
+* `thesamba.com/vw/forum/viewtopic.php?p=9884153` — *"Split Bus — View topic — Dimensions front mask VW T1"*
+* `thesamba.com/vw/archives/info/split_bus_dimensions.php` — *"VW Split Bus Frame Dimensions"*
+* `coolairvw.co.uk/guides/vw-bus-bumpers/`
+* and the one fact a snippet did carry: **the 1959–67 deluxe bumper rubber insert is 8 ft = 2438 mm**,
+  an **ARC LENGTH**, which against a chord gives the sagitta via **`arc = chord + 8h²/(3·chord)`**.
+
+`en.wikipedia.org` was blocked too. **The owner RULED this route open (F229, rule 52): *"This has to be
+a commonly available measurement."* — check the catalogue literature BEFORE asking him for any
+measurement of a factory part.** **F223's bracket
 B ∈ [16, 76] mm contains the shipped 19.6**, so the shipped nose is not excluded by anything we hold.
 
 **DO NOT FIT `NOSE_BULGE` TO 40 mm** — that instruction was aimed at the wrong object (F222), and
@@ -206,7 +284,9 @@ B ∈ [16, 76] mm contains the shipped 19.6**, so the shipped nose is not exclud
 
 > *[owner, rev 69, shown an A/B]* ***"Just what the fuck. Are you telling me? That looks right to you?"***
 > and, asked to choose between the shipped mark and the solver's own best fit: ***"Neither — both still
-> wrong."*** **His EIGHTH and NINTH reports of this emblem.**
+> wrong."*** **His EIGHTH and NINTH reports of this emblem** — *"Neither"* came first and is the eighth;
+> *"Just what the fuck"* followed it and is the ninth. *(The rev-69 brief's first draft had them the
+> other way round from `LEDGER_rev69.md` §4; the ledger is right.)*
 
 **REV 69 BUILT THE COMPARISON THIS PROJECT NEVER HAD, AND IT CHANGES WHAT "CORRECT" MEANS.**
 Every emblem statistic in this tree reads an OBLIQUE photograph against a HEAD-ON raster — F184's trap.
@@ -223,10 +303,25 @@ view of itself at IoU 0.9882.** That is the ceiling every number below is quoted
 ```
 
 **THE INK IS THE RIGHT AMOUNT AND THE WRONG ARRANGEMENT.** That is F104, which the register has carried
-since rev 60 and no revision has acted on, now confirmed pose-free. **And F235 says what "arrangement"
-means, in a number: the built strokes fan over a spread of 60.9° where the photograph's six span
-28.6° — they RADIATE where the real mark's strokes are near-PARALLEL**, and two of the six built cells
-are round blobs (aspect 1.09, 1.27) where every photographed cell is a sliver.
+since rev 60 and no revision has acted on, now confirmed pose-free. **The built strokes RADIATE where
+the real mark's are near-PARALLEL** — that is the defect in words, and the built-side number is solid:
+**the built spread is 60.9°**, read off the mesh's own raster.
+
+> **⚠ BUT DO NOT USE AN ANGLE AS YOUR FIT TARGET, AND THE REV-69 BRIEF'S FIRST DRAFT DID. AN ADVERSARY
+> KILLED IT.** F235's photographed *"28.6°"* comes through `probe_rev69_angles.py`'s **affine
+> un-squash**, and **that probe's OWN CONTROL A1 FAILS**: squash the built mark by the photograph's
+> 0.594 axis ratio, un-squash it, and the angles come back **36.30° rms wrong — LARGER than the 20.5°
+> residual A2 reports.** Run live at this commit it prints `3 checked, 2 FAILED`, and the un-squashed
+> photograph angles read **53.8 / 56.1 / 91.3 / 98.3 / 80.1 / 51.8, a spread of 46.5° — not 28.6°.**
+> **The measurement is below its own noise floor (rule 42), and a target you cannot round-trip is not
+> a target (rule 39).** `probe_rev69_angles.py` is exactly the un-projection route
+> `probe_rev69_fitpose.py` was built to REPLACE — see §0.07's opening. **USE THE POSE-FREE IoU AS THE
+> OBJECTIVE. Quote the angular spread only as a DESCRIPTION of the defect, never as a number to fit
+> to, until A1 passes.**
+> **AND ONE MORE OF F235's CLAIMS DOES NOT REPRODUCE:** *"every photographed cell is a sliver"* is
+> false — live photo aspects are `3.17 / 1.49 / 3.23 / 2.92 / 1.27 / 5.33`, **two of them below 2.0**,
+> and the probe's own **A3 PASSES** precisely because built and photograph have the same count of
+> round cells (2 and 2). **F235's aspect list does not reproduce either.**
 
 **EVERY LEVER THE EMBLEM HAS WAS MEASURED AGAINST THAT RESIDUAL AND THEY ARE ALL EXHAUSTED (F237):**
 
@@ -246,8 +341,19 @@ are round blobs (aspect 1.09, 1.27) where every photographed cell is a sliver.
 **⚠ AND `IMG_2073.jpeg` IS THE EMBLEM'S SECOND FRAME. THIS PROJECT HAD NEVER USED IT.** The GREEN
 vehicle, a different camera and a different pose — admitted by **rule 11**, because the roundel is the
 factory chrome **PRESSING**, which is geometry and transfers; only its colour is artwork (F141). Its
-mark sits at box **(288, 542)–(352, 640)**, extracts clean and connected with all six cells, and it is
+mark sits at box **(288, 542)–(352, 640)** and extracts connected with all six cells, and it is
 **the overfit detector**: fit on one frame, score on the other.
+
+> **⚠ AND THAT BOX CLIPS THE MARK. AN ADVERSARY PAINTED IT; REV 69 NEVER DID.** `probe_rev69_fitpose.py`
+> paints only the BEST-scoring frame, which is `ref_workshop`, so **`IMG_2073`'s mask was never looked
+> at** — rule 8, in the revision whose ledger records three other rule-8 catches. Widening to
+> **(283, 537)–(357, 662)** grows the mask from 96 rows to 113 and from **2527 to 2926 on-pixels: the
+> shipped box discards about 14 % of the mark's ink**, and the roundel's lower arc and the bottom of
+> the W are cut off flat. **All three frames' masks touch all four window edges.**
+> **CONSEQUENCE, STATED PLAINLY: F237's "the trace is OVERFIT" rests on a 0.025 IoU difference computed
+> against a TRUNCATED target.** The DIRECTION is not in doubt — a construction that wins by 0.09 on its
+> own source and loses on an independent frame is overfit on any window — but **the magnitude is not
+> trustworthy. RE-CUT THE BOX, RE-PAINT IT, AND RE-RUN P4 BEFORE YOU QUOTE THE NUMBER.**
 
 **SO THE ROUTE IS NOT ANOTHER SOLVE. IT IS A NEW CONSTRUCTION, AND HERE IS WHY, FROM THE SOURCE.**
 `t1_core._spines()` builds the V from **3** points and the W from **5**, and then:
@@ -265,8 +371,19 @@ fit L1–L6 (VERTICAL LANDMARK POSITIONS on the ring), optimise a quantity that 
 
 **WHAT TO BUILD:** give each stroke its own centreline with free endpoints — **not** forced onto the
 band circle — so the six strokes can be made near-parallel, and fit that against
-`probe_rev69_fitpose.fit()` **on BOTH frames jointly, holding one out to detect overfit**, with
-**F235's angular spread (60.9° → ~28.6°) as the interpretable target** and P1's 0.9882 as the ceiling.
+`probe_rev69_fitpose.fit()`.
+
+> **⚠ FIT ON ONE FRAME AND SCORE ON THE OTHER — NOT "BOTH JOINTLY". THE FIRST DRAFT SAID JOINTLY AND
+> F237's OWN CEILING FORBIDS IT:** *"the two frames are NOT comparable to each other — 0.7345 vs 0.6671
+> for the same build is frame quality, so only the WITHIN-frame difference between two constructions
+> means anything."* **Summing two incomparable IoUs makes the better-lit frame the objective.**
+> **AND CARRY F237's SECOND CEILING, which the first draft dropped:** giving the glyph its OWN free
+> pose reaches only **0.5896 against a same-search control ceiling of 0.9845 — BELOW the 0.6168 it
+> scores under the whole-mark pose**, so that is a greedy-search artefact and a **LOWER BOUND, not a
+> result**. Do not quote it as one.
+
+**THE OBJECTIVE IS THE POSE-FREE IoU with P1's 0.9882 as the ceiling.** Use the angular spread to
+DESCRIBE what you changed, never to fit to.
 
 **BEFORE YOU START, READ §2's REFUTED LIST — SEVENTEEN ROWS — AND DO NOT RE-TRY ANY OF THEM.** And
 **check the register for a finding before you derive anything**: that is how F139 was found sitting
@@ -301,13 +418,19 @@ the model-side lever **EXHAUSTED**. It was not — **F54's clearcoat and F60's r
 ALONE in a FEATURELESS WHITE VOID**, where a mirror can only veil and never glint, because a highlight
 needs something bright NEXT TO something dark. `studio._refl_env` gives the world a softbox band over a
 dark floor, shown to **GLOSSY RAYS ONLY** so the backdrop and every diffuse-calibrated gate are
-untouched. **Four configurations, against a TWO-RENDER FLOOR of 0.001 on the spread:**
+untouched. **Four configurations. ⚠ NAME THE FRAME ON EVERY ROW — the rev-69 brief's first draft named none, and
+an adversary could not reproduce one of them because `out/` starts empty and the frames differ. The
+headroom figures below are the LIVE ones; the first draft quoted 0.126/0.181 where the frames read
+0.122/0.182. Against a TWO-RENDER FLOOR of 0.001 on the spread:**
 
 ```
-    env  0 (shipped) + coat 0.02     spread 0.412    headroom 0.126   <- SHIPS
-    env  1.0         + coat 0.02     spread 0.416    headroom   --
-    env 21.0         + coat 0.02     spread 0.389    headroom 0.118
-    env 21.0         + coat 0.55     spread 0.399    headroom 0.181
+    FRAME                 CONFIG                       spread   headroom
+    out/r70off_hero34f    env  0 (shipped) + coat 0.02  0.412    0.122   <- SHIPS
+    out/r70off2_hero34f   the SAME tree, rendered again 0.411    0.119   <- THE FLOOR
+    out/r70on_hero34f     env  1.0         + coat 0.02  0.416    0.127
+    out/r70d_hero34f      env 21.0         + coat 0.02  0.389    0.118
+    out/r70c_hero34f      env 21.0         + coat 0.55  0.399    0.182
+    out/r70e_hero34f      the SHIPPED state, re-rendered 0.410   0.120
 ```
 
 **The coat makes specular structure for the first time — headroom +44 %, which is 88× F54's
@@ -344,7 +467,14 @@ probe_rev69_fitpose.py    NEW.  4 checked, 1 FAILED (P2, a CORRECT refusal:
                           0.7345 against the control's 0.9882)
 gloss_compare.py          FAILS at 0.410 (bar 0.60).  Two-render floor on the
                           statistic MEASURED for the first time: 0.001
-flank_compare.py          FAILS -- worst region 0.680 (i), target 0.75
+flank_compare.py          FAILS.  **NAME THE FRAME -- the worst REGION changes with it:**
+                            out/r70e_side.png  0.685 (i)     <- the shipped state
+                            out/r70c_side.png  0.659 (Senor)
+                            out/r70d_side.png  0.656 (Senor)
+                          **On two of three rev-70 frames the worst region is `Senor`, which is
+                          F156's DELIBERATE DEPARTURE, NINE revisions unacted (rule 40).**
+                          The rev-69 brief published 0.680 and 0.687 in two places and
+                          NEITHER reproduces on any frame in out/
 probe_rev46_vw.py         12 checked, 1 FAILED -- C4 ONLY, at 0.0755 (bar 0.045).
                           READ F210/F211/F226/F234 BEFORE QUOTING ANY OF IT.
                           C6 PASSES 6 = 6 -- **ON THE RASTER.  ON THE RENDER THE
@@ -380,8 +510,13 @@ sick and tired of not being able to execute a publicly available emblem."***
 AND AT REV 64, 65, 67 AND 68 IT DID NOT MOVE. AT REV 66 IT MOVED: the strokes were measured
 24 % too thin and are fitted, and the terminal caps are cut on the band's arc.** Held next to
 the photographs, four things are still visibly wrong: the glyph does not fill its ring the way
-both photographs do, the V is too narrow, the W's outer arms are too short, and the strokes
-are thinner than the pressing's. **The W's two outer arms visibly FLOAT short of the ring —
+both photographs do, and the V is too narrow. *(⚠ **THE OTHER TWO CLAUSES OF THIS SENTENCE ARE
+REFUTED BY THIS REVISION'S OWN REGISTER AND THE REGISTER OUTRANKS PROSE.** F235: the strokes are
+**"NOT too fat, NOT too thin, NOT too short, and they DO reach the ring"**; F233: the terminals
+overlap the band by **5.9 mm on the mesh** and the render makes the photograph's six cells at 2×
+resolution, so F205 is **substantially a preview-resolution artefact**. The defect is the strokes'
+**DIRECTIONS**, not their length or weight. Kept visible rather than deleted, per rule 16, with the
+refutation attached.)* **The W's two outer arms visibly FLOAT short of the ring —
 looked at again on `out/r68b_front.png` at rev 68, unchanged.**
 
 **AND HERE IS THE HONEST DISTANCE — THE GATE TABLE, WHICH AN ADVERSARY ONCE CAUGHT A BRIEF
@@ -397,7 +532,7 @@ halves must be the SAME NUMBER: every row is self-consistency and none is fideli
 | `probe_rev70_tyre.py` | **NEW at rev 69 (F238).** The tyre against **the cream rim ring in its own image**, so exposure cancels; no typed radius anywhere, so it encodes no pose. **2 checked, 1 FAILED — 0.2458 against the photograph's 0.1953, i.e. 1.26× at a 1.25 bar, which its own ±20 % ceiling calls AT the bar, not a pass.** Its control was **WATCHED FAILING TWICE** |
 | `probe_rev69_fitpose.py` | **NEW at rev 69 (F236).** The emblem with **the pose FITTED OUT** — the comparison F184 says the count and the elongation cannot make. **4 checked, 1 FAILED — 0.7345 against a watched control ceiling of 0.9882.** **P4 re-scores `T1_VW_TRACED` on a frame it was NOT traced from and goes RED if the trace ever wins independently** |
 | **the REAR HATCH** | **NO GATE EXISTS. F163 is `RULED-rev62, NOT BUILT` and F165's angle/chord pair has never been checked by anything that runs.** §3 item 1 |
-| `probe_rev46_vw.py` | **RE-MEASURED AT REV 68: 12 checked, 1 FAILED — C4 ONLY, at 0.0755 (bar 0.045).** **AND `T1_VW_SOLVE`, the prescribed fix, CANNOT MOVE `VW_W_ARM_X` (F224).** **AND C8's target was never re-based (F226).** Read §0.065 before quoting any of it |
+| `probe_rev46_vw.py` | **RE-MEASURED AT REV 69: 12 checked, 1 FAILED — C4 ONLY, at 0.0755 (bar 0.045).** ⚠ **F224's "`T1_VW_SOLVE` CANNOT MOVE `VW_W_ARM_X`" WAS CORRECTED AT REV 69 AND THIS ROW CARRIED THE REFUTED HALF: `_on_band` NORMALISES, so 1.1002 is the SAME MARK as 0.5501/0.2175, which is inside the clip. `MEASURED-rev68, CORRECTED-rev69`.** **AND RUN AS IT STANDS THE SOLVER IS NOT THEATRE — it takes C4 0.0755 → 0.0294, UNDER the 0.045 bar, with L4 collapsing +0.0634 → −0.0020. C4 HAS A KNOWN PASSING CONFIGURATION.** *(The owner was shown it and said **"Neither — both still wrong"** — F234. That is why it is not shipped, NOT because it cannot be reached.)* **AND C8's target was never re-based (F226).** Read **§0.07** before quoting any of it |
 | `verify.py` nose fixtures | **NEW at rev 68 (F217).** Raycasts each fixture's rearmost face against the skin at its own (y, z). **WATCHED REFUSING**, 8 fail |
 | `probe_rev64_shear.py` | **6 checked, 0 FAILED** — but S4 guards the retired target 7 (F226) |
 | `probe_rev63_trace.py` | **ALL CONTROLS PASS.** The trace is sound; what it traced is a sheared frame (F183) |
@@ -482,7 +617,7 @@ for b in $(git branch -r | grep -v HEAD); do
 done
 git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 ./bootstrap.sh          # read ROW 9, and read the "N ahead / M behind" NOTE line
-./verify_clone.sh       # and read its verdict block
+./verify_clone.sh       # ALL 351 PASS -- and read its verdict block
 ```
 
 > **⚠ MEASURED AT REV 69's CLOSE, AND THIS IS THE ONE THAT WILL BITE YOU:**
@@ -520,7 +655,14 @@ pickup figure is NOT the close figure.
 > *"the photograph's 7 / 3.390"*, **both re-based**. Its §7b warning names F198/F200/F203 only.
 > **Nothing in it mentions F208, F210, F211, F224 or F226.**
 
-**WHAT IS IN THE TREE AT REV 68's CLOSE (unchanged by rev 68 — the nose took the revision):**
+> **⚠ AND THE OWNER RETIRED THIS WHOLE LEVER AT REV 69 AND THIS LIST HAS NOT MOVED. F234, `RULED-rev69`:**
+> shown the shipped mark beside the solver's own landmark-optimal fit — **C4 0.0755 → 0.0294, under its
+> bar, L4 +0.0634 → −0.0020** — he said ***"Neither — both still wrong."*** **THE SIX-CONSTANT SPINE IS
+> RETIRED AS A LEVER. Every row below that proposes moving a spine constant is now dead by ruling, not
+> only by measurement.** *(This list is otherwise byte-unchanged since rev 68 and that is deliberate —
+> rule 16. The annotation is added, nothing is deleted.)*
+
+**WHAT IS IN THE TREE AT REV 69's CLOSE (unchanged by rev 69 — the emblem's levers were MEASURED, not moved):**
 rev 63's six spine constants (`VW_V_TIP_X 0.3287`, `VW_APEX_Z 0.0538`, `VW_W_ARM_X 1.1002`,
 `VW_W_ARM_Z 0.4350`, `VW_W_TROUGH_X 0.3111`, `VW_W_TROUGH_Z -0.6445`) — **UNCHANGED** — plus
 rev 66's **ARC-CUT TERMINAL** (F202, ON by default, `T1_VW_NOARC=1` ablates it) and the NOSE's
@@ -620,19 +762,25 @@ cross-references (row 1 = F101, row 15 = F199) are both right.
 > **THE OWNER NAMED THREE THINGS AND THEY ARE ITEMS 1–3. §0.01 IS THE RANKING. Everything below item 3
 > is the standing list and is NOT this revision unless items 1–3 close early.**
 
-1. **THE BACK OPENING — BUILD THE REAR HATCH (§0.05, F163/F165).** `RULED-rev62, NOT BUILT`, seven
-   revisions. A **550 mm blade** stands where a propped panel belongs; **`TB_WIDTH` was never measured
-   and its own comment says so**; the angle is **38.0° against a photographed 28.0°** and the chord
-   **0.711 m against a ≥0.829 m lower bound**. Build a panel with thickness, an underside and the dark
-   angled recess. **DO NOT re-open the colour — F163's own correction settles it and no brief has
-   carried it.** **Add the gate in the same edit and watch it refuse at the shipped values.**
-   **Then measure the dark rectangle under the blade in `out/r70_hero34r.png` before naming it.**
+1. **THE BACK OPENING — BUILD THE REAR HATCH (§0.05, F163/F165/F241).** `RULED-rev62, NOT BUILT`,
+   seven revisions. A **flat blade with no thickness, no underside and no recess** stands where a
+   propped panel belongs; the angle is **38.0° against a photographed 28.0°** and the chord
+   **0.7110 m against a ≥0.829 m lower bound**. **THE FORM IS THE LARGEST DEFECT AND NEEDS NO NEW
+   MEASUREMENT.** ⚠ **`TB_WIDTH` IS A DOCUMENTED CEILING, NOT AN UNMEASURED NUMBER — W ≤ 0.59 m,
+   NO lower bound, NOT recoverable from what we hold, and a full-width board is REFUTED at >2×.
+   LEAVE IT AT 0.5500.** **Re-measure the angle/chord pair on ONE ruler first — F165's "built" figures
+   are a BBOX DIAGONAL, not the constants (rule 38).** **Do not re-open the colour: F163's own
+   correction settles it.** **Add the gate in the same edit and watch it refuse at the shipped values.**
+   **Then measure the dark rectangle under the blade before naming it.**
 2. **THE EMBLEM — A NEW CONSTRUCTION, NOT ANOTHER SOLVE (§0.07, F236/F237).** All seven constants
    together buy **4.4 %** of the deficit; the trace is **overfit to its own source frame**. Every
    terminal is **forced onto the band circle** and `_on_band` normalises, so **a stroke's angle is not
-   a parameter of this model.** Give the strokes free centrelines, fit against
-   `probe_rev69_fitpose.fit()` **on both frames with one held out**, target **F235's spread 60.9° →
-   ~28.6°**, ceiling **P1 = 0.9882**. **READ §2's SEVENTEEN REFUTED ROWS FIRST.**
+   a parameter of this model** (rule 54). Give the strokes free centrelines and fit against
+   `probe_rev69_fitpose.fit()`, **ceiling P1 = 0.9882**. ⚠ **FIT ON ONE FRAME AND SCORE ON THE OTHER —
+   NOT both jointly; F237's ceiling says the two frames are not comparable.** ⚠ **AND RE-CUT
+   `IMG_2073`'s BOX FIRST — it clips ~14 % of the mark's ink and was never painted.** ⚠ **DO NOT FIT
+   TO AN ANGLE: `probe_rev69_angles.py`'s own control A1 FAILS at 36.30° rms and the photographed
+   spread reads 46.5°, not F235's 28.6°.** **READ §2's SEVENTEEN REFUTED ROWS FIRST.**
 3. **THE NOSE — RENDER IT, CROP IT AND LOOK (§0.06).** The geometry is built and guarded (F232). Render
    `front` at **3200×2200**, crop the nose, look. Run `probe_rev67_nose.py` and `probe_rev59_nose.py`
    **with a frame argument**. Render the control twice and publish the floor (F228). **The magnitude
@@ -648,17 +796,25 @@ cross-references (row 1 = F101, row 15 = F199) are both right.
    the **specular/fill path**. This is the biggest single-colour win available.
 7. **THE GLOSS — ROUGHNESS AND ENVIRONMENT TOGETHER (F239).** Never tried. Both switches now exist
    (`T1_BODY_RGH`, `T1_REFLENV`, `T1_BODY_COAT`).
-8. **F156 — `flank_compare`'s `Senor` row scores a DELIBERATE DEPARTURE. NINE revisions.**
-9. **TRIAGE IS DONE — `ROADMAP_rev68.md` holds it.** `REMAINING_WORK_rev61.md` is **NOT deleted**
+8. **F180 IS STALE AND NO REVISION HAS CLOSED IT — it says FOUR ring contacts; `probe_rev63_reach.py`
+   reports SIX.** And what moved four → six is **not** the arc cut (it reads six under `T1_VW_NOARC=1`
+   too) and **not** the spine constants; the remaining candidate is **F204's stroke weight**.
+   ⚠ **DROPPED by rev 69's first draft of this brief and restored by a dispatched adversary — three
+   references in the rev-69 brief, zero in mine, and it is closed nowhere (rule 16).**
+9. **THE FIT DEPTH IS STILL UNMEASURED.** The glyph's extreme is fitted 20 % into the band —
+   `1.0 - 0.8 * _BAND_FRAC` in `t1_core.py`. **The answer is a MEASUREMENT, not a guess.**
+   ⚠ **Dropped by the same draft and restored by the same pass.**
+10. **F156 — `flank_compare`'s `Senor` row scores a DELIBERATE DEPARTURE. NINE revisions.**
+11. **TRIAGE IS DONE — `ROADMAP_rev68.md` holds it.** `REMAINING_WORK_rev61.md` is **NOT deleted**
    (rule 16) and points at it.
-10. **THE SURVIVING PANEL ITEMS**, untouched for nine revisions: the glass is a flat slab (0.5 % sd
+12. **THE SURVIVING PANEL ITEMS**, untouched for nine revisions: the glass is a flat slab (0.5 % sd
     against the photograph's 12.8 %); **the tyres have no tread and no sidewall lettering** — the
     LIGHTNESS half is now fixed (F238), the GEOMETRY half is not; the tail is a box where the real one
     is a barrel; every shut line is a 1-px ink stroke with no leading-edge highlight; the galley is
     monochrome; the counter is a floating slab.
-11. **F143 — TWO LOUDSPEAKERS STAND ON THE ROOF AND ARE UNMODELLED.** 57 revisions.
-12. **THE INHERITED CLUSTER** — F14 (**seventeen** revisions un-re-measured), F15, F10, F20.
-13. **`delivery/READ_ME_FIRST.txt` LISTS THE MODEL'S KNOWN DEFECTS TO HIM.** It does not yet mention
+13. **F143 — TWO LOUDSPEAKERS STAND ON THE ROOF AND ARE UNMODELLED.** 57 revisions.
+14. **THE INHERITED CLUSTER** — F14 (**seventeen** revisions un-re-measured), F15, F10, F20.
+15. **`delivery/READ_ME_FIRST.txt` LISTS THE MODEL'S KNOWN DEFECTS TO HIM.** It does not yet mention
     F222's flat bumper, F232's fix, F238's tyre, or the rear hatch.
 
 **RANKING NOTE — AND THE RULE IT CARRIES IS NOT DROPPED.**
@@ -923,11 +1079,11 @@ is per-environment — but do not budget a revision on it.**
 ```bash
 ./bootstrap.sh                                               # AND `pip install pillow`
 T1_SUB=1 T1_VERIFY=1 /tmp/blender/blender -b -P build.py     # -> "VERIFY: 0 fail, 0 warn"
-./judge_set.sh r69                                           # the optics chain (F146)
-python3 flank_compare.py out/r69_side.png /tmp/fc.png        # GATE 1
-python3 gloss_compare.py out/r69_hero.png                    # GATE 3
-python3 probe_rev59_nose.py out/r69_front.png                # READ BOTH RULERS
-python3 probe_rev67_nose.py out/r69_front.png   # **PASS IT A FRAME** -- bare, P3 does
+./judge_set.sh r70                                           # the optics chain (F146)
+python3 flank_compare.py out/r70_side.png /tmp/fc.png        # GATE 1
+python3 gloss_compare.py out/r70_hero34f.png                    # GATE 3
+python3 probe_rev59_nose.py out/r70_front.png                # READ BOTH RULERS
+python3 probe_rev67_nose.py out/r70_front.png   # **PASS IT A FRAME** -- bare, P3 does
                                                 # not run and SAYS SO (F225)
 python3 probe_rev46_vw.py                    # THE EMBLEM GATE -- C4 is the only red row
 python3 probe_rev69_fitpose.py               # NEW at rev 69 -- THE EMBLEM WITH THE POSE
@@ -937,7 +1093,7 @@ python3 probe_rev69_fitpose.py               # NEW at rev 69 -- THE EMBLEM WITH 
 python3 probe_rev70_tyre.py out/r70_side.png # NEW at rev 69 -- the tyre against the cream
                                              # rim ring in its own image.  PASS IT A FRAME:
                                              # bare, the render rows do not run (F238)
-python3 probe_rev69_emblem.py out/r69_front.png   # **PASS IT A FRAME** -- the RENDER
+python3 probe_rev69_emblem.py out/r70_front.png   # **PASS IT A FRAME** -- the RENDER
                                              # side of F205, which existed in no file
                                              # before rev 69.  Bare, it SAYS the render
                                              # rows did not run (F233)
@@ -949,17 +1105,23 @@ python3 probe_rev63_shapefit.py              # stale baseline AND the HUBCAP's w
 python3 probe_rev63_reach.py                 # contacts with the ring, and angles
 python3 trace_outline.py ; python3 svgraster.py ; python3 senor_trace.py
 python3 cream_rms.py                         # the LIVE photograph-side cream
-python3 visibility_budget.py 3840 out/r69_hero.png   # PASS IT A .png -- F132/F189
+python3 visibility_budget.py 3840 out/r70_hero34f.png   # PASS IT A .png -- F132/F189
 T1_SUB=2 /tmp/blender/blender -b -P audit.py         # rewrites STATE.md -- COMMIT FIRST
 python3 audit_brief.py ; python3 audit_adversary.py  # rules 15/17, MECHANICAL half only
 ```
+
+> **⚠ EVERY `out/rNN_*.png` ABOVE MUST MATCH THE PREVIEW LIST YOU ACTUALLY RENDERED IN §0.0, WHICH IS
+> `front,side,hero34f,hero34r`. THERE IS NO PLAIN `hero` IN THAT LIST**, so `out/r70_hero.png` will
+> never exist and the rev-69 brief's block asked for it twice. `out/` **starts EMPTY on a clone**, so
+> a stale prefix here is a probe that silently does not run (rule 37). Corrected to `r70` and to
+> `hero34f` at rev 69; **re-point them again the moment you change `T1_PFX`.**
 
 **THE GATES THE ABLATIONS EXIST TO MAKE REFUSE:**
 
 ```bash
 T1_SUB=1 T1_NOUNDER=1 /tmp/blender/blender -b -P probe_rev45_ground.py  # C5 must REFUSE
 T1_SUB=1 T1_PG_PAINT=1 /tmp/blender/blender -b -P probe_rev45_ground.py # paints G4's window
-python3 probe_rev59_door.py out/r69_side.png        # M3 fails BY DESIGN.  **SIDE FRAME**
+python3 probe_rev59_door.py out/r70_side.png        # M3 fails BY DESIGN.  **SIDE FRAME**
 python3 probe_rev61.py emblem --paint               # every mode paints its window
 T1_NOSE_BULGE=0.045 T1_NOSE_FIXFOLLOW=0 T1_SUB=1 T1_VERIFY=1 \
   /tmp/blender/blender -b -P build.py               # NEW at rev 68: the fixture
@@ -1051,7 +1213,9 @@ REJECTED OUTRIGHT (F229).**
 **IT IS A CARRIER (rule 16). Rows leave it only by being CLOSED with the measurement that
 closed them, or RETIRED with the ruling that retired them. Never by being dropped.**
 
-**Rev 69 added F236–F240** — of which **F236's row was CITED BY A COMMIT MESSAGE AND NEVER WRITTEN**,
+**Rev 69 added ELEVEN rows, F231–F241** *(the rev-69 brief's first draft said "F236–F240" — an
+adversary counted them)*, **and the row for this brief's own #1 item is `F241`, the back opening.**
+Of them, **F236's row was CITED BY A COMMIT MESSAGE AND NEVER WRITTEN**,
 and was only found because the next finding needed to cite it. **That is rule 16's failure mode inside
 the register itself: the instrument shipped, the number was quoted to the owner, and the carrier went a
 whole commit without it.** Rev 69 also **corrected F224** (the spine pairs are DIRECTIONS — `_on_band`
@@ -1072,11 +1236,25 @@ RULED / CEILED / OBSERVED. **Do not widen it** — rule 44.)*
 > `INHERITED`, so an eight-revision-old `MEASURED-rev60` row that is now known false reads as
 > strong evidence. **F101, F141, F152, F194 and F200 are all in that state.**
 
-**STILL INHERITED AND OLDEST:** **F14** (`gal_end_f`'s sight lines, rev 52 — **SIXTEEN
+**STILL INHERITED AND OLDEST:** **F14** (`gal_end_f`'s sight lines, rev 52 — **SEVENTEEN
 revisions un-re-measured**), F15, F20, F10, and **F18** (the die-cut sticker, rev 44 — the
 oldest live row and the project's original deliverable).
 
-**AND `REMAINING_WORK_rev61.md` §I IS STILL NOT TRIAGED** — 27 rows, **eight revisions**.
+⚠ **THIS SECTION'S NEXT LINE WAS EIGHT REVISIONS STALE AND CONTRADICTED §3 AND §9 INSIDE ONE
+DOCUMENT — corrected at rev 69:** `REMAINING_WORK_rev61.md` §I **IS TRIAGED**. `ROADMAP_rev68.md`
+holds it, nine tiers, every §I row placed (**F230, `MEASURED-rev68`**). The file is **NOT deleted**
+(rule 16) and points at the triage; the roadmap supersedes its RANKING only.
+
+**AND THE GRADE VOCABULARY IN THIS SECTION IS NOW WIDER THAN ITS OWN TEXT ADMITS.** The register
+contains **`CORRECTED-rev69`** and **`CORRECTED-rev62`** while this section says *"Do not widen it"*.
+**`CORRECTED` is a real and useful grade — a row that was measured and then found wrong is not the
+same as one that was refuted — but it must be DECLARED here rather than appear by use.** Declared.
+
+⚠ **AND TWO GRADE DEFECTS AN ADVERSARY FOUND IN REV 69's OWN ROWS, RECORDED RATHER THAN QUIETLY
+FIXED: `F239` carries NO provenance grade at all**, in the section whose own text says the grade is
+the point of the file; **and `F238` and `F240` are graded `MEASURED-rev70`, a revision that has not
+happened** — they are rev 69's, and the cause is the mislabelled commit `6af7819` recorded in
+`LEDGER_rev69.md` §5. **FIX ALL THREE IN THE REGISTER AT PICKUP.**
 
 ---
 ## §9 THE HORIZON BEYOND REV 70
@@ -1114,7 +1292,7 @@ to actually use that fact** — it fits the pose rather than assuming it.)*
 | **next** | **THE BACK OPENING (§3 item 1, F163/F165)** | **HIS WORDS, and `RULED-rev62, NOT BUILT` for seven revisions.** The one item that is pure un-built geometry with the ruling already given |
 | **next** | **THE EMBLEM'S NEW CONSTRUCTION (§3 item 2, F237)** | **HIS WORDS, and his NINTH report.** The route is established by elimination and the instrument is built |
 | **next** | **THE NOSE, RENDERED AND LOOKED AT (§3 item 3)** | **HIS WORDS.** The geometry is done; the LOOK is the missing step, and it is rule 1 |
-| **next** | **AN ADVERSARY, DISPATCHED, ON §2's REFUTED LIST** | Fourteen at rev 64, thirteen at rev 67, twelve at rev 68 |
+| **next** | **AN ADVERSARY, DISPATCHED, ON §2's REFUTED LIST** | Fourteen at rev 64, thirteen at rev 67, twelve at rev 68, and at rev 69 an adversary dispatched at the OUTGOING brief returned **21 defects**, four of them on this brief's own #1 item |
 | **near** | **THE RED's G/R — 0.42–0.52 against 0.114 (F240)** | The largest colour error in the frame, with two branches now pruned |
 | **near** | **GLOSS: roughness AND environment together (F239)** | The one pairing never tried |
 | **near** | **F156 — the `Senor` gate row scores a DEPARTURE** | NINE revisions unacted |
