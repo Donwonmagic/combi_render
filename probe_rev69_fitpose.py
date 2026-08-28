@@ -321,7 +321,7 @@ def main():
                 d_src = tr[src_f] - here[src_f]
                 d_ind = tr[ind_f] - here[ind_f]
                 ck("P4 THE TRACE'S ADVANTAGE DOES NOT SURVIVE OFF ITS OWN SOURCE "
-                   "FRAME -- T1_VW_TRACED STAYS OFF (F183, F240)", d_ind <= 0.0,
+                   "FRAME -- T1_VW_TRACED STAYS OFF (F183, F237)", d_ind <= 0.0,
                    "traced minus shipped is %+.4f on ref_workshop (the frame it "
                    "was TRACED FROM: %.4f vs %.4f) and %+.4f on IMG_2073, a "
                    "different vehicle, camera and pose (%.4f vs %.4f). An "

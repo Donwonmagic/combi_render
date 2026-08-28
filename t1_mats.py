@@ -1978,8 +1978,39 @@ def body_paint(name="T1_paint"):
     # BSDF cost the panels all their specular structure.
     bsdf.inputs["Specular IOR Level"].default_value = float(
         os.environ.get("T1_SPEC", 0.50))
-    bsdf.inputs["Coat Weight"].default_value = 0.02
-    bsdf.inputs["Coat Roughness"].default_value = 0.300
+    # ------------------------------------------------------------- rev 70
+    # THE CLEARCOAT COMES BACK, AND THE REASON IT FAILED IS IN THE COMMENT
+    # DIRECTLY ABOVE: "in a white studio [it] laid an achromatic white veil
+    # over the paint".  THAT IS A PROPERTY OF THE ENVIRONMENT, NOT OF THE COAT.
+    # A mirror reflecting a UNIFORM void reflects the same white everywhere, so
+    # it can only veil; it cannot make a highlight, because a highlight needs
+    # something bright NEXT TO something dark.  F54's "+17.9 % of G/R for +0.5 %
+    # of gloss" and F60/F62's "the model-side lever is EXHAUSTED" were BOTH
+    # measured in that void -- a refutation inherits its instrument (rule 46).
+    #
+    # studio._refl_env now gives the world a bright softbox band over a dark
+    # floor, shown to GLOSSY RAYS ONLY.  The coat reflects structure: bright
+    # where the band is, DARK where the floor is.  So the two changes are not
+    # independent and neither can be judged alone -- which is how each was
+    # tested for eight revisions.
+    #
+    # ⚠ MEASURED AT REV 70 AND **NOT SHIPPED**, BECAUSE THE VEIL IS REAL EVEN
+    # WITH STRUCTURE TO REFLECT.  At Coat Weight 0.55 / roughness 0.045, on a
+    # 1600x1100 hero at 96 spp, with studio._refl_env ON:
+    #     gloss_compare  brightest 1 % above median   0.126 -> 0.181  (+44 %)
+    #     gloss_compare  paint spread                 0.412 -> 0.399  (WORSE,
+    #                                                  13x the 0.001 floor)
+    #     flank_compare  red G/R                      0.422 -> 0.520  (WORSE;
+    #                                                  the photograph is 0.114)
+    # So the coat DOES make specular structure for the first time -- F54's
+    # "+0.5 % of gloss" is beaten 88-fold -- and it still costs more chroma
+    # than it buys.  RULE 44: the guard that went red on my own new work wins,
+    # and the shipped value is unchanged.  The switch stays so the trade is
+    # measurable rather than argued, which is what F54/F60/F62 never had.
+    bsdf.inputs["Coat Weight"].default_value = float(
+        os.environ.get("T1_BODY_COAT", 0.02))
+    bsdf.inputs["Coat Roughness"].default_value = float(
+        os.environ.get("T1_BODY_COATRGH", 0.300))
     # orange peel now lives in the WEATHER group (Object coordinates, split
     # into a resolvable Bump term and a sub-pixel Roughness term)
     return m
@@ -2097,7 +2128,21 @@ def build_all():
                         transmit=1.0, ior=1.47, spec=0.35)
     M["rubber"] = dust_film("rubber", (0.0175, 0.0175, 0.0185), 0.78,
                             spec=0.22)
-    M["tyre"] = dust_film("tyre", (0.0225, 0.0225, 0.0240), 0.70, spec=0.25)
+    # ------------------------------------------------------------- rev 70
+    # THE TYRE IS 1.90x TOO LIGHT, AND THE ROAD FILM IS WHY (probe_rev70_tyre).
+    # MEASURED against the cream rim ring in each image, which cancels exposure
+    # (rule 38): photograph 0.1953, render 0.3718.  The mechanism is arithmetic
+    # and needs no render: dust_film mixes the rubber's base (linear 0.0225,
+    # sRGB 42) toward W_DUST_COL (linear 0.44, sRGB 175) at up to fac_low 0.34,
+    # which lands sRGB 94-108 -- a lift of 2.2-2.6x.
+    #
+    # THE OWNER RULED THE FINISH: "I want this 3d model to look like new.
+    # Enhanced from the photo" (rev 61).  A limestone road film is the opposite
+    # of new, and it is the single loudest thing in the delivery frame.
+    # T1_TYRE_FILM=1.0 restores the shipped road film exactly.
+    _tf = float(os.environ.get("T1_TYRE_FILM", 0.15))
+    M["tyre"] = dust_film("tyre", (0.0225, 0.0225, 0.0240), 0.70, spec=0.25,
+                          fac_up=0.22 * _tf, fac_low=0.34 * _tf)
     # rev 8 (audit materials-11): 0.085 / coat 0.85 was the lowest-roughness
     # non-metal in the file, on a vehicle SPEC sec.3 locks as WEATHERED. The
     # hubcaps ARE the glossiest thing on it, so this stays above the body's
@@ -2255,15 +2300,32 @@ def build_all():
     # rev 19: `paint` alone takes the mottle map, LINKED from the node
     # `body_paint` built and already multiplied by its own two-tone selector.
     # `roundelred` and `calidad` keep 0.0 -- they carry no cream at all.
-    apply_weather(M["paint"], dust=1.0, wear=WEAR[M["paint"].name],
-                  fade=1.0, peel=1.0, fadev_from="FADEV_MOTTLE",
+    # ------------------------------------------------------------- rev 70
+    # THE BODYWORK'S WEATHERING HAD NO ABLATION, IN A TREE WHERE EVERY OTHER
+    # LEVER HAS ONE.  dust / fade / peel were hard 1.0 on all four bodywork
+    # materials, so the one question nobody could ask was HOW MUCH OF THE
+    # RENDER'S APPEARANCE IS THE WEATHERING.  T1_WEATHER is that ablation
+    # (rule 36: ablate the thing you are about to tune, FIRST).
+    #
+    # IT MATTERS FOR TWO REASONS AT ONCE.  (1) The owner ruled at rev 61: "I
+    # want this 3d model to look like new. Enhanced from the photo."  (2) The
+    # body's `dust` is the SAME road film that makes the tyres 1.9x too light
+    # -- it mixes the paint toward W_DUST_COL, a PALE LIMESTONE.  Mixing red
+    # toward pale grey raises G/R, and the render's red reads G/R 0.520
+    # against the photograph's 0.114.  Whether that is the cause is a
+    # MEASUREMENT, and this switch is what makes it measurable.
+    _WX = float(os.environ.get("T1_WEATHER", 1.0))
+    apply_weather(M["paint"], dust=_WX, wear=WEAR[M["paint"].name] * _WX,
+                  fade=_WX, peel=_WX, fadev_from="FADEV_MOTTLE",
                   faderough=MOTTLE_RGH_K)
     for k in ("roundelred", "calidad"):
-        apply_weather(M[k], dust=1.0, wear=WEAR[M[k].name], fade=1.0, peel=1.0)
-    apply_weather(M["bumpercream"], dust=1.0, wear=WEAR[M["bumpercream"].name],
-                  fade=1.0, peel=1.0, fadev=FADEV_CREAM)
-    apply_weather(M["cream"], dust=1.0, wear=WEAR[M["cream"].name],
-                  fade=1.0, peel=1.0, fadev=FADEV_CREAM)
+        apply_weather(M[k], dust=_WX, wear=WEAR[M[k].name] * _WX,
+                      fade=_WX, peel=_WX)
+    apply_weather(M["bumpercream"], dust=_WX,
+                  wear=WEAR[M["bumpercream"].name] * _WX,
+                  fade=_WX, peel=_WX, fadev=FADEV_CREAM)
+    apply_weather(M["cream"], dust=_WX, wear=WEAR[M["cream"].name] * _WX,
+                  fade=_WX, peel=_WX, fadev=FADEV_CREAM)
     # group minus peel (not sprayed sheet metal), dust weighted up
     #
     # rev 20, SPEC 10.56: `countertan`'s dust is now overridable so it can be
