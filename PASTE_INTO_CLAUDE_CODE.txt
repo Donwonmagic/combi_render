@@ -85,8 +85,9 @@ geometry?"* **BROKE** — regenerated, and it moved **only in provenance**, whic
 rev 69's shipped change touched no geometry. And `verify_clone.sh`'s *"the brief warns C6 is a RASTER
 fact"* **went red** — the machine-verdict block had lost it in the rewrite.
 
-**ALSO FIXED, FROM THE SAME PASS:** an inherited contradiction in §0 (*"ALL 351 PASS … 342
-SELF-CONSISTENCY"*); §8 saying `REMAINING_WORK_rev61.md` is untriaged when F230 triaged it eight
+**ALSO FIXED, FROM THE SAME PASS:** an inherited contradiction in §0, where one sentence gave
+`verify_clone.sh`'s total and its self-consistency count as **two different numbers** (351 against
+342) when every row is self-consistency and none is fidelity, so both halves must be the SAME; §8 saying `REMAINING_WORK_rev61.md` is untriaged when F230 triaged it eight
 revisions ago; §8 miscounting rev 69's rows as five when there are eleven; **F224's REFUTED half
 still published in the gate table** while §0.07 carried its correction; §0 republishing *"the strokes
 are too short / too thin"* which **F233 and F235 refute**; the gloss table naming **no frame** on any
