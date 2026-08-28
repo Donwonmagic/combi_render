@@ -49,6 +49,57 @@ and a look. **But he listed them in his own order and the owner outranks the ran
 finish one, finish the one he names first when you ask.**
 
 ---
+## §0.02 THIS BRIEF WAS AUDITED AGAINST THE MACHINE — WHAT THE AUDIT FOUND, AND WHERE IT IS WEAKEST
+
+**HOW (rule 17).** Every figure in §0.01, §0.05–§0.09 and §3 was RE-RUN or READ OFF THE SOURCE at the
+handoff commit, not transcribed. `audit_brief.py` and `audit_adversary.py` were both run as scripts,
+and **an adversary was DISPATCHED at this document** (rule 15) with instructions to recompute every
+figure, grep every quoted string, open every cited crop and **diff this brief against rev 69's for
+dropped carrier content**.
+
+**WHAT THE AUDIT ACTUALLY FOUND — FOUR DEFECTS, ALL IN THIS BRIEF'S OWN FIRST DRAFT:**
+
+1. **A DROPPED CARRIER, CAUGHT BY THE MACHINE.** `audit_adversary.py`'s *"is the ring-ellipse fit still
+   named as the emblem's close?"* **BROKE.** My first draft of §9 kept *"what moved at rev 67"* and
+   **silently dropped the rev-66 and rev-65 lines**, taking **F185's ring-ellipse** with them. §9 is a
+   **CARRIER — re-rank it, do not rewrite it.** Restored, and the catch is recorded in the line itself.
+   **THIS IS THE FAILURE MODE RULE 16 EXISTS FOR AND IT HAPPENED ON THE FIRST TRY.**
+2. **`STATE.md` WAS STALE.** *"is STATE.md CURRENT for the geometry?"* **BROKE** — `t1_mats.py` moved
+   after it was written. Regenerated at `T1_SUB=2` on a clean tree: it moved **ONLY in provenance**,
+   every vertex count and dimension identical, **which is itself the evidence rev 69's one shipped
+   change touched no geometry.**
+3. **AN INHERITED CONTRADICTION IN §0.** The rev-69 brief said **"ALL 351 PASS … 342
+   SELF-CONSISTENCY"** in one sentence. Both halves must be the same number — every row is
+   self-consistency and none is fidelity. Carried from rev 68's re-base and fixed here.
+4. **A MISLABELLED COMMIT.** `6af7819` is titled *"rev 70: …"* and is **rev 69's work**. Recorded in
+   `LEDGER_rev69.md` §5 rather than hidden.
+
+**THE MACHINE'S OWN VERDICT ON THIS DOCUMENT:**
+
+```
+audit_brief.py        10 checked, 0 FAILED   (71 paths, 55 T1_* switches, 31 scripts)
+audit_adversary.py    57 asked,   0 BROKE    -- FOUR questions REPLACED
+```
+
+**THE FOUR REPLACED QUESTIONS ARE BEHAVIOURAL, NOT GREPS (rule 50).** The rev-63 batch was the oldest
+and all four replaced were greps. The new four **RUN something**: the tyre's road-film lift recomputed
+from `t1_mats.py`'s own constants; `_on_band` fed two points of the same direction and different
+magnitude (rule 54's basis); the emblem's INDEPENDENT frame re-extracted; and
+`probe_rev70_tyre`'s band finder re-run on a synthetic of known ratio. **THREE OF THE FOUR WERE WATCHED
+FAILING** — a wheel with no hubcap, an empty crop box, and a non-normalising stand-in — because a
+control that has only been seen passing is not a control (rule 3).
+
+**WHERE THIS BRIEF IS WEAKEST, AND YOU SHOULD START AN ADVERSARY HERE:**
+* **§0.05's rear-hatch numbers are INHERITED from F165 (rev 62) and were NOT re-measured this
+  revision.** The angle, the chord and their two-significant-figure ceiling are seven revisions old.
+  **`TB_TILT_DEG`, `TB_CHORD` and `TB_WIDTH` were read off `t1_shell.py` live; the PHOTOGRAPHED pair
+  was not.** Re-measure before you fit to it.
+* **§2's REFUTED LIST**, which an adversary has broken in four consecutive revisions (fourteen at
+  rev 64, thirteen at rev 67, twelve at rev 68, and at rev 69 its own headline was found sitting under
+  **F104**, unread since rev 60).
+* **§0 and §4 remain the two longest carriers and are still mostly inherited text.**
+
+---
 ## §0.05 THE BACK OPENING — RULED AT REV 62, MEASURED AT REV 62, NEVER BUILT
 
 > *[owner, rev 62, shown `probe_scratch/rev62_q_rear.png`]* ***"The bus's rear hatch, propped open."***
@@ -295,7 +346,15 @@ gloss_compare.py          FAILS at 0.410 (bar 0.60).  Two-render floor on the
                           statistic MEASURED for the first time: 0.001
 flank_compare.py          FAILS -- worst region 0.680 (i), target 0.75
 probe_rev46_vw.py         12 checked, 1 FAILED -- C4 ONLY, at 0.0755 (bar 0.045).
-                          READ F210/F211/F226/F234 BEFORE QUOTING ANY OF IT
+                          READ F210/F211/F226/F234 BEFORE QUOTING ANY OF IT.
+                          C6 PASSES 6 = 6 -- **ON THE RASTER.  ON THE RENDER THE
+                          SAME FUNCTION READS 3 AGAINST THE PHOTOGRAPH'S 6 (F205),
+                          AND REV 67 RE-MEASURED THAT ON ITS OWN FRAME (F212).**
+                          A gate can be corrected, guarded, killed, swept and still
+                          be measuring the wrong object -- rule 41.  RUN THE EMBLEM
+                          GATES ON THE FRAME.  *(This warning was DROPPED by rev
+                          69's first draft of this block and verify_clone.sh's row
+                          "the brief warns C6 is a RASTER fact" CAUGHT IT.)*
 visibility_budget.py      THE RANKING.  The emblem is item 9 of 16 at 3.32e4 px^2;
                           the top item is 3.83e6 px^2 -- 115x bigger
 ```
