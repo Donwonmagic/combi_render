@@ -140,6 +140,62 @@ def fit(src, dst, rounds=7):
     return best
 
 
+# THE FRAMES.  `ref_workshop.jpg` IS THE TRACE'S OWN SOURCE -- vw_pressing.py's
+# outline was traced off it -- so it CANNOT adjudicate between the constant
+# spine and the trace (rule 6: two sides of a comparison must be independently
+# obtained).  `IMG_2073.jpeg` is the GREEN vehicle, a different camera and a
+# different pose, and rule 11 permits it: the roundel is the factory chrome
+# PRESSING, which is geometry and transfers; only its colour is artwork (F141).
+# It is the emblem's SECOND frame and this project had never used it.
+FRAMES = (
+    ("ref_nolita_front34.jpg", "ref_nolita_front34.jpg", (153, 192, 194, 261), False),
+    ("ref_workshop.jpg  TRACE SOURCE", "ref_workshop.jpg", (262, 492, 352, 600), True),
+    ("IMG_2073.jpeg  INDEPENDENT", "IMG_2073.jpeg", (288, 542, 352, 640), True),
+)
+
+
+def regions(src):
+    """The mark's own band and interior, as GEOMETRY on the unit disc -- not a
+    threshold on either image.  Returns (band, interior)."""
+    import probe_rev46_vw as P
+    h, w = src.shape
+    yy, xx = np.mgrid[0:h, 0:w]
+    u = (xx - (w - 1) / 2.0) / ((w - 1) / 2.0)
+    v = -(yy - (h - 1) / 2.0) / ((h - 1) / 2.0)
+    r = np.hypot(u, v)
+    return (r <= 1.0) & (r >= 1.0 - P.BAND), r < 1.0 - P.BAND
+
+
+def _traced_scores():
+    """Score the FACTORY-TRACE construction on every frame, in a FRESH process.
+
+    T1_VW_TRACED is read at t1_core import time, so it cannot be toggled in
+    this one.  Returns {tag: IoU} or None if the child said nothing."""
+    import subprocess
+    code = ("import sys; sys.path.insert(0, __HERE__)\n"
+            "import os; os.environ['T1_VW_TRACED'] = '1'\n"
+            "import probe_rev69_fitpose as F\n"
+            "src = F.unit_mask()\n"
+            "for tag, path, box, dark in F.FRAMES:\n"
+            "    d = F.photo_mark(path, box, dark)\n"
+            "    if d is None: continue\n"
+            "    v, p = F.fit(src, d)\n"
+            "    if not (0.3 < p[1] < 3.0 and 0.3 < p[2] < 3.0): continue\n"
+            "    print('TRACED\\t' + tag + '\\t%.6f' % v)\n"
+            ).replace("__HERE__", repr(HERE))
+    try:
+        out = subprocess.run([sys.executable, "-c", code], capture_output=True,
+                             text=True, timeout=900).stdout
+    except Exception:
+        return None
+    got = {}
+    for ln in out.splitlines():
+        if ln.startswith("TRACED\t"):
+            _, t, v = ln.split("\t")
+            got[t] = float(v)
+    return got or None
+
+
 def main():
     checks, fails = [], []
 
@@ -163,9 +219,7 @@ def main():
        "is the limit, not the shape" % v_ctl)
 
     rows = []
-    for tag, path, box, dark in (
-            ("ref_nolita_front34.jpg", "ref_nolita_front34.jpg", (153, 192, 194, 261), False),
-            ("ref_workshop.jpg", "ref_workshop.jpg", (262, 492, 352, 600), True)):
+    for tag, path, box, dark in FRAMES:
         dst = photo_mark(path, box, dark)
         if dst is None:
             print("  %-24s NO MARK FOUND -- nothing measured" % tag)
@@ -212,6 +266,72 @@ def main():
                                 "blue=model-only" % (tag, v), fill=(0, 0, 0))
         im.save(os.path.join(SCRATCH, "rev69_fitpose.png"))
         print("  painted -> probe_scratch/rev69_fitpose.png")
+
+        # ---- P3: WHERE THE MISS LIVES.  The band and the interior are the
+        # mark's own geometry, warped through the SAME best pose, so this is a
+        # partition of the residual, not a second measurement.  PAINTED to
+        # probe_scratch/rev69_fitpose_regions.png before any number is read
+        # off it (rule 8).
+        band, inner = regions(src)
+        Rb, Ri = warp(band, make_H(p), dst.shape), warp(inner, make_H(p), dst.shape)
+
+        def part(R):
+            ag = (dst & w & R).sum()
+            po = (dst & ~w & R).sum()
+            mo = (~dst & w & R).sum()
+            un = ag + po + mo
+            return (float(ag) / un if un else 0.0), int(po), int(mo)
+
+        vb, pob, mob = part(Rb)
+        vi, poi, moi = part(Ri)
+        rp = np.full(dst.shape + (3,), 250, np.uint8)
+        rp[dst & w] = [70, 70, 70]
+        rp[dst & ~w] = [235, 60, 60]
+        rp[~dst & w] = [60, 120, 235]
+        rp[Rb & ~(dst | w)] = [250, 235, 180]
+        ri = Image.fromarray(rp)
+        S2 = max(1, 520 // max(ri.size))
+        ri = ri.resize((ri.width * S2, ri.height * S2), Image.NEAREST)
+        ImageDraw.Draw(ri).text((5, 4), "band IoU %.3f  interior IoU %.3f  "
+                                "red=photo blue=model" % (vb, vi), fill=(0, 0, 0))
+        ri.save(os.path.join(SCRATCH, "rev69_fitpose_regions.png"))
+        ck("P3 THE MISS IS IN THE GLYPH, NOT THE RING", vb > vi,
+           "band IoU %.4f against interior IoU %.4f on %s. photo-only/model-only "
+           "inside the ring is %d/%d -- NEAR BALANCED, so the ink AMOUNT is right "
+           "and the ARRANGEMENT is wrong (F235, now pose-free). Painted to "
+           "probe_scratch/rev69_fitpose_regions.png" % (vb, vi, tag, poi, moi))
+
+        # ---- P4: THE TRACE, SCORED ON A FRAME IT WAS NOT TRACED FROM.
+        # vw_pressing.py's outline was traced off ref_workshop.jpg, so scoring
+        # it there compares a thing with its own source (rule 6).  F183 refuted
+        # the trace by RENDERING it; that refutation inherits its instrument
+        # (rule 46), and F184 says the count and the elongation cannot make this
+        # comparison at all -- so it is re-scored here, pose-free, on BOTH
+        # frames.  THE ROW GOES RED IF THE TRACE EVER WINS INDEPENDENTLY, which
+        # is the finding that would put it back on the table.
+        tr = _traced_scores()
+        if tr is None:
+            print("  P4 NOT RUN -- the traced subprocess did not report. NOT a "
+                  "result either way (rule 37)")
+        else:
+            here = {t: vv for t, vv, _pp, _dd in
+                    [(r[0], r[1], r[2], r[3]) for r in rows]}
+            src_f, ind_f = "ref_workshop.jpg  TRACE SOURCE", "IMG_2073.jpeg  INDEPENDENT"
+            if src_f in here and ind_f in here and src_f in tr and ind_f in tr:
+                d_src = tr[src_f] - here[src_f]
+                d_ind = tr[ind_f] - here[ind_f]
+                ck("P4 THE TRACE'S ADVANTAGE DOES NOT SURVIVE OFF ITS OWN SOURCE "
+                   "FRAME -- T1_VW_TRACED STAYS OFF (F183, F240)", d_ind <= 0.0,
+                   "traced minus shipped is %+.4f on ref_workshop (the frame it "
+                   "was TRACED FROM: %.4f vs %.4f) and %+.4f on IMG_2073, a "
+                   "different vehicle, camera and pose (%.4f vs %.4f). An "
+                   "improvement that lives only on its own source is OVERFIT. "
+                   "If this row goes RED the trace has become the better "
+                   "construction and F183 needs re-opening"
+                   % (d_src, tr[src_f], here[src_f], d_ind, tr[ind_f], here[ind_f]))
+            else:
+                print("  P4 NOT RUN -- a frame was refused on one side or the "
+                      "other, so there is nothing to compare (rule 37)")
 
     print("=" * 78)
     print("  probe_rev69_fitpose -- THE EMBLEM, POSE FITTED OUT (F236)")
