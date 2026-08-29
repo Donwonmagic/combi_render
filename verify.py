@@ -917,6 +917,112 @@ def _bumper_bow(body, log=print):
     return fails
 
 
+def _tail_board_pose(log=print):
+    """rev 70, F163/F165.  THE REAR HATCH'S CHORD AND ANGLE, AGAINST THE FRAMES.
+
+    THE OBJECT THE OWNER NAMED, AND NOTHING IN THIS TREE HAS EVER CHECKED IT.
+    F163 is `RULED-rev62, NOT BUILT` and has stood for seven revisions; F165
+    measured an angle and a chord at rev 62 and NO GUARD HAS EVER READ EITHER.
+
+    WHICH RULER THIS ROW USES, STATED IN ITS OWN NAME (rule 38).  It reads the
+    board's PRINCIPAL AXIS in the vehicle's XZ plane, off the built mesh --
+    NOT the bounding-box diagonal.  That distinction is not pedantry: F165's
+    published "built 38.4 deg / 0.732 m" IS the bbox diagonal --
+    atan(0.455/0.574) and hypot(0.574, 0.455) -- which carries the board's own
+    thickness and its rounded corners, while the constants are 38.0 / 0.7110.
+    Comparing a bbox diagonal against a photographed edge is a ruler mismatch,
+    and it is how a 0.4 deg bookkeeping difference got published as if it were
+    a measurement of the vehicle.
+
+    THE CHORD.  Two INDEPENDENT frames, both LOWER BOUNDS because the board
+    sits inboard of the flank plane where px/m is smaller:
+        ref_side.jpg   >= 0.822 m   (rev 70, ends painted, k_t 215.5 +- 3.0)
+        IMG_3840.jpeg  >= 0.829 m   (F165, rev 62, landmarks painted)
+    The board shipped at 0.7110 -- about 14 % short -- from rev 49 to rev 69.
+
+    THE ANGLE IS NOT CHECKED AGAINST 28.0 AND MUST NOT BE.  This board is
+    HINGED, so its angle is a POSE, not a dimension, and the two frames catch
+    it 18 degrees apart: ref_side.jpg 38.8 deg, IMG_3840.jpeg 21.0 deg.  F165's
+    28.0 matches NEITHER -- it sits between them.  This row therefore checks the
+    build against the PRIMARY frame only (ref_side.jpg, the RED bus in its
+    CURRENT livery, which is the vehicle being recreated), with a band wide
+    enough to hold that frame's own pick error and NOT wide enough to admit
+    the other frame's pose.  Rule 35: a guard written against a pose encodes
+    that pose -- so this one says WHICH pose, and why that one.
+
+    NOT A FIDELITY CLAIM ABOUT THE HINGE.  A propped board's angle is set by
+    whoever propped it.  Passing here means the model matches the frame the
+    project is recreating; it does NOT mean the hinge geometry is right.
+    """
+    import math as _m
+    ob = bpy.data.objects.get("tail_board")
+    if ob is None:
+        log("  tail board: OBJECT ABSENT -- nothing measured (rule 37)")
+        return ["tail_board absent: its pose row could not run"]
+    P = [(ob.matrix_world @ v.co) for v in ob.data.vertices]
+    xs = [p.x for p in P]
+    zs = [p.z for p in P]
+    mx, mz = sum(xs) / len(xs), sum(zs) / len(zs)
+    sxx = sum((x - mx) ** 2 for x in xs)
+    szz = sum((z - mz) ** 2 for z in zs)
+    sxz = sum((x - mx) * (z - mz) for x, z in zip(xs, zs))
+    # principal direction of the XZ point cloud -- the board's OWN long axis
+    th = 0.5 * _m.atan2(2.0 * sxz, sxx - szz)
+    ux, uz = _m.cos(th), _m.sin(th)
+    proj = [(x - mx) * ux + (z - mz) * uz for x, z in zip(xs, zs)]
+    chord = max(proj) - min(proj)
+    ang = abs(_m.degrees(_m.atan2(uz, ux)))
+    if ang > 90.0:
+        ang = 180.0 - ang
+
+    # ---------------------------------------------------------------- rev 70
+    # THE CHORD FLOOR IS GONE AND A TIP-HEIGHT ARM REPLACES IT, BECAUSE THE
+    # FLOOR WAS A TAUTOLOGY AND AN ADVERSARY SAID SO.
+    #
+    # The first cut of this row used `PHOTO_CHORD_MIN = 0.800` with the comment
+    # "under BOTH frames' lower bounds" -- a bar set 29 mm BELOW the weaker of
+    # the two bounds it quoted in its own failure text, which is to say a bar
+    # chosen to admit the value the same edit was shipping.  Rule 6.
+    #
+    # TIP HEIGHT IS THE ONE QUANTITY ON THIS BOARD WITH AN INDEPENDENT MEASURED
+    # VALUE: z 2.184 +- 0.030, measured off ref_side.jpg and recorded in
+    # t1_shell.tail_board's own comment, where it is used to close against the
+    # separately measured base height z 1.7470 +- 0.027.  Those two heights
+    # DERIVE the chord: (2.184 - 1.747)/sin(38 deg) = 0.7098 m, which is where
+    # the shipped 0.7110 comes from.  So this arm polices the chord THROUGH a
+    # measured quantity rather than against a number typed to suit it.
+    #
+    # WATCHED FAILING at the rev-70 candidate 0.8250, which put the tip at
+    # 2.2703 -- 86.3 mm, 2.9 sigma outside the band.
+    TIP_Z, TIP_BAND = 2.184, 0.030
+    PHOTO_ANG, ANG_BAND = 38.8, 6.0
+    zs_all = [p.z for p in P]
+    tip_z = max(zs_all)
+    out = []
+    log("tail board pose (F163/F165/F245): principal-axis chord %.4f m, angle %.1f "
+        "deg, tip z %.4f -- ruler = PRINCIPAL AXIS in XZ, NOT the bbox diagonal"
+        % (chord, ang, tip_z))
+    if abs(tip_z - TIP_Z) > TIP_BAND * 3.0:
+        out.append(
+            "tail board TIP HEIGHT is %.4f m against a MEASURED %.3f +- %.3f m -- "
+            "%+.1f mm, %.1f sigma.  The base and tip heights are independently "
+            "measured and they DERIVE the chord: (%.3f - 1.747)/sin(38 deg) = "
+            "%.4f m.  A chord that breaks this closure is not supported by the "
+            "frames, however many pixels agree with it"
+            % (tip_z, TIP_Z, TIP_BAND, (tip_z - TIP_Z) * 1000,
+               (tip_z - TIP_Z) / TIP_BAND, TIP_Z, (TIP_Z - 1.747) / 0.6157))
+    if abs(ang - PHOTO_ANG) > ANG_BAND:
+        out.append(
+            "tail board angle %.1f deg is outside %.1f +- %.1f deg, the angle it "
+            "images at on ref_side.jpg -- the PRIMARY frame, the RED bus in its "
+            "CURRENT livery.  THE BAND IS +-6, NOT +-4: on that frame the "
+            "board's own estimators spread ~5 deg (two end picks 38.8, the navy "
+            "upper stripe 43.7), so a tighter band would encode ONE estimator. "
+            "DO NOT fix this to F165's 28.0 -- see F242/F245"
+            % (ang, PHOTO_ANG, ANG_BAND))
+    return out
+
+
 def _nose_fixture_reg(body, log=print):
     """rev 68, F217.  THE NOSE FIXTURES MUST STAY REGISTERED TO THE SKIN.
 
@@ -2486,6 +2592,12 @@ def run(body, log=print):
         fails += _bumper_bow(body, log)
     except Exception as e:                       # never let the guard vanish
         fails.append("bumper plan-bow assertion could not run: %s" % e)
+
+    # rev 70, F163/F165.  The rear hatch's chord and angle, against the frames.
+    try:
+        fails += _tail_board_pose(log)
+    except Exception as e:                       # never let the guard vanish
+        fails.append("tail board pose assertion could not run: %s" % e)
 
     # rev 68, F217.  The nose fixtures against the skin they are mounted on.
     try:

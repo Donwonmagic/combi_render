@@ -1050,7 +1050,7 @@ ck "and built_mask can plant it"      1 "$(grep -c 'def built_mask(rows=69, shri
 ck "F205 is on the register"          1 "$(grep -c '^| \*\*F205\*\*' OPEN_FINDINGS.md)"
 ck "F206's refutation is too"         1 "$(grep -c '^| \*\*F206\*\*' OPEN_FINDINGS.md)"
 ck "the painted evidence is committed" 1 "$(ls probe_scratch/rev66_render_cells.png 2>/dev/null | wc -l | tr -d '[:space:]')"
-ck "the brief warns C6 is a RASTER fact" 1 "$(grep -c 'ON THE RASTER' PASTE_INTO_CLAUDE_CODE.txt)"
+ck "the brief warns C6 is a RASTER fact" 1 "$(if grep -q 'ON THE RASTER' PASTE_INTO_CLAUDE_CODE.txt || grep -q 'ON THE RASTER' HANDOFF_CARRIERS.md 2>/dev/null; then echo 1; else echo 0; fi)"
 # AND THE GUARD F206 LEFT BEHIND: the glyph-vs-disc clearance was a comparison
 # nothing made -- the proud-guard measures every plate against the NOSE and both
 # passed while I believed they were coincident.  The guard stays even though the
@@ -1285,13 +1285,82 @@ ck "newest brief records its own audit"      1 "$(if [ -n "$_LATEST_BRIEF" ]; th
 #
 # Present/absent (1/0), never an exact count: re-wording the brief must not
 # fail these rows, only DROPPING the item must.
-_has(){ if [ -n "$_LATEST_BRIEF" ] && grep -qiE "$1" "$_LATEST_BRIEF" 2>/dev/null; then echo 1; else echo 0; fi; }
+# ------------------------------------------------------------- rev 70
+# THE HANDOFF WAS SPLIT, AND THESE ROWS ARE RE-POINTED, NOT RELAXED.
+#
+# THE CAUSE, MEASURED (revstats.py, and the owner said it first): geometry
+# output per revision fell 721 -> 209 lines between rev 8-20 and rev 61-70
+# while the brief grew 12 KB -> 95 KB, and findings CLOSED at rev 66..70 were
+# 0, 0, 0, 0, 0.  The brief had become too large to act on, and rule 16 --
+# "never delete a carrier" -- made pruning it structurally impossible.
+#
+# SO THE CARRIERS MOVED TO `HANDOFF_CARRIERS.md`, VERBATIM AND COMPLETE, and
+# `_has` now searches the UNION of the brief and that file.  Rule 16 requires
+# a carrier to be CARRIED; it never required carrying it in the WORKING
+# document.  Every string these rows protect is still under a guard, in one
+# file or the other, and the union cannot be satisfied by deleting either --
+# see the four COMPANION rows in the "the handoff split" block below, which
+# make the split itself separately testable (SS10.8: never relax one copy of a
+# check; a re-base needs the cause named AND a companion row).
+_CARRIERS="HANDOFF_CARRIERS.md"
+_has(){
+  if [ -n "$_LATEST_BRIEF" ] && grep -qiE "$1" "$_LATEST_BRIEF" 2>/dev/null; then echo 1; return; fi
+  if [ -f "$_CARRIERS" ] && grep -qiE "$1" "$_CARRIERS" 2>/dev/null; then echo 1; return; fi
+  echo 0
+}
 
 # The two things the record says were actually lost, and how:
 #   rev 44 -- the standing-instructions carrier was deleted and took the
 #             DIE-CUT STICKER, the project's ORIGINAL DELIVERABLE, with it.
 #             Undetected for five revisions and STILL OPEN.
 #   rev 45 -- the open-findings register (21 rows) went the same way.
+# ==========================================================================
+# THE HANDOFF SPLIT -- FOUR COMPANION ROWS (rev 70)
+#
+# `_has` above was widened to search two files instead of one.  A widened
+# check is a WEAKER check unless something separately guarantees the second
+# file is real, is reached, and is not quietly re-absorbed.  These four are
+# that guarantee, and each can FAIL:
+#
+#   (a) delete or gut HANDOFF_CARRIERS.md          -> row 1 goes red
+#   (b) stop citing it from the brief              -> row 2 goes red
+#   (c) let the ACTION brief re-bloat, which is
+#       the whole defect the split exists to fix   -> row 3 goes red
+#   (d) drop a carrier SECTION while keeping the
+#       file, which `_has`'s string search alone
+#       would not notice                           -> row 4 goes red
+#
+# WATCHED FAILING BEFORE THEY WERE BELIEVED PASSING (rule 3): row 1 against a
+# missing file, row 3 against the 94,962-byte pre-split brief, row 4 against a
+# carriers file with SS4 removed.
+ck "the carriers file exists and is substantial" 1 \
+   "$(if [ -f HANDOFF_CARRIERS.md ] && [ "$(wc -c < HANDOFF_CARRIERS.md)" -gt 40000 ]; then echo 1; else echo 0; fi)"
+ck "the action brief CITES the carriers file" 1 \
+   "$(if grep -q 'HANDOFF_CARRIERS.md' PASTE_INTO_CLAUDE_CODE.txt; then echo 1; else echo 0; fi)"
+# THE POINT OF THE SPLIT, AS A NUMBER.  The pre-split brief was 94,962 bytes
+# and the owner measured what that cost: geometry output per revision fell
+# 3.4x while the brief grew 7.7x.  32 KB is a THIRD of the pre-split size and
+# roughly the size the brief had at rev 50, the last era with a closure rate.
+# If a future revision writes past it, that is the drift returning and this
+# row is where it becomes visible -- BEFORE ten more revisions pass.
+ck "the ACTION brief is still an ACTION brief (<32 KB)" 1 \
+   "$(if [ "$(wc -c < PASTE_INTO_CLAUDE_CODE.txt)" -lt 32768 ]; then echo 1; else echo 0; fi)"
+ck "every carrier SECTION is present in the carriers file" 14 \
+   "$(grep -cE '^## (SS|§)(0\.|0 |1 |2 |4 |5 |6 |7 |8 |9 |10 )' HANDOFF_CARRIERS.md 2>/dev/null | head -1)"
+
+# ==========================================================================
+# RULE 55 -- THE FIRST RULE IN THIS PROJECT ABOUT OUTPUT (rev 70)
+#
+# All 54 existing rules are about not being WRONG.  Not one was about
+# SHIPPING, and the result is measurable: rev 66, 67, 68, 69 and 70 closed
+# 0, 0, 0, 0, 0 findings between them while writing 1,122 lines of geometry.
+# `revstats.py` is the instrument that makes the drift visible in ONE
+# revision instead of ten, and this row makes sure it exists and is named
+# where the next context will actually run it.
+ck "the drift detector exists"                1 "$(if [ -f revstats.py ]; then echo 1; else echo 0; fi)"
+ck "the brief names the drift detector"       1 "$(if grep -q 'revstats.py' PASTE_INTO_CLAUDE_CODE.txt; then echo 1; else echo 0; fi)"
+ck "the brief carries rule 55"                1 "$(if grep -q 'SHIPS A VISIBLE CHANGE TO THE VEHICLE' PASTE_INTO_CLAUDE_CODE.txt; then echo 1; else echo 0; fi)"
+
 ck "brief still names the die-cut sticker"   1 "$(_has 'die.?cut')"
 ck "brief still names the open-findings reg" 1 "$(_has 'open.?findings')"
 
@@ -1947,8 +2016,11 @@ ck "the emotional bar is in BOTH live carriers" 2 \
    "$(python3 -c "
 import glob,re
 b=max(glob.glob('NEXT_CONTEXT_PROMPT_rev*.md'), key=lambda f:int(re.search(r'rev(\d+)',f).group(1)))
-print(sum('emotional bar' in open(f,errors='replace').read()
-          for f in (b,'OPEN_FINDINGS.md')))" 2>&1 | tail -1)"
+import os
+brief = ('emotional bar' in open(b,errors='replace').read()
+         or (os.path.exists('HANDOFF_CARRIERS.md')
+             and 'emotional bar' in open('HANDOFF_CARRIERS.md',errors='replace').read()))
+print(int(brief) + int('emotional bar' in open('OPEN_FINDINGS.md',errors='replace').read()))" 2>&1 | tail -1)"
 
 # F92 records an OWNER RULING now, not a brief's inference -- which is the
 # point of the row.  His words AND the grade, or it is half a retraction

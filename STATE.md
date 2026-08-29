@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-28 21:23:57 UTC |
-| git commit | `c9b03aa` |
-| git subject | rev 69b: restore §9's rev-65/66 'what moved' lines -- audit_adversary caught the carrier drop |
+| generated | 2026-08-29 12:43:35 UTC |
+| git commit | `6664f65` |
+| git subject | wip |
 | working tree | clean |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=2 (applied, destructive, before booleans) |
@@ -59,6 +59,7 @@ hubcap badge is SELF-CONSISTENCY ONLY -- CAP_EMBLEM_WFRAC has never been compare
 wheel-house reach front: liner minus aperture radius -0.0 .. +0.0 mm over 0 station(s) short of it; rim inset inside flank_y +2.6 mm; 0 station(s) beyond the outline's feet
 wheel-house reach rear : liner minus aperture radius -0.0 .. +0.0 mm over 0 station(s) short of it; rim inset inside flank_y +2.6 mm; 0 station(s) beyond the outline's feet
 bumper plan bow (F222): +21.55 mm over |y| <= 0.70, against the shell's +20.38 mm at z=1.015; floor 8.0 mm
+tail board pose (F163/F165/F245): principal-axis chord 0.7110 m, angle 38.0 deg, tip z 2.2087 -- ruler = PRINCIPAL AXIS in XZ, NOT the bbox diagonal
 nose fixture hl_bowl     NOT GRADEABLE -- all 64 back-face rays fall through the headlamp bore; no skin behind it
 nose fixture hl_bowl.001 NOT GRADEABLE -- all 64 back-face rays fall through the headlamp bore; no skin behind it
 nose fixture registration (F217): hl_lens -7.64, hl_lens.001 -7.64, hl_ring -13.46, hl_ring.001 -13.46, ind-1_base -10.03, ind-1_lens +11.68, ind1_base -10.03, ind1_lens +11.68 mm back-face-to-skin, frozen band +-3.0 mm

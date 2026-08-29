@@ -1,5 +1,13 @@
 # LEDGER — rev 69
 
+> **RULE 55 HEADER — `python3 revstats.py`, run at close:**
+> **geometry 189 lines · doc 8 lines · instrument 193 lines · findings closed 0**
+> *(rev 8–20, the era the owner named, ran **721** geometry lines per revision at a doc:geo ratio of
+> **1.55**. Rev 61–70 runs **209** at **13.98**. Findings closed at rev 66, 67, 68, 69, 70:
+> **0, 0, 0, 0, 0**.)*
+> **THIS REVISION SHIPPED ONE VISIBLE CHANGE — the tyre's road film, 1.90× → 1.26× — AND CLOSED
+> NOTHING. Said plainly at the top, per rule 55, rather than buried.**
+
 **What this revision did, what it got wrong, and what it did not do.**
 Written for the next context. `OPEN_FINDINGS.md` outranks this file; `STATE.md` outranks both.
 
@@ -110,3 +118,53 @@ would silently re-do this revision on a 25-commit-stale tree** — which is exac
 sat stranded from rev 57 to rev 64 (F188). **Check out the branch before reading anything.**
 
 `bootstrap.sh` **ALL 10 PASS**, after `pip install pillow` — the twelfth revision running.
+
+---
+## §9 THE HANDOFF WAS SPLIT, AND THE OWNER CALLED IT BEFORE ANY INSTRUMENT DID
+
+> *[owner, rev 70]* **"I feel that we were way more productive in the first 20 or so handoffs and I
+> fear we have drifted since then."**
+
+**HE WAS RIGHT AND IT IS NOW MEASURED.** `revstats.py` is new and it is the drift detector:
+
+```
+    band        geometry/rev   doc/rev   instr/rev   doc:geo   findings closed
+    rev  8-20        721         1120         44       1.55
+    rev 21-35         35         1202        473      34.36
+    rev 36-50        677         5962       1558       8.79
+    rev 51-60        501         5332       2893      10.63
+    rev 61-70        209         2923       1145      13.98
+    rev 66,67,68,69,70                                            0, 0, 0, 0, 0
+```
+
+**Geometry output per revision fell 3.4× while the brief grew 12 KB → 95 KB (7.7×).** The
+counter-argument — *"early revisions BUILT the model, later ones REFINE it, fewer lines but higher
+value"* — **FAILS on its own test: rev 66–70 wrote 1,122 geometry lines and closed ZERO findings**,
+where rev 60 alone wrote 1,118 and closed four.
+
+**THE CAUSE IS STRUCTURAL, NOT EFFORT.** All 54 rules in the canon are about **not being WRONG**;
+not one was about **SHIPPING**. Rule 16 — *never delete a carrier* — made pruning the brief
+impossible, so it could only accumulate, and the cheapest legal move for any context became
+*measure something and write it down*. That is precisely what rev 69 did.
+
+**WHAT WAS DONE.**
+* `PASTE_INTO_CLAUDE_CODE.txt` / `NEXT_CONTEXT_PROMPT_rev70.md` → a **19 KB ACTION brief**.
+* `HANDOFF_CARRIERS.md` → **every carrier, verbatim, 14 sections, 81 KB. NOTHING DELETED.**
+  Rule 16 requires a carrier to be **CARRIED**; it never required carrying it in the **working**
+  document.
+* **The guards were RE-POINTED, NOT RELAXED.** `verify_clone.sh`'s `_has()`, its C6-raster row and
+  its emotional-bar row now search the **union**; `audit_brief.py`'s path / switch / script / tile
+  sweeps run over the union; two `audit_adversary.py` questions likewise.
+* **SEVEN NEW ROWS, and the four that guard the split were WATCHED FAILING first (rule 3):**
+  carriers file missing → red; the brief re-bloated to its old 94,962 bytes → red; §4 gutted →
+  section count 13 against 14 **and** the original emotional-bar row red; §0 gutted → the
+  reference-set row red. **That last pair is the proof the union is not weaker.**
+* **RULE 55, the project's first rule about output:** *every revision ships a visible change to the
+  vehicle, or says plainly why it could not.* Three rows hold it.
+
+**AT CLOSE:** `verify_clone.sh` **ALL 358 PASS** (351 before; **7 added, none relaxed, none
+re-based**), `audit_brief.py` 10/0, `audit_adversary.py` 57 asked / 0 BROKE.
+
+**WHAT THIS DOES NOT DO.** It does not build the bus. It removes a tax that was being paid every
+revision out of the same budget as the building. **Rev 70 is where that shows up or does not** —
+and `revstats.py` will say which, in one revision instead of ten.

@@ -82,7 +82,24 @@ def t(q, ok, d=""):
         bad.append(q)
 
 
-B = open(BRIEF).read()
+B_ACTION = open(BRIEF).read()
+# ------------------------------------------------------------------ rev 70
+# THE HANDOFF WAS SPLIT AND THESE QUESTIONS FOLLOW THE CONTENT.
+#
+# The carriers moved to HANDOFF_CARRIERS.md because the brief had reached
+# 95 KB and the owner measured the cost (revstats.py: geometry per revision
+# 721 -> 209, closures at rev 66..70 all zero).  Questions here ask "is X
+# still carried?"; X is still carried if it is in EITHER file, so `B` is the
+# union.  Anything that must be in the ACTION brief specifically -- because a
+# context that reads only the brief has to see it -- uses B_ACTION instead.
+#
+# THIS IS NOT A RELAXATION: delete the carriers file, or gut a section of it,
+# and every one of these goes red exactly as it would have before the split.
+# WATCHED: with SS4 removed from HANDOFF_CARRIERS.md the emotional-bar and
+# reference-set rows both return 0.
+import os as _os
+_CARR = _os.path.join(ROOT, "HANDOFF_CARRIERS.md") if 'ROOT' in dir() else "HANDOFF_CARRIERS.md"
+B = B_ACTION + ("\n" + open(_CARR).read() if _os.path.exists(_CARR) else "")
 P("=" * 78)
 P("  audit_adversary.py -- what would make %s false?" % BRIEF)
 P("=" * 78)
@@ -658,7 +675,7 @@ t("do C6 and C8 still carry F184's warning?",
 
 t("is the ring-ellipse fit still named as the emblem's close?",
   'F185' in open('OPEN_FINDINGS.md').read()
-  and 'ELLIPSE' in open('PASTE_INTO_CLAUDE_CODE.txt').read().upper(),
+  and 'ELLIPSE' in B.upper(),
   "The badge's ring is a CIRCLE on the real object, so its image gives the "
   "homography outright and every emblem target could be re-read on the mark "
   "instead of on a photograph of it.  Nothing in this project has ever fitted "

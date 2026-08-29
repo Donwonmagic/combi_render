@@ -1891,10 +1891,78 @@ def trunk_bay(log=print):
 # sec.0.4's k_t, renormalised and C0-checked against X(242.84)=+1.3000,
 # X(749.38)=-1.1000, X(922.2)=X_TAIL).  Uncertainties are Monte-Carlo over
 # endpoint jitter, k_t 215.5+-3.0 and the datum +-0.020.
-TB_TILT_DEG = 38.0        # MEASURED +-2.3, FROM HORIZONTAL.  Say which datum:
-                          # from VERTICAL this is 52.0, and the rev-49 brief's
-                          # bare "39 degrees" does not state which it meant.
-TB_CHORD    = 0.7110      # MEASURED +-0.028, in the vehicle's XZ plane.
+# ------------------------------------------------------------------ rev 70
+# *** DO NOT "FIX" THIS TO 28.0.  F165's 28.0 IS REFUTED, AND THE REASON IS
+# *** THAT THIS BOARD IS HINGED: ITS ANGLE IS A POSE, NOT A DIMENSION. ***
+#
+# Rev 70's brief made "38.0 against a photographed 28.0, ~10 deg too steep" the
+# top item.  Re-measured on BOTH frames, with every pick PAINTED first:
+#
+#     ref_side.jpg   RED bus, CURRENT livery, F163's PRIMARY frame   38.8 deg
+#     IMG_3840.jpeg  the SAME bus, CHALKBOARD livery                 21.0 deg
+#     BUILT                                                          38.0 deg
+#     F165 published                                                 28.0 deg
+#
+# THE TWO FRAMES DISAGREE BY 18 DEGREES BECAUSE SOMEBODY PROPPED IT DIFFERENTLY
+# ON TWO DIFFERENT DAYS.  F165 measured one frame and recorded the result as
+# though the angle were a property of the vehicle.  It is not -- and 28.0
+# matches NEITHER frame; it sits between them.
+#
+# THE SHIPPED 38.0 MATCHES THE PRIMARY FRAME TO 0.8 DEG.  Moving it to 28.0
+# would have made the model WORSE against the target vehicle in its current
+# livery.  Rule 35: a guard written against a POSE encodes that pose.
+# ref_side.jpg method: the two ends picked and painted (probe_scratch/
+# rev70_hatch_ends.png), chord 876,294 -> 1014,183, baseline 177 px.
+# IMG_3840 method: the orange top face's CENTRELINE fitted over 60 columns
+# (the two long edges converge under perspective, so the centreline is the
+# chord's estimator), 21.0 deg, bracket 19.6..22.4, rms 2.35 px, against a
+# control -- the two hub centres are level in the vehicle frame and image at
+# -0.56 deg, so horizontal images as horizontal here to ~1 deg.
+# T1_TB_TILT exists so the angle arm of the new guard can be watched firing --
+# and so the next context can SEE that "fixing" this to F165's 28.0 turns the
+# row RED against the primary frame, rather than having to take that on trust.
+TB_TILT_DEG = float(os.environ.get("T1_TB_TILT", 38.0))
+                          # FROM HORIZONTAL.  A POSE, not a dimension, matching
+                          # the PRIMARY frame's 38.8 +-1 FROM HORIZONTAL.
+                          # From VERTICAL this is 52.0; the rev-49 brief's bare
+                          # "39 degrees" never said which it meant.
+# ------------------------------------------------------------------ rev 70
+# *** THE CHORD WAS MOVED TO 0.8250 AT REV 70 AND IS REVERTED. IT WAS A
+# *** REGRESSION, AND A DISPATCHED ADVERSARY CAUGHT IT. READ THIS BEFORE YOU
+# *** TRY THE SAME THING. ***
+#
+# WHAT I DID.  I picked the board's two ends on ref_side.jpg, PAINTED them
+# (probe_scratch/rev70_hatch_ends.png), measured 177.1 px, divided by the
+# k_t = 215.5 px/m this file records, got 0.822 m, found F165's independent
+# 0.829 m on the other frame, and shipped their mean.  Two frames agreeing to
+# 0.9 % felt decisive.  IT WAS WRONG THREE WAYS:
+#
+#   (1) WRONG RULER.  ref_side.jpg is a PROJECTIVE image of the flank, not an
+#       orthographic elevation.  flank_compare.py says so in its own header --
+#       "every scalar px/m is wrong somewhere.  Two instruments exist and this
+#       file uses them instead of REF_PPM" -- and the board sits 130..265
+#       columns AFT of the hub the scalar was taken at.  Through the project's
+#       own instruments, flank_X (SPEC 10.35) and flank_kv (SPEC 10.34), THE
+#       SAME TWO PAINTED PICKS give 0.7899 m, not 0.822.  Rule 38.
+#   (2) THE FILE ALREADY SAID SO, TWO LINES BELOW.  "reading it with a single
+#       px/m OVER-READS by 4.8 %".  I adopted a value LARGER than the over-read.
+#   (3) AND IT BROKE A MEASURED CLOSURE THAT IS STILL PRINTED BELOW AS CLOSING.
+#       The base and tip heights are INDEPENDENTLY MEASURED -- z 1.7470 +-0.027
+#       and z 2.184 +-0.030 -- and (2.184-1.747)/sin(38 deg) = 0.7098 m.  THE
+#       0.7110 THIS CONSTANT HAS CARRIED SINCE REV 49 IS NOT A PIXEL READ AT
+#       ALL; IT IS DERIVED FROM TWO MEASURED HEIGHTS, and 0.8250 put the tip
+#       86.3 mm -- 2.9 sigma -- outside the measured one.
+#
+# WHAT IS ACTUALLY OPEN, AND IT IS A REAL CONFLICT, NOT A SETTLED NUMBER:
+#       two-height closure          0.710 m   (two measured heights, 38 deg)
+#       calibrated chord read       0.790 m   (flank_X / flank_kv, painted picks)
+#       F165 on IMG_3840.jpeg       0.829 m   (flat 107.92 px/m -- same ruler flaw)
+# The first two are BOTH from ref_side.jpg and they disagree by 11 %.  ONE OF
+# THEM IS WRONG AND NOTHING IN THIS TREE RESOLVES IT.  Do not average them.
+# The guard below now has a TIP-HEIGHT arm, because tip height is the only
+# quantity on this board with an independent measured value.
+TB_CHORD    = float(os.environ.get("T1_TB_CHORD", 0.7110))
+                          # DERIVED from two measured heights, not a pixel read.
                           # The IMAGE-PLANE chord is 0.745 m; reading it with a
                           # single px/m over-reads by 4.8 % because the map's x
                           # and z scales differ at that station.
