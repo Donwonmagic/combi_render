@@ -36,6 +36,25 @@ _args = [a for a in sys.argv[1:] if not a.startswith("--")]
 BRIEF = _args[0] if _args else briefs[-1]
 N = int(re.search(r"rev(\d+)", os.path.basename(BRIEF)).group(1))
 TXT = open(BRIEF).read()
+
+# ------------------------------------------------------------------ rev 70
+# THE HANDOFF WAS SPLIT, AND THIS SWEEP FOLLOWS THE CONTENT.
+#
+# The carriers moved out of the brief into HANDOFF_CARRIERS.md (the cause is
+# measured in revstats.py: geometry per revision fell 721 -> 209 while the
+# brief grew 12 KB -> 95 KB).  If this file kept sweeping only the brief, then
+# every path, switch and script name in the carriers would silently STOP being
+# audited the moment it moved -- the split would buy legibility by giving up
+# coverage, which is exactly the trade this project must not make.
+#
+# So the path / T1_* / script sweeps below run over the UNION.  `TXT` is the
+# ACTION brief alone, because the rows that are ABOUT the brief -- its own
+# audit record, its row count, its size -- must stay pointed at the brief.
+CARRIERS = os.path.join(ROOT, "HANDOFF_CARRIERS.md")
+BOTH = TXT + ("\n" + open(CARRIERS).read() if os.path.exists(CARRIERS) else "")
+if not os.path.exists(CARRIERS):
+    print("  !! HANDOFF_CARRIERS.md IS MISSING -- the carriers are unaudited, and "
+          "that is a FINDING, not a pass")
 fails = []
 
 
@@ -68,7 +87,7 @@ print("=" * 78)
 # END in a known extension, and must carry no glob or placeholder.
 _PATH = re.compile(r"[A-Za-z0-9_][A-Za-z0-9_./-]*\.(py|sh|md|txt|png|jpg|jpeg|JPG|npz)$")
 paths = set()
-for m in re.finditer(r"`([^`\n]+)`", TXT):
+for m in re.finditer(r"`([^`\n]+)`", BOTH):
     t = m.group(1).strip().split()[0].rstrip(".,;:)")
     if any(c in t for c in "<>*?$") or t.startswith(("http", "-")):
         continue
@@ -105,7 +124,7 @@ if outp:
           % (len(outp), " ".join(outp)))
 
 # --------------------------------------------------------- 2. T1_* switches
-sw = sorted(set(re.findall(r"\bT1_[A-Z0-9_]+\b", TXT)))
+sw = sorted(set(re.findall(r"\bT1_[A-Z0-9_]+\b", BOTH)))
 srcs = {p: open(os.path.join(ROOT, p)).read()
         for p in os.listdir(ROOT) if p.endswith((".py", ".sh"))}
 # THIS MUST MATCH verify_clone.sh's OWN ROW, IDIOM FOR IDIOM.  Rev 57b
@@ -125,8 +144,8 @@ ck("every T1_* the brief names READS THE ENVIRONMENT", not dead,
                                        ("  " + " ".join(dead)) if dead else ""))
 
 # ------------------------------------------------------------- 3. runnables
-runs = sorted(set(re.findall(r"-P (\w+\.py)", TXT))
-              | set(re.findall(r"python3 (\w+\.py)", TXT)))
+runs = sorted(set(re.findall(r"-P (\w+\.py)", BOTH))
+              | set(re.findall(r"python3 (\w+\.py)", BOTH)))
 miss = [r for r in runs if not os.path.exists(os.path.join(ROOT, r))]
 ck("every script the brief says to run exists", not miss,
    "%d named%s" % (len(runs), ("  MISSING " + " ".join(miss)) if miss else ""))
@@ -246,7 +265,7 @@ for f in ("README.md", "START_HERE.md"):
 # Each of these has FIRED in this repo, in the row written to explain it.
 trap_ok = True
 # (a) a bare filename beside a qualified sibling
-tiles = re.findall(r"`(rev\d+_[A-Za-z0-9_]+\.png)`", TXT)
+tiles = re.findall(r"`(rev\d+_[A-Za-z0-9_]+\.png)`", BOTH)
 if tiles:
     trap_ok = False
 ck("no probe tile is named without its directory", trap_ok,

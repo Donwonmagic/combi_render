@@ -118,6 +118,14 @@ ask what a PHOTOGRAPH shows. If he does not understand the question, the figure 
 @PASTE_INTO_CLAUDE_CODE.txt — the owner's standing orders and this revision's entry procedure.
 @STATE.md — machine-written; outranks every prose description of the build.
 
+**@HANDOFF_CARRIERS.md is the OTHER HALF OF THE BRIEF and it is NOT imported — read it when the
+action brief points you at it.** The handoff was SPLIT at rev 70 because the brief had reached 95 KB
+and the owner measured what that cost: geometry output per revision fell from 721 lines (rev 8–20) to
+209 (rev 61–70), and findings closed at rev 66–70 were 0, 0, 0, 0, 0. Run `python3 revstats.py`.
+**Rule 16 requires a carrier to be CARRIED, not to be carried in the WORKING document. Nothing was
+deleted, `verify_clone.sh`'s carrier rows search BOTH files, and four companion rows make the split
+itself testable. DO NOT RE-MERGE THEM.**
+
 Read on demand, NOT imported: `SPEC.md`, `SURVEY_rev49_photoreal.md`, `REF_MEASUREMENTS.md`,
 and the `LEDGER_*` / `HANDOFF_*` / `PHOTOS_WANTED_*` series. They are large; load the one the
 task needs. The full numbered rule canon lives in the briefs, not here:
