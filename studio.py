@@ -465,6 +465,113 @@ def lighting(key=1.0):
     # rev 8: 0.17 -> 0.05. Pure achromatic fill landing on saturated paint.
     w.node_tree.nodes["Background"].inputs[1].default_value = float(
         os.environ.get("T1_WORLD", 0.05))
+    _refl_env(w)
+
+
+# ------------------------------------------------------------------ rev 70
+# THE OWNER'S "LOOK LIKE NEW", AND THE ONE THING THAT WAS BLOCKING IT.
+#
+#   [owner, rev 61] "I want this 3d model to look like new. Enhanced from the
+#   photo."
+#
+# `gloss_compare.py` has been RED for eight revisions -- the render's paint
+# spreads 0.413 of the photograph's against a bar of 0.60 -- and the model-side
+# lever was recorded EXHAUSTED (F60/F62): body roughness had already gone
+# 0.420 -> 0.250 and moved the gate only 0.3911 -> 0.4261.
+#
+# THAT IS BECAUSE ROUGHNESS WAS NEVER THE BINDING CONSTRAINT.  The world is a
+# FLAT WHITE at strength 0.05, so a MIRROR in this scene reflects a uniform
+# dim grey: there is nothing in the environment for gloss to show.  The
+# photograph's paint spreads because it reflects a STREET -- dark buildings,
+# bright sky, high contrast.  No roughness can manufacture contrast that is
+# not in the environment, which is why eight revisions of tuning it failed.
+#
+# WHAT THIS DOES, AND WHAT IT DELIBERATELY DOES NOT.  It gives the world a
+# studio structure -- a bright overhead softbox band over a darker floor,
+# which is what a vehicle photographed in a studio actually reflects -- and
+# shows it to GLOSSY RAYS ONLY.  Camera rays still see flat white, so the
+# BACKDROP IS UNCHANGED and the owner's "keep studio -- ruling stands" (twice,
+# F155) is honoured.  Diffuse rays still see flat white too, so every gate
+# calibrated on diffuse illumination -- the film's paper white at linear 21.0,
+# cream_rms, flank_compare's bands -- sees the scene it was calibrated in.
+# THE CHANGE IS CONFINED TO WHAT SPECULAR REFLECTS.
+#
+# T1_REFLENV=0 restores the flat white world EXACTLY (rule 36: ablate the
+# thing you are about to tune).  T1_REFLENV scales the structure's strength.
+def _refl_env(w):
+    """Studio structure for GLOSSY rays only.  Camera and diffuse see white."""
+    # THE LEVEL IS NOT TUNED.  studio.py's own film calibration records that
+    # "the studio's paper white sits at linear 21.0 to reach display 253
+    # (SPEC 10.8)".  An environment at strength 1.0 reflects at 1/21 of white
+    # and is INVISIBLE -- measured: the gate moved 0.412 -> 0.416 against a
+    # two-render floor of 0.001, i.e. real but 150x too small.  21.0 is that
+    # same paper white, so the softbox band images as a true white highlight
+    # and the floor images dark.  It is carried from the file, not fitted.
+    # ⚠ DEFAULT **OFF**, AND THAT IS THE RESULT, NOT A PLACEHOLDER.  The
+    # hypothesis was sound and it was built and measured, and it FAILED.  All
+    # four configurations, gloss_compare on a 1600x1100 hero at 96 spp, against
+    # a TWO-RENDER FLOOR of 0.001 on the spread (rule 49):
+    #     env  0 (shipped)  + coat 0.02   spread 0.412   headroom 0.126
+    #     env  1.0          + coat 0.02   spread 0.416   headroom  --
+    #     env 21.0          + coat 0.02   spread 0.389   headroom 0.118
+    #     env 21.0          + coat 0.55   spread 0.399   headroom 0.181
+    # The coat DOES make specular structure for the first time -- +44 % of
+    # headroom, 88x F54's "+0.5 % of gloss" -- but every configuration that
+    # raises the highlight also lifts the paint's floor, and the SPREAD falls.
+    # At roughness 0.250 the specular lobe is broad, so a bright environment
+    # veils before it glints.  RULE 44: the guard went red on my own new work
+    # and the guard wins.  Ship the shipped world; keep the switch so the next
+    # attempt starts from a measured table instead of F62's assertion.
+    k = float(os.environ.get("T1_REFLENV", 0.0))
+    if k <= 0.0:
+        return
+    nt = w.node_tree
+    flat = nt.nodes["Background"]
+    out = nt.nodes["World Output"]
+
+    geo = nt.nodes.new("ShaderNodeNewGeometry")
+    geo.location = (-900, -300)
+    sep = nt.nodes.new("ShaderNodeSeparateXYZ")
+    sep.location = (-720, -300)
+    nt.links.new(geo.outputs["Incoming"], sep.inputs[0])
+    # Incoming z runs -1 (straight down) .. +1 (straight up)
+    mr = nt.nodes.new("ShaderNodeMapRange")
+    mr.location = (-540, -300)
+    mr.inputs[1].default_value = -1.0
+    mr.inputs[2].default_value = 1.0
+    nt.links.new(sep.outputs["Z"], mr.inputs[0])
+
+    ramp = nt.nodes.new("ShaderNodeValToRGB")
+    ramp.location = (-360, -300)
+    nt.links.new(mr.outputs[0], ramp.inputs[0])
+    cr = ramp.color_ramp
+    # floor -> horizon -> softbox ceiling.  The bright band is the light the
+    # paint is meant to show; the dark floor is what gives it CONTRAST, which
+    # is the quantity gloss_compare actually measures.
+    stops = ((0.00, 0.045), (0.42, 0.10), (0.52, 0.28),
+             (0.66, 1.00), (0.86, 1.00), (1.00, 0.42))
+    while len(cr.elements) > 1:
+        cr.elements.remove(cr.elements[-1])
+    for i, (pos, v) in enumerate(stops):
+        e = cr.elements[0] if i == 0 else cr.elements.new(pos)
+        e.position = pos
+        e.color = (v, v, v, 1.0)
+
+    struct = nt.nodes.new("ShaderNodeBackground")
+    struct.location = (-160, -300)
+    nt.links.new(ramp.outputs["Color"], struct.inputs[0])
+    struct.inputs[1].default_value = k
+
+    lp = nt.nodes.new("ShaderNodeLightPath")
+    lp.location = (-160, 120)
+    mix = nt.nodes.new("ShaderNodeMixShader")
+    mix.location = (60, -60)
+    # fac 0 -> flat white (camera, diffuse, everything else)
+    # fac 1 -> the studio structure (glossy only)
+    nt.links.new(lp.outputs["Is Glossy Ray"], mix.inputs[0])
+    nt.links.new(flat.outputs[0], mix.inputs[1])
+    nt.links.new(struct.outputs[0], mix.inputs[2])
+    nt.links.new(mix.outputs[0], out.inputs["Surface"])
 
 
 def playa(key=1.0):

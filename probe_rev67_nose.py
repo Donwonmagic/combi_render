@@ -311,6 +311,26 @@ def main():
         print("NO RENDER -- %s does not exist.  out/ is untracked and starts "
               "EMPTY on a clone.  Nothing was measured." % frame)
         return 2
+    else:
+        # ------------------------------------------------------- rev 68, F225
+        # A CONTROL THAT DID NOT RUN MUST NOT READ AS A CLEAN PASS.  RULE 3.
+        #
+        # This branch did not exist.  Invoked with NO ARGUMENT -- which is how
+        # every brief through rev 68 prints this probe, and how §6's run list
+        # does not print it at all -- `ren` stayed None, P3 never executed, and
+        # the probe reported "4 checked, 0 FAILED" and EXIT 0.  Meanwhile the
+        # rev-68 brief's §0.07 publishes "5 checked, 1 FAILED -- P3", and §0.05
+        # holds that row up as the proof its outgoing audit works.  The row is
+        # obtainable ONLY with a frame argument the brief never gives.  Watched
+        # at rev 68, true exit codes, no pipe:
+        #     probe_rev67_nose.py                   -> 4 checked, 0 FAILED, rc 0
+        #     probe_rev67_nose.py out/r68_front.png -> 5 checked, 1 FAILED, rc 1
+        # The refusal below covers the wrong-file case; nothing covered the
+        # no-argument case, which is the one that actually gets typed.
+        print("NO FRAME GIVEN -- P3 (the RENDER's bumper edge) DID NOT RUN.  "
+              "Pass a frame, e.g. `python3 probe_rev67_nose.py "
+              "out/r68_front.png`.  The photograph and mesh rows below stand; "
+              "the render row is ABSENT, not passed.")
 
     if ren:
         # THE SAME GATE AS P1, AND ON A THREE-QUARTER RENDER IT REFUSES.  A

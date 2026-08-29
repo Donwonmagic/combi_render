@@ -60,3 +60,41 @@ record); 5 the off side, any frame at all.
 Also still on the do-not-ask list: everything in `PHOTOS_WANTED_rev49.md`'s own closing section,
 including the rear bay — answered at rev 49, the lid is **SHUT**, and with it shut nothing in that
 bay shows.
+
+
+---
+
+## RETIRED AT REV 68 BEFORE IT WAS EVER FORMALLY ADDED — THE BUMPER'S PLAN BOW
+
+The rev-68 brief's §3 item 1 nominated this file as the carrier for an ask to the
+owner: *"a straight edge laid across the two front bumper corners, photographed
+against a ruler ... That is the ONE thing worth asking him for."*
+
+**IT WAS ASKED, AND HE REJECTED THE PREMISE:** *"This has to be a commonly
+available measurement."* (F229.)
+
+**HE IS RIGHT.** The 1950-67 Type 2 front bumper and front panel are mass-produced
+pressings on one of the most documented vehicles ever built. Asking the owner to
+go and measure a catalogue part is the wrong ask. **DO NOT RE-ASK IT.**
+
+**WHERE THE NUMBER ACTUALLY IS** -- identified by search at rev 68, and every one
+refused by this session's egress proxy (`EGRESS_BLOCKED`; curl returns HTTP 000,
+`en.wikipedia.org` included):
+
+* `thesamba.com/vw/forum/viewtopic.php?p=9884153` -- "Split Bus -- View topic --
+  **Dimensions front mask VW T1**"
+* `thesamba.com/vw/archives/info/split_bus_dimensions.php` -- "VW Split Bus Frame
+  Dimensions"
+* `coolairvw.co.uk/guides/vw-bus-bumpers/` -- a bumper guide broken down by year
+* and the one fact a snippet DID carry: the **1959-67 bus deluxe bumper rubber
+  insert is sold at 8 ft = 2438 mm**. That is an ARC LENGTH along the bumper
+  face; against a measured chord it gives the sagitta directly, since
+  `arc = chord + 8h^2/(3*chord)`.
+
+**AND THE GENERAL RULE HE SET:** before asking him for any measurement of a
+FACTORY PART, check the catalogue literature first. Rule 11 already holds that a
+factory pressing is GEOMETRY and transfers between vehicles; it follows that its
+dimensions are public.
+
+**Item 7 (ONE HUBCAP, SQUARE ON AND CLOSE) is UNAFFECTED and still stands** --
+that is an artwork/finish question about THIS vehicle, not a catalogue dimension.

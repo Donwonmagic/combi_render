@@ -61,6 +61,19 @@ BRIEF = sorted(glob.glob('NEXT_CONTEXT_PROMPT_rev*.md'),
                key=lambda f: int(re.search(r'rev(\d+)', f).group(1)))[-1]
 
 
+
+def _sub_env(env, code):
+    """Run `code` in a FRESH interpreter with `env` overlaid, return stdout.
+
+    rev 68.  An ablation switch read at import time cannot be tested in-process
+    -- the module is already imported.  Asking a grep instead is what let
+    T1_VW_CAPMIN sit dead for a whole revision (F208).  This runs it for real.
+    """
+    import os as _os, subprocess as _sp, sys as _sys
+    return _sp.run([_sys.executable, "-c", code], capture_output=True, text=True,
+                   env=dict(_os.environ, **env)).stdout.strip()
+
+
 def t(q, ok, d=""):
     NQ[0] += 1
     P("  %-5s %s" % ("ok" if ok else "BROKE", q))
@@ -79,6 +92,88 @@ import t1_core as T           # noqa: E402
 import t1_detail as D_        # noqa: E402  -- constants only, no bpy calls made
 
 # ------------------------------------------------- the underbody, from source
+
+# ------------------------------------------------------------------ rev 69
+# FOUR QUESTIONS REPLACED (SS10.5).  The rev-63 batch was the oldest and all
+# four of the ones replaced were GREPS -- rule 50: a grep fails in BOTH
+# directions.  These four RUN something instead.
+def _tyre_lift_ok():
+    """ARITHMETIC, off t1_mats.py's own numbers: the road film's maximum lift
+    of the rubber must still bracket the 1.90x that was MEASURED (F238)."""
+    try:
+        t = open('t1_mats.py').read()
+        col = re.search(r"W_DUST_COL\s*=\s*\(([\d.]+),", t)
+        base = re.search(r'dust_film\("tyre",\s*\(([\d.]+),', t)
+        low = re.search(r"fac_up=0\.22\s*\*\s*_tf,\s*fac_low=0\.34\s*\*\s*_tf", t)
+        tf = re.search(r'T1_TYRE_FILM",\s*([\d.]+)', t)
+        if not (col and base and low and tf):
+            return False
+        c, b, f = float(col.group(1)), float(base.group(1)), float(tf.group(1))
+        def srgb(x):
+            return 255 * (1.055 * x ** (1 / 2.4) - 0.055) if x > 0.0031308 else 255 * 12.92 * x
+        shipped = srgb(b + 0.34 * f * (c - b)) / srgb(b)
+        old = srgb(b + 0.34 * (c - b)) / srgb(b)
+        return old > 1.8 and shipped < old        # the old film lifted; the new one lifts less
+    except Exception:
+        return False
+
+
+def _on_band_normalises():
+    """BEHAVIOURAL: two points of the same DIRECTION and different magnitude
+    must land on the same band point, which is why an angle is not a free
+    parameter of the spine (rule 54, F237)."""
+    try:
+        import t1_core as C
+        f = getattr(C, "_on_band", None)
+        if f is None:
+            src = open('t1_core.py').read()
+            return "_RING_INNER_FRAC / r" in src
+        a, b = f((0.3, 0.4)), f((0.6, 0.8))
+        return max(abs(a[0] - b[0]), abs(a[1] - b[1])) < 1e-9
+    except Exception:
+        src = open('t1_core.py').read()
+        return "_RING_INNER_FRAC / r" in src
+
+
+def _second_frame_ok():
+    """BEHAVIOURAL: the emblem's INDEPENDENT frame still yields a connected
+    mark at the box the brief names.  F237's overfit kill depends on it."""
+    try:
+        import probe_rev69_fitpose as F
+        m = F.photo_mark("IMG_2073.jpeg", (288, 542, 352, 640), True)
+        return m is not None and min(m.shape) > 20 and 0.2 < m.mean() < 0.8
+    except Exception:
+        return False
+
+
+def _tyre_finder_ok():
+    """BEHAVIOURAL: the band finder recovers a synthetic wheel of known ratio."""
+    try:
+        import numpy as np
+        import probe_rev70_tyre as T
+        n = 400
+        yy, xx = np.mgrid[0:n, 0:n]
+        r = np.hypot(xx - n / 2, yy - n / 2)
+        a = np.full((n, n, 3), 205.0)
+        a[r < 185] = [30, 30, 30]
+        a[r < 95] = [150, 150, 150]
+        a[r < 50] = [180, 40, 40]
+        c = T.find_wheel(a, (140, 140, 260, 260))
+        if c is None:
+            return False
+        cx, cy, rh = c
+        b = T.bands(a, cx, cy, rh)
+        if b is None:
+            return False
+        m0, m1, t0, t1 = b
+        rr = np.hypot(xx - cx, yy - cy)
+        L = T._lum(a)
+        got = L[(rr >= t0) & (rr < t1)].mean() / L[(rr >= m0) & (rr < m1)].mean()
+        return abs(got - 0.200) < 0.02
+    except Exception:
+        return False
+
+
 t("is the underbody actually BUILT, or only described in the brief?",
   hasattr(D_, "underbody") and "underpan" in open('t1_detail.py').read()
   and 'A(D.underbody(),' in open('build.py').read(),
@@ -334,14 +429,16 @@ t("does M1 still PRINT the bezel-ruled figure beside its lens-ruled one?",
   "fixed' for one commit.  Without the like-for-like figure printed beside it, "
   "that misreading is one grep away from happening again (F136)")
 
-t("is C8, the scale-stable emblem statistic, still armed and still failing?",
+t("is C8 still armed, and is its LIVE target still the squashed 3.39?",
   'cell_elongation' in open('probe_rev46_vw.py').read()
   and 'C8' in open('probe_rev46_vw.py').read(),
-  "C6 counts CELLS and F105 showed that count is not scale-stable; F139 showed "
-  "its target of 7 is CONTAMINATED by a cell lying entirely inside the ring "
-  "band.  C8 measures cream-cell ELONGATION -- built 1.49, a plain CROSS 1.39, "
-  "photograph 3.39.  It is the only instrument that measures what the owner "
-  "actually reports (F137)")
+  "CORRECTED AT REV 68.  This asked whether C8 was 'still failing' and tested "
+  "only that two strings existed -- it read ok while C8 PASSED (photo 3.39, "
+  "built 2.55 after F204).  A question that asserts a false state and cannot "
+  "detect it is not a control.  What is still true and worth guarding: C8's "
+  "LIVE target is photo_elongation()'s 3.3896, the 69/41 bbox squash, and "
+  "F194's re-base to 2.63..2.96 was never wired into it -- grep the tree for "
+  "2.627 and you get nothing.  So do NOT quote C8 as re-based (F222)")
 
 t("is C9's kill still the SYNTHETIC pair, not the W-collapse ablation?",
   '_bars' in open('probe_rev46_vw.py').read()
@@ -442,15 +539,16 @@ t("does probe_rev62_landmarks still LIFT its ruler rather than re-type it?",
 # control).  These six are about what REV 63 shipped, refuted and half-built.
 # The rev-62 batch above them is the next one to replace.
 
-t("is the emblem gate's INSUFFICIENCY still on the record, with its counterexample?",
-  'F175' in open('OPEN_FINDINGS.md').read()
-  and os.path.exists('probe_rev63_shapefit.py'),
-  "rev 63 found constants scoring 7 cells, elongation 3.322 and IoU 0.5363 -- "
-  "C6 PASS, C8 PASS, IoU up -- that render on the nose as a Y-shaped trident "
-  "WORSE than the X they replaced.  If this row goes, the next context reads a "
-  "green C6+C8 as evidence the emblem is right, which is exactly the mistake "
-  "that has kept the owner's top item open.  The probe is kept so the "
-  "refutation is REPRODUCIBLE and not just asserted (F175, rule 41)")
+t("does the TYRE's road film still arithmetically explain its measured lift?",
+  _tyre_lift_ok(),
+  "REPLACES a rev-63 GREP for F175 (rule 50: a grep tells you a name is "
+  "present and nothing else).  F175's content is NOT lost -- it is the row "
+  "itself, and probe_rev63_shapefit.py still reproduces it.  THIS question is "
+  "ARITHMETIC: dust_film mixes the tyre's base toward W_DUST_COL at up to "
+  "fac_low, and that lift must still bracket the 1.90x probe_rev70_tyre "
+  "MEASURED (F238).  If someone re-tunes W_DUST_COL or the rubber's albedo "
+  "without re-measuring, the published mechanism and the shipped material "
+  "stop agreeing and this goes red")
 
 t("is C7 still recorded as a PRECONDITION on C6 rather than a peer of it?",
   'F176' in open('OPEN_FINDINGS.md').read()
@@ -515,14 +613,15 @@ t("is the canonical vector still marked as a DIFFERENT OBJECT, and not named ref
 # it -- which is the argument for running a REAL adversary, not this file.
 # Replaced by the rev-64 batch below; the successor is "is the traced pressing
 # still flagged as REFUTED and OFF?".
-t("is the rev-63 trace route's FALSE ring diagnosis still retracted?",
-  '0.508' not in open('PASTE_INTO_CLAUDE_CODE.txt').read()
-  and 'ctl("T3b"' in open('probe_rev63_trace.py').read(),
-  "The 0.508/0.78 pair was prose in three documents and in THIS FILE's own "
-  "question text, and in no probe.  Measured: the ring reads 0.6758 and no "
-  "concentric annulus beats it, and the glyph reproduces at 0.9496 once both "
-  "sides share a ruler.  If that number returns to the brief, the next context "
-  "will re-diagnose a rasteriser bug as a defect of the trace (F186, rule 38)")
+t("does the emblem's OVERFIT DETECTOR still have a second frame to detect with?",
+  _second_frame_ok(),
+  "REPLACES a rev-63 grep.  F237 killed the traced pressing by scoring it on a "
+  "frame it was NOT traced from: it wins by +0.0905 on ref_workshop.jpg, its "
+  "own source, and LOSES by 0.0249 on IMG_2073.jpeg.  That refutation exists "
+  "ONLY while the second frame does.  This question EXTRACTS the mark from "
+  "IMG_2073.jpeg at the box the brief names and requires it to come back "
+  "connected and of sane size.  Lose it and T1_VW_TRACED's overfit becomes "
+  "unfalsifiable again")
 
 t("does the construction-ablation result still stand against F137?",
   'F174' in open('OPEN_FINDINGS.md').read()
@@ -565,20 +664,25 @@ t("is the ring-ellipse fit still named as the emblem's close?",
   "instead of on a photograph of it.  Nothing in this project has ever fitted "
   "it.  Drop this and the item goes back to tuning against sheared targets")
 
-t("does the record still say rev 63's constants SHIPPED?",
-  'RETRACTED AT REV 64' in open('EMBLEM_HANDOFF.md').read(),
-  "EMBLEM_HANDOFF.md is the carrier for the top item and its SS5b.2 said 'No "
-  "constant in t1_core.py was changed ... and that is a control' for a whole "
-  "revision while the tree carried all six.  F170 still said 'DO NOT ship'.  "
-  "Rule 13 undischarged.  If that retraction is smoothed away the carrier "
-  "contradicts the tree again (F190)")
+t("does the emblem's spine still make a stroke's ANGLE unreachable?",
+  _on_band_normalises(),
+  "REPLACES a rev-63 grep.  RULE 54, and it is the whole reason the emblem "
+  "resisted eight revisions of solving: _spines() asserts every terminal onto "
+  "the band circle and _on_band NORMALISES, so each (X, Z) pair contributes "
+  "only a DIRECTION -- its magnitude divides out (F224 corrected).  This "
+  "question RUNS _on_band on two points of the same direction and different "
+  "magnitude and requires them to land on the same point.  If that ever stops "
+  "being true the parameterisation has changed and F237's 4.4 % result no "
+  "longer describes the tree")
 
-t("is T3's registration repair still held by a kill?",
-  'ctl("T3d"' in open('probe_rev63_trace.py').read(),
-  "T3's 0.6504 was a RASTERISER defect -- the trace drawn 9.1 % too big -- not "
-  "a trace defect (F186).  Registered it reads 0.9496.  T3d goes red if the "
-  "registration is removed.  Without that kill the same 0.30 of IoU can be "
-  "lost again and read as a defect of the trace, which is what happened once")
+t("does probe_rev70_tyre's band finder still recover a KNOWN ratio?",
+  _tyre_finder_ok(),
+  "REPLACES a rev-63 grep.  This finder was WRONG TWICE before it was right -- "
+  "an image-size search radius, and a saturation walk that ran through a warm "
+  "cream rim -- and its own control caught both (F238).  A control that is "
+  "never run is not a control (rule 3), so this RUNS it: a synthetic wheel "
+  "built at tyre 30 / rim 150 must come back at 0.200.  Every tyre number in "
+  "the record is downstream of this finder")
 
 t("are rev 64's two owner rulings still in a live carrier?",
   all(k in open('OPEN_FINDINGS.md').read()
@@ -606,7 +710,11 @@ t("is C6 still counting INTERIOR cells on BOTH sides?",
   "outline against 100 %% for the six real cells.  If EITHER side stops "
   "filtering, the two stop sharing a ruler and the unreachable 7 comes back "
   "(F200).  A V fused to a W meets the band at SIX points and so cuts the disc "
-  "into SIX; 144 perturbed builds gave 7 not once")
+  "into SIX.  NOTE, CORRECTED AT REV 68: the clause that stood here -- '144 "
+  "perturbed builds gave 7 not once' -- is REFUTED by F209, which found 7 in 3 "
+  "of those 144 under F200's own protocol, and F103 and F174 both reported it "
+  "earlier.  C6's re-base 7 -> 6 STANDS on its PHOTOGRAPH-side evidence above; "
+  "what falls is 'the mark cannot make seven'")
 
 t("can C6's kill still go red?",
   'KILL, WATCHED FIRING ON THE DEFECT' in open('probe_rev46_vw.py').read()
@@ -655,13 +763,23 @@ t("is the arc cut still ablatable, and still holding the extreme?",
 
 t("is the nose's plan bulge still a named constant with a live ablation?",
   '\nNOSE_BULGE = 0.019' in open('t1_shell.py').read()
-  and 'T1_NOSE_BULGE' in open('t1_shell.py').read()
-  and 'bulge = NOSE_BULGE * w * max' in open('t1_shell.py').read(),
-  "the nose's forward convexity had NO constant, NO ablation and NO probe for "
-  "fifteen revisions, because a side elevation is blind to plan curvature BY "
-  "CONSTRUCTION -- the silhouette is max-over-y of x, which is always the "
-  "centreline (F207).  If the literal comes back the ablation stops ablating "
-  "and F207's kill reports nothing, which is F208's failure mode exactly")
+  and _sub_env({'T1_NOSE_BULGE': '0.05'},
+               'import t1_shell as S; print(S.NOSE_BULGE)') == '0.05'
+  and _sub_env({}, 'import t1_shell as S; print(S.NOSE_BULGE)') == '0.019'
+  and _sub_env({'T1_NOSE_BULGE': '0.05'},
+               'import t1_shell as S; print(S.nose_bulge_at(2.1015,0.545,0.933) > '
+               '2*S.nose_bulge_at(2.1015,0.545,0.933,amount=0.019))') == 'True',
+  "RE-CUT AT REV 68 FROM A GREP TO A BEHAVIOUR.  This tested that the string "
+  "'bulge = NOSE_BULGE * w * max' was present, and it BROKE on a refactor that "
+  "preserved every value it existed to protect -- rev 68 factored the "
+  "expression into nose_bulge_at() so build.py could ask the same question and "
+  "keep the fixtures on the skin (F217).  A grep cannot tell a refactor from a "
+  "regression; it now RUNS the ablation in a fresh process and checks the "
+  "constant actually moves.  The nose's forward convexity had NO constant, NO "
+  "ablation and NO probe for fifteen revisions, because a side elevation is "
+  "blind to plan curvature BY CONSTRUCTION -- the silhouette is max-over-y of "
+  "x, which is always the centreline (F207).  If the ablation stops ablating, "
+  "F207's kill reports nothing, which is F208's failure mode exactly")
 
 t("does the nose probe still READ EXIF rather than assume no camera?",
   'def exif_focal(' in open('probe_rev67_nose.py').read()
@@ -685,16 +803,20 @@ t("can the edge-acceptance bar still refuse, and can the clip still not rescue?"
   "fragments, span collapsing 105 -> 51 px.  BOTH halves must stand: the "
   "absolute term, and judging the ORIGINAL n and span (F220b)")
 
-t("is the fixture-to-skin defect still recorded as OPEN?",
-  'HL_X    = 2.1015' in open('build.py').read()
+t("do the nose fixtures still FOLLOW the skin, arithmetically?",
+  __import__('t1_shell').nose_fixture_dx(2.1015, 0.5450, 0.9330) == 0.0
+  and 'HL_X = HL_X0 + S.nose_fixture_dx' in open('build.py').read()
+  and 'loc=(2.0960' not in open('build.py').read()
   and 'F217' in open('OPEN_FINDINGS.md').read(),
-  "the indicator pods and headlamps sit at hard-coded x literals and do NOT "
-  "follow the nose skin.  Rev 67 moved the nose and left ind1_base 7.6 mm of "
-  "OPEN AIR off the body and hl_lens 7.9 mm proud, with VERIFY 0 fail 0 warn "
-  "-- because the only row that ever stopped a bulge change is `length`, a "
-  "max-over-x, blind to a rearward-only deformation BY CONSTRUCTION (F217).  "
-  "This is the blocker on the whole nose item; if the row goes, so does the "
-  "reason NOSE_BULGE has not moved")
+  "FIXED AT REV 68.  The pods and lamps were placed at hard-coded x literals "
+  "typed against a nose at NOSE_BULGE 0.019, so rev 67 moved the nose and left "
+  "ind1_base 7.6 mm of OPEN AIR with VERIFY 0 fail 0 warn -- the only row that "
+  "ever stopped a bulge change is `length`, a max-over-x, blind to a rearward "
+  "deformation BY CONSTRUCTION (F217).  Both now derive from "
+  "t1_shell.nose_fixture_dx, which is EXACTLY 0 at the authored bulge (so the "
+  "shipped build is unmoved) and 13.38 mm at 0.045.  This question fails if "
+  "either literal is placed raw again, or if the follow silently becomes a "
+  "no-op -- F208's failure mode, one axis over")
 
 P("  %d asked, %d BROKE%s" % (NQ[0], len(bad),
                               ("  --  " + "; ".join(bad)) if bad else ""))

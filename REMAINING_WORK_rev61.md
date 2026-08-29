@@ -308,7 +308,14 @@ reported. **Three of them matter as much as anything in §A:**
 | **F96** | two more of the deleted carrier's items have no live home, one of them owner-raised (*"clutter on the counter"*) |
 | **F104** | what painting the emblem cells showed: the ink is the right AMOUNT arranged the WRONG WAY |
 
-**These are NOT triaged into §A–§H.** Triaging them is the next context's first cheap job, and
+> **⚠ TRIAGED AT REV 68 — see `ROADMAP_rev68.md`.** Every one of the 27 rows below is placed in a
+> tier there, at the owner's request for a single methodical list. **This file is NOT superseded
+> and is NOT to be deleted (rule 16)** — `ROADMAP_rev68.md` supersedes its RANKING only, and the
+> measurements and causes recorded here are the source those tiers cite. The eight-revision debt
+> this paragraph describes is DISCHARGED; the paragraph is kept so the failure mode stays on the
+> record.
+
+**These WERE NOT triaged into §A–§H for eight revisions.** Triaging them was the next context's first cheap job, and
 doing it will change the one-screen table. **Do not read that table as complete until this section
 is empty.**
 

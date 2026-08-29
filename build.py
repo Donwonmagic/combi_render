@@ -219,9 +219,51 @@ def cut(target, cutters, tag, kind="aperture"):
 # they are hoisted VERBATIM rather than duplicated.  The rev-44 derivation of
 # HL_DROP is unchanged and lives with the lamp assembly in step 7.
 HL_DROP = 0.0970                 # 97.0 +- 25.0 mm, SPEC 10.24 item 3, belt arm
-HL_X    = 2.1015
+HL_X0   = 2.1015                 # AUTHORED against t1_shell.NOSE_BULGE_AUTHORED
 HL_Y    = 0.5450
 HL_Z    = 1.0300 - HL_DROP       # == 0.9330 authored.  WAS 1.0300.
+
+# ------------------------------------------------------------- rev 68, F217
+# THE HEADLAMPS AND INDICATORS NOW FOLLOW THE SKIN IN X.
+#
+# THE DEFECT.  `HL_X` and the indicator's `2.0960` were BARE LITERALS typed
+# against a nose built at NOSE_BULGE = 0.019.  `t1_shell.nose_shape` moves the
+# nose skin forward by `nose_bulge_at(x, y, z)`, which is LINEAR in that
+# constant -- so at any other value the skin moves and the fixtures do not.
+# Rev 67 changed the nose's parameterisation and shipped `ind1_base` in OPEN
+# AIR off the body with `VERIFY: 0 fail, 0 warn` (F217).
+#
+# WHY NOTHING CAUGHT IT.  The only row that has ever stopped a bulge change is
+# `length`, a MAX-OVER-X -- blind to a rearward deformation by construction,
+# the same structure as F207's own argument that a side elevation cannot see
+# plan curvature.  Nothing in `verify.py` measured fixture-to-skin registration
+# on the nose at all.  It does now: see "nose fixture registration" there, and
+# it is watched failing under T1_NOSE_FIXFOLLOW=0.
+#
+# WHY THIS IS ARITHMETIC AND NOT A RAYCAST.  `nose_bulge_at` is the SAME
+# expression `nose_shape` displaces the shell with, so the shift is exact and
+# free, and it is independent of T1_SUB -- a raycast baseline would not be,
+# because the limit surface differs between subdivision levels.  The guard in
+# `verify.py` is the independent arm: it RAYCASTS the built mesh and measures
+# each fixture's back face against the skin, so the two quantities being
+# compared do not share a ruler (rule 38).
+#
+# IT IS ZERO WHERE IT SHIPS, BY CONSTRUCTION.  At NOSE_BULGE == 0.019 both
+# calls return the same number and the offset is exactly 0.0, so this revision
+# changes no shipped vertex.  Measured, not assumed -- audit.py's STATE.md must
+# be unmoved except in provenance.
+#
+# MEASURED AT REV 68, WATCHED PRINTING, on the built mesh (SUB=1), back face of
+# each fixture against a forward raycast of the skin at its own (y, z):
+#     NOSE_BULGE = 0.019 (shipped)   ind1_base  -15.12 .. -5.83 mm  (embedded)
+#                                    ind1_lens  +11.01 .. +12.93 mm (proud)
+#                                    hl_lens    -10.79 .. -4.81 mm
+#     NOSE_BULGE = 0.045, NO follow  ind1_base  -21.36 .. -8.26 mm
+#                                    ind1_lens   +5.17 .. +8.72 mm
+#                                    hl_lens    -27.89 .. -13.73 mm
+# -- every fixture driven 5-20 mm into the skin because the skin came forward
+# and the fixture stayed.  THAT is the defect, watched.
+HL_X = HL_X0 + S.nose_fixture_dx(HL_X0, HL_Y, HL_Z)
 
 # ------------------------------------------------------------------- 1 shell
 log("lofting Kombi shell")
@@ -497,6 +539,8 @@ IND_DZ  = 0.2060                 # measured above the lamp, ref_workshop.jpg
 IND_DY  = 0.1300                 # measured outboard of the lamp
 IND_Y   = HL_Y + IND_DY          # == 0.6750, unchanged
 IND_Z   = HL_Z + IND_DZ          # == 1.1390.  WAS the literal 1.2360.
+IND_X0  = 2.0960                 # AUTHORED against t1_shell.NOSE_BULGE_AUTHORED
+                                 # -- see the F217 block below and at HL_X0.
 #
 # WHAT IS DELIBERATELY NOT TOUCHED: THE ROUNDEL.  SPEC:7005 names this trap
 # explicitly -- "DO NOT MOVE THE ROUNDEL WITH THE LAMPS" -- because 10.24's
@@ -561,8 +605,18 @@ for s in (1, -1):
     # it was only too shallow (41.5 mm proud of its plinth).  Deepened in
     # t1_detail.bullet_indicator, height untouched.
     ibase, ilens = D.bullet_indicator(f"ind{s}")
-    D.place(ibase, loc=(2.0960, s * IND_Y, IND_Z)); A(ibase, "chrome")
-    D.place(ilens, loc=(2.0960, s * IND_Y, IND_Z)); A(ilens, "amber")
+    # rev 68, F217 -- AND THE X LITERAL WAS THE LAST OF THE THREE.  The comment
+    # above records Y and Z being un-typed at rev 45 ("1.2360 is 1.0300 + 0.206
+    # re-typed, and the lamp moving would have left the indicator behind").
+    # X had the identical defect against a different constant: 2.0960 was typed
+    # against a nose at NOSE_BULGE = 0.019 and the nose skin moving would have
+    # left the pod behind -- which is exactly what rev 67 shipped.  It now
+    # follows the skin at ITS OWN station, not the lamp's: the pod sits 130 mm
+    # outboard and 206 mm above the lamp, on differently-curved sheet metal, so
+    # asking the geometry beats inheriting the lamp's answer (rule 7).
+    _ix = IND_X0 + S.nose_fixture_dx(IND_X0, IND_Y, IND_Z)
+    D.place(ibase, loc=(_ix, s * IND_Y, IND_Z)); A(ibase, "chrome")
+    D.place(ilens, loc=(_ix, s * IND_Y, IND_Z)); A(ilens, "amber")
     # rev 15 -- TAIL LAMP DIAMETER.  It is ROUND (locked) and it was half size.
     # ref_rear34.jpg, probe box (918,636,975,730).  50 %-crossings of the
     # paint/lens step down each column; columns x 925-941 are thrown out

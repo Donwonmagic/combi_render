@@ -814,6 +814,226 @@ def _wheelhouse_reach(log=print):
     return fails
 
 
+def _bumper_bow(body, log=print):
+    """rev 69, F222/F232.  THE FRONT BUMPER MUST CARRY A PLAN BOW.
+
+    THE DEFECT THIS ROW EXISTS FOR, AND IT SHIPPED FOR SIXTY-EIGHT REVISIONS.
+    `t1_detail.bumper` appended eleven points at CONSTANT x under its own
+    comment `# flat nose face`, so the front bumper's plan bulge over
+    |y| <= 0.70 measured **+0.05 mm** -- dead flat, by construction, over
+    precisely the span the photographs are traced on. The photographed bumper's
+    near half is curved at 11-14 sigma, and that sign is PROJECTION-INVARIANT:
+    a straight 3-D line images straight under any pinhole camera at any pose.
+    So the defect needed no camera model to establish -- and nothing in this
+    file measured the bumper's plan shape at all.
+
+    TWO ARMS, AND THE SECOND ONE IS WEAKER THAN I FIRST CLAIMED. An adversary
+    corrected this docstring: I described them as "two arms that do not share a
+    ruler (rule 38)", and they DO share one. `t1_detail.bumper` builds the face
+    from a raycast of `T1_body` at un-dropped BUMP_BOW_Z; this row's shell arm
+    slabs `T1_body` at the SAME station. So arm 1 is arm 2 times BUMP_BOW plus
+    constants, BY CONSTRUCTION -- rule 6, in a docstring invoking rule 38.
+
+    WHAT EACH ARM ACTUALLY BUYS, stated honestly:
+      - the FLOOR is the real guard. It refuses the flat face.
+      - the AGREEMENT arm detects the drape not happening, which the floor
+        already does. Its resolving power on BUMP_BOW itself is poor: a 6.0 mm
+        bar is reached only around BUMP_BOW ~ 0.7, so a 28 % error in the one
+        constant it exists to police would PASS. It is kept because it catches
+        the blade and the shell drifting apart for reasons other than BUMP_BOW
+        -- a moved station, a changed loft -- and it is labelled, not oversold.
+      - A GENUINELY INDEPENDENT second arm would need a different station, a
+        different method, or the photograph. None is available (F231).
+
+    THE FIGURES WERE WATCHED PRINTING at rev 69 on the built mesh, T1_SUB=1, and
+    are NOT typed from intent (rule 5):
+
+        shipped (BUMP_BOW 1.0)   bumper +21.54 mm   shell +20.31 mm
+        T1_BUMP_BOW=0            bumper  +0.22 mm   -- the straight face,
+                                 SHAPE-identical to the pre-rev-69 one but
+                                 RE-TESSELLATED (949 -> 1105 verts, n_f 12 ->
+                                 24), which is why it reads +0.22 and not
+                                 F222's historical +0.05. This row goes RED on
+                                 it, both arms.
+
+    NOT A FIDELITY CLAIM. It says the blade parallels the front face, which is
+    what a wrap-around pressing does. It does NOT say the bow is the real bus's
+    -- that magnitude cannot be recovered from the frames we hold (F231), and
+    when it arrives it moves NOSE_BULGE and the blade follows for free.
+    """
+    fails = []
+    ob = bpy.data.objects.get("bumper_f")
+    if ob is None:
+        return ["SPEC 10.22: bumper_f is not in the scene, so its plan bow "
+                "cannot be measured (rule 37 -- this is not a pass)"]
+
+    def bow(o, zlo=None, zhi=None):
+        mw = o.matrix_world
+        pts = [mw @ v.co for v in o.data.vertices]
+        if zlo is not None:
+            pts = [c for c in pts if zlo <= c.z <= zhi]
+        if not pts:
+            return None
+        out = {}
+        for y0 in (0.0, 0.70):
+            s = [c.x for c in pts if abs(abs(c.y) - y0) < 0.02]
+            if not s:
+                return None
+            out[y0] = max(s)
+        return 1000.0 * (out[0.0] - out[0.70])
+
+    b = bow(ob)
+    if b is None:
+        return ["SPEC 10.22: bumper_f presents no vertices at |y| = 0 and 0.70, "
+                "so its plan bow was NOT measured (rule 37)"]
+    # the shell, at the blade's own reference station, in the DROPPED frame
+    import t1_detail as _D69
+    # UN-DROPPED -> DROPPED, EXPRESSED, NOT TYPED. This was the literal 0.085,
+    # which an adversary measured as right to 0.3-0.7 mm and correct in its
+    # effect (under 0.02 mm on the reported bow) -- but SPEC 10.25's rule is
+    # that a constant tuned against another constant must be EXPRESSED in terms
+    # of it, or moving the rake silently leaves this behind. The z-slab sits on
+    # a 350 mm plateau, so nothing here would have noticed the drift.
+    zref = _D69.BUMP_BOW_Z - (_T.RAKE_Z0 + _T.RAKE_DZDX * 2.11)
+    s = bow(body, zref - 0.02, zref + 0.02)
+
+    FLOOR = 8.0        # sits between the flat face (0.05) and the shipped 21.45
+    if b < FLOOR:
+        fails.append(
+            "SPEC 10.22: the front bumper's plan bow is %+.2f mm over |y| <= "
+            "0.70, below a floor of %.1f mm -- it is the FLAT NOSE FACE again "
+            "(F222). The photographed bumper is curved at 11-14 sigma and that "
+            "sign is projection-invariant. Do NOT lower this floor; make the "
+            "blade follow the face via t1_detail.BUMP_BOW" % (b, FLOOR))
+    if s is not None and abs(b - s) > 6.0:
+        fails.append(
+            "SPEC 10.22: the bumper's plan bow (%+.2f mm) and the SHELL's at "
+            "the station it takes its shape from (%+.2f mm) disagree by %+.2f "
+            "mm -- the blade has stopped paralleling the front face"
+            % (b, s, b - s))
+    log("  bumper plan bow (F222): %+.2f mm over |y| <= 0.70, against the shell's "
+        "%s at z=%.3f; floor %.1f mm"
+        % (b, ("%+.2f mm" % s) if s is not None else "NOT GRADEABLE", zref, FLOOR))
+    return fails
+
+
+def _nose_fixture_reg(body, log=print):
+    """rev 68, F217.  THE NOSE FIXTURES MUST STAY REGISTERED TO THE SKIN.
+
+    THE DEFECT THIS ROW EXISTS FOR, AND IT SHIPPED.  `HL_X` and the indicator's
+    `2.0960` were bare literals typed against a nose at NOSE_BULGE = 0.019.
+    Rev 67 re-parameterised the nose, the skin moved, the fixtures did not, and
+    `ind1_base` went 7.6 mm of OPEN AIR off the body with `VERIFY: 0 fail, 0
+    warn`.  NOTHING IN THIS FILE MEASURED FIXTURE-TO-SKIN REGISTRATION AT ALL.
+
+    WHY THE EXISTING ROWS COULD NOT SEE IT.  The only row that has ever stopped
+    a bulge change is `length`, a MAX-OVER-X.  A deformation that moves the face
+    rearward is invisible to a max-over-x BY CONSTRUCTION -- the identical
+    structure to F207's own argument that a side elevation cannot see plan
+    curvature.  The guard did not hold; it went blind.
+
+    WHAT IT ASKS THE GEOMETRY, NOT THE POSE (rule 7).  A fixture's mounting face
+    is its REARMOST face -- the lowest x on the object, whatever it is called and
+    however it was built.  For each vertex within 1 mm of that, cast the body
+    from x = +3.5 down -x and take the signed gap `v.x - skin.x`.  Negative is
+    embedded in the skin, positive is standing off it.
+
+    THE WINDOW IS PART OF THE MEASUREMENT (rule 8).  My first cut accepted the
+    ray's first hit.  At the headlamp station the ray goes STRAIGHT THROUGH the
+    cut headlamp bore and lands on the REAR of the bus at x = -1.8702, so the
+    "gap" read +3967 mm -- a number that looks like a measurement.  A hit must be
+    forward of x = 1.5; a ray that finds none is a MISS and is counted, never
+    scored.  `hl_bowl` sits wholly behind the bore and returns ALL misses, so it
+    is not gradeable and is reported as such rather than silently skipped.
+
+    THE BAND IS A REGRESSION BAND AND THE FIGURES WERE WATCHED PRINTING at rev
+    68 on the built mesh at T1_SUB=1, NOT typed (rule 5):
+
+        NOSE_BULGE 0.019 (shipped)  ind*_base  -15.12 .. -5.83 mm
+                                    ind*_lens  +11.01 .. +12.93
+                                    hl_lens    -10.79 .. -4.81
+                                    hl_ring    -17.26 .. -10.11
+        NOSE_BULGE 0.045, follow OFF  ind*_base -21.36 .. -8.26
+                                      ind*_lens  +5.17 .. +8.72
+                                      hl_lens   -27.89 .. -13.73
+
+    A +-3.0 mm band on the mean sits inside the 5-6 mm the ablation moves every
+    one of them, so this row REFUSES the defect it was written for and passes
+    the shipped tree.  WATCHED FAILING under T1_NOSE_FIXFOLLOW=0 -- a control is
+    finished when you have seen it go red, not when it passes (rule 3).
+
+    NOT A FIDELITY CLAIM.  It says the fixtures sit where they sat when their
+    literals were authored.  It does not say that is where the real bus's
+    indicators are; nothing in this tree measures that.
+    """
+    fails = []
+    mw = body.matrix_world
+    inv = mw.inverted()
+    d = (inv.to_3x3() @ Vector((-1.0, 0.0, 0.0))).normalized()
+
+    def skin_x(y, z):
+        hit, loc, _n, _i = body.ray_cast(inv @ Vector((3.5, y, z)), d)
+        if not hit:
+            return None
+        wx = (mw @ loc).x
+        return wx if wx > 1.5 else None          # fell through an aperture
+
+    # frozen means, mm, WATCHED PRINTING at rev 68 -- see the docstring
+    BASE = {"hl_ring": -13.46, "hl_lens": -7.64,
+            "ind1_base": -10.03, "ind1_lens": +11.68,
+            "ind-1_base": -10.03, "ind-1_lens": +11.68}
+    BAND = 3.0
+    got = {}
+    for nm in sorted(BASE) + ["hl_bowl"]:
+        obs = [o for o in bpy.data.objects if o.type == 'MESH'
+               and (o.name == nm or o.name.startswith(nm + "."))]
+        if not obs:
+            fails.append("SPEC 10.115: nose fixture %r is not in the scene, so "
+                         "its registration to the skin cannot be measured" % nm)
+            continue
+        for ob in obs:
+            co = [ob.matrix_world @ v.co for v in ob.data.vertices]
+            if not co:
+                continue
+            xmin = min(c.x for c in co)
+            gaps, miss = [], 0
+            for c in [c for c in co if c.x - xmin < 0.001]:
+                sx = skin_x(c.y, c.z)
+                if sx is None:
+                    miss += 1
+                else:
+                    gaps.append(1000.0 * (c.x - sx))
+            if not gaps:
+                # hl_bowl lives wholly behind the cut bore.  Stated, not
+                # silently skipped -- and NOT counted as a pass.
+                log("  nose fixture %-11s NOT GRADEABLE -- all %d back-face "
+                    "rays fall through the headlamp bore; no skin behind it"
+                    % (ob.name, miss))
+                continue
+            m = sum(gaps) / len(gaps)
+            got[ob.name] = m
+            base = BASE.get(nm)
+            if base is None:
+                continue
+            if abs(m - base) > BAND:
+                fails.append(
+                    "SPEC 10.115: nose fixture %s has come off the skin -- its "
+                    "back face averages %+.2f mm against the skin, %+.2f mm off "
+                    "the frozen %+.2f (band +-%.1f). The skin under it moved and "
+                    "the fixture did not (F217). Do NOT widen this band: make "
+                    "the fixture follow the skin via t1_shell.nose_fixture_dx"
+                    % (ob.name, m, m - base, base, BAND))
+    if got:
+        log("  nose fixture registration (F217): "
+            + ", ".join("%s %+.2f" % (k, v) for k, v in sorted(got.items()))
+            + " mm back-face-to-skin, frozen band +-%.1f mm" % BAND)
+    else:
+        fails.append("SPEC 10.115: no nose fixture was gradeable at all -- the "
+                     "registration row measured NOTHING and must not read as a "
+                     "pass (rule 37)")
+    return fails
+
+
 def _np_interp(x, xs, ys):
     """1-D linear interpolation without importing numpy into this module."""
     if x <= xs[0]:
@@ -2260,6 +2480,18 @@ def run(body, log=print):
         fails += _wheelhouse_reach(log)
     except Exception as e:                       # never let the guard vanish
         fails.append("wheel-house reach assertion could not run: %s" % e)
+
+    # rev 69, F222.  The front bumper's plan bow, against the shell's.
+    try:
+        fails += _bumper_bow(body, log)
+    except Exception as e:                       # never let the guard vanish
+        fails.append("bumper plan-bow assertion could not run: %s" % e)
+
+    # rev 68, F217.  The nose fixtures against the skin they are mounted on.
+    try:
+        fails += _nose_fixture_reg(body, log)
+    except Exception as e:                       # never let the guard vanish
+        fails.append("nose fixture registration assertion could not run: %s" % e)
 
     # Buried detail must never pass again: both wipers shipped for six
     # revisions fully enclosed in the nose skin. Casts camera -> object, not

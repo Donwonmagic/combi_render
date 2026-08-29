@@ -2070,10 +2070,149 @@ print(int('MULTIPLE SIZES, MAX RESOLUTION, MAX FIDELITY' in t))" 2>&1 | tail -1)
 #    bulge is built from, so a literal creeping back in is caught.
 ck "nose: the plan bulge is a named constant, not a literal" 1 \
    "$(grep -c '^NOSE_BULGE = 0.019' t1_shell.py)"
-ck "nose: nose_shape uses the constant, not a literal" 1 \
-   "$(grep -c 'bulge = NOSE_BULGE \* w \* max' t1_shell.py)"
+# RE-BASED AT REV 68, WITH THE CAUSE NAMED AND FOUR COMPANION ROWS.
+# THE CAUSE: rev 68 factored the bulge expression out of `nose_shape` into
+# `t1_shell.nose_bulge_at`, because `build.py` has to ask the same question to
+# keep the nose fixtures on the skin (F217) and two copies of it would drift
+# apart.  The row that stood here was
+#     grep -c 'bulge = NOSE_BULGE \* w \* max' t1_shell.py
+# -- A GREP FOR A SOURCE STRING, in a block whose own comment says these rows
+# "are ARITHMETIC and BEHAVIOUR, not greps for a name (SS10 item 4)".  It was
+# never testing the arithmetic it claimed to; it went red on a refactor that
+# preserved every value it was written to protect.
+# THE RE-BASE IS TO BEHAVIOUR, and it is STRICTLY STRONGER: it EVALUATES the
+# function against the arithmetic written by hand, so a literal creeping back in
+# is caught by the number disagreeing, not by a string going missing.
+ck "nose: nose_bulge_at IS NOSE_BULGE*w*max(0,1-r), evaluated not grepped" "OK" \
+   "$(python3 -c "
+import t1_shell as S
+x, y, z = 2.1015, 0.5450, 0.9330
+w = min(1.0, max(0.0, (x - 1.86) / 0.17)); w = w * w * (3 - 2 * w)
+r = (y / 0.80) ** 2 + ((z - 1.00) / 0.46) ** 2
+print('OK' if abs(S.nose_bulge_at(x, y, z) - S.NOSE_BULGE * w * max(0.0, 1.0 - r))
+      < 1e-12 else 'MISMATCH')" 2>&1 | tail -1)"
 ck "nose: no bare 0.019 bulge literal survives in nose_shape" 0 \
    "$(grep -c 'bulge = 0.019' t1_shell.py)"
+# COMPANION 1.  nose_shape must CALL the one expression, not carry a second copy.
+ck "nose: nose_shape calls nose_bulge_at rather than re-typing it" 1 \
+   "$(grep -c 'bulge = nose_bulge_at(x, y, z)' t1_shell.py)"
+# COMPANION 2.  The expression must be LINEAR in the constant, because
+# nose_fixture_dx is a DIFFERENCE of two evaluations of it and is only exact if
+# it is.  Watched at rev 68: 0.01955799 both ways.
+ck "nose: nose_bulge_at is linear in the constant (the fixture offset needs it)" "OK" \
+   "$(python3 -c "
+import t1_shell as S
+a = S.nose_bulge_at(2.1015, 0.5450, 0.9330, amount=0.038)
+b = 2 * S.nose_bulge_at(2.1015, 0.5450, 0.9330, amount=0.019)
+print('OK' if abs(a - b) < 1e-12 else 'NONLINEAR %.8f %.8f' % (a, b))" 2>&1 | tail -1)"
+# ------------------------------------------------------- rev 69, F233
+# THE EMBLEM'S RENDER SIDE.  F205 stood for three revisions as "the render cuts
+# 3 cells where the photograph cuts 6" -- the project's top item -- and the
+# measurement behind it EXISTED IN NO COMMITTED FILE.  These rows are
+# BEHAVIOUR: they RUN the instrument, not grep for it.
+ck "emblem: the photograph still reads SIX interior cream cells" 6 \
+   "$(python3 -c "
+import probe_rev69_emblem as E, probe_rev46_vw as P, numpy as np, scipy.ndimage as ndi
+from PIL import Image
+a = np.asarray(Image.open('ref_nolita_front34.jpg').convert('RGB')).astype(float)
+ring, c = E.find_emblem(a, E.PHOTO_BOX)
+f = ndi.binary_fill_holes(ring); ys, xs = np.nonzero(f)
+sub = a[ys.min():ys.max()+1, xs.min():xs.max()+1]
+d = f[ys.min():ys.max()+1, xs.min():xs.max()+1]
+print(P.cream_cells(E.ink_mask(sub, d, 30), interior=True)[0])" 2>&1 | tail -1)"
+# THE FINDER MUST ADMIT THE OBLIQUE ROUNDEL.  My first cut used a squareness
+# bound of 0.6 and REJECTED THE REFERENCE FRAME -- the photograph's roundel is
+# 41 x 69 px, aspect 0.594.  An instrument whose finder cannot find the
+# reference is not an instrument.
+ck "emblem: the finder admits the PHOTOGRAPH's oblique roundel" "found" \
+   "$(python3 -c "
+import probe_rev69_emblem as E, numpy as np
+from PIL import Image
+a = np.asarray(Image.open('ref_nolita_front34.jpg').convert('RGB')).astype(float)
+r, c = E.find_emblem(a, E.PHOTO_BOX)
+print('found' if r is not None else 'REJECTED THE REFERENCE FRAME')" 2>&1 | tail -1)"
+# AND A CONTROL THAT DID NOT RUN MUST NOT READ AS A PASS (rule 3, F225's shape).
+ck "emblem: with no frame the probe SAYS the render rows did not run" 1 \
+   "$(python3 probe_rev69_emblem.py 2>/dev/null | grep -c 'render rows are ABSENT, NOT')"
+
+# ---------------------------------------------------- rev 69, F222/F232
+# THE FRONT BUMPER'S PLAN BOW.  It was DEAD FLAT for sixty-eight revisions --
+# eleven points at constant x under t1_detail.bumper's own `# flat nose face`
+# comment -- measuring +0.05 mm over |y| <= 0.70, the span the photographs are
+# traced on.  These rows are ARITHMETIC AND BEHAVIOUR, not greps (rule 50): the
+# grep row this block replaces in spirit went red at rev 68 on a refactor that
+# preserved every value it protected.
+ck "bumper: the plan bow is a named constant on its own line" 1 \
+   "$(grep -c '^BUMP_BOW = 1.0' t1_detail.py)"
+ck "bumper: T1_BUMP_BOW actually overrides it, in a fresh process" "0.35/1.0" \
+   "$(python3 -c "
+import os, subprocess, sys
+def g(env):
+    return subprocess.run([sys.executable, '-c',
+        'import t1_detail as D; print(D._bump_bow())'], capture_output=True,
+        text=True, env=dict(os.environ, **env)).stdout.strip()
+print('%s/%s' % (g({'T1_BUMP_BOW': '0.35'}), g({})))" 2>&1 | tail -1)"
+ck "bumper: the face takes its shape from the FACE's station, not the blade's" 1 \
+   "$(grep -c '_skin = _nose_plan_x(BUMP_BOW_Z)' t1_detail.py)"
+# THESE TWO WERE WRITTEN AS GREPS FIRST AND BOTH WERE WRONG -- RULE 50, TWICE
+# IN ONE BLOCK.  "the old constant-x face is gone" matched the HISTORICAL LINE
+# QUOTED IN THE NEW COMMENT, so it read 1 and failed; and "a partially draped
+# face REFUSES" never matched because the message is SPLIT ACROSS TWO SOURCE
+# LINES, which a line-oriented grep cannot see.  Both are behaviour now.
+#
+# THE CHANGE WAS SCOPED TO THE FRONT.  The REAR bumper still sweeps a flat tail
+# face and must keep doing so -- there is no photograph of a bowed tail bumper
+# and nothing was measured there.  This is the containment arm.
+ck "bumper: the change was scoped to the FRONT -- the tail face is untouched" 1 \
+   "$(grep -c '# flat tail face' t1_detail.py)"
+# THE REFUSAL, EXERCISED FOR REAL -- AND THE FIRST VERSION OF THIS ROW TESTED
+# THE ONE BRANCH THAT DOES NOT REFUSE.  It asserted only that `_nose_plan_x`
+# returns None with no body, and CALLED THAT "the branch the RuntimeError
+# guards".  It was not: with `_skin is None` the miss counter stayed 0, nothing
+# raised, and the face was built FLAT -- the very defect F222 removes -- behind
+# a suffix on a log line.  An adversary found it.  Both halves are now real:
+# the source returns None, AND building a face with no body RAISES.
+ck "bumper: the drape source returns None rather than inventing a curve" "None" \
+   "$(python3 -c "
+import t1_detail as D
+print(D._nose_plan_x(1.10))" 2>&1 | tail -1)"
+ck "bumper: and building the face with NO BODY actually REFUSES" "RuntimeError" \
+   "$(python3 -c "
+import t1_detail as D
+try:
+    D.bumper(True, name='probe_nobody')
+    print('BUILT A FLAT FACE SILENTLY')
+except RuntimeError:
+    print('RuntimeError')
+except Exception as e:
+    print(type(e).__name__)" 2>&1 | tail -1)"
+
+# ------------------------------------------------------- rev 68, F217
+# COMPANION 3.  THE FIXTURE OFFSET IS EXACTLY ZERO WHERE IT SHIPS.  This is the
+# containment property: rev 68 changed no shipped vertex.  If it is ever
+# non-zero at the authored value, the shipped build has moved.
+ck "nose: the fixture follow is EXACTLY zero at the authored bulge" "0.0" \
+   "$(python3 -c "
+import t1_shell as S
+print(abs(S.nose_fixture_dx(2.1015, 0.5450, 0.9330)))" 2>&1 | tail -1)"
+# COMPANION 4.  AND IT ACTUALLY MOVES WHEN THE BULGE DOES -- rule 47.  An
+# offset that is always zero is F208's no-op wearing a different hat.  Watched
+# at rev 68: 13.38 mm at NOSE_BULGE 0.045, and 0.00 with the follow ablated.
+ck "nose: the fixture follow MOVES with the bulge, and its ablation kills it" \
+   "13.38/0.00" "$(T1_NOSE_BULGE=0.045 python3 -c "
+import os, subprocess, sys, t1_shell as S
+on = 1000 * S.nose_fixture_dx(2.1015, 0.5450, 0.9330)
+off = subprocess.run([sys.executable, '-c',
+    'import t1_shell as S; print(1000*S.nose_fixture_dx(2.1015,0.5450,0.9330))'],
+    capture_output=True, text=True,
+    env=dict(os.environ, T1_NOSE_FIXFOLLOW='0')).stdout.strip()
+print('%.2f/%.2f' % (on, float(off)))" 2>&1 | tail -1)"
+# COMPANION 5.  THE PLACEMENT LITERALS MUST NOT COME BACK.  Both were typed
+# against a nose at NOSE_BULGE 0.019 and neither may be placed raw again.
+ck "nose: the headlamp x is derived from the skin, not placed raw" 1 \
+   "$(grep -c 'HL_X = HL_X0 + S.nose_fixture_dx(HL_X0, HL_Y, HL_Z)' build.py)"
+ck "nose: the indicator x is derived from the skin, not placed raw" 0 \
+   "$(grep -c 'loc=(2.0960' build.py)"
 
 # 2. The ablation is wired.  T1_NOSE_BULGE must actually reach the constant --
 #    an ablation switch that no longer ablates is exactly what rev 67 found had
