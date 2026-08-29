@@ -21,7 +21,8 @@ document — what to do, and how to start. **This file holds every carrier, verb
 
 > **⚠ NOTHING WAS DELETED. RULE 16 REQUIRES A CARRIER TO BE *CARRIED*, AND IT NEVER REQUIRED
 > CARRYING IT IN THE WORKING DOCUMENT.** Every section below is byte-for-byte what stood in
-> `NEXT_CONTEXT_PROMPT_rev70.md` before the split. `verify_clone.sh`'s carrier rows now search
+> the 95 KB brief that stood before the split (its content is now `NEXT_CONTEXT_PROMPT_rev71.md`
+> plus this file; the pre-split file itself is in git history, at commit `c7d2ddf`). `verify_clone.sh`'s carrier rows now search
 > **the brief AND this file**, so the guard surface is the union and is exactly as strong — plus
 > four NEW companion rows that make the split itself separately testable (see §10 and
 > `verify_clone.sh`'s "the handoff split" block).
