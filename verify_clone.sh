@@ -2328,10 +2328,10 @@ ck "the emblem probe carries the bbox-framed control" 1 \
 ck "P1b's bar is still 0.90, not widened to admit its own refusal" 1 \
    "$(grep -c 'v_ctl_bb > 0.90' probe_rev69_fitpose.py)"
 ck "P1b PASSES on the repaired search" PASS \
-   "$(python3 probe_rev69_fitpose.py 2>/dev/null | grep -o 'PASS] P1b' | head -1 | cut -d']' -f1 | sed 's/\[//')"
+   "$(python3 probe_rev69_fitpose.py 2>&1 | grep -o 'PASS] P1b' | head -1 | cut -d']' -f1 | sed 's/\[//')"
 # ...AND ITS KILL: the rev-69 search drives the same control back under the bar.
 ck "T1_FITPOSE_LEGACY drives P1b RED -- the repair is WATCHED, not asserted" FAIL \
-   "$(T1_FITPOSE_LEGACY=1 python3 probe_rev69_fitpose.py 2>/dev/null | grep -o 'FAIL] P1b' | head -1 | cut -d']' -f1 | sed 's/\[//')"
+   "$(T1_FITPOSE_LEGACY=1 python3 probe_rev69_fitpose.py 2>&1 | grep -o 'FAIL] P1b' | head -1 | cut -d']' -f1 | sed 's/\[//')"
 # F247.  ARITHMETIC, not a grep: the figure the guard records as its watched
 # failure must EXCEED the bar the guard actually applies.  86.3 < 90.0 is how
 # rev 70 recorded a "watched failure" its own row admits.
@@ -2351,7 +2351,7 @@ ck "judge_set.sh no longer loops over a view no preview list produces" 0 \
    "$(awk '/^for v in/{sub(/#.*/,""); print; exit}' judge_set.sh | grep -c 'hero ')"
 # F251.  The 2-D proxy is only usable while it IS the build.
 ck "the emblem proxy still reproduces the bpy build exactly" 1 \
-   "$(python3 probe_rev71_proxy.py 2>/dev/null | grep -c 'IoU 1.000000')"
+   "$(python3 probe_rev71_proxy.py 2>&1 | grep -c 'IoU 1.000000')"
 
 ck "newest brief states THIS script's row count" "$((PASS+1))" "${_BRIEF_TOTAL:-0}"
 
