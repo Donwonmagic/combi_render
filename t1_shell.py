@@ -1922,9 +1922,10 @@ def trunk_bay(log=print):
 # and so the next context can SEE that "fixing" this to F165's 28.0 turns the
 # row RED against the primary frame, rather than having to take that on trust.
 TB_TILT_DEG = float(os.environ.get("T1_TB_TILT", 38.0))
-                          # A POSE, matching the PRIMARY frame's 38.8 +-1.
-                          # Say which datum: from VERTICAL this is 52.0, and
-                          # the rev-49 brief's bare "39 degrees" does not.
+                          # FROM HORIZONTAL.  A POSE, not a dimension, matching
+                          # the PRIMARY frame's 38.8 +-1 FROM HORIZONTAL.
+                          # From VERTICAL this is 52.0; the rev-49 brief's bare
+                          # "39 degrees" never said which it meant.
 # ------------------------------------------------------------------ rev 70
 # THE CHORD IS THE BOARD'S ONE DEFECT THAT TWO INDEPENDENT FRAMES AGREE ON.
 #

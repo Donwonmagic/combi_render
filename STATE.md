@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-28 21:23:57 UTC |
-| git commit | `c9b03aa` |
-| git subject | rev 69b: restore §9's rev-65/66 'what moved' lines -- audit_adversary caught the carrier drop |
+| generated | 2026-08-29 01:56:55 UTC |
+| git commit | `7484391` |
+| git subject | tmp-precommit-for-state |
 | working tree | clean |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=2 (applied, destructive, before booleans) |
@@ -59,6 +59,7 @@ hubcap badge is SELF-CONSISTENCY ONLY -- CAP_EMBLEM_WFRAC has never been compare
 wheel-house reach front: liner minus aperture radius -0.0 .. +0.0 mm over 0 station(s) short of it; rim inset inside flank_y +2.6 mm; 0 station(s) beyond the outline's feet
 wheel-house reach rear : liner minus aperture radius -0.0 .. +0.0 mm over 0 station(s) short of it; rim inset inside flank_y +2.6 mm; 0 station(s) beyond the outline's feet
 bumper plan bow (F222): +21.55 mm over |y| <= 0.70, against the shell's +20.38 mm at z=1.015; floor 8.0 mm
+tail board pose (F163/F165): principal-axis chord 0.8250 m, angle 38.0 deg -- ruler = PRINCIPAL AXIS in XZ, NOT the bbox diagonal
 nose fixture hl_bowl     NOT GRADEABLE -- all 64 back-face rays fall through the headlamp bore; no skin behind it
 nose fixture hl_bowl.001 NOT GRADEABLE -- all 64 back-face rays fall through the headlamp bore; no skin behind it
 nose fixture registration (F217): hl_lens -7.64, hl_lens.001 -7.64, hl_ring -13.46, hl_ring.001 -13.46, ind-1_base -10.03, ind-1_lens +11.68, ind1_base -10.03, ind1_lens +11.68 mm back-face-to-skin, frozen band +-3.0 mm
@@ -79,10 +80,10 @@ Shaders read the dropped frame, so `Z_BELT`/`V_APEX` are already AG.
 
 | dimension | measured | SPEC | delta |
 |---|---|---|---|
-| overall length (ex counter) | 4.5800 | 4.0550 | +525.0 mm **OUT** |
+| overall length (ex counter) | 4.6699 | 4.0550 | +614.9 mm **OUT** |
 | counter tail overhang past body | 0.0000 | — | — |
 | overall width (body) | 1.7497 | 1.7500 | -0.3 mm ok |
-| overall height (vehicle max, lids excluded) | 2.2268 | — *(no target: this is a max over all stations, and since rev 22 there is no roof-height target at all — H_ROOF 1.960 is RETIRED, see verify.py. Regression-caught by verify row 1a and the roof line below)* | at x = -2.401 |
+| overall height (vehicle max, lids excluded) | 2.2969 | — *(no target: this is a max over all stations, and since rev 22 there is no roof-height target at all — H_ROOF 1.960 is RETIRED, see verify.py. Regression-caught by verify row 1a and the roof line below)* | at x = -2.491 |
 | wheelbase | 2.4000 | 2.4000 | +0.0 mm ok |
 | track front | 1.3690 | 1.3690 | +0.0 mm ok |
 | track rear | 1.3590 | 1.3590 | +0.0 mm ok |
@@ -156,8 +157,8 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 | | |
 |---|---|
 | mesh objects | 228 |
-| vertices (all meshes) | 331627 |
-| faces (all meshes) | 321806 |
+| vertices (all meshes) | 331779 |
+| faces (all meshes) | 321982 |
 
 | prefix | n |
 |---|---|
