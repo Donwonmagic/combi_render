@@ -29,7 +29,9 @@ NPX = 69 * 8
 BAND = 0.20
 RING_INNER_FRAC = 1.0 - 2.0 * 0.093
 BAND_FRAC = 0.028 / 0.140
-FIT_R = 1.0 - 0.8 * BAND_FRAC          # 0.84 -- the UNMEASURED fit depth
+import t1_detail as _D
+FIT_R = 1.0 - _D.VW_FIT_COEF * BAND_FRAC   # READ LIVE from t1_detail, never typed:
+#   the proxy must track the build or its searches are void (F251/F256)
 
 def spines(p):
     """p: dict of the free parameters.  Returns V and W spines in R=1 units."""

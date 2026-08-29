@@ -210,7 +210,7 @@ build T1_SUB=1 ~20 s      render 1600x1100 96 spp ~4.5-6 min PER VIEW
 
 ```bash
 ./bootstrap.sh                                # ALL 10 PASS -- read ROW 9 and its NOTE
-./verify_clone.sh                             # verify_clone.sh: ALL 0 PASS -- read its verdict block
+./verify_clone.sh                             # verify_clone.sh: ALL 365 PASS -- read its verdict block
 T1_SUB=1 T1_VERIFY=1 /tmp/blender/blender -b -P build.py    # -> "VERIFY: 0 fail, 0 warn"
 ./judge_set.sh r72                            # the optics chain -- FIXED at rev 71 (F248)
 python3 probe_rev71_proxy.py                  # PROVE THE PROXY FIRST -- must read IoU 1.000000

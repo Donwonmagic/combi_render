@@ -93,15 +93,45 @@ def warp(src, H, shape):
     return out
 
 
+# --------------------------------------------------------------- rev 71, F246
+# TRANSLATION IS SEARCHED NOW, AND THE START SET COVERS THE WHOLE CIRCLE.
+#
+# THE PREMISE THE OLD DOCSTRING ASSERTED WAS FALSE.  It said "translation is
+# not searched -- both masks are already centred on their own bounding boxes".
+# `photo_mark` DOES bbox-crop every real target, but a projected disc's bbox
+# centre is NOT its centre, so the two masks are NOT co-centred and the search
+# could not reach the offset.  P1's control hid this because `synth` is the raw
+# `warp` output, centred on the OUTPUT FRAME -- so the CONTROL was framed one
+# way and every MEASUREMENT another (rule 42, and it is the whole of F246).
+#
+# WATCHED, on the SAME model against the SAME known view, bbox-framed as
+# photo_mark frames it:
+#     6-param, 6 rotation starts (the old search)      0.4988
+#     8-param, 6 rotation starts                       0.5403
+#     8-param, FULL CIRCLE every 20 deg                0.9703   <- PASSES
+#     analytic H = inv(Hk) @ the crop's own affine     1.000000
+# So the collapse was TWO defects compounding: no translation, AND a start set
+# covering only half the circle.  Rev 71's first cut called translation
+# "necessary and not sufficient" and shipped the probe REFUSING; a dispatched
+# adversary measured the full-circle start set and refuted that.  It is
+# necessary AND sufficient, and the repair is here rather than deferred.
+#
+# T1_FITPOSE_LEGACY=1 restores the rev-69 search EXACTLY (6 params, 6 starts)
+# so the two can be scored from one tree and this is ablatable (rule 36).
+_LEGACY = os.environ.get("T1_FITPOSE_LEGACY") == "1"
+
+
 def make_H(p):
-    """Homography from 6 parameters: rotation, two scales, shear, two
-    perspective terms.  Translation is not searched -- both masks are already
-    centred on their own bounding boxes, which is what normalising to [-1, 1]
-    does."""
-    rot, sx, sy, sh, px, py = p
+    """Homography from 8 parameters: rotation, two scales, shear, two
+    perspective terms, and TWO TRANSLATIONS.  Six under T1_FITPOSE_LEGACY=1."""
+    if len(p) == 6:
+        rot, sx, sy, sh, px, py = p
+        tx = ty = 0.0
+    else:
+        rot, sx, sy, sh, px, py, tx, ty = p
     c, s = np.cos(rot), np.sin(rot)
     R = np.array([[c, -s, 0.0], [s, c, 0.0], [0.0, 0.0, 1.0]])
-    S = np.array([[sx, sh, 0.0], [0.0, sy, 0.0], [0.0, 0.0, 1.0]])
+    S = np.array([[sx, sh, tx], [0.0, sy, ty], [0.0, 0.0, 1.0]])
     P = np.array([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [px, py, 1.0]])
     return R @ S @ P
 
@@ -117,12 +147,17 @@ def fit(src, dst, rounds=7):
     because the mark has a near-180-deg ambiguity and a wrong basin is a real
     risk (the affine route landed in one at 141 deg)."""
     best = (-1.0, None)
-    for rot0 in np.radians([0, 30, 60, 90, 120, 150]):
-        p = [rot0, 1.0, 1.0, 0.0, 0.0, 0.0]
+    # THE START SET COVERS THE FULL CIRCLE (rev 71, F246).  The old set stopped
+    # at 150 deg, which is why the bbox-framed control landed in a bad basin at
+    # 0.5403 and was misread as "translation is not sufficient".
+    _starts = [0, 30, 60, 90, 120, 150] if _LEGACY else list(range(0, 360, 20))
+    _n = 6 if _LEGACY else 8
+    for rot0 in np.radians(_starts):
+        p = [rot0, 1.0, 1.0, 0.0, 0.0, 0.0] + ([] if _LEGACY else [0.0, 0.0])
         cur = iou(warp(src, make_H(p), dst.shape), dst)
-        step = [0.20, 0.20, 0.20, 0.15, 0.15, 0.15]
+        step = [0.20, 0.20, 0.20, 0.15, 0.15, 0.15, 0.15, 0.15][:_n]
         for _ in range(rounds):
-            for i in range(6):
+            for i in range(_n):
                 moved = True
                 while moved:
                     moved = False
@@ -150,7 +185,11 @@ def fit(src, dst, rounds=7):
 FRAMES = (
     ("ref_nolita_front34.jpg", "ref_nolita_front34.jpg", (153, 192, 194, 261), False),
     ("ref_workshop.jpg  TRACE SOURCE", "ref_workshop.jpg", (262, 492, 352, 600), True),
-    ("IMG_2073.jpeg  INDEPENDENT", "IMG_2073.jpeg", (288, 542, 352, 640), True),
+    # RE-CUT AT REV 71.  The old (288,542)-(352,640) discards ~14 % of the
+    # mark's ink (2527 on-px against 2926) and was never painted.  Re-cutting
+    # probe_rev71_emblem.py ALONE and leaving this clipped is exactly the trap
+    # the brief warns about, and rev 71's first cut committed it.
+    ("IMG_2073.jpeg  INDEPENDENT", "IMG_2073.jpeg", (283, 537, 357, 662), True),
 )
 
 
@@ -216,10 +255,10 @@ def main():
        "itself", v_ctl > 0.90,
        "best IoU %.4f against a synthetic view at 37 deg rotation, 0.62 "
        "foreshortening, shear 0.18 and real perspective. Below ~0.90 the search "
-       "is the limit, not the shape.  *** AND READ P1b BEFORE QUOTING THIS "
-       "NUMBER AS A CEILING: this control is NOT framed the way any real "
-       "measurement below is framed, and framed correctly it does not pass "
-       "(F246) ***" % v_ctl)
+       "is the limit, not the shape.  *** QUOTE P1b's CEILING, NOT THIS ONE: this "
+       "control is framed UNCROPPED and every real measurement below is "
+       "bbox-cropped, so P1b -- 0.9703 -- is the ceiling the residuals should "
+       "be read against (F246) ***" % v_ctl)
 
     # ---- P1b, NEW AT REV 71.  THE CONTROL MUST BE FRAMED THE WAY THE
     # MEASUREMENT IS FRAMED, AND P1 IS NOT.  F246.
@@ -246,56 +285,21 @@ def main():
        v_ctl_bb > 0.90,
        "the SAME search, the SAME model, the SAME known view -- cropped to its "
        "own bounding box as photo_mark crops every frame: IoU %.4f, against "
-       "%.4f uncropped.  THE CONTROL NOW SCORES BELOW THE SPECIMEN IT "
-       "CERTIFIES, so the published deficit '0.9882 - 0.7345 = 0.2537' is NOT a "
-       "shape deficit -- a large part of it is registration the search cannot "
-       "reach because `fit` does not search TRANSLATION.  DO NOT quote 0.9882 "
-       "as the emblem's ceiling until this row passes (F246)"
+       "%.4f uncropped.  THIS ROW READ 0.4988 BEFORE REV 71's REPAIR, BELOW the "
+       "0.7345 the specimen scored -- a control losing to its own specimen "
+       "(rule 42).  TWO defects compounded: `make_H` had no translation terms, "
+       "and the start set covered only half the circle.  Both are fixed; "
+       "T1_FITPOSE_LEGACY=1 restores the rev-69 search exactly and drives this "
+       "row back to 0.4988, which is its KILL (F246)"
        % (v_ctl_bb, v_ctl))
 
-    # ---- HOW MUCH OF THE GAP IS TRANSLATION?  A MEASUREMENT, NOT A GATE.
-    # `make_H` has no translation terms.  Adding two and re-running the SAME
-    # coordinate descent says how much of P1b's collapse -- and of the mark's
-    # own residual -- is registration rather than shape.  IT IS PRINTED AND NOT
-    # SHIPPED: it lifts the control only 0.4988 -> 0.5403, still far below the
-    # 0.90 bar, so translation is a NECESSARY repair and NOT A SUFFICIENT one,
-    # and rev 71 did NOT adopt it as the scoring pose (rule 44 -- the control
-    # still refuses, so the repair is not proven).  The next revision needs a
-    # pose search whose P1b PASSES before any emblem geometry moves on it.
-    def _H8(q):
-        rot, sx, sy, sh, px_, py_, tx, ty = q
-        c_, s_ = np.cos(rot), np.sin(rot)
-        return (np.array([[c_, -s_, 0.], [s_, c_, 0.], [0., 0., 1.]])
-                @ np.array([[sx, sh, tx], [0., sy, ty], [0., 0., 1.]])
-                @ np.array([[1., 0., 0.], [0., 1., 0.], [px_, py_, 1.]]))
-
-    def _fit8(a, b, rounds=7):
-        best8 = -1.0
-        for r0 in np.radians([0, 30, 60, 90, 120, 150]):
-            q = [r0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-            cur8 = iou(warp(a, _H8(q), b.shape), b)
-            st = [0.20, 0.20, 0.20, 0.15, 0.15, 0.15, 0.15, 0.15]
-            for _ in range(rounds):
-                for i in range(8):
-                    mv = True
-                    while mv:
-                        mv = False
-                        for d in (+st[i], -st[i]):
-                            z = list(q)
-                            z[i] += d
-                            val = iou(warp(a, _H8(z), b.shape), b)
-                            if val > cur8 + 1e-5:
-                                cur8, q, mv = val, z, True
-                                break
-                st = [t * 0.55 for t in st]
-            best8 = max(best8, cur8)
-        return best8
-
-    if os.environ.get("T1_FITPOSE_NOTRANS") != "1":
-        print("  DIAGNOSIS (F246), not a gate -- the same search WITH two "
-              "translation terms:")
-        print("      the bbox-framed CONTROL   6-param %.4f -> 8-param %.4f  "
-              "(bar 0.90: STILL REFUSES)" % (v_ctl_bb, _fit8(src, synth_bb)))
+    # ---- THE LEGACY KILL.  rev 71: the repair above must be WATCHED being the
+    # thing that fixed P1b, not asserted.  T1_FITPOSE_LEGACY=1 restores the
+    # rev-69 search and this row's own number collapses.
+    if not _LEGACY:
+        print("  P1b's KILL: run `T1_FITPOSE_LEGACY=1 python3 probe_rev69_fitpose.py`")
+        print("      -- the rev-69 search, 6 params and half the circle, drives")
+        print("      the same control to 0.4988 and P1b RED (F246).")
 
     rows = []
     for tag, path, box, dark in FRAMES:

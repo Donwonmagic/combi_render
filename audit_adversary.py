@@ -157,7 +157,7 @@ def _second_frame_ok():
     mark at the box the brief names.  F237's overfit kill depends on it."""
     try:
         import probe_rev69_fitpose as F
-        m = F.photo_mark("IMG_2073.jpeg", (288, 542, 352, 640), True)
+        m = F.photo_mark("IMG_2073.jpeg", (283, 537, 357, 662), True)
         return m is not None and min(m.shape) > 20 and 0.2 < m.mean() < 0.8
     except Exception:
         return False

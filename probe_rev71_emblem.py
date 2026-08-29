@@ -82,10 +82,13 @@ def main():
        abs(best_fit[0] - 0.84) <= step and abs(best_ind[0] - 0.84) <= step,
        "best on ref_workshop is FIT_R %.2f (%.4f) against the shipped 0.84's "
        "%.4f -- a difference of %+.4f; best on the INDEPENDENT frame is "
-       "FIT_R %.2f, which IS the shipped value.  The sweep is broad and shallow "
-       "within +-0.02 and falls away hard outside it.  So the constant the "
-       "briefs called UNMEASURED is measured, and it was already right"
-       % (best_fit[0], best_fit[1], base[0], best_fit[1] - base[0], best_ind[0]))
+       "FIT_R %.2f (%.4f against the shipped %.4f, %+.4f).  ON THE REPAIRED "
+       "RULER (F246) BOTH FRAMES PREFER A DEEPER FIT THAN THE SHIPPED 0.84, "
+       "and the independent frame's argmax is TWO steps away -- which is why "
+       "this row refuses.  On the BROKEN ruler it passed, and rev 71's first "
+       "draft graded the fit depth CLOSED on that reading"
+       % (best_fit[0], best_fit[1], base[0], best_fit[1] - base[0],
+          best_ind[0], best_ind[2], base[1], best_ind[2] - base[1]))
 
     span = max(r[1] for r in rows) - min(r[1] for r in rows)
     ck("E2 KILL -- this sweep can actually see the fit depth",
