@@ -992,8 +992,23 @@ def _tail_board_pose(log=print):
     # the shipped 0.7110 comes from.  So this arm polices the chord THROUGH a
     # measured quantity rather than against a number typed to suit it.
     #
-    # WATCHED FAILING at the rev-70 candidate 0.8250, which put the tip at
-    # 2.2703 -- 86.3 mm, 2.9 sigma outside the band.
+    # WATCHED FAILING at the rev-70 candidate 0.8250: tip 2.2790, +95.0 mm,
+    # 3.2 sigma -> VERIFY: 1 fail.  Re-watched at rev 71 with
+    # T1_TB_CHORD=0.8250 and the line above is what it prints.
+    #
+    # ⚠ REV 70 RECORDED "2.2703 -- 86.3 mm, 2.9 sigma" HERE AND THAT FIGURE
+    # WOULD HAVE **PASSED** THIS ROW: the bar is 3 * 0.030 = 90.0 mm, and
+    # 86.3 < 90.0.  So the guard's own docstring recorded a watched failure
+    # that its own arithmetic admits (rule 5, F247).
+    #
+    # AND THE CAUSE IS A RULER MISMATCH IN THE DOCSTRING THAT WARNS ABOUT
+    # RULER MISMATCHES (rule 38).  2.2703 is `tail_board()`'s BUILD LOG tip --
+    # the SPINE endpoint.  This row reads `max(p.z for p in P)`, the MESH
+    # maximum, which additionally carries TB_T and the rounded corner: 2.2790.
+    # The two differ by 8.7 mm, and rev 70 transcribed one into a comment about
+    # the other.  The same 8.7 mm sits under the SHIPPED build's margin too:
+    # it reads tip 2.2087 = +24.7 mm = 0.82 sigma, of which the bookkeeping
+    # offset is a third.  Read the row's own printed line, never the build log's.
     TIP_Z, TIP_BAND = 2.184, 0.030
     PHOTO_ANG, ANG_BAND = 38.8, 6.0
     zs_all = [p.z for p in P]

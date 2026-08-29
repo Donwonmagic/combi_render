@@ -26,7 +26,9 @@
 set -e
 cd "$(dirname "$0")"
 PFX="${1:-r61f}"
-for v in front side hero hero34r; do
+for v in front side hero34f hero34r; do   # rev 71, F248: was "hero", which NO preview list has
+                                          # produced since the hero34f/hero34r split -- judge_set.sh
+                                          # exited 2 before post-processing the delivery view
     f="out/${PFX}_${v}.png"
     [ -f "$f" ] || { echo "judge_set: NO RENDER $f -- render before judging"; exit 2; }
     python3 post.py "$f" "out/${PFX}_${v}_post.png" \

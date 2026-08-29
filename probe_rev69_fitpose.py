@@ -216,7 +216,86 @@ def main():
        "itself", v_ctl > 0.90,
        "best IoU %.4f against a synthetic view at 37 deg rotation, 0.62 "
        "foreshortening, shear 0.18 and real perspective. Below ~0.90 the search "
-       "is the limit, not the shape" % v_ctl)
+       "is the limit, not the shape.  *** AND READ P1b BEFORE QUOTING THIS "
+       "NUMBER AS A CEILING: this control is NOT framed the way any real "
+       "measurement below is framed, and framed correctly it does not pass "
+       "(F246) ***" % v_ctl)
+
+    # ---- P1b, NEW AT REV 71.  THE CONTROL MUST BE FRAMED THE WAY THE
+    # MEASUREMENT IS FRAMED, AND P1 IS NOT.  F246.
+    #
+    # `photo_mark` ends every real target with
+    #     ys, xs = np.nonzero(f);  return m[ys.min():ys.max()+1, xs.min():xs.max()+1]
+    # i.e. EVERY PHOTOGRAPH IS CROPPED TO ITS OWN BOUNDING BOX.  P1's `synth` is
+    # not: it is the raw output of `warp`, centred on the OUTPUT FRAME.  And
+    # `fit` searches NO TRANSLATION -- its own docstring asserts "both masks are
+    # already centred on their own bounding boxes", which is true of `synth`'s
+    # frame and FALSE of a bbox crop, because a projected disc's bbox centre is
+    # not its centre.
+    #
+    # SO THE CONTROL IS EASIER THAN THE MEASUREMENT IT CERTIFIES, AND THE GAP
+    # BETWEEN THEM IS NOT ALL SHAPE.  Cropped exactly as photo_mark crops,
+    # the SAME search on the SAME model against a KNOWN view of ITSELF falls
+    # from 0.9882 to 0.4988 -- BELOW the 0.7345 the real mark scores.  A control
+    # that scores worse than its specimen is not a ceiling (rule 42).
+    ys_, xs_ = np.nonzero(synth)
+    synth_bb = synth[ys_.min():ys_.max() + 1, xs_.min():xs_.max() + 1]
+    v_ctl_bb, _pbb = fit(src, synth_bb)
+    ck("P1b CONTROL, FRAMED THE WAY EVERY REAL TARGET IS FRAMED -- photo_mark "
+       "bbox-crops the photograph, so the control must be bbox-cropped too",
+       v_ctl_bb > 0.90,
+       "the SAME search, the SAME model, the SAME known view -- cropped to its "
+       "own bounding box as photo_mark crops every frame: IoU %.4f, against "
+       "%.4f uncropped.  THE CONTROL NOW SCORES BELOW THE SPECIMEN IT "
+       "CERTIFIES, so the published deficit '0.9882 - 0.7345 = 0.2537' is NOT a "
+       "shape deficit -- a large part of it is registration the search cannot "
+       "reach because `fit` does not search TRANSLATION.  DO NOT quote 0.9882 "
+       "as the emblem's ceiling until this row passes (F246)"
+       % (v_ctl_bb, v_ctl))
+
+    # ---- HOW MUCH OF THE GAP IS TRANSLATION?  A MEASUREMENT, NOT A GATE.
+    # `make_H` has no translation terms.  Adding two and re-running the SAME
+    # coordinate descent says how much of P1b's collapse -- and of the mark's
+    # own residual -- is registration rather than shape.  IT IS PRINTED AND NOT
+    # SHIPPED: it lifts the control only 0.4988 -> 0.5403, still far below the
+    # 0.90 bar, so translation is a NECESSARY repair and NOT A SUFFICIENT one,
+    # and rev 71 did NOT adopt it as the scoring pose (rule 44 -- the control
+    # still refuses, so the repair is not proven).  The next revision needs a
+    # pose search whose P1b PASSES before any emblem geometry moves on it.
+    def _H8(q):
+        rot, sx, sy, sh, px_, py_, tx, ty = q
+        c_, s_ = np.cos(rot), np.sin(rot)
+        return (np.array([[c_, -s_, 0.], [s_, c_, 0.], [0., 0., 1.]])
+                @ np.array([[sx, sh, tx], [0., sy, ty], [0., 0., 1.]])
+                @ np.array([[1., 0., 0.], [0., 1., 0.], [px_, py_, 1.]]))
+
+    def _fit8(a, b, rounds=7):
+        best8 = -1.0
+        for r0 in np.radians([0, 30, 60, 90, 120, 150]):
+            q = [r0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+            cur8 = iou(warp(a, _H8(q), b.shape), b)
+            st = [0.20, 0.20, 0.20, 0.15, 0.15, 0.15, 0.15, 0.15]
+            for _ in range(rounds):
+                for i in range(8):
+                    mv = True
+                    while mv:
+                        mv = False
+                        for d in (+st[i], -st[i]):
+                            z = list(q)
+                            z[i] += d
+                            val = iou(warp(a, _H8(z), b.shape), b)
+                            if val > cur8 + 1e-5:
+                                cur8, q, mv = val, z, True
+                                break
+                st = [t * 0.55 for t in st]
+            best8 = max(best8, cur8)
+        return best8
+
+    if os.environ.get("T1_FITPOSE_NOTRANS") != "1":
+        print("  DIAGNOSIS (F246), not a gate -- the same search WITH two "
+              "translation terms:")
+        print("      the bbox-framed CONTROL   6-param %.4f -> 8-param %.4f  "
+              "(bar 0.90: STILL REFUSES)" % (v_ctl_bb, _fit8(src, synth_bb)))
 
     rows = []
     for tag, path, box, dark in FRAMES:
