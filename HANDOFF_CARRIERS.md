@@ -186,8 +186,8 @@ ablation `T1_BUMP_BOW`. **Measured on the mesh: +0.05 mm → +21.55 mm** (`STATE
 ```bash
 T1_SUB=1 T1_PREVIEW=front T1_PFX=r70 T1_RX=3200 T1_RY=2200 T1_SAMP=128 \
   /tmp/blender/blender -b -P build.py      # then CROP THE NOSE AND LOOK AT IT
-python3 probe_rev67_nose.py out/r70_front.png    # PASS IT A FRAME -- bare, P3 does not run (F225)
-python3 probe_rev59_nose.py out/r70_front.png    # READ BOTH RULERS
+python3 probe_rev67_nose.py out/rNN_front.png    # PASS IT A FRAME -- bare, P3 does not run (F225)
+python3 probe_rev59_nose.py out/rNN_front.png    # READ BOTH RULERS
 ```
 
 **AND RENDER THE CONTROL TWICE (F228, rule 49).** The floor at 1600×1100/96 spp is **2.441 % of pixels
@@ -907,6 +907,13 @@ in the briefs and are carried here — that is rule 16 firing on this file:
 ---
 ## §6 THIS MACHINE
 
+> **⚠ FRAME PREFIXES IN THIS SECTION ARE WRITTEN `rNN` ON PURPOSE.** They were literal (`r70`) and went
+> stale the moment the action brief's `T1_PFX` moved to `r71` — the exact defect the warning at the
+> foot of this block describes, committed inside the block that carries the warning. **Substitute the
+> prefix you actually rendered in the action brief's §0.** `out/` starts EMPTY on a clone, so a stale
+> prefix is a probe that silently does not run (rule 37).
+
+
 ```
 cores 4   RAM 15 GB   Blender 4.5.3 via pip install bpy   subagent concurrency 2
 build  T1_SUB=1 ~20 s     render 1600x1100 96 spp ~4.5-5.5 min PER VIEW
@@ -927,21 +934,21 @@ is per-environment — but do not budget a revision on it.**
 ```bash
 ./bootstrap.sh                                               # AND `pip install pillow`
 T1_SUB=1 T1_VERIFY=1 /tmp/blender/blender -b -P build.py     # -> "VERIFY: 0 fail, 0 warn"
-./judge_set.sh r70                                           # the optics chain (F146)
-python3 flank_compare.py out/r70_side.png /tmp/fc.png        # GATE 1
-python3 gloss_compare.py out/r70_hero34f.png                    # GATE 3
-python3 probe_rev59_nose.py out/r70_front.png                # READ BOTH RULERS
-python3 probe_rev67_nose.py out/r70_front.png   # **PASS IT A FRAME** -- bare, P3 does
+./judge_set.sh rNN                                           # the optics chain (F146)
+python3 flank_compare.py out/rNN_side.png /tmp/fc.png        # GATE 1
+python3 gloss_compare.py out/rNN_hero34f.png                    # GATE 3
+python3 probe_rev59_nose.py out/rNN_front.png                # READ BOTH RULERS
+python3 probe_rev67_nose.py out/rNN_front.png   # **PASS IT A FRAME** -- bare, P3 does
                                                 # not run and SAYS SO (F225)
 python3 probe_rev46_vw.py                    # THE EMBLEM GATE -- C4 is the only red row
 python3 probe_rev69_fitpose.py               # NEW at rev 69 -- THE EMBLEM WITH THE POSE
                                              # FITTED OUT.  Control ceiling 0.9882.  Its P4
                                              # re-scores T1_VW_TRACED on a frame it was NOT
                                              # traced from, in a FRESH process (F236/F237)
-python3 probe_rev70_tyre.py out/r70_side.png # NEW at rev 69 -- the tyre against the cream
+python3 probe_rev70_tyre.py out/rNN_side.png # NEW at rev 69 -- the tyre against the cream
                                              # rim ring in its own image.  PASS IT A FRAME:
                                              # bare, the render rows do not run (F238)
-python3 probe_rev69_emblem.py out/r70_front.png   # **PASS IT A FRAME** -- the RENDER
+python3 probe_rev69_emblem.py out/rNN_front.png   # **PASS IT A FRAME** -- the RENDER
                                              # side of F205, which existed in no file
                                              # before rev 69.  Bare, it SAYS the render
                                              # rows did not run (F233)
@@ -953,13 +960,13 @@ python3 probe_rev63_shapefit.py              # stale baseline AND the HUBCAP's w
 python3 probe_rev63_reach.py                 # contacts with the ring, and angles
 python3 trace_outline.py ; python3 svgraster.py ; python3 senor_trace.py
 python3 cream_rms.py                         # the LIVE photograph-side cream
-python3 visibility_budget.py 3840 out/r70_hero34f.png   # PASS IT A .png -- F132/F189
+python3 visibility_budget.py 3840 out/rNN_hero34f.png   # PASS IT A .png -- F132/F189
 T1_SUB=2 /tmp/blender/blender -b -P audit.py         # rewrites STATE.md -- COMMIT FIRST
 python3 audit_brief.py ; python3 audit_adversary.py  # rules 15/17, MECHANICAL half only
 ```
 
 > **⚠ EVERY `out/rNN_*.png` ABOVE MUST MATCH THE PREVIEW LIST YOU ACTUALLY RENDERED IN §0.0, WHICH IS
-> `front,side,hero34f,hero34r`. THERE IS NO PLAIN `hero` IN THAT LIST**, so `out/r70_hero.png` will
+> `front,side,hero34f,hero34r`. THERE IS NO PLAIN `hero` IN THAT LIST**, so `out/rNN_hero.png` will
 > never exist and the rev-69 brief's block asked for it twice. `out/` **starts EMPTY on a clone**, so
 > a stale prefix here is a probe that silently does not run (rule 37). Corrected to `r70` and to
 > `hero34f` at rev 69; **re-point them again the moment you change `T1_PFX`.**
@@ -969,7 +976,7 @@ python3 audit_brief.py ; python3 audit_adversary.py  # rules 15/17, MECHANICAL h
 ```bash
 T1_SUB=1 T1_NOUNDER=1 /tmp/blender/blender -b -P probe_rev45_ground.py  # C5 must REFUSE
 T1_SUB=1 T1_PG_PAINT=1 /tmp/blender/blender -b -P probe_rev45_ground.py # paints G4's window
-python3 probe_rev59_door.py out/r70_side.png        # M3 fails BY DESIGN.  **SIDE FRAME**
+python3 probe_rev59_door.py out/rNN_side.png        # M3 fails BY DESIGN.  **SIDE FRAME**
 python3 probe_rev61.py emblem --paint               # every mode paints its window
 T1_NOSE_BULGE=0.045 T1_NOSE_FIXFOLLOW=0 T1_SUB=1 T1_VERIFY=1 \
   /tmp/blender/blender -b -P build.py               # NEW at rev 68: the fixture

@@ -975,25 +975,51 @@ def _tail_board_pose(log=print):
     if ang > 90.0:
         ang = 180.0 - ang
 
-    PHOTO_ANG, ANG_BAND = 38.8, 4.0      # ref_side.jpg, the PRIMARY frame
-    PHOTO_CHORD_MIN = 0.800              # under BOTH frames' lower bounds
+    # ---------------------------------------------------------------- rev 70
+    # THE CHORD FLOOR IS GONE AND A TIP-HEIGHT ARM REPLACES IT, BECAUSE THE
+    # FLOOR WAS A TAUTOLOGY AND AN ADVERSARY SAID SO.
+    #
+    # The first cut of this row used `PHOTO_CHORD_MIN = 0.800` with the comment
+    # "under BOTH frames' lower bounds" -- a bar set 29 mm BELOW the weaker of
+    # the two bounds it quoted in its own failure text, which is to say a bar
+    # chosen to admit the value the same edit was shipping.  Rule 6.
+    #
+    # TIP HEIGHT IS THE ONE QUANTITY ON THIS BOARD WITH AN INDEPENDENT MEASURED
+    # VALUE: z 2.184 +- 0.030, measured off ref_side.jpg and recorded in
+    # t1_shell.tail_board's own comment, where it is used to close against the
+    # separately measured base height z 1.7470 +- 0.027.  Those two heights
+    # DERIVE the chord: (2.184 - 1.747)/sin(38 deg) = 0.7098 m, which is where
+    # the shipped 0.7110 comes from.  So this arm polices the chord THROUGH a
+    # measured quantity rather than against a number typed to suit it.
+    #
+    # WATCHED FAILING at the rev-70 candidate 0.8250, which put the tip at
+    # 2.2703 -- 86.3 mm, 2.9 sigma outside the band.
+    TIP_Z, TIP_BAND = 2.184, 0.030
+    PHOTO_ANG, ANG_BAND = 38.8, 6.0
+    zs_all = [p.z for p in P]
+    tip_z = max(zs_all)
     out = []
-    log("tail board pose (F163/F165): principal-axis chord %.4f m, angle %.1f deg "
-        "-- ruler = PRINCIPAL AXIS in XZ, NOT the bbox diagonal" % (chord, ang))
-    if chord < PHOTO_CHORD_MIN:
+    log("tail board pose (F163/F165/F245): principal-axis chord %.4f m, angle %.1f "
+        "deg, tip z %.4f -- ruler = PRINCIPAL AXIS in XZ, NOT the bbox diagonal"
+        % (chord, ang, tip_z))
+    if abs(tip_z - TIP_Z) > TIP_BAND * 3.0:
         out.append(
-            "tail board is TOO SHORT: its principal-axis chord measures %.4f m "
-            "against a photographed LOWER BOUND of %.3f m -- and the bound is a "
-            "floor, not a target: ref_side.jpg gives >= 0.822 and IMG_3840.jpeg "
-            ">= 0.829, both understated because the board sits inboard of the "
-            "flank plane" % (chord, PHOTO_CHORD_MIN))
+            "tail board TIP HEIGHT is %.4f m against a MEASURED %.3f +- %.3f m -- "
+            "%+.1f mm, %.1f sigma.  The base and tip heights are independently "
+            "measured and they DERIVE the chord: (%.3f - 1.747)/sin(38 deg) = "
+            "%.4f m.  A chord that breaks this closure is not supported by the "
+            "frames, however many pixels agree with it"
+            % (tip_z, TIP_Z, TIP_BAND, (tip_z - TIP_Z) * 1000,
+               (tip_z - TIP_Z) / TIP_BAND, TIP_Z, (TIP_Z - 1.747) / 0.6157))
     if abs(ang - PHOTO_ANG) > ANG_BAND:
         out.append(
             "tail board angle %.1f deg is outside %.1f +- %.1f deg, the angle it "
             "images at on ref_side.jpg -- the PRIMARY frame, the RED bus in its "
-            "CURRENT livery.  DO NOT fix this to F165's 28.0: the board is "
-            "HINGED and 28.0 matches neither frame (ref_side 38.8, IMG_3840 "
-            "21.0)" % (ang, PHOTO_ANG, ANG_BAND))
+            "CURRENT livery.  THE BAND IS +-6, NOT +-4: on that frame the "
+            "board's own estimators spread ~5 deg (two end picks 38.8, the navy "
+            "upper stripe 43.7), so a tighter band would encode ONE estimator. "
+            "DO NOT fix this to F165's 28.0 -- see F242/F245"
+            % (ang, PHOTO_ANG, ANG_BAND))
     return out
 
 

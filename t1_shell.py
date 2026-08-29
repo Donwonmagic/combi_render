@@ -1927,25 +1927,42 @@ TB_TILT_DEG = float(os.environ.get("T1_TB_TILT", 38.0))
                           # From VERTICAL this is 52.0; the rev-49 brief's bare
                           # "39 degrees" never said which it meant.
 # ------------------------------------------------------------------ rev 70
-# THE CHORD IS THE BOARD'S ONE DEFECT THAT TWO INDEPENDENT FRAMES AGREE ON.
+# *** THE CHORD WAS MOVED TO 0.8250 AT REV 70 AND IS REVERTED. IT WAS A
+# *** REGRESSION, AND A DISPATCHED ADVERSARY CAUGHT IT. READ THIS BEFORE YOU
+# *** TRY THE SAME THING. ***
 #
-#     BUILT, rev 49 .. rev 69                              0.7110 m
-#     ref_side.jpg   (RED bus, CURRENT livery, PRIMARY)  >= 0.822 m
-#     IMG_3840.jpeg  (the SAME bus, CHALKBOARD livery)   >= 0.829 m   (F165)
+# WHAT I DID.  I picked the board's two ends on ref_side.jpg, PAINTED them
+# (probe_scratch/rev70_hatch_ends.png), measured 177.1 px, divided by the
+# k_t = 215.5 px/m this file records, got 0.822 m, found F165's independent
+# 0.829 m on the other frame, and shipped their mean.  Two frames agreeing to
+# 0.9 % felt decisive.  IT WAS WRONG THREE WAYS:
 #
-# MINE, on ref_side.jpg and INDEPENDENT of F165's frame, ruler and pick: the
-# board images 177.1 px between two ends PAINTED and looked at before the
-# arithmetic (base 876,294 -> tip 1014,183), at this file's own recorded
-# k_t = 215.5 +- 3.0 px/m for that frame, giving 0.822 +- 0.011 m.
+#   (1) WRONG RULER.  ref_side.jpg is a PROJECTIVE image of the flank, not an
+#       orthographic elevation.  flank_compare.py says so in its own header --
+#       "every scalar px/m is wrong somewhere.  Two instruments exist and this
+#       file uses them instead of REF_PPM" -- and the board sits 130..265
+#       columns AFT of the hub the scalar was taken at.  Through the project's
+#       own instruments, flank_X (SPEC 10.35) and flank_kv (SPEC 10.34), THE
+#       SAME TWO PAINTED PICKS give 0.7899 m, not 0.822.  Rule 38.
+#   (2) THE FILE ALREADY SAID SO, TWO LINES BELOW.  "reading it with a single
+#       px/m OVER-READS by 4.8 %".  I adopted a value LARGER than the over-read.
+#   (3) AND IT BROKE A MEASURED CLOSURE THAT IS STILL PRINTED BELOW AS CLOSING.
+#       The base and tip heights are INDEPENDENTLY MEASURED -- z 1.7470 +-0.027
+#       and z 2.184 +-0.030 -- and (2.184-1.747)/sin(38 deg) = 0.7098 m.  THE
+#       0.7110 THIS CONSTANT HAS CARRIED SINCE REV 49 IS NOT A PIXEL READ AT
+#       ALL; IT IS DERIVED FROM TWO MEASURED HEIGHTS, and 0.8250 put the tip
+#       86.3 mm -- 2.9 sigma -- outside the measured one.
 #
-# BOTH ARE LOWER BOUNDS AND THE SHIPPED VALUE IS TOO: the board sits INBOARD of
-# the flank plane, so px/m there is SMALLER and the metric length LARGER.  0.825
-# is the mean of the two bounds -- the SHORTEST length consistent with both
-# frames, not an estimate of the true one, which is >= it.
-# T1_TB_CHORD restores the rev-49..69 value so the new guard can be WATCHED
-# REFUSING on the real defect rather than on an injected one (rule 3).
-TB_CHORD    = float(os.environ.get("T1_TB_CHORD", 0.8250))
-                          # LOWER BOUND from TWO frames (0.822 / 0.829).
+# WHAT IS ACTUALLY OPEN, AND IT IS A REAL CONFLICT, NOT A SETTLED NUMBER:
+#       two-height closure          0.710 m   (two measured heights, 38 deg)
+#       calibrated chord read       0.790 m   (flank_X / flank_kv, painted picks)
+#       F165 on IMG_3840.jpeg       0.829 m   (flat 107.92 px/m -- same ruler flaw)
+# The first two are BOTH from ref_side.jpg and they disagree by 11 %.  ONE OF
+# THEM IS WRONG AND NOTHING IN THIS TREE RESOLVES IT.  Do not average them.
+# The guard below now has a TIP-HEIGHT arm, because tip height is the only
+# quantity on this board with an independent measured value.
+TB_CHORD    = float(os.environ.get("T1_TB_CHORD", 0.7110))
+                          # DERIVED from two measured heights, not a pixel read.
                           # The IMAGE-PLANE chord is 0.745 m; reading it with a
                           # single px/m over-reads by 4.8 % because the map's x
                           # and z scales differ at that station.

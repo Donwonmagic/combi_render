@@ -5,10 +5,12 @@
 gate tables — is in `HANDOFF_CARRIERS.md`, complete and verbatim. Nothing was deleted.**
 
 > *[owner, rev 70]* **"I feel that we were way more productive in the first 20 or so handoffs and
-> I fear we have drifted since then."** — **He is right and it is MEASURED. Run `python3
-> revstats.py`.** Geometry output fell from **721 lines/revision** (rev 8–20) to **209** (rev 61–70)
-> while prose rose; the brief went **12 KB → 95 KB**; and findings CLOSED at rev 66, 67, 68, 69, 70
-> were **0, 0, 0, 0, 0**. **The handoff was split at rev 70 to reverse that. Do not re-merge it.**
+> I fear we have drifted since then."** — **He is right and it is MEASURED: run `python3 revstats.py`
+> and read ITS numbers, not these.** The shape at rev 70's close: geometry per revision fell from
+> **~721 lines** (rev 8–20) to **~215** (rev 61–70) while prose rose, and the brief went **12 KB →
+> 95 KB**. **Findings closed at rev 66, 67, 68, 69 were 0, 0, 0, 0 — and rev 70 closed 3, so the
+> streak is broken.** **The handoff was split at rev 70 to reverse the drift. Do not re-merge it.**
+> *(Figures here go stale every commit — the script is the authority, and §9 requires you to run it.)*
 
 ---
 ## §0 DO THIS FIRST — THE MACHINE IS IDLE WHILE YOU READ
@@ -40,70 +42,82 @@ photorealism on the `_post` set. *(Only `bloom` defaults to 0.0; `ca`, `vig`, `g
 
 | # | his words | what it IS, measured | § |
 |---|---|---|---|
-| 1 | *"the back opening"* | **BUILT AT REV 70 (F242/F243).** The chord was the defect — 0.7110 → **0.8250 m**, agreed by two frames. **The ANGLE was NOT a defect and 28.0° is REFUTED: the board is HINGED.** What is left is that its **red stripe, navy stripe and lit bulbs do not READ in the render** — paint and emission, not form | §2 |
-| 2 | *"make the emblem correct"* | the glyph misses by **0.38 IoU pose-free** against a control ceiling of 0.98, and **no constant in this tree expresses a stroke PATH** | §3 |
+| 1 | *"the back opening"* | **REV 70 TRIED AND RETRACTED (F245).** A chord change 0.7110 → 0.8250 was shipped and reverted **in the same revision**: it broke a 2.9σ two-height closure. **The chord is OPEN with a measured 11 % conflict.** The ANGLE is **unreconciled, not refuted**. What IS visibly wrong is the board's **paint** — red stripe, navy stripe, lit bulbs — which do not read | §2 |
+| 2 | *"make the emblem correct"* | the glyph scores **IoU 0.7345 pose-free against a control ceiling of 0.9882** — a deficit of **0.2537**, of which **73.6 % is inside the ring**, and **no constant in this tree expresses a stroke PATH** | §3 |
 | 3 | *"finish the nose render"* | the shape is **BUILT and guarded**. What is missing is **rendering it and looking at it** | §4 |
 
-**RANK: 1, 2, 3 — his own order.** Item 1 is un-built geometry with the ruling already given and
-the measurement already taken. **It needs no new instrument to start. START THERE.**
+**RANK: 2, 3, then 1.** Item 1 has now had a revision spent on it and its geometry question is a
+**measurement conflict, not a build** (§2) — it needs a resolved ruler before another constant moves.
+**The emblem is the live build item and its instrument is ready.**
 
 ---
-## §2 ITEM 1 — THE BACK OPENING · **BUILT AT REV 70. READ THIS BEFORE YOU TOUCH IT.**
+## §2 ITEM 1 — THE BACK OPENING · **REV 70 TRIED IT AND RETRACTED. READ THIS FIRST.**
 
-> *[owner, rev 62]* ***"The bus's rear hatch, propped open."*** *[owner, rev 70]* ***"Now build the
-> back opening."***
+> *[owner, rev 62]* ***"The bus's rear hatch, propped open."***
 
-**F163 IS DISCHARGED AND F165 IS SPLIT. The register rows are F242, F243, F244.**
+**THE REGISTER ROWS ARE F242, F244 AND — most importantly — F245.**
 
-**⚠ THE FIRST THING TO KNOW IS THAT THIS SECTION'S OWN PREVIOUS INSTRUCTION WAS WRONG.** Rev 70's
-brief told you to move the angle from 38.0° to a *"photographed 28.0°"*. **Doing that would have made
-the model WORSE.** Re-measured on both frames, every pick painted first:
+**⚠ REV 70 SHIPPED A CHORD CHANGE AND REVERTED IT IN THE SAME REVISION. A DISPATCHED ADVERSARY CAUGHT
+IT. DO NOT REPEAT IT.** The reasoning felt decisive: pick the board's two ends on `ref_side.jpg`, paint
+them, 177.1 px, divide by the `k_t = 215.5` this file records → 0.822 m; F165 gives 0.829 on the other
+frame; ship the mean. **Three things were wrong:**
+
+1. **WRONG RULER (rule 38).** `ref_side.jpg` is a **PROJECTIVE** image and `flank_compare.py` says so
+   itself — *"every scalar px/m is wrong somewhere. Two instruments exist and this file uses them."*
+   Through `flank_X` and `flank_kv`, **the same picks give 0.7899 m, not 0.822.**
+2. **THE SOURCE ALREADY SAID SO, TWO LINES BELOW THE CONSTANT:** *"a single px/m **over-reads by
+   4.8 %**"* — and the change adopted a value larger than the over-read.
+3. **IT BROKE A MEASURED CLOSURE.** Base z **1.7470 ± 0.027** and tip z **2.184 ± 0.030** are
+   independently measured, and `(2.184 − 1.747)/sin 38° = 0.7098`. **THE SHIPPED 0.7110 IS NOT A PIXEL
+   READ — IT IS DERIVED FROM TWO MEASURED HEIGHTS.** 0.8250 put the tip **2.9σ** outside one.
+
+**THE CONFLICT IS REAL AND IS THE ACTUAL OPEN QUESTION HERE:**
 
 ```
-    ref_side.jpg    RED bus, CURRENT livery, F163's PRIMARY frame     38.8 deg
-    IMG_3840.jpeg   the SAME board, CHALKBOARD livery                 21.0 deg
-    BUILT                                                             38.0 deg   <- matches PRIMARY
-    F165 published                                                    28.0 deg   <- matches NEITHER
+    two-height closure          0.710 m    two MEASURED heights at 38 deg
+    calibrated chord read       0.790 m    flank_X / flank_kv, painted picks
+    F165 on IMG_3840.jpeg       0.829 m    flat 107.92 px/m -- same ruler flaw
 ```
 
-**THE BOARD IS HINGED, SO ITS ANGLE IS A POSE, NOT A DIMENSION.** The two frames are 18° apart because
-somebody propped it differently on two different days; 28.0 sits between them and describes neither.
-**DO NOT "FIX" IT.** `verify._tail_board_pose`'s angle arm was **watched firing at exactly 28.0**, and
-`T1_TB_TILT` lets you see that for yourself in one command.
+**The first two are BOTH from `ref_side.jpg` and disagree by 11 %. One is wrong; nothing in this tree
+resolves it. DO NOT AVERAGE THEM — that is precisely the mistake rev 70 made.** Settle the ruler
+before you move the constant.
 
-**WHAT SHIPPED: `TB_CHORD` 0.7110 → 0.8250 m.** Two independent frames, two scales, two picks:
-`ref_side.jpg` **≥0.822 m** (177.1 px between painted ends at the file's own `k_t = 215.5 ± 3.0`) and
-`IMG_3840.jpeg` **≥0.829 m** (F165). They agree to **0.9 %**. **Both are LOWER BOUNDS and so is the
-shipped value** — the board sits inboard of the flank plane, where px/m is smaller and the metric
-length larger. 0.8250 is the shortest length consistent with both frames, not an estimate of the true
-one.
+**THE ANGLE IS UNRECONCILED, NOT REFUTED — and rev 70 overstated this too.** `ref_side.jpg` images the
+board at **38.8°** (two end picks) but its navy upper stripe fits **43.7°** (rms 0.74 px, 32 columns);
+`IMG_3840.jpeg` reads **21.0°**, but on THAT frame the board's own two long edges disagree by **15°**,
+which means the board's axis has a large depth component there and an image-plane angle is not a
+vehicle angle at all. **The board IS hinged — but this evidence does not establish it, and F165's 28.0
+is UNRECONCILED rather than disproved.** The shipped **38.0°** matches the primary frame's end-pick
+read. **DO NOT move it without settling the estimator question first.**
 
-**THE GATE THIS OBJECT HAD NEVER HAD:** `verify._tail_board_pose`. It reads the board's **PRINCIPAL
-AXIS in XZ off the built mesh** and says so in its own text, because **F165's published "built 38.4° /
-0.732 m" is the BOUNDING-BOX DIAGONAL** and the constants are 38.0 / 0.7110 — a ruler mismatch
-(rule 38). Both arms watched failing: `T1_TB_CHORD=0.7110` → `VERIFY: 1 fail`; `T1_TB_TILT=28.0` →
-`VERIFY: 1 fail`.
+**THE GATE, AND WHAT REV 70 GOT WRONG IN IT.** `verify._tail_board_pose` reads the board's **principal
+axis in XZ off the built mesh** (not the bbox diagonal — F165's "built 38.4 / 0.732" IS the bbox
+diagonal, rule 38). Its first cut had a **chord floor set 29 mm BELOW the weaker of the two bounds it
+quoted** — a bar chosen to pass the value being shipped (rule 6). **That floor is deleted.** In its
+place, a **TIP-HEIGHT arm**, because tip height is the only quantity on this board with an independent
+measured value. **Watched failing at the retracted candidate: tip 2.2790, +95.0 mm, 3.2σ.** Angle band
+widened ±4 → ±6 because the frame's own estimators spread ~5°.
 
-**WHAT IS LEFT ON THIS OBJECT, AND IT IS PAINT, NOT FORM.** Held against `ref_side.jpg` the render's
-board is a **plain white plank with pale bulbs**, where the photograph shows a **cream face, a RED
+**WHAT IS ACTUALLY VISIBLY WRONG, AND IT NEEDS NO NEW MEASUREMENT.** Held against `ref_side.jpg`, the
+render's board is a **plain white plank with pale bulbs**; the photograph shows a **cream face, a RED
 edge stripe, a dark NAVY stripe and LIT amber bulbs**. `tb_edge_red`, `tb_edge_dark`, `tb_bulbs` and
-`tb_bulbflex` all EXIST in the mesh — the red stripe is visible from the rear ¾ — so **this is a
-materials/emission question, not a geometry one.** Start by rendering `side` and cropping the board.
+`tb_bulbflex` all exist in the mesh — the red stripe reads from the rear ¾. **This is materials and
+emission, not form, and it is the honest remainder of item 1.**
 
-**TWO THINGS ARE CLOSED — DO NOT RE-OPEN THEM.**
-* **The dark rectangle under the board is `glass_rear`, the rear WINDOW** — 72 verts, x −2.151…−1.850,
-  z 1.455…1.606, material `glass` at **Transmission 1.00**, and 5 of 9 rays fired forward hit the
-  shell. It reads black because a fully transmissive pane looks into an **unlit interior**. That is
-  **F71's branch — flat glazing — NOT a hole** (F244).
-* **The "dark angled recess" was NOT built, and that is a result (rule 12).** It appears only on the
-  CHALKBOARD frame, on a surface the primary frame does not show, and at 480 px cannot be separated
-  into geometry, paint or shadow. **It cannot be recovered from what we hold.**
+**TWO THINGS ARE SETTLED — DO NOT RE-OPEN.** The dark rectangle under the board is **`glass_rear`**,
+the rear window: 72 verts, x −2.1510…−1.8501, z 1.4554…1.6064, `glass` at **Transmission 1.00**, 5 of
+9 forward rays hit the shell. It reads black because a transmissive pane looks into an **unlit
+interior** — **F71's branch, not a hole** (F244). *(CEILING: F244 measures the MESH; it does not
+project `glass_rear` into the frame and paint it onto that rectangle. The identification is strong but
+the painting was not done.)* And **the "dark angled recess" was NOT built**: it appears only on the
+chalkboard frame, on a surface the primary frame does not show, at 480 px where geometry, paint and
+shadow cannot be separated. **It cannot be recovered from what we hold** (rule 12).
 
-**AND THE METHOD NOTE WORTH MORE THAN THE RESULT: RULE 8 KILLED THREE WINDOWS HERE.** A "cream face"
-mask on `ref_side.jpg` selected **the wall** (33.5°); a "bulb string" mask selected **the red wall
-graphics** (24.7°, rms 27.6 px on a 174 px baseline); and the orange face's **principal axis** read
-21.7°, because a foreshortened wedge's principal axis is not its chord. **Three plausible,
-publishable numbers, every one wrong, every one caught by PAINTING and none by reasoning.**
+**⚠ AND `HANDOFF_CARRIERS.md` §0.05 IS THE PRE-REV-70 TEXT. Its "WHAT TO BUILD" list is WRONG: it asks
+for "a panel with real thickness and an underside" and calls that "the largest visible defect" —
+`TB_T = 0.0220` and `T.solid_prism` have been there since long before rev 70. The board has always had
+thickness. Read that section as HISTORY, and this section as the state.**
 
 ---
 ## §3 ITEM 2 — THE EMBLEM
@@ -147,12 +161,25 @@ circle, so the six strokes can be made near-parallel. Fit against `probe_rev69_f
 
 **READ `HANDOFF_CARRIERS.md` §2 — SEVENTEEN REFUTED ROWS — BEFORE YOU TRY ANYTHING HERE.**
 
+**AND TWO EMBLEM ITEMS THAT KEEP FALLING OUT OF THIS DOCUMENT — THIS IS THEIR THIRD DROP (rule 16):**
+* **F180 IS STALE AND NO REVISION HAS CLOSED IT** — it says **FOUR** ring contacts; `probe_rev63_reach.py`
+  reports **SIX**. What moved four → six is **not** the arc cut (it reads six under `T1_VW_NOARC=1`) and
+  **not** the spine constants; the remaining candidate is **F204's stroke weight**.
+* **THE FIT DEPTH IS STILL UNMEASURED** — the glyph's extreme is fitted 20 % into the band,
+  `1.0 - 0.8 * _BAND_FRAC` in `t1_core.py`. **The answer is a MEASUREMENT, not a guess.**
+* ⚠ **Dropped by rev 69's first draft, restored by an adversary; dropped again by the split, restored
+  again. If you rewrite this section, carry them.**
+
+**⚠ AND IF YOU RE-CUT `IMG_2073`'s BOX, TWO FILES HARD-CODE IT:** `probe_rev69_fitpose.py`'s `FRAMES`
+table **and** `audit_adversary.py`'s second-frame question. Re-cut one only and the guard silently
+keeps checking the old, clipped window.
+
 ---
 ## §4 ITEM 3 — THE NOSE
 
 **The geometry is BUILT and guarded.** `t1_detail.bumper`'s eleven constant-x points are draped onto
 the body's own front-face plan curve, raycast at build time. `BUMP_BOW = 1.0`, `BUMP_BOW_Z = 1.100`,
-ablation `T1_BUMP_BOW`. Measured on the mesh **+0.05 mm → +21.55 mm** (`STATE.md`). Watched failing:
+ablation `T1_BUMP_BOW`. Measured on the mesh **+21.55 mm at `T1_SUB=2`** (`STATE.md`); ablated it reads **+0.22 mm at `T1_SUB=1`** — **name the subdivision, the two differ**. Watched failing:
 `T1_BUMP_BOW=0` → `VERIFY: 2 fail`.
 
 **SO "FINISH THE NOSE RENDER" IS NOT MORE GEOMETRY. IT IS THE STEP THIS PROJECT SKIPS (rule 1):**
@@ -191,6 +218,12 @@ git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 > *"Row 9 cannot see this axis — it only finds branches ahead of HEAD."* **A fresh clone defaults to
 > `main` and would silently redo a whole revision on a stale tree** — that is exactly how rev 57b's
 > work sat stranded from rev 57 to rev 64. **Check out the branch before reading another file.**
+> **⚠ AND IT IS WORSE THAN STALENESS: `origin/main` HAS NO `HANDOFF_CARRIERS.md`, NO rev-71 BRIEF AND
+> NO `LEDGER_rev70.md`. Its `PASTE_INTO_CLAUDE_CODE.txt` is the rev-70 brief, whose #1 instruction is
+> to move the hatch angle to 28.0° — the instruction rev 70 spent a revision showing you must not
+> follow.** A clone that lands on `main` is actively misdirected, not merely behind. **CARRY THE
+> AHEAD/BEHIND NUMBER `bootstrap.sh` prints — it tells you to — and note the branch may also be
+> BEHIND: `origin/main` moved during rev 70's own audit.**
 > **And re-measure at close: no sentence about branch state survives the hour.**
 
 ---
@@ -277,8 +310,9 @@ still wrong, and what you measured.
 **AND THE NEW ONE, WHICH THE MEASUREMENT AT THE TOP OF THIS FILE EARNED:**
 
 > **55. EVERY REVISION SHIPS A VISIBLE CHANGE TO THE VEHICLE, OR SAYS PLAINLY WHY IT COULD NOT.**
-> All 54 existing rules are about not being WRONG; not one was about shipping. Rev 66–70 wrote
-> 1,122 geometry lines and closed **zero** findings. `verify_clone.sh` now has a row for this.
+> All 54 existing rules are about not being WRONG; not one was about shipping. Rev 66–69 wrote
+> ~900 geometry lines and closed **zero** findings; rev 70 closed **3**. **Run `revstats.py` for the
+> live pair — do not quote this sentence.** `verify_clone.sh` now has a row for this.
 
 **BEFORE YOU CLOSE:**
 1. `./bootstrap.sh` and `./verify_clone.sh` both all-PASS on a **clean** tree.
@@ -290,9 +324,15 @@ still wrong, and what you measured.
 5. **Keep the split.** Action brief short; carriers in `HANDOFF_CARRIERS.md`; `cp` the brief over
    `PASTE_INTO_CLAUDE_CODE.txt` in the same commit. **`HANDOFF_CARRIERS.md` §10 has the rest.**
 
-**⚠ THIS BRIEF WAS AUDITED AGAINST THE MACHINE.** `audit_brief.py` 10 checked / 0 FAILED;
-`audit_adversary.py` 57 asked / 0 BROKE, four questions replaced with behavioural ones and three
-watched failing; a dispatched adversary returned **21 defects on the long form of this document —
-four on its own #1 item**, all addressed. **The full audit record is `HANDOFF_CARRIERS.md` §0.02.**
-**Where it is still weakest: §2's photographed angle and chord are INHERITED from rev 62 and were
-NOT re-measured; and every figure quoted from `out/` needs a re-render before you quote it.**
+**⚠ THIS BRIEF WAS AUDITED AGAINST THE MACHINE, AND THE AUDIT REVERSED ITS TOP ITEM.**
+`audit_brief.py` 10 checked / 0 FAILED; `audit_adversary.py` 57 asked / 0 BROKE. **A dispatched
+adversary audited THIS document (not an earlier one) and its most important finding is F245: the
+chord change this brief's previous draft announced as shipped was a REGRESSION, and it is reverted.**
+It also found F180 and the fit-depth item dropped for a THIRD time (restored, §3), the carriers' run
+block pointing at stale frames (fixed), and this brief's own headline publishing a closure streak the
+script it cites says is broken (fixed). *(The rev-70 record — 21 defects on the pre-split long form —
+is in `HANDOFF_CARRIERS.md` §0.02.)*
+**WHERE IT IS STILL WEAKEST:** **§2's chord conflict is UNRESOLVED — 0.710 vs 0.790 from the same
+frame, an 11 % disagreement nothing in this tree settles**; the angle is unreconciled, not refuted;
+`HANDOFF_CARRIERS.md` §0.05 is pre-rev-70 text whose build list is wrong; and every figure quoted from
+`out/` needs a re-render before you quote it.

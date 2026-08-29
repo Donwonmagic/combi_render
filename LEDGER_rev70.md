@@ -1,7 +1,7 @@
 # LEDGER — rev 70
 
-> **RULE 55 HEADER — `python3 revstats.py`, run at close:**
-> **geometry 254 lines · doc 4188 lines · instrument 539 lines · findings closed/refuted 3**
+> **RULE 55 HEADER — run `python3 revstats.py`; it is the authority, not this line.**
+> At close it read: **rev 70 — geometry ~260 lines, findings closed/refuted/retracted 4.**
 > *(rev 8–20, the era the owner named, ran **721** geometry lines per revision at a doc:geo ratio of
 > **1.55**. The doc figure here is inflated by the handoff SPLIT, which moved 81 KB of carriers into a
 > new file — that is a one-off, not a trend; see §2.)*
@@ -45,17 +45,40 @@ emotional-bar row red**; §0 gutted → the reference-set row red. **Rule 55 add
 `verify_clone.sh` 351 → **358**, none relaxed, none re-based.
 
 ---
-## §3 THE BACK OPENING — BUILT
+## §3 THE BACK OPENING — ATTEMPTED, AND **RETRACTED IN THE SAME REVISION**
 
-**`TB_CHORD` 0.7110 → 0.8250 m.** Two independent frames, two scales, two picks:
+**⚠ `TB_CHORD` 0.7110 → 0.8250 WAS SHIPPED AND IS REVERTED. IT WAS A REGRESSION AND A DISPATCHED
+ADVERSARY CAUGHT IT (F245).** The reasoning below is left standing because it is exactly the reasoning
+that was wrong, and §4a says how:
 
 ```
     ref_side.jpg   RED bus, CURRENT livery, PRIMARY   >= 0.822 m   (mine, ends painted, k_t 215.5)
     IMG_3840.jpeg  the SAME bus, CHALKBOARD livery    >= 0.829 m   (F165, rev 62)
 ```
 
-Agreeing to **0.9 %** across eight revisions. **Both are LOWER BOUNDS and so is the shipped value** —
-the board sits inboard of the flank plane. 0.8250 is the shortest length consistent with both frames.
+Agreeing to **0.9 %** across eight revisions — **and both used a FLAT SCALAR on a PROJECTIVE image, so
+they share one ruler flaw and are not the independent corroboration they look like.**
+
+### §3a WHY IT WAS WRONG (F245)
+
+* **WRONG RULER (rule 38).** Through the project's own `flank_X` / `flank_kv`, **the same picks give
+  0.7899 m**, not 0.822. `flank_compare.py`'s header says a scalar px/m is wrong somewhere on this frame.
+* **THE SOURCE SAID SO TWO LINES BELOW:** *"a single px/m over-reads by 4.8 %"* — and I adopted a value
+  **larger** than the over-read.
+* **IT BROKE A MEASURED CLOSURE.** Base z **1.7470 ± 0.027**, tip z **2.184 ± 0.030**, and
+  `(2.184 − 1.747)/sin 38° = 0.7098`. **The 0.7110 is DERIVED from two measured heights, not read off
+  pixels.** 0.8250 put the tip **2.9σ** outside a measured one.
+* **AND MY OWN GUARD PASSED IT BECAUSE I SET THE FLOOR TO ADMIT IT** — `PHOTO_CHORD_MIN = 0.800`, 29 mm
+  **below** the weaker of the two bounds its own failure text quotes. **Rule 6, inside a guard written
+  to satisfy rule 13.**
+
+**WHAT REPLACES IT:** the chord floor is deleted; a **TIP-HEIGHT arm** takes its place — the only
+quantity on this board with an independent measured value — **watched failing at the retracted
+candidate (tip 2.2790, +95.0 mm, 3.2σ)**. The angle band widened ±4 → ±6 because the frame's own
+estimators spread ~5°.
+
+**WHAT IS STILL OPEN:** two-height closure **0.710**, calibrated read **0.790**, F165 **0.829**. The
+first two are both from `ref_side.jpg` and disagree by **11 %**. **Do not average them.**
 
 **THE GATE THIS OBJECT HAD NEVER HAD:** `verify._tail_board_pose`, reading the board's **principal
 axis in XZ off the built mesh** and naming that ruler — because **F165's "built 38.4° / 0.732 m" is
