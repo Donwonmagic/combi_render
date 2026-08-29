@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-29 01:56:55 UTC |
-| git commit | `7484391` |
-| git subject | tmp-precommit-for-state |
+| generated | 2026-08-29 02:10:24 UTC |
+| git commit | `55d9f72` |
+| git subject | rev 70d: BUILD the back opening -- the chord was the defect, the angle was not |
 | working tree | clean |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=2 (applied, destructive, before booleans) |
