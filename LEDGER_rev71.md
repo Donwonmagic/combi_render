@@ -174,6 +174,26 @@ owner's *"the strokes still don't reach the ring"* (F205) **visible at 1600×110
 against F233's *"substantially a preview-resolution artefact"*. Recorded, not measured — it is
 handed on rather than asserted (rule 37).
 
+### §2b AND `glass_rear` WAS PROJECTED AND PAINTED — F244 IS CORRECTED (F254)
+
+The incoming adversary found `REAR_OPEN_DEG = 64.0` and `open_rear_hatch()`'s own log line —
+*"OPEN 64.0 deg [angle NOT MEASURED -- no frame shows it]"* — in an area the brief rules
+*"SETTLED — DO NOT RE-OPEN"*. **F244's own ceiling admits it never projected the pane into the
+frame. Rev 71 did.**
+
+```
+    glass_rear's 72 verts, through the built hero34r camera   u 1018..1251  v 545..619  (233 x 74)
+    the dark rectangle, LARGEST CONNECTED dark blob           u  976..1247  v 545..670  (271 x 125)
+    of the rectangle's 19354 px, 63 % lie inside the pane's projection -- 37 % DO NOT
+```
+
+**So the shell is not holed — F244's headline stands — but the rectangle is NOT "a transmissive
+pane looking into an unlit interior": about a third of it is the OPEN APERTURE, with no pane in
+front of it, because the pane is hinged 64° out.** **And a first cut of that dark window, on a bare
+threshold, selected shadow slivers to the crop bounds and was discarded — the THIRD window rule 8
+killed this revision.** `REAR_OPEN_DEG` has **no frame behind it, no ablation switch and no guard**,
+and the owner's words were *"the back opening"*.
+
 ---
 ## §4 WHAT REV 71 GOT WRONG, IN ITS OWN WORK
 
@@ -182,11 +202,19 @@ handed on rather than asserted (rule 37).
 2. **A published intermediate that did not survive its own paint**: *"render 0.035 against photo
    0.359, a 10× deficit"* was stated in-flight and is **retracted** — the render side was measuring
    board cream. The corrected pair is **0.0417 against 0.1839, 4.4×**.
-3. **Two rows of my own new probe were mis-cut on first run** — E1's tolerance tripped on floating
+3. **A THIRD window, on the rear aperture, selected shadow slivers to the crop bounds** — caught by
+   painting, re-cut to the largest connected component (F254).
+4. **Two rows of my own new probe were mis-cut on first run** — E1's tolerance tripped on floating
    point at exactly one grid step, and E2's kill bar (0.05 on one end) was **tighter than the
    effect it was testing** (0.0451). Both re-cut against the *criterion*, not the data: E1 to "one
    sweep step", E2 to the sweep's **span**.
-4. **I said "translation restores it" in-flight and it does not** — 0.4988 → 0.5403 against a 0.90
+6. **I published (A) = 0.7469 from a scratch script.** Re-run from the committed probe it is
+   **0.7488**, which makes (B) — the brief's own prescription — **worse** than (A), not better.
+   Publishing a figure the next context cannot re-run is a rule-5 defect; the searches are now in
+   `probe_rev71_emblem.py` behind `T1_REV71_SEARCH`.
+7. **Three of the four adversary questions I wrote went red on my own logic** before they were
+   kept — which is the only reason I know they can go red at all (rule 3).
+5. **I said "translation restores it" in-flight and it does not** — 0.4988 → 0.5403 against a 0.90
    bar. Corrected in the same breath; the register and the probe both carry the weaker claim.
 
 ---

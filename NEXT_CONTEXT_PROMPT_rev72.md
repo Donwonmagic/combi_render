@@ -119,8 +119,18 @@ swung out, and F244's own words *"an aperture with a fully transmissive pane IN 
 the built object.** Its *"4 of 9 rays miss"* is equally consistent with *"there is a hole and the
 pane hangs open beside it"*. **The owner said "the back opening". There is an actual 64° opening at
 the back of this model on an unmeasured angle. PROJECT `glass_rear` AND THE APERTURE INTO
-`out/r72_hero34r.png`, PAINT THEM, AND LOOK, before accepting F244** — which F244's own ceiling
-already says was never done.
+`out/r72_hero34r.png`, PAINT THEM, AND LOOK** — **REV 71 DID THIS AND F244 IS CORRECTED (F254).**
+Projected through the built `hero34r` camera, `glass_rear`'s 72 verts land at **u 1018…1251,
+v 545…619 (233 × 74 px)**; the dark rectangle, as the largest connected dark blob, is **19354 px at
+u 976…1247, v 545…670 (271 × 125)**. **63 % of the rectangle lies inside the pane's projection;
+37 % does NOT** — it runs **42 px further left and 51 px lower** than the pane reaches. **So the
+shell is not holed, but the rectangle is NOT "a transmissive pane looking into an unlit interior"
+either: about a third of it is the OPEN APERTURE, with no pane in front of it.**
+**WHAT IS STILL OPEN AND IS THE OWNER'S OWN WORDS: `REAR_OPEN_DEG = 64.0` HAS NO FRAME BEHIND IT,
+NO ABLATION SWITCH AND NO GUARD.** Its own source says *"angle NOT MEASURED — no frame shows it"*.
+**That is the back opening, it is unmeasured, and it is the most likely thing rev 72 can actually
+SHIP on item 1** — either measure it from a frame, or state with its ceiling that it cannot be
+recovered and give it a switch and a row so the pose is at least declared.
 
 **(b) THE BULBS: F134 IS ANSWERED AND BOTH ITS LEVERS ARE MEASURED INERT (F249). DO NOT RE-SWEEP
 THEM.**
@@ -200,7 +210,7 @@ build T1_SUB=1 ~20 s      render 1600x1100 96 spp ~4.5-6 min PER VIEW
 
 ```bash
 ./bootstrap.sh                                # ALL 10 PASS -- read ROW 9 and its NOTE
-./verify_clone.sh                             # read its verdict block AND its row count
+./verify_clone.sh                             # verify_clone.sh: ALL 0 PASS -- read its verdict block
 T1_SUB=1 T1_VERIFY=1 /tmp/blender/blender -b -P build.py    # -> "VERIFY: 0 fail, 0 warn"
 ./judge_set.sh r72                            # the optics chain -- FIXED at rev 71 (F248)
 python3 probe_rev71_proxy.py                  # PROVE THE PROXY FIRST -- must read IoU 1.000000
@@ -286,3 +296,36 @@ anything is ready** — say what is fixed, what is still wrong, and what you mea
    Rev 71's incoming adversary returned **13 defects and its top three changed the revision's plan.**
 5. **Keep the split.** Action brief short; carriers in `HANDOFF_CARRIERS.md`; `cp` the brief over
    `PASTE_INTO_CLAUDE_CODE.txt` **in the same commit**.
+
+---
+**⚠ THIS BRIEF WAS AUDITED AGAINST THE MACHINE, AND THE AUDIT OF THE *INCOMING* BRIEF REVERSED
+WHAT REV 71 SPENT ITSELF ON.**
+
+`audit_brief.py` **10 checked / 0 FAILED**; `audit_adversary.py` **61 asked / 0 BROKE** — and
+**four of those 61 are NEW at rev 71**, replacing the rev-63 batch that §10 had listed as "next to
+replace" for four revisions while revs 68, 69 and 70 replaced none. **All four were watched going
+red, and three of them went red on MY OWN logic first** (a case-sensitive match, a check whose
+target string appeared inside my own correction refuting it, and a regex matching the word inside
+its own comment). The rev-62 batch is now the oldest and is next.
+
+**A DISPATCHED ADVERSARY AUDITED THE INCOMING REV-71 BRIEF AND RETURNED 13 DEFECTS. Its top three
+changed the revision's plan:** `judge_set.sh` was broken and had silently skipped the delivery view
+since the `hero34f` split (**F248**); the tail-board guard's recorded watched-failure figure would
+have **passed its own bar** (**F247**); and the brief's *"materials and emission"* diagnosis of the
+tail board was **wrong-caused** — the stripes are geometrically occluded from the side camera
+(0 red px, 0 dark px, measured). It also found `glass_rear` hinged **64° open** in an area the brief
+ruled *"settled"*, which led to **F254**.
+
+**WHERE THIS BRIEF IS WEAKEST, STATED RATHER THAN HIDDEN:**
+* **§2's whole case rests on F246, and F246 is one revision old with no second instrument behind
+  it.** The mechanism (bbox-crop + no translation search) is measured, but I did not prove it is the
+  ONLY cause of the control's collapse — padding, aspect and centring were not separately ablated.
+  **Ablate them before you build the replacement search.**
+* **The searches in §2 are computed on the instrument §2 refutes.** They rank candidates on one
+  fixed ruler, which is legitimate; **their distance from 0.9882 is not.**
+* **`HANDOFF_CARRIERS.md` is pre-rev-70 text throughout**, not only in §0.05 as the rev-71 brief
+  said. Its figures are superseded in §0, §0.06, §0.09, §8 and its drift table; **its RULINGS,
+  REFUTED LIST and RULES CANON are the parts to trust.**
+* **Every figure quoted from `out/` needs a re-render before you quote it** — `out/` starts empty.
+* **`probe_rev67_nose.py` bare still prints a GREEN summary and exits 0** while refusing on its
+  first line. Recorded at rev 71, **not fixed.**

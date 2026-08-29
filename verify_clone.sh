@@ -2316,6 +2316,40 @@ s = P.sagitta(e)
 print('OK' if abs(s['sag']) > 3 * s['se'] and s['rms'] <= P.rms_bar(s['span']) else
       'sag %.2f se %.2f rms %.2f' % (s['sag'], s['se'], s['rms']))" 2>&1 | tail -1)"
 
+# ---- rev 71: THE INSTRUMENT FINDINGS.  ANCHORED ON BEHAVIOUR AND ARITHMETIC,
+# NOT ON A GREP FOR A NAME (rule 50).
+#
+# F246.  P1b is the row that says the emblem's control is not framed the way
+# its measurement is.  It REFUSES on a shipped tree and it is MEANT to.  These
+# rows guard against it being deleted, or its bar widened to make it pass --
+# which is the shape of every relaxation this project has caught (rule 44).
+ck "the emblem probe carries the bbox-framed control" 1 \
+   "$(grep -c 'P1b CONTROL, FRAMED THE WAY EVERY REAL TARGET IS FRAMED' probe_rev69_fitpose.py)"
+ck "P1b's bar is still 0.90, not widened to admit its own refusal" 1 \
+   "$(grep -c 'v_ctl_bb > 0.90' probe_rev69_fitpose.py)"
+ck "and P1b actually REFUSES on this tree" FAIL \
+   "$(python3 probe_rev69_fitpose.py 2>/dev/null | grep -o 'FAIL] P1b' | head -1 | cut -d']' -f1 | sed 's/\[//')"
+# F247.  ARITHMETIC, not a grep: the figure the guard records as its watched
+# failure must EXCEED the bar the guard actually applies.  86.3 < 90.0 is how
+# rev 70 recorded a "watched failure" its own row admits.
+ck "the tail-board guard's recorded failure EXCEEDS its own bar" OK \
+   "$(python3 - <<'PY'
+import re
+s = open('verify.py').read()
+m = re.search(r'TIP_Z, TIP_BAND = ([\d.]+), ([\d.]+)', s)
+w = re.search(r'tip 2\.2790, \+([\d.]+) mm', s)
+print('OK' if (m and w and float(w.group(1)) > float(m.group(2)) * 3000.0) else 'NO')
+PY
+)"
+# F248.  Ask the SCRIPT which views it post-processes, not the prose about it.
+ck "judge_set.sh post-processes the delivery view" OK \
+   "$(awk '/^for v in/{sub(/#.*/,""); print (/hero34f/ && /hero34r/) ? "OK" : "NO"; exit}' judge_set.sh)"
+ck "judge_set.sh no longer loops over a view no preview list produces" 0 \
+   "$(awk '/^for v in/{sub(/#.*/,""); print; exit}' judge_set.sh | grep -c 'hero ')"
+# F251.  The 2-D proxy is only usable while it IS the build.
+ck "the emblem proxy still reproduces the bpy build exactly" 1 \
+   "$(python3 probe_rev71_proxy.py 2>/dev/null | grep -c 'IoU 1.000000')"
+
 ck "newest brief states THIS script's row count" "$((PASS+1))" "${_BRIEF_TOTAL:-0}"
 
 UNTRACKED="$(git status --porcelain 2>/dev/null | grep -c '^??')"
