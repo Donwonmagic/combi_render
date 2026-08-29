@@ -362,7 +362,7 @@ NOT sufficient"* was a MULTISTART ARTEFACT.** With a full-circle start set the r
 told rev 72 *"DO NOT MOVE ANY EMBLEM CONSTANT UNTIL P1b PASSES"* — **a blocker on the owner's #1 item
 that did not exist.** It also decomposed the collapse (**aspect/framing ≈ +0.28, translation ≈ +0.04**,
 so the attributed cause was the smaller half), found **P4 red on the honest window**, predicted
-**F251 flipping** on the repaired ruler, and caught the ledger publishing a verify_clone.sh `ALL 358 PASS` **before it
+**F251 flipping** on the repaired ruler, and caught the ledger publishing a 358-row verify_clone.sh pass figure **before it
 had been observed**. **All of that is acted on above; the repair and the ship exist because that
 adversary ran.**
 
