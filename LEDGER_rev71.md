@@ -7,7 +7,7 @@ python3 revstats.py, live at this commit:
     BASELINE rev  8-20    721 geometry lines/rev, doc:geo 1.55
              rev 61-70    287 geometry lines/rev, doc:geo 15.23
     LAST FIVE (66-70)    1908 geometry lines, 2 findings closed
-    rev 71 ITSELF        5 commits, 27 geometry lines, 1218 doc, 817 instrument, 0 closed
+    rev 71 ITSELF       12 commits, 27 geometry lines, 1819 doc, 878 instrument, 0 closed
     LAST FIVE (67-71)    1577 geometry lines, 2 findings closed
                          <- READ THAT HONESTLY: 27 geometry lines against a rev-8-20
                          baseline of 721/rev, and a doc:geo ratio worse than any band
@@ -329,13 +329,15 @@ and the bulb probe's plumbing and its watched kill.
 ## §6 THE MACHINE AT CLOSE
 
 ```
-bootstrap.sh          ALL 10 PASS (after pip install pillow), row 9: 0 ahead / 0 behind origin/main
+bootstrap.sh          ALL 10 PASS (after pip install pillow), row 9 clean
 verify_clone.sh       run it at close and read what it prints.  The first draft of this
                       ledger published "ALL 358 PASS" BEFORE IT HAD BEEN OBSERVED -- rule 5,
                       in the ledger whose headline finding is a figure that was never
                       watched.  The outgoing adversary caught it mid-audit at 349/9,
                       351/7 and 356/2
-build.py T1_VERIFY=1  VERIFY: 0 fail, 0 warn at T1_SUB=1 and T1_SUB=2
+build.py T1_VERIFY=1  VERIFY: 0 fail, 0 warn at T1_SUB=1 AND T1_SUB=2, both re-run at close
+verify_clone.sh       ALL 366 PASS on a clean tree -- 0 FIDELITY, 366 SELF-CONSISTENCY
+audit_brief.py        10 checked, 0 FAILED    audit_adversary.py  61 asked, 0 BROKE
 STATE.md              regenerated at T1_SUB=2; differs ONLY in provenance
 judge_set.sh r71      exit 0, four _post frames -- INCLUDING hero34f, a first (F248)
 probe_rev69_fitpose   5 checked, 2 FAILED -- P2 (the mark, 0.8425 against P1b's 0.9146)
