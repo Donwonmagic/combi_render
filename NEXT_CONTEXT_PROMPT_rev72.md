@@ -62,12 +62,14 @@ git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 ```
     P1  control, uncropped                                     IoU 0.9882
     P1b control, bbox-framed as every real target is           IoU 0.9703   <- PASSES, bar 0.90
-    the mark, ref_workshop.jpg                                     0.8379
-    the mark, IMG_2073.jpeg (independent, re-cut box)              0.8040
+    the mark, ref_workshop.jpg                                     0.8425
+    the mark, IMG_2073.jpeg (independent, re-cut box)              0.8215
 ```
 
-**SO THE EMBLEM'S REAL SHAPE DEFICIT IS ≈0.13 AGAINST P1b's 0.9703 — NOT the 0.2537 the record
-published for eight revisions.** That figure subtracted two numbers measured through **different
+**SO THE EMBLEM'S REAL SHAPE DEFICIT IS ≈0.07 AGAINST P1b's 0.9146 — NOT the 0.2537 the record
+published for eight revisions.**
+> **⚠ AND P1b's OWN VALUE MOVES WITH THE GEOMETRY — 0.9703 at FIT_R 0.84, 0.9146 at 0.86. The
+> ceiling is good to about ±0.05, so quote the deficit as ≈0.07–0.13 and never tighter.** That figure subtracted two numbers measured through **different
 framings**: `photo_mark` bbox-crops every photograph, P1's control was the raw `warp` output, and
 `fit()` searched no translation over only half the circle. **Both defects are fixed.**
 `T1_FITPOSE_LEGACY=1` restores the rev-69 search and **drives P1b back to 0.4988 — its kill, watched.**
@@ -75,11 +77,11 @@ framings**: `photo_mark` bbox-crops every photograph, P1's control was the raw `
 survives, its MAGNITUDE does not.**
 
 **WHAT SHIPPED (F256):** `VW_FIT_COEF` 0.8 → **0.7** in `t1_detail.py`, i.e. the glyph's extreme
-fitted **0.84 R → 0.86 R**. **Both photographs prefer the deeper fit** — 0.8379 → **0.8425**
-(ref_workshop) and 0.8040 → **0.8202** (independent). **Rendered, cropped and looked at: the V's arm
+fitted **0.84 R → 0.86 R**. **Both photographs prefer the deeper fit** — 0.8384 → **0.8425**
+(ref_workshop) and 0.8168 → **0.8215** (independent). **Rendered, cropped and looked at: the V's arm
 tips and the W's outer arms now RUN INTO the ring band where they visibly stopped short.** That is the
 owner's own report, *"The strokes still don't reach the ring"* (F205). `T1_VW_FITCOEF=0.8` restores it.
-**CEILING: 0.86 against 0.9703 — the emblem is still ~0.13 short and he has reported it NINE times.
+**CEILING: 0.8425 against P1b's 0.9146 — the emblem is still ~0.07–0.13 short and he has reported it NINE times.
 IT IS NOT FIXED.**
 
 > **⚠ AND `STATE.md` DOES NOT WITNESS THIS CHANGE** — the emblem is a detail object outside its
@@ -87,8 +89,8 @@ IT IS NOT FIXED.**
 
 **⚠⚠ THE BIGGEST LIVE ITEM: P4 IS RED. THE TRACED FACTORY PRESSING NOW WINS ON THE INDEPENDENT
 FRAME (F255).** P4 exists to go red *"if the trace ever wins independently"*, and it has:
-**traced − shipped = +0.0109 on its own source frame and +0.0113 on `IMG_2073.jpeg`. The two margins
-agree to 0.0004** — the signature of a real improvement, not overfitting. **The published −0.0249 that
+**traced − shipped = +0.0060 on its own source frame and +0.0081 on `IMG_2073.jpeg`. Both positive,
+agreeing to 0.0021** — the signature of a real improvement, not overfitting. **The published −0.0249 that
 was the entire live evidence for *"the trace is OVERFIT"* was measured on the CLIPPED window with a
 search that could not register it.** **F183 must be re-opened, and row 12 of `HANDOFF_CARRIERS.md`
 §2's seventeen refuted rows is now its first live entry.**

@@ -47,17 +47,20 @@ def main():
     # of the mark's ink -- 2527 on-px against 2926 -- and was never painted.
     dst_ind = F.photo_mark("IMG_2073.jpeg", (283, 537, 357, 662), True)
 
+    import t1_detail as _D
+    SHIPPED_FR = round(1.0 - _D.VW_FIT_COEF * X.BAND_FRAC, 4)   # LIVE, never typed
     base = None
     rows = []
     keep = X.FIT_R
     try:
-        for fr in (0.70, 0.74, 0.78, 0.80, 0.82, 0.84, 0.86, 0.88, 0.90, 0.94, 1.00):
+        for fr in sorted({0.70, 0.74, 0.78, 0.80, 0.82, 0.84, 0.86, 0.88, 0.90,
+                          0.94, 1.00, SHIPPED_FR}):
             X.FIT_R = fr
             m = X.mask(X.SHIPPED, X.WFRAC, rows=220)
             a = F.fit(m, dst_fit)[0]
             b = F.fit(m, dst_ind)[0]
             rows.append((fr, a, b))
-            if abs(fr - 0.84) < 1e-9:
+            if abs(fr - SHIPPED_FR) < 1e-9:
                 base = (a, b)
     finally:
         X.FIT_R = keep
@@ -68,7 +71,7 @@ def main():
     print("     FIT_R    ref_workshop   IMG_2073(re-cut)")
     for fr, a, b in rows:
         print("     %.3f      %.4f          %.4f%s"
-              % (fr, a, b, "   <-- SHIPPED" if abs(fr - 0.84) < 1e-9 else ""))
+              % (fr, a, b, "   <-- SHIPPED" if abs(fr - SHIPPED_FR) < 1e-9 else ""))
 
     best_fit = max(rows, key=lambda r: r[1])
     best_ind = max(rows, key=lambda r: r[2])
@@ -77,16 +80,16 @@ def main():
     # finest statement this sweep can make -- claiming tighter would be reading
     # below the instrument's own resolution (rule 48).
     step = 0.02 + 1e-9
-    ck("E1 THE SHIPPED FIT DEPTH 0.84 IS WITHIN ONE SWEEP STEP OF THE OPTIMUM "
-       "ON BOTH FRAMES",
-       abs(best_fit[0] - 0.84) <= step and abs(best_ind[0] - 0.84) <= step,
+    ck("E1 THE SHIPPED FIT DEPTH %.2f IS WITHIN ONE SWEEP STEP OF THE OPTIMUM "
+       "ON BOTH FRAMES" % SHIPPED_FR,
+       base is not None and abs(best_fit[0] - SHIPPED_FR) <= step
+       and abs(best_ind[0] - SHIPPED_FR) <= step,
        "best on ref_workshop is FIT_R %.2f (%.4f) against the shipped 0.84's "
        "%.4f -- a difference of %+.4f; best on the INDEPENDENT frame is "
-       "FIT_R %.2f (%.4f against the shipped %.4f, %+.4f).  ON THE REPAIRED "
-       "RULER (F246) BOTH FRAMES PREFER A DEEPER FIT THAN THE SHIPPED 0.84, "
-       "and the independent frame's argmax is TWO steps away -- which is why "
-       "this row refuses.  On the BROKEN ruler it passed, and rev 71's first "
-       "draft graded the fit depth CLOSED on that reading"
+       "FIT_R %.2f (%.4f against the shipped %.4f, %+.4f).  REV 71 SHIPPED "
+       "0.86 BECAUSE BOTH FRAMES' ARGMAX IS THERE (F256).  On the BROKEN "
+       "ruler (F246) 0.84 looked optimal and rev 71's first draft graded this "
+       "CLOSED on that reading; repaired, both frames moved DEEPER"
        % (best_fit[0], best_fit[1], base[0], best_fit[1] - base[0],
           best_ind[0], best_ind[2], base[1], best_ind[2] - base[1]))
 

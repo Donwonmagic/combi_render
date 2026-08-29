@@ -151,9 +151,16 @@ def fit(src, dst, rounds=7):
     # at 150 deg, which is why the bbox-framed control landed in a bad basin at
     # 0.5403 and was misread as "translation is not sufficient".
     _starts = [0, 30, 60, 90, 120, 150] if _LEGACY else list(range(0, 360, 20))
+    # AND THE Y-SCALE IS SEEDED TOO (rev 71, second cut).  With one y-seed the
+    # bbox-framed control passed at FIT_R 0.84 (0.9703) and COLLAPSED to 0.7004
+    # at 0.86 -- a 2.4 % geometry change flipping the control, which is basin
+    # fragility and not shape.  P1b caught it on rev 71's own shipped change
+    # (rule 44).  Three y-seeds: 0.7004 -> 0.9146, and 36 rotations -> 0.9314.
+    _ys = [1.0] if _LEGACY else [0.6, 1.0, 1.5]
     _n = 6 if _LEGACY else 8
-    for rot0 in np.radians(_starts):
-        p = [rot0, 1.0, 1.0, 0.0, 0.0, 0.0] + ([] if _LEGACY else [0.0, 0.0])
+    _seeds = [(r, y) for r in np.radians(_starts) for y in _ys]
+    for rot0, ys0 in _seeds:
+        p = [rot0, 1.0, ys0, 0.0, 0.0, 0.0] + ([] if _LEGACY else [0.0, 0.0])
         cur = iou(warp(src, make_H(p), dst.shape), dst)
         step = [0.20, 0.20, 0.20, 0.15, 0.15, 0.15, 0.15, 0.15][:_n]
         for _ in range(rounds):

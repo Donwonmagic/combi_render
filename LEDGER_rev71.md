@@ -83,7 +83,7 @@ FRAMES` still carried `IMG_2073`'s clipped `(288,542)–(352,640)` while `probe_
 the honest window — **the exact trap this revision's own brief documents, committed by the revision
 documenting it.** `audit_adversary.py` too.
 
-**WHAT THE REPAIRED RULER SAYS.** The mark scores **0.8379** on `ref_workshop.jpg` and **0.8040** on
+**WHAT THE REPAIRED RULER SAYS.** The mark scores **0.8425** on `ref_workshop.jpg` and **0.8215** on
 `IMG_2073.jpeg`, against P1b's honest ceiling of **0.9703**. **So the emblem's real shape deficit is
 ≈0.13 — not the 0.2537 the record published, and not "unknown".** F237's *"4.4 % of the deficit"* was
 a ratio against a number that was not what it claimed; **its direction survives, its magnitude does
@@ -93,9 +93,9 @@ not.**
 
 ```
     FIT_R   ref_workshop   IMG_2073 (independent, re-cut box)
-    0.84      0.8379          0.8040      <- shipped rev 49..70
-    0.86      0.8425          0.8202      <- SHIPS.  ref_workshop's argmax
-    0.88      0.8394          0.8215      <- IMG_2073's argmax
+    0.84      0.8384          0.8168      <- shipped rev 49..70
+    0.86      0.8425          0.8215      <- SHIPS.  THE ARGMAX ON BOTH FRAMES
+    0.88      0.8394          0.8215
 ```
 
 **Both photographs prefer a DEEPER fit.** `VW_FIT_COEF` 0.8 → 0.7; `T1_VW_FITCOEF=0.8` restores the
@@ -107,7 +107,8 @@ at 2.5× against the old build, **the V's arm tips and the W's outer arms now ru
 where they visibly stopped short with a gap.** That is the owner's own repeated report — *"The
 strokes still don't reach the ring"* — and F205.
 
-> **CEILING, AND IT IS BINDING: 0.86 sits against a ceiling of 0.9703. The emblem is still ~0.13 of
+> **CEILING, AND IT IS BINDING: 0.8425 sits against P1b's 0.9146, and P1b itself moves with the
+> geometry (0.9703 at FIT_R 0.84), so the ceiling is good to ~±0.05. The emblem is still ~0.07–0.13 of
 > IoU short and he has reported it NINE times. It is not fixed.** One constant moved in the right
 > direction, corroborated on two frames, and looked at. **`STATE.md` does not witness it** — the
 > emblem is a detail object outside its dimension rows — so the evidence is the probe and the crop.
@@ -115,8 +116,8 @@ strokes still don't reach the ring"* — and F205.
 ### §1d P4 IS RED — THE TRACED PRESSING NOW WINS INDEPENDENTLY (F255)
 
 P4 exists to go red *"if the trace ever wins independently"*. **It has.** On the repaired ruler and
-the honest window: **traced − shipped = +0.0109 on its own source frame and +0.0113 on the
-independent one. The two margins agree to 0.0004** — the signature of a real improvement, not of
+the honest window: **traced − shipped = +0.0060 on its own source frame and +0.0081 on the
+independent one. Both positive, agreeing to 0.0021** — the signature of a real improvement, not of
 overfitting. **The published −0.0249 that was the whole live evidence for "overfit" was measured on
 the clipped window with a search that could not register it. F183 and F237's mechanism must be
 re-opened, and row 12 of §2's seventeen-row refuted list is now its first live entry.**
@@ -337,7 +338,7 @@ verify_clone.sh       run it at close and read what it prints.  The first draft 
 build.py T1_VERIFY=1  VERIFY: 0 fail, 0 warn at T1_SUB=1 and T1_SUB=2
 STATE.md              regenerated at T1_SUB=2; differs ONLY in provenance
 judge_set.sh r71      exit 0, four _post frames -- INCLUDING hero34f, a first (F248)
-probe_rev69_fitpose   5 checked, 2 FAILED -- P2 (the mark, 0.8379 against a 0.9703 ceiling)
+probe_rev69_fitpose   5 checked, 2 FAILED -- P2 (the mark, 0.8425 against P1b's 0.9146)
                       and P4 (the TRACE now wins independently -- F183 re-opened, F255).
                       P1b PASSES at 0.9703 after the repair; T1_FITPOSE_LEGACY=1 drives it
                       back to 0.4988, watched
