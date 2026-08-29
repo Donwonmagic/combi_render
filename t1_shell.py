@@ -1891,10 +1891,60 @@ def trunk_bay(log=print):
 # sec.0.4's k_t, renormalised and C0-checked against X(242.84)=+1.3000,
 # X(749.38)=-1.1000, X(922.2)=X_TAIL).  Uncertainties are Monte-Carlo over
 # endpoint jitter, k_t 215.5+-3.0 and the datum +-0.020.
-TB_TILT_DEG = 38.0        # MEASURED +-2.3, FROM HORIZONTAL.  Say which datum:
-                          # from VERTICAL this is 52.0, and the rev-49 brief's
-                          # bare "39 degrees" does not state which it meant.
-TB_CHORD    = 0.7110      # MEASURED +-0.028, in the vehicle's XZ plane.
+# ------------------------------------------------------------------ rev 70
+# *** DO NOT "FIX" THIS TO 28.0.  F165's 28.0 IS REFUTED, AND THE REASON IS
+# *** THAT THIS BOARD IS HINGED: ITS ANGLE IS A POSE, NOT A DIMENSION. ***
+#
+# Rev 70's brief made "38.0 against a photographed 28.0, ~10 deg too steep" the
+# top item.  Re-measured on BOTH frames, with every pick PAINTED first:
+#
+#     ref_side.jpg   RED bus, CURRENT livery, F163's PRIMARY frame   38.8 deg
+#     IMG_3840.jpeg  the SAME bus, CHALKBOARD livery                 21.0 deg
+#     BUILT                                                          38.0 deg
+#     F165 published                                                 28.0 deg
+#
+# THE TWO FRAMES DISAGREE BY 18 DEGREES BECAUSE SOMEBODY PROPPED IT DIFFERENTLY
+# ON TWO DIFFERENT DAYS.  F165 measured one frame and recorded the result as
+# though the angle were a property of the vehicle.  It is not -- and 28.0
+# matches NEITHER frame; it sits between them.
+#
+# THE SHIPPED 38.0 MATCHES THE PRIMARY FRAME TO 0.8 DEG.  Moving it to 28.0
+# would have made the model WORSE against the target vehicle in its current
+# livery.  Rule 35: a guard written against a POSE encodes that pose.
+# ref_side.jpg method: the two ends picked and painted (probe_scratch/
+# rev70_hatch_ends.png), chord 876,294 -> 1014,183, baseline 177 px.
+# IMG_3840 method: the orange top face's CENTRELINE fitted over 60 columns
+# (the two long edges converge under perspective, so the centreline is the
+# chord's estimator), 21.0 deg, bracket 19.6..22.4, rms 2.35 px, against a
+# control -- the two hub centres are level in the vehicle frame and image at
+# -0.56 deg, so horizontal images as horizontal here to ~1 deg.
+# T1_TB_TILT exists so the angle arm of the new guard can be watched firing --
+# and so the next context can SEE that "fixing" this to F165's 28.0 turns the
+# row RED against the primary frame, rather than having to take that on trust.
+TB_TILT_DEG = float(os.environ.get("T1_TB_TILT", 38.0))
+                          # A POSE, matching the PRIMARY frame's 38.8 +-1.
+                          # Say which datum: from VERTICAL this is 52.0, and
+                          # the rev-49 brief's bare "39 degrees" does not.
+# ------------------------------------------------------------------ rev 70
+# THE CHORD IS THE BOARD'S ONE DEFECT THAT TWO INDEPENDENT FRAMES AGREE ON.
+#
+#     BUILT, rev 49 .. rev 69                              0.7110 m
+#     ref_side.jpg   (RED bus, CURRENT livery, PRIMARY)  >= 0.822 m
+#     IMG_3840.jpeg  (the SAME bus, CHALKBOARD livery)   >= 0.829 m   (F165)
+#
+# MINE, on ref_side.jpg and INDEPENDENT of F165's frame, ruler and pick: the
+# board images 177.1 px between two ends PAINTED and looked at before the
+# arithmetic (base 876,294 -> tip 1014,183), at this file's own recorded
+# k_t = 215.5 +- 3.0 px/m for that frame, giving 0.822 +- 0.011 m.
+#
+# BOTH ARE LOWER BOUNDS AND THE SHIPPED VALUE IS TOO: the board sits INBOARD of
+# the flank plane, so px/m there is SMALLER and the metric length LARGER.  0.825
+# is the mean of the two bounds -- the SHORTEST length consistent with both
+# frames, not an estimate of the true one, which is >= it.
+# T1_TB_CHORD restores the rev-49..69 value so the new guard can be WATCHED
+# REFUSING on the real defect rather than on an injected one (rule 3).
+TB_CHORD    = float(os.environ.get("T1_TB_CHORD", 0.8250))
+                          # LOWER BOUND from TWO frames (0.822 / 0.829).
                           # The IMAGE-PLANE chord is 0.745 m; reading it with a
                           # single px/m over-reads by 4.8 % because the map's x
                           # and z scales differ at that station.
