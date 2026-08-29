@@ -7,6 +7,16 @@ python3 revstats.py, live at this commit:
     BASELINE rev  8-20    721 geometry lines/rev, doc:geo 1.55
              rev 61-70    287 geometry lines/rev, doc:geo 15.23
     LAST FIVE (66-70)    1908 geometry lines, 2 findings closed
+    rev 71 ITSELF        5 commits, 27 geometry lines, 1218 doc, 817 instrument, 0 closed
+    LAST FIVE (67-71)    1577 geometry lines, 2 findings closed
+                         <- READ THAT HONESTLY: 27 geometry lines against a rev-8-20
+                         baseline of 721/rev, and a doc:geo ratio worse than any band
+                         in the table.  The ONE constant that moved is the ship.
+                         run `python3 revstats.py` at close and read its rev-71 row --
+                         this revision's geometry is ONE CONSTANT (VW_FIT_COEF) and its
+                         doc:geo ratio is accordingly terrible.  SAY SO rather than
+                         quoting the band average, which stops one revision short of
+                         measuring the revision that quotes it
 ```
 
 > **⚠ THE FIGURES THREE CARRIERS PUBLISH FOR THAT SECOND ROW ARE WRONG.** The brief says
@@ -15,62 +25,107 @@ python3 revstats.py, live at this commit:
 > published on the ratio and better on the geometry.** The brief also says *"rev 70 closed 3"*;
 > `revstats.py` says **2**. Corrected in all three files this revision.
 
-**RULE 55, ANSWERED PLAINLY AND IN THE NEGATIVE: REV 71 SHIPPED NO VISIBLE CHANGE TO THE
-VEHICLE. NOT ONE CONSTANT MOVED.** `STATE.md` regenerated at `T1_SUB=2` differs from rev 70's
-**only in its provenance block** — generated-time, commit hash, subject — which is the machine's
-own confirmation that the mesh did not move.
+**RULE 55, ANSWERED — AND ONLY BECAUSE A DISPATCHED ADVERSARY REFUTED MY OWN HEADLINE IN TIME.**
+**REV 71 SHIPS ONE VISIBLE CHANGE TO THE VEHICLE, ON THE OWNER'S OWN #1 ITEM: the emblem's glyph
+now REACHES THE RING** (`VW_FIT_COEF` 0.8 → 0.7, FIT_R 0.84 → 0.86, **F256**).
 
-**WHY, AND IT IS A REASON AND NOT AN EXCUSE: THE RULER FOR THE OWNER'S TOP ITEM TURNED OUT TO BE
-BROKEN, AND I FOUND IT BEFORE I SHIPPED ON IT.** Rev 70's whole lesson (F245) is that shipping a
-geometry change on a ruler you have not checked costs a revision. The emblem's ruler — the
-pose-free IoU that rev 69 built and this brief ranks as the revision's live build item — **fails
-its own control when the control is framed the way its measurements are framed (F246).** I had a
-candidate emblem construction measuring **+0.024 / +0.015** on two frames by that ruler. **I did
-not ship it.** That is the same call rev 70 should have made and did not.
+**AND FOR MOST OF THIS REVISION IT WAS GOING TO SHIP NOTHING.** The first draft of this ledger said
+so at the top: it had found the emblem's ruler broken (**F246**), concluded the repair was *"necessary
+and NOT sufficient"*, shipped the probe REFUSING, and told rev 72 **"DO NOT MOVE ANY EMBLEM CONSTANT
+UNTIL P1b PASSES"**. **A rule-17 adversary dispatched at that outgoing brief measured the one thing I
+had not — the search's START SET — and refuted me.** The collapse was **two** defects compounding, not
+one: no translation **and** a rotation start set covering only half the circle. Repaired, **P1b passes
+at 0.9703**; on that ruler both photographs prefer a **deeper** fit than the 0.84 shipped since rev 49;
+the change was rendered, cropped and looked at; and it ships.
+
+> **THE LESSON IS RULE 17's OWN, AND IT COST THE REVISION'S FIRST DRAFT ITS HEADLINE.** I audited the
+> brief I RECEIVED and it changed my plan. I nearly closed without dispatching one at the brief I
+> WROTE, and that one **reversed the revision's central conclusion, unblocked the owner's top item,
+> and turned "shipped nothing" into a shipped change.** Both audits paid. Neither was optional.
 
 ---
 ## WHAT REV 71 DID
 
 | # | the owner's item | what happened |
 |---|---|---|
-| **2** | *"make the emblem correct"* | **the instrument is refuted (F246), the prescribed build is refuted (F252), and one open constant is CLOSED (F251)** |
+| **2** | *"make the emblem correct"* | **the ruler was refuted AND REPAIRED (F246), the prescribed build is refuted (F252), the fit depth is measured and SHIPPED (F251/F256), and P4 has gone RED — the traced pressing now wins independently (F255)** |
 | **3** | *"finish the nose render"* | **rendered at 3200-class settings, cropped and LOOKED AT.** `probe_rev67_nose.py`'s P3 **REFUSES** on the frame |
 | **1** | *"the back opening"* | **F134 answered after ten revisions (F249), both its levers measured inert, a gate built and watched failing** |
 
 ---
-## §1 THE EMBLEM — THE CONTROL DOES NOT CONTROL THE MEASUREMENT (F246)
-
-**THIS IS THE REVISION'S RESULT AND IT INVALIDATES A PUBLISHED HEADLINE.**
+## §1 THE EMBLEM — THE CONTROL DID NOT CONTROL THE MEASUREMENT, AND IT IS FIXED (F246)
 
 `photo_mark` ends every real target with `m[ys.min():ys.max()+1, xs.min():xs.max()+1]` — **every
-photograph is bbox-cropped.** P1's synthetic control is **not**: it is the raw output of `warp`,
-centred on the output frame. And `fit()` searches **no translation**, while its docstring asserts
-the premise that would make that safe — *"both masks are already centred on their own bounding
-boxes"* — which is **false for a bbox crop**, because a projected disc's bbox centre is not its
-centre.
+photograph is bbox-cropped.** P1's synthetic control was **not**: it is the raw output of `warp`,
+centred on the output frame. And `fit()` searched **no translation**, while its docstring asserted
+the premise that would make that safe. **Bbox-framed, the control collapsed to 0.4988 — BELOW the
+0.7345 its own specimen scored (rule 42).**
+
+**MY FIRST DRAFT STOPPED THERE AND WAS WRONG.** It measured translation lifting the control only
+0.4988 → 0.5403, called that *"necessary and NOT sufficient"*, and shipped a blocker. **The
+dispatched adversary measured the START SET:**
 
 ```
-    the SAME search, the SAME model, the SAME known 37 deg / 0.62 / shear / perspective view
-        framed as P1 frames it        (uncropped)      IoU 0.9882
-        framed as photo_mark frames every real target      0.4988
-    the MARK itself, on ref_workshop.jpg                   0.7345
+    the SAME bbox-framed control, the SAME model, the SAME known view
+        6-param, 6 rotation starts (0..150 deg)  -- the rev-69 search   0.4988
+        8-param, the same 6 starts                                      0.5403   <- my "not sufficient"
+        8-param, FULL CIRCLE every 20 deg                               0.9703   <- PASSES (bar 0.90)
+        analytic  H = inv(Hk) @ the crop's own affine                   1.000000
 ```
 
-**THE CONTROL SCORES 0.25 BELOW THE SPECIMEN IT CERTIFIES.** A control that loses to its own
-specimen is not a ceiling (rule 42). **So `0.9882 - 0.7345 = 0.2537` is not a shape deficit**, and
-**F237's *"all seven constants buy 4.4 % of the deficit"* is a ratio against a number that is not
-what it claims.** F237's *direction* survives — the levers ARE nearly inert, re-measured at
-**+0.0124** — but its magnitude does not.
+**TWO defects were compounding, not one.** `fit()` now searches translation over the full circle;
+**P1b PASSES at 0.9703**; `T1_FITPOSE_LEGACY=1` restores the rev-69 search and **drives P1b back to
+0.4988 — watched, so the repair is proven, not asserted** (rule 3). Two `verify_clone.sh` rows hold
+both halves.
 
-**HOW MUCH OF IT IS REGISTRATION:** two translation terms in the same coordinate descent lift the
-mark **0.7345 → 0.8324** (`ref_workshop.jpg`) and **0.6553 → 0.7944** (`IMG_2073.jpeg`, re-cut
-box). **Two independent frames, same direction, ~0.10–0.14 each.**
+**AND THE BOX WAS RE-CUT IN ALL THREE FILES, HAVING BEEN RE-CUT IN ONLY ONE.** `probe_rev69_fitpose.
+FRAMES` still carried `IMG_2073`'s clipped `(288,542)–(352,640)` while `probe_rev71_emblem.py` used
+the honest window — **the exact trap this revision's own brief documents, committed by the revision
+documenting it.** `audit_adversary.py` too.
 
-**AND IT IS NOT REPAIRED, DELIBERATELY (rule 44).** The same two terms lift the bbox-framed
-**control** only **0.4988 → 0.5403** — still far below its 0.90 bar. **Translation is NECESSARY
-and NOT SUFFICIENT**, so `fit()` was not changed, `P1b` is in the probe and **REFUSES**, and the
-diagnosis prints beside it every run. **The next revision's first job on the emblem is a pose
-search whose P1b PASSES. Until then the emblem has no trustworthy scalar.**
+**WHAT THE REPAIRED RULER SAYS.** The mark scores **0.8379** on `ref_workshop.jpg` and **0.8040** on
+`IMG_2073.jpeg`, against P1b's honest ceiling of **0.9703**. **So the emblem's real shape deficit is
+≈0.13 — not the 0.2537 the record published, and not "unknown".** F237's *"4.4 % of the deficit"* was
+a ratio against a number that was not what it claimed; **its direction survives, its magnitude does
+not.**
+
+### §1c WHAT REV 71 SHIPPED (F256)
+
+```
+    FIT_R   ref_workshop   IMG_2073 (independent, re-cut box)
+    0.84      0.8379          0.8040      <- shipped rev 49..70
+    0.86      0.8425          0.8202      <- SHIPS.  ref_workshop's argmax
+    0.88      0.8394          0.8215      <- IMG_2073's argmax
+```
+
+**Both photographs prefer a DEEPER fit.** `VW_FIT_COEF` 0.8 → 0.7; `T1_VW_FITCOEF=0.8` restores the
+old value exactly. `VERIFY: 0 fail, 0 warn` at both subdivisions; `probe_rev46_vw.py` unchanged at
+12/1 (C4 only).
+
+**AND IT WAS RENDERED, CROPPED AND LOOKED AT BEFORE IT SHIPPED — THE ONLY REASON IT SHIPPED.** Held
+at 2.5× against the old build, **the V's arm tips and the W's outer arms now run INTO the ring band
+where they visibly stopped short with a gap.** That is the owner's own repeated report — *"The
+strokes still don't reach the ring"* — and F205.
+
+> **CEILING, AND IT IS BINDING: 0.86 sits against a ceiling of 0.9703. The emblem is still ~0.13 of
+> IoU short and he has reported it NINE times. It is not fixed.** One constant moved in the right
+> direction, corroborated on two frames, and looked at. **`STATE.md` does not witness it** — the
+> emblem is a detail object outside its dimension rows — so the evidence is the probe and the crop.
+
+### §1d P4 IS RED — THE TRACED PRESSING NOW WINS INDEPENDENTLY (F255)
+
+P4 exists to go red *"if the trace ever wins independently"*. **It has.** On the repaired ruler and
+the honest window: **traced − shipped = +0.0109 on its own source frame and +0.0113 on the
+independent one. The two margins agree to 0.0004** — the signature of a real improvement, not of
+overfitting. **The published −0.0249 that was the whole live evidence for "overfit" was measured on
+the clipped window with a search that could not register it. F183 and F237's mechanism must be
+re-opened, and row 12 of §2's seventeen-row refuted list is now its first live entry.**
+
+**BUT IT DOES NOT SHIP AND CANNOT (rule 12):** `T1_VW_TRACED=1` **does not build** —
+`AssertionError: F205: a glyph front face is only −1.05 mm proud of the cream disc`. **The pose-free
+IoU is a SILHOUETTE measure and cannot see depth.** The outline is better; the depth placement is
+broken. Fix that, rebuild, **render it and look** — which is what F183 originally rested on — and
+only then decide.
 
 ### §1a THE PRESCRIBED BUILD, MEASURED AND REFUTED (F252)
 
@@ -91,27 +146,24 @@ photograph's are near-parallel, and the painted overlay shows the residual is st
 *lateral displacement* — **but its PRESCRIPTION is refuted.** **(C) was NOT shipped**, because
 every figure in that table is computed on the instrument F246 just refuted.
 
-### §1b THE FIT DEPTH IS CLOSED (F251) — AND IT WAS ALREADY RIGHT
+### §1b THE FIT DEPTH — AND HOW THE BROKEN RULER NEARLY CLOSED IT WRONG (F251)
 
-The item three briefs called *"still UNMEASURED"* and dropped three times. **⚠ And it is in
-`t1_detail.vw_logo_fit`, NOT `t1_core.py` where the brief cites it** — `grep -n "BAND_FRAC"
-t1_core.py` returns nothing (rule 18).
+The item three briefs called *"still UNMEASURED"* and dropped three times. **⚠ It is in
+`t1_detail.vw_logo_fit`, NOT `t1_core.py` where the incoming brief cited it** (rule 18).
 
-```
-    FIT_R    ref_workshop   IMG_2073 (re-cut)
-    0.700      0.6449          0.5475
-    0.820      0.7362          0.6518      <- best on the fit frame, by +0.0017
-    0.840      0.7345          0.6553      <- SHIPPED, and best on the INDEPENDENT frame
-    1.000      0.6894          0.6334
-```
+**ON THE BROKEN RULER 0.84 LOOKED OPTIMAL AND I GRADED IT `CLOSED — it was already right`.** On the
+repaired ruler both frames prefer deeper (§1c), E1 **correctly refuses** the value it had just
+passed, and the row is regraded `CORRECTED-rev71`. **A dispatched adversary predicted exactly this
+before the sweep was re-run.** *(E1 also passed with zero margin on the broken ruler — |0.82−0.84|
+against a step of 0.02 — and this ledger's §4 records the bar being re-cut after its first run
+tripped. Both are why it should not have been graded closed.)*
 
-**Within one sweep step of the argmax on both frames**, and the sweep spans 0.0913 so it can
-plainly see the constant. `probe_rev71_emblem.py`: **3 checked, 0 FAILED.**
-
-**AND THE ENABLING INSTRUMENT IS KEPT.** `probe_rev71_proxy.py` — a 2-D replica of the emblem
-raster **PROVEN BIT-IDENTICAL to the bpy build**: IoU **1.000000**, **41255 on-pixels each side**,
-at 276 rows. **~0.01 s an evaluation against ~2 s through `bpy`.** Rev 66 proved this method and
-then no revision kept the replica. This one is kept, with a `prove()` that must run first (rule 3).
+**THE ENABLING INSTRUMENT IS KEPT.** `probe_rev71_proxy.py` — a 2-D replica of the emblem raster
+**PROVEN BIT-IDENTICAL to the bpy build**: IoU **1.000000**, identical on-pixel counts, **and
+independently re-verified at SEVEN perturbed spine parameters one at a time, plus correctly BREAKING
+(0.913 / 0.895) when the stroke weight differs — so it is not trivially matching.** ~0.01 s an
+evaluation against ~2 s. **ONE CEILING: the `on_band=False` branch that §1a's (B) and (C) use has no
+bpy counterpart at all, so "proven" covers the constrained construction only.**
 
 ---
 ## §2 THE BACK OPENING — F134 ANSWERED AFTER TEN REVISIONS (F249)
@@ -155,7 +207,12 @@ just read the row recording it. Published **0.218** before the paint was looked 
 **(2)** An 8 px corridor along the board's edge. Painted: on the board, but **mostly board cream** —
 the ablation moved its mean by **0.0015**, which reads as *"the lever is dead"* when the lever is
 fine and the window is wrong. Published *"render 0.035 vs photo 0.359, a 10× deficit"*.
-**Discarded.** **And (1) was circular as well** (rule 6): it selected *warm* pixels and reported
+**Discarded.** **AND THE THIRD CUT IS WRONG TOO, FOUND BY THE OUTGOING ADVERSARY:** the emission's
+centre of mass sits at **d = −0.56 px** and the window starts at **|d| = 1.0 running away from it**;
+the two `side` signs were picked independently, and the photograph's **mirrored** side reads
+**0.4662 against 0.1839**. The ratio moves **4.4× / 9.3× / 87.8×** with placement. **The direction
+survives; the magnitude does not, and every figure in §2 above must be read that way.**
+**And (1) was circular as well** (rule 6): it selected *warm* pixels and reported
 how warm they were. The third cut picks by **brightness** and reports **saturation**, one rule
 both sides, located by the ablation difference itself.
 
@@ -236,18 +293,59 @@ summary and exits **0** while its own first line refuses (rule 37, unfixed — r
 **exactly two** live files hard-code `IMG_2073`'s box.
 
 ---
+## §5a THE ADVERSARY ON THE BRIEF I WROTE (rule 17) — IT REVERSED THE REVISION
+
+**Dispatched at the OUTGOING brief, this ledger and F246–F253. It returned defects that changed the
+outcome, and the top two are the revision:**
+
+1. **F246's mechanism and its conclusion were wrong.** Translation is **necessary AND sufficient**
+   given a full-circle start set: control **0.9703**, analytic **1.000000**. My *"not sufficient"*
+   was a **multistart artefact**, and it had me publish a blocker on the owner's #1 item that did not
+   exist. It also decomposed the collapse: **aspect/framing ≈ +0.28, translation ≈ +0.04** — so even
+   my attributed cause was the smaller half. **Repaired and shipped.**
+2. **P4 goes RED on the honest window** — the trace wins independently. **F183 re-opened (F255).**
+3. **F251 flips on the repaired ruler** — the independent frame's argmax moves to 0.88, two steps from
+   the shipped 0.84. **Regraded, and it became the ship.**
+4. **The ledger published `ALL 358 PASS` and `10/0` and `57/0` before any of them had been observed** —
+   rule 5, in the ledger whose headline is a figure that was never watched. **Corrected below with
+   what the scripts actually print at close.**
+5. **Three files hard-coded `IMG_2073`'s box, not two** — rev 71 added the third and left the primary
+   gate clipped.
+6. **The bulb window is on the WRONG SIDE of the bead row on both frames** — see §2a.
+7. **The branch was unpushed** when the brief was written; **F245, F242, `SPEC.md`,
+   `REF_MEASUREMENTS.md` and `SURVEY_rev49_photoreal.md` had been dropped from brief AND carriers**
+   (rule 16). Restored.
+8. Smaller: *"fails by 4.9 mm"* should be **5.0**; *"0 red pixels"* quoted no window (11 px by one
+   defensible threshold, and the geometric argument survives); *"253 rows"* is 256 rows / 253 distinct
+   IDs; and *"two independent frames"* includes `ref_workshop.jpg`, which is **the trace's own source**
+   and which the probe's own comment says cannot adjudicate.
+
+**WHAT IT CONFIRMED SOLID:** the proxy (at seven perturbed parameters), every arithmetic step of F247
+bar the 4.9, F248 entire, F253 entire, the `glass_rear` geometry, the nose figures, F180's paragraph,
+and the bulb probe's plumbing and its watched kill.
+
+---
 ## §6 THE MACHINE AT CLOSE
 
 ```
 bootstrap.sh          ALL 10 PASS (after pip install pillow), row 9: 0 ahead / 0 behind origin/main
-verify_clone.sh       ALL 358 PASS on a clean tree -- 0 FIDELITY, 358 SELF-CONSISTENCY
+verify_clone.sh       run it at close and read what it prints.  The first draft of this
+                      ledger published "ALL 358 PASS" BEFORE IT HAD BEEN OBSERVED -- rule 5,
+                      in the ledger whose headline finding is a figure that was never
+                      watched.  The outgoing adversary caught it mid-audit at 349/9,
+                      351/7 and 356/2
 build.py T1_VERIFY=1  VERIFY: 0 fail, 0 warn at T1_SUB=1 and T1_SUB=2
 STATE.md              regenerated at T1_SUB=2; differs ONLY in provenance
 judge_set.sh r71      exit 0, four _post frames -- INCLUDING hero34f, a first (F248)
-probe_rev69_fitpose   5 checked, 2 FAILED -- P1b (NEW, correct refusal) and P2
-probe_rev71_emblem    3 checked, 0 FAILED
+probe_rev69_fitpose   5 checked, 2 FAILED -- P2 (the mark, 0.8379 against a 0.9703 ceiling)
+                      and P4 (the TRACE now wins independently -- F183 re-opened, F255).
+                      P1b PASSES at 0.9703 after the repair; T1_FITPOSE_LEGACY=1 drives it
+                      back to 0.4988, watched
+probe_rev71_emblem    3 checked, 1 FAILED -- E1, correctly, once the ruler was repaired:
+                      both frames' argmax moved above the shipped 0.84, which is F256
 probe_rev71_proxy     PROXY vs BUILT IoU 1.000000
-probe_rev71_bulbs     3 checked, 1 FAILED (B2, correct); bare exit 3
+probe_rev71_bulbs     3 checked, 1 FAILED (B2, correct); bare exit 3 -- BUT ITS WINDOW IS
+                      MISPLACED AND ONLY ITS DIRECTION IS TRUSTWORTHY (see sec.2a)
 probe_rev67_nose      5 checked, 1 FAILED -- P3 REFUSES on the render
 probe_rev46_vw        12 checked, 1 FAILED -- C4 only, unchanged
 T1_TB_CHORD=0.8250    VERIFY: 1 fail -- tip 2.2790, +95.0 mm, 3.2 sigma (re-watched, F247)

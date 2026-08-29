@@ -24,6 +24,25 @@
 #     pick is by BRIGHTNESS and the report is SATURATION, so it is not circular
 #     (rule 6), and the SAME rule runs on both sides (rule 38).
 #
+# ⚠ AND A FOURTH DEFECT, FOUND BY A DISPATCHED ADVERSARY AFTER THIS PROBE WAS
+# WRITTEN, WHICH DESTROYS THE MAGNITUDE AND LEAVES ONLY THE DIRECTION.
+# Profiling |shipped - ablated| by signed distance `d` from the corridor's own
+# line, the emission's centre of mass sits at d = -0.56 px -- and this window
+# starts at |d| = 1.0 and runs AWAY from it, so 22 % of the pixels it selects
+# carry almost no emission at all.  Worse, the two `side` signs (+1 photo, -1
+# render) were picked INDEPENDENTLY and nothing here shows they select the same
+# physical side: on the photograph the MIRRORED side of the same line reads
+# saturation 0.4662 against this window's 0.1839.  The published ratio moves
+# with the placement -- 4.4x on the shipped pairing, 9.3x centred on the
+# emission, 87.8x symmetric.  SO: "ONE rule both sides" is one NUMERIC rule
+# landing on DIFFERENT PHYSICAL FEATURES in the two images, which is the
+# rule-38/rule-8 failure this header claims to have escaped, in its THIRD cut.
+# **THE DIRECTION -- the render's beads are far too neutral -- survives every
+# placement tried.  THE MAGNITUDE DOES NOT.  Do not quote 4.4x, "3.2x too
+# neutral", or "11 % of the deficit" as measurements of the vehicle.**
+# Rev 72: re-cut this window centred on the emission's own centre of mass, on
+# BOTH frames, and re-derive B2's bar from whatever that gives.
+#
 # CEILING, AND IT IS BINDING.  Painted and looked at, BOTH windows still contain
 # some of the board's own cream face, which DILUTES both sides toward neutral.
 # The photographed 0.1839 is therefore a LOWER BOUND on the real bead
