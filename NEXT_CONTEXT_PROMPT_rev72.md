@@ -200,7 +200,7 @@ build T1_SUB=1 ~20 s      render 1600x1100 96 spp ~4.5-6 min PER VIEW
 
 ```bash
 ./bootstrap.sh                                # ALL 10 PASS -- read ROW 9 and its NOTE
-./verify_clone.sh                             # ALL 358+ PASS -- read its verdict block
+./verify_clone.sh                             # read its verdict block AND its row count
 T1_SUB=1 T1_VERIFY=1 /tmp/blender/blender -b -P build.py    # -> "VERIFY: 0 fail, 0 warn"
 ./judge_set.sh r72                            # the optics chain -- FIXED at rev 71 (F248)
 python3 probe_rev71_proxy.py                  # PROVE THE PROXY FIRST -- must read IoU 1.000000
@@ -252,6 +252,12 @@ Full canon (1–55) in `HANDOFF_CARRIERS.md` §5 and `NEXT_CONTEXT_PROMPT_rev50.
 44. **WHEN A GUARD GOES RED ON YOUR OWN NEW WORK, THE GUARD WINS.**
 55. **EVERY REVISION SHIPS A VISIBLE CHANGE TO THE VEHICLE, OR SAYS PLAINLY WHY IT COULD NOT.**
     **Rev 71 could not, and says so. Rev 72 must.**
+
+**RANK BY PIXELS OF THE DELIVERY FRAME** before you choose — `python3 visibility_budget.py 3840
+out/r72_hero34f.png` — the emblem is item 9 of 16 at 3.32e4 px² against a top item of 3.83e6 px²,
+**115× bigger** — **but the owner outranks the ranking, and §2–§4 ARE him.** The ranked work list
+itself is `REMAINING_WORK_rev61.md`, triaged into `ROADMAP_rev68.md` (F230); the file is **not
+deleted** (rule 16) and points at its own triage.
 
 ---
 ## §7 WHERE EVERYTHING ELSE LIVES

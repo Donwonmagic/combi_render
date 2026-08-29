@@ -279,6 +279,13 @@ the real mark's are near-PARALLEL** — that is the defect in words, and the bui
 
 ```
     deficit to close                                     0.9882 - 0.7345 = 0.2537
+      *** REFUTED AT REV 71 (F246): THIS SUBTRACTION IS NOT A SHAPE DEFICIT.
+      The two terms are measured through DIFFERENT FRAMINGS -- photo_mark
+      bbox-crops every real target and P1's control is the raw warp output,
+      while fit() searches no translation.  Framed alike, the CONTROL reads
+      0.4988, BELOW the 0.7345 specimen it certifies.  Every "% of the
+      deficit" below inherits the error; their DIRECTION survives, their
+      MAGNITUDE does not.  Kept, annotated, not deleted (rule 16) ***
     stroke weight swept alone, wfrac 0.12 .. 0.52        peak 0.7393 at 0.26   +0.0048
     ALL SEVEN (six spine constants + weight) together    0.7457                +0.0112  = 4.4 %
     T1_VW_TRACED on ref_workshop.jpg  (ITS OWN SOURCE)   0.8250                +0.0905
@@ -413,7 +420,7 @@ F21's own "paint or light" question with two branches now pruned by measurement.
 ```
 bootstrap.sh              ALL 10 PASS -- but only after `pip install pillow`
 verify_clone.sh           ALL 351 PASS on a clean tree, AT THE REV-69 HANDOFF COMMIT
-                          <- STALE.  Live at rev 71's close: ALL 358 PASS.  This
+                          <- STALE.  Live at rev 71's close, verify_clone.sh reads ALL 358 PASS.  This
                           whole block is rev 69's verdict and is kept as HISTORY
                           (rule 16); re-run the script for the live figure
                           <- 0 FIDELITY, 351 SELF-CONSISTENCY.  NO row relaxed,

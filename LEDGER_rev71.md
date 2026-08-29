@@ -86,7 +86,7 @@ the band circle."* Fit on `ref_workshop.jpg`, score on `IMG_2073.jpeg` at the **
 ```
 
 **Freeing the constraint rule 54 blames buys NOTHING — (B) lands 0.0010 BELOW (A) on the very frame it was fitted to.** Every basin the global search found
-plateaus near **0.75**. **These figures are reproducible from the tree** — `T1_REV71_SEARCH=AB python3 probe_rev71_emblem.py`, `=ABC` for the global search. **The first draft of this table came from a scratch script and (A) read 0.7469; re-run from the committed path it reads 0.7488. Publishing a figure the next context cannot re-run is a rule-5 defect and it was mine.** **Rule 54's OBSERVATION stands** — the built strokes radiate where the
+plateaus near **0.75**. **These figures are reproducible from the tree** — `T1_REV71_SEARCH=AB python3 probe_rev71_emblem.py`, `=ABC` for the global search. **The first draft of this table came from a scratch script and (A) read 0.7469; re-run from the committed path it reads 0.7488, while (B) and (C) reproduce exactly. Publishing a figure the next context cannot re-run is a rule-5 defect and it was mine.** **Rule 54's OBSERVATION stands** — the built strokes radiate where the
 photograph's are near-parallel, and the painted overlay shows the residual is stroke-by-stroke
 *lateral displacement* — **but its PRESCRIPTION is refuted.** **(C) was NOT shipped**, because
 every figure in that table is computed on the instrument F246 just refuted.
@@ -225,5 +225,17 @@ probe_rev46_vw        12 checked, 1 FAILED -- C4 only, unchanged
 T1_TB_CHORD=0.8250    VERIFY: 1 fail -- tip 2.2790, +95.0 mm, 3.2 sigma (re-watched, F247)
 ```
 
-**NOT ONE OF THOSE ROWS COMPARES THE MODEL TO A PHOTOGRAPH** except `probe_rev71_bulbs` and
-`probe_rev69_fitpose`, **and both fail.**
+**AND THE FOUR PHOTOGRAPH GATES, RUN ON THIS REVISION'S OWN FRAMES (rule: re-render before
+quoting), ALL FAIL — WHICH IS WHERE THE PROJECT ACTUALLY IS:**
+
+```
+flank_compare.py   out/r71_side.png     FAIL  worst region `i` at 0.689 of its own ceiling (bar 0.75)
+gloss_compare.py   out/r71_hero34f.png  FAIL  the render's paint spreads 0.411 of the photograph's (bar 0.60)
+probe_rev70_tyre.py out/r71_side.png    2 checked, 1 FAILED -- tyre/rim 0.2468 against 0.1953 = 1.26x
+probe_rev71_bulbs.py out/r71_side.png   3 checked, 1 FAILED -- bead saturation 0.0417 against 0.1839 = 4.4x
+probe_rev69_fitpose.py                  5 checked, 2 FAILED -- P1b (the instrument) and P2 (the mark)
+```
+
+**NOT ONE OF `verify_clone.sh`'s 358 ROWS COMPARES THE MODEL TO A PHOTOGRAPH.** The five that do
+are above, **and every one of them fails.** That is the honest distance, and rev 71 did not shorten
+it — it established that one of the five was measuring against a ceiling it had no right to.
