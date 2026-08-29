@@ -206,7 +206,8 @@ build T1_SUB=1 ~20 s      render 1600x1100 96 spp ~4.5-5.5 min PER VIEW
 Blender** — it is CPU-bound; render sequentially in the background and analyse in the foreground.
 
 ```bash
-./bootstrap.sh ; ./verify_clone.sh            # ALL 351 PASS -- read its verdict block
+./bootstrap.sh                                # ALL 10 PASS -- read ROW 9 and its NOTE
+./verify_clone.sh                             # ALL 358 PASS -- read its verdict block
 T1_SUB=1 T1_VERIFY=1 /tmp/blender/blender -b -P build.py    # -> "VERIFY: 0 fail, 0 warn"
 python3 flank_compare.py out/r70_side.png /tmp/fc.png   # photograph gate 1 -- NAME THE FRAME
 python3 gloss_compare.py out/r70_hero34f.png            # photograph gate 2
@@ -263,7 +264,7 @@ These eight cost this project a revision each and are the ones this work will to
 | `STATE.md` | machine-written; **outranks every prose description** | before quoting any dimension |
 | `LEDGER_rev69.md` | what rev 69 did, and **§5, the five things it got wrong** | before you plan |
 | `EMBLEM_HANDOFF.md` | the emblem's own carrier — **its §3 is a STALE second copy of the refuted list** | emblem work only |
-| `SPEC.md`, `SURVEY_rev49_photoreal.md`, `REF_MEASUREMENTS.md`, `ROADMAP_rev68.md`, `PHOTOS_WANTED_rev49.md` / `_rev52.md`, `REMAINING_WORK_rev61.md`, `PANEL_rev61.md` | large; load the one the task needs | on demand |
+| `SPEC.md`, `SURVEY_rev49_photoreal.md`, `REF_MEASUREMENTS.md`, `ROADMAP_rev68.md`, `PHOTOS_WANTED_rev49.md`, `PHOTOS_WANTED_rev52.md`, `REMAINING_WORK_rev61.md`, `PANEL_rev61.md` | large; load the one the task needs | on demand |
 
 ---
 ## §9 HOW TO CLOSE THIS REVISION
