@@ -10,10 +10,16 @@
 ```
     band        geometry lines/rev    doc lines/rev    doc:geometry
     rev  8-20          721                 1120            1.55
-    rev 61-70          209                 2923           13.98
+    rev 61-70          287                 4383           15.23     <- RE-READ AT REV 71
 ```
 
-**Geometry output per revision fell 3.4x while prose per revision rose. The brief itself went
+> **⚠ THE SECOND ROW WAS WRONG IN THIS FILE, IN `CLAUDE.md` AND IN THE REV-71 BRIEF, ALL THREE
+> DISAGREEING WITH THE SCRIPT THEY CITE.** Published: 209 / 2923 / 13.98 (and "~215" in the brief).
+> **Live: 287 / 4383 / 15.23.** The drift is **worse** than published on the ratio and **better** on
+> the geometry. The same paragraph's *"findings closed at rev 66–70: 0,0,0,0,0"* is also wrong —
+> `revstats.py` reads **rev 70 closed 2**. **These figures go stale every commit: RUN THE SCRIPT.**
+
+**Geometry output per revision fell 2.5x (287 against 721) while prose per revision rose. The brief itself went
 12 KB (rev 8) -> 95 KB (rev 70). And findings CLOSED at rev 66, 67, 68, 69, 70: 0, 0, 0, 0, 0.**
 
 **SO THE HANDOFF WAS SPLIT AT REV 70.** `PASTE_INTO_CLAUDE_CODE.txt` is now a SHORT ACTION
@@ -26,6 +32,14 @@ document — what to do, and how to start. **This file holds every carrier, verb
 > **the brief AND this file**, so the guard surface is the union and is exactly as strong — plus
 > four NEW companion rows that make the split itself separately testable (see §10 and
 > `verify_clone.sh`'s "the handoff split" block).
+
+> **⚠ AND THE SCOPE OF ITS STALENESS, MEASURED AT REV 71: THIS FILE IS PRE-REV-70 TEXT
+> THROUGHOUT, NOT ONLY IN §0.05 AS THE REV-71 BRIEF WARNED.** Superseded figures live in **§0**
+> and **§0.09** (351 PASS -> 358), **§0.06** (the +0.05 mm ablation figure -- `verify.py` prints
+> +0.22 mm at `T1_SUB=1`), **§8** (its *"FIX ALL THREE"* instruction is now one-third done: F239
+> carries `MEASURED-rev70`; F238/F240 still read `MEASURED-rev70` for rev-69 work, and rev 70 has
+> now HAPPENED, so that mislabel is camouflaged rather than visible), and the drift table above.
+> **The RULINGS, the REFUTED LIST and the RULES CANON are the parts to trust; the FIGURES are not.**
 
 **READ THIS FILE WHEN THE ACTION BRIEF POINTS YOU AT IT, AND WHEN YOU ARE ABOUT TO:**
 * claim a lever is exhausted, or re-try an emblem route — **§2's seventeen refuted rows**;
@@ -398,7 +412,10 @@ F21's own "paint or light" question with two branches now pruned by measurement.
 
 ```
 bootstrap.sh              ALL 10 PASS -- but only after `pip install pillow`
-verify_clone.sh           ALL 351 PASS on a clean tree, AT THE HANDOFF COMMIT
+verify_clone.sh           ALL 351 PASS on a clean tree, AT THE REV-69 HANDOFF COMMIT
+                          <- STALE.  Live at rev 71's close: ALL 358 PASS.  This
+                          whole block is rev 69's verdict and is kept as HISTORY
+                          (rule 16); re-run the script for the live figure
                           <- 0 FIDELITY, 351 SELF-CONSISTENCY.  NO row relaxed,
                           NO row re-based this revision
 build.py T1_VERIFY=1      VERIFY: 0 fail, 0 warn at SUB=1
@@ -464,8 +481,9 @@ refutation attached.)* **The W's two outer arms visibly FLOAT short of the ring 
 looked at again on `out/r68b_front.png` at rev 68, unchanged.**
 
 **AND HERE IS THE HONEST DISTANCE — THE GATE TABLE, WHICH AN ADVERSARY ONCE CAUGHT A BRIEF
-DROPPING.** `verify_clone.sh` ends **ALL 351 PASS**: **0 FIDELITY, 351
-SELF-CONSISTENCY.** *(⚠ THE REV-69 BRIEF SAID "351 PASS ... 342 SELF-CONSISTENCY" IN ONE SENTENCE —
+DROPPING.** `verify_clone.sh` ended **ALL 351 PASS** at rev 69: **0 FIDELITY, 351
+SELF-CONSISTENCY.** *(⚠ **STALE — live at rev 71's close it is ALL 358 PASS, 0 FIDELITY,
+358 SELF-CONSISTENCY.** The two halves must always be the SAME number. RUN THE SCRIPT.)* *(⚠ THE REV-69 BRIEF SAID "351 PASS ... 342 SELF-CONSISTENCY" IN ONE SENTENCE —
 a transcription defect carried from rev 68's re-base, caught by rev 69's outgoing audit. The two
 halves must be the SAME NUMBER: every row is self-consistency and none is fidelity.)*
 

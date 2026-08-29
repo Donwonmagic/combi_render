@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-29 12:43:35 UTC |
-| git commit | `6664f65` |
-| git subject | wip |
+| generated | 2026-08-29 13:49:03 UTC |
+| git commit | `f98c2f7` |
+| git subject | rev 71: the emblem's control does not control its measurement (F246), the tail-board guard's watched-failure figure would have passed (F247), judge_set.sh never post-processed the delivery view (F248) |
 | working tree | clean |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=2 (applied, destructive, before booleans) |

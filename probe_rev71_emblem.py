@@ -96,6 +96,97 @@ def main():
        "is measuring nothing (rule 36)"
        % (span, rows[0][1], base[0], rows[-1][1]))
 
+    # ---- THE THREE SEARCHES BEHIND F252.  OPT-IN, because (C) is ~9 minutes.
+    # They are HERE rather than in a scratch script so the next context can
+    # REPRODUCE the figures the brief and the register publish, instead of
+    # taking them from prose (rule 5, rule 16).
+    #    T1_REV71_SEARCH=AB  runs (A) and (B), ~40 s
+    #    T1_REV71_SEARCH=ABC also runs (C), the 1400-start global search
+    #
+    # ⚠ EVERY IoU THEY PRINT IS ON THE INSTRUMENT F246 REFUTES.  They RANK
+    # constructions against each other on ONE fixed ruler, which is what a
+    # search needs; their DISTANCE from 0.9882 is NOT a shape deficit.
+    want = os.environ.get("T1_REV71_SEARCH", "")
+    if want:
+        import math
+        import random
+        import time
+
+        def sc6(vec):
+            p = dict(zip(("V_TIP_X", "APEX_Z", "W_ARM_X", "W_ARM_Z",
+                          "W_TR_X", "W_TR_Z", "W_PEAK_Z"), vec[:7]))
+            p["on_band"] = True
+            return X.mask(p, vec[7], rows=220)
+
+        def sc9(vec):
+            p = dict(zip(("V_TIP_X", "V_TIP_Z", "APEX_Z", "W_ARM_X", "W_ARM_Z",
+                          "W_TR_X", "W_TR_Z", "W_PEAK_Z"), vec[:8]))
+            p["on_band"] = False
+            return X.mask(p, vec[8], rows=220)
+
+        def descend(vec, build, steps, rounds, dst):
+            cur = F.fit(build(vec), dst)[0]
+            for _ in range(rounds):
+                for i in range(len(vec)):
+                    moved = True
+                    while moved:
+                        moved = False
+                        for d in (+steps[i], -steps[i]):
+                            q = list(vec)
+                            q[i] += d
+                            if q[0] <= 0.02 or not (0.05 < q[-1] < 0.60):
+                                continue
+                            try:
+                                val = F.fit(build(q), dst)[0]
+                            except Exception:
+                                continue
+                            if val > cur + 2e-5:
+                                cur, vec, moved = val, q, True
+                                break
+                steps = [t * 0.55 for t in steps]
+            return vec, cur
+
+        P = X.SHIPPED
+        print("\n  F252 -- THE SEARCHES.  fit on ref_workshop, score on IMG_2073 (re-cut).")
+        print("  shipped: fit %.4f  indep %.4f"
+              % (F.fit(X.mask(P, X.WFRAC, rows=220), dst_fit)[0],
+                 F.fit(X.mask(P, X.WFRAC, rows=220), dst_ind)[0]))
+        vA = [P["V_TIP_X"], P["APEX_Z"], P["W_ARM_X"], P["W_ARM_Z"],
+              P["W_TR_X"], P["W_TR_Z"], P["W_PEAK_Z"], X.WFRAC]
+        vA, cA = descend(vA, sc6, [.06, .06, .12, .06, .06, .06, .06, .04], 6, dst_fit)
+        print("  (A) CURRENT parameterisation re-searched   fit %.4f  indep %.4f"
+              % (cA, F.fit(sc6(vA), dst_ind)[0]))
+        R = X.RING_INNER_FRAC
+        ty = (R ** 2 - P["V_TIP_X"] ** 2) ** 0.5
+        k = R / math.hypot(P["W_ARM_X"], P["W_ARM_Z"])
+        vB = [P["V_TIP_X"], ty, P["APEX_Z"], P["W_ARM_X"] * k, P["W_ARM_Z"] * k,
+              P["W_TR_X"], P["W_TR_Z"], P["W_PEAK_Z"], X.WFRAC]
+        vB, cB = descend(vB, sc9, [.06] * 8 + [.04], 7, dst_fit)
+        print("  (B) THE BRIEF'S PRESCRIPTION, free endpoints   fit %.4f  indep %.4f"
+              % (cB, F.fit(sc9(vB), dst_ind)[0]))
+        if "C" in want:
+            t0 = time.time()
+            BND = [(.10, .70), (.20, .82), (-.50, .60), (.20, .82), (-.60, .60),
+                   (.10, .70), (-.82, -.10), (-.60, .55), (.10, .40)]
+            random.seed(71)
+            pool = []
+            for _ in range(1400):
+                q = [random.uniform(a, b) for a, b in BND]
+                if math.hypot(q[0], q[1]) < .30 or math.hypot(q[3], q[4]) < .30:
+                    continue
+                try:
+                    pool.append((F.fit(sc9(q), dst_fit)[0], q))
+                except Exception:
+                    pass
+            pool.sort(key=lambda t: -t[0])
+            bc, bv = -1.0, None
+            for _s, q in pool[:12]:
+                q2, c2 = descend(q, sc9, [.10] * 9, 8, dst_fit)
+                if c2 > bc:
+                    bc, bv = c2, q2
+            print("  (C) 1400-start GLOBAL search + polish     fit %.4f  indep %.4f  (%.0fs)"
+                  % (bc, F.fit(sc9(bv), dst_ind)[0], time.time() - t0))
+
     print("\n  %d checked, %d FAILED%s" % (len(checks), len(fails),
           "  --  " + "; ".join(fails) if fails else ""))
     raise SystemExit(1 if fails else 0)
