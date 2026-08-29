@@ -1,4 +1,4 @@
-# NEXT CONTEXT PROMPT — rev 70   ·   **ACTION BRIEF**
+# NEXT CONTEXT PROMPT — rev 71   ·   **ACTION BRIEF**
 
 **This document is SHORT ON PURPOSE. Read it end to end before you touch anything; it fits.**
 **Everything else — every carrier, every refuted route, every owner ruling, the rules canon, the
@@ -17,15 +17,15 @@ gate tables — is in `HANDOFF_CARRIERS.md`, complete and verbatim. Nothing was 
 cd /home/user/combi_render
 ./bootstrap.sh                 # the toolchain is NOT on the clone -- this builds it
 pip install pillow             # bootstrap FAILS 3 of 10 without it, EVERY revision
-nohup setsid env T1_SUB=1 T1_PREVIEW=front,side,hero34f,hero34r T1_PFX=r70 T1_RX=1600 T1_RY=1100 \
-  T1_SAMP=96 /tmp/blender/blender -b -P build.py > /tmp/r70.log 2>&1 < /dev/null &
+nohup setsid env T1_SUB=1 T1_PREVIEW=front,side,hero34f,hero34r T1_PFX=r71 T1_RX=1600 T1_RY=1100 \
+  T1_SAMP=96 /tmp/blender/blender -b -P build.py > /tmp/r71.log 2>&1 < /dev/null &
 ```
 
-**`grep -c Saved: /tmp/r70.log` must be 4.** A backgrounded runner's exit code is the redirect's.
+**`grep -c Saved: /tmp/r71.log` must be 4.** A backgrounded runner's exit code is the redirect's.
 **USE `setsid`, NOT A BARE `nohup &`** (F173). **`out/` is untracked and starts EMPTY**, so every
 figure quoted from a frame must be re-rendered before you quote it.
 
-**⚠ THE PREVIEW PATH NEVER CALLS `post.py` (F146).** Run `./judge_set.sh r70` and judge
+**⚠ THE PREVIEW PATH NEVER CALLS `post.py` (F146).** Run `./judge_set.sh r71` and judge
 photorealism on the `_post` set. *(Only `bloom` defaults to 0.0; `ca`, `vig`, `grain` default 1.0.)*
 
 **DO NOT EDIT SOURCE WHILE A RENDER QUEUE RUNS.** Freeze the tree for the duration.
@@ -40,7 +40,7 @@ photorealism on the `_post` set. *(Only `bloom` defaults to 0.0; `ca`, `vig`, `g
 
 | # | his words | what it IS, measured | § |
 |---|---|---|---|
-| 1 | *"the back opening"* | the rear hatch is **NOT MODELLED** — a flat blade, no thickness, no underside, no recess, at **38.0° against a photographed 28.0°**. `RULED-rev62, NEVER BUILT` — **seven revisions** | §2 |
+| 1 | *"the back opening"* | **BUILT AT REV 70 (F242/F243).** The chord was the defect — 0.7110 → **0.8250 m**, agreed by two frames. **The ANGLE was NOT a defect and 28.0° is REFUTED: the board is HINGED.** What is left is that its **red stripe, navy stripe and lit bulbs do not READ in the render** — paint and emission, not form | §2 |
 | 2 | *"make the emblem correct"* | the glyph misses by **0.38 IoU pose-free** against a control ceiling of 0.98, and **no constant in this tree expresses a stroke PATH** | §3 |
 | 3 | *"finish the nose render"* | the shape is **BUILT and guarded**. What is missing is **rendering it and looking at it** | §4 |
 
@@ -48,63 +48,62 @@ photorealism on the `_post` set. *(Only `bloom` defaults to 0.0; `ca`, `vig`, `g
 the measurement already taken. **It needs no new instrument to start. START THERE.**
 
 ---
-## §2 ITEM 1 — THE BACK OPENING
+## §2 ITEM 1 — THE BACK OPENING · **BUILT AT REV 70. READ THIS BEFORE YOU TOUCH IT.**
 
-> *[owner, rev 62]* ***"The bus's rear hatch, propped open."*** and ***"Use the geometry only,
-> leave colour open."***
+> *[owner, rev 62]* ***"The bus's rear hatch, propped open."*** *[owner, rev 70]* ***"Now build the
+> back opening."***
 
-**WHAT STANDS THERE NOW.** `t1_shell.tail_board()` builds a flat plate that renders as a thin blade
-carrying a bulb row on two wires. The live constants:
+**F163 IS DISCHARGED AND F165 IS SPLIT. The register rows are F242, F243, F244.**
+
+**⚠ THE FIRST THING TO KNOW IS THAT THIS SECTION'S OWN PREVIOUS INSTRUCTION WAS WRONG.** Rev 70's
+brief told you to move the angle from 38.0° to a *"photographed 28.0°"*. **Doing that would have made
+the model WORSE.** Re-measured on both frames, every pick painted first:
 
 ```
-    TB_TILT_DEG = 38.0        # MEASURED +-2.3, FROM HORIZONTAL
-    TB_CHORD    = 0.7110      # MEASURED +-0.028, in the vehicle's XZ plane
-    TB_WIDTH    = 0.5500      # POSE CHOICE, NOT MEASURED.  Inside the 0.59 bound
+    ref_side.jpg    RED bus, CURRENT livery, F163's PRIMARY frame     38.8 deg
+    IMG_3840.jpeg   the SAME board, CHALKBOARD livery                 21.0 deg
+    BUILT                                                             38.0 deg   <- matches PRIMARY
+    F165 published                                                    28.0 deg   <- matches NEITHER
 ```
 
-**F165, photographed on `IMG_3840.jpeg` at 107.92 px/m, every landmark painted first:
-angle 28.0° (built 38.4°), visible chord 0.829 m (built 0.732 m) — and 0.829 is a LOWER BOUND
-because the hinge is occluded by the rear roof dome.**
+**THE BOARD IS HINGED, SO ITS ANGLE IS A POSE, NOT A DIMENSION.** The two frames are 18° apart because
+somebody propped it differently on two different days; 28.0 sits between them and describes neither.
+**DO NOT "FIX" IT.** `verify._tail_board_pose`'s angle arm was **watched firing at exactly 28.0**, and
+`T1_TB_TILT` lets you see that for yourself in one command.
 
-> **⚠ THREE TRAPS, EACH OF WHICH KILLED A DRAFT OF THIS SECTION. READ BEFORE YOU BUILD.**
->
-> **(a) DO NOT WIDEN IT, AND DO NOT TRY TO "MEASURE" THE WIDTH.** `t1_shell.py`, twenty lines above
-> the constant, says the width **is not measurable from anything we hold** — upper bound
-> **W ≤ 0.59 m**, **NO lower bound** — and **REFUTES a full-width board at >2×**. An earlier draft
-> of this brief made "full width" the goal and told you to measure it. That is a documented CEILING
-> re-labelled as an un-done task, which is the same error the register caught at F209 and F222.
-> **THE DEFECT IS FORM, ANGLE AND LENGTH — NOT WIDTH.**
->
-> **(b) TWO RULERS ARE MIXED AND YOU MUST NOT FIT ACROSS THEM (rule 38).** F165's "built" pair is a
-> **bounding-box diagonal** — `atan(0.455/0.574)=38.40°`, `hypot(0.574,0.455)=0.7326` — carrying the
-> board's own thickness. **The CONSTANTS are 38.0 / 0.7110.** The photographed 28.0° is read along
-> the panel's TOP edge, a third ruler. **Re-measure the photographed pair against the thing you
-> intend to move, first.** And F165's ceiling binds: 480×320 frame, hatch ~90 px — **two significant
-> figures. Do not fit to 28.0 as though it were 28.00.**
->
-> **(c) THE COLOUR IS SETTLED — DO NOT RE-OPEN IT.** F163's own correction: *"our tail_board's
-> colouring — cream blade, red edge, bulbs — is already roughly right, which narrows F163 to FORM
-> rather than paint."* **DO NOT paint it orange**: the orange face belongs to the CHALKBOARD livery.
-> **And `IMG_3840.jpeg` IS `ref_nolita_doorshut.jpg` — byte-identical, md5
-> `f1b6f98c6a12b6e9ea0ec3edc68e945a`.** It is the RED bus in its chalkboard state, so **geometry
-> from it transfers and paint does not** (rule 11). A duplicate is not corroboration.
+**WHAT SHIPPED: `TB_CHORD` 0.7110 → 0.8250 m.** Two independent frames, two scales, two picks:
+`ref_side.jpg` **≥0.822 m** (177.1 px between painted ends at the file's own `k_t = 215.5 ± 3.0`) and
+`IMG_3840.jpeg` **≥0.829 m** (F165). They agree to **0.9 %**. **Both are LOWER BOUNDS and so is the
+shipped value** — the board sits inboard of the flank plane, where px/m is smaller and the metric
+length larger. 0.8250 is the shortest length consistent with both frames, not an estimate of the true
+one.
 
-**THE FRAMES.** `ref_side.jpg` **rows 180–320, cols 855–1010** is F163's own citation and the
-PRIMARY frame — the hatch propped open on the red bus, cream face, red edge stripe, lit bulb string.
-`IMG_3840.jpeg` **(355, 85)–(480, 215)** shows the FORM: visible edge thickness, a dark angled recess
-in the forward-lower area, the panel emerging from behind the roof dome. **`ref_rear34.jpg`
-(820, 0)–(1200, 300) is a POOR crop — ~70 % folk-art canopy, a different object.**
+**THE GATE THIS OBJECT HAD NEVER HAD:** `verify._tail_board_pose`. It reads the board's **PRINCIPAL
+AXIS in XZ off the built mesh** and says so in its own text, because **F165's published "built 38.4° /
+0.732 m" is the BOUNDING-BOX DIAGONAL** and the constants are 38.0 / 0.7110 — a ruler mismatch
+(rule 38). Both arms watched failing: `T1_TB_CHORD=0.7110` → `VERIFY: 1 fail`; `T1_TB_TILT=28.0` →
+`VERIFY: 1 fail`.
 
-**BUILD:** a panel with **real thickness and an underside** (largest defect, needs no new
-measurement); the **dark angled recess**; angle and chord re-measured on ONE ruler and moved
-together; **`TB_WIDTH` left at 0.5500 with its ceiling carried**; bulbs kept on the outer/aft edge.
+**WHAT IS LEFT ON THIS OBJECT, AND IT IS PAINT, NOT FORM.** Held against `ref_side.jpg` the render's
+board is a **plain white plank with pale bulbs**, where the photograph shows a **cream face, a RED
+edge stripe, a dark NAVY stripe and LIT amber bulbs**. `tb_edge_red`, `tb_edge_dark`, `tb_bulbs` and
+`tb_bulbflex` all EXIST in the mesh — the red stripe is visible from the rear ¾ — so **this is a
+materials/emission question, not a geometry one.** Start by rendering `side` and cropping the board.
 
-**THE GUARD, IN THE SAME EDIT (rule 13). There is no gate on this object at all.** Build one, name
-which ruler it uses, and **watch it refuse at the shipped 38.0/0.711 before you believe it passing.**
+**TWO THINGS ARE CLOSED — DO NOT RE-OPEN THEM.**
+* **The dark rectangle under the board is `glass_rear`, the rear WINDOW** — 72 verts, x −2.151…−1.850,
+  z 1.455…1.606, material `glass` at **Transmission 1.00**, and 5 of 9 rays fired forward hit the
+  shell. It reads black because a fully transmissive pane looks into an **unlit interior**. That is
+  **F71's branch — flat glazing — NOT a hole** (F244).
+* **The "dark angled recess" was NOT built, and that is a result (rule 12).** It appears only on the
+  CHALKBOARD frame, on a surface the primary frame does not show, and at 480 px cannot be separated
+  into geometry, paint or shadow. **It cannot be recovered from what we hold.**
 
-**THEN MEASURE, DO NOT NAME:** a large dark rectangle sits below the blade in `out/r69_hero34r.png`
-with red visible through it. Nobody has established whether that is `glass_rear` rendering black
-(F71) or a hole in the shell. `lid_trunk` is a **different object** and is not this hatch.
+**AND THE METHOD NOTE WORTH MORE THAN THE RESULT: RULE 8 KILLED THREE WINDOWS HERE.** A "cream face"
+mask on `ref_side.jpg` selected **the wall** (33.5°); a "bulb string" mask selected **the red wall
+graphics** (24.7°, rms 27.6 px on a 174 px baseline); and the orange face's **principal axis** read
+21.7°, because a foreshortened wedge's principal axis is not its chord. **Three plausible,
+publishable numbers, every one wrong, every one caught by PAINTING and none by reasoning.**
 
 ---
 ## §3 ITEM 2 — THE EMBLEM
@@ -159,10 +158,10 @@ ablation `T1_BUMP_BOW`. Measured on the mesh **+0.05 mm → +21.55 mm** (`STATE.
 **SO "FINISH THE NOSE RENDER" IS NOT MORE GEOMETRY. IT IS THE STEP THIS PROJECT SKIPS (rule 1):**
 
 ```bash
-T1_SUB=1 T1_PREVIEW=front T1_PFX=r70 T1_RX=3200 T1_RY=2200 T1_SAMP=128 \
+T1_SUB=1 T1_PREVIEW=front T1_PFX=r71 T1_RX=3200 T1_RY=2200 T1_SAMP=128 \
   /tmp/blender/blender -b -P build.py      # then CROP THE NOSE AND LOOK AT IT
-python3 probe_rev67_nose.py out/r70_front.png    # PASS IT A FRAME -- bare, P3 does not run
-python3 probe_rev59_nose.py out/r70_front.png    # READ BOTH RULERS
+python3 probe_rev67_nose.py out/r71_front.png    # PASS IT A FRAME -- bare, P3 does not run
+python3 probe_rev59_nose.py out/r71_front.png    # READ BOTH RULERS
 ```
 
 **Render the control TWICE and publish the floor** — 1600×1100/96 spp is **2.441 % of pixels >8
@@ -209,13 +208,13 @@ Blender** — it is CPU-bound; render sequentially in the background and analyse
 ./bootstrap.sh                                # ALL 10 PASS -- read ROW 9 and its NOTE
 ./verify_clone.sh                             # ALL 358 PASS -- read its verdict block
 T1_SUB=1 T1_VERIFY=1 /tmp/blender/blender -b -P build.py    # -> "VERIFY: 0 fail, 0 warn"
-python3 flank_compare.py out/r70_side.png /tmp/fc.png   # photograph gate 1 -- NAME THE FRAME
-python3 gloss_compare.py out/r70_hero34f.png            # photograph gate 2
-python3 probe_rev70_tyre.py out/r70_side.png            # photograph gate 3 -- PASS IT A FRAME
+python3 flank_compare.py out/r71_side.png /tmp/fc.png   # photograph gate 1 -- NAME THE FRAME
+python3 gloss_compare.py out/r71_hero34f.png            # photograph gate 2
+python3 probe_rev70_tyre.py out/r71_side.png            # photograph gate 3 -- PASS IT A FRAME
 python3 probe_rev69_fitpose.py                          # photograph gate 4 -- the emblem, pose-free
 python3 probe_rev46_vw.py                               # C4 is the only red row
 python3 cream_rms.py                                    # the LIVE photograph-side cream
-python3 visibility_budget.py 3840 out/r70_hero34f.png   # PASS IT A .png or it globs by mtime
+python3 visibility_budget.py 3840 out/r71_hero34f.png   # PASS IT A .png or it globs by mtime
 python3 revstats.py                                     # THE DRIFT DETECTOR -- run it at close
 T1_SUB=2 /tmp/blender/blender -b -P audit.py            # rewrites STATE.md -- COMMIT FIRST
 python3 audit_brief.py ; python3 audit_adversary.py     # rules 15/17, MECHANICAL half only
@@ -262,7 +261,7 @@ These eight cost this project a revision each and are the ones this work will to
 | **`HANDOFF_CARRIERS.md`** | **every carrier: §0 goal + gate table, §0.1 the reference set, §2's seventeen refuted emblem routes, §4 the owner's rulings, §5 rules 34–54, §6 the full machine notes, §7 the standard, §8 the register's conventions, §9 the horizon, §10 how to write the next handoff** | **before re-trying anything, quoting any gate, or asking him anything** |
 | `OPEN_FINDINGS.md` | 244 rows, 118 open. **The register outranks prose.** | before you derive anything — F104, F209 and F222 were all found sitting there unread |
 | `STATE.md` | machine-written; **outranks every prose description** | before quoting any dimension |
-| `LEDGER_rev69.md` | what rev 69 did, and **§5, the five things it got wrong** | before you plan |
+| `LEDGER_rev70.md` | what rev 70 did, and **§4, where its own brief was wrong about its own top item** | before you plan |
 | `EMBLEM_HANDOFF.md` | the emblem's own carrier — **its §3 is a STALE second copy of the refuted list** | emblem work only |
 | `SPEC.md`, `SURVEY_rev49_photoreal.md`, `REF_MEASUREMENTS.md`, `ROADMAP_rev68.md`, `PHOTOS_WANTED_rev49.md`, `PHOTOS_WANTED_rev52.md`, `REMAINING_WORK_rev61.md`, `PANEL_rev61.md` | large; load the one the task needs | on demand |
 

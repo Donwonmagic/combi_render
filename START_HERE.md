@@ -4,7 +4,7 @@
 > AS CURRENT INSTRUCTION.** It predates `bootstrap.sh`, `verify_clone.sh`,
 > `CLAUDE.md` and `lid_gen.py`, which it mentions ZERO times, and its paths and
 > core count below are wrong for this machine. **Current entry: `CLAUDE.md`, then
-> the highest-numbered `NEXT_CONTEXT_PROMPT_rev*.md` (find it with `ls`; rev 70 at this edit), then
+> the highest-numbered `NEXT_CONTEXT_PROMPT_rev*.md` (find it with `ls`; rev 71 at this edit), then
 > `EMBLEM_HANDOFF.md` (the CARRIER for the owner's top item -- six reports, and the
 > reason it has never been fixed), then
 > `LEDGER_rev67.md` (what rev 67 measured and, in its §6 and §4, what it did NOT do and what
