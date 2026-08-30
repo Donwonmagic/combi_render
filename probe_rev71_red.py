@@ -24,6 +24,14 @@ import sys
 import numpy as np
 from PIL import Image
 
+# R3's windows: the red flank, and CREAM ON THE SAME VERTICAL PLANE as it --
+# roof cream would sit at a different orientation and take different light,
+# which is the whole point of scoring one surface against another (the pattern
+# probe_rev70_tyre uses: the tyre against the cream rim ring in its own image).
+CREAM_BOXES = [(320, 600, 500, 640), (1150, 590, 1290, 650), (560, 585, 700, 615)]
+RED_ALB = (0.5520, 0.0294, 0.0176)      # t1_mats.RED,   linear
+CREAM_ALB = (0.6172, 0.6308, 0.5776)    # t1_mats.CREAM, linear
+
 PHOTO = ('ref_side.jpg', (320, 450, 900, 565), 5, 10)
 RENDER_BAND, RSTEP, RTSZ = (430, 680, 1230, 850), 9, 16
 # the flank band on the 800x550 diffuse-colour pass (half the preview's scale)
@@ -59,6 +67,23 @@ def flank(path, band, step, tsz, linear=True):
     return len(g), float(np.median(g)), float(np.percentile(g, 10)), float(np.percentile(g, 90))
 
 
+def ratio(path, boxes, red, tsz=8, step=4):
+    """Mean LINEAR colour over uniform tiles in `boxes`."""
+    a = np.asarray(Image.open(path).convert('RGB')).astype(float)
+    k = []
+    for (x0, y0, x1, y1) in boxes:
+        for y in range(y0, y1 - tsz, step):
+            for x in range(x0, x1 - tsz, step):
+                t = a[y:y + tsz, x:x + tsz].reshape(-1, 3)
+                m = t.mean(0)
+                if t.std(0).max() > 7.0:
+                    continue
+                if red and (not (m[0] > m[1] > m[2]) or m[1] / m[0] > 0.80):
+                    continue
+                k.append(_lin(m))
+    return np.array(k).mean(0) if len(k) >= 10 else None
+
+
 def main():
     import os
     here = os.path.dirname(os.path.abspath(__file__))
@@ -86,6 +111,25 @@ def main():
             fails.append(f)
         print("  [%s] R2 %-28s linear G/R %.4f  -- %.2fx the photograph"
               % ("PASS" if ok else "FAIL", os.path.basename(f), r[1], r[1] / p[1]))
+    # ---- R3.  THE STRONGEST ROW, AND IT NEEDS NO PHOTOGRAPH AND NO ILLUMINANT.
+    # A renderer must preserve the RATIO between two of its own albedos.  Score
+    # the red flank against CREAM ON THE SAME VERTICAL PLANE and compare that to
+    # RED/CREAM as authored.  Any departure is rendering distortion -- it cannot
+    # be blamed on exposure, on the frame's white balance, or on the fact that
+    # the photograph is outdoors and the render is in a studio.
+    ar = np.array(RED_ALB) / np.array(CREAM_ALB)
+    print("\n  R3 PHOTOGRAPH-FREE -- does the render preserve its OWN albedo ratio?")
+    print("     authored RED/CREAM              R %.4f  G %.4f  B %.4f" % tuple(ar))
+    for f in frames:
+        rr = ratio(f, [RENDER_BAND], True)
+        cc = ratio(f, CREAM_BOXES, False)
+        if rr is None or cc is None:
+            print("     %-28s NO WINDOW -- not measured" % os.path.basename(f))
+            continue
+        q = rr / cc
+        print("     %-28s R %.4f  G %.4f  B %.4f   G is %.2fx authored"
+              % (os.path.basename(f), q[0], q[1], q[2], q[1] / ar[1]))
+
     print("\n  DECOMPOSITION MEASURED AT REV 71 (F257), each term ablated, none inferred:")
     print("     specular       T1_SPEC   0.50 -> 0.05    -0.0574   44 % of the gap")
     print("     cyclorama floor T1_CYCALB 0.76 -> 0.05    -0.0277   21 %")
