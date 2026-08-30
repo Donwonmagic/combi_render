@@ -94,7 +94,14 @@ def ratio(path, boxes, red, tsz=8, step=4):
                 k.append(_lin(t).mean(0))
     if len(k) < 10:
         return None
-    return np.array(k).mean(0)
+    # MEDIAN, NOT MEAN.  The red's authored G albedo is 0.0294 and the cream's
+    # is 0.6308 -- twenty times larger -- so a few contaminant tiles (folk-art
+    # edges, the silver script, a shading transition) that survive the
+    # uniformity filter DOUBLE the mean G while barely moving R.  Measured on
+    # a physically clean render: per-tile G/R median 0.0653 against an authored
+    # 0.0533, but the MEAN 0.1174.  Reading the mean is what made rev 71
+    # publish a 2.67x distortion that was mostly its own statistic.
+    return np.median(np.array(k), axis=0)
 
 
 def clip_fraction(path, boxes):
