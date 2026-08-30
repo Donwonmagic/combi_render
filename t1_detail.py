@@ -2842,7 +2842,7 @@ def vw_logo(R=0.1385, w=0.0275, x=2.1215, depth=0.0110):
     share ONE implementation, which is why they drifted apart in the first place.
     """
     return T.vw_bars(R, w, (x, 0, 0), (0, 1, 0), (0, 0, 1), (1, 0, 0),
-                     depth, tag="vwbar")
+                     depth, tag="vwbar", traced=True)   # THE NOSE opts in
 
 
 def _fit_glyph(obs, target_r, ax=('y', 'z')):

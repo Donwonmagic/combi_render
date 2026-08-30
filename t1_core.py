@@ -901,7 +901,7 @@ VW_W_TROUGH_Z = -0.6445
 VW_W_PEAK_Z = -0.075
 
 
-def vw_bars(R, w, origin, u_ax, v_ax, n_ax, depth, tag="vw"):
+def vw_bars(R, w, origin, u_ax, v_ax, n_ax, depth, tag="vw", traced=False):
     """V-over-W emblem as TWO closed mitred prisms, one V and one W.
 
     rev 8, per SKEPTIC_PASS.md sec.D. This was six independent overlapping bars
@@ -1190,7 +1190,15 @@ def vw_bars(R, w, origin, u_ax, v_ax, n_ax, depth, tag="vw"):
     # `_fit_glyph` still scales the finished outline to whatever ring the caller
     # has, exactly as it does for the constant path, so nothing here encodes a
     # diameter.
-    if os.environ.get("T1_VW_TRACED") == "1":
+    # SCOPED TO THE NOSE (rev 71, F255).  `vw_pressing`'s outline was traced
+    # off ref_workshop.jpg's NOSE roundel; the hubcap badge is a DIFFERENT
+    # OBJECT at a different scale with its own stroke weight (F178), so tracing
+    # it from the nose is rule 11's shape.  It also returns ONE object where
+    # the constant path returns two, which is what `verify`'s hubcap-assembly
+    # row caught -- 4 capvw against an expected 8.  The guard was RIGHT and is
+    # not relaxed (rule 44); the trace is scoped instead.  Callers opt in with
+    # traced=True; only t1_detail.vw_logo_fit (the nose) does.
+    if traced and os.environ.get("T1_VW_TRACED") == "1":
         import vw_pressing
         outer = [(x * R, y * R) for (x, y) in vw_pressing.PRESSING_OUTER]
         holes = [[(x * R, y * R) for (x, y) in h]
