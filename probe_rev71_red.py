@@ -59,7 +59,7 @@ def flank(path, band, step, tsz, linear=True):
                 continue                       # red-dominant ORDERING, not a saturation cut
             if m[1] / m[0] > 0.80:
                 continue                       # excludes cream, grey and the background wall
-            keep.append(_lin(m) if linear else m)
+            keep.append(_lin(t).mean(0) if linear else m)
     if len(keep) < 20:
         return None
     K = np.array(keep)
@@ -68,7 +68,15 @@ def flank(path, band, step, tsz, linear=True):
 
 
 def ratio(path, boxes, red, tsz=8, step=4):
-    """Mean LINEAR colour over uniform tiles in `boxes`."""
+    """Mean LINEAR colour over uniform tiles in `boxes`, and the CLIP fraction.
+
+    ⚠ CLIPPING IS WHY THIS ROW NEEDED A GUARD.  R3 divides by the cream, and in
+    the SHIPPED render 84 % of the cream window sits at sRGB >= 254 -- it is
+    BLOWN OUT.  A clipped denominator cannot rise, so red/cream is inflated and
+    the row reads a distortion that is partly the exposure.  Measured: the same
+    rig at two exposures gave 2.41x and 2.57x, and under AgX 3.43x.  A ratio of
+    two albedos must not move with exposure at all.  Returns None on a clipped
+    window rather than a number (rule 37)."""
     a = np.asarray(Image.open(path).convert('RGB')).astype(float)
     k = []
     for (x0, y0, x1, y1) in boxes:
@@ -80,8 +88,20 @@ def ratio(path, boxes, red, tsz=8, step=4):
                     continue
                 if red and (not (m[0] > m[1] > m[2]) or m[1] / m[0] > 0.80):
                     continue
-                k.append(_lin(m))
-    return np.array(k).mean(0) if len(k) >= 10 else None
+                # LINEARISE PER PIXEL, THEN AVERAGE.  lin(mean) != mean(lin),
+                # and taking the mean in sRGB first left this row still moving
+                # with EXPOSURE -- which a ratio of two albedos must not do.
+                k.append(_lin(t).mean(0))
+    if len(k) < 10:
+        return None
+    return np.array(k).mean(0)
+
+
+def clip_fraction(path, boxes):
+    a = np.asarray(Image.open(path).convert('RGB')).astype(float)
+    px = np.vstack([a[y0:y1, x0:x1].reshape(-1, 3) for (x0, y0, x1, y1) in boxes])
+    return float((px.max(1) >= 254).mean())
+
 
 
 def main():
@@ -118,17 +138,31 @@ def main():
     # be blamed on exposure, on the frame's white balance, or on the fact that
     # the photograph is outdoors and the render is in a studio.
     ar = np.array(RED_ALB) / np.array(CREAM_ALB)
+    print("\n  ⚠ R3 MUST BE READ ON A TONE-CURVE-FREE FRAME.  Inverse-sRGB does NOT")
+    print("    undo AgX, and read through AgX this row moves with EXPOSURE -- which a")
+    print("    ratio of two albedos cannot do.  Same rig, two exposures: 2.41 / 2.57;")
+    print("    under AgX: 3.43.  Render with T1_VT=Standard (or Raw, 16-bit) to read it.")
     print("\n  R3 PHOTOGRAPH-FREE -- does the render preserve its OWN albedo ratio?")
     print("     authored RED/CREAM              R %.4f  G %.4f  B %.4f" % tuple(ar))
     for f in frames:
+        cf = clip_fraction(f, CREAM_BOXES)
         rr = ratio(f, [RENDER_BAND], True)
         cc = ratio(f, CREAM_BOXES, False)
         if rr is None or cc is None:
-            print("     %-28s NO WINDOW -- not measured" % os.path.basename(f))
+            print("     %-24s NO WINDOW -- not measured" % os.path.basename(f))
+            continue
+        if cf > 0.05:
+            print("     %-24s REFUSED: %.0f %% of the CREAM window is clipped at "
+                  "sRGB >= 254." % (os.path.basename(f), 100 * cf))
+            print("     %-24s A clipped denominator cannot rise, so red/cream would"
+                  % "")
+            print("     %-24s read HIGH and the number would be exposure, not shape."
+                  % "")
+            fails.append(os.path.basename(f) + " (cream clipped)")
             continue
         q = rr / cc
-        print("     %-28s R %.4f  G %.4f  B %.4f   G is %.2fx authored"
-              % (os.path.basename(f), q[0], q[1], q[2], q[1] / ar[1]))
+        print("     %-24s R %.4f  G %.4f  B %.4f   G is %.2fx authored  [clip %.0f %%]"
+              % (os.path.basename(f), q[0], q[1], q[2], q[1] / ar[1], 100 * cf))
 
     print("\n  DECOMPOSITION MEASURED AT REV 71 (F257), each term ablated, none inferred:")
     print("     specular       T1_SPEC   0.50 -> 0.05    -0.0574   44 % of the gap")
