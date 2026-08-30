@@ -141,7 +141,12 @@ def main():
     print("\n  ⚠ R3 MUST BE READ ON A TONE-CURVE-FREE FRAME.  Inverse-sRGB does NOT")
     print("    undo AgX, and read through AgX this row moves with EXPOSURE -- which a")
     print("    ratio of two albedos cannot do.  Same rig, two exposures: 2.41 / 2.57;")
-    print("    under AgX: 3.43.  Render with T1_VT=Standard (or Raw, 16-bit) to read it.")
+    print("    under AgX: 3.43.  AND IT MUST ALSO BE UNCLIPPED: every 'gain' rev 71")
+    print("    first measured for the relight was the CREAM DENOMINATOR clipping.")
+    print("    THE ONLY VALID PROTOCOL: view_transform 'Raw', 16-bit, stopped DOWN")
+    print("    (a ratio of two albedos is exposure-invariant in true linear, so")
+    print("    stopping down is free).  On that ruler the shipped rig reads 2.67x,")
+    print("    T1_SOFTEN=3.5 reads 2.86x -- WORSE -- and T1_SPEC+T1_CYCALB reach 1.71x.")
     print("\n  R3 PHOTOGRAPH-FREE -- does the render preserve its OWN albedo ratio?")
     print("     authored RED/CREAM              R %.4f  G %.4f  B %.4f" % tuple(ar))
     for f in frames:
