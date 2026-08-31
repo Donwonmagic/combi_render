@@ -48,7 +48,7 @@ the change was rendered, cropped and looked at; and it ships.
 
 | # | the owner's item | what happened |
 |---|---|---|
-| **2** | *"make the emblem correct"* | **the ruler was refuted AND REPAIRED (F246), the prescribed build is refuted (F252), the fit depth is measured and SHIPPED (F251/F256), and P4 has gone RED — the traced pressing now wins independently (F255)** |
+| **2** | *"make the emblem correct"* | **ruler REPAIRED (F246); fit depth measured and SHIPPED (F251/F256); FOUR routes closed — trace (F262), free endpoints (F252), spine constants, fit depth. The objective is BLIND TO LEGIBILITY and that is rev 72's precondition** |
 | **3** | *"finish the nose render"* | **rendered at 3200-class settings, cropped and LOOKED AT.** `probe_rev67_nose.py`'s P3 **REFUSES** on the frame |
 | **1** | *"the back opening"* | **F134 answered after ten revisions (F249), both its levers measured inert, a gate built and watched failing** |
 
@@ -324,6 +324,48 @@ outcome, and the top two are the revision:**
 **WHAT IT CONFIRMED SOLID:** the proxy (at seven perturbed parameters), every arithmetic step of F247
 bar the 4.9, F248 entire, F253 entire, the `glass_rear` geometry, the nose figures, F180's paragraph,
 and the bulb probe's plumbing and its watched kill.
+
+---
+## §7 WHAT REV 71 CLOSED AFTER THE FIRST LEDGER WAS WRITTEN — THE RED, AND THE TRACE
+
+**THE RED: PHYSICS CLOSED (F257 → F261), AND THE RENDERER IS CORRECT.** Every term ablated on a ruler
+that is **linear, unclipped and robust**. `RED/CREAM` against authored R 0.8944 / G 0.0466 / B 0.0305:
+
+```
+    shipped                       R 0.83x  G 1.73x  B 2.29x
+    diffuse bounces 0             G 1.63x    <- inter-reflection is worth 0.10
+    bounces 0 + T1_SPEC 0.05      G 0.91x    <- SPECULAR IS ESSENTIALLY ALL OF IT
+    spec0 coat0 bounce0 world0    R 0.80x  G 0.83x  B 0.70x  -- ALL THREE CONVERGED,
+                                  a pure irradiance difference between the windows,
+                                  i.e. the gate's own ceiling, not a defect
+    effective albedos (AOV)       ratio 0.99x  -- THE MATERIALS ARE CORRECT
+    T1_SOFTEN 3.5                 G 1.98x  -- the relight is WORSE
+```
+
+**Nothing in the model is wrong.** `T1_SPEC` 0.50 is F0 ≈ 0.04, right for any dielectric paint.
+**The red images salmon because a physically-correct specular lobe reflects a bright uniform studio
+onto a dark saturated albedo, and the reference is the same bus OUTDOORS IN SHADE — a different
+scene.** That answers **F21**: it is light, and the light is not wrong, it is different.
+
+**THE TRACE: F183 STANDS (F262).** It now builds — its standoff was fixed (scoped to the traced path)
+and the trace scoped to the nose so the hubcap guard stays armed — and **rendered it is fragmented
+into disconnected shards.** P4 scores it HIGHER on both frames. **A silhouette IoU cannot see
+fragmentation**, which is now **rule 56**.
+
+### §7a **SIX INSTRUMENT DEFECTS, THREE RETRACTED CONCLUSIONS — ALL MINE**
+
+1. Two painted windows on the wrong pixels (the wall and the mural; then board cream).
+2. A Diffuse-Colour AOV read without its control — over-stated the paint chain **8×**.
+3. **AgX read as though inverse-sRGB undid it** — inflated every ratio ~25 % and made the ratio move
+   with EXPOSURE, which a ratio of two albedos cannot do.
+4. **A claim that the delivery render clipped its cream — RETRACTED: all four shipped AgX frames clip
+   0.0 %.** The clipping was in my own `Standard` test frames.
+5. **Clipping in the denominator**, which made a relight look like it worked, three times.
+6. **Mean instead of median** — a 15 % contaminant tail doubled a dark channel and produced the
+   published "2.67×", which is really **1.73×**.
+
+**ALL SIX ARE NOW ENFORCED IN CODE: `photometry.py`, with a selftest carrying two kills.** That is the
+revision's most durable output — the next context inherits the fix instead of the lesson.
 
 ---
 ## §6 THE MACHINE AT CLOSE

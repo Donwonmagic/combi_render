@@ -8,10 +8,10 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-29 14:44:31 UTC |
-| git commit | `e957148` |
-| git subject | rev 71: SHIP the emblem's fit depth 0.84 -> 0.86, and REPAIR the ruler that measured it |
-| working tree | clean |
+| generated | 2026-08-31 02:19:43 UTC |
+| git commit | `19ff34b` |
+| git subject | rev 71: photometry.py -- the measurement protocol as code, plus canon rules 56-57 |
+| working tree | **DIRTY** — this state is not committed |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=2 (applied, destructive, before booleans) |
 | geometry source | procedural, built this run |
