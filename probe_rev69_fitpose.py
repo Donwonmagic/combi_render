@@ -416,8 +416,18 @@ def main():
                    "was TRACED FROM: %.4f vs %.4f) and %+.4f on IMG_2073, a "
                    "different vehicle, camera and pose (%.4f vs %.4f). An "
                    "improvement that lives only on its own source is OVERFIT. "
-                   "If this row goes RED the trace has become the better "
-                   "construction and F183 needs re-opening"
+                   "*** F262, rev 71: THIS ROW IS RED AND IT IS **NOT** A "
+                   "LICENCE TO SHIP THE TRACE.  The traced glyph was made to "
+                   "BUILD (a scoped standoff), then RENDERED, CROPPED AND "
+                   "LOOKED AT at 1600x1100: it is FRAGMENTED INTO DISCONNECTED "
+                   "SHARDS with no legible V over W, while the shipped "
+                   "constants read clean.  A silhouette IoU at ~220 px CANNOT "
+                   "SEE FRAGMENTATION, so this row ranks a visibly shattered "
+                   "construction ABOVE the shipped one.  F183's \"BUILT, "
+                   "RENDERED, WORSE -- T1_VW_TRACED MUST STAY OFF\" STANDS, "
+                   "for exactly the reason it always gave: looking (rule 1).  "
+                   "F255's re-opening of F183 is WITHDRAWN.  What this row now "
+                   "measures is the IoU's OWN CEILING, not the trace's merit ***"
                    % (d_src, tr[src_f], here[src_f], d_ind, tr[ind_f], here[ind_f]))
             else:
                 print("  P4 NOT RUN -- a frame was refused on one side or the "
@@ -432,7 +442,9 @@ def main():
     print("  CEILING.  A homography is exact for a PLANE.  The mark is not quite "
           "planar --\n  it stands proud of the nose and the nose is curved -- so "
           "a few percent of any\n  residual is relief, not shape.  And the search "
-          "is greedy from six rotation\n  starts; P1 bounds what it can recover. "
+          "is greedy -- 18 rotation starts x 3\n  y-scale seeds since rev 71 "
+          "(T1_FITPOSE_LEGACY=1 restores rev 69's six); P1/P1b bound\n  what it "
+          "can recover. "
           " This says HOW FAR the built mark is\n  from the photographed one with "
           "pose removed. It does not say WHICH stroke.")
     print()

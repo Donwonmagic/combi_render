@@ -177,6 +177,20 @@ open, and solid fore / aft / both sides"* is about a DIFFERENT aperture and must
 **Measure it before you name it.** And note `lid_trunk` is a **different object** (a plate at x −1.87,
 z 0.608…1.103, below the counter) and is **NOT** this hatch.
 
+> **⚠ MEASURED AT REV 71 (F254), SO THIS PARAGRAPH IS NOW ANSWERED — AND THE ANSWER IS A THIRD THING
+> NEITHER OPTION NAMED.** `glass_rear` was projected through the built `hero34r` camera and PAINTED:
+> its 72 verts land at **u 1018…1251, v 545…619 (233 × 74 px)**; the dark rectangle, as the largest
+> connected dark blob, is **19354 px at u 976…1247, v 545…670 (271 × 125)**. **63 % of the rectangle
+> lies inside the pane's projection; 37 % does NOT** — it runs 42 px further left and 51 px lower than
+> the pane reaches. **So the shell is NOT holed (F71's flat glazing is not it either): about a third
+> of that rectangle is the OPEN APERTURE with no pane in front of it**, because `t1_shell.py` carries
+> **`REAR_OPEN_DEG = 64.0`** and logs *"rear hatch: glass_rear hinged … OPEN 64.0 deg [angle NOT
+> MEASURED -- no frame shows it]"*. **F244's quoted bbox x −2.151…−1.850 is 301 mm against a 6 mm
+> pane, so it is the pane AFTER being swung out**, and its words *"an aperture with a fully
+> transmissive pane IN IT"* do not describe the built object. **THAT 64° IS THE LIVE DEFECT: an
+> unmeasured POSE (F242) with no ablation switch and no guard, on the item the owner named. It is
+> `REMAINING`, not closed.**
+
 ---
 
 ---
@@ -275,6 +289,15 @@ the real mark's are near-PARALLEL** — that is the defect in words, and the bui
 > and the probe's own **A3 PASSES** precisely because built and photograph have the same count of
 > round cells (2 and 2). **F235's aspect list does not reproduce either.**
 
+> **⚠ AND ONE LEVER WAS NOT IN THIS LIST AT ALL, WAS MEASURED AT REV 71, AND SHIPPED (F251/F256).**
+> The glyph's FIT DEPTH — how far into the ring band the strokes are fitted — is `t1_detail.VW_FIT_COEF`,
+> and three briefs called it *"still UNMEASURED"* while nothing measured it. Swept on both photographs
+> it has its argmax at **FIT_R 0.86** on each independently, and **`VW_FIT_COEF` 0.8 -> 0.7 SHIPPED**:
+> ref_workshop 0.8384 -> **0.8425**, IMG_2073 0.8168 -> **0.8215**. **Rendered, cropped and looked at:
+> the V's arm tips and the W's outer arms now RUN INTO the band where they visibly stopped short** —
+> the owner's own report (F205). `T1_VW_FITCOEF=0.8` restores it. **CEILING: 0.8425 against P1b's
+> 0.9146. The emblem is still ~0.07-0.13 short and he has reported it NINE times. IT IS NOT FIXED.**
+
 **EVERY LEVER THE EMBLEM HAS WAS MEASURED AGAINST THAT RESIDUAL AND THEY ARE ALL EXHAUSTED (F237):**
 
 ```
@@ -290,6 +313,12 @@ the real mark's are near-PARALLEL** — that is the defect in words, and the bui
     ALL SEVEN (six spine constants + weight) together    0.7457                +0.0112  = 4.4 %
     T1_VW_TRACED on ref_workshop.jpg  (ITS OWN SOURCE)   0.8250                +0.0905
     T1_VW_TRACED on IMG_2073.jpeg     (INDEPENDENT)      0.6421 vs 0.6671      -0.0249
+      *** BOTH TRACE ROWS SUPERSEDED AT REV 71.  Re-scored on the repaired
+      search and the re-cut IMG_2073 box: traced - shipped = +0.0060 and
+      +0.0081, BOTH POSITIVE (F255).  The -0.0249 was measured on a CLIPPED
+      window with a search that could not register it.  AND IT CHANGES
+      NOTHING: rendered, the traced glyph is SHARDS (F262).  Kept,
+      annotated, not deleted (rule 16) ***
 ```
 
 > **THE TRACE'S WHOLE ADVANTAGE LIVES ON THE FRAME IT WAS TRACED FROM. F183 STANDS, and now with a
@@ -653,6 +682,21 @@ TRACING THE PRESSING AND MESHING IT      BUILT, RENDERED, WORSE.
                                          fitpose.py's P4 re-checks this every run
                                          and goes RED if it ever wins independently
                                          (F237) ***
+                                         *** REV 71: P4 WENT RED, AND F183 STILL
+                                         STANDS.  On the repaired ruler and the
+                                         re-cut window the trace wins on BOTH
+                                         frames (+0.0060 on its own source,
+                                         +0.0081 independent), so the "-0.0249"
+                                         above and the OVERFIT mechanism are
+                                         REFUTED (F255).  BUT the traced glyph was
+                                         then made to BUILD and RENDERED: it is
+                                         FRAGMENTED INTO DISCONNECTED SHARDS with
+                                         no legible V over W (F262, rule 56).  A
+                                         silhouette IoU at ~220 px cannot see
+                                         fragmentation.  F183's verdict stands for
+                                         the reason it always gave -- LOOKING --
+                                         and this row STAYS REFUTED.  P4's own
+                                         message now carries that withdrawal ***
 TUNING AGAINST C6 OR C8 AS THEY STAND    their targets carry the viewing
                                          angle -- a pure shear spans both   (F184)
 C8's 3.390 AS A TARGET AT ALL            un-squashed it is 2.63..2.96       (F194)
@@ -948,6 +992,38 @@ in the briefs and are carried here — that is rule 16 firing on this file:
 > tail of contaminant tiles DOUBLES the mean G while barely moving R. **(d) PAINT THE WINDOW AND LOOK**
 > — four of rev 71's windows were wrong. **Import `photometry`; do not re-derive this. Run its
 > `selftest()` first (3 checked, 0 FAILED, and two of the three are kills).**
+
+> **55. EVERY REVISION SHIPS A VISIBLE CHANGE TO THE VEHICLE, OR SAYS PLAINLY WHY IT COULD NOT** —
+> at the TOP of its ledger, not in a footnote. (Rev 71 could not, and said so.)
+
+> **56. NEW AT REV 71 — AN INSTRUMENT CAN RANK A THING THE EYE REJECTS, AND IT WILL NOT TELL YOU.**
+> `probe_rev69_fitpose.py`'s P4 scored the traced pressing ABOVE the shipped glyph on both frames.
+> Rendered, the traced glyph is **fragmented into disconnected shards with no legible V over W**.
+> A silhouette IoU at ~220 px cannot see fragmentation, so the objective was blind to the only
+> property that matters. **Before you optimise against a scalar, ask what it CANNOT see, and build
+> the counterexample (rule 41).** (F262.) **CEILING: n = 1** — one construction was observed to fool
+> it, and it is the one that is a single filled outline; the shipped six-stroke glyph has no
+> mechanism to shatter. Do not read this as a bar on touching the emblem.
+
+> **57. NEW AT REV 71 — THE FOUR RULES OF READING A PIXEL, AND THEY ARE CODE NOW, NOT PROSE.**
+> (a) READ LINEAR, AND MAKE THE CALLER DECLARE THE TRANSFORM — inverse-sRGB does NOT undo AgX, and
+> read through AgX a ratio of two albedos MOVES WITH EXPOSURE, which is physically impossible.
+> (b) REFUSE CLIPPED DATA — a clipped denominator cannot rise, so every ratio against it reads high;
+> rev 71 measured a relight "working" three times and every gain was the cream clipping.
+> (c) USE A ROBUST STATISTIC — the red's authored G albedo is 20x smaller than the cream's, so a
+> ~15 % contaminant tail DOUBLES the mean G while barely moving R. Median.
+> (d) PAINT THE WINDOW AND LOOK BEFORE PUBLISHING ANY NUMBER FROM IT.
+> **`photometry.py` enforces all four and its selftest carries a WATCHED KILL for each.** (F257-F261.)
+
+> **58. NEW AT REV 71 — A LIBRARY CAN THROW AWAY HALF YOUR DATA WITHOUT RAISING ANYTHING, AND THE
+> RECORD WILL BLAME THE WRONG COMPONENT FOR FIFTY REVISIONS.** Every frame this project renders is
+> 16-bit (`studio.setup_render`: `color_depth = '16'`, and all 50 PNGs in `out/` carry IHDR bit-depth
+> 16). **PIL has no 16-bit RGB path and truncates to `uint8` silently — no warning, no exception.**
+> F42 recorded the lost precision as a property of the RENDERER; it is a property of the READER.
+> **CHECK WHAT YOUR READER ACTUALLY RETURNED — dtype, max, shape — before you trust a number off it**,
+> and prefer a decoder you can control against a file whose values you authored.
+> `photometry.read_png()` is that decoder; its top 8 bits agree with PIL on all 5 280 000 pixels of a
+> live frame, max difference 0. (F263.)
 
 ---
 ## §6 THIS MACHINE
