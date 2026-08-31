@@ -58,9 +58,10 @@ git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 ```
 **EIGHT CONSECUTIVE REVISIONS OF STALE BRANCH PROSE (F253/F267), rev 71's stale within the HOUR and in
 the OPPOSITE direction from rev 70's. A BRIEF CANNOT CARRY A TRUE STATEMENT ABOUT BRANCH STATE ACROSS
-A BOUNDARY.** Believe `bootstrap.sh` row 9 and the loop above, never this paragraph. **AND F267's own
-consequence is still OUTSTANDING: `bootstrap.sh` row 9's note says *"Carry the number into the
-handoff"* — that advice is REFUTED by F267 and rev 72 did not re-cut it. Change the note.**
+A BOUNDARY.** Believe `bootstrap.sh` row 9 and the loop above, never this paragraph. **AND F267's own consequence
+is now DISCHARGED: `bootstrap.sh` row 9's note used to say *"Carry the number into the handoff"* — the
+advice that caused F267 — and rev 72 re-cut it to say the opposite. If your run prints a note telling
+you to carry the number, you are on an old tree.**
 
 ---
 ## §2 RANKED WORK FOR REV 73
