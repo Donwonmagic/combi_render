@@ -88,7 +88,14 @@ recorded at rev 70 AND rev 71, fixed at NEITHER, **fixed at rev 72 (F275): now `
 1 ABSENT`, rc 2.** **WHAT IS STILL MISSING IS UNCHANGED: this project has NO render-side reading of
 the bumper's edge.** P3 refuses on a three-quarter frame (fit rms ~113 px = 12 % of span, `out/
 r72_front.png`) because a whole-frame column scan catches every cream-under-red boundary in the
-frame. **Give it a true elevation frame or re-cut the row.** ⚠ It builds the shell in-process (~74 s);
+frame. **⚠ DO NOT "GIVE IT A TRUE ELEVATION FRAME" — REV 72 TRIED THAT AND IT REFUSED ANYWAY (F277).**
+On `out/r72_front.png`, the straight-on `front` preview, P3 reads sagitta −73.55 px ± 9.46 over
+926 px, **fit rms 113.22 px = 12 % of span**, 475 of 476 points clipped. **The row's own NAME blames
+the three-quarter pose and its own SOURCE COMMENT blames the un-windowed scan; the comment is right.**
+**WINDOW THE SCAN.** The window must be derived from something INDEPENDENT of the bumper edge it is
+about to measure (rule 6) and **PAINTED BEFORE any number is read from it** (rule 8). ⚠ Rev 72 did not
+build that window and does not know it will work — F277 refutes a prescription, it does not supply a
+replacement. ⚠ It builds the shell in-process (~74 s);
 `--nomesh` skips that. **DO NOT ASK HIM THE NOSE AGAIN — both askings are spent (F214/F215).** Check
 the catalogue literature first (F229, rule 52); sources named in `HANDOFF_CARRIERS.md` §0.06.
 

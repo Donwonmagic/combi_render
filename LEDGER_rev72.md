@@ -150,6 +150,19 @@ gloss_compare       0.412 (bar 0.60)  FAIL     flank_compare  0.689 (i) (bar 0.7
 
 **NOT ONE OF THOSE ROWS IS EVIDENCE ABOUT THE VEHICLE except the two that fail.**
 
+## 6b. THE NOSE — LOOKED AT, MEASURED, AND ONE PRESCRIPTION REFUTED (F277)
+
+`probe_rev67_nose.py` P3's row is NAMED *"…and on a **three-quarter frame** it is NOT"*, and the
+rev-72 brief inherited that reading and prescribed *"Give it a true elevation frame or re-cut the
+row."* **Rev 72 gave it a true elevation frame — `out/r72_front.png`, the straight-on `front`
+preview — and it refused anyway:** sagitta −73.55 px ± 9.46 over 926 px, **fit rms 113.22 px = 12 %
+of span**, 475 of 476 points clipped. **The pose is not the cause.** The probe's own source comment
+already names it — *"a whole-frame column scan catches EVERY cream-under-red boundary in the frame …
+and fits one parabola through the lot"* — and the fix is a **nose-column window**, derived from
+something independent of the edge it measures (rule 6) and painted first (rule 8).
+**⚠ CEILING: rev 72 did NOT build that window. This refutes a prescription; it does not supply a
+replacement.** P1 and P2 pass unchanged on the photograph side.
+
 ## 7. WHAT DID NOT MOVE
 
 **The emblem, and the nose.** Both were rendered, cropped and LOOKED AT — that much was done and is
