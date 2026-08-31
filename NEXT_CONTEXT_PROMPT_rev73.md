@@ -119,7 +119,7 @@ board an underside it already has.** Its items 2–5 stand; the **dark angled re
 
 ```bash
 ./bootstrap.sh                                # ALL 10 PASS -- read ROW 9
-./verify_clone.sh                             # ALL 380 PASS -- read the verdict block too
+./verify_clone.sh                             # ALL 381 PASS -- read the verdict block too
 T1_SUB=1 T1_VERIFY=1 /tmp/blender/blender -b -P build.py     # -> "VERIFY: 0 fail, 0 warn"
 python3 photometry.py                         # 9 checked, 0 FAILED
 python3 probe_rev72_bits.py out/r73_hero34f.png   # NEW at rev 72.  5 checked, 0 FAILED.
