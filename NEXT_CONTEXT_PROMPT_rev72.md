@@ -158,11 +158,14 @@ how F261 was caught. **Publish the invariance figure beside the decomposition.**
 ./bootstrap.sh                                # ALL 10 PASS -- read ROW 9
 ./verify_clone.sh                             # read the verdict block AND the row count
 T1_SUB=1 T1_VERIFY=1 /tmp/blender/blender -b -P build.py     # -> "VERIFY: 0 fail, 0 warn"
-python3 photometry.py                         # THE MEASUREMENT PROTOCOL -- run it first
+python3 photometry.py                         # THE MEASUREMENT PROTOCOL -- 9 checked, 0 FAILED
 python3 probe_rev71_proxy.py                  # must read IoU 1.000000
-python3 probe_rev69_fitpose.py                # the emblem.  P1b PASSES; P2 and P4 fail
+python3 probe_rev69_fitpose.py                # the emblem.  P1b PASSES; P2 and P4 fail BY DESIGN --
+                                              # READ P4's MESSAGE, its red is NOT a licence (F262)
 python3 probe_rev71_emblem.py                 # the fit depth.  T1_REV71_SEARCH=AB adds the searches
-python3 probe_rev71_red.py out/r72_side.png   # the red.  READ ITS PROTOCOL NOTE FIRST
+python3 probe_rev71_red.py out/r72_side.png --transform=agx   # will REFUSE, and that is correct:
+  # AgX cannot be linearised.  For a real reading render Raw 16-bit (see 2b) and pass --transform=raw.
+  # R2 fails against the PHOTOGRAPH by design -- different scene (F266).  R3/R4 are the live rows.
 python3 probe_rev71_bulbs.py out/r72_side.png # window MISPLACED -- direction only (F250)
 python3 flank_compare.py out/r72_side.png /tmp/fc.png ; python3 gloss_compare.py out/r72_hero34f.png
 python3 probe_rev70_tyre.py out/r72_side.png ; python3 probe_rev46_vw.py
