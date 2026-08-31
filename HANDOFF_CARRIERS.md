@@ -484,6 +484,14 @@ visibility_budget.py      THE RANKING.  The emblem is item 9 of 16 at 3.32e4 px^
                           the top item is 3.83e6 px^2 -- 115x bigger
 ```
 
+> **⚠ REV 71 ADDS A ROW TO THIS BLOCK THAT CHANGES HOW EVERY OTHER ROW IN IT SHOULD BE READ (F263).**
+> **Every frame these gates score is 16-BIT on disk, and every one of them reads it through PIL, which
+> truncates to 8 bits silently.** `flank_compare`, `gloss_compare`, `probe_rev70_tyre`,
+> `probe_rev46_vw`, `cream_rms`, `probe_rev59_*`, `probe_rev6*_*` — all of them. **`photometry.read_png`
+> returns the other eight bits and agrees with PIL on the top eight to the pixel (max difference 0 over
+> 5 280 000 px).** Nothing above has been re-read through it yet. **A gate's published figure is only
+> as good as its reader, and none of these figures has been checked against a full-precision one.**
+
 **AND THE STANDING WARNING, WHICH `verify_clone.sh` PRINTS ITSELF.** A green check is not evidence
 about the vehicle. **Not one of those rows compares the model to a photograph** except
 `flank_compare`, `gloss_compare`, `probe_rev70_tyre` and `probe_rev69_fitpose` — **and all four fail.**
