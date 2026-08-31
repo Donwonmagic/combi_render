@@ -234,3 +234,38 @@ self-review. Report the measurement with its ceiling. Do not say anything is rea
    **reversed the revision's central conclusion** and unblocked the owner's #1 item.
 5. **Keep the split, and KEEP THIS FILE SHORT.** `cp` it over `PASTE_INTO_CLAUDE_CODE.txt` in the
    same commit.
+
+---
+**⚠ THIS BRIEF WAS AUDITED AGAINST THE MACHINE, AND A SECOND DISPATCHED ADVERSARY (rule 17) RETURNED
+ELEVEN DEFECTS IN REV 71's OWN WORK — FOUR OF THEM INSIDE THE MODULE WRITTEN TO PREVENT THAT CLASS.**
+
+`audit_brief.py` **10 checked**; `audit_adversary.py` — its **mechanical** half only, and rule 17's
+other half (recompute every figure) was done by hand this revision and found the `doc:geo 67` above.
+
+**WHAT THE ADVERSARY CHANGED, TOP THREE:**
+1. **`photometry.py`'s selftest controlled ONE of its four rules and that one was VOID** — its planted
+   contaminant was rejected by the window's own `keep` before the estimator saw it, so swapping the
+   median for a mean left the suite green. **Now 9 checks, five kills, every kill watched firing.**
+2. **`load_linear`'s `'raw'` branch could never execute** — which led to **F263**, the largest finding
+   of the revision: **every frame is 16-bit and every measurement was read at 8.**
+3. **`probe_rev69_fitpose.py`'s P4 still told the reader to re-open F183**; F262 had *asserted* a
+   patch that never landed. **A rev-72 context obeying rule 9 would have read P4's red as an
+   instruction and shipped a shattered glyph.** Fixed, back-annotated, and held by two rows.
+
+**WHERE THIS BRIEF IS WEAKEST, STATED RATHER THAN HIDDEN:**
+* **F261's magnitudes are withdrawn and the re-measurement is PARTIAL.** On the repaired ruler
+  (16-bit `Raw`, 0.0 % clip) the shipped rig reads **G 1.67× authored**; `T1_DIFFB=0` → **1.61×**;
+  `+T1_SPEC=0.05` → **1.05×**, i.e. **the specular lobe is ~84 % of the departure and the render is
+  within 5 % of its own authored albedo ratio once it is off.** ⚠ **THAT IS NOT YET ADMISSIBLE: the
+  exposure-invariance test had not finished when this brief closed.** Run it (§2b) before quoting it.
+* **The photograph's own red G/R spans 0.0149 … 0.0344** across four defensible uniformity cuts —
+  **a 2.3× ceiling on every red comparison, wider than most effects being tuned against.** `R1b`
+  prints the band; never quote one figure.
+* **`read_png` is one revision old and only `probe_rev71_red.py` uses it.** Every other probe still
+  reads 8 bits. **That is the cheapest re-measurement available to rev 72.**
+* **`probe_rev67_nose.py` bare still prints a GREEN summary and exits 0** while refusing on its first
+  line. Recorded at rev 70 AND rev 71, **not fixed.**
+* **`HANDOFF_CARRIERS.md` is pre-rev-70 text in its FIGURES** outside the sections rev 71 annotated.
+  **Its RULINGS, its REFUTED LIST and its RULES CANON are the parts to trust.**
+* **Every figure quoted from `out/` needs a re-render before you quote it** — `out/` starts empty.
+
