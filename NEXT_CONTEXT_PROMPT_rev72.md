@@ -63,12 +63,18 @@ for b in $(git branch -r | grep -v HEAD); do printf "%-52s ahead %-3s behind %s\
   "$(git rev-list --count origin/main..$b)" "$(git rev-list --count $b..origin/main)"; done
 git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 ```
-**MEASURED AT REV 71's CLOSE, BY `bootstrap.sh` ROW 9's OWN NOTE — CARRY IT, THEN RE-MEASURE IT:**
-**HEAD was 36 ahead / 0 behind `origin/main`, and those 36 commits are MERGED NOWHERE.** Row 9 passes
-(*"no branch carries work HEAD does not have"*) because it only finds branches ahead of HEAD — **it
-cannot see this axis, and its own note says so.** The branch is
-`claude/nose-emblem-back-opening-r71-p1cu8z`. **THAT SENTENCE IS ALREADY THE STALEST THING IN THIS
-FILE. Run the loop above before you believe any of it.**
+**⚠ AND HERE IS F253 HAPPENING AGAIN, IN THE PARAGRAPH THAT WARNS ABOUT IT, WRITTEN BY REV 71 —
+KEPT VISIBLE INSTEAD OF QUIETLY DELETED, BECAUSE IT IS THE BEST AVAILABLE PROOF THAT THIS SECTION'S
+INSTRUCTION IS NOT RHETORICAL.** Rev 71 closed by carrying `bootstrap.sh` row 9's own note into this
+file: *"HEAD is 36 ahead / 0 behind `origin/main`, and those 36 commits are MERGED NOWHERE."* **It was
+true when measured and FALSE WITHIN THE HOUR** — the owner merged the work as **PR #28**, and rev 71's
+whole output (this brief, `photometry.py`, F246–F266) is **ON `main`**. A next context believing that
+sentence would have gone looking for stranded work that was already landed.
+**THE OWNER CORRECTED IT, NOT THE RECORD** — he said *"it's already merged"* against a measurement
+that said otherwise, and he was right because the measurement had aged.
+**SO: A BRIEF CANNOT CARRY A TRUE STATEMENT ABOUT BRANCH STATE ACROSS A BOUNDARY — NOT EVEN A
+FRESHLY MEASURED ONE, NOT EVEN ONE THE MACHINE PRINTED ITSELF. RUN THE LOOP ABOVE. THAT IS THE ONLY
+INSTRUCTION IN THIS SECTION.**
 
 **SEVEN CONSECUTIVE REVISIONS OF STALE BRANCH PROSE (F253), rev 71's stale in the OPPOSITE direction
 from rev 70's.** A brief cannot carry a true statement about branch state across a boundary. Believe
