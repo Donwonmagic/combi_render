@@ -65,8 +65,9 @@ handoff"* — that advice is REFUTED by F267 and rev 72 did not re-cut it. Chang
 ---
 ## §2 RANKED WORK FOR REV 73
 
-**RE-RANK IT YOURSELF** — `python3 visibility_budget.py 3840 out/r73_hero34f.png` — **but the owner
-outranks the ranking, and both his open items are below.**
+**RANK BY PIXELS OF THE DELIVERY FRAME** before you choose — `python3 visibility_budget.py 3840
+out/r73_hero34f.png` — **but the owner outranks the ranking, and both his open items are below.**
+The ranked list is `REMAINING_WORK_rev61.md`, triaged into `ROADMAP_rev68.md`.
 
 ### **1. THE EMBLEM — HIS NINTH REPORT, AND THE PRECONDITION IS NOW THE WHOLE JOB.**
 **RENDERED AND LOOKED AT AT REV 72, AND THE DEFECT IS PLAIN IN A CROP.** Put
@@ -211,3 +212,34 @@ self-review. Report the measurement with its ceiling. Do not say anything is rea
    became this brief's §3 rows.
 5. **Keep the split, and KEEP THIS FILE SHORT.** `cp` it over `PASTE_INTO_CLAUDE_CODE.txt` in the
    same commit. `python3 audit_brief.py --fix-count` LAST.
+
+---
+**⚠ THIS BRIEF WAS AUDITED AGAINST THE MACHINE, AND BOTH HALVES OF RULE 17 WERE RUN.**
+
+`audit_brief.py` **10 checked, 0 FAILED** — and it FAILED FIRST, on `LEDGER_rev72.md` being named
+before it was tracked. `audit_adversary.py` **61 asked, 1 BROKE**, and the break was real: *"is the
+ranked work list still named by README, START_HERE and the brief?"* — **this file's first draft had
+dropped `REMAINING_WORK_rev61.md`, which is rule 16 firing on the outgoing brief.** Restored above.
+**`verify_clone.sh` then failed FIVE rows on the first handoff commit** — the mesh count, this audit
+block, the ranking rule, the carrier name and the row count — **every one of them a defect in what I
+had just written, not in the machine.** They are listed here rather than quietly fixed, because that
+is the evidence the guards work.
+
+**WHERE THIS BRIEF IS WEAKEST, STATED RATHER THAN HIDDEN:**
+* **`seal_rear` IS SMALL AT DELIVERY SCALE.** It reads as a framed hatch where there was a frameless
+  sheet (`probe_scratch/r72_seal_ab.png`). It is an INTERNAL-CONSISTENCY fix, not a photographic one,
+  and rev 72 **could not assign** the sealed window in `ref_rear34.jpg` to the rear panel rather than
+  the rearmost flank bay. **The model-side fact is certain; the photographic one is not.**
+* **THE PANE STILL RENDERS OPAQUE DARK** and rev 72 did not establish why. §2.3.
+* **F271's NULL IS MEASURED ON ONE GATE'S STATISTIC**, on a window whose median sits at 106/255.
+  B4's ladder characterises the exposure dependence but **refuses below ×0.25** because the mask's own
+  `L>25` floor bites — so the DARK regime is bounded by refusal, not by measurement. Do not read the
+  null as covering a dark-channel ratio; F266 is the case where 8 bits was decisively wrong.
+* **`REAR_OPEN_DEG`'s ±2.0° guard band is WIDER than anything that has been watched to move it.**
+  The shipped build reads 64.00 against 64.0. The band exists so a re-rake cannot trip the row; it is
+  not evidence that the angle is right, and the angle is still NOT MEASURED.
+* **`audit_adversary.py` STILL PRINTS `ok` ON QUESTIONS WHOSE TEXT ASSERTS REFUTED STATES** — the
+  overfit-detector question still quotes F255's withdrawn *"LOSES by 0.0249"*, and the traced-pressing
+  question still says *"RENDERS AS AN UNRECOGNISABLE BLOB"* against F262's shards. **Rule 50 recorded
+  this shape at rev 68 and it is live at rev 73.** The rev-63 batch is the oldest and is next.
+* **Every figure quoted from `out/` needs a re-render before you quote it** — `out/` starts empty.
