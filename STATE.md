@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-31 16:57:23 UTC |
-| git commit | `a301cc3` |
-| git subject | rev 72: the back opening -- seal_rear BUILT, REAR_OPEN_DEG given a switch and a guard with three watched kills |
+| generated | 2026-08-31 18:14:15 UTC |
+| git commit | `6399b5b` |
+| git subject | rev 72: the rule-17 adversary broke the revision's own headline guard -- both holes fixed |
 | working tree | clean |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=2 (applied, destructive, before booleans) |
@@ -60,7 +60,7 @@ wheel-house reach front: liner minus aperture radius -0.0 .. +0.0 mm over 0 stat
 wheel-house reach rear : liner minus aperture radius -0.0 .. +0.0 mm over 0 station(s) short of it; rim inset inside flank_y +2.6 mm; 0 station(s) beyond the outline's feet
 bumper plan bow (F222): +21.55 mm over |y| <= 0.70, against the shell's +20.38 mm at z=1.015; floor 8.0 mm
 tail board pose (F163/F165/F245): principal-axis chord 0.7110 m, angle 38.0 deg, tip z 2.2087 -- ruler = PRINCIPAL AXIS in XZ, NOT the bbox diagonal
-rear hatch: glass_rear 64.00 deg off the tail plane (declared 64.0, NOT MEASURED -- a POSE); seal_rear tracks it to 0.045 deg
+rear hatch: glass_rear swung +64.00 deg SIGNED about its hinge (declared 64.0, NOT MEASURED -- a POSE); seal_rear tracks it to 0.045 deg and sits 0.0 mm off it
 nose fixture hl_bowl     NOT GRADEABLE -- all 64 back-face rays fall through the headlamp bore; no skin behind it
 nose fixture hl_bowl.001 NOT GRADEABLE -- all 64 back-face rays fall through the headlamp bore; no skin behind it
 nose fixture registration (F217): hl_lens -7.64, hl_lens.001 -7.64, hl_ring -13.46, hl_ring.001 -13.46, ind-1_base -10.03, ind-1_lens +11.68, ind1_base -10.03, ind1_lens +11.68 mm back-face-to-skin, frozen band +-3.0 mm
