@@ -795,6 +795,20 @@ stands"* (twice); the front arch *"leave it circular"*.
 > **Rule 16 firing on the file that carries rule 16.** Restored before the handoff shipped.
 > **If you compact §4, that row is what stops you.**
 
+**RULED AT REV 72 — THE FIRST TIME THE PIXEL RANKING AND THE OWNER HAVE AGREED (F282).**
+Shown the trade as multiple choice at the close of rev 72 — the gloss/flank surfaces at **2.89e6 px²
+with both gates failing** against the emblem at **3.32e4 px², 87× smaller**, plus the warning that the
+emblem needs a new construction and a legibility term first and might spend a whole revision on the
+precondition — he chose:
+
+> ***"Nose, then gloss/flank."***
+
+**WHAT IT LICENSES:** rev 73 windows `probe_rev67_nose.py`'s P3 scan (his third named item, cheap),
+then moves **roughness AND environment TOGETHER — F239's one untried pairing.**
+**WHAT IT DOES NOT DO: it does not withdraw the emblem.** It is his NINTH report, it is still wrong,
+and **F191 ("fix the emblem first") and F234 (the spine constants retired) both stand.** He ruled an
+ORDER for one revision, not a cancellation. **Do not read this as the emblem being dropped.**
+
 **RULED AT REV 68 — NEW, BINDING, AND IT CHANGES WHERE MEASUREMENTS COME FROM.**
 Asked as multiple choice with `probe_scratch/rev68_bumper_ask.png` attached — the photograph
 with the bumper's top edge traced and its chord marked, beside a plan diagram of the model's

@@ -74,11 +74,22 @@ you to carry the number, you are on an old tree.**
 ---
 ## §2 RANKED WORK FOR REV 73
 
-**RANK BY PIXELS OF THE DELIVERY FRAME** before you choose — `python3 visibility_budget.py 3840
-out/r73_hero34f.png` — **but the owner outranks the ranking, and both his open items are below.**
-The ranked list is `REMAINING_WORK_rev61.md`, triaged into `ROADMAP_rev68.md`.
+**⚠⚠ THE OWNER RANKED THIS REVISION HIMSELF AT THE CLOSE OF REV 72, AND HIS ORDER IS NOT THE ORDER
+THE SECTIONS ARE NUMBERED IN BELOW (F282). DO ITEM 2 FIRST, THEN ITEM 4.**
 
-### **1. THE EMBLEM — HIS NINTH REPORT, AND THE PRECONDITION IS NOW THE WHOLE JOB.**
+> *[owner, rev 72, shown the pixel trade as multiple choice — gloss/flank **2.89e6 px² with BOTH gates
+> failing** against the emblem's **3.32e4 px², 87× smaller** — and warned the emblem now needs a new
+> construction and a legibility term first]* ***"Nose, then gloss/flank."***
+
+**THIS DOES NOT WITHDRAW THE EMBLEM.** It is his NINTH report, it is still wrong, and **F191 and F234
+both stand.** He ruled an ORDER for ONE revision having been shown what the emblem would cost. **The
+sections keep their numbering so nothing silently moves (rule 16); the RULING is what you follow.**
+
+**RANK BY PIXELS OF THE DELIVERY FRAME** anyway — `python3 visibility_budget.py 3840
+out/r73_hero34f.png` — **the owner outranks the ranking, and at rev 72 the two AGREED for the first
+time.** The ranked list is `REMAINING_WORK_rev61.md`, triaged into `ROADMAP_rev68.md`.
+
+### **1. THE EMBLEM — HIS NINTH REPORT, BUT HE PUT IT THIRD FOR REV 73 (F282). READ THE RULING ABOVE.**
 **RENDERED AND LOOKED AT AT REV 72, AND THE DEFECT IS PLAIN IN A CROP.** Put
 `probe_scratch/r72_emblem_crop.png` beside `probe_scratch/r72_ref_emblem_workshop.png`: **the real
 mark's six strokes are STEEP and NEAR-PARALLEL and the mark is mostly open space; ours RADIATE, and
@@ -90,7 +101,7 @@ STROKE-CONTINUITY term FIRST — and you must WATCH IT REJECT THE TRACED GLYPH**
 before you trust a search run against it. ⚠ **CEILING ON THAT WARNING: n = 1.** Moving a constant and
 LOOKING needs no new term. **Do not let the precondition eat the revision.**
 
-### **2. THE NOSE — IT NOW REFUSES HONESTLY, WHICH IS WHERE REV 72 LEFT IT.**
+### **2. THE NOSE — ⚠ THE OWNER'S FIRST ITEM FOR REV 73 (F282). IT NOW REFUSES HONESTLY.**
 `probe_rev67_nose.py` bare printed `4 checked, 0 FAILED`, rc 0 while its first line refused —
 recorded at rev 70 AND rev 71, fixed at NEITHER, **fixed at rev 72 (F275): now `2 checked, 0 FAILED,
 1 ABSENT`, rc 2.** **WHAT IS STILL MISSING IS UNCHANGED: this project has NO render-side reading of
@@ -131,7 +142,8 @@ aperture). DO NOT GO HUNTING F71's FLAT GLAZING FOR IT.** What remains is
 **§0.05's item 1 is REFUTED (F276) — `tail_board()` is already a 22 mm solid prism. DO NOT give that
 board an underside it already has.** Its items 2–5 stand; the **dark angled recess** is genuinely absent.
 
-### **4. THE GLOSS AND FLANK SURFACES — 87× THE EMBLEM BY DELIVERY PIXELS, AND BOTH GATES FAIL.**
+### **4. ⚠ THE OWNER'S SECOND ITEM FOR REV 73 (F282) — THE GLOSS AND FLANK SURFACES.**
+**87× THE EMBLEM BY DELIVERY PIXELS, AND BOTH GATES FAIL.**
 `visibility_budget.py 3840 out/r72_hero34f.png` re-run at rev 72: **the emblem is item 9 of 16 at
 3.32e4 px²; the gloss/flank surfaces are 2.89e6 px² — 87× larger.** `gloss_compare` **0.412** (bar
 0.60), `flank_compare` **0.689 (i)** (bar 0.75). **The ranking above puts the emblem first because the
