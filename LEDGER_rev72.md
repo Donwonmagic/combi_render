@@ -6,8 +6,17 @@ vehicle that has never had one, on the item the owner named. It is built, it swi
 it has three ablation switches and a `verify.py` row, and **all three of that row's kills were
 watched firing.** The A/B is `probe_scratch/r72_seal_ab.png`, rendered before and after and looked at.
 
-**`python3 revstats.py` (FIXED THIS REVISION — see F273): rev 72 ran 124 geometry / 453 instrument
-lines against rev 71's 88 / 1502.** Run it; do not quote this line.
+**`python3 revstats.py` (FIXED TWICE THIS REVISION — F273, then F280 when the first fix turned out to
+under-count): at this commit rev 72 reads **164 geometry / 1162 doc / 685 instrument, doc:geo 7.09**,
+against rev 71's **88 / 3471 / 39.44** and the owner's named baseline of **718 geometry lines per
+revision at doc:geo 1.40** — which is COMPUTED now, not typed, because the figure printed there was
+721 / 1.55 and disagreed with the table nine lines above it. **Run the script; these figures move with
+every commit and this line will be stale.**
+
+**FINDINGS CLOSED BY `revstats`'s reckoning: ZERO.** All thirteen of F268–F280 are graded
+`MEASURED-rev72`. **Stated at the top, not buried** — the drift instrument this revision repaired will
+report that rev 72 closed nothing, and that is a fair reading of a vocabulary question §8 has not
+settled.
 
 ---
 
