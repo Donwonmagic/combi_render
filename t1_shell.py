@@ -2471,6 +2471,16 @@ def open_rear_hatch(log=print):
     co = [v.co for v in ob.data.vertices]
     hx = max(c.x for c in co)          # the pane's aft face, its hinge line
     hz = max(c.z for c in co)          # top-hinged, like the trunk lid
+    # rev 72b: RECORD THE HINGE, WHICH IS A POSITION, NOT AN ANGLE.
+    # verify._rear_hatch needs a sign convention it cannot get from a PCA axis
+    # (an eigenvector's sign is arbitrary, so a folded pose reads as its own
+    # supplement -- 116 deg read as 64.00 and PASSED, found by the rule-17
+    # adversary).  Orienting the axis toward the HINGE fixes the sign for any
+    # angle.  This is NOT a tautology: the hinge is measured off the PRE-SWING
+    # mesh and says nothing about how far the pane was then turned.
+    for _o in (ob, bpy.data.objects.get("seal_rear")):
+        if _o is not None:
+            _o["hinge_x"], _o["hinge_z"] = float(hx), float(hz)
     # T1_REAR_NOSWING=1 leaves the pane SHUT while REAR_OPEN_DEG still declares
     # 64.  That is the silent failure verify._rear_hatch's R3 row exists to
     # catch -- the source saying one pose and the mesh being in another -- and
@@ -2499,7 +2509,18 @@ def open_rear_hatch(log=print):
             "here -- which is what distinguishes an honest close from "
             "T1_REAR_NOSWING's injected drift" % (hx, hz))
         return hx, hz, 0.0
-    _swing_open(ob, hx, hz, REAR_OPEN_DEG, "rear hatch", log=log)
+    # T1_REAR_FOLD=1 swings the pane to 180 - REAR_OPEN_DEG while the constant
+    # keeps saying REAR_OPEN_DEG.  THIS IS THE EXACT DEFECT A RULE-17 ADVERSARY
+    # USED TO BREAK THE FIRST CUT OF verify._rear_hatch: that row read an
+    # ABSOLUTE cosine, so 116 deg read as 64.00 and PASSED against a declared
+    # 64 -- a hatch folded back past vertical shipping with VERIFY: 0 fail.
+    # R3 now takes its sign from the hinge and this ablation is its kill.
+    _deg = (180.0 - REAR_OPEN_DEG
+            if os.environ.get("T1_REAR_FOLD") == "1" else REAR_OPEN_DEG)
+    if _deg != REAR_OPEN_DEG:
+        log("  !! T1_REAR_FOLD=1 -- pane swung %.1f deg while %.1f is still "
+            "declared; verify's R3 row MUST go red" % (_deg, REAR_OPEN_DEG))
+    _swing_open(ob, hx, hz, _deg, "rear hatch", log=log)
     # rev 72: THE PROMISE IN THIS DOCSTRING IS NOW KEPT.  "anything mounted on
     # the pane could be carried through the identical call.  Nothing is, today."
     # `seal_rear` is, and through the SAME hx/hz/deg, so the gasket cannot drift
@@ -2509,11 +2530,24 @@ def open_rear_hatch(log=print):
     # R2 kill and it is WATCHED FIRING -- a guard that has never been red has
     # never been tested (CLAUDE.md, rule 3).
     sealed = bpy.data.objects.get("seal_rear")
-    if os.environ.get("T1_REAR_SEALSTAY") == "1":
+    # T1_REAR_SEALSHIFT=1 swings the gasket CORRECTLY and then slides it a metre
+    # off the glass.  It is verify._rear_hatch's R2b kill.  The first cut of R2
+    # compared PLANE NORMALS ONLY and was BLIND to this -- a gasket a metre away
+    # passed at 0.045 deg drift, proven by the rule-17 adversary translating the
+    # object and re-running the row.  A guard whose docstring says "did not
+    # drift off the glass" must measure POSITION, not just attitude.
+    if os.environ.get("T1_REAR_SEALSHIFT") == "1" and sealed is not None:
+        _swing_open(sealed, hx, hz, REAR_OPEN_DEG, "rear seal", log=log)
+        sealed.location = (sealed.location[0], sealed.location[1] + 1.0,
+                           sealed.location[2] + 0.5)
+        bpy.context.view_layer.update()
+        log("  !! T1_REAR_SEALSHIFT=1 -- gasket slid 1.0 m off the glass ON "
+            "PURPOSE; verify's R2b row MUST go red")
+    elif os.environ.get("T1_REAR_SEALSTAY") == "1":
         log("  !! T1_REAR_SEALSTAY=1 -- gasket left in the aperture ON PURPOSE; "
             "verify's R2 row MUST go red")
     elif sealed is not None:
-        _swing_open(sealed, hx, hz, REAR_OPEN_DEG, "rear seal", log=log)
+        _swing_open(sealed, hx, hz, _deg, "rear seal", log=log)
     log("rear hatch: glass_rear%s hinged (x %.4f, z %.4f) lateral, OPEN %.1f deg"
         "  [angle NOT MEASURED -- no frame shows it; T1_REAR_OPEN overrides]"
         % (" + seal_rear" if sealed is not None else " [NO SEAL -- T1_REAR_SEAL=0]",

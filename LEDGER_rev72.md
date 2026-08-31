@@ -122,6 +122,51 @@ region **0.689 (i)** (brief 0.689). Both reproduce inside the 2.441 % render-non
    two bands above them is not assignable to the rear panel rather than the rearmost flank bay from
    that frame. **I stopped and wrote the weaker claim** rather than publish the stronger one.
 
+## 4b. WHAT THE OUTGOING ADVERSARY (rule 17) FOUND IN THIS REVISION'S OWN WORK
+
+**IT BROKE THE REVISION'S HEADLINE DELIVERABLE, BY EXPERIMENT, AND BOTH HOLES ARE FIXED (F278).**
+
+5. **`verify._rear_hatch` R2 WAS BLIND TO POSITION.** Its docstring said it checked *"that the gasket
+   did not drift off the glass"*; the code compared **plane normals only.** The adversary translated
+   `seal_rear` by (0, +1.0, +0.5) m, re-ran the row, and got **no complaint** — a gasket 1.118 m away
+   passing at 0.045 deg. Now measured on **bounding-box centres**, with `T1_REAR_SEALSHIFT=1` as its
+   watched kill (`VERIFY: 2 fail`, "sits 1118.0 mm from glass_rear's").
+   **AND THE FIRST FIX USED THE WRONG STATISTIC TOO:** the VERTEX MEAN read **13.1 mm** between two
+   objects that are concentric by construction — an artefact of the ring carrying two outlines to the
+   plate's one — and **I had written "0.0 mm apart" into that row's comment from arithmetic instead of
+   running it. Rule 5, inside the fix for a rule-5 complaint.** bbox centres read 0.0 mm.
+6. **R3 FOLDED THE ANGLE AND WOULD HAVE PASSED A BROKEN POSE.** It read `acos(|n · x̂|)`; at
+   `T1_REAR_OPEN=116` it printed **swung = 64.00**. A swing bug applying 116° while the constant said
+   64 would have read a difference of zero and **shipped with `VERIFY: 0 fail`** — the
+   trunk-lid-opened-INWARDS class. R3 now takes its **sign from the hinge**, recorded off the
+   PRE-SWING mesh as a POSITION (so not a tautology). `T1_REAR_FOLD=1` is its watched kill:
+   **116.00 against a declared 64.0, +52.00 deg, `VERIFY: 1 fail`.**
+7. **`probe_rev72_bits.py` HAD TWO ROWS THAT COULD NEVER FAIL** — `ck(..., True, ...)` — while the
+   brief quoted "5 checked, 0 FAILED" as if all five were tests. B2 now tests a falsifiable thing
+   (the two readers agree on the eight bits they SHARE). **B4 now FAILS ON PURPOSE**, because its
+   ladder reaches only 2 of 4 rungs and **its trend FALLS (0.46 % → 0.07 %) — the OPPOSITE direction
+   from the generalisation I drew from it.** That generalisation is retracted in the brief.
+8. **THE "SHUT AND SEALED" EVIDENCE INHERITED AN AMBIGUITY I HAD DECLARED ELSEWHERE.** I wrote into
+   `rear_seal`'s own comment that the window cannot be assigned to the rear panel rather than the
+   rearmost flank bay — and then used that same window as the ground for closing the ANGLE as
+   unrecoverable. **Rule 46.** Weakened to what survives: no frame we hold shows the hatch OPEN.
+9. **"THE PANE RENDERS OPAQUE DARK" IS REFUTED BY THE CROP I CITED.** Inside the pane at
+   (r645, c1050) the ratio is **G/R 0.204** — the red band seen THROUGH the glass — and the
+   `tail_board_stay` rod behind it is visible. **The pane transmits; the unlit cavity is dark**, which
+   is F254's finding, not F71's.
+10. **F272 IS THE REGISTER CATCHING ITSELF A THIRD TIME AND I DID NOT CHECK THE REGISTER (F279).**
+    `F162`, `MEASURED-rev62`, already made that correction ten revisions before F263 got it wrong.
+11. **`--cc` DOES NOT FIX `--numstat` (F280)**, and my published **1 172** was **1 262** — a figure
+    typed rather than run, **inside the finding that fixed a typed figure.** The combined diff is
+    parsed as a patch now, and the hard-coded 721 / 1.55 baseline is **computed: 718 / 1.40.**
+
+**RULE 49, THE FIGURE I OWED AND HAD NOT PUBLISHED.** The `seal_rear` A/B against F228's **2.441 %**
+floor: globally **2.546 %** of pixels >8 levels — **at the floor; invisible to that statistic** (a roof
+control reads 21.59 %). It separates only in the tail: **>32 levels 3.95 % in the seal window against
+0.002–0.34 % in controls, worst channel 253 vs the floor's 40, rows 545–596 / cols 1200–1254 — about
+1 000 px of 1 760 000 (~0.06 %).** Real, localised, small. ⚠ **And the 2.441 % floor is itself five
+revisions old and was not re-measured.**
+
 ## 5. RETRACTIONS AGAINST THE RECORD
 
 * **F272 — F263's ATTRIBUTION IS REFUTED BY F42's OWN TEXT**, and the claim is repeated three times

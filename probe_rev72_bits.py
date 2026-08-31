@@ -225,10 +225,25 @@ def main():
           % (g8["n"], g16["n"], g16["n"] - g8["n"]))
 
     rel = abs(g16["spread"] / g8["spread"] - 1.0)
-    ck("B2 the 16-bit re-read of gloss_compare's spread is reported WITH its "
-       "relative move, not asserted to be a null",
-       True, "spread moves %+.5f = %.3f %% of the 8-bit value"
-             % (g16["spread"] - g8["spread"], 100 * rel))
+    # *** rev 72b -- THIS ROW WAS `ck(..., True, ...)`: AN UNCONDITIONAL PASS. ***
+    # A rule-17 adversary counted two of this probe's five rows as rows that
+    # CANNOT FAIL, while the brief quoted "5 checked, 0 FAILED" as if all five
+    # were tests.  A control that cannot fail is not a control (rule 42's
+    # neighbour).  What is actually falsifiable here, and load-bearing for every
+    # number above, is that the two readers agree on the eight bits they SHARE --
+    # if they did not, the difference could not be attributed to the low byte at
+    # all and this whole probe would be measuring a decoder bug.
+    a16, mx16 = photometry.read_png(frame)
+    top8 = (a16[..., :3] >> 8).astype(np.uint8) if mx16 == 65535 else a16[..., :3]
+    pil8 = np.asarray(Image.open(frame).convert("RGB"))
+    same = bool(np.array_equal(top8, pil8))
+    ck("B2 the 16-bit reader agrees with PIL on the eight bits they SHARE, so "
+       "the move below is the LOW BYTE and not a decoder bug",
+       same,
+       "max top-8 difference %d over %d px; spread moves %+.5f = %.3f %% of the "
+       "8-bit value" % (int(np.abs(top8.astype(int) - pil8.astype(int)).max()),
+                        top8.shape[0] * top8.shape[1], g16["spread"] - g8["spread"],
+                        100 * rel))
 
     # ---------------------------------------------------------------- B3
     # THE CEILING, MEASURED RATHER THAN ASSERTED.  gloss_compare's verdict
@@ -264,7 +279,7 @@ def main():
     print("      stop-down   median/255   spread  8-bit   spread 16-bit    apart")
     raw16, mxv = photometry.read_png(frame)
     sub16 = raw16[..., :3].astype(float) * (255.0 / mxv)
-    worst = 0.0
+    worst, rungs = 0.0, 0
     for k in (1.0, 1 / 4.0, 1 / 16.0, 1 / 64.0):
         scaled = sub16 * k
         q8 = np.floor(scaled)                      # what an 8-bit file holds
@@ -275,12 +290,26 @@ def main():
                   "REFUSING rather than reporting" % k)
             continue
         apart = abs(s_f["spread"] / s_q["spread"] - 1.0)
-        worst = max(worst, apart)
+        worst = max(worst, apart); rungs += 1
         print("      x%-9.4f  %10.2f   %12.5f   %13.5f   %6.2f %%"
               % (k, s_f["med"], s_q["spread"], s_f["spread"], 100 * apart))
-    ck("B4 the 8-bit reader's cost is reported AS A FUNCTION OF EXPOSURE, so "
-       "B2's null is not over-read as 'the re-read never matters'",
-       True, "worst divergence over the stop-down ladder: %.2f %%" % (100 * worst))
+    # *** rev 72b -- ALSO AN UNCONDITIONAL PASS, AND ITS CONCLUSION WAS INVERTED.
+    # The first cut asserted True and the rev-73 brief drew from it that this is
+    # "why F266's dark-channel ratio was decisively wrong at 8 bits".  IT SHOWS
+    # THE OPPOSITE TREND -- divergence FALLS as the window is stopped down
+    # (0.46 % -> 0.07 %) -- and it only ever produced TWO points before the
+    # mask's own L>25 floor refused.  A ladder that refuses at the third rung
+    # has not characterised the dark regime and must not be quoted as if it had.
+    # The row now REFUSES unless the ladder actually reached enough rungs to
+    # support a trend, which on this window it does not.
+    ck("B4 the stop-down ladder reached at least THREE rungs, without which it "
+       "has not characterised the dark regime and must not be quoted for one",
+       rungs >= 3,
+       "%d of %d rungs usable (the rest fall under the mask's own L>25 floor and "
+       "REFUSE); worst divergence over the rungs that ran: %.2f %%.  ⚠ THE TREND "
+       "IS FALLING, NOT RISING -- this does NOT show 8 bits getting worse in the "
+       "dark, and F266 is the evidence for that, not this row"
+       % (rungs, 4, 100 * worst))
 
     print("-" * 78)
     print("  %d checked, %d FAILED%s"

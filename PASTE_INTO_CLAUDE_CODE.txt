@@ -43,9 +43,17 @@ happen, and it is CHEAP"*. **IT IS NOT WORTH DOING.** `probe_rev72_bits.py` re-c
 `gloss_compare.spread()`'s own arithmetic — the shipped function's source, exec'd, agreeing to
 1e-12 — changing only the reader: **spread 0.49601 → 0.49292, a move of 0.623 %, on a gate that
 misses its bar by 30 %.** And the ratio's other side is an **8-bit JPEG that can never be re-read**
-(rule 38). **WHERE IT DOES MATTER IS EXPOSURE, NOT GATE**: B4 stops the same window down and the
-divergence is 0.46 % at ×1.0 and 0.07 % at ×0.25 before the mask floor refuses. That is why F266's
-dark-channel ratio was decisively wrong at 8 bits and these gates are not. **DO NOT SPEND REV 73 ON IT.**
+(rule 38). **DO NOT SPEND REV 73 ON IT.**
+
+> **⚠ AND THE GENERALISATION REV 72 FIRST DREW FROM THIS IS RETRACTED IN ITS OWN BRIEF (F271, corrected
+> by the rule-17 adversary).** The first draft here said *"where it does matter is EXPOSURE, not gate"*
+> and cited B4's stop-down ladder. **B4 reaches only TWO of four rungs** before the mask's own `L>25`
+> floor refuses, **and the trend it does show FALLS (0.46 % → 0.07 %), which is the OPPOSITE direction
+> from what that sentence needed.** `probe_rev72_bits.py`'s B4 row now **FAILS on purpose** until a
+> ladder reaches three rungs, so the probe refuses to be quoted for a claim it cannot support — it
+> reads **5 checked, 1 FAILED**. **The evidence that 8 bits is decisively wrong on a dark channel is
+> F266's exposure-invariance test, not this probe.** *(And note 0.623 % and 0.46 % are DIFFERENT
+> comparisons — PIL-uint8 vs `read_png`, and `np.floor` vs float — not one continuum.)*
 
 ---
 ## §1 THE BRANCH — MEASURE IT, DO NOT TRANSCRIBE IT, **INCLUDING THIS SENTENCE**
@@ -100,15 +108,38 @@ replacement. ⚠ It builds the shell in-process (~74 s);
 the catalogue literature first (F229, rule 52); sources named in `HANDOFF_CARRIERS.md` §0.06.
 
 ### **3. WHAT REV 72 LEFT ON THE BACK OPENING, STATED SO IT IS NOT RE-DONE.**
-`seal_rear` is BUILT and guarded (F268/F269) and **the angle CANNOT be recovered from what we hold —
-that is a RESULT, not a task** (F269: `ref_rear34.jpg` shows the rear-third glazing SHUT and sealed,
-`ref_side.jpg` is broadside, `IMG_3840.jpeg` is 480×320). **TWO THINGS REMAIN AND BOTH ARE LOOKING
-JOBS:** the pane renders **OPAQUE DARK** rather than glazed (`probe_scratch/r72b_backopening.png` —
-is that F71's flat glazing, or correct for a dark interior? MEASURE IT, do not name it); and
+`seal_rear` is BUILT and guarded (F268/F269/F278) and **the angle CANNOT be recovered from what we
+hold — that is a RESULT, not a task.**
+
+> **⚠ BUT READ THE GROUND FOR THAT CAREFULLY, BECAUSE REV 72's FIRST DRAFT OVERSTATED IT AND A
+> RULE-17 ADVERSARY CAUGHT IT.** F269 cited *"`ref_rear34.jpg` shows the rear-third glazing SHUT and
+> sealed"* — **while `t1_shell.rear_seal`'s own comment admits, in the same revision, that the window
+> in question CANNOT BE ASSIGNED to the rear panel rather than the rearmost flank bay.** Rev 72
+> applied that ambiguity honestly to the SEAL and then quietly did not apply it to the SHUT claim,
+> which is the one it used to stop work. **Rule 46: a refutation inherits its instrument.** What
+> survives is weaker and still sufficient: **NO frame we hold shows the rear hatch OPEN**, so the
+> angle is unevidenced either way. **The OPEN state itself is OWNER-RULED (rev 48/49) and is not in
+> question — only the ANGLE is.**
+
+**AND ONE CLAIM REV 72 MADE HERE IS SIMPLY REFUTED.** Its first draft said the pane *"renders OPAQUE
+DARK rather than glazed"* and told you to measure it. **Measured: it is TRANSMITTING.** Read through
+`photometry.read_png` on `out/r72b_hero34r.png`, inside the pane at (r645, c1050) the ratio is
+**G/R 0.204** — that is the vehicle's own red band seen THROUGH the glass — and the `tail_board_stay`
+rod, which sits on the tail skin behind the pane, is visible through it. **What is dark is the UNLIT
+CAVITY behind the aperture, which is exactly what F254 already established (63 % pane / 37 % bare
+aperture). DO NOT GO HUNTING F71's FLAT GLAZING FOR IT.** What remains is
 **§0.05's item 1 is REFUTED (F276) — `tail_board()` is already a 22 mm solid prism. DO NOT give that
 board an underside it already has.** Its items 2–5 stand; the **dark angled recess** is genuinely absent.
 
-### **4. F156 — the `Senor` gate row scores a DELIBERATE DEPARTURE.** TEN revisions unacted (rule 40).
+### **4. THE GLOSS AND FLANK SURFACES — 87× THE EMBLEM BY DELIVERY PIXELS, AND BOTH GATES FAIL.**
+`visibility_budget.py 3840 out/r72_hero34f.png` re-run at rev 72: **the emblem is item 9 of 16 at
+3.32e4 px²; the gloss/flank surfaces are 2.89e6 px² — 87× larger.** `gloss_compare` **0.412** (bar
+0.60), `flank_compare` **0.689 (i)** (bar 0.75). **The ranking above puts the emblem first because the
+OWNER does, not because the pixels do** (rule 12 — the ceiling is stated, not hidden). F239: the
+binding constraint is the ROUGHNESS, not the environment, and roughness+environment TOGETHER is the
+one pairing never tried.
+
+### **5. F156 — the `Senor` gate row scores a DELIBERATE DEPARTURE.** TEN revisions unacted (rule 40).
 
 ---
 ## §3 WHAT REV 72 CLOSED — **DO NOT RE-OPEN ANY OF IT**
@@ -117,7 +148,7 @@ board an underside it already has.** Its items 2–5 stand; the **dark angled re
 |---|---|
 | **THE BACK OPENING (F268/F269/F270)** | **SHIPPED.** `seal_rear` built from `windscreen_seals()`'s own section, **no new constant typed**, carried through the SAME `_swing_open` call as the pane — the promise `open_rear_hatch()`'s docstring has carried unkept since rev 48. `T1_REAR_OPEN` / `T1_REAR_SEAL` / `T1_REAR_SEALSTAY` / `T1_REAR_NOSWING`, and `verify._rear_hatch` with **three kills all watched firing**. **CEILING: an INTERNAL-CONSISTENCY fix, not a photographic one, and small at delivery scale.** |
 | **THE 16-BIT RE-READ (F271)** | **NULL — 0.623 %.** See §0b. **DO NOT REDO IT.** |
-| **`revstats.py` (F273)** | **Double-counted every PR-landed revision.** rev 71: 176 → **88** geometry lines. One merge contributed **1 172** lines of `origin/main` to one revision. **rev 65's 313 collapses to 0.** |
+| **`revstats.py` (F273)** | **Double-counted every PR-landed revision.** rev 71: 176 → **88** geometry lines. One merge contributes **1 262** lines of `origin/main` on a first-parent diff *(rev 72 first published 1 172 — a figure typed rather than run, from a GEO list that is not the script's; corrected in F280)*. **AND SKIPPING MERGES OUTRIGHT UNDER-COUNTS**: merge RESOLUTIONS are present in no parent and are real work. `--cc` does NOT fix it — **git ignores `--cc` under `--numstat`** (F280) — so the combined diff is parsed as a PATCH. **The hard-coded "721 / 1.55" baseline is COMPUTED now: 718 / 1.40.** **rev 65's 313 collapses to 0.** |
 | **F263's ATTRIBUTION (F272)** | **REFUTED by F42's own text** — F42 already said READER, and `shader_solve.py` records a controlled 16-bit decoder written at rev 57 and **never committed**. **F263's SCOPE claim stands.** |
 | **`gloss_compare` / `probe_rev67_nose` (F274/F275)** | Both died or went green on an absent input. Both fixed, both watched. |
 | **§0.05's "no underside" (F276)** | **REFUTED.** A 22 mm solid prism. It was an edge-on view. |
@@ -130,11 +161,17 @@ board an underside it already has.** Its items 2–5 stand; the **dark angled re
 ./verify_clone.sh                             # ALL 381 PASS -- read the verdict block too
 T1_SUB=1 T1_VERIFY=1 /tmp/blender/blender -b -P build.py     # -> "VERIFY: 0 fail, 0 warn"
 python3 photometry.py                         # 9 checked, 0 FAILED
-python3 probe_rev72_bits.py out/r73_hero34f.png   # NEW at rev 72.  5 checked, 0 FAILED.
-                                              # BARE it refuses: 2 ABSENT, rc 2
+python3 probe_rev72_bits.py out/r73_hero34f.png   # NEW at rev 72.  5 checked, 1 FAILED --
+                                              # B4 REFUSES BY DESIGN (its ladder reaches 2 of 4
+                                              # rungs).  BARE: 2 ABSENT, rc 2
 python3 probe_rev69_fitpose.py                # the emblem.  P1b PASSES; P2 and P4 fail BY DESIGN --
                                               # READ P4's MESSAGE, its red is NOT a licence (F262)
 python3 probe_rev71_emblem.py ; python3 probe_rev71_proxy.py   # proxy must read IoU 1.000000
+python3 probe_rev71_red.py out/r73_side.png --transform=agx   # WILL REFUSE, and that is correct.
+  # THE F266 PHYSICS RECIPE LIVES HERE AND IN NEXT_CONTEXT_PROMPT_rev72.md SS2b -- render Raw 16-bit
+  # stopped down (T1_VT=Raw T1_LOOK=None T1_EXP=-2.5) and pass --transform=raw.  He asked for physics
+  # closed; do not lose the pointer.  T1_DIFFB / T1_SPEC / T1_CYCALB / T1_BODY_COAT are the ablations.
+python3 probe_rev71_bulbs.py out/r73_side.png # window MISPLACED -- direction only (F250)
 python3 probe_rev67_nose.py out/r73_front.png     # PASS IT A FRAME (--nomesh skips the 74 s build)
 python3 gloss_compare.py out/r73_hero34f.png      # PASS IT A FRAME -- it now REFUSES cleanly
 python3 flank_compare.py out/r73_side.png /tmp/fc.png
@@ -199,9 +236,19 @@ Full canon (1–58) in `HANDOFF_CARRIERS.md` §5.
 | `SPEC.md`, `REF_MEASUREMENTS.md`, `SURVEY_rev49_photoreal.md`, `ROADMAP_rev68.md`, `PANEL_rev61.md`, `PHOTOS_WANTED_rev49.md`, `PHOTOS_WANTED_rev52.md`, `EMBLEM_HANDOFF.md` | large; load the one the task needs |
 
 **⚠ IDs THIS BRIEF LEANS ON WITHOUT NAMING, SO A GREP FINDS THEM (rule 16): `F241`** the back opening's
-register row, **`F254`** the projected pane, **`F245`** rev 70's chord retraction, **`F242`** the hatch
-angle being a POSE not a dimension, **`F134`** the bulbs' null, **`F21`** paint-or-light, answered by
-**`F266`**, **`F265`** the paint-over-evidence row, **`F267`** the stale-branch recurrence.
+register row, **`F254`** the projected pane, **`F242`** the hatch angle being a POSE not a dimension,
+**`F71`** the flat-glazing branch (REFUTED as the cause of the dark rectangle — see §2.3),
+**`F21`** paint-or-light, answered by **`F266`**, **`F162`** the reader/renderer correction the
+register already held ten revisions before F263 got it wrong (**F279**), **`F250`** the bulbs' window,
+**`F239`** the gloss lever measured in a void. *(rev 72's own list wrongly included `F267`, which this
+brief names three times in §1, and `F134`/`F245`, which it does not lean on at all — the list had been
+inherited rather than re-derived. Caught by the rule-17 adversary.)*
+
+**⚠ AND ONE CARRIER THE FIRST DRAFT OF THIS FILE DROPPED, RESTORED IN §4: `probe_rev71_red.py` and
+`probe_rev71_bulbs.py`, and with them the ONLY pointer to F266's physics-closed reproduction recipe** —
+which lives in `NEXT_CONTEXT_PROMPT_rev72.md` §2b and in the probe itself. **The owner said "I
+certainly want physics closed"; this brief still quotes him and very nearly stopped naming where the
+answer is.** Rule 16, caught by the rule-17 adversary.
 
 ---
 ## §7 HOW TO CLOSE
@@ -233,7 +280,29 @@ block, the ranking rule, the carrier name and the row count — **every one of t
 had just written, not in the machine.** They are listed here rather than quietly fixed, because that
 is the evidence the guards work.
 
+**AND THE RULE-17 ADVERSARY DISPATCHED AT *THIS* FILE RETURNED FINDINGS THAT CHANGED THE REVISION'S
+OWN DELIVERABLE. TOP THREE, ALL FIXED BEFORE CLOSE:**
+1. **`verify._rear_hatch` — the revision's headline guard — COULD NOT SEE EITHER DEFECT IT NAMED
+   (F278).** R2 compared plane normals only: the adversary translated `seal_rear` a metre off the
+   glass and the row said nothing. R3 read an ABSOLUTE cosine: at 116° it printed **64.00**, so a
+   folded hatch would have shipped with `VERIFY: 0 fail`. **Both fixed, two new kills watched firing.**
+2. **§2.3's evidence contradicted itself (★2 above)** — the SHUT claim rested on a window rev 72's own
+   source says cannot be assigned. Weakened to what survives.
+3. **"The pane renders OPAQUE DARK" was refuted by the crop this brief cites** — G/R 0.204 inside the
+   pane is red transmitting through it. A rev-73 context would have hunted a defect that is not there.
+
 **WHERE THIS BRIEF IS WEAKEST, STATED RATHER THAN HIDDEN:**
+* **RULE 49, THE FIGURE REV 72 OWED AND DID NOT PUBLISH.** `seal_rear`'s A/B against the **2.441 %**
+  nondeterminism floor: globally **2.546 %** of pixels differ by >8 levels — **at the floor, i.e. the
+  change is INVISIBLE to that statistic**, and a roof control reads noisier still at 21.59 %. It
+  separates only in the tail: **>32 levels is 3.95 % in the seal window against 0.002–0.34 % in the
+  controls, worst channel 253 against the floor's 40, localised to rows 545–596 / cols 1200–1254 —
+  about 1 000 px of a 1 760 000 px preview (~0.06 %).** **It is real, it is localised, and it is
+  small.** ⚠ **AND THE 2.441 % FLOOR ITSELF IS FIVE REVISIONS OLD (F228, rev 68) AND HAS NEVER BEEN
+  RE-MEASURED. Re-measure it before leaning on it.**
+* **REV 72 GRADED ALL THIRTEEN OF ITS FINDINGS `MEASURED-rev72` AND CLOSED NOTHING BY `revstats`'s
+  reckoning**, while §3 is headed "WHAT REV 72 CLOSED". **The drift instrument it just repaired will
+  report rev 72 closed zero.** Stated rather than papered over; the grade vocabulary is §8's to settle.
 * **`seal_rear` IS SMALL AT DELIVERY SCALE.** It reads as a framed hatch where there was a frameless
   sheet (`probe_scratch/r72_seal_ab.png`). It is an INTERNAL-CONSISTENCY fix, not a photographic one,
   and rev 72 **could not assign** the sealed window in `ref_rear34.jpg` to the rear panel rather than
