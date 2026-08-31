@@ -172,8 +172,27 @@ RENDER_ENV = ("T1_SUB=1 T1_PREVIEW=side T1_RX=1600 T1_RY=1100 T1_SAMP=96 "
               "T1_VT=Raw T1_LOOK=None T1_EXP=-2.5")
 
 
+def _acceptance():
+    """PRINTED ON EVERY RUN, INCLUDING A BARE ONE THAT MEASURES NOTHING.
+
+    A decomposition read off a ruler nobody showed to be exposure-invariant is
+    exactly what F261 was, and it was withdrawn.  So the condition is printed
+    BEFORE the early exits -- a reader who runs this probe with no argument
+    still sees what would make its numbers admissible."""
+    print("\n  ⚠ ACCEPTANCE CONDITION ON EVERY FIGURE THIS PROBE PRINTS (F261/F263/F266):")
+    print("    re-render one configuration at T1_EXP=-1.5 and -3.5 and check the ratio")
+    print("    AGREES.  A ratio of two albedos is exposure-invariant in true linear.")
+    print("    Rev 71's FIRST decomposition read 1.60 / 1.53 / 1.39 across those three")
+    print("    exposures -- an 8-bit read of a 16-bit file (PIL truncates silently) --")
+    print("    and that drift is what withdrew it.  ON THE REPAIRED READER the same")
+    print("    quantity reads 0.0778 / 0.0778 / 0.0778, identical to four decimals")
+    print("    (F266).  PUBLISH THE INVARIANCE FIGURE BESIDE THE DECOMPOSITION OR DO")
+    print("    NOT PUBLISH IT.")
+
+
 def main():
     here = os.path.dirname(os.path.abspath(__file__))
+    _acceptance()
 
     # ---- THE TRANSFORM IS DECLARED, NEVER INFERRED (rule 57a).
     tf = None
@@ -304,13 +323,6 @@ def main():
         print("     total swing over the terms present: %+.4f G, i.e. %.0f %% of the"
               % (-span, 100 * span / max(have[0][1] - ar[1], 1e-9)))
         print("     departure from the authored ratio is accounted for by them.")
-    print("\n  ⚠ ACCEPTANCE CONDITION ON ANY OF THE ABOVE (F261/F263): re-render one")
-    print("    configuration at T1_EXP=-1.5 and -3.5 and check the ratio AGREES.  A")
-    print("    ratio of two albedos is exposure-invariant in true linear.  Rev 71's")
-    print("    published decomposition read 1.60 / 1.53 / 1.39 across those three")
-    print("    exposures -- an 8-bit read of a 16-bit file (PIL truncates silently),")
-    print("    and that drift is what withdrew its magnitudes.  PUBLISH THE")
-    print("    INVARIANCE FIGURE BESIDE THE DECOMPOSITION OR DO NOT PUBLISH IT.")
     print("\n  ⚠ AND DO NOT infer any of this from the Diffuse-Colour AOV: read")
     print("    against its own control the AOV over-states the paint chain by 8x")
     print("    (0.0347 vs 0.0044) -- rev 71 published that and retracted it.")

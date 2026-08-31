@@ -119,11 +119,11 @@ refuses**, and it builds the whole shell in-process (~74 s). Unfixed at rev 71.
 **DO NOT ASK HIM THE NOSE AGAIN — both askings are spent (F214/F215). Check the catalogue literature
 first (F229, rule 52); the sources are named in `HANDOFF_CARRIERS.md` §0.06.**
 
-### **2b. AND IF YOU DO NOTHING ELSE, CLOSE THE PHYSICS PROPERLY — IT IS FOUR RENDERS.**
-The owner asked for it in his own words. F261 has the right ORDERING and inadmissible FIGURES (§3).
-Everything needed to redo it honestly now exists: a real 16-bit reader (F263), and **`T1_DIFFB`**, the
-inter-reflection switch that was missing and was why F261 could not be reproduced from any committed
-script. The four frames, `Raw` and stopped down so nothing clips:
+### **2b. THE PHYSICS IS CLOSED (F266) — THIS IS THE REPRODUCTION RECIPE, NOT A TASK.**
+The owner asked for it in his own words and rev 71 delivered it on a ruler that executes and passes
+its own acceptance test. **You do not need to redo this. Reproduce it if you doubt it, and reuse the
+recipe for the OTHER gates, which have never been read at full precision.** The frames, `Raw` and
+stopped down so nothing clips:
 
 ```bash
 C="T1_SUB=1 T1_PREVIEW=side T1_RX=1600 T1_RY=1100 T1_SAMP=96 T1_VT=Raw T1_LOOK=None T1_EXP=-2.5"
@@ -143,7 +143,7 @@ how F261 was caught. **Publish the invariance figure beside the decomposition.**
 
 | closed | the result |
 |---|---|
-| **THE RED / F21's "paint or light"** | **DIRECTION ESTABLISHED, MAGNITUDES WITHDRAWN — READ THIS ROW WHOLE (F261, DOWNGRADED BY F263).** The ORDERING is robust and stands: **specular dominates**, the materials present their authored albedos, the world is inert, the weather chain is inert, inter-reflection is small. **It is one physically-correct specular lobe (F0≈0.04) reflecting a bright uniform studio onto a dark saturated albedo, and the reference photograph is the same bus OUTDOORS IN SHADE — a different scene. That is F21 answered: it is LIGHT, and the light is not wrong, it is DIFFERENT.** **⚠ BUT ITS FIGURES ARE NOT ADMISSIBLE.** They were read through PIL from a frame that is 16-bit on disk, so the red's G channel — about **five code levels of 255** at the stated 2.5-stop stop-down — was quantised to nothing. **The invariance test fails: the same ratio at exposures −1.5 / −2.5 / −3.5 reads 1.60 / 1.53 / 1.39, and a ratio of two albedos cannot drift with exposure in true linear. DO NOT QUOTE 1.73× / 1.63× / 0.91× / 0.99×.** **RE-MEASURING IT IS NOW ONE COMMAND** — `photometry.read_png` exists, `T1_DIFFB` is the inter-reflection switch that was missing, and §2b names the four renders. **Closing this properly is the owner's own explicit ask and it is a SHORT job.** |
+| **THE RED / F21's "paint or light"** | **CLOSED — QUOTE F266, NOT F261 (F261's magnitudes were withdrawn by F263 and REPLACED by F266 in the same revision).** The ORDERING is robust and stands: **specular dominates**, the materials present their authored albedos, the world is inert, the weather chain is inert, inter-reflection is small. **It is one physically-correct specular lobe (F0≈0.04) reflecting a bright uniform studio onto a dark saturated albedo, and the reference photograph is the same bus OUTDOORS IN SHADE — a different scene. That is F21 answered: it is LIGHT, and the light is not wrong, it is DIFFERENT.** **⚠ BUT ITS FIGURES ARE NOT ADMISSIBLE.** They were read through PIL from a frame that is 16-bit on disk, so the red's G channel — about **five code levels of 255** at the stated 2.5-stop stop-down — was quantised to nothing. **The invariance test fails: the same ratio at exposures −1.5 / −2.5 / −3.5 reads 1.60 / 1.53 / 1.39, and a ratio of two albedos cannot drift with exposure in true linear. DO NOT QUOTE 1.73× / 1.63× / 0.91× / 0.99×.** **IT WAS RE-MEASURED AND IT IS DONE (F266):** shipped **G 1.67× authored**, specular **84 %** of the departure, inter-reflection 9 %, cyclorama+coat 4 %, **96 % accounted for**, and with the lobe off the render sits **within 2 % of its own authored albedo ratio**. **Invariance: 0.0778 / 0.0778 / 0.0778 across −1.5 / −2.5 / −3.5.** **DO NOT RE-OPEN THIS. §2b is now a REPRODUCTION recipe, not a task.** |
 | **THE RELIGHT (F259/F260)** | **REFUTED.** `T1_SOFTEN=3.5` reads 1.98× against shipped 1.73× — **worse**. Every apparent gain was the cream denominator clipping. The owner's *"relight the studio"* ruling stands as a ruling; the lever does not work. |
 | **THE TRACED PRESSING (F262)** | Builds now, **renders shattered**. F183 stands, and `probe_rev69_fitpose.py`'s **P4 message carries the withdrawal in its own text**, so rule 9 reads it there. **F255 is annotated; do not act on F255 without reading F262.** |
 | **"FREE ENDPOINTS" (F252)** | 0.0010 **worse** than the current parameterisation. |
@@ -266,9 +266,11 @@ other half (recompute every figure) was done by hand this revision and found the
                             96 % of the departure accounted for
   ```
   **THE SPECULAR LOBE IS 84 % OF IT, AND WITH THE LOBE OFF THE RENDER IS WITHIN 2 % OF ITS OWN
-  AUTHORED ALBEDO RATIO.** That is the same conclusion F261 reached on the broken ruler, now on a
-  ruler that executes. ⚠ **STILL NOT ADMISSIBLE UNTIL THE INVARIANCE TEST PASSES** — see §2b; it was
-  still rendering when this brief closed. **Read the ledger's §8 for the figure if it landed.**
+  AUTHORED ALBEDO RATIO.** **AND THE ACCEPTANCE TEST PASSED:** the shipped rig at
+  **`T1_EXP` −1.5 / −2.5 / −3.5 reads G 0.0778 / 0.0778 / 0.0778 — identical to four decimals over
+  two full stops**, where the 8-bit read of the same quantity gave 1.60 / 1.53 / 1.39. **SO THE
+  PHYSICS IS CLOSED AND F266 IS THE ROW TO QUOTE, NOT F261.** ⚠ **It is still not a fidelity claim:
+  `R3` scores the render against ITSELF, and the photograph side carries a 2.3× window ceiling.**
 * **The photograph's own red G/R spans 0.0149 … 0.0344** across four defensible uniformity cuts —
   **a 2.3× ceiling on every red comparison, wider than most effects being tuned against.** `R1b`
   prints the band; never quote one figure.

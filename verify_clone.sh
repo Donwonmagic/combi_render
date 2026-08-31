@@ -2433,6 +2433,19 @@ PY
 ck "the red probe REFUSES a frame with no declared transform" 3 \
    "$(python3 probe_rev71_red.py out/nonexistent_side.png >/dev/null 2>&1; echo $?)"
 # T1_DIFFB is the ablation F261 could not be reproduced without.  Wired, not named.
+# F266.  THE PHYSICS CLOSURE'S ACCEPTANCE CONDITION MUST STAY PRINTED.  A
+# decomposition read off a ruler that has not been shown exposure-invariant is
+# what F261 was, and it was withdrawn.  BEHAVIOURAL: the probe must emit the
+# condition on a bare run, where it computes nothing at all.
+ck "the red probe prints its exposure-invariance acceptance condition" 1 \
+   "$(python3 probe_rev71_red.py 2>&1 | grep -c 'ACCEPTANCE CONDITION')"
+ck "the register quotes F266, not F261's withdrawn magnitudes" "1/1" \
+   "$(python3 - <<'PY' 2>&1 | tail -1
+s = open('OPEN_FINDINGS.md').read()
+print("%d/%d" % (1 if '| **F266** |' in s else 0,
+                 1 if 'F266 is the one to quote' in s.replace('**','') else 0))
+PY
+)"
 # F265.  A SUITE THAT DIRTIES THE TREE IT CHECKS CANNOT REACH ALL-PASS TWICE.
 # probe_rev69_fitpose.py paints its best fit to a TRACKED file, and this script's
 # own LAST emblem row runs it under T1_FITPOSE_LEGACY=1 -- whose best pose is a

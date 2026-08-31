@@ -514,3 +514,56 @@ definitions of "plain paint". That is wider than most of the effects the red has
 against.** `R1b` now prints the whole band every run, so no future revision can quote a single
 figure for it without seeing the span underneath. **This is a CEILING, not a knob.**
 
+---
+## §9 THE PHYSICS IS CLOSED (F266) — F261's DIRECTION SURVIVES, ITS FIGURES ARE REPLACED
+
+> *[owner]* **"I certainly want physics closed."**
+
+**FOUR FRAMES, RE-RENDERED `Raw` 16-BIT AT `T1_EXP=-2.5`, READ THROUGH `photometry.read_png`,
+0.0 % CLIP ON EVERY ONE.** `RED/CREAM` measured against the authored `R 0.8944 / G 0.0466 / B 0.0305`,
+the red flank scored against cream **on the same vertical plane** so the illuminant cancels:
+
+```
+    frame        G ratio   vs authored   delta      what was turned off
+    f1shipped    0.0778      1.67x        --        the shipped rig
+    f2nodiffb    0.0751      1.61x      -0.0027     T1_DIFFB=0   (inter-reflection)     9 %
+    f3nospec     0.0488      1.05x      -0.0263     + T1_SPEC=0.05                     84 %
+    f4flat       0.0477      1.02x      -0.0011     + T1_CYCALB=0.05, T1_BODY_COAT=0    4 %
+                                        -------
+                                        96 % of the departure accounted for
+```
+
+**THE SPECULAR LOBE IS 84 % OF IT. WITH THE LOBE OFF, THE RENDER SITS WITHIN 2 % OF ITS OWN AUTHORED
+ALBEDO RATIO.** Nothing in the materials is wrong; `T1_SPEC` 0.50 is F0 ≈ 0.04, correct for every
+dielectric paint. **The red images salmon because a physically-correct specular lobe reflects a large,
+uniform, bright studio onto a dark, saturated albedo — and the reference photograph is the same bus
+outdoors in shade. That is F21's "paint or light" answered: it is LIGHT, and the light is not wrong,
+it is DIFFERENT.**
+
+**AND THIS TIME THE RULER PASSED ITS OWN ACCEPTANCE TEST.** A ratio of two albedos is
+exposure-invariant in true linear; the 8-bit read F261 used was not, which is what withdrew it
+(1.60 / 1.53 / 1.39 at −1.5 / −2.5 / −3.5). Re-measured on genuine 16-bit through `read_png`:
+
+```
+    shipped rig at T1_EXP -1.5     G 0.0778   R 0.7183   B 0.0695   clip 0.1 %
+    shipped rig at T1_EXP -2.5     G 0.0778   R 0.7175   B 0.0693   clip 0.0 %
+    shipped rig at T1_EXP -3.5     G 0.0778   R 0.7174   B 0.0694   clip 0.0 %
+```
+
+**TWO FULL STOPS OF EXPOSURE MOVE THE RATIO BY NOTHING — IDENTICAL TO FOUR DECIMALS IN G, AND TO
+THREE IN R AND B.** On the 8-bit read of the same three frames the same quantity read
+**1.60 / 1.53 / 1.39**. **THE RULER NOW SATISFIES THE PHYSICAL CONSTRAINT THAT WITHDREW ITS
+PREDECESSOR, AND `probe_rev71_red.py` PRINTS THAT ACCEPTANCE CONDITION ON EVERY RUN so no future
+revision can skip it.**
+
+**THE REGISTER ROW IS `F266`; `F261` IS KEPT AND ANNOTATED, NOT DELETED (rule 16), AND F266 IS THE ONE TO QUOTE.**
+
+**SO THE OWNER'S "I CERTAINLY WANT PHYSICS CLOSED" IS ANSWERED, AND THE ANSWER IS THE ONE F261
+REACHED — reached again, on an instrument that executes and that passes its own test.**
+
+**WHAT THIS DOES NOT LICENCE.** It is not a fidelity claim about the bus. `R3` scores the render
+against ITSELF; the photograph-side comparison carries a **2.3× window ceiling** (see §8). And the
+owner's *"relight the studio"* remains a RULING that stands even though `T1_SOFTEN` is refuted as the
+lever — **the honest routes are to change what the specular reflects (the environment) or to GRADE the
+delivery frame, which for promotional material is normal practice and touches no physics.**
+
