@@ -354,8 +354,16 @@ def main():
         im = im.resize((im.width * S, im.height * S), Image.NEAREST)
         ImageDraw.Draw(im).text((5, 4), "%s  IoU %.3f  grey=agree red=photo-only "
                                 "blue=model-only" % (tag, v), fill=(0, 0, 0))
-        im.save(os.path.join(SCRATCH, "rev69_fitpose.png"))
-        print("  painted -> probe_scratch/rev69_fitpose.png")
+        # ⚠ THE KILL RUN MUST NOT OVERWRITE THE SHIPPED EVIDENCE.  Under
+        # T1_FITPOSE_LEGACY=1 this probe fits with the rev-69 search, whose
+        # best pose is DIFFERENT -- so painting to the same path left the
+        # tracked artefact in the LEGACY state, and verify_clone.sh's own
+        # "modified tracked files" row went red because verify_clone.sh's own
+        # last row runs the kill.  A suite that dirties the tree it checks
+        # cannot reach all-PASS twice.  Found at rev 71's close.
+        _pf = "rev69_fitpose_legacy.png" if _LEGACY else "rev69_fitpose.png"
+        im.save(os.path.join(SCRATCH, _pf))
+        print("  painted -> probe_scratch/%s" % _pf)
 
         # ---- P3: WHERE THE MISS LIVES.  The band and the interior are the
         # mark's own geometry, warped through the SAME best pose, so this is a
@@ -384,7 +392,9 @@ def main():
         ri = ri.resize((ri.width * S2, ri.height * S2), Image.NEAREST)
         ImageDraw.Draw(ri).text((5, 4), "band IoU %.3f  interior IoU %.3f  "
                                 "red=photo blue=model" % (vb, vi), fill=(0, 0, 0))
-        ri.save(os.path.join(SCRATCH, "rev69_fitpose_regions.png"))
+        _rf = ("rev69_fitpose_regions_legacy.png" if _LEGACY
+               else "rev69_fitpose_regions.png")
+        ri.save(os.path.join(SCRATCH, _rf))
         ck("P3 THE MISS IS IN THE GLYPH, NOT THE RING", vb > vi,
            "band IoU %.4f against interior IoU %.4f on %s. photo-only/model-only "
            "inside the ring is %d/%d -- NEAR BALANCED, so the ink AMOUNT is right "

@@ -2433,6 +2433,19 @@ PY
 ck "the red probe REFUSES a frame with no declared transform" 3 \
    "$(python3 probe_rev71_red.py out/nonexistent_side.png >/dev/null 2>&1; echo $?)"
 # T1_DIFFB is the ablation F261 could not be reproduced without.  Wired, not named.
+# F265.  A SUITE THAT DIRTIES THE TREE IT CHECKS CANNOT REACH ALL-PASS TWICE.
+# probe_rev69_fitpose.py paints its best fit to a TRACKED file, and this script's
+# own LAST emblem row runs it under T1_FITPOSE_LEGACY=1 -- whose best pose is a
+# DIFFERENT one.  So row "modified tracked files" (line 115) was failed by row
+# ~395 of the same run, and it looked like nondeterminism.  The kill now paints
+# to its own path.  ARITHMETIC, not a grep: the two paths must differ.
+ck "the fitpose kill paints to its own file, not over the shipped evidence" "DIFFER" \
+   "$(python3 - <<'PY' 2>&1 | tail -1
+flat = ' '.join(open('probe_rev69_fitpose.py').read().split())
+print("DIFFER" if ('rev69_fitpose_legacy.png' in flat
+                   and 'rev69_fitpose_regions_legacy.png' in flat) else "SAME")
+PY
+)"
 ck "T1_DIFFB reaches the renderer's diffuse bounce count" 1 \
    "$(grep -c 'sc.cycles.diffuse_bounces = int(os.environ.get("T1_DIFFB"' studio.py)"
 

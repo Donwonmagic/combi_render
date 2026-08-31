@@ -253,11 +253,22 @@ other half (recompute every figure) was done by hand this revision and found the
    instruction and shipped a shattered glyph.** Fixed, back-annotated, and held by two rows.
 
 **WHERE THIS BRIEF IS WEAKEST, STATED RATHER THAN HIDDEN:**
-* **F261's magnitudes are withdrawn and the re-measurement is PARTIAL.** On the repaired ruler
-  (16-bit `Raw`, 0.0 % clip) the shipped rig reads **G 1.67× authored**; `T1_DIFFB=0` → **1.61×**;
-  `+T1_SPEC=0.05` → **1.05×**, i.e. **the specular lobe is ~84 % of the departure and the render is
-  within 5 % of its own authored albedo ratio once it is off.** ⚠ **THAT IS NOT YET ADMISSIBLE: the
-  exposure-invariance test had not finished when this brief closed.** Run it (§2b) before quoting it.
+* **F261's MAGNITUDES ARE WITHDRAWN AND THE RE-MEASUREMENT IS DONE EXCEPT FOR ITS ACCEPTANCE TEST.**
+  All four frames re-rendered `Raw` 16-bit at `T1_EXP=-2.5`, read through `read_png`, **0.0 % clip on
+  every one**, `RED/CREAM` against the authored `G 0.0466`:
+
+  ```
+      f1shipped   G 0.0778  1.67x authored                        the shipped rig
+      f2nodiffb   G 0.0751  1.61x    delta -0.0027   ( 9 %)       T1_DIFFB=0
+      f3nospec    G 0.0488  1.05x    delta -0.0263   (84 %)       + T1_SPEC=0.05
+      f4flat      G 0.0477  1.02x    delta -0.0011   ( 4 %)       + cyclorama, coat
+                            -------------------------------
+                            96 % of the departure accounted for
+  ```
+  **THE SPECULAR LOBE IS 84 % OF IT, AND WITH THE LOBE OFF THE RENDER IS WITHIN 2 % OF ITS OWN
+  AUTHORED ALBEDO RATIO.** That is the same conclusion F261 reached on the broken ruler, now on a
+  ruler that executes. ⚠ **STILL NOT ADMISSIBLE UNTIL THE INVARIANCE TEST PASSES** — see §2b; it was
+  still rendering when this brief closed. **Read the ledger's §8 for the figure if it landed.**
 * **The photograph's own red G/R spans 0.0149 … 0.0344** across four defensible uniformity cuts —
   **a 2.3× ceiling on every red comparison, wider than most effects being tuned against.** `R1b`
   prints the band; never quote one figure.
