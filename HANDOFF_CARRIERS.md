@@ -159,6 +159,16 @@ to the chalkboard livery.
 **WHAT TO BUILD:**
 1. a panel with **real thickness and an underside**, not a plate — this is the largest visible defect
    and it needs no new measurement at all;
+   > **⚠⚠ ITEM 1's PREMISE IS REFUTED (F276, rev 72). KEPT AND ANNOTATED, NOT DELETED (rule 16).**
+   > `t1_shell.tail_board()` builds
+   > `T.solid_prism(..., T.rrect(TB_CHORD, TB_WIDTH, 0.012, seg=4), TB_T)` — **a 22 mm SOLID
+   > rounded-rect prism. It HAS a panel body and it HAS an underside.** What the paragraph above
+   > describes is an **EDGE-ON VIEW**: the side elevation looks exactly along the board's plane, so
+   > the face is invisible by construction, not by omission. **Rule 10 — a claim in prose is not a
+   > measurement; ask the mesh.** The crop that shows why the description arose is
+   > `probe_scratch/r72_side_tail.png`. **ITEMS 2-5 ARE NOT REFUTED**: the dark angled recess is
+   > genuinely absent, the angle/chord ruler mismatch stands, and `TB_WIDTH`'s 0.59 m bound is
+   > verbatim in the source. **Do not spend rev 73 giving this board an underside it already has.**
 2. the **dark angled recess** in its forward-lower area;
 3. the angle and chord re-measured **on one ruler** and moved together, with F165's two-significant-
    figure ceiling stated in the row;
@@ -1028,6 +1038,14 @@ in the briefs and are carried here — that is rule 16 firing on this file:
 > 16-bit (`studio.setup_render`: `color_depth = '16'`, and all 50 PNGs in `out/` carry IHDR bit-depth
 > 16). **PIL has no 16-bit RGB path and truncates to `uint8` silently — no warning, no exception.**
 > F42 recorded the lost precision as a property of the RENDERER; it is a property of the READER.
+> **⚠ THAT ATTRIBUTION IS REFUTED (F272, rev 72); THE MECHANISM AND THE SCOPE ARE NOT.** F42's own
+> row, graded `MEASURED-rev57`, ALREADY SAYS READER: *"Blender **delivers** … then reads through
+> `Image.open(...).convert("RGBA")`, **which returns uint8**"*. And `shader_solve.py` records a
+> stdlib 16-bit decoder *"CONTROLLED against PIL … max difference 0"* — verbatim rev 71's own
+> validation — **written at rev 57 and NEVER COMMITTED**, which is why `read_png` had to be written
+> again. What is genuinely new at rev 71 is the SCOPE: F42 was scoped to `shader_solve._render`,
+> F263 extends it to every probe in the tree. **AND SEE F271: re-read at 16 bits, the photograph
+> gates move 0.623 %. The variable is the region's EXPOSURE, not the gate.**
 > **CHECK WHAT YOUR READER ACTUALLY RETURNED — dtype, max, shape — before you trust a number off it**,
 > and prefer a decoder you can control against a file whose values you authored.
 > `photometry.read_png()` is that decoder; its top 8 bits agree with PIL on all 5 280 000 pixels of a
