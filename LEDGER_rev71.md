@@ -7,14 +7,17 @@ python3 revstats.py, live at this commit:
     BASELINE rev  8-20    721 geometry lines/rev, doc:geo 1.55
              rev 61-70    287 geometry lines/rev, doc:geo 15.23
     LAST FIVE (66-70)    1908 geometry lines, 2 findings closed
-    rev 71 ITSELF       12 commits, 27 geometry lines, 1819 doc, 878 instrument, 0 closed
-    LAST FIVE (67-71)    1577 geometry lines, 2 findings closed
-                         <- READ THAT HONESTLY: 27 geometry lines against a rev-8-20
+    rev 71 ITSELF       24 commits, 79 geometry lines, 2796 doc, 1105 instrument, 2 closed
+    LAST FIVE (67-71)    1629 geometry lines, 4 findings closed
+                         doc:geo 35.39   <- THE WORST RATIO IN THE TABLE
+                         <- READ THAT HONESTLY: 79 geometry lines against a rev-8-20
                          baseline of 721/rev, and a doc:geo ratio worse than any band
                          in the table.  The ONE constant that moved is the ship.
                          run `python3 revstats.py` at close and read its rev-71 row --
-                         this revision's geometry is ONE CONSTANT (VW_FIT_COEF) and its
-                         doc:geo ratio is accordingly terrible.  SAY SO rather than
+                         this revision's SHIPPED geometry is ONE CONSTANT (VW_FIT_COEF);
+                         the other geometry lines are ablation switches (T1_PAINT_RAW,
+                         T1_DIFFB) and the traced glyph's standoff.  doc:geo 35.39 is
+                         the worst band in the table and I am not going to dress it up.  SAY SO rather than
                          quoting the band average, which stops one revision short of
                          measuring the revision that quotes it
 ```
@@ -410,3 +413,104 @@ probe_rev69_fitpose.py                  5 checked, 2 FAILED -- P1b (the instrume
 **NOT ONE OF `verify_clone.sh`'s 358 ROWS COMPARES THE MODEL TO A PHOTOGRAPH.** The five that do
 are above, **and every one of them fails.** That is the honest distance, and rev 71 did not shorten
 it — it established that one of the five was measuring against a ceiling it had no right to.
+
+---
+## §8 THE LAST HOUR — A SECOND RULE-17 ADVERSARY, ELEVEN DEFECTS, AND THE ONE THAT MATTERED
+
+**RULE 17 WAS RUN TWICE THIS REVISION AND PAID TWICE.** The first adversary reversed the emblem
+conclusion (§5a). A second was dispatched at the handoff itself and returned **eleven confirmed
+defects in my own work**, of which four were in the module I had written to stop exactly this class
+of defect. **Two were independently verified before I acted on them; one of the adversary's own
+diagnoses was refuted by the control it asked for.** What follows is what it found and what happened.
+
+### THE ONE THAT CHANGED THE REVISION — F263
+
+**Every frame this project renders is 16-bit. Every measurement ever taken off one was read at 8.**
+
+`studio.setup_render` sets `sc.render.image_settings.color_depth = '16'` — its own comment says
+*"audit optics-16"* — and the files agree: **all 50 PNGs in `out/` carry IHDR bit-depth 16, colour
+type 2.** But PIL has no 16-bit RGB path. `np.asarray(Image.open("out/phys_side.png"))` returns
+`mode=RGB dtype=uint8 max=255`, silently, with no warning and no exception.
+
+**`F42` recorded this as a property of the RENDERER — *"every measurement through `shader_solve._render`
+is 8-bit, whatever `color_depth` says"* — for fifty revisions. It is a property of the READER, and
+the other eight bits were in the file the whole time.**
+
+`photometry.read_png()` is now a real decoder — pure `zlib` + `numpy`, all four PNG filter types,
+refusing interlace, palette and truncation. **Validated two ways on a live frame:** it returns
+`out/phys_side.png` as `uint16 max 65406`, and **its top 8 bits agree with PIL on all 5 280 000
+pixels — max difference 0, mean 0.0000.** Same image, plus what PIL discarded. 10.4 s at 1600×1100.
+
+**WHAT THAT COSTS: F261, THE OWNER'S OWN "I CERTAINLY WANT PHYSICS CLOSED", IS DOWNGRADED.** Its
+ruler was stated as *"Raw 16-bit stopped down 2.5 stops"* and **the 16-bit half never executed.** At
+that stop-down the red's G channel occupies about **five code levels of 255**. And the invariance
+test fails: the same ratio at exposures **−1.5 / −2.5 / −3.5 reads 1.60 / 1.53 / 1.39.** *A ratio of
+two albedos cannot drift with exposure in true linear.* **The ORDERING stands. The magnitudes are
+withdrawn, in the same revision that published them (rule 13).**
+
+**AND THE RE-MEASUREMENT IS UNDER WAY ON THE REAL RULER.** On a genuine 16-bit `Raw` frame, read
+through `read_png`, with **0.0 % clipping**: the shipped rig reads **G 1.67× authored**, and killing
+diffuse inter-reflection (`T1_DIFFB=0`, the switch that did not exist and was why the decomposition
+could not be reproduced from any committed script) takes it to **1.61× — inter-reflection is 9 % of
+the departure.** Close to the withdrawn figures, which is why the direction survives; **but not
+publishable until the invariance test passes, and that is now the ACCEPTANCE CONDITION printed by
+the probe itself.**
+
+### F264 — THE SELFTEST CONTROLLED ONE OF ITS FOUR RULES, AND THAT ONE WAS VOID
+
+`photometry.py` was written to encode rev 71's six instrument defects so the next context inherits
+the fix rather than the lesson. **Its selftest had three checks, of which only one could fail.**
+Check 3 planted a *cream* contaminant in the RED window and asserted the median held — but that
+window's `keep` is `m[0] > m[1]`, **so every planted tile was rejected before the estimator ever saw
+it. Swapping `np.median` for `np.mean` left the whole suite green.** `load_linear` was never called
+by any check, so rule 1 had no control at all; rule 4 had none either.
+
+**Now nine checks, five of them kills, every kill watched firing in the same run** — including a
+`--raw` branch that could never execute, an sRGB-encoded read of the same synthetic scene reading
+**G 0.2301 against the true 0.0466**, and a contaminant the window actually admits (median holds at
+0.0466, **mean moves to 0.1209**).
+
+> **AND ONE OF THE ADVERSARY'S DIAGNOSES WAS WRONG, WHICH ITS OWN CONTROL CAUGHT (rule 46).** It
+> reported `UNIFORM * (a.max() or 1.0)` as *"exposure-dependent"*. **Under a uniform scaling it is
+> not** — the sd and `a.max()` scale together — and the first cut of that check read **676 tiles at
+> both scales, kill did not fire.** The real defect is worse and different: the tolerance is set by
+> the frame's **brightest pixel**, so one specular highlight anywhere off-subject **moved a window
+> from 0 tiles to 675**. A per-channel relative rule was then tried and is **refuted**: 16 % of the
+> red's G mean is 0.005, below any render's Monte-Carlo noise, and it rejected every red tile.
+
+### THE OTHERS, AND WHAT WAS DONE
+
+| the defect | what happened |
+|---|---|
+| **`probe_rev69_fitpose.py`'s P4 still told the reader to re-open F183** — the patch F262 *claims* landed never did (`grep -c "F183 needs re-opening"` = 1) | **FIXED.** P4's message now carries the withdrawal, so rule 9 reads it where it looks. **F255 back-annotated.** Two `verify_clone` rows hold both halves |
+| **`probe_rev71_red.py` applied inverse-sRGB unconditionally** — a double de-gamma on every `Raw` frame it measured | **FIXED.** Routed through `photometry.load_linear`; the transform is now **declared on the command line and REFUSED if absent** |
+| **its decomposition was five hard-coded `print` literals** — F198's defect, in a probe written to prevent it, next to the `C12` row that exists to catch it | **FIXED.** `R4` computes every delta from the frames present and prints **"NOT RENDERED — row ABSENT, not passed"** with the exact render command for each missing one |
+| **`ratio()`'s docstring said "Mean LINEAR colour" while returning `np.median`** | **FIXED** |
+| **`load_linear`'s `'raw'` branch was unreachable** (`a.max() > 255.0` can never be true through PIL) | **FIXED by F263's decoder**; it now refuses an 8-bit frame *by measuring the file's bit depth*, not the array's max |
+| **`[..., :3]` silently mangles a grayscale image** (it takes three *columns*) | **FIXED**: grey is promoted to three channels before the slice |
+| **nothing imported `photometry`** | `probe_rev71_red.py` now does |
+| **the brief's `doc:geo 67` was transcribed, not run** | **CORRECTED to 35.39**, with the note that it was rule 18 failing inside the file that carries rule 18 |
+| **§2's ranking put an item that ships no pixels first** | **RE-RANKED**, with the ranking's own reasoning stated so the next context can overrule it |
+| **`HANDOFF_CARRIERS.md` was not updated with rev-71 content** while the brief was cut on the premise that the carriers hold everything | **FIXED**: §0.05 carries F254, §0.07 carries the shipped fit depth, the refuted list's trace row carries F255 **and** F262, and rules 55–58 are in the canon |
+| **F262 asserted a source edit that was never made** | The finding is now true of the file |
+
+### AND ONE CEILING FOUND BY PAINTING, WHICH IS NEW AND WHICH BOUNDS EVERY RED NUMBER
+
+Re-cutting the red window's uniformity rule changed the photograph's reading, so **both candidate
+windows were painted and looked at** (`probe_scratch/rev71_red_photowin_v2.png` and `_v3.png`). The
+linear-space rule was **visibly wrong** — tiles on the folk art and around the script — and was
+rejected on sight, not on a number. But the sweep behind it is the finding:
+
+```
+    uniformity tolerance   tiles    photograph's linear G/R
+        0.20                1028           0.0344
+        0.13 (validated)     745           0.0307
+        0.09                 279           0.0235
+        0.06                  68           0.0149
+```
+
+**The photograph's own red G/R spans 0.0149 … 0.0344 — a 2.3× range — across four defensible
+definitions of "plain paint". That is wider than most of the effects the red has been tuned
+against.** `R1b` now prints the whole band every run, so no future revision can quote a single
+figure for it without seeing the span underneath. **This is a CEILING, not a knob.**
+
