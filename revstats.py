@@ -27,18 +27,42 @@ GEO = ('t1_core.py', 't1_shell.py', 't1_detail.py', 't1_mats.py', 'build.py',
 
 
 def collect():
-    log = subprocess.run(['git', 'log', '--reverse', '--pretty=%H%x09%s'],
+    # *** rev 72 -- MERGE COMMITS WERE COUNTED, AND THEY DOUBLE EVERY BRANCH. ***
+    #
+    # `git show --numstat <merge>` emits the merge's diff against its FIRST
+    # PARENT, which for a PR merge is the ENTIRE BRANCH again -- every line the
+    # branch's own commits already contributed.  So every revision landed by PR
+    # was counted TWICE.  Measured at rev 72: rev 71 read 176 geometry lines,
+    # and excluding merges it reads 88.  Exactly 2x, which is the signature.
+    #
+    # THIS MATTERS BECAUSE THIS SCRIPT IS THE OWNER'S OWN DRIFT INSTRUMENT.  He
+    # said "we were way more productive in the first 20 or so handoffs and I
+    # fear we have drifted since then", the project answered with this script,
+    # and three documents quote it.  An instrument that doubles its numerator
+    # understates the drift it exists to show -- and the honest doc:geo for
+    # rev 71 is WORSE than any figure published for it (see LEDGER_rev72).
+    #
+    # AN INSTRUMENT THAT HAS NEVER BEEN WRONG HAS NEVER BEEN TESTED (CLAUDE.md).
+    # Found by an adversary dispatched at the rev-72 brief under rule 15.
+    log = subprocess.run(['git', 'log', '--reverse', '--pretty=%H%x09%P%x09%s'],
                          capture_output=True, text=True).stdout.splitlines()
-    rev_of, cur = {}, None
+    rev_of, parents_of, cur = {}, {}, None
     for ln in log:
-        h, _, s = ln.partition('\t')
+        h, _, rest = ln.partition('\t')
+        par, _, s = rest.partition('\t')
         m = re.match(r'\s*rev\s*(\d+)', s)
         if m:
             cur = int(m.group(1))
         rev_of[h] = cur
+        parents_of[h] = par.split()
+    merges = 0
     stats = collections.defaultdict(collections.Counter)
     for h, rev in rev_of.items():
         if rev is None:
+            continue
+        if len(parents_of.get(h, [])) > 1:
+            merges += 1
+            stats[rev]['merges'] += 1
             continue
         out = subprocess.run(['git', 'show', '--numstat', '--format=', '--no-renames', h],
                              capture_output=True, text=True).stdout

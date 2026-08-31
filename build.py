@@ -344,6 +344,7 @@ A(S.side_glass(), "glass")
 # SPEC r4: "100% Calidad" is a decal on SOLID sheet metal aft of bay 3,
 # not a frosted pane. Placed with the decals in step 8.
 A(S.rear_glass(), "glass")
+A(S.rear_seal(), "rubber")          # rev 72: the ONE glazed aperture that had none
 A(S.bay_seals(), "rubber")
 log("glazing + seals")
 

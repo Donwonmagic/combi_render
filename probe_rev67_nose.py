@@ -236,7 +236,7 @@ def main():
     want_mesh = "--nomesh" not in sys.argv
     frame = argv[0] if argv else None
 
-    checks, fails = [], []
+    checks, fails, absent = [], [], []
 
     def ck(name, ok, detail):
         checks.append((name, ok, detail))
@@ -327,10 +327,21 @@ def main():
         #     probe_rev67_nose.py out/r68_front.png -> 5 checked, 1 FAILED, rc 1
         # The refusal below covers the wrong-file case; nothing covered the
         # no-argument case, which is the one that actually gets typed.
+        # *** rev 72 -- THE MESSAGE WAS RIGHT AND THE VERDICT WAS STILL GREEN. ***
+        # Rev 68 added the refusal TEXT above; rev 70 and rev 71 both recorded
+        # that the probe still "prints a GREEN summary and exits 0 while its
+        # first line refuses", and neither fixed it.  A reader obeying rule 9 --
+        # read the SUMMARY line, never the exit code -- was handed
+        # "4 checked, 0 FAILED".  Rule 37: an absent input must never read as a
+        # measurement.  The absence is now COUNTED and carried into the summary
+        # and the exit code.  Watched at rev 72:
+        #     bare                    -> "2 checked, 0 FAILED, 1 ABSENT", rc 2
+        #     out/r72_front.png       -> the P3 row runs and REFUSES, rc 1
         print("NO FRAME GIVEN -- P3 (the RENDER's bumper edge) DID NOT RUN.  "
               "Pass a frame, e.g. `python3 probe_rev67_nose.py "
-              "out/r68_front.png`.  The photograph and mesh rows below stand; "
+              "out/r72_front.png`.  The photograph and mesh rows below stand; "
               "the render row is ABSENT, not passed.")
+        absent.append("P3 (the RENDER's bumper edge) -- no frame given")
 
     if ren:
         # THE SAME GATE AS P1, AND ON A THREE-QUARTER RENDER IT REFUSES.  A
@@ -433,11 +444,15 @@ def main():
     print("  two front bumper corners, photographed against a ruler, would")
     print("  settle it outright with no camera model at all.")
     print("-" * 78)
-    print("  %d checked, %d FAILED%s"
+    print("  %d checked, %d FAILED%s%s"
           % (len(checks), len(fails),
-             ("  --  " + "; ".join(fails)) if fails else ""))
+             (", %d ABSENT" % len(absent)) if absent else "",
+             ("  --  " + "; ".join(fails + absent)) if (fails or absent) else ""))
+    if absent and not fails:
+        print("  ⚠ NOT A PASS.  %d row(s) did not run.  A probe that could not "
+              "measure has not measured (rule 37)." % len(absent))
     print("=" * 78)
-    return 1 if fails else 0
+    return 1 if fails else (2 if absent else 0)
 
 
 if __name__ == "__main__":

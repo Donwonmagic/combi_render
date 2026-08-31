@@ -65,6 +65,22 @@ def _newest_hero():
 _ARGS = [a for a in sys.argv[1:] if not a.startswith("--")]
 if _ARGS:
     REND = _ARGS[0]
+    # *** rev 72, rule 37 -- A NAMED FRAME THAT IS NOT THERE MUST REFUSE. ***
+    # The no-argument branch below has refused since rev 58, but a frame named
+    # on the command line went straight into spread() and died with a raw
+    # FileNotFoundError out of Image.open -- no "NO RENDER" line, no summary
+    # line, so a reader obeying rule 9 (read the summary, never the exit code)
+    # had NOTHING to read.  `out/` is untracked and starts EMPTY on a clone, and
+    # every brief prints this gate with an explicit `out/rNN_hero34f.png`, so
+    # this is the branch that actually gets typed.  Found by an adversary
+    # dispatched at the rev-72 brief, which ranks this gate #2 while flagging
+    # the same defect only in probe_rev67_nose.py.
+    if not os.path.exists(REND):
+        P("NO RENDER -- %s does not exist.  out/ is untracked and starts EMPTY "
+          "on a clone." % REND)
+        P("  Nothing was measured.  Render it first, e.g.")
+        P("  T1_SUB=1 T1_PREVIEW=hero34f T1_PFX=r72 ... build.py")
+        sys.exit(3)
 elif "--selftest" not in sys.argv:
     REND = _newest_hero()
     if REND is None:
