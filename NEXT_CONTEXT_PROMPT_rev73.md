@@ -193,7 +193,7 @@ five rear-hatch kills. **Rule 47: an ablation switch can stop ablating, and sile
 ./bootstrap.sh                                # ALL 10 PASS -- read ROW 9
 ./bootstrap.sh --guards                       # ~10 min.  THE ONLY THING THAT RUNS THE FIVE
                                               # REAR-HATCH KILLS (rule 47).  Run it once.
-./verify_clone.sh                             # ALL 381 PASS -- read the verdict block too
+./verify_clone.sh                             # ALL 392 PASS -- read the verdict block too
 T1_SUB=1 T1_VERIFY=1 /tmp/blender/blender -b -P build.py     # -> "VERIFY: 0 fail, 0 warn"
 python3 photometry.py                         # 9 checked, 0 FAILED
 python3 probe_rev72_bits.py out/r73_hero34f.png   # NEW at rev 72.  5 checked, 1 FAILED --
