@@ -156,7 +156,7 @@ how F261 was caught. **Publish the invariance figure beside the decomposition.**
 
 ```bash
 ./bootstrap.sh                                # ALL 10 PASS -- read ROW 9
-./verify_clone.sh                             # read the verdict block AND the row count
+./verify_clone.sh                             # ALL 999 PASS -- read the verdict block too
 T1_SUB=1 T1_VERIFY=1 /tmp/blender/blender -b -P build.py     # -> "VERIFY: 0 fail, 0 warn"
 python3 photometry.py                         # THE MEASUREMENT PROTOCOL -- 9 checked, 0 FAILED
 python3 probe_rev71_proxy.py                  # must read IoU 1.000000
