@@ -929,6 +929,26 @@ in the briefs and are carried here — that is rule 16 firing on this file:
 > seven moves the pose-free shape by **4.4 %**. **When a lever is measured inert, ask whether the
 > quantity you are trying to move EXISTS in the parameterisation before you widen the search.** (F237.)
 
+> **56. NEW AT REV 71 — AN INSTRUMENT CAN RANK A THING THE EYE REJECTS, AND IT WILL NOT TELL YOU.**
+> `probe_rev69_fitpose`'s P4 scored the traced pressing **+0.0060 on its own source and +0.0081 on an
+> INDEPENDENT frame** — both positive, the signature of a real improvement — and rendered, that glyph is
+> **fragmented into disconnected shards with no legible V over W** (F262). A silhouette IoU at 220 px
+> cannot see fragmentation. **Before optimising against ANY scalar, establish that it can SEE the defect
+> you care about.** The emblem's objective still has no legibility term, so any further search on it
+> optimises toward another shattered mark. This is rule 1's mechanism, stated as a property of
+> instruments rather than as an exhortation to look.
+
+> **57. NEW AT REV 71 — THE FOUR RULES OF READING A PIXEL, AND `photometry.py` ENFORCES ALL FOUR.**
+> Rev 71 found SIX defects in its own instruments and every one violated one of these. **(a) READ IN
+> LINEAR, AND ONLY WHERE LINEAR IS RECOVERABLE** — an 8-bit sRGB channel ratio is not a physical
+> quantity, and inverse-sRGB does NOT undo AgX; read through AgX the red ratio moved with EXPOSURE and
+> read 3.43× where the truth is 1.73×. **(b) REFUSE CLIPPED DATA** — a clipped denominator cannot rise;
+> rev 71 measured a relight three times and every "gain" was the cream clipping, worth nothing.
+> **(c) MEDIAN, NOT MEAN** — the red's authored G albedo is 0.0294 against the cream's 0.6308, so a 15 %
+> tail of contaminant tiles DOUBLES the mean G while barely moving R. **(d) PAINT THE WINDOW AND LOOK**
+> — four of rev 71's windows were wrong. **Import `photometry`; do not re-derive this. Run its
+> `selftest()` first (3 checked, 0 FAILED, and two of the three are kills).**
+
 ---
 ## §6 THIS MACHINE
 
