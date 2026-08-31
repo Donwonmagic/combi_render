@@ -8,10 +8,10 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-31 02:19:43 UTC |
-| git commit | `19ff34b` |
-| git subject | rev 71: photometry.py -- the measurement protocol as code, plus canon rules 56-57 |
-| working tree | **DIRTY** — this state is not committed |
+| generated | 2026-08-31 02:24:38 UTC |
+| git commit | `1e6c555` |
+| git subject | rev 71: the outgoing handoff -- brief cut 18.2KB -> 11.9KB, ledger carries the closures |
+| working tree | clean |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=2 (applied, destructive, before booleans) |
 | geometry source | procedural, built this run |
