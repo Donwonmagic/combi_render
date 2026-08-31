@@ -169,6 +169,14 @@ region **0.689 (i)** (brief 0.689). Both reproduce inside the 2.441 % render-non
     typed rather than run, **inside the finding that fixed a typed figure.** The combined diff is
     parsed as a patch now, and the hard-coded 721 / 1.55 baseline is **computed: 718 / 1.40.**
 
+12. **MY NEW SWITCH HAD A SECOND INVALID-INPUT PATH, AND ITS ERROR BLAMED INNOCENT CODE (F281).**
+    `T1_REAR_OPEN=-64` died on a bare traceback reading *"Check `_hinge_y`'s sign — it was inverted
+    once already and only a render caught it."* **`_hinge_y` is not at fault; a negative value on my
+    own switch was.** That is the *second* uninformative failure on a switch I added this revision
+    (F270 was `=0` crashing outright). Now refused at the parse site, naming the switch, the
+    expressible range and explicitly clearing `_hinge_y`. **Rule 51.** Found by the adversary running
+    the value, not by me reading the code.
+
 **RULE 49, THE FIGURE I OWED AND HAD NOT PUBLISHED.** The `seal_rear` A/B against F228's **2.441 %**
 floor: globally **2.546 %** of pixels >8 levels — **at the floor; invisible to that statistic** (a roof
 control reads 21.59 %). It separates only in the tail: **>32 levels 3.95 % in the seal window against

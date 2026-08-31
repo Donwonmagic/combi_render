@@ -1756,7 +1756,44 @@ def _components(me):
 #     photograph.  Recorded plainly so the next revision can undo it cheaply
 #     if a frame of the open tail contradicts it.
 
-REAR_OPEN_DEG = float(os.environ.get("T1_REAR_OPEN", 64.0))
+def _rear_open_deg():
+    """Parse T1_REAR_OPEN, and REFUSE a value the hinge cannot express.
+
+    *** rev 72c -- WITHOUT THIS, `T1_REAR_OPEN=-64` DIED ON A BARE TRACEBACK
+    THAT BLAMED THE WRONG CODE. *** `_swing_open`'s directional assert fired
+    with "rear hatch opened the WRONG WAY ... Check _hinge_y's sign -- it was
+    inverted once already", sending the reader to debug an innocent function
+    when the cause was a negative value on the switch rev 72 had just added.
+    A guard whose message names the wrong suspect is worse than none: it costs
+    the next context the time it takes to clear `_hinge_y`.  Rule 51's shape --
+    losing the input is a RESULT, and it must be PRINTED, not raised from three
+    frames down.  Found by the rule-17 adversary, which ran the value.
+
+    The hinge is top-mounted and swings the free edge AFT and UP, so 0..180 is
+    the expressible range; a negative angle is not a pose this fixture has.
+    """
+    raw = os.environ.get("T1_REAR_OPEN")
+    if raw is None:
+        return 64.0
+    try:
+        v = float(raw)
+    except ValueError:
+        raise SystemExit(
+            "T1_REAR_OPEN=%r is not a number.  REFUSING rather than building a "
+            "pose nobody chose.  It sets the rear hatch's swing in DEGREES, "
+            "0..180; 0 shuts it (see open_rear_hatch)." % raw)
+    if not (0.0 <= v <= 180.0):
+        raise SystemExit(
+            "T1_REAR_OPEN=%s is outside 0..180 and the rear hatch's hinge "
+            "CANNOT EXPRESS IT.  The pane is TOP-hinged and its free edge "
+            "swings AFT and UP; a negative angle drives it FORWARD into the "
+            "body, which is what _swing_open's directional assert then reports "
+            "-- against _hinge_y, which is not at fault.  REFUSING here instead, "
+            "with the actual cause named." % raw)
+    return v
+
+
+REAR_OPEN_DEG = _rear_open_deg()
 # NOT MEASURED.  A pose choice, like TRUNK_OPEN_DEG, and guarded to keep
 # saying so.
 #

@@ -187,6 +187,11 @@ T1_REAR_SEAL=0     T1_SUB=1 T1_VERIFY=1 /tmp/blender/blender -b -P build.py   # 
 T1_REAR_SEALSTAY=1 T1_SUB=1 T1_VERIFY=1 /tmp/blender/blender -b -P build.py   # 1 fail, GASKET DRIFT
 T1_REAR_NOSWING=1  T1_SUB=1 T1_VERIFY=1 /tmp/blender/blender -b -P build.py   # 1 fail, POSE DRIFT
 T1_REAR_OPEN=0     T1_SUB=1 T1_VERIFY=1 /tmp/blender/blender -b -P build.py   # 0 fail -- HONEST close
+T1_REAR_SEALSHIFT=1 T1_SUB=1 T1_VERIFY=1 /tmp/blender/blender -b -P build.py  # 2 fail, OFF THE GLASS
+T1_REAR_FOLD=1     T1_SUB=1 T1_VERIFY=1 /tmp/blender/blender -b -P build.py   # 1 fail, 116 vs 64
+T1_REAR_OPEN=-64   T1_SUB=1 T1_VERIFY=1 /tmp/blender/blender -b -P build.py   # REFUSES at the parse
+                                          # site, naming the switch -- it used to die on a traceback
+                                          # blaming _hinge_y, which is not at fault (F281)
 ```
 
 **FACTS THAT BITE:** `bootstrap.sh` fails 3/10 without pillow. The render is **not** run-to-run
