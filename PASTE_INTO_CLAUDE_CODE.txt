@@ -63,6 +63,13 @@ for b in $(git branch -r | grep -v HEAD); do printf "%-52s ahead %-3s behind %s\
   "$(git rev-list --count origin/main..$b)" "$(git rev-list --count $b..origin/main)"; done
 git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 ```
+**MEASURED AT REV 71's CLOSE, BY `bootstrap.sh` ROW 9's OWN NOTE — CARRY IT, THEN RE-MEASURE IT:**
+**HEAD was 36 ahead / 0 behind `origin/main`, and those 36 commits are MERGED NOWHERE.** Row 9 passes
+(*"no branch carries work HEAD does not have"*) because it only finds branches ahead of HEAD — **it
+cannot see this axis, and its own note says so.** The branch is
+`claude/nose-emblem-back-opening-r71-p1cu8z`. **THAT SENTENCE IS ALREADY THE STALEST THING IN THIS
+FILE. Run the loop above before you believe any of it.**
+
 **SEVEN CONSECUTIVE REVISIONS OF STALE BRANCH PROSE (F253), rev 71's stale in the OPPOSITE direction
 from rev 70's.** A brief cannot carry a true statement about branch state across a boundary. Believe
 `bootstrap.sh` row 9 and the loop above, never this paragraph.
