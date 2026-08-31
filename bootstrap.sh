@@ -299,9 +299,20 @@ if [ $GUARDS -eq 1 ]; then
   R="$(/tmp/blender/blender -b -P probe_rev45_nose.py 2>&1 | grep 'CONTROLS:' | tail -1)"
   [ "$R" = "CONTROLS: 8 checked, 0 FAILED" ] \
     && ck "probe_rev45_nose  8/0" ok || ck "probe_rev45_nose  8/0" "got '$R'"
+  # *** rev 72 -- RE-BASED 4 -> 5, CAUSE NAMED, AND THIS ROW HAD BEEN RED FOR
+  # TWELVE REVISIONS WITHOUT ANYONE SEEING IT. ***
+  # THE CAUSE: rev 60 (`0b0bf89`, "item D: the underbody, and G4 the cavity-floor
+  # control") added a FIFTH control, G4.  This expectation was written at rev 45
+  # (`34b274b`) and never updated, so from rev 60 onward `--guards` reported
+  # FAIL on a probe that was behaving correctly and reporting 5 checked, 0
+  # FAILED.  Nobody noticed because --guards is ~10 min and is rarely run --
+  # which is exactly the argument for the ablation sweep added below it.
+  # NOT LOOSENED to "0 FAILED": the count is the point.  The row's own original
+  # comment says why -- "a control silently disappearing is exactly what this
+  # row is for" -- and that reason is unchanged by the re-base.
   R="$(/tmp/blender/blender -b -P probe_rev45_ground.py 2>&1 | grep 'CONTROLS:' | tail -1)"
-  [ "$R" = "CONTROLS: 4 checked, 0 FAILED" ] \
-    && ck "probe_rev45_ground  4/0" ok || ck "probe_rev45_ground  4/0" "got '$R'"
+  [ "$R" = "CONTROLS: 5 checked, 0 FAILED" ] \
+    && ck "probe_rev45_ground  5/0" ok || ck "probe_rev45_ground  5/0" "got '$R'"
   R="$(/tmp/blender/blender -b -P probe_rev45_paint.py 2>&1 | grep 'CONTROLS:' | tail -1)"
   [ "$R" = "CONTROLS: 4 checked, 0 FAILED" ] \
     && ck "probe_rev45_paint  4/0" ok || ck "probe_rev45_paint  4/0" "got '$R'"
@@ -310,6 +321,42 @@ if [ $GUARDS -eq 1 ]; then
   R="$(T1_R46_NORENDER=1 /tmp/blender/blender -b -P probe_rev46_reports.py 2>&1 | grep 'CONTROLS:' | tail -1)"
   [ "$R" = "CONTROLS: 5 checked, 0 FAILED" ] \
     && ck "probe_rev46_reports  5/0" ok || ck "probe_rev46_reports  5/0" "got '$R'"
+  # ------------------------------------------------- rev 72: THE ABLATION SWEEP
+  # RULE 47: AN ABLATION SWITCH CAN STOP ABLATING, AND SILENCE IS ITS FAILURE
+  # MODE.  Rev 72 shipped five kills on verify._rear_hatch and watched every one
+  # fire -- and then nothing in this tree ran them again.  A kill that has
+  # quietly stopped killing leaves a guard that can never go red, which is the
+  # shape rule 36 exists for and which rev 72's own first draft committed.
+  #
+  # EACH EXPECTED COUNT WAS READ OFF A RUN, NOT TYPED (rule 5).  They are exact
+  # rather than ">0" on purpose: SEALSTAY and SEALSHIFT trip TWO rows each (the
+  # gasket's attitude AND its position), and collapsing that to "some failure"
+  # would hide one of them going quiet.  ~22 s per build, seven builds.
+  #
+  # THE TWO ZEROS ARE NOT PADDING.  T1_REAR_OPEN=0 is an HONEST CLOSE -- the
+  # constant and the mesh agree -- and it must PASS; if it ever starts failing,
+  # the row has begun encoding the shipped pose rather than the declared one
+  # (rule 35).  The shipped build is the control for all of them.
+  for _A in "T1_REAR_SEAL=0:1" "T1_REAR_SEALSTAY=1:2" "T1_REAR_NOSWING=1:1" \
+            "T1_REAR_SEALSHIFT=1:2" "T1_REAR_FOLD=1:1" "T1_REAR_OPEN=0:0" ":0"; do
+    _SW="${_A%:*}"; _WANT="${_A##*:}"
+    _GOT="$(env $_SW T1_SUB=1 T1_VERIFY=1 /tmp/blender/blender -b -P build.py 2>&1 \
+            | grep -oE 'VERIFY: [0-9]+ fail' | tail -1 | grep -oE '[0-9]+')"
+    # NOTE: bootstrap's ck is `ck <label> <ok|message>` -- a DIFFERENT signature
+    # from verify_clone.sh's `ck <label> <want> <got>`.  The first cut of this
+    # loop used verify_clone's, so all seven rows printed FAIL while their got
+    # and want AGREED.  Watched, and fixed here rather than by loosening a bar.
+    [ "${_GOT:-none}" = "$_WANT" ] \
+      && ck "ablation ${_SW:-<shipped>} -> VERIFY $_WANT fail" ok \
+      || ck "ablation ${_SW:-<shipped>} -> VERIFY $_WANT fail" "got ${_GOT:-none}"
+  done
+  # AND THE ANGLE VALIDATOR REFUSES A POSE THE HINGE CANNOT EXPRESS (F281),
+  # naming the switch instead of dying three frames down blaming _hinge_y.
+  _GOT="$(T1_REAR_OPEN=-64 T1_SUB=1 /tmp/blender/blender -b -P build.py 2>&1 \
+          | grep -c 'is outside 0..180')"
+  [ "${_GOT:-0}" = "1" ] \
+    && ck "ablation T1_REAR_OPEN=-64 REFUSES, naming the switch" ok \
+    || ck "ablation T1_REAR_OPEN=-64 REFUSES, naming the switch" "got ${_GOT:-0}"
   R="$(/tmp/blender/blender -b -P probe_rev44_lampmove.py 2>&1 | grep 'CONTROLS:' | tail -1)"
   [ "$R" = "CONTROLS: 6 checked, 0 FAILED" ] \
     && ck "probe_rev44_lampmove  6/0" ok || ck "probe_rev44_lampmove  6/0" "got '$R'"
