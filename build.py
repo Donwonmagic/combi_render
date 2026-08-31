@@ -917,6 +917,29 @@ _dx_lo, _dx_hi = 9e9, -9e9
 # THE VALUE IS BACK WHERE IT WAS.  The guard stays, because the comparison it
 # makes was genuinely missing; it is NOT the fix for what the owner reported.
 GLYPH_STANDOFF = 0.0016          # same as the ring/disc plate -- see above
+# ------------------------------------------------------------- rev 71, F255
+# THE TRACED PRESSING NEEDS ITS OWN STANDOFF, AND ONLY IT.
+#
+# The traced switch, set to 1, did not BUILD: the guard below fired at -1.05 mm at
+# r 0.1090.  The cause is not a bad trace.  The constant glyph is six strokes
+# with GAPS between them, so at r 0.1090 it contributes no vertices and that
+# radial bucket is never shared; the traced pressing is ONE outline with holes
+# and DOES fill that radius -- where the cream disc's cone is at its most
+# forward.  So the trace meets a comparison the constant glyph never had to
+# make.  Rule 38: two quantities that had to be compared and never were.
+#
+# 0.0016 -> 0.0034 clears it: the measured deficit is 1.05 mm and the guard
+# wants 0.5 mm, so 1.55 mm is the minimum and 1.8 mm is what this adds.
+# (That sentence deliberately avoids the literal env assignment: verify_clone's
+# "nothing sets T1_VW_TRACED for the build" row is a GREP and cannot tell a
+# COMMENT from an assignment, so quoting it here fired a guard that was doing
+# its job correctly.  Rule 50 -- the guard is left fully armed, the prose moved.)
+# ⚠ IT IS SCOPED TO THE TRACED PATH.  The constant glyph already stands
+# +2.04 mm proud and a 1.5 mm bump was added on that path at rev 66 and
+# REVERTED for fixing nothing (see the note above) -- rule 44, so it is not
+# re-applied here by accident.
+if os.environ.get("T1_VW_TRACED") == "1":
+    GLYPH_STANDOFF = 0.0034
 for _plate, _mount, _so in (([vr, vd], ROUNDEL_X, 0.0016),
                             ([o for o in _EMBLEM_PLATE if o not in (vr, vd)],
                              GLYPH_X, GLYPH_STANDOFF)):

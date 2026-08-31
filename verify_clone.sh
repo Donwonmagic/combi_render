@@ -2316,6 +2316,152 @@ s = P.sagitta(e)
 print('OK' if abs(s['sag']) > 3 * s['se'] and s['rms'] <= P.rms_bar(s['span']) else
       'sag %.2f se %.2f rms %.2f' % (s['sag'], s['se'], s['rms']))" 2>&1 | tail -1)"
 
+# ---- rev 71: THE INSTRUMENT FINDINGS.  ANCHORED ON BEHAVIOUR AND ARITHMETIC,
+# NOT ON A GREP FOR A NAME (rule 50).
+#
+# F246.  P1b is the row that says the emblem's control is not framed the way
+# its measurement is.  It REFUSES on a shipped tree and it is MEANT to.  These
+# rows guard against it being deleted, or its bar widened to make it pass --
+# which is the shape of every relaxation this project has caught (rule 44).
+ck "the emblem probe carries the bbox-framed control" 1 \
+   "$(grep -c 'P1b CONTROL, FRAMED THE WAY EVERY REAL TARGET IS FRAMED' probe_rev69_fitpose.py)"
+ck "P1b's bar is still 0.90, not widened to admit its own refusal" 1 \
+   "$(grep -c 'v_ctl_bb > 0.90' probe_rev69_fitpose.py)"
+ck "P1b PASSES on the repaired search" PASS \
+   "$(python3 probe_rev69_fitpose.py 2>&1 | grep -o 'PASS] P1b' | head -1 | cut -d']' -f1 | sed 's/\[//')"
+# ...AND ITS KILL: the rev-69 search drives the same control back under the bar.
+ck "T1_FITPOSE_LEGACY drives P1b RED -- the repair is WATCHED, not asserted" FAIL \
+   "$(T1_FITPOSE_LEGACY=1 python3 probe_rev69_fitpose.py 2>&1 | grep -o 'FAIL] P1b' | head -1 | cut -d']' -f1 | sed 's/\[//')"
+# F247.  ARITHMETIC, not a grep: the figure the guard records as its watched
+# failure must EXCEED the bar the guard actually applies.  86.3 < 90.0 is how
+# rev 70 recorded a "watched failure" its own row admits.
+ck "the tail-board guard's recorded failure EXCEEDS its own bar" OK \
+   "$(python3 - <<'PY'
+import re
+s = open('verify.py').read()
+m = re.search(r'TIP_Z, TIP_BAND = ([\d.]+), ([\d.]+)', s)
+w = re.search(r'tip 2\.2790, \+([\d.]+) mm', s)
+print('OK' if (m and w and float(w.group(1)) > float(m.group(2)) * 3000.0) else 'NO')
+PY
+)"
+# F248.  Ask the SCRIPT which views it post-processes, not the prose about it.
+ck "judge_set.sh post-processes the delivery view" OK \
+   "$(awk '/^for v in/{sub(/#.*/,""); print (/hero34f/ && /hero34r/) ? "OK" : "NO"; exit}' judge_set.sh)"
+ck "judge_set.sh no longer loops over a view no preview list produces" 0 \
+   "$(awk '/^for v in/{sub(/#.*/,""); print; exit}' judge_set.sh | grep -c 'hero ')"
+# F251.  The 2-D proxy is only usable while it IS the build.
+ck "the emblem proxy still reproduces the bpy build exactly" 1 \
+   "$(python3 probe_rev71_proxy.py 2>&1 | grep -c 'IoU 1.000000')"
+
+# ---- rev 71, SECOND HALF: THE READER, THE PROTOCOL, AND THE WITHDRAWALS.
+# F263.  THE ROW IS BEHAVIOURAL AND IT DOES NOT DEPEND ON PIL BEING BROKEN.
+# read_png must agree with PIL wherever PIL has bits, and must return MORE bits
+# than PIL where the file has them.  Written on a file this script AUTHORS, so
+# it needs no frame in out/ (out/ starts empty on a clone).
+ck "photometry.read_png recovers 16 bits and agrees with PIL on the top 8" "16/OK" \
+   "$(python3 - <<'PY' 2>&1 | tail -1
+import numpy as np, tempfile, os
+from PIL import Image
+import photometry as PH
+rng = np.random.default_rng(7)
+a = (rng.integers(0, 65536, (37, 53, 3))).astype(np.uint16)
+f = os.path.join(tempfile.mkdtemp(), "t.png")
+PH._write_png16(f, a)
+got, mx = PH.read_png(f)
+pil = np.asarray(Image.open(f))
+same = np.array_equal(got, a)
+top = np.array_equal((got >> 8).astype(np.uint8), pil) if pil.dtype == np.uint8 else True
+print("%d/%s" % (16 if mx == 65535 else 8, "OK" if (same and top) else "NO"))
+PY
+)"
+# ...AND THE PROTOCOL REFUSES WHAT IT SAYS IT REFUSES.  Two behavioural kills.
+ck "photometry REFUSES an AgX frame and an undeclared transform" "REFUSE/REFUSE" \
+   "$(python3 - <<'PY' 2>&1 | tail -1
+import photometry as PH
+def r(t):
+    try:
+        PH.load_linear("ref_side.jpg", t); return "PASS"
+    except ValueError:
+        return "REFUSE"
+print("%s/%s" % (r("agx"), r("guess")))
+PY
+)"
+ck "photometry's selftest runs every rule it claims, and every kill fires" "9/0" \
+   "$(python3 photometry.py 2>&1 | awk '/checked, .* FAILED/{print $1"/"$3}' | tail -1)"
+# F264's shape: a suite that cannot fail is not a suite.  WATCHED -- breaking the
+# robust statistic must turn the selftest RED.  If this row ever reads 0 FAILED
+# the median check has gone void again, which is exactly how it shipped.
+ck "the selftest's robustness check REFUSES when the median is swapped out" "FAILS" \
+   "$(python3 - <<'PY' 2>&1 | tail -1
+import numpy as np, io, contextlib
+import photometry as PH
+real = np.median
+np.median = np.mean
+try:
+    with contextlib.redirect_stdout(io.StringIO()) as buf:
+        n = PH.selftest()
+finally:
+    np.median = real
+print("FAILS" if n > 0 else "GREEN")
+PY
+)"
+# F262/F255.  THE WITHDRAWAL MUST LIVE WHERE RULE 9 READS -- in P4's own message,
+# not only in prose.  Rev 71 asserted this patch in a finding before it landed.
+ck "P4's message carries F262's withdrawal, not a licence to ship the trace" "OK" \
+   "$(python3 - <<'PY' 2>&1 | tail -1
+# read the SOURCE, do not import it: importing pulls in bpy and takes ~70 s.
+flat = ' '.join(open('probe_rev69_fitpose.py').read().split())
+print('OK' if ('NOT** A LICENCE TO SHIP THE TRACE' in flat.replace('" "', '')
+               and 'F183' in flat) else 'NO')
+PY
+)"
+ck "P4 no longer tells the reader to re-open F183" 0 \
+   "$(grep -c 'F183 needs re-opening' probe_rev69_fitpose.py)"
+ck "F255 is annotated with its own withdrawal" 1 \
+   "$(grep -c 'WITHDRAWN IN THE SAME REVISION BY \*\*F262\*\*' OPEN_FINDINGS.md)"
+ck "F261 is not published as a closed magnitude" 1 \
+   "$(grep -c 'PROVENANCE-REFUTED-rev71' OPEN_FINDINGS.md)"
+# F257's shape: a probe must not PRINT a decomposition it did not compute (F198).
+ck "the red probe's decomposition is computed, not typed" "0/1" \
+   "$(python3 - <<'PY' 2>&1 | tail -1
+s = open('probe_rev71_red.py').read()
+typed = s.count('44 % of the gap') + s.count('ENVIRONMENT 65 %')
+live = 1 if 'NOT RENDERED -- row ABSENT' in s else 0
+print("%d/%d" % (typed, live))
+PY
+)"
+ck "the red probe REFUSES a frame with no declared transform" 3 \
+   "$(python3 probe_rev71_red.py out/nonexistent_side.png >/dev/null 2>&1; echo $?)"
+# T1_DIFFB is the ablation F261 could not be reproduced without.  Wired, not named.
+# F266.  THE PHYSICS CLOSURE'S ACCEPTANCE CONDITION MUST STAY PRINTED.  A
+# decomposition read off a ruler that has not been shown exposure-invariant is
+# what F261 was, and it was withdrawn.  BEHAVIOURAL: the probe must emit the
+# condition on a bare run, where it computes nothing at all.
+ck "the red probe prints its exposure-invariance acceptance condition" 1 \
+   "$(python3 probe_rev71_red.py 2>&1 | grep -c 'ACCEPTANCE CONDITION')"
+ck "the register quotes F266, not F261's withdrawn magnitudes" "1/1" \
+   "$(python3 - <<'PY' 2>&1 | tail -1
+s = open('OPEN_FINDINGS.md').read()
+print("%d/%d" % (1 if '| **F266** |' in s else 0,
+                 1 if 'F266 is the one to quote' in s.replace('**','') else 0))
+PY
+)"
+# F265.  A SUITE THAT DIRTIES THE TREE IT CHECKS CANNOT REACH ALL-PASS TWICE.
+# probe_rev69_fitpose.py paints its best fit to a TRACKED file, and this script's
+# own LAST emblem row runs it under T1_FITPOSE_LEGACY=1 -- whose best pose is a
+# DIFFERENT one.  So row "modified tracked files" (line 115) was failed by row
+# ~395 of the same run, and it looked like nondeterminism.  The kill now paints
+# to its own path.  ARITHMETIC, not a grep: the two paths must differ.
+ck "the fitpose kill paints to its own file, not over the shipped evidence" "DIFFER" \
+   "$(python3 - <<'PY' 2>&1 | tail -1
+flat = ' '.join(open('probe_rev69_fitpose.py').read().split())
+print("DIFFER" if ('rev69_fitpose_legacy.png' in flat
+                   and 'rev69_fitpose_regions_legacy.png' in flat) else "SAME")
+PY
+)"
+ck "T1_DIFFB reaches the renderer's diffuse bounce count" 1 \
+   "$(grep -c 'sc.cycles.diffuse_bounces = int(os.environ.get("T1_DIFFB"' studio.py)"
+
 ck "newest brief states THIS script's row count" "$((PASS+1))" "${_BRIEF_TOTAL:-0}"
 
 UNTRACKED="$(git status --porcelain 2>/dev/null | grep -c '^??')"

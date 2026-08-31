@@ -1951,7 +1951,13 @@ TB_TILT_DEG = float(os.environ.get("T1_TB_TILT", 38.0))
 #       and z 2.184 +-0.030 -- and (2.184-1.747)/sin(38 deg) = 0.7098 m.  THE
 #       0.7110 THIS CONSTANT HAS CARRIED SINCE REV 49 IS NOT A PIXEL READ AT
 #       ALL; IT IS DERIVED FROM TWO MEASURED HEIGHTS, and 0.8250 put the tip
-#       86.3 mm -- 2.9 sigma -- outside the measured one.
+#       95.0 mm -- 3.2 sigma -- outside the measured one.  (Rev 70 wrote
+#       "86.3 mm -- 2.9 sigma" here and in verify.py; BOTH were wrong and the
+#       figure they quoted would have PASSED the 90.0 mm bar.  Re-watched at
+#       rev 71: T1_TB_CHORD=0.8250 -> tip 2.2790, +95.0 mm, VERIFY: 1 fail.
+#       The 2.2703 in the older text is this function's own BUILD LOG tip --
+#       the spine endpoint -- while the guard reads the MESH max, 8.7 mm
+#       higher.  Rule 38, and F247.)
 #
 # WHAT IS ACTUALLY OPEN, AND IT IS A REAL CONFLICT, NOT A SETTLED NUMBER:
 #       two-height closure          0.710 m   (two measured heights, 38 deg)

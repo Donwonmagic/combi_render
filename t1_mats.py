@@ -1329,7 +1329,17 @@ def _bsdf(m):
 def apply_weather(m, dust=0.0, wear=0.0, fade=0.0, peel=0.0, normal=True,
                   fadev=0.0, fadev_from=None, faderough=0.0):
     """Splice the WEATHER group between the material's colour/roughness
-    sources and its Principled BSDF."""
+    sources and its Principled BSDF.
+
+    T1_PAINT_RAW=1 -- MEASUREMENT-ONLY (rev 71, F257).  Skips the splice
+    entirely, so the BSDF keeps the material's OWN authored Base Color and
+    Roughness.  It exists because F257 needed to know how much of the red's
+    desaturation this group's colour chain contributes, and the only way to ask
+    was to remove it: the four exposed inputs (Dust/Wear/Fade/Peel) all measure
+    NULL on the flank's albedo, so `T1_WEATHER=0` does NOT answer it.  Ships
+    OFF; the shipped build is unchanged."""
+    if os.environ.get("T1_PAINT_RAW") == "1" and m.name == "T1_paint":
+        return None
     nt = m.node_tree
     b = _bsdf(m)
     g = nt.nodes.new("ShaderNodeGroup")
@@ -2432,6 +2442,9 @@ def build_all():
         # failure mode (rev 56's lid_rail: built, bound, and EMPTY).  Ask the
         # graph, not the call: all three of Base Color, Roughness and Normal
         # must now be fed from a node group, on both boards.
+        # T1_PAINT_RAW is scoped to T1_paint, so these two boards are ALWAYS
+        # spliced and this guard stays armed under it (rule 47: an ablation
+        # that switches a guard off is not an ablation).
         for _k in ("lidmural", "lidsign"):
             _b = _bsdf(M[_k])
             _bad = [_s for _s in ("Base Color", "Roughness", "Normal")

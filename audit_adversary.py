@@ -157,7 +157,7 @@ def _second_frame_ok():
     mark at the box the brief names.  F237's overfit kill depends on it."""
     try:
         import probe_rev69_fitpose as F
-        m = F.photo_mark("IMG_2073.jpeg", (288, 542, 352, 640), True)
+        m = F.photo_mark("IMG_2073.jpeg", (283, 537, 357, 662), True)
         return m is not None and min(m.shape) > 20 and 0.2 < m.mean() < 0.8
     except Exception:
         return False
@@ -552,9 +552,66 @@ t("does probe_rev62_landmarks still LIFT its ruler rather than re-type it?",
   "drift silently and every delta in F153 becomes meaningless")
 
 # ---------------------------------------------------------------------------
-# REPLACED AT REV 63 (§10.5 -- a question that can no longer fail is not a
-# control).  These six are about what REV 63 shipped, refuted and half-built.
-# The rev-62 batch above them is the next one to replace.
+# ==========================================================================
+# REPLACED AT REV 71 (§10.5 -- a question that can no longer fail is not a
+# control).  §10 has said "REPLACE the adversary's questions each revision"
+# since rev 60, and revs 68, 69 and 70 replaced NONE, so the rev-63 batch had
+# been the "next to replace" for four revisions running.  These four are about
+# what REV 71 refuted, and every one of them can go red.
+# ==========================================================================
+
+def _p1b_still_refuses():
+    """P1b must EXIST and must still be a real row -- not quietly deleted or
+    widened once its refusal becomes inconvenient (F246, rule 44)."""
+    src = open('probe_rev69_fitpose.py').read()
+    return ('P1b' in src and 'synth_bb' in src
+            and 'ys_.min()' in src and 'v_ctl_bb > 0.90' in src)
+
+
+t("is the emblem's CONTROL still framed the way its MEASUREMENT is framed?",
+  _p1b_still_refuses(),
+  "F246: photo_mark bbox-crops every real target; P1's control is the raw warp "
+  "output; fit() searches no translation while its docstring asserts both "
+  "masks are already bbox-centred.  Framed correctly the control reads 0.4988 "
+  "against the mark's own 0.7345 -- IT SCORES BELOW ITS OWN SPECIMEN, so "
+  "0.9882 is NOT the emblem's ceiling.  This goes red if P1b is deleted, or if "
+  "its bar is widened to make it pass instead of fixing the search")
+
+t("does the brief still quote 0.2537 as the emblem's SHAPE deficit?",
+  ('0.2537' not in B)
+  or ('not a shape deficit' in ' '.join(B.lower().split())),
+  "F246 refutes that subtraction: it is 0.9882 minus 0.7345 where the two are "
+  "measured through DIFFERENT framings.  F237's '4.4 % of the deficit' is a "
+  "ratio against it.  If a later brief re-publishes 0.2537 as shape without "
+  "carrying the refutation, this fires")
+
+t("is the tail-board guard's watched-failure figure still one its own bar "
+  "would PASS?",
+  ('2.2790' in open('verify.py').read()
+   and '95.0' in open('verify.py').read()
+   and '86.3' not in open('t1_shell.py').read().split('THE RULES')[0].split(
+       '95.0 mm -- 3.2 sigma')[0]),
+  "F247: verify._tail_board_pose recorded 'WATCHED FAILING ... 2.2703 -- "
+  "86.3 mm, 2.9 sigma' against a bar of TIP_BAND*3.0 = 90.0 mm.  86.3 < 90.0, "
+  "so the recorded failure PASSES.  Cause: 2.2703 is tail_board()'s BUILD LOG "
+  "tip (the spine endpoint); the row reads the MESH max, 2.2790.  Rule 5 and "
+  "rule 38 inside one docstring.  Re-watched at rev 71: +95.0 mm, 3.2 sigma")
+
+t("does judge_set.sh still post-process the views the brief actually renders?",
+  (lambda ln: ln is not None and 'hero34f' in ln and 'hero34r' in ln
+   and 'hero ' not in ln)(
+      next((l.split('#')[0] for l in open('judge_set.sh')
+            if l.startswith('for v in')), None)),
+  "F248: it looped over a plain 'hero' that NO preview list has produced since "
+  "the hero34f/hero34r split, so it exited 2 and never post-processed "
+  "hero34f -- the delivery view.  The trap was DOCUMENTED at rev 69 and the "
+  "SCRIPT was never fixed until rev 71.  This asks the script, not the prose")
+
+# ==========================================================================
+# The rev-62 batch below is now the oldest and is the NEXT one to replace.
+# ==========================================================================
+# KEPT FROM REV 63.  These are about what REV 63 shipped, refuted and
+# half-built, and they still go red.
 
 t("does the TYRE's road film still arithmetically explain its measured lift?",
   _tyre_lift_ok(),

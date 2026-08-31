@@ -93,15 +93,45 @@ def warp(src, H, shape):
     return out
 
 
+# --------------------------------------------------------------- rev 71, F246
+# TRANSLATION IS SEARCHED NOW, AND THE START SET COVERS THE WHOLE CIRCLE.
+#
+# THE PREMISE THE OLD DOCSTRING ASSERTED WAS FALSE.  It said "translation is
+# not searched -- both masks are already centred on their own bounding boxes".
+# `photo_mark` DOES bbox-crop every real target, but a projected disc's bbox
+# centre is NOT its centre, so the two masks are NOT co-centred and the search
+# could not reach the offset.  P1's control hid this because `synth` is the raw
+# `warp` output, centred on the OUTPUT FRAME -- so the CONTROL was framed one
+# way and every MEASUREMENT another (rule 42, and it is the whole of F246).
+#
+# WATCHED, on the SAME model against the SAME known view, bbox-framed as
+# photo_mark frames it:
+#     6-param, 6 rotation starts (the old search)      0.4988
+#     8-param, 6 rotation starts                       0.5403
+#     8-param, FULL CIRCLE every 20 deg                0.9703   <- PASSES
+#     analytic H = inv(Hk) @ the crop's own affine     1.000000
+# So the collapse was TWO defects compounding: no translation, AND a start set
+# covering only half the circle.  Rev 71's first cut called translation
+# "necessary and not sufficient" and shipped the probe REFUSING; a dispatched
+# adversary measured the full-circle start set and refuted that.  It is
+# necessary AND sufficient, and the repair is here rather than deferred.
+#
+# T1_FITPOSE_LEGACY=1 restores the rev-69 search EXACTLY (6 params, 6 starts)
+# so the two can be scored from one tree and this is ablatable (rule 36).
+_LEGACY = os.environ.get("T1_FITPOSE_LEGACY") == "1"
+
+
 def make_H(p):
-    """Homography from 6 parameters: rotation, two scales, shear, two
-    perspective terms.  Translation is not searched -- both masks are already
-    centred on their own bounding boxes, which is what normalising to [-1, 1]
-    does."""
-    rot, sx, sy, sh, px, py = p
+    """Homography from 8 parameters: rotation, two scales, shear, two
+    perspective terms, and TWO TRANSLATIONS.  Six under T1_FITPOSE_LEGACY=1."""
+    if len(p) == 6:
+        rot, sx, sy, sh, px, py = p
+        tx = ty = 0.0
+    else:
+        rot, sx, sy, sh, px, py, tx, ty = p
     c, s = np.cos(rot), np.sin(rot)
     R = np.array([[c, -s, 0.0], [s, c, 0.0], [0.0, 0.0, 1.0]])
-    S = np.array([[sx, sh, 0.0], [0.0, sy, 0.0], [0.0, 0.0, 1.0]])
+    S = np.array([[sx, sh, tx], [0.0, sy, ty], [0.0, 0.0, 1.0]])
     P = np.array([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [px, py, 1.0]])
     return R @ S @ P
 
@@ -117,12 +147,24 @@ def fit(src, dst, rounds=7):
     because the mark has a near-180-deg ambiguity and a wrong basin is a real
     risk (the affine route landed in one at 141 deg)."""
     best = (-1.0, None)
-    for rot0 in np.radians([0, 30, 60, 90, 120, 150]):
-        p = [rot0, 1.0, 1.0, 0.0, 0.0, 0.0]
+    # THE START SET COVERS THE FULL CIRCLE (rev 71, F246).  The old set stopped
+    # at 150 deg, which is why the bbox-framed control landed in a bad basin at
+    # 0.5403 and was misread as "translation is not sufficient".
+    _starts = [0, 30, 60, 90, 120, 150] if _LEGACY else list(range(0, 360, 20))
+    # AND THE Y-SCALE IS SEEDED TOO (rev 71, second cut).  With one y-seed the
+    # bbox-framed control passed at FIT_R 0.84 (0.9703) and COLLAPSED to 0.7004
+    # at 0.86 -- a 2.4 % geometry change flipping the control, which is basin
+    # fragility and not shape.  P1b caught it on rev 71's own shipped change
+    # (rule 44).  Three y-seeds: 0.7004 -> 0.9146, and 36 rotations -> 0.9314.
+    _ys = [1.0] if _LEGACY else [0.6, 1.0, 1.5]
+    _n = 6 if _LEGACY else 8
+    _seeds = [(r, y) for r in np.radians(_starts) for y in _ys]
+    for rot0, ys0 in _seeds:
+        p = [rot0, 1.0, ys0, 0.0, 0.0, 0.0] + ([] if _LEGACY else [0.0, 0.0])
         cur = iou(warp(src, make_H(p), dst.shape), dst)
-        step = [0.20, 0.20, 0.20, 0.15, 0.15, 0.15]
+        step = [0.20, 0.20, 0.20, 0.15, 0.15, 0.15, 0.15, 0.15][:_n]
         for _ in range(rounds):
-            for i in range(6):
+            for i in range(_n):
                 moved = True
                 while moved:
                     moved = False
@@ -150,7 +192,11 @@ def fit(src, dst, rounds=7):
 FRAMES = (
     ("ref_nolita_front34.jpg", "ref_nolita_front34.jpg", (153, 192, 194, 261), False),
     ("ref_workshop.jpg  TRACE SOURCE", "ref_workshop.jpg", (262, 492, 352, 600), True),
-    ("IMG_2073.jpeg  INDEPENDENT", "IMG_2073.jpeg", (288, 542, 352, 640), True),
+    # RE-CUT AT REV 71.  The old (288,542)-(352,640) discards ~14 % of the
+    # mark's ink (2527 on-px against 2926) and was never painted.  Re-cutting
+    # probe_rev71_emblem.py ALONE and leaving this clipped is exactly the trap
+    # the brief warns about, and rev 71's first cut committed it.
+    ("IMG_2073.jpeg  INDEPENDENT", "IMG_2073.jpeg", (283, 537, 357, 662), True),
 )
 
 
@@ -216,7 +262,51 @@ def main():
        "itself", v_ctl > 0.90,
        "best IoU %.4f against a synthetic view at 37 deg rotation, 0.62 "
        "foreshortening, shear 0.18 and real perspective. Below ~0.90 the search "
-       "is the limit, not the shape" % v_ctl)
+       "is the limit, not the shape.  *** QUOTE P1b's CEILING, NOT THIS ONE: this "
+       "control is framed UNCROPPED and every real measurement below is "
+       "bbox-cropped, so P1b -- 0.9703 -- is the ceiling the residuals should "
+       "be read against (F246) ***" % v_ctl)
+
+    # ---- P1b, NEW AT REV 71.  THE CONTROL MUST BE FRAMED THE WAY THE
+    # MEASUREMENT IS FRAMED, AND P1 IS NOT.  F246.
+    #
+    # `photo_mark` ends every real target with
+    #     ys, xs = np.nonzero(f);  return m[ys.min():ys.max()+1, xs.min():xs.max()+1]
+    # i.e. EVERY PHOTOGRAPH IS CROPPED TO ITS OWN BOUNDING BOX.  P1's `synth` is
+    # not: it is the raw output of `warp`, centred on the OUTPUT FRAME.  And
+    # `fit` searches NO TRANSLATION -- its own docstring asserts "both masks are
+    # already centred on their own bounding boxes", which is true of `synth`'s
+    # frame and FALSE of a bbox crop, because a projected disc's bbox centre is
+    # not its centre.
+    #
+    # SO THE CONTROL IS EASIER THAN THE MEASUREMENT IT CERTIFIES, AND THE GAP
+    # BETWEEN THEM IS NOT ALL SHAPE.  Cropped exactly as photo_mark crops,
+    # the SAME search on the SAME model against a KNOWN view of ITSELF falls
+    # from 0.9882 to 0.4988 -- BELOW the 0.7345 the real mark scores.  A control
+    # that scores worse than its specimen is not a ceiling (rule 42).
+    ys_, xs_ = np.nonzero(synth)
+    synth_bb = synth[ys_.min():ys_.max() + 1, xs_.min():xs_.max() + 1]
+    v_ctl_bb, _pbb = fit(src, synth_bb)
+    ck("P1b CONTROL, FRAMED THE WAY EVERY REAL TARGET IS FRAMED -- photo_mark "
+       "bbox-crops the photograph, so the control must be bbox-cropped too",
+       v_ctl_bb > 0.90,
+       "the SAME search, the SAME model, the SAME known view -- cropped to its "
+       "own bounding box as photo_mark crops every frame: IoU %.4f, against "
+       "%.4f uncropped.  THIS ROW READ 0.4988 BEFORE REV 71's REPAIR, BELOW the "
+       "0.7345 the specimen scored -- a control losing to its own specimen "
+       "(rule 42).  TWO defects compounded: `make_H` had no translation terms, "
+       "and the start set covered only half the circle.  Both are fixed; "
+       "T1_FITPOSE_LEGACY=1 restores the rev-69 search exactly and drives this "
+       "row back to 0.4988, which is its KILL (F246)"
+       % (v_ctl_bb, v_ctl))
+
+    # ---- THE LEGACY KILL.  rev 71: the repair above must be WATCHED being the
+    # thing that fixed P1b, not asserted.  T1_FITPOSE_LEGACY=1 restores the
+    # rev-69 search and this row's own number collapses.
+    if not _LEGACY:
+        print("  P1b's KILL: run `T1_FITPOSE_LEGACY=1 python3 probe_rev69_fitpose.py`")
+        print("      -- the rev-69 search, 6 params and half the circle, drives")
+        print("      the same control to 0.4988 and P1b RED (F246).")
 
     rows = []
     for tag, path, box, dark in FRAMES:
@@ -264,8 +354,16 @@ def main():
         im = im.resize((im.width * S, im.height * S), Image.NEAREST)
         ImageDraw.Draw(im).text((5, 4), "%s  IoU %.3f  grey=agree red=photo-only "
                                 "blue=model-only" % (tag, v), fill=(0, 0, 0))
-        im.save(os.path.join(SCRATCH, "rev69_fitpose.png"))
-        print("  painted -> probe_scratch/rev69_fitpose.png")
+        # ⚠ THE KILL RUN MUST NOT OVERWRITE THE SHIPPED EVIDENCE.  Under
+        # T1_FITPOSE_LEGACY=1 this probe fits with the rev-69 search, whose
+        # best pose is DIFFERENT -- so painting to the same path left the
+        # tracked artefact in the LEGACY state, and verify_clone.sh's own
+        # "modified tracked files" row went red because verify_clone.sh's own
+        # last row runs the kill.  A suite that dirties the tree it checks
+        # cannot reach all-PASS twice.  Found at rev 71's close.
+        _pf = "rev69_fitpose_legacy.png" if _LEGACY else "rev69_fitpose.png"
+        im.save(os.path.join(SCRATCH, _pf))
+        print("  painted -> probe_scratch/%s" % _pf)
 
         # ---- P3: WHERE THE MISS LIVES.  The band and the interior are the
         # mark's own geometry, warped through the SAME best pose, so this is a
@@ -294,7 +392,9 @@ def main():
         ri = ri.resize((ri.width * S2, ri.height * S2), Image.NEAREST)
         ImageDraw.Draw(ri).text((5, 4), "band IoU %.3f  interior IoU %.3f  "
                                 "red=photo blue=model" % (vb, vi), fill=(0, 0, 0))
-        ri.save(os.path.join(SCRATCH, "rev69_fitpose_regions.png"))
+        _rf = ("rev69_fitpose_regions_legacy.png" if _LEGACY
+               else "rev69_fitpose_regions.png")
+        ri.save(os.path.join(SCRATCH, _rf))
         ck("P3 THE MISS IS IN THE GLYPH, NOT THE RING", vb > vi,
            "band IoU %.4f against interior IoU %.4f on %s. photo-only/model-only "
            "inside the ring is %d/%d -- NEAR BALANCED, so the ink AMOUNT is right "
@@ -326,8 +426,18 @@ def main():
                    "was TRACED FROM: %.4f vs %.4f) and %+.4f on IMG_2073, a "
                    "different vehicle, camera and pose (%.4f vs %.4f). An "
                    "improvement that lives only on its own source is OVERFIT. "
-                   "If this row goes RED the trace has become the better "
-                   "construction and F183 needs re-opening"
+                   "*** F262, rev 71: THIS ROW IS RED AND IT IS **NOT** A "
+                   "LICENCE TO SHIP THE TRACE.  The traced glyph was made to "
+                   "BUILD (a scoped standoff), then RENDERED, CROPPED AND "
+                   "LOOKED AT at 1600x1100: it is FRAGMENTED INTO DISCONNECTED "
+                   "SHARDS with no legible V over W, while the shipped "
+                   "constants read clean.  A silhouette IoU at ~220 px CANNOT "
+                   "SEE FRAGMENTATION, so this row ranks a visibly shattered "
+                   "construction ABOVE the shipped one.  F183's \"BUILT, "
+                   "RENDERED, WORSE -- T1_VW_TRACED MUST STAY OFF\" STANDS, "
+                   "for exactly the reason it always gave: looking (rule 1).  "
+                   "F255's re-opening of F183 is WITHDRAWN.  What this row now "
+                   "measures is the IoU's OWN CEILING, not the trace's merit ***"
                    % (d_src, tr[src_f], here[src_f], d_ind, tr[ind_f], here[ind_f]))
             else:
                 print("  P4 NOT RUN -- a frame was refused on one side or the "
@@ -342,7 +452,9 @@ def main():
     print("  CEILING.  A homography is exact for a PLANE.  The mark is not quite "
           "planar --\n  it stands proud of the nose and the nose is curved -- so "
           "a few percent of any\n  residual is relief, not shape.  And the search "
-          "is greedy from six rotation\n  starts; P1 bounds what it can recover. "
+          "is greedy -- 18 rotation starts x 3\n  y-scale seeds since rev 71 "
+          "(T1_FITPOSE_LEGACY=1 restores rev 69's six); P1/P1b bound\n  what it "
+          "can recover. "
           " This says HOW FAR the built mark is\n  from the photographed one with "
           "pose removed. It does not say WHICH stroke.")
     print()

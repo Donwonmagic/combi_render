@@ -1445,6 +1445,15 @@ def setup_render(res=(1600, 1100), samples=64, transparent=False):
     sc.cycles.denoiser = 'OPENIMAGEDENOISE'
     sc.cycles.denoising_input_passes = 'RGB_ALBEDO_NORMAL'
     sc.cycles.max_bounces = 12
+    # T1_DIFFB -- MEASUREMENT ONLY, NEW AT REV 71.  The red's departure from its
+    # own albedo has three candidate carriers: the specular lobe (T1_SPEC), the
+    # light bouncing off the cyclorama (T1_CYCALB) and light bouncing off the
+    # VEHICLE ITSELF.  The third had no switch, so the decomposition F261
+    # published could not be reproduced from any committed script -- an
+    # adversary found that.  Setting T1_DIFFB=0 kills diffuse inter-reflection
+    # and leaves everything else alone.  Blender's default is the scene max, so
+    # the shipped value is deliberately left at max_bounces.
+    sc.cycles.diffuse_bounces = int(os.environ.get("T1_DIFFB", "12"))
     sc.cycles.transmission_bounces = 12
     sc.cycles.transparent_max_bounces = 12
     # rev 8 (audit optics-10): the clamps were never touched, so

@@ -2842,7 +2842,7 @@ def vw_logo(R=0.1385, w=0.0275, x=2.1215, depth=0.0110):
     share ONE implementation, which is why they drifted apart in the first place.
     """
     return T.vw_bars(R, w, (x, 0, 0), (0, 1, 0), (0, 0, 1), (1, 0, 0),
-                     depth, tag="vwbar")
+                     depth, tag="vwbar", traced=True)   # THE NOSE opts in
 
 
 def _fit_glyph(obs, target_r, ax=('y', 'z')):
@@ -2864,6 +2864,21 @@ def _fit_glyph(obs, target_r, ax=('y', 'z')):
             setattr(v.co, ax[1], getattr(v.co, ax[1]) * s)
         o.data.update()
     return s
+
+
+# ------------------------------------------------------- rev 71, F251/F256
+# HOW FAR THE GLYPH'S EXTREME IS DRIVEN INTO THE BAND.  Three briefs called
+# this "STILL UNMEASURED" and dropped it three times.  It is measured now,
+# by `probe_rev71_emblem.py`'s E1, swept against the POSE-FREE IoU on two
+# frames -- and it is measured on the ruler REPAIRED at rev 71 (F246), whose
+# control passes at 0.9703.  On the BROKEN ruler 0.84 looked optimal; on the
+# repaired one BOTH frames prefer a DEEPER fit.
+#     FIT_R   ref_workshop   IMG_2073 (independent, re-cut box)
+#     0.84      0.8379          0.8040     <- shipped rev 49..70
+#     0.86      0.8425          0.8202     <- argmax on ref_workshop
+#     0.88      0.8394          0.8215     <- argmax on IMG_2073
+# T1_VW_FITCOEF=0.8 restores the old value exactly.
+VW_FIT_COEF = float(os.environ.get("T1_VW_FITCOEF", 0.7))
 
 
 def vw_logo_fit(ring_r, x=2.1215, depth=0.0110, wfrac=0.2283):
@@ -2961,6 +2976,8 @@ def vw_logo_fit(ring_r, x=2.1215, depth=0.0110, wfrac=0.2283):
     # registration, which is why it is the one quoted first.
     wfrac = float(os.environ.get("T1_VW_WFRAC", wfrac))
     _BAND_FRAC = 0.028 / 0.140              # roundel()'s band / outer radius
+    _FIT_COEF = VW_FIT_COEF
+
     obs = vw_logo(R=1.0, w=wfrac, x=x, depth=depth)
     # rev 60, F63 / item C.  T1_VW_PUREFIT=1 makes this a PURE UNIT CONVERSION.
     # t1_core.vw_bars' fixed point has already placed every terminal against
@@ -2977,7 +2994,7 @@ def vw_logo_fit(ring_r, x=2.1215, depth=0.0110, wfrac=0.2283):
                 v.co.z *= ring_r
             o.data.update()
     else:
-        _fit_glyph(obs, ring_r * (1.0 - 0.8 * _BAND_FRAC))
+        _fit_glyph(obs, ring_r * (1.0 - _FIT_COEF * _BAND_FRAC))
     return obs
 
 

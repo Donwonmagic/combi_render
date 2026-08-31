@@ -120,8 +120,10 @@ ask what a PHOTOGRAPH shows. If he does not understand the question, the figure 
 
 **@HANDOFF_CARRIERS.md is the OTHER HALF OF THE BRIEF and it is NOT imported — read it when the
 action brief points you at it.** The handoff was SPLIT at rev 70 because the brief had reached 95 KB
-and the owner measured what that cost: geometry output per revision fell from 721 lines (rev 8–20) to
-209 (rev 61–70), and findings closed at rev 66–70 were 0, 0, 0, 0, 0. Run `python3 revstats.py`.
+and the owner measured what that cost. **The figures that used to be typed here — "721", "209",
+"0, 0, 0, 0, 0" — are DELETED, because this file's own first paragraph forbids them and because two of
+the three were WRONG: `revstats.py` reads 287 geometry lines/rev for rev 61–70, not 209, and rev 70
+closed 2, not 0 (F246-era audit, rev 71). Run `python3 revstats.py` and read ITS numbers.**
 **Rule 16 requires a carrier to be CARRIED, not to be carried in the WORKING document. Nothing was
 deleted, `verify_clone.sh`'s carrier rows search BOTH files, and four companion rows make the split
 itself testable. DO NOT RE-MERGE THEM.**
