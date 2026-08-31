@@ -250,6 +250,61 @@ def rear_glass():
                          (-1, 0, 0), pts, 0.006, name="glass_rear")
 
 
+# --------------------------------------------------------- rev 72, THE REAR SEAL
+# THE REAR APERTURE WAS THE ONLY GLAZED APERTURE ON THIS VEHICLE WITH NO RUBBER
+# SURROUND, AND NOTHING SAID SO.  `bay_seals()` gives a surround to the two cab
+# door openings and all three serving bays, `windscreen_seals()` gives one to
+# both screen halves -- eleven rings -- and the rear pane, which is 20 mm
+# inboard of the skin in an aperture cut 0.40 m deep, had none.  So with
+# REAR_OPEN_DEG swinging the pane out (step 8c) the opening was left as a bare
+# 2.8 mm shell cut edge.
+#
+# THIS IS AN INTERNAL-CONSISTENCY FIX, NOT A PHOTOGRAPHIC ONE, AND THE
+# DIFFERENCE MATTERS (rule 12).  What is CERTAIN is the model-side fact above --
+# grep `seal_` and count.  What the photographs support is weaker and is stated
+# as such: `ref_rear34.jpg` at (1035..1200, 200..290) shows a glazed window on
+# the rear third of this vehicle carrying a thick black rubber surround, LOOKED
+# AT at rev 72 and painted (probe_scratch/r72_rearwin_grid.png).  ⚠ THAT FRAME
+# CANNOT BE ASSIGNED TO THE REAR PANEL RATHER THAN THE REARMOST FLANK BAY FROM
+# THE FRAME ITSELF -- rev 72 tried and could not, and says so instead of
+# publishing the stronger claim.  A T1's rear window being rubber-glazed is a
+# FACTORY PRESSING fact and admissible under rule 52 without asking the owner.
+#
+# NO NEW CONSTANT IS TYPED.  The section is `windscreen_seals()`'s, verbatim:
+# outer = pane + 0.0125, inner = pane - 0.0055, thickness 0.0090 -- so the seal
+# overlaps the glass by 5.5 mm and laps the skin 4.5 mm beyond the aperture,
+# and it is CENTRED on the pane's own centre plane, which needs no offset at
+# all.  If the pane moves, this moves with it by construction.
+# T1_REAR_SEAL=0 omits it, so the row below can be watched failing.
+def rear_seal():
+    """The rear pane's rubber surround.  Built on the PANE, and swung with it.
+
+    IT TRAVELS WITH THE PANE, AND THAT IS A DECLARED ASSEMBLY CHOICE, NOT A
+    MEASUREMENT (rule 35).  A T1 rear window is bonded into its gasket and the
+    gasket seats in the body flange; hinge the assembly and the gasket goes with
+    the glass.  Nothing we hold shows this vehicle's rear hatch open, so the
+    alternative -- a gasket that stays in the aperture while the glass swings --
+    is NOT excluded.  `open_rear_hatch()` carries this object through the SAME
+    `_swing_open` call as the pane, which is the thing that docstring has
+    promised since rev 48 and which nothing used until now.
+    """
+    if os.environ.get("T1_REAR_SEAL") == "0":
+        return []
+    o = (T.X_TAIL + 0.0200, 0, 0)
+    out = T.rrect(REAR_W - 0.008 + 0.0125, REAR_H - 0.008 + 0.0125, 0.060, seg=8)
+    inn = T.rrect(REAR_W - 0.008 - 0.0055, REAR_H - 0.008 - 0.0055, 0.060, seg=8)
+    out = [(u, v + REAR_Z) for (u, v) in out]
+    inn = [(u, v + REAR_Z) for (u, v) in inn]
+    ring = T.solid_prism(o, (0, 1, 0), (0, 0, 1), (-1, 0, 0), out, 0.0090,
+                         name="seal_rear")
+    cut = T.solid_prism(o, (0, 1, 0), (0, 0, 1), (-1, 0, 0), inn, 0.10,
+                        name="sealcut_rear")
+    T.boolean(ring, cut)
+    T.apply_mods(ring)
+    bpy.data.objects.remove(cut, do_unlink=True)
+    return [ring]
+
+
 # --------------------------------------------------------------- wheel arch
 ARCH_R = 0.3735                      # rev6: TIRE_R 0.3325 + measured 41 mm
 
@@ -1701,9 +1756,62 @@ def _components(me):
 #     photograph.  Recorded plainly so the next revision can undo it cheaply
 #     if a frame of the open tail contradicts it.
 
-REAR_OPEN_DEG = 64.0
+def _rear_open_deg():
+    """Parse T1_REAR_OPEN, and REFUSE a value the hinge cannot express.
+
+    *** rev 72c -- WITHOUT THIS, `T1_REAR_OPEN=-64` DIED ON A BARE TRACEBACK
+    THAT BLAMED THE WRONG CODE. *** `_swing_open`'s directional assert fired
+    with "rear hatch opened the WRONG WAY ... Check _hinge_y's sign -- it was
+    inverted once already", sending the reader to debug an innocent function
+    when the cause was a negative value on the switch rev 72 had just added.
+    A guard whose message names the wrong suspect is worse than none: it costs
+    the next context the time it takes to clear `_hinge_y`.  Rule 51's shape --
+    losing the input is a RESULT, and it must be PRINTED, not raised from three
+    frames down.  Found by the rule-17 adversary, which ran the value.
+
+    The hinge is top-mounted and swings the free edge AFT and UP, so 0..180 is
+    the expressible range; a negative angle is not a pose this fixture has.
+    """
+    raw = os.environ.get("T1_REAR_OPEN")
+    if raw is None:
+        return 64.0
+    try:
+        v = float(raw)
+    except ValueError:
+        raise SystemExit(
+            "T1_REAR_OPEN=%r is not a number.  REFUSING rather than building a "
+            "pose nobody chose.  It sets the rear hatch's swing in DEGREES, "
+            "0..180; 0 shuts it (see open_rear_hatch)." % raw)
+    if not (0.0 <= v <= 180.0):
+        raise SystemExit(
+            "T1_REAR_OPEN=%s is outside 0..180 and the rear hatch's hinge "
+            "CANNOT EXPRESS IT.  The pane is TOP-hinged and its free edge "
+            "swings AFT and UP; a negative angle drives it FORWARD into the "
+            "body, which is what _swing_open's directional assert then reports "
+            "-- against _hinge_y, which is not at fault.  REFUSING here instead, "
+            "with the actual cause named." % raw)
+    return v
+
+
+REAR_OPEN_DEG = _rear_open_deg()
 # NOT MEASURED.  A pose choice, like TRUNK_OPEN_DEG, and guarded to keep
-# saying so.  Wider than the trunk's 52 deg because this pane swings up over
+# saying so.
+#
+# *** rev 72 -- IT NOW HAS A SWITCH, AND UNTIL NOW IT HAD NONE. ***
+# `T1_REAR_OPEN=<deg>` overrides it; `T1_REAR_OPEN=0` shuts the hatch outright.
+# Rev 71's F254 found this constant standing on an unmeasured pose with "no
+# frame, no ablation switch and no guard" on the item the owner named, and an
+# adversary dispatched at the rev-72 brief re-confirmed all three at pickup
+# (no env override, no verify row, the log string reproduces).  The switch is
+# what lets verify.py's new row be WATCHED FAILING (rule 3) instead of asserted.
+#
+# THE ANGLE ITSELF IS STILL NOT MEASURED AND REV 72 COULD NOT MEASURE IT.
+# Every frame we hold that shows this vehicle's rear was looked at (rule 1):
+# `ref_rear34.jpg` shows the rear-third glazing SHUT and sealed, not propped;
+# `ref_side.jpg` is broadside, so the tail face is edge-on and the pane is a
+# sliver; `IMG_3840.jpeg` is 480x320 with the tail dome occluding the station.
+# So 64.0 remains a POSE CHOICE and "it cannot be recovered from what we hold"
+# is the result (rule 12) -- not a task left undone.  Wider than the trunk's 52 deg because this pane swings up over
 # the roof line where nothing fouls it, and because a serving hatch is propped
 # clear of the people under it.  Provenance: rev 48 JOB 1b, his instruction;
 # no frame.
@@ -2400,9 +2508,87 @@ def open_rear_hatch(log=print):
     co = [v.co for v in ob.data.vertices]
     hx = max(c.x for c in co)          # the pane's aft face, its hinge line
     hz = max(c.z for c in co)          # top-hinged, like the trunk lid
-    _swing_open(ob, hx, hz, REAR_OPEN_DEG, "rear hatch", log=log)
-    log("rear hatch: glass_rear hinged (x %.4f, z %.4f) lateral, OPEN %.1f deg"
-        "  [angle NOT MEASURED -- no frame shows it]" % (hx, hz, REAR_OPEN_DEG))
+    # rev 72b: RECORD THE HINGE, WHICH IS A POSITION, NOT AN ANGLE.
+    # verify._rear_hatch needs a sign convention it cannot get from a PCA axis
+    # (an eigenvector's sign is arbitrary, so a folded pose reads as its own
+    # supplement -- 116 deg read as 64.00 and PASSED, found by the rule-17
+    # adversary).  Orienting the axis toward the HINGE fixes the sign for any
+    # angle.  This is NOT a tautology: the hinge is measured off the PRE-SWING
+    # mesh and says nothing about how far the pane was then turned.
+    for _o in (ob, bpy.data.objects.get("seal_rear")):
+        if _o is not None:
+            _o["hinge_x"], _o["hinge_z"] = float(hx), float(hz)
+    # T1_REAR_NOSWING=1 leaves the pane SHUT while REAR_OPEN_DEG still declares
+    # 64.  That is the silent failure verify._rear_hatch's R3 row exists to
+    # catch -- the source saying one pose and the mesh being in another -- and
+    # it is WATCHED FIRING.  It is NOT the same as T1_REAR_OPEN=0, which shuts
+    # the hatch HONESTLY (constant and mesh agree, and R3 correctly passes).
+    if os.environ.get("T1_REAR_NOSWING") == "1":
+        log("  !! T1_REAR_NOSWING=1 -- pane NOT swung while %.1f deg is still "
+            "declared; verify's R3 row MUST go red" % REAR_OPEN_DEG)
+        return hx, hz, REAR_OPEN_DEG
+    # A ZERO SWING IS A LEGITIMATE POSE, NOT A WRONG-WAY SWING.  Rev 72's first
+    # cut of T1_REAR_OPEN claimed in its own comment that "=0 shuts the hatch
+    # outright"; RUN, IT CRASHED THE BUILD -- `_swing_open` asserts the free edge
+    # moved, and at 0 deg it does not:
+    #     AssertionError: rear hatch opened the WRONG WAY: its free edge moved
+    #     dx +0.0000 dz +0.0000
+    # So the new switch's headline case did not work and the comment was wrong.
+    # Retracted and fixed in the same edit (rule 13).  This is the trunk lid's
+    # own precedent, whose comment states the principle: "A guard must fire on
+    # the DEFECT, not on a legitimate pose."  It is ALSO rule 47 firing -- an
+    # ablation switch must be exercised and its output checked, not assumed.
+    if abs(REAR_OPEN_DEG) < 1e-6:
+        log("rear hatch: glass_rear + seal_rear at hinge (x %.4f, z %.4f) "
+            "lateral, **SHUT** (T1_REAR_OPEN=0).  This is the ABLATION, not a "
+            "ruling: the owner chose the UPPER bay OPEN at rev 48 and that "
+            "stands.  Constant and mesh agree at 0, so verify's R3 row PASSES "
+            "here -- which is what distinguishes an honest close from "
+            "T1_REAR_NOSWING's injected drift" % (hx, hz))
+        return hx, hz, 0.0
+    # T1_REAR_FOLD=1 swings the pane to 180 - REAR_OPEN_DEG while the constant
+    # keeps saying REAR_OPEN_DEG.  THIS IS THE EXACT DEFECT A RULE-17 ADVERSARY
+    # USED TO BREAK THE FIRST CUT OF verify._rear_hatch: that row read an
+    # ABSOLUTE cosine, so 116 deg read as 64.00 and PASSED against a declared
+    # 64 -- a hatch folded back past vertical shipping with VERIFY: 0 fail.
+    # R3 now takes its sign from the hinge and this ablation is its kill.
+    _deg = (180.0 - REAR_OPEN_DEG
+            if os.environ.get("T1_REAR_FOLD") == "1" else REAR_OPEN_DEG)
+    if _deg != REAR_OPEN_DEG:
+        log("  !! T1_REAR_FOLD=1 -- pane swung %.1f deg while %.1f is still "
+            "declared; verify's R3 row MUST go red" % (_deg, REAR_OPEN_DEG))
+    _swing_open(ob, hx, hz, _deg, "rear hatch", log=log)
+    # rev 72: THE PROMISE IN THIS DOCSTRING IS NOW KEPT.  "anything mounted on
+    # the pane could be carried through the identical call.  Nothing is, today."
+    # `seal_rear` is, and through the SAME hx/hz/deg, so the gasket cannot drift
+    # away from the glass it is bonded to.
+    # T1_REAR_SEALSTAY=1 swings the PANE and leaves the GASKET behind, which is
+    # the exact drift this call exists to prevent.  It is verify._rear_hatch's
+    # R2 kill and it is WATCHED FIRING -- a guard that has never been red has
+    # never been tested (CLAUDE.md, rule 3).
+    sealed = bpy.data.objects.get("seal_rear")
+    # T1_REAR_SEALSHIFT=1 swings the gasket CORRECTLY and then slides it a metre
+    # off the glass.  It is verify._rear_hatch's R2b kill.  The first cut of R2
+    # compared PLANE NORMALS ONLY and was BLIND to this -- a gasket a metre away
+    # passed at 0.045 deg drift, proven by the rule-17 adversary translating the
+    # object and re-running the row.  A guard whose docstring says "did not
+    # drift off the glass" must measure POSITION, not just attitude.
+    if os.environ.get("T1_REAR_SEALSHIFT") == "1" and sealed is not None:
+        _swing_open(sealed, hx, hz, REAR_OPEN_DEG, "rear seal", log=log)
+        sealed.location = (sealed.location[0], sealed.location[1] + 1.0,
+                           sealed.location[2] + 0.5)
+        bpy.context.view_layer.update()
+        log("  !! T1_REAR_SEALSHIFT=1 -- gasket slid 1.0 m off the glass ON "
+            "PURPOSE; verify's R2b row MUST go red")
+    elif os.environ.get("T1_REAR_SEALSTAY") == "1":
+        log("  !! T1_REAR_SEALSTAY=1 -- gasket left in the aperture ON PURPOSE; "
+            "verify's R2 row MUST go red")
+    elif sealed is not None:
+        _swing_open(sealed, hx, hz, _deg, "rear seal", log=log)
+    log("rear hatch: glass_rear%s hinged (x %.4f, z %.4f) lateral, OPEN %.1f deg"
+        "  [angle NOT MEASURED -- no frame shows it; T1_REAR_OPEN overrides]"
+        % (" + seal_rear" if sealed is not None else " [NO SEAL -- T1_REAR_SEAL=0]",
+           hx, hz, REAR_OPEN_DEG))
     return hx, hz, REAR_OPEN_DEG
 
 

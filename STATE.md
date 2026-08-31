@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-31 03:30:03 UTC |
-| git commit | `80fcbc1` |
-| git subject | rev 71: brief command list reflects the declared-transform probe and P4's withdrawal |
+| generated | 2026-08-31 18:14:15 UTC |
+| git commit | `6399b5b` |
+| git subject | rev 72: the rule-17 adversary broke the revision's own headline guard -- both holes fixed |
 | working tree | clean |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=2 (applied, destructive, before booleans) |
@@ -25,9 +25,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 > revisions. Run both.
 
 ```
-length excludes opened lids: 4.311 with them, 4.065 without (what projects: counter, counter_nosing, counter_top, tail_board, tail_board_stay, tb_bulbflex, tb_bulbs, tb_edge_dark, tb_edge_red)
+length excludes opened lids: 4.317 with them, 4.065 without (what projects: counter, counter_nosing, counter_top, tail_board, tail_board_stay, tb_bulbflex, tb_bulbs, tb_edge_dark, tb_edge_red)
 bounds EXCLUDE 9 non-bodywork part(s): counter, counter_nosing, counter_top, tail_board, tail_board_stay, tb_bulbflex, tb_bulbs, tb_edge_dark, tb_edge_red
-x range [-2.151, 2.160]   full-Y [-1.064, 1.150]
+x range [-2.157, 2.160]   full-Y [-1.064, 1.150]
 lateral extent full-Y [-1.0637, 1.1500] holds its baseline (brackets +y, mir_head-1 -y)
 underbody proudness: worst -55.8 mm (under_close_a at x -1.8000, |y| 0.7800 against skin 0.8358) -- INBOARD of the skin everywhere
 underbody/shell fit: worst intrusion +10.5 mm at (x +1.897, y -0.03) over 1400 perimeter station(s), both signs of y
@@ -36,7 +36,7 @@ H_ROOF 1.960 is RETIRED as an accuracy target (rev 22, owner's call): its only g
 rear overhang 0.7730 m = 0.3221 of the wheelbase (measured 0.773 +- 0.022 m)
 measured TRACK_F=1.3713  TRACK_R=1.3613  TYRE_D=0.6650
 SPEC 10.91 ban-exemption control: 2 exempt names, 4 planted near-misses all still banned
-zero-area sweep: 0 of 228 meshes have zero area; 0 exempt (rev 56: lid_rail was the only exemption and it is BUILT now)
+zero-area sweep: 0 of 229 meshes have zero area; 0 exempt (rev 56: lid_rail was the only exemption and it is BUILT now)
 lid_rail width = RAIL_PROUD 0.0213 m (owner, rev 56, off ref_workshop.jpg: 'narrow lip, ~as wide as it is tall')
 open serving apertures on +Y: 3
 roof at tail = 1.988
@@ -60,6 +60,7 @@ wheel-house reach front: liner minus aperture radius -0.0 .. +0.0 mm over 0 stat
 wheel-house reach rear : liner minus aperture radius -0.0 .. +0.0 mm over 0 station(s) short of it; rim inset inside flank_y +2.6 mm; 0 station(s) beyond the outline's feet
 bumper plan bow (F222): +21.55 mm over |y| <= 0.70, against the shell's +20.38 mm at z=1.015; floor 8.0 mm
 tail board pose (F163/F165/F245): principal-axis chord 0.7110 m, angle 38.0 deg, tip z 2.2087 -- ruler = PRINCIPAL AXIS in XZ, NOT the bbox diagonal
+rear hatch: glass_rear swung +64.00 deg SIGNED about its hinge (declared 64.0, NOT MEASURED -- a POSE); seal_rear tracks it to 0.045 deg and sits 0.0 mm off it
 nose fixture hl_bowl     NOT GRADEABLE -- all 64 back-face rays fall through the headlamp bore; no skin behind it
 nose fixture hl_bowl.001 NOT GRADEABLE -- all 64 back-face rays fall through the headlamp bore; no skin behind it
 nose fixture registration (F217): hl_lens -7.64, hl_lens.001 -7.64, hl_ring -13.46, hl_ring.001 -13.46, ind-1_base -10.03, ind-1_lens +11.68, ind1_base -10.03, ind1_lens +11.68 mm back-face-to-skin, frozen band +-3.0 mm
@@ -156,9 +157,9 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 
 | | |
 |---|---|
-| mesh objects | 228 |
-| vertices (all meshes) | 331627 |
-| faces (all meshes) | 321806 |
+| mesh objects | 229 |
+| vertices (all meshes) | 331775 |
+| faces (all meshes) | 321882 |
 
 | prefix | n |
 |---|---|
@@ -275,6 +276,7 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 | `roof_vent` | 1 |
 | `script_L` | 1 |
 | `script_R` | 1 |
+| `seal_rear` | 1 |
 | `seat_back` | 1 |
 | `seat_back_p` | 1 |
 | `seat_base` | 1 |

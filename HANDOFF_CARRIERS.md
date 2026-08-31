@@ -159,6 +159,16 @@ to the chalkboard livery.
 **WHAT TO BUILD:**
 1. a panel with **real thickness and an underside**, not a plate — this is the largest visible defect
    and it needs no new measurement at all;
+   > **⚠⚠ ITEM 1's PREMISE IS REFUTED (F276, rev 72). KEPT AND ANNOTATED, NOT DELETED (rule 16).**
+   > `t1_shell.tail_board()` builds
+   > `T.solid_prism(..., T.rrect(TB_CHORD, TB_WIDTH, 0.012, seg=4), TB_T)` — **a 22 mm SOLID
+   > rounded-rect prism. It HAS a panel body and it HAS an underside.** What the paragraph above
+   > describes is an **EDGE-ON VIEW**: the side elevation looks exactly along the board's plane, so
+   > the face is invisible by construction, not by omission. **Rule 10 — a claim in prose is not a
+   > measurement; ask the mesh.** The crop that shows why the description arose is
+   > `probe_scratch/r72_side_tail.png`. **ITEMS 2-5 ARE NOT REFUTED**: the dark angled recess is
+   > genuinely absent, the angle/chord ruler mismatch stands, and `TB_WIDTH`'s 0.59 m bound is
+   > verbatim in the source. **Do not spend rev 73 giving this board an underside it already has.**
 2. the **dark angled recess** in its forward-lower area;
 3. the angle and chord re-measured **on one ruler** and moved together, with F165's two-significant-
    figure ceiling stated in the row;
@@ -785,6 +795,20 @@ stands"* (twice); the front arch *"leave it circular"*.
 > **Rule 16 firing on the file that carries rule 16.** Restored before the handoff shipped.
 > **If you compact §4, that row is what stops you.**
 
+**RULED AT REV 72 — THE FIRST TIME THE PIXEL RANKING AND THE OWNER HAVE AGREED (F282).**
+Shown the trade as multiple choice at the close of rev 72 — the gloss/flank surfaces at **2.89e6 px²
+with both gates failing** against the emblem at **3.32e4 px², 87× smaller**, plus the warning that the
+emblem needs a new construction and a legibility term first and might spend a whole revision on the
+precondition — he chose:
+
+> ***"Nose, then gloss/flank."***
+
+**WHAT IT LICENSES:** rev 73 windows `probe_rev67_nose.py`'s P3 scan (his third named item, cheap),
+then moves **roughness AND environment TOGETHER — F239's one untried pairing.**
+**WHAT IT DOES NOT DO: it does not withdraw the emblem.** It is his NINTH report, it is still wrong,
+and **F191 ("fix the emblem first") and F234 (the spine constants retired) both stand.** He ruled an
+ORDER for one revision, not a cancellation. **Do not read this as the emblem being dropped.**
+
 **RULED AT REV 68 — NEW, BINDING, AND IT CHANGES WHERE MEASUREMENTS COME FROM.**
 Asked as multiple choice with `probe_scratch/rev68_bumper_ask.png` attached — the photograph
 with the bumper's top edge traced and its chord marked, beside a plan diagram of the model's
@@ -1028,6 +1052,14 @@ in the briefs and are carried here — that is rule 16 firing on this file:
 > 16-bit (`studio.setup_render`: `color_depth = '16'`, and all 50 PNGs in `out/` carry IHDR bit-depth
 > 16). **PIL has no 16-bit RGB path and truncates to `uint8` silently — no warning, no exception.**
 > F42 recorded the lost precision as a property of the RENDERER; it is a property of the READER.
+> **⚠ THAT ATTRIBUTION IS REFUTED (F272, rev 72); THE MECHANISM AND THE SCOPE ARE NOT.** F42's own
+> row, graded `MEASURED-rev57`, ALREADY SAYS READER: *"Blender **delivers** … then reads through
+> `Image.open(...).convert("RGBA")`, **which returns uint8**"*. And `shader_solve.py` records a
+> stdlib 16-bit decoder *"CONTROLLED against PIL … max difference 0"* — verbatim rev 71's own
+> validation — **written at rev 57 and NEVER COMMITTED**, which is why `read_png` had to be written
+> again. What is genuinely new at rev 71 is the SCOPE: F42 was scoped to `shader_solve._render`,
+> F263 extends it to every probe in the tree. **AND SEE F271: re-read at 16 bits, the photograph
+> gates move 0.623 %. The variable is the region's EXPOSURE, not the gate.**
 > **CHECK WHAT YOUR READER ACTUALLY RETURNED — dtype, max, shape — before you trust a number off it**,
 > and prefer a decoder you can control against a file whose values you authored.
 > `photometry.read_png()` is that decoder; its top 8 bits agree with PIL on all 5 280 000 pixels of a

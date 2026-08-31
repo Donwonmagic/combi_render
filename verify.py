@@ -1038,6 +1038,180 @@ def _tail_board_pose(log=print):
     return out
 
 
+def _rear_hatch(log=print):
+    """rev 72, F254/F241.  THE BACK OPENING -- THE POSE THE OWNER NAMED.
+
+    NOTHING IN THIS TREE HAS EVER READ THIS OBJECT.  `REAR_OPEN_DEG = 64.0`
+    swings `glass_rear` out of the tail aperture in build.py step 8c, and until
+    rev 72 it had no ablation switch, no verify row and no frame behind it --
+    F254's words, re-confirmed at rev 72 by an adversary dispatched at the brief.
+    `_tail_board_pose` is a DIFFERENT OBJECT (the propped sign board) and must
+    not be quoted at this one; §0.05 of HANDOFF_CARRIERS conflates them.
+
+    WHAT THIS ROW IS NOT.  It is NOT a fidelity claim about the angle.  64.0 is
+    a POSE CHOICE and rev 72 could not measure it -- every frame we hold that
+    shows this vehicle's rear shows the glazing SHUT, so the hinge angle "cannot
+    be recovered from what we hold" (rule 12).  This row checks that the pose the
+    source DECLARES is the pose the MESH is actually in, which is a different
+    and checkable thing, and that the gasket did not drift off the glass.
+
+    NEITHER ROW IS A TAUTOLOGY (rule 6).  Both compare two INDEPENDENTLY
+    OBTAINED quantities: R2 reads two separate meshes' own best-fit plane
+    normals against each other and never looks at REAR_OPEN_DEG at all; R3 reads
+    the built pane's normal off its vertices and compares it to the CONSTANT --
+    a mesh against a declaration, not an expression against itself.
+
+    WATCHED FAILING (rule 3), run and read at rev 72 -- see LEDGER_rev72.
+    """
+    import math as _m
+    import os
+    import t1_shell as S
+    out = []
+    pane = bpy.data.objects.get("glass_rear")
+    if pane is None:
+        log("  rear hatch: glass_rear ABSENT -- nothing measured (rule 37)")
+        return ["rear hatch: glass_rear is ABSENT, so neither the pose nor the "
+                "seal could be measured.  An absent input is not a pass"]
+
+    def _plane_n(ob):
+        """Best-fit plane normal of a mesh, in WORLD space.
+
+        PCA: the eigenvector of the vertex scatter with the SMALLEST eigenvalue
+        is the plane's normal.  Sign is arbitrary and every use below takes an
+        absolute cosine, so it cannot leak a sign convention into a result.
+        """
+        import numpy as _np
+        P = _np.array([list(ob.matrix_world @ v.co) for v in ob.data.vertices])
+        P = P - P.mean(axis=0)
+        w, V = _np.linalg.eigh(P.T @ P)
+        return V[:, 0] / (_np.linalg.norm(V[:, 0]) or 1.0)
+
+    def _ang(a, b):
+        import numpy as _np
+        return _m.degrees(_m.acos(min(1.0, abs(float(_np.dot(a, b))))))
+
+    n_pane = _plane_n(pane)
+
+    def _centroid(ob):
+        """BOUNDING-BOX CENTRE, not the vertex mean.
+
+        The vertex mean is skewed by vertex DENSITY, and the two objects here
+        have very different densities: `seal_rear` is a ring carrying BOTH
+        outlines plus the boolean's new edges, `glass_rear` is a filled plate
+        carrying one.  Measured at rev 72b, the vertex means of two objects that
+        are concentric BY CONSTRUCTION sit 13.1 mm apart, which is an artefact of
+        the mesh and not a displacement of anything.  The bbox centre of a pair
+        of concentric rounded rectangles is not.  (I had written "0.0 mm apart"
+        in this row's comment from arithmetic instead of running it -- rule 5,
+        inside the fix for a rule-5 complaint.)
+        """
+        import numpy as _np
+        P = _np.array([list(ob.matrix_world @ v.co) for v in ob.data.vertices])
+        return (P.min(axis=0) + P.max(axis=0)) * 0.5
+
+    def _swing_of(ob):
+        """SIGNED swing about the lateral hinge, in degrees, 0 = shut.
+
+        *** rev 72b -- THE FIRST CUT OF THIS FOLDED AND PASSED A BROKEN POSE. ***
+        It read `acos(|n_pane . x|)`, and an absolute cosine cannot tell a swing
+        of A from one of 180-A.  A rule-17 adversary ran `T1_REAR_OPEN=116` and
+        the row printed **swung = 64.00** -- so a swing bug that applied 116 deg
+        while REAR_OPEN_DEG still said 64 would have read |64.00 - 64.0| = 0 and
+        SHIPPED with VERIFY: 0 fail.  That is the trunk-lid-opened-INWARDS class
+        this project's own verdict block lists.
+
+        THE FIX IS A SIGN CONVENTION TAKEN FROM THE GEOMETRY, NOT FROM AN
+        EIGENVECTOR (rule 7).  A PCA axis has an arbitrary sign.  The HINGE does
+        not: `open_rear_hatch` records it on the object off the PRE-SWING mesh as
+        `hinge_x`/`hinge_z`, which is a POSITION and says nothing about how far
+        the pane was then turned -- so this is not a tautology.  The pane's own
+        in-plane, non-lateral axis (the MIDDLE eigenvector: y-extent is largest,
+        height middle, thickness smallest) is oriented to point from the centroid
+        TOWARD the hinge, and its angle off vertical in the XZ plane is the swing.
+        """
+        import numpy as _np
+        P = _np.array([list(ob.matrix_world @ v.co) for v in ob.data.vertices])
+        c = P.mean(axis=0)
+        w, V = _np.linalg.eigh((P - c).T @ (P - c))
+        ax = V[:, 1]                       # in-plane, not the lateral run
+        hx, hz = ob.get("hinge_x"), ob.get("hinge_z")
+        if hx is None:
+            return None                    # say so; do not guess a sign
+        toward = _np.array([hx - c[0], 0.0, hz - c[2]])
+        if float(_np.dot([ax[0], 0.0, ax[2]], toward)) < 0:
+            ax = -ax
+        return _m.degrees(_m.atan2(float(ax[0]), float(ax[2])))
+
+    # ---- R3: is the mesh in the pose the source says it is?
+    swung = _swing_of(pane)
+    if swung is None:
+        return out + ["rear hatch: glass_rear carries no `hinge_x` -- "
+                      "open_rear_hatch() did not run, so the pose could not be "
+                      "measured.  An absent input is not a pass (rule 37)"]
+    declared = S.REAR_OPEN_DEG
+    # THE BAND IS NOT GUESSED.  The rake shear (17.75 mm/m) tilts the pane
+    # before it is swung; measured on the shipped build at rev 72 the mesh reads
+    # within a few hundredths of a degree of the constant, so +-2.0 is far wider
+    # than the shear can explain and exists only so a re-rake cannot trip it.
+    # It is NOT wide enough to hide a swing that did not happen (64 deg) or one
+    # applied twice (128 deg), which are the two failures worth catching.
+    if abs(swung - declared) > 2.0:
+        out.append(
+            "rear hatch POSE DRIFT: the built glass_rear stands %.2f deg off the "
+            "tail plane, against REAR_OPEN_DEG = %.1f declared in t1_shell.py -- "
+            "%+.2f deg.  Either step 8c did not swing it, or it was swung twice, "
+            "or the constant and the build have parted company.  T1_REAR_OPEN "
+            "sets the pose; this row reads the MESH"
+            % (swung, declared, swung - declared))
+
+    # ---- R1/R2: the gasket exists, and it went with the glass
+    # T1_REAR_SEAL=0 IS THIS ROW'S KILL AND MUST GO RED, NOT BE EXCUSED.  The
+    # first cut of this row printed "not applicable" under the ablation, which
+    # would have left R1 a control that can never fire -- rule 36's shape, in
+    # the guard written to satisfy rule 3.  It follows T1_NOSE_FIXFOLLOW's
+    # precedent (F217): the ablation exists to make the gate REFUSE.
+    seal = bpy.data.objects.get("seal_rear")
+    if seal is None:
+        out.append(
+            "rear hatch has NO SEAL: seal_rear is absent while every other "
+            "glazed aperture on this vehicle carries one (2 windscreen halves, "
+            "2 door mains, 2 door vents, 6 bay seals).  The rear pane is 20 mm "
+            "inboard of the skin in a 0.40 m deep cut, so with the hatch open "
+            "the opening is a bare shell edge")
+    else:
+        # ---- R2b: THE GASKET MUST BE *ON* THE GLASS, NOT MERELY PARALLEL TO IT.
+        # The first cut of R2 compared PLANE NORMALS ONLY.  A rule-17 adversary
+        # translated seal_rear by (0, +1.0, +0.5) m, re-ran this row, and got NO
+        # COMPLAINT -- a gasket a metre off the pane passed at 0.045 deg.  The
+        # docstring claimed to check "the gasket did not drift off the glass"
+        # and the code did not measure position at all.
+        # THE BAR IS WATCHED, NOT TYPED (rule 5).  The figure this row prints on
+        # the shipped build is in LEDGER_rev72 SS1, read off a run; the bar is set
+        # far above it and FAR below the 1.118 m the T1_REAR_SEALSHIFT ablation
+        # injects, which is the only displacement that has ever been observed.
+        import numpy as _np
+        off = float(_np.linalg.norm(_centroid(seal) - _centroid(pane)))
+        if off > 0.020:
+            out.append(
+                "rear GASKET OFF THE GLASS: seal_rear's centroid sits %.1f mm "
+                "from glass_rear's, and a gasket bonded to a pane cannot.  "
+                "ATTITUDE IS NOT POSITION -- this row exists because the "
+                "normals-only check passed a gasket translated a metre away"
+                % (off * 1000))
+        drift = _ang(_plane_n(seal), n_pane)
+        if drift > 0.5:
+            out.append(
+                "rear GASKET DRIFT: seal_rear's plane stands %.2f deg off "
+                "glass_rear's, and a gasket bonded to a pane cannot.  "
+                "open_rear_hatch() must carry the seal through the SAME "
+                "_swing_open call as the pane" % drift)
+        log("  rear hatch: glass_rear swung %+.2f deg SIGNED about its hinge "
+            "(declared %.1f, NOT MEASURED -- a POSE); seal_rear tracks it to "
+            "%.3f deg and sits %.1f mm off it"
+            % (swung, declared, drift, off * 1000))
+    return out
+
+
 def _nose_fixture_reg(body, log=print):
     """rev 68, F217.  THE NOSE FIXTURES MUST STAY REGISTERED TO THE SKIN.
 
@@ -2611,6 +2785,7 @@ def run(body, log=print):
     # rev 70, F163/F165.  The rear hatch's chord and angle, against the frames.
     try:
         fails += _tail_board_pose(log)
+        fails += _rear_hatch(log)
     except Exception as e:                       # never let the guard vanish
         fails.append("tail board pose assertion could not run: %s" % e)
 

@@ -1163,7 +1163,18 @@ ck "bay widths 0.516 0.515 0.516"   2 "$(grep -c 'bay widths 0.516 0.515 0.516' 
 # cannot be re-based again by DELETING the underbody: dropping those parts
 # would take the count back to 223 and pass this row, and the companion row is
 # what stops that.
-ck "mesh objects 228"               1 "$(grep -c '| mesh objects | 228 |' STATE.md)"
+# *** rev 72 -- RE-BASED 228 -> 229, CAUSE NAMED, WITH A COMPANION ROW. ***
+# THE CAUSE IS ONE OBJECT AND IT IS NAMED: `seal_rear`, the rear aperture's
+# rubber surround (F268).  It was the ONLY glazed aperture on this vehicle with
+# no rubber ring -- bay_seals() builds eleven and windscreen_seals() two, and
+# rear_glass() had none -- so with REAR_OPEN_DEG swinging the pane out the
+# opening was a bare 2.8 mm shell cut edge.
+# THE COMPANION ROW DIRECTLY BELOW makes that cause SEPARATELY TESTABLE, which
+# is what CLAUDE.md requires of a re-base: this total cannot be re-based again
+# by deleting `seal_rear` and something else, because the companion row names
+# the object and would go red on its own.
+ck "mesh objects 229"               1 "$(grep -c '| mesh objects | 229 |' STATE.md)"
+ck "and rev 72's seal_rear is THE object that moved it" 1 "$(grep -c '| `seal_rear` | 1 |' STATE.md)"
 # FOUR prefix rows, not five parts: STATE.md's inventory groups by PREFIX and
 # `chassis_rail` carries n=2.  Watched print before this number was written.
 ck "and the underbody's parts are IN that count" 4 "$(grep -cE '^\| `(underpan|chassis_rail|under_close_f|under_close_a)`' STATE.md)"

@@ -252,8 +252,22 @@ _BEHIND="$(git rev-list --count HEAD..origin/main 2>/dev/null || echo '?')"
 say "  note: HEAD is $_AHEAD ahead / $_BEHIND behind origin/main."
 if [ "${_AHEAD:-0}" -gt 0 ] 2>/dev/null; then
   say "        Those $_AHEAD commits are MERGED NOWHERE.  Row 9 cannot see this"
-  say "        axis -- it only finds branches ahead of HEAD.  Carry the number"
-  say "        into the handoff; do NOT infer it from 'git diff HEAD...main'."
+  say "        axis -- it only finds branches ahead of HEAD."
+  # *** rev 72, F267 -- THIS NOTE USED TO SAY "Carry the number into the
+  # handoff", AND THAT ADVICE IS REFUTED BY THE THING IT CAUSED. ***
+  # Rev 71 obeyed it: it carried a FRESHLY MEASURED figure, printed by this very
+  # line, hedged in the brief as "already the stalest thing in this file".  It
+  # was FALSE WITHIN THE HOUR -- the owner merged the work as PR #28 and
+  # corrected the record himself ("it's already merged").  That is EIGHT
+  # consecutive revisions of stale branch prose (F253/F267).
+  # Branch state is not a property a document can hold; it is a property of a
+  # MOMENT, and no hedge saves it.  F267 asked rev 72 to change this note rather
+  # than only the brief.  Changed.
+  say "        DO NOT CARRY THIS NUMBER INTO THE HANDOFF.  It goes stale within"
+  say "        the hour -- rev 71 carried a freshly measured one and the OWNER"
+  say "        had to correct it (F267).  Write 'RUN THE LOOP' instead, and let"
+  say "        the next context measure it here.  Never infer it from"
+  say "        'git diff HEAD...main'."
 fi
 
 # --------------------------------------------------------------- 5  the tree
