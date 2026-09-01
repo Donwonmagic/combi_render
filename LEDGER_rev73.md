@@ -335,10 +335,21 @@ EDGE with 0 points clipped:
     BUMP_BOW 2.50   mesh +52.70 mm   sagitta +7.480 +- 0.316   rms 3.56
 ```
 
-**DETECTION YES** — 0.00 against 1.00 is **0.378 px, 126× the floor**. **INVERSION NO** — the first
-rung is flat (**10.54 mm** of real bow moves it **−0.021**, the wrong way and inside the per-fit SE)
-and the last explodes (**+6.875 px** in one rung). **F292's ceiling is confirmed, not lifted, and
-F231's *"cannot be recovered"* stands.** What survives is a **regression detector**.
+**ONE NOISE MODEL, USED CONSISTENTLY — and the first draft of this paragraph used TWO, which a
+rule-17 adversary caught.** It claimed detection against the **between-render floor** (0.0026 px)
+and dismissed the first rung against the **per-fit SE** (±0.07). On the SE, which is the honest
+model for comparing two sagittas: **detection 0.00 → 1.00 is 3.7σ** (0.3776 against 0.10 in
+quadrature); **the first rung is 0.2σ — NOT RESOLVED**, so it is *unresolved*, not *"the wrong
+way"*. On the floor alone the first rung would be 7.9× and a real inversion; **the two models
+disagree about it and rev 73 does not know which is right.**
+
+**AND THE PER-MILLIMETRE SLOPES SHOW THE RESPONSE IS NOT MONOTONE IN SLOPE EITHER:**
+`0→0.5 −0.0019 · 0.5→1.0 +0.0377 · 1.0→1.5 +0.0152 · 1.5→2.5 +0.3262` px/mm. **The 0.5→1.0 rung is
+2.5× steeper than 1.0→1.5.** So *"flat below 10 mm, super-linear above 32 mm"* is the wrong
+description — the true statement is **the slope varies by 170× across the range and reverses sign
+once, and the onset is unconstrained anywhere in 31.6–52.7 mm on a single interval.**
+**THE VERDICT IS UNCHANGED AND IF ANYTHING STRENGTHENED: NOT INVERTIBLE.** F292's ceiling is
+confirmed; F231's *"cannot be recovered"* stands. What survives is a **regression detector**.
 
 **2. §0.05's ITEM 2 — THE "DARK ANGLED RECESS" — CANNOT BE BUILT (F295). THIS WITHDRAWS THIS
 REVISION'S OWN CLAIM**, made in the outgoing brief hours earlier, that it was rev 74's cheapest
@@ -352,7 +363,7 @@ standing `+4.0 mm clear`.
 **3. §0.05's ITEM 3 — THE TILT, ON THE CONSTANT'S OWN RULER AT LAST (F296).**
 `probe_rev73_tailboard.py`. The `side` view is orthographic with square pixels, so an XZ angle
 projects true and `STATE.md`'s **38.0** is a known answer. **Both detectors are made to recover it
-from pixels before either is pointed at a photograph: silhouette 38.005 (+0.005), gradient 38.62
+from pixels before either is pointed at a photograph: silhouette 37.995 (−0.005), gradient 38.62
 (bias +0.62, MEASURED). A 7.00° rotation kill was watched (+6.25°).** On `ref_side.jpg` the board's
 edge is **not single-valued — 43.12° and 35.12°, both running its whole length** — and the
 drip-rail datum converts that to a world bracket of **32.99°–40.99°**. **The shipped 38.0 is INSIDE
@@ -413,8 +424,11 @@ revstats.py               rev 73: 0 geometry, 476 instrument, 0 closed
 ```
 
 **AND THE NONDETERMINISM FLOOR, RE-MEASURED BECAUSE THE BRIEF SAID TO AND IT WAS FIVE REVISIONS
-OLD.** Same tree, rendered twice, hero34f 1600×1100 / 96 spp, read at 16 bits through
-`photometry.read_png` and scaled to 8-bit levels:
+OLD.** The **PAIR** is `out/r73_hero34f.png` vs `out/r73g0_hero34f.png` — the same tree
+(`T1_BODY_RGH=0.250 T1_REFLENV=0.0`) rendered twice, hero34f 1600×1100 / 96 spp. ⚠ **AND THE READER
+IS PART OF THE MEASUREMENT (F263), WHICH THE FIRST DRAFT OF THIS BLOCK DID NOT SAY — a rule-17
+adversary could not reproduce it and was right to say so.** Read through `photometry.read_png` at
+16 bits and scaled by integer `(a*255)//65535`:
 
 ```
     % of px with any channel differing by >8 levels   2.044 %   (F228 published 2.441 %)
@@ -422,9 +436,13 @@ OLD.** Same tree, rendered twice, hero34f 1600×1100 / 96 spp, read at 16 bits t
     % >32 levels                                      0.043 %
 ```
 
-⚠ **CEILING: F228's frame and view are not recorded, so this is a re-measurement on `hero34f` and
-not necessarily a refutation of F228's number on whatever it was measured on.** Quote **2.044 %
-on hero34f** and say which.
+**THE SAME PAIR READ THROUGH PIL's uint8 PATH GIVES 2.058 % / worst 41 / 0.045 %, and the
+`T1_REFLENV=1.0` A/B gives 2.387 % against read_png's 2.367 %.** The reader moves the third
+significant figure. **That is not noise, it is F263 in miniature: quote the reader with the number.**
+
+⚠ **CEILING: F228's frame, view AND reader are all unrecorded, so this is a re-measurement on
+`hero34f` and not a refutation of F228's number on whatever it was measured on.** Quote
+**2.044 % on hero34f, read_png, integer-scaled** — and say all three.
 
 ---
 ## §6 WHAT REV 73 GOT WRONG IN ITS OWN WORK

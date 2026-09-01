@@ -222,30 +222,47 @@ tracing as ONE EDGE with 0 points clipped and rms far under the bar:**
     BUMP_BOW   mesh bow      sagitta            rms    bar
       0.00      +0.00 mm    +0.068 +- 0.073    0.79   18.81
       0.50     +10.54 mm    +0.047 +- 0.069    0.77   18.66
-      1.00     +21.09 mm    +0.446 +- 0.070    0.81   19.20
-      1.00     +21.09 mm    +0.443 +- 0.070    0.81   19.20   <- THE FLOOR PAIR, 0.003 px
+      1.00     +21.08 mm    +0.446 +- 0.070    0.81   19.20
+      1.00     +21.08 mm    +0.443 +- 0.070    0.81   19.20   <- THE FLOOR PAIR, 0.0026 px
       1.50     +31.62 mm    +0.605 +- 0.069    0.80   19.14
       2.50     +52.70 mm    +7.480 +- 0.316    3.56   18.72
 ```
 
 *(the mesh-bow column is `build.py`'s own printed line, `bumper_f nose face: BUMP_BOW k … bow at
-y=0 …`, not a derived figure)*
+y=0 …`, not a derived figure. ⚠ **AND IT WOBBLES ±0.01 mm BUILD-TO-BUILD AT A FIXED `BUMP_BOW`** —
+`/tmp/r73.log` and `/tmp/f2.log` both printed **+21.08** for `BUMP_BOW 1.0` while a later build
+printed +21.09, and rev 73 first published the +21.09 for all of them. Two significant figures.)*
 
-**DETECTION: YES.** 0.00 against 1.00 is **0.378 px — 126× the between-render floor and 3.8× the
-per-fit standard error.**
+**DETECTION: YES.** 0.00 against 1.00 is **0.3776 px — 145× the between-render floor (0.0026 px) and 3.7× the two SEs in
+quadrature.**
 
-**INVERSION: NO, AND THE LADDER SHOWS EXACTLY WHY.** The first rung is FLAT — a real **10.54 mm** of
-bow moves the sagitta **−0.021**, the wrong direction and *inside* the per-fit SE of ±0.07. The last
-rung EXPLODES — **+6.875 px** in one step, an order of magnitude more per millimetre than
-1.00 → 1.50's +0.159. **A response flat over its first 10 mm and super-linear above 32 mm cannot be
-inverted to a millimetre reading.**
+**INVERSION: NO.** ⚠ **AND THE FIRST DRAFT OF THIS PARAGRAPH SWITCHED NOISE MODELS MID-ARGUMENT —
+detection against the between-render floor, the first rung dismissed against the per-fit SE. A
+rule-17 adversary caught it. ON THE SE, USED THROUGHOUT: detection 0.00 → 1.00 is 3.7σ; the first
+rung is 0.2σ — UNRESOLVED, not "the wrong way". On the floor alone that rung is 7.9× and a real
+INVERSION. The two models disagree and rev 73 does not know which is right.**
+**THE PER-MILLIMETRE SLOPES:** `0→0.5 −0.0019 · 0.5→1.0 +0.0377 · 1.0→1.5 +0.0152 ·
+1.5→2.5 +0.3262` px/mm — **the slope varies by 170× and reverses sign once, and 0.5→1.0 is 2.5×
+steeper than 1.0→1.5, so the response is not monotone in slope either.** The onset of the blow-up
+is unconstrained anywhere in **31.6–52.7 mm** on one interval. **A response like that cannot be
+inverted to a millimetre reading** — the verdict is unchanged and if anything strengthened.
 
 **SO F231's *"the plan bulge cannot be recovered from what we hold"* IS NOT OVERTURNED**, and the
 rev-74 brief's hopeful clause — *"if it does [respond monotonically], this project has a render-side
 channel on the bow for the first time"* — **does not fire.**
 
 **WHAT SURVIVES AND IS WORTH KEEPING: A PASS/FAIL REGRESSION DETECTOR.** If a future change silently
-zeroed `BUMP_BOW`, this reading would catch it at 126× the floor. That is a guard, not a ruler.
+zeroed `BUMP_BOW`, this reading would catch it at 145× the floor. That is a guard, not a ruler.
+
+**AND THE TRAP ANY 3/4 EXTENSION WALKS INTO — RESTORED HERE AFTER THE 32 KB SHRINK DROPPED IT FROM
+THE ACTION BRIEF, WHERE IT WAS ITS ONLY HOME (rule 16).** The obvious next move is a three-quarter
+render-side reading, to separate plan bow from elevation curvature. **On any non-orthographic view
+the window anchors' X reaches the pixel** — and `build.py` stands the nose fixtures at
+`HL_X = HL_X0 + S.nose_fixture_dx(HL_X0, HL_Y, HL_Z)`, i.e. **the fixture X FOLLOWS `NOSE_BULGE`**,
+while `t1_detail._nose_plan_x` derives the bumper's bow by **raycasting that same shell**. So on a
+3/4 frame the window would move with the quantity being measured: **a rule-6 tautology one step
+downstream.** `P3w`'s `0.000e+00` is honest ONLY because the `front` camera is orthographic down X.
+**CUT ANY 3/4 WINDOW FROM SOMETHING ELSE.** *(Found by the first rule-17 adversary at rev 73.)*
 
 ⚠ **CEILINGS: one view, one frame per rung, `front` only. The top rung's rms rises 0.80 → 3.56, so
 the parabola models that edge worse — PAINTED at `probe_scratch/rev73_bow25.png` and the trace IS

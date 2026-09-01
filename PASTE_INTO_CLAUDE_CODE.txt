@@ -1,6 +1,6 @@
 # NEXT CONTEXT PROMPT — rev 74   ·   **ACTION BRIEF**
 
-**REV 73 SHIPPED NO GEOMETRY. `revstats.py` SAYS `73 | 0 geometry | 476 instrument | 0 closed`, AND
+**REV 73 SHIPPED NO GEOMETRY. `revstats.py` SAYS `73 | 0 geometry | 0 closed` — **RUN IT for the doc and instrument columns; they are still growing as this handoff lands and every figure typed for them here has already gone stale twice**, AND
 THAT IS TWO REVISIONS IN THREE THE OWNER CAN SEE NOTHING FROM.** Both of his ranked items were
 instrument-shaped and the second returned a null. **DO NOT LET REV 74 BE A THIRD.** Run
 `python3 revstats.py` and read ITS numbers. Every carrier lives in `HANDOFF_CARRIERS.md`; every
@@ -173,7 +173,7 @@ threshold and changing which columns carry a step at all. ⚠ **CEILING: SHADING
 0.38 px converts to no millimetres, and two points is sensitivity, not calibration.**
 **⚠ THE LADDER WAS RUN AT REV 73's CLOSE AND IT ANSWERS ITS OWN QUESTION *NO* (F294). DO NOT
 RE-RUN IT.** Six rungs, `BUMP_BOW` 0.00–2.50, all tracing as ONE EDGE, two-render floor **0.003 px**.
-**DETECTION YES** — 0.00 against 1.00 is **0.378 px, 126× the floor**. **INVERSION NO** — the first
+**DETECTION YES** — 0.00 against 1.00 is **0.3776 px, 145× the floor**. **INVERSION NO** — the first
 rung is FLAT (10.54 mm of real bow moves it −0.021, the wrong way and inside the per-fit SE) and the
 last EXPLODES (+6.875 px in one rung). **F292's ceiling is CONFIRMED, not lifted; F231's *"cannot be
 recovered"* STANDS. What survives is a REGRESSION DETECTOR.** Full six-rung table with every
@@ -228,7 +228,7 @@ owner has ruled *"keep studio"* TWICE. If you want to re-open it, ask him; do no
 | **F239's UNTRIED PAIRING (§2.4)** | **NULL, and the surviving claim REFUTED.** See §2.4. |
 | **`probe_rev71_red.py` (F286)** | Died on a **bare traceback with no summary line** on the command §4 prints. **Rule 9 had nothing to read.** Fixed and watched: rc 3, `0 checked, 0 FAILED, 1 REFUSED`. |
 | **F275's "bare" COUNT (F287)** | *"bare → 2 checked"* is the **`--nomesh`** reading; **bare is 4**. Wrong in five carriers **including the guard row written to lock it, which was NAMED "bare" and RAN `--nomesh`**. Renamed + companion row. |
-| **THE `BUMP_BOW` LADDER (F294)** | **DETECTION YES, INVERSION NO.** Six rungs, floor 0.003 px. Flat over the first 10 mm, super-linear above 32 mm. **F231's *"cannot be recovered"* stands.** What survives is a regression detector at 126× the floor. **DO NOT RE-RUN IT.** |
+| **THE `BUMP_BOW` LADDER (F294)** | **DETECTION YES, INVERSION NO.** Six rungs, floor 0.003 px. Flat over the first 10 mm, super-linear above 32 mm. **F231's *"cannot be recovered"* stands.** What survives is a regression detector at 145× the floor. **DO NOT RE-RUN IT.** |
 | **§0.05 ITEM 2, THE RECESS (F295)** | **CANNOT BE BUILT FROM WHAT WE HOLD.** 64 px, 30 × 12, a bent LINE not an area, in one 480 × 320 frame; the primary frame is EDGE-ON and cannot see a face feature at all. Two readings survive and nothing separates them. |
 | **§0.05 ITEM 3, THE TILT (F296)** | **MEASURED ON THE CONSTANT'S OWN RULER AT LAST.** Photograph brackets 32.99–40.99°; shipped 38.0 is INSIDE, F165's 28.0 is 4.99° OUTSIDE. **A NON-EXCLUSION, not a confirmation — it licenses no change.** `probe_rev73_tailboard.py`, 5 checked 0 FAILED, detectors calibrated on the mesh's own 38.0 and a 7° rotation kill watched. |
 | **F228's FLOOR** | **RE-MEASURED: 2.044 % / worst 41** on hero34f, against the published 2.441 % / 40. ⚠ F228's frame and view are unrecorded, so say **"2.044 % on hero34f"**, not "F228 was wrong". |
@@ -336,7 +336,7 @@ MEANS TWO DIFFERENT THINGS IN LIVE SOURCE** (*"a control's kill is a preconditio
 | file | what it holds |
 |---|---|
 | **`HANDOFF_CARRIERS.md`** | every carrier: the goal, the reference set, §2's refuted emblem routes, §4 the owner's rulings, §5 rules 34–58, the horizon |
-| `OPEN_FINDINGS.md` | the register. **F284–F291 are rev 73's.** It outranks prose |
+| `OPEN_FINDINGS.md` | the register. **F284–F300 are rev 73's** (17 rows; F296's photograph half is retracted by F300 and F285's by F292 — read the annotations, not just the rows). It outranks prose |
 | `STATE.md` | machine-written; outranks every prose description. **Regenerate it before trusting a row that reads it — 19 verify rows do** |
 | `LEDGER_rev73.md` | what rev 73 did, **and §6, the four things it got wrong in its own work** |
 | `photometry.py` | the measurement protocol, with a selftest |
@@ -371,7 +371,7 @@ done off self-review. Report the measurement with its ceiling. Do not say anythi
 ---
 **⚠ THIS BRIEF WAS AUDITED AGAINST THE MACHINE, AND BOTH HALVES OF RULE 17 WERE RUN.**
 
-`audit_brief.py` **10 checked, 0 FAILED** — and it FAILED FIRST, on the row count.
+`audit_brief.py` **12 checked, 0 FAILED** — and it FAILED FIRST, on the row count.
 `audit_adversary.py` **61 asked, 0 BROKE** — and it BROKE at pickup on *"is `STATE.md` CURRENT for
 the geometry? (19 verify rows read it)"*, a staleness inherited from rev 72's close;
 `STATE.md` was regenerated and **its diff is three provenance lines and nothing else**, which is the
@@ -406,8 +406,10 @@ REVISION'S OWN CENTRAL CONCLUSION. TOP FOUR, ALL FIXED BEFORE CLOSE:**
   millimetres, the response may not be monotone, and **shading is not a ruler.** The ladder in §2.3
   is a proposal, not a result.
 * **P3's WINDOW IS `front`-ONLY AND THE 3/4 EXTENSION HAS A KNOWN TAUTOLOGY IN IT** — the fixtures'
-  X follows `NOSE_BULGE` and the bumper's bow is raycast off the same shell. §2.3 says so; nobody
-  has built the alternative anchor.
+  X follows `NOSE_BULGE` and the bumper's bow is raycast off the same shell, so a 3/4 window would
+  move with the quantity it measures. **`HANDOFF_CARRIERS.md` §0.10 carries it in full** *(it was
+  dropped from this file by the 32 KB shrink, where it was its only home; a second rule-17 adversary
+  caught that — rule 16 firing on the outgoing brief twice in one revision)*.
 * **F289b's LEVER IS SCORED BUT NEVER LOOKED AT.** The search completed and all four deltas are
   positive, **but nothing was built, rendered or cropped.** Rule 56's counterexample — the traced
   pressing — scored positive on both frames and renders as shards. **A silhouette IoU at ~220 px
