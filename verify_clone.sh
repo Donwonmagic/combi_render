@@ -2486,9 +2486,25 @@ ck "T1_DIFFB reaches the renderer's diffuse bounce count" 1 \
 #
 # EVERY ONE WAS WATCHED FAILING against the pre-rev-72 behaviour before it was
 # written into this file (rule 3); the values are read off runs, not typed.
+# ⚠ rev 73, F287 -- THIS ROW WAS NAMED "bare" AND RUNS `--nomesh`, AND THE TWO
+# ARE NOT THE SAME RUN.  Measured at rev 73, true exit codes, no pipe:
+#     probe_rev67_nose.py            -> 4 checked, 0 FAILED, 1 ABSENT, rc 2
+#     probe_rev67_nose.py --nomesh   -> 2 checked, 0 FAILED, 1 ABSENT, rc 2
+# Bare runs P1, P2 and the two mesh rows; `--nomesh` drops the mesh rows.  The
+# rc-2 / ABSENT behaviour this row locks is REAL and identical on both paths --
+# only the NAME was wrong, and it was wrong in five places at once (F275's
+# register row, this row, probe_rev67_nose.py's own comment, LEDGER_rev72.md §3
+# and the rev-73 brief), all of them publishing the `--nomesh` count of 2 as
+# the "bare" one.  A guard written to lock a fix could not see the mislabel
+# because it REPRODUCED it.  RENAMED, not re-based: the assertion is untouched.
+# `--nomesh` is deliberate here -- bare costs a ~70 s in-process build.
 _R72_NOSE="$(python3 probe_rev67_nose.py --nomesh >/tmp/_r72n.txt 2>&1; echo $?)"
-ck "F275 probe_rev67_nose bare EXITS NON-ZERO on an absent frame" 1 \
+ck "F275 probe_rev67_nose --nomesh EXITS NON-ZERO on an absent frame" 1 \
    "$([ "${_R72_NOSE:-0}" -ne 0 ] && echo 1 || echo 0)"
+# and the count that goes with THAT invocation, so the two can never drift
+# apart again without a row going red (F287)
+ck "F287 ... and --nomesh's own summary count is 2, not the 4 a bare run gives" 1 \
+   "$(grep -cE '^  2 checked, 0 FAILED, 1 ABSENT' /tmp/_r72n.txt)"
 # ⚠ THE FIRST CUT OF THIS ROW COUNTED OCCURRENCES OF "ABSENT" AND TYPED want=1.
 # It read 2 -- the word appears in the summary AND in the "NOT A PASS" line --
 # so the row went red on a probe that was behaving correctly.  Rule 5, caught by

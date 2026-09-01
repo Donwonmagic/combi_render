@@ -330,4 +330,33 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # ======================================================== rev 73, F286
+    # RULE 9 SAYS "READ EACH PROBE'S OWN SUMMARY LINE, NEVER ITS EXIT CODE".
+    # THIS PROBE HAD NO SUMMARY LINE TO READ ON THE PATH THE BRIEF TELLS YOU
+    # TO RUN IT ON.  `photometry.load_linear` REFUSES an AgX frame -- correctly,
+    # and that refusal is one of rev 71's watched kills -- but it raises from
+    # three frames down, so
+    #     python3 probe_rev71_red.py out/rNN_side.png --transform=agx
+    # printed a bare ValueError traceback and rc 1.  The rev-73 brief's §4
+    # calls that "WILL REFUSE, and that is correct": the REFUSAL is correct,
+    # the REPORTING was not.  This is F274's and F281's defect class exactly,
+    # both of which rev 72 fixed elsewhere and neither of which reached here.
+    # Rule 51: losing the input is a RESULT -- PRINT it, do not raise it.
+    # WATCHED at rev 73:
+    #   --transform=agx  -> "REFUSED ... 1 REFUSED", rc 3, summary line present
+    #   --transform=raw on an 8-bit frame -> the same shape
+    try:
+        main()
+    except SystemExit:
+        raise
+    except ValueError as e:
+        print()
+        print("  " + "-" * 74)
+        print("  REFUSED -- %s" % e)
+        print("  THE ROWS ABOVE THIS LINE STAND; EVERY ROW BELOW IT DID NOT "
+              "RUN.  Nothing was measured on the frame.")
+        print("  0 checked, 0 FAILED, 1 REFUSED  --  the frame could not be "
+              "read under the transform declared on the command line "
+              "(rule 37: an absent input must never read as a measurement)")
+        print("  " + "=" * 74)
+        raise SystemExit(3)

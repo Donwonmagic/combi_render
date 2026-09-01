@@ -645,6 +645,16 @@ def main():
         # and the exit code.  Watched at rev 72:
         #     bare                    -> "2 checked, 0 FAILED, 1 ABSENT", rc 2
         #     out/r72_front.png       -> the P3 row runs and REFUSES, rc 1
+        # *** rev 73, F287 -- THAT FIRST LINE IS THE `--nomesh` READING, NOT
+        # THE BARE ONE, AND IT WAS COPIED INTO FIVE CARRIERS.  Re-measured at
+        # rev 73, true exit codes, no pipe:
+        #     bare            -> "4 checked, 0 FAILED, 1 ABSENT", rc 2
+        #     --nomesh        -> "2 checked, 0 FAILED, 1 ABSENT", rc 2
+        # Bare runs P1, P2 and the two mesh rows; --nomesh drops the mesh
+        # rows.  The rc-2 / ABSENT FIX IS REAL on both paths -- only the count
+        # attributed to "bare" was wrong.  verify_clone.sh's row was NAMED
+        # "bare" while RUNNING --nomesh, so the guard reproduced the mislabel
+        # instead of catching it; it is renamed and has a companion row now. ***
         print("NO FRAME GIVEN -- P3 (the RENDER's bumper edge) DID NOT RUN.  "
               "Pass a frame, e.g. `python3 probe_rev67_nose.py "
               "out/r72_front.png`.  The photograph and mesh rows below stand; "
