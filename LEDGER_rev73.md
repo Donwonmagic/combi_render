@@ -365,6 +365,30 @@ reported **123.17°** against a known 38.0. Elongation is the pose-free fix — 
 1.5. **That is four instruments this revision caught being wrong before they published: the tyre
 naming, the stale camera matrix, the typed 2.09 px, and this.**
 
+**4. THE EMBLEM — THE FREE-ENDPOINT CONSTRUCTION WAS LOOKED AT (F298), AND IT MOVED THE QUESTION
+(F299).** F289b said the lever measures positive on both frames and the record said *"BUILD IT,
+RENDER IT, CROP IT AND LOOK."* Nobody could: **the nine numbers were never printed.** They are now.
+
+**NO `t1_core` EDIT WAS NEEDED, AND THE LICENCE FOR THAT IS MEASURED:** `probe_rev71_proxy` reads
+**`PROXY vs BUILT IoU 1.000000`** against the real mesh, so its raster is what the mesh would build.
+**`probe_scratch/rev73_emblem_free_ab.png` — photograph | shipped | (B).**
+
+* **(B) IS CONNECTED AND LEGIBLE.** Rule 56's failure mode — F262's disconnected shards — **does not
+  repeat.** Its strokes are steeper, narrower, more parallel: the direction F104 names. **Small.**
+* **AND THE CROP SHOWS SOMETHING THE IoU NEVER SAID: BOTH BUILDS ARE FAR TOO HEAVY.**
+  `probe_rev69_fitpose.py` prints **`photo-only/model-only inside the ring is 87/212 — NEAR
+  BALANCED`**. **87 against 212 is 2.44×.** The word contradicts the numbers on the same line, and
+  **F104/F235/F237's *"the ink AMOUNT is right and the ARRANGEMENT is wrong"* — carried in every
+  brief since rev 60 — does not survive it.** (B)'s search, given weight free, independently chose
+  **0.20429 against the shipped 0.2283**.
+* **IT IS NOT MINE TO SHIP.** `wfrac 0.2283` was measured and shipped at rev 66 (F204) *after* the
+  owner reported the strokes. **The crop is ready; the question is his.**
+
+⚠ **AND A NUMBER OF MY OWN, WITHDRAWN INSIDE THE HOUR (rule 13, rule 38).** I first quantified the
+weight as *"ink inside the disc: photograph 28.4 %, shipped 68.2 %"*. **That is not a like-for-like:
+the photograph is a CHROME PRESSING in a grey crop, so a threshold measures SHADOW, not stroke
+coverage.** Two rulers. **The 87/212 split is the defensible number; 28.4/68.2 is not to be quoted.**
+
 ---
 ## §5 THE MACHINE AT CLOSE
 

@@ -126,8 +126,29 @@ the **stitched** path) before spending anything on it.
   AN IoU RANKED THE TRACED PRESSING ABOVE THE SHIPPED GLYPH TOO, AND THAT RENDERS AS SHARDS (F262).
   NOTHING HERE HAS BEEN BUILT, RENDERED OR LOOKED AT. BUILD IT AND LOOK BEFORE BELIEVING IT.**
   ⚠ **~13 MINUTES, not the "~40 s" the probe's own comment claims.**
+* **⚠ AND REV 73 THEN BUILT THE PICTURE AND LOOKED AT IT (F298/F299). READ THIS BEFORE ANYTHING
+  ELSE ON THE EMBLEM.** `probe_rev71_emblem.py` now EMITS (B)'s nine numbers — they had never been
+  printed, so the result could be cited and not built. **No `t1_core` edit was needed to see it:
+  `probe_rev71_proxy` reads `PROXY vs BUILT IoU 1.000000` against the real mesh, so its raster IS
+  what the mesh would build.**
+  **LOOK AT `probe_scratch/rev73_emblem_free_ab.png` — photograph, shipped, (B), three panels.**
+  * **(B) IS CONNECTED AND LEGIBLE. Rule 56's failure mode does NOT repeat** — this is not F262's
+    shards. Its strokes are steeper, narrower and more parallel, which is the direction F104 names.
+    **The step is SMALL.**
+  * **AND THE BIGGER THING THE CROP SHOWS IS NOT ARRANGEMENT AT ALL — IT IS WEIGHT.**
+    **`probe_rev69_fitpose.py` PRINTS `photo-only/model-only inside the ring is 87/212 — NEAR
+    BALANCED` — and 87 against 212 is 2.44×.** The word contradicts the numbers beside it.
+    **So F104/F235/F237's *"the ink AMOUNT is right and the ARRANGEMENT is wrong"*, carried in every
+    brief since rev 60, is NOT supported by the instrument it rests on.** (B)'s search, given weight
+    as a free parameter, independently pulled it **0.2283 → 0.20429**.
+  * **STROKE WEIGHT IS THEREFORE A LIVE LEVER THE RECORD CLOSED**, and F237 closed it on the BROKEN
+    ruler (F246) which F252's own row says was never re-run. **⚠ IT IS NOT YOURS TO SHIP: `wfrac
+    0.2283` was MEASURED and shipped at rev 66 (F204) AFTER the owner reported the strokes.
+    THE CROP IS READY. ASK HIM, as multiple choice, with that image attached.**
 * Rule 56 still stands: **the objective has no legibility term, and the traced glyph renders as
   SHARDS (F262).** Watch any new term REJECT the traced glyph before trusting a search against it.
+  ⚠ **(B) passing the LOOK test is not the same as passing a legibility TERM — there is still no
+  such term, and (B) has not been through a Blender build or a render.**
 
 ### **3. THE NOSE — CLOSED AT REV 73 AS FAR AS A `front` FRAME CAN CLOSE IT (F284/F285). READ THE CEILING BEFORE RE-OPENING IT.**
 `probe_rev67_nose.py`'s **P3 now reads the render's bumper edge** — the first render-side reading
