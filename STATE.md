@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-08-31 18:14:15 UTC |
-| git commit | `6399b5b` |
-| git subject | rev 72: the rule-17 adversary broke the revision's own headline guard -- both holes fixed |
+| generated | 2026-09-01 06:39:45 UTC |
+| git commit | `7742fd0` |
+| git subject | rev 73: the ledger, the rev-74 brief, and rev 73's own regression lock |
 | working tree | clean |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=2 (applied, destructive, before booleans) |
