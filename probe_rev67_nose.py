@@ -603,8 +603,20 @@ def main():
         if win:
             edge = bumper_edge(aa, red, cream, win["ucol"], win["vrow"])
             ren = sagitta(edge)
-            paint_window(aa, edge, win,
-                         os.path.join(SCRATCH, "rev73_bumper_window.png"))
+            # ---------------------------------------------------- rev 73, F297
+            # THE PAINT ONLY OVERWRITES THE COMMITTED ARTEFACT FOR A REAL FRAME
+            # OUT OF out/.  Rev 73's own new verify_clone rows run this probe on
+            # a 2x2 SYNTHETIC png to exercise the refusal paths, and the first
+            # cut of them repainted probe_scratch/rev73_bumper_window.png with
+            # that 2x2 test image -- so `./verify_clone.sh` left the tree DIRTY
+            # and the NEXT run failed its own "modified tracked files" row.
+            # A verifier that dirties the tree it verifies fails the run after
+            # the one you are looking at, which is the worst kind of flake.
+            _real = os.path.dirname(os.path.abspath(frame)) == \
+                os.path.join(HERE, "out")
+            _out = os.path.join(SCRATCH, "rev73_bumper_window.png") if _real \
+                else os.path.join("/tmp", "rev73_bumper_window_scratch.png")
+            paint_window(aa, edge, win, _out)
             print("  P3 window %s  u %d..%d  v %d..%d  from %s"
                   % ("(T1_NOSE_NOWIN -- ABLATED, whole frame)" if nowin
                      else "projected off " + ", ".join(win["fix_names"])
@@ -617,8 +629,8 @@ def main():
                       "v0 %+.1f, v1 %+.1f) px from the projected "
                       "u %.1f..%.1f v %.1f..%.1f -- stated, not silent"
                       % (win["clamped"] + win["raw"]))
-            print("     PAINTED -> probe_scratch/rev73_bumper_window.png "
-                  "-- LOOK AT IT (rule 8).  %d columns selected." % len(edge))
+            print("     PAINTED -> %s -- LOOK AT IT (rule 8).  %d columns "
+                  "selected." % (_out, len(edge)))
         else:
             print("  P3 WINDOW NOT AVAILABLE -- %s" % win_why)
             absent.append("P3 (the RENDER's bumper edge) -- %s"
