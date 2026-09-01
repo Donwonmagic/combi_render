@@ -74,12 +74,18 @@ nose, is item 8 at 4.20e4 px², only **1.27×** the emblem he put third, which i
 The ranked list is `REMAINING_WORK_rev61.md`, triaged into `ROADMAP_rev68.md`.
 
 ### **1. SHIP GEOMETRY. ANY GEOMETRY. RULE 55 IS THE BINDING CONSTRAINT ON REV 74.**
-**AND THE CHEAPEST GEOMETRY ON THE TREE WAS SITTING IN THE BRIEF REV 73 RECEIVED AND WAS NOT
-DONE: `HANDOFF_CARRIERS.md` §0.05 ITEMS 2–5, of which item 2 — *"the **dark angled recess** in its
-forward-lower area"* — is *"genuinely absent"* and needs NO NEW MEASUREMENT.** F276 killed §0.05's
-item 1 only. **Rev 73 spent ten renders on a null and shipped no mesh; this is the item that was
-available and it is still available.** Also unbuilt and cheap: the tyres' TREAD, the tail's barrel,
-the shut lines, **F143 the roof loudspeakers (unmodelled for 57 revisions)**.
+**⚠ AND THE FIRST DRAFT OF THIS SECTION NAMED §0.05's ITEM 2 — the *"dark angled recess"* — AS
+THAT GEOMETRY, *"needs NO NEW MEASUREMENT"*. REV 73 THEN WENT AND LOOKED, AND WITHDREW IT (F295).**
+In RAW pixels the feature is **64 px below luminance 100, 30 × 12 px in a 480 × 320 JPEG, and it is
+a BENT LINE one to four pixels thick, not an area.** And the primary frame cannot corroborate it by
+construction: **`ref_side.jpg` shows the board almost exactly EDGE-ON**, so its FACE is invisible
+there — the same fact F276 used to kill item 1, applied to item 2. **Two readings survive and
+nothing separates them: a slot cut in the face, or the shadowed GAP between the board and the roof
+dome — which the model ALREADY produces, standing `+4.0 mm clear`.** Building the first would
+invent a feature and hide a correct one. **ITEM 3 IS NOW MEASURED (F296) AND ALSO LICENSES NO
+CHANGE.** So the honest geometry candidates for rev 74 are elsewhere: the tyres' TREAD, the tail's
+barrel, the shut lines, **F143 the roof loudspeakers (unmodelled for 57 revisions)** — **and every
+one of them needs its grounding checked FIRST, which is the lesson of items 2 and 3.**
 
 **⚠ AND ONE THING THE FIRST DRAFT OF THIS SECTION GOT FLATLY WRONG, CORRECTED BY THE RULE-17
 ADVERSARY BEFORE THIS FILE SHIPPED — KEPT VISIBLE RATHER THAN QUIETLY EDITED, BECAUSE IT WOULD HAVE
@@ -144,11 +150,24 @@ IT WAS RUN, WITH A FLOOR:**
 **PHOTOMETRICALLY**: bowing the blade turns it against the light, moving the sub-pixel red/cream
 threshold and changing which columns carry a step at all. ⚠ **CEILING: SHADING IS NOT A RULER.
 0.38 px converts to no millimetres, and two points is sensitivity, not calibration.**
-**THE ACTIONABLE ROUTE THIS OPENS, AND REV 73 DID NOT TAKE IT: BUILD THE LADDER.** Render
-`T1_BUMP_BOW` at 0 / 0.5 / 1.0 / 1.5 and see whether the sagitta responds monotonically. **If it
-does, this project has a render-side channel on the bow for the first time, and F231's *"cannot be
-recovered from what we hold"* is about the PHOTOGRAPHS, not about this.** If it does not, say so
-and the channel is dead. **Either way it is four `front` renders and it is cheap.**
+**⚠ THE LADDER WAS RUN AT REV 73's CLOSE AND IT ANSWERS ITS OWN QUESTION *NO* (F294). DO NOT
+RE-RUN IT.** Six `front` renders, one window built once, all six tracing as ONE EDGE:
+
+```
+    BUMP_BOW 0.00   mesh  +0.00 mm   sagitta +0.068 +- 0.073
+    BUMP_BOW 0.50   mesh +10.54 mm   sagitta +0.047 +- 0.069
+    BUMP_BOW 1.00   mesh +21.09 mm   sagitta +0.446 +- 0.070
+    BUMP_BOW 1.00   mesh +21.09 mm   sagitta +0.443 +- 0.070   <- the FLOOR pair, 0.003 px
+    BUMP_BOW 1.50   mesh +31.62 mm   sagitta +0.605 +- 0.069
+    BUMP_BOW 2.50   mesh +52.70 mm   sagitta +7.480 +- 0.316
+```
+
+**DETECTION YES — 0.00 vs 1.00 is 0.378 px, 126× the floor. INVERSION NO.** The first rung is
+FLAT (10.54 mm of real bow moves it **−0.021**, the wrong way and inside the per-fit SE), and the
+last EXPLODES (**+6.875 px** for one rung). **A response flat over its first 10 mm and super-linear
+above 32 mm cannot be inverted to millimetres.** So F292's ceiling is CONFIRMED, not lifted, and
+**F231's *"cannot be recovered"* is NOT overturned.** **WHAT SURVIVES IS A REGRESSION DETECTOR:** if
+something silently zeroed `BUMP_BOW`, this reading would catch it at 126× the floor.
 ⚠ **AND THE 3/4 ROUTE HAS A TRAP THE ADVERSARY FOUND: on any non-orthographic view the fixture
 anchors' X reaches the pixel, and `build.py` puts them at `HL_X0 + S.nose_fixture_dx(...)` — the
 fixture X FOLLOWS `NOSE_BULGE`, while `t1_detail._nose_plan_x` derives the bumper's bow by
@@ -204,6 +223,9 @@ owner has ruled *"keep studio"* TWICE. If you want to re-open it, ask him; do no
 | **F239's UNTRIED PAIRING (§2.4)** | **NULL, and the surviving claim REFUTED.** See §2.4. |
 | **`probe_rev71_red.py` (F286)** | Died on a **bare traceback with no summary line** on the command §4 prints. **Rule 9 had nothing to read.** Fixed and watched: rc 3, `0 checked, 0 FAILED, 1 REFUSED`. |
 | **F275's "bare" COUNT (F287)** | *"bare → 2 checked"* is the **`--nomesh`** reading; **bare is 4**. Wrong in five carriers **including the guard row written to lock it, which was NAMED "bare" and RAN `--nomesh`**. Renamed + companion row. |
+| **THE `BUMP_BOW` LADDER (F294)** | **DETECTION YES, INVERSION NO.** Six rungs, floor 0.003 px. Flat over the first 10 mm, super-linear above 32 mm. **F231's *"cannot be recovered"* stands.** What survives is a regression detector at 126× the floor. **DO NOT RE-RUN IT.** |
+| **§0.05 ITEM 2, THE RECESS (F295)** | **CANNOT BE BUILT FROM WHAT WE HOLD.** 64 px, 30 × 12, a bent LINE not an area, in one 480 × 320 frame; the primary frame is EDGE-ON and cannot see a face feature at all. Two readings survive and nothing separates them. |
+| **§0.05 ITEM 3, THE TILT (F296)** | **MEASURED ON THE CONSTANT'S OWN RULER AT LAST.** Photograph brackets 32.99–40.99°; shipped 38.0 is INSIDE, F165's 28.0 is 4.99° OUTSIDE. **A NON-EXCLUSION, not a confirmation — it licenses no change.** `probe_rev73_tailboard.py`, 5 checked 0 FAILED, detectors calibrated on the mesh's own 38.0 and a 7° rotation kill watched. |
 | **F228's FLOOR** | **RE-MEASURED: 2.044 % / worst 41** on hero34f, against the published 2.441 % / 40. ⚠ F228's frame and view are unrecorded, so say **"2.044 % on hero34f"**, not "F228 was wrong". |
 
 ---
@@ -247,6 +269,9 @@ python3 probe_rev71_red.py out/r74_side.png --transform=agx   # REFUSES *with a 
   # T1_DIFFB / T1_SPEC / T1_CYCALB / T1_BODY_COAT are the ablations.
 python3 probe_rev71_bulbs.py out/r74_side.png # ceiling is DILUTION, not misplacement (F250)
 python3 probe_rev72_bits.py out/r74_hero34f.png   # 5 checked, 1 FAILED -- B4 REFUSES BY DESIGN
+python3 probe_rev73_tailboard.py             # NEW at rev 73.  5 checked, 0 FAILED.  It
+  # CALIBRATES on the mesh's own 38.0 before it reads a photograph, and its T3 row is a
+  # 7-degree ROTATION KILL.  Bare it needs a *_side.png in out/ and REFUSES without one
 python3 probe_rev70_tyre.py out/r74_side.png ; python3 probe_rev46_vw.py
 python3 visibility_budget.py 3840 out/r74_hero34f.png ; python3 revstats.py
 T1_SUB=2 /tmp/blender/blender -b -P audit.py            # rewrites STATE.md -- COMMIT FIRST
