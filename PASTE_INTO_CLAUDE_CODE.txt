@@ -166,11 +166,34 @@ one pairing never tried.
 | **§0.05's "no underside" (F276)** | **REFUTED.** A 22 mm solid prism. It was an edge-on view. |
 
 ---
+## §3b ⚠ REV 72's FIXES ARE LOCKED. YOU CANNOT REGRESS THEM SILENTLY.
+
+> *[owner, closing rev 72]* **"set up for success so that it can only carry forward, no regression
+> allowed."** **A BRIEF CANNOT DO THAT; GUARDS CAN.**
+
+Rev 72 fixed four instruments, added a validator and shipped five ablation kills — and **not one had a
+row**, so any of them could have been reverted and the next close would still have read ALL PASS. It
+closed by adding **11 behavioural rows to `verify_clone.sh`** (~16 s) and **8 to `bootstrap.sh
+--guards`**. They RUN the thing and read what it does (rule 50), and **every one was watched failing
+against the ACTUAL PRE-REV-72 CODE checked out of git — not an injected defect.** The four
+before/after readings are in `LEDGER_rev72.md` §6c.
+
+**YOU MAY IMPROVE ANY OF IT; YOU MAY NOT SILENTLY UNDO IT.** A red row here is a FINDING ABOUT YOUR
+CHANGE — `verify_clone.sh` says so itself: *"Do NOT edit this script to make it pass."* A re-base needs
+the cause NAMED **and** a companion row making that cause separately testable (rev 72 re-based the mesh
+count 228 → 229 exactly that way, and the companion row names `seal_rear`).
+
+**RUN `./bootstrap.sh --guards` ONCE THIS REVISION** (~10 min). It is the ONLY thing that exercises the
+five rear-hatch kills. **Rule 47: an ablation switch can stop ablating, and silence is its failure mode.**
+
+---
 ## §4 THE MACHINE
 
 ```bash
 ./bootstrap.sh                                # ALL 10 PASS -- read ROW 9
-./verify_clone.sh                             # ALL 381 PASS -- read the verdict block too
+./bootstrap.sh --guards                       # ~10 min.  THE ONLY THING THAT RUNS THE FIVE
+                                              # REAR-HATCH KILLS (rule 47).  Run it once.
+./verify_clone.sh                             # ALL 392 PASS -- read the verdict block too
 T1_SUB=1 T1_VERIFY=1 /tmp/blender/blender -b -P build.py     # -> "VERIFY: 0 fail, 0 warn"
 python3 photometry.py                         # 9 checked, 0 FAILED
 python3 probe_rev72_bits.py out/r73_hero34f.png   # NEW at rev 72.  5 checked, 1 FAILED --

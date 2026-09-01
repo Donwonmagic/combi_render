@@ -225,6 +225,30 @@ something independent of the edge it measures (rule 6) and painted first (rule 8
 **⚠ CEILING: rev 72 did NOT build that window. This refutes a prescription; it does not supply a
 replacement.** P1 and P2 pass unchanged on the photograph side.
 
+## 6c. THE REGRESSION LOCK, AND EVERY ROW WATCHED FAILING ON THE REAL OLD CODE
+
+The owner closed rev 72 with **"set up for success so that it can only carry forward, no regression
+allowed."** Rev 72 had fixed four instruments, added a validator and shipped five kills, and **not one
+of them had a row.** So: **11 behavioural rows in `verify_clone.sh`** (~16 s total) and **8 in
+`bootstrap.sh --guards`** (the ablation sweep, ~7 builds).
+
+**EVERY ROW WAS WATCHED FAILING AGAINST THE ACTUAL PRE-REV-72 FILE, CHECKED OUT OF GIT** (`cca850f^1`,
+rev 71's tip) — not an injected defect, which is the strongest form of rule 3 available here:
+
+```
+    probe_rev67_nose.py  OLD  rc 0, summary "2 checked, 0 FAILED", no ABSENT   -> 2 rows RED
+    gloss_compare.py     OLD  rc 1, raw FileNotFoundError, no "NO RENDER"      -> 2 rows RED
+    revstats.py          OLD  no "COMPUTED", the retired 721/1.55 PRESENT,
+                              no merge handling, rev 71 reading 176 not 88     -> 3 rows RED
+    t1_shell.py          OLD  T1_REAR_OPEN=-64 ACCEPTED SILENTLY, rc 0         -> 2 rows RED
+```
+
+**AND TWO OF MY OWN ROWS WERE WRONG WHEN FIRST WRITTEN, BOTH CAUGHT BY RUNNING THEM:**
+one counted occurrences of `ABSENT` and typed `want=1` where the probe legitimately prints it twice
+(rule 5 again, third time this revision); and the whole `--guards` sweep printed **FAIL on all seven
+rows whose got and want AGREED**, because `bootstrap.sh`'s `ck` is `ck <label> <ok|message>` and I had
+used `verify_clone.sh`'s `ck <label> <want> <got>`. **Neither was fixed by loosening a bar.**
+
 ## 7. WHAT DID NOT MOVE
 
 **The emblem, and the nose.** Both were rendered, cropped and LOOKED AT — that much was done and is

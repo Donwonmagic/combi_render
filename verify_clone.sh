@@ -2473,6 +2473,63 @@ PY
 ck "T1_DIFFB reaches the renderer's diffuse bounce count" 1 \
    "$(grep -c 'sc.cycles.diffuse_bounces = int(os.environ.get("T1_DIFFB"' studio.py)"
 
+# ---------------------------------------------------------------------------
+# REV 72's FIXES, LOCKED SO THEY CANNOT SILENTLY REGRESS.
+#
+# THE OWNER'S INSTRUCTION AT THE CLOSE OF REV 72: "set up for success so that it
+# can only carry forward, no regression allowed."  A BRIEF CANNOT DO THAT.  Rev
+# 72 fixed four instruments and added a validator, and NOT ONE of them had a row
+# -- so any of them could have been reverted, refactored away, or "tidied" and
+# the next close would still have read ALL PASS.  These rows are BEHAVIOURAL:
+# they RUN the thing and read what it does (rule 50 -- a grep tells you a name
+# is present and nothing else).  Cost, measured: about 16 s in total.
+#
+# EVERY ONE WAS WATCHED FAILING against the pre-rev-72 behaviour before it was
+# written into this file (rule 3); the values are read off runs, not typed.
+_R72_NOSE="$(python3 probe_rev67_nose.py --nomesh >/tmp/_r72n.txt 2>&1; echo $?)"
+ck "F275 probe_rev67_nose bare EXITS NON-ZERO on an absent frame" 1 \
+   "$([ "${_R72_NOSE:-0}" -ne 0 ] && echo 1 || echo 0)"
+# ⚠ THE FIRST CUT OF THIS ROW COUNTED OCCURRENCES OF "ABSENT" AND TYPED want=1.
+# It read 2 -- the word appears in the summary AND in the "NOT A PASS" line --
+# so the row went red on a probe that was behaving correctly.  Rule 5, caught by
+# running it.  What matters is that the SUMMARY LINE carries it, because rule 9
+# says read the summary and never the exit code; that is what is tested now.
+ck "F275 ... and its SUMMARY LINE says ABSENT, not a clean pass (rule 9 reads it)" 1 \
+   "$(grep -cE 'checked,.*ABSENT' /tmp/_r72n.txt)"
+_R72_GC="$(python3 gloss_compare.py out/_r72_absent_frame.png >/tmp/_r72g.txt 2>&1; echo $?)"
+ck "F274 gloss_compare REFUSES a NAMED missing frame instead of a traceback" 3 \
+   "${_R72_GC:-0}"
+ck "F274 ... and says NO RENDER rather than dying inside Image.open" 1 \
+   "$(grep -c 'NO RENDER' /tmp/_r72g.txt)"
+_R72_BITS="$(python3 probe_rev72_bits.py >/tmp/_r72b.txt 2>&1; echo $?)"
+ck "rule 37: probe_rev72_bits bare refuses (2 ABSENT, non-zero)" 1 \
+   "$([ "${_R72_BITS:-0}" -ne 0 ] && grep -q 'ABSENT' /tmp/_r72b.txt && echo 1 || echo 0)"
+# F273/F280.  revstats is the OWNER'S OWN drift instrument and it was wrong in
+# two ways at once: it double-counted every PR-landed revision, and it printed a
+# HARD-CODED baseline that disagreed with the table nine lines above it.  These
+# two rows hold both fixes.  The baseline must be COMPUTED and the retired
+# figure must be GONE -- CLAUDE.md deleted 721 as wrong and it came back once.
+python3 revstats.py > /tmp/_r72r.txt 2>&1
+ck "F280 revstats' baseline is COMPUTED from the run, not typed" 1 \
+   "$(grep -c 'COMPUTED from this run' /tmp/_r72r.txt)"
+ck "F280 ... and the retired 721 / 1.55 baseline has NOT come back" 0 \
+   "$(grep -cE '721 geometry|ratio of 1\.55' /tmp/_r72r.txt)"
+ck "F273 revstats accounts for merges separately, not by counting them twice" 1 \
+   "$(grep -c 'merges' revstats.py | awk '{print ($1>0)?1:0}')"
+# F281.  The rear hatch's angle switch REFUSES a pose its hinge cannot express,
+# AND its message must clear _hinge_y by name.  Before rev 72 this died three
+# frames down on an assert that told the reader to go and debug _hinge_y, which
+# is not at fault; a guard that names the wrong suspect is worse than none.
+T1_REAR_OPEN=-64 python3 -c 'import t1_shell' >/tmp/_r72s.txt 2>&1
+ck "F281 T1_REAR_OPEN=-64 REFUSES at the parse site, naming the switch" 1 \
+   "$(grep -c 'T1_REAR_OPEN=-64 is outside 0..180' /tmp/_r72s.txt)"
+ck "F281 ... and its message CLEARS _hinge_y, which is not at fault" 1 \
+   "$(grep -c 'which is not at fault' /tmp/_r72s.txt)"
+T1_REAR_OPEN=banana python3 -c 'import t1_shell' >/tmp/_r72t.txt 2>&1
+ck "F281 a non-numeric T1_REAR_OPEN refuses too, rather than crashing" 1 \
+   "$(grep -c 'is not a number' /tmp/_r72t.txt)"
+rm -f /tmp/_r72n.txt /tmp/_r72g.txt /tmp/_r72b.txt /tmp/_r72r.txt /tmp/_r72s.txt /tmp/_r72t.txt
+
 ck "newest brief states THIS script's row count" "$((PASS+1))" "${_BRIEF_TOTAL:-0}"
 
 UNTRACKED="$(git status --porcelain 2>/dev/null | grep -c '^??')"
