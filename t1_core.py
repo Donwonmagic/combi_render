@@ -900,6 +900,72 @@ VW_W_TROUGH_X = 0.3111
 VW_W_TROUGH_Z = -0.6445
 VW_W_PEAK_Z = -0.075
 
+# =========================================================== rev 73, F301
+# THE FREE-ENDPOINT SPINE.  T1_VW_FREE=1.
+#
+# WHY IT EXISTS.  `_spines()` forces every one of the six terminals onto the
+# band circle through `_on_band`, and `_on_band` NORMALISES -- so each pair
+# contributes only a DIRECTION and its magnitude divides out (F224, corrected
+# at rev 69).  A stroke's ANGLE is therefore NOT AN INDEPENDENT PARAMETER OF
+# THIS MODEL AT ALL, which is rule 54's own worked example, and it is why
+# fitting all seven shipped constants moves the pose-free shape by 4.4 %.
+# The record's prescription, unbuilt since rev 69: "give each stroke its own
+# centreline with FREE ENDPOINTS -- not forced onto the band circle".
+#
+# WHERE THESE NINE NUMBERS COME FROM.  `probe_rev71_emblem.py`'s option (B),
+# `T1_REV71_SEARCH=AB`, fitted on ref_workshop.jpg and SCORED on IMG_2073.jpeg
+# -- fit on one frame, score on the other, which is F237's own requirement
+# because the two frames' IoUs are not comparable to each other.  Reproduced
+# FOUR times across rev 73 at fit 0.8689 / indep 0.8374 against the shipped
+# 0.8425 / 0.8215: +0.0264 and +0.0159, BOTH POSITIVE, and the independent
+# frame is the one P4 exists to catch overfitting on.
+#
+# THE UNITS ARE THE SAME ONES THE SHIPPED CONSTANTS USE.  probe_rev71_proxy's
+# SHIPPED dict reads C.VW_V_TIP_X and friends directly, so a proxy vector
+# transfers to this module verbatim -- and `probe_rev71_proxy.prove()` reads
+# PROXY vs BUILT IoU 1.000000, which is the licence for that transfer.
+#
+# RULE 56 WAS THE RISK AND IT WAS DISCHARGED BY LOOKING, NOT BY SCORING.  The
+# traced pressing (F183/F262) also scored positive on both frames by this same
+# silhouette IoU and renders as DISCONNECTED SHARDS, because an IoU at ~220 px
+# cannot see fragmentation.  This construction was rasterised at 600 rows and
+# put beside the photograph and the shipped glyph before anything was built:
+# probe_scratch/rev73_emblem_free_ab.png.  It is CONNECTED and LEGIBLE, its
+# strokes are steeper, narrower and more parallel, and that is the direction
+# F104 names as the defect.
+VW_FREE_V_TIP_X  =  0.37219
+VW_FREE_V_TIP_Z  =  0.75768
+VW_FREE_APEX_Z   =  0.05380     # == the shipped 0.0538; the search left it
+VW_FREE_W_ARM_X  =  0.73883
+VW_FREE_W_ARM_Z  =  0.38743
+VW_FREE_W_TR_X   =  0.31110     # == the shipped 0.3111; the search left it
+VW_FREE_W_TR_Z   = -0.58148
+VW_FREE_W_PEAK_Z = -0.10964
+# THE WEIGHT IS NOT THE SEARCH'S.  The nine-parameter search chose 0.20429 with
+# weight free, but a silhouette IoU is a WEAK ruler for stroke weight, and
+# probe_rev46_vw's L6 is a strong one -- stroke width / ring width AT THE SAME
+# ROW, a horizontal over a horizontal, so the viewing angle's cosine cancels and
+# it needs no axis ratio and no radial registration.  That is F204's own
+# argument for preferring it, and it is used here against F204's own number.
+# SWEPT LIVE AT REV 73 (probe_rev46_vw, photograph L6 = 0.1528):
+#     FREE spine  wfrac 0.2050 -> 0.1412   0.2150 -> 0.1491
+#                       0.2200 -> 0.1522   0.2283 -> 0.1580
+# so the crossing is ~0.2205, and the SHIPPED spine reads the same 0.1579 at
+# 0.2283.  ⚠ THAT IS A LIVE DISCREPANCY WITH F204, WHICH SAYS "L6 crosses
+# 0.1528 at wfrac 0.2283 (converged 552-row raster: L6 0.1530)".  On the probe
+# as it runs TODAY the shipped build reads 0.1579 there, and T1_VW_RES does not
+# change it.  F204's raster is not reachable from the live code path, so this is
+# recorded as a re-measurement, NOT as "F204 was wrong" (F302).
+VW_FREE_WFRAC    =  0.2205      # the LIVE L6 crossing, not the search's 0.20429
+VW_SEARCH_WFRAC  =  0.20429     # kept: what the IoU search chose, for the record
+
+
+def vw_free():
+    """is the free-endpoint spine active?  IT SHIPS; `T1_VW_FREE=0` ablates it
+    back to the on-band spine exactly as it stood at rev 72, so the two can be
+    built from one tree (rule 41) and the change is ablatable (rule 36)."""
+    return os.environ.get("T1_VW_FREE", "1") != "0"
+
 
 def vw_bars(R, w, origin, u_ax, v_ax, n_ax, depth, tag="vw", traced=False):
     """V-over-W emblem as TWO closed mitred prisms, one V and one W.
@@ -1034,15 +1100,46 @@ def vw_bars(R, w, origin, u_ax, v_ax, n_ax, depth, tag="vw", traced=False):
         k = _RING_INNER_FRAC / r
         return (p[0] * k, p[1] * k)
 
-    V_SPINE = [_on_band((-_V_TIP_X, _ty)), _apex, _on_band((_V_TIP_X, _ty))]
-    W_SPINE = [_on_band((-VW_W_ARM_X, VW_W_ARM_Z)),
-               _on_band((-VW_W_TROUGH_X, VW_W_TROUGH_Z)),
-               (0.000, VW_W_PEAK_Z),
-               _on_band((VW_W_TROUGH_X, VW_W_TROUGH_Z)),
-               _on_band((VW_W_ARM_X, VW_W_ARM_Z))]
-    for _p in (V_SPINE[0], V_SPINE[2], W_SPINE[0], W_SPINE[1],
-               W_SPINE[3], W_SPINE[4]):
-        assert abs((_p[0] ** 2 + _p[1] ** 2) ** 0.5 - _RING_INNER_FRAC) < 1e-12
+    # ------------------------------------------------------ rev 73, F301
+    # THE FREE-ENDPOINT BRANCH.  Everything downstream of the spine -- the
+    # fixed-point terminal drive, the arc cut, `_fit_glyph` -- is UNCHANGED
+    # and shared, exactly as probe_rev71_proxy shares it: the `on_band` flag
+    # only decides whether a raw endpoint is radially projected onto the band
+    # circle FIRST.  That is the whole difference, and it is the difference
+    # that gives a stroke's angle somewhere to live (rule 54).
+    if vw_free():
+        V_SPINE = [(-VW_FREE_V_TIP_X, VW_FREE_V_TIP_Z),
+                   (0.000, VW_FREE_APEX_Z),
+                   (VW_FREE_V_TIP_X, VW_FREE_V_TIP_Z)]
+        W_SPINE = [(-VW_FREE_W_ARM_X, VW_FREE_W_ARM_Z),
+                   (-VW_FREE_W_TR_X, VW_FREE_W_TR_Z),
+                   (0.000, VW_FREE_W_PEAK_Z),
+                   (VW_FREE_W_TR_X, VW_FREE_W_TR_Z),
+                   (VW_FREE_W_ARM_X, VW_FREE_W_ARM_Z)]
+        # THE ON-BAND ASSERT CANNOT APPLY HERE -- being off the band circle is
+        # the POINT -- so it is REPLACED, not dropped.  What must still hold is
+        # that no terminal has run away: every one stays inside the ring's
+        # outer radius and outside the glyph's interior.  A construction that
+        # violated this would build a stroke through the ring or through the
+        # centre, and either would be visible instantly.
+        for _p in (V_SPINE[0], V_SPINE[2], W_SPINE[0], W_SPINE[1],
+                   W_SPINE[3], W_SPINE[4]):
+            _r = (_p[0] ** 2 + _p[1] ** 2) ** 0.5
+            assert 0.30 < _r < 1.00, (
+                "T1_VW_FREE: terminal at radius %.4f is outside the admissible "
+                "band 0.30 .. 1.00 (ring outer radius is 1.0, band inner is "
+                "%.4f).  A free endpoint has run away." % (_r, _RING_INNER_FRAC))
+    else:
+        V_SPINE = [_on_band((-_V_TIP_X, _ty)), _apex, _on_band((_V_TIP_X, _ty))]
+        W_SPINE = [_on_band((-VW_W_ARM_X, VW_W_ARM_Z)),
+                   _on_band((-VW_W_TROUGH_X, VW_W_TROUGH_Z)),
+                   (0.000, VW_W_PEAK_Z),
+                   _on_band((VW_W_TROUGH_X, VW_W_TROUGH_Z)),
+                   _on_band((VW_W_ARM_X, VW_W_ARM_Z))]
+        for _p in (V_SPINE[0], V_SPINE[2], W_SPINE[0], W_SPINE[1],
+                   W_SPINE[3], W_SPINE[4]):
+            assert abs((_p[0] ** 2 + _p[1] ** 2) ** 0.5
+                       - _RING_INNER_FRAC) < 1e-12
     # ------------------------------------------------------------- rev 44b
     # PUTTING THE SPINE ON THE BAND CIRCLE IS NOT ENOUGH, AND THE FIRST
     # ATTEMPT PROVED IT: the V's tips came back at 0.716 of the ring radius

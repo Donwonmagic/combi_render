@@ -112,6 +112,58 @@ def main():
     # ⚠ EVERY IoU THEY PRINT IS ON THE INSTRUMENT F246 REFUTES.  They RANK
     # constructions against each other on ONE fixed ruler, which is what a
     # search needs; their DISTANCE from 0.9882 is NOT a shape deficit.
+    # ------------------------------------------------------- rev 73, F301
+    # SCORE A NAMED CONSTRUCTION AT A NAMED WEIGHT, ON THIS PROBE'S OWN
+    # TARGETS.  T1_REV71_SCORE=1, ~2 min.
+    #
+    # IT EXISTS BECAUSE AN AD-HOC HARNESS GOT IT WRONG.  Rev 73 first scored
+    # (B) in a scratch script that called F.photo_mark WITHOUT the box and the
+    # bbox-crop flag this probe passes -- `(262, 492, 352, 600), True` and
+    # `(283, 537, 357, 662), True` -- and the SHIPPED construction came back
+    # 0.4718 / 0.6313 instead of 0.8425 / 0.8215.  The harness could not
+    # reproduce a known answer, so nothing measured through it was usable.
+    # THE CONTROL IS THE FIRST ROW HERE AND IT REFUSES IF IT DRIFTS.
+    if os.environ.get("T1_REV71_SCORE") == "1":
+        import t1_core as C
+        FREE = dict(V_TIP_X=C.VW_FREE_V_TIP_X, V_TIP_Z=C.VW_FREE_V_TIP_Z,
+                    APEX_Z=C.VW_FREE_APEX_Z, W_ARM_X=C.VW_FREE_W_ARM_X,
+                    W_ARM_Z=C.VW_FREE_W_ARM_Z, W_TR_X=C.VW_FREE_W_TR_X,
+                    W_TR_Z=C.VW_FREE_W_TR_Z, W_PEAK_Z=C.VW_FREE_W_PEAK_Z,
+                    on_band=False)
+        def _s(p_, w_, dst):
+            return F.fit(X.mask(p_, w_, rows=220), dst)[0]
+        # THE LIVE L6 CROSSING.  F204 fixed the weight by probe_rev46_vw's L6
+        # -- stroke width / ring width AT THE SAME ROW, a horizontal over a
+        # horizontal, so the viewing angle's cosine cancels -- and that is a
+        # better ruler for WEIGHT than a nine-parameter silhouette fit.  Swept
+        # live at rev 73, L6 crosses the photograph's 0.1528 near here for BOTH
+        # spines.  It is an env override so the sweep can be redone, not typed
+        # into an argument list.
+        _L6W = float(os.environ.get("T1_REV71_L6W", 0.2205))
+        base_f = _s(X.SHIPPED, X.WFRAC, dst_fit)
+        base_i = _s(X.SHIPPED, X.WFRAC, dst_ind)
+        print("\n  T1_REV71_SCORE -- constructions on THIS probe's own targets")
+        print("  CONTROL, the SHIPPED spine at the SHIPPED wfrac %.4f: "
+              "fit %.4f  indep %.4f" % (X.WFRAC, base_f, base_i))
+        ok = abs(base_f - 0.8425) < 0.002 and abs(base_i - 0.8215) < 0.002
+        print("     %s -- the published shipped pair is 0.8425 / 0.8215%s"
+              % ("CONTROL HOLDS" if ok else "*** CONTROL FAILED ***",
+                 "" if ok else ".  EVERY ROW BELOW IS VOID (rule 37)."))
+        if ok:
+            for lab, pp, ww in (
+                    ("(B) free spine, the SEARCH's wfrac %.5f"
+                     % C.VW_FREE_WFRAC, FREE, C.VW_FREE_WFRAC),
+                    ("(B) free spine, F204's MEASURED wfrac %.4f"
+                     % X.WFRAC, FREE, X.WFRAC),
+                    ("(B) free spine, the LIVE L6 crossing %.4f"
+                     % _L6W, FREE, _L6W),
+                    ("SHIPPED spine, the LIVE L6 crossing %.4f"
+                     % _L6W, X.SHIPPED, _L6W)):
+                f_, i_ = _s(pp, ww, dst_fit), _s(pp, ww, dst_ind)
+                print("  %-46s fit %.4f (%+.4f)  indep %.4f (%+.4f)"
+                      % (lab, f_, f_ - base_f, i_, i_ - base_i))
+        raise SystemExit(0 if ok else 3)
+
     want = os.environ.get("T1_REV71_SEARCH", "")
     if want:
         import math

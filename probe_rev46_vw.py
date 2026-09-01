@@ -329,8 +329,23 @@ PARAMS = ("VW_V_TIP_X", "VW_APEX_Z", "VW_W_ARM_X", "VW_W_ARM_Z",
 BUILT_ROWS = 552
 
 
-def built_landmarks(rows=BUILT_ROWS, **over):
+def built_landmarks(rows=BUILT_ROWS, on_band=None, **over):
+    """the built glyph's landmarks, optionally with constants overridden.
+
+    *** rev 73, F301 -- `on_band=True` FORCES THE ON-BAND CONSTRUCTION for the
+    duration.  It exists because the six constants this function is asked to
+    override -- VW_V_TIP_X and friends -- belong to the ON-BAND spine, and the
+    free-endpoint spine now SHIPS and does not read them.  Overriding them
+    under the free spine is INERT, so the rev-45 baseline came back identical
+    to the live residual and C3/C5 went red reporting "better by a factor of
+    1.0".  That red was CORRECT -- it is rule 47's failure mode, a control
+    whose input stopped reaching the thing it controls -- and the fix is to
+    evaluate a historical on-band baseline in the construction it belongs to,
+    NOT to relax the bar. ***"""
     old = {k: getattr(C, k) for k in over}
+    _env = os.environ.get("T1_VW_FREE")
+    if on_band:
+        os.environ["T1_VW_FREE"] = "0"
     for k, v in over.items():
         setattr(C, k, v)
     try:
@@ -338,6 +353,11 @@ def built_landmarks(rows=BUILT_ROWS, **over):
     finally:
         for k, v in old.items():
             setattr(C, k, v)
+        if on_band:
+            if _env is None:
+                os.environ.pop("T1_VW_FREE", None)
+            else:
+                os.environ["T1_VW_FREE"] = _env
 
 
 def err(res):
@@ -403,7 +423,7 @@ ctl("C2", abs(bspan - pspan) < 0.02,
 # ---- C3 THE KILL: the rev-45 constants must MISS
 REV45 = dict(VW_V_TIP_X=0.270, VW_APEX_Z=0.284, VW_W_ARM_X=0.760,
              VW_W_ARM_Z=-0.060, VW_W_TROUGH_X=0.380, VW_W_TROUGH_Z=-0.700)
-e45, L45 = err(built_landmarks(**REV45))
+e45, L45 = err(built_landmarks(on_band=True, **REV45))
 print("\n    rev 45  " + "  ".join("%s %.4f" % (k, L45[k]) for k in
                                    ("L1", "L2", "L3", "L4")) if L45 else "")
 print("            residual vs photograph = %.4f" % e45)
@@ -859,23 +879,35 @@ ctl("C11", (npho_raw - npho == 1) and (nb_raw - nb == 0)
 # and the sentence did not move.  No audit can catch a number that prints
 # without being measured, so this control moves a constant and insists the
 # reported figures move with it.
+# *** rev 73, F301 -- IT MUST PERTURB THE CONSTANT THE BUILD ACTUALLY USES.
+# The free-endpoint spine ships (t1_core.vw_free()), and under it the shipped
+# glyph is driven by VW_FREE_W_ARM_X, NOT VW_W_ARM_X.  This control kept
+# perturbing the old constant and correctly went RED -- "moves 0 of 108" --
+# which is rule 47's failure mode caught by a guard rather than by a reader:
+# an ablation that stops ablating.  THE RED WAS RIGHT AND THE FIX IS HERE, not
+# a relaxed bar.  It now perturbs whichever constant is live, and SAYS WHICH.
 _r_before = terminal_reach()
-_keep = C.VW_W_ARM_X
-C.VW_W_ARM_X = _keep * 0.80
+_FREE = C.vw_free()
+_NAME = "VW_FREE_W_ARM_X" if _FREE else "VW_W_ARM_X"
+_keep = getattr(C, _NAME)
+setattr(C, _NAME, _keep * 0.80)
 try:
     _r_after = terminal_reach()
 finally:
-    C.VW_W_ARM_X = _keep
+    setattr(C, _NAME, _keep)
 _moved = sum(1 for a, b in zip(sorted(_r_before), sorted(_r_after))
              if abs(a - b) > 1e-6)
 print("\n    IS C6's MESSAGE A MEASUREMENT?  (F198's kill)")
-print("        VW_W_ARM_X %.4f -> %.4f moves %d of %d outline radii"
-      % (_keep, _keep * 0.80, _moved, len(_r_before)))
+print("        %s %.4f -> %.4f moves %d of %d outline radii  (free spine: %s)"
+      % (_NAME, _keep, _keep * 0.80, _moved, len(_r_before), _FREE))
 ctl("C12", _moved > 0 and len(_r_before) == len(_reach),
     "THE REACH FIGURES IN C6's MESSAGE ARE READ OFF THE MESH, NOT TYPED.  "
-    "Perturbing VW_W_ARM_X by 20 %% moves %d of %d of them.  A string literal "
-    "would move none -- which is exactly how F198 survived five revisions"
-    % (_moved, len(_r_before)))
+    "Perturbing %s -- the constant the LIVE construction uses -- by 20 %% "
+    "moves %d of %d of them.  A string literal would move none, which is "
+    "exactly how F198 survived five revisions; and a guard aimed at a constant "
+    "the build no longer reads would move none either, which is how this row "
+    "caught rev 73 shipping the free spine (F301)"
+    % (_NAME, _moved, len(_r_before)))
 
 nfail = sum(1 for v in CTL.values() if not v)
 print("\nCONTROLS: %d checked, %d FAILED%s"
