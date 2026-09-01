@@ -1,33 +1,34 @@
 # LEDGER — rev 73
 
-`python3 revstats.py` at close: **rev 73 — 23 commits, 0 GEOMETRY lines, 2124 doc, 1140 instrument, 0 findings closed.** *(Read at the FINAL commit. Earlier drafts of this line read 0/8/476 and 0/1466/583 — both true of the moment they were run, which is the ceiling below, stated rather than hidden.)*
-
-⚠ **AND THE CEILING ON THAT LINE, WHICH NO LEDGER HAS EVER STATED: IT IS MEASURED BEFORE THE
-HANDOFF COMMIT AND THE HANDOFF COMMIT INVALIDATES IT.** This file and
-`NEXT_CONTEXT_PROMPT_rev74.md` are ~600 lines of doc that land AFTER the figure is read, against
-0 geometry. **Re-run `revstats.py` after the handoff lands if you want rev 73's true doc:geo — it
-is worse than the number above, and it is unbounded above because it divides by zero geometry.**
+`python3 revstats.py` at close: **rev 73 — 29 commits, 123 GEOMETRY lines, 2145 doc, 1312 instrument, 0 findings closed.** *(Read at this commit; the doc column keeps growing as the handoff lands — that ceiling is stated below and has fired three times this revision.)*
 
 ---
-## RULE 55, AT THE TOP, NOT IN A FOOTNOTE
+## RULE 55, AT THE TOP
 
-**REV 73 SHIPPED NO VISIBLE CHANGE TO THE VEHICLE. HERE IS PLAINLY WHY.**
+**REV 73 SHIPPED A VISIBLE CHANGE TO THE VEHICLE: THE EMBLEM'S FREE-ENDPOINT SPINE (F301).**
+It is the owner's most-reported defect — his ninth — and the specific thing he reported is
+what moved. **In the shipped build the W's right outer arm was a DETACHED SLIVER floating
+inside the ring; it now reaches the ring, as does the left.** `probe_scratch/rev73_emblem_render_ab.png`.
 
-The owner ranked this revision himself: ***"Nose, then gloss/flank."***
+**IT SHIPPED ON THREE INDEPENDENT GROUNDS, NOT ONE:** the pose-free IoU improves on BOTH
+frames including the independent one (+0.0103 / +0.0060); `probe_rev46_vw`'s L6 — the ruler
+F204 itself prefers, because a same-row width ratio cancels the viewing angle — lands on the
+photograph's 0.1528 at **0.1532**; and **it was rendered, cropped and LOOKED AT** before it
+shipped, which is the step F262 exists to enforce.
 
-* **HIS FIRST ITEM WAS AN INSTRUMENT TASK BY HIS OWN BRIEF'S FRAMING** — *"WINDOW THE SCAN"*.
-  The nose's geometry was shipped at rev 69; what was missing was a render-side reading of it.
-  That reading now exists. **No mesh moved, and none was asked to.**
-* **HIS SECOND ITEM RETURNED A NEGATIVE, AND SHIPPING ANY OF IT WOULD HAVE MADE THE RENDER
-  WORSE.** Eight renders across roughness × environment: **not one beats the shipped state on
-  either statistic.** Rule 44 — when the guard goes red on your own new work, the guard wins.
+⚠ **AND WHAT IT COST, STATED AT THE TOP RATHER THAN BURIED:** `probe_rev46_vw`'s C4 landmark
+residual goes **0.0689 → 0.0745** against a 0.045 bar it fails either way. §0.07 and F184 hold
+those L-landmarks *"optimise a quantity that is not the defect"* and name the pose-free IoU
+as the objective — and looking agrees with the IoU — **but two photograph-facing rulers
+disagree about this change and only one of them was followed.**
 
-**THAT IS TWO REVISIONS RUNNING THAT THE OWNER CAN SEE NOTHING FROM** (rev 71 also could not),
-and it is the thing to fix at rev 74, not to explain again. **§9's standing instruction —
-*"build first, instrument the thing you built"* — was not followed here, because both of the
-owner's own ranked items were instrument-shaped.** The ranked list has geometry in it: the
-contact shadow (F67, **3.83e6 px², the largest item on the delivery frame**), the tyres' tread,
-the glass, the tail's barrel, the shut lines.
+**THREE CONTROLS WENT RED ON IT AND ALL THREE WERE RIGHT (F301b).** The proxy stopped matching
+the mesh, C12 was perturbing a constant the build no longer reads, and C3/C5's historical
+baseline collapsed onto the live value. **Each was repaired at its cause, none at its bar.**
+
+**THE REST OF THE REVISION SHIPPED NO GEOMETRY AND THAT PART IS UNCHANGED:** both of the
+owner's ranked items were instrument-shaped, and the three geometry candidates attempted
+overnight (§4b) all turned out ungrounded.
 
 ---
 ## §1 THE FIRST THING REV 73 DID, AND IT WAS NOT ON THE BRIEF
