@@ -294,12 +294,25 @@ became a register row; they are listed so a rev-74 context can find them without
     F283 are all `MEASURED-rev72` and F282 is `RULED-rev72`. **Among the uncounted was F283, whose
     subject is the very script §3b tells you to run.**
 
-**THE ONE I DID NOT REPRODUCE, STATED RATHER THAN ABSORBED.** The adversary re-ran
-`T1_REV71_SEARCH=AB` and reports the emblem's free-endpoint lever measuring **+0.0056 / +0.0090,
-both positive** — the **sign of the brief's "0.0010 WORSE" reverses**. **Rev 73 did not reproduce
-that run**: it costs ~13 min of CPU and the machine was committed to the owner's ranked sweep.
-**F289 is graded `MEASURED-rev73` for the two greps and `INHERITED-rev73` for the reversal.
-RE-RUN IT BEFORE ACTING ON IT.**
+**THE ONE I FIRST COULD NOT REPRODUCE — AND THEN DID, AT THE CLOSE (F289b).** The adversary
+re-ran `T1_REV71_SEARCH=AB` and reported the emblem's free-endpoint lever measuring positive, which
+would reverse the incoming brief's *"0.0010 WORSE"*. F289 graded that `INHERITED` because rev 73 had
+not reproduced it. **It was re-run to completion in this session and it agrees to four decimals:**
+
+```
+    shipped                                       fit 0.8425   indep 0.8215
+    (A) CURRENT parameterisation re-searched       fit 0.8633   indep 0.8284
+    (B) THE BRIEF'S PRESCRIPTION, free endpoints   fit 0.8689   indep 0.8374
+```
+
+**(B) − (A) = +0.0056 / +0.0090; (B) − shipped = +0.0264 / +0.0159. All four positive, including on
+the INDEPENDENT frame.** The `INHERITED` grade is discharged.
+
+⚠ **AND THE CEILING THAT MATTERS MORE THAN THE RESULT: NOTHING HERE WAS BUILT, RENDERED OR LOOKED
+AT.** Rule 56's own counterexample — the traced pressing — scored positive on both frames by this
+same instrument and renders as **disconnected shards** (F262). A silhouette IoU at ~220 px cannot
+see fragmentation, and this objective still has **no legibility term**. **The emblem has a lever the
+record had written off; it does not yet have a fix.**
 
 ---
 ## §5 THE MACHINE AT CLOSE

@@ -109,10 +109,17 @@ the **stitched** path) before spending anything on it.
 * **F252's OPTION (C) IS NAMED IN NO BRIEF AT ALL** — the 1400-start global search, **0.7586 fit /
   0.6698 independent**, *"the only one of the three that improves BOTH frames"*, **never shipped**.
   `probe_rev71_emblem.py`, `T1_REV71_SEARCH=ABC`.
-* **⚠ AND THE ONE THING REV 73 DID NOT VERIFY: an adversary re-ran `T1_REV71_SEARCH=AB` and reports
-  the free-endpoint lever at `+0.0056 / +0.0090`, BOTH POSITIVE — the sign REVERSES.** F289 grades
-  that **`INHERITED`** on purpose. **RE-RUN IT BEFORE YOU ACT ON IT.** ⚠ **Budget ~13 MINUTES, not
-  the "~40 s" the probe's own comment claims.**
+* **⚠ AND THE LEVER IS LIVE. REV 73 RE-RAN IT TO COMPLETION (F289b) AND THE SIGN REVERSES:**
+```
+    shipped                                       fit 0.8425   indep 0.8215
+    (A) CURRENT parameterisation re-searched       fit 0.8633   indep 0.8284
+    (B) THE BRIEF'S PRESCRIPTION, free endpoints   fit 0.8689   indep 0.8374
+```
+  **(B) − (A) = +0.0056 / +0.0090; (B) − shipped = +0.0264 / +0.0159. ALL FOUR POSITIVE, including
+  on the INDEPENDENT frame P4 exists to test overfitting on.** ⚠ **BUT RULE 56: THIS IS AN IoU, AND
+  AN IoU RANKED THE TRACED PRESSING ABOVE THE SHIPPED GLYPH TOO, AND THAT RENDERS AS SHARDS (F262).
+  NOTHING HERE HAS BEEN BUILT, RENDERED OR LOOKED AT. BUILD IT AND LOOK BEFORE BELIEVING IT.**
+  ⚠ **~13 MINUTES, not the "~40 s" the probe's own comment claims.**
 * Rule 56 still stands: **the objective has no legibility term, and the traced glyph renders as
   SHARDS (F262).** Watch any new term REJECT the traced glyph before trusting a search against it.
 
@@ -371,9 +378,10 @@ REVISION'S OWN CENTRAL CONCLUSION. TOP FOUR, ALL FIXED BEFORE CLOSE:**
 * **P3's WINDOW IS `front`-ONLY AND THE 3/4 EXTENSION HAS A KNOWN TAUTOLOGY IN IT** — the fixtures'
   X follows `NOSE_BULGE` and the bumper's bow is raycast off the same shell. §2.3 says so; nobody
   has built the alternative anchor.
-* **F289's REVERSAL IS STILL SECOND-HAND.** Rev 73 ran `T1_REV71_SEARCH=AB` at the close and it did
-  not finish inside the session; **(A) reproduced at `fit 0.8633 / indep 0.8284`, (B) DID NOT
-  COMPLETE.** The lever may be live. **RE-RUN IT.** ⚠ ~13 min, not the `~40 s` the probe claims.
+* **F289b's LEVER IS SCORED BUT NEVER LOOKED AT.** The search completed and all four deltas are
+  positive, **but nothing was built, rendered or cropped.** Rule 56's counterexample — the traced
+  pressing — scored positive on both frames and renders as shards. **A silhouette IoU at ~220 px
+  cannot see fragmentation, and this objective still has no legibility term.**
 * **THE GLOSS GRID IS 8 OF 9 CELLS AT ONE FRAME, ONE VIEW, ONE STATISTIC.** Roughness **above**
   0.250 was never tested, and only the one winning cell got a chroma render.
 * **THE `--guards` CEILING FROM F283 IS NOT DISCHARGED.** Rev 73 ran the suite and read its rows but
