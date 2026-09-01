@@ -2649,6 +2649,41 @@ s=io.open('probe_rev73_tailboard.py').read()
 print(1 if ('NO SIDE RENDER' in s and '2 ABSENT' in s) else 0)")"
 rm -f /tmp/_r73e.txt
 
+# --- rev 73, F301: THE FREE-ENDPOINT SPINE SHIPS.  Behavioural, ~3 s, no build.
+# It is a GEOMETRY change to the vehicle, so it gets the same treatment rev 72's
+# fixes got: rows that RUN the thing and read what it does, each watched failing
+# against the real pre-change code.
+python3 probe_rev46_vw.py >/tmp/_r73f.txt 2>&1
+T1_VW_FREE=0 python3 probe_rev46_vw.py >/tmp/_r73g.txt 2>&1
+ck "F301 the free-endpoint spine is what SHIPS (t1_core.vw_free defaults ON)" 1 \
+   "$(python3 -c "import t1_core as C; print(1 if C.vw_free() else 0)")"
+ck "F301 ... and T1_VW_FREE=0 really ablates it back to the on-band spine" 1 \
+   "$(python3 -c "
+import os; os.environ['T1_VW_FREE']='0'
+import t1_core as C; print(0 if C.vw_free() else 1)")"
+# THE MEASUREMENT, not the switch: L6 is stroke width / ring width at the SAME
+# row, so the viewing angle cancels.  The shipped build must sit on the
+# photograph's 0.1528, and the ablated one must NOT -- if both matched, the
+# weight would not be following the spine and F301's whole argument would be void.
+ck "F301 the shipped glyph's L6 sits on the photograph's 0.1528 (0.1532)" 1 \
+   "$(grep -cE '^ *built .*L6 0\.153' /tmp/_r73f.txt)"
+ck "F301 ... and the ABLATED glyph's does not (0.1579) -- the weight follows the spine" 1 \
+   "$(grep -cE '^ *built .*L6 0\.1579' /tmp/_r73g.txt)"
+# C12 was RIGHT to go red when the free spine shipped: it was perturbing a
+# constant the build no longer reads.  Lock the repair, not the bar.
+ck "F301 C12 perturbs the constant the LIVE construction uses, and names it" 1 \
+   "$(grep -c 'VW_FREE_W_ARM_X .* moves .* of .* outline radii' /tmp/_r73f.txt)"
+ck "F301 ... and names the OTHER one when ablated" 1 \
+   "$(grep -cE '^ +VW_W_ARM_X .* moves .* of .* outline radii' /tmp/_r73g.txt)"
+ck "F301 ... and both paths still read 12 checked, 1 FAILED (C4 only)" 2 \
+   "$(cat /tmp/_r73f.txt /tmp/_r73g.txt | grep -c 'CONTROLS: 12 checked, 1 FAILED -- C4')"
+# The proxy must track the build in BOTH constructions.  The live case already
+# has a row above; this one covers the ablated path, because a proxy hard-coded
+# to whichever spine happens to ship would pass that row and be void here.
+ck "F301 the emblem proxy reproduces the build under the ABLATION too" 1 \
+   "$(T1_VW_FREE=0 python3 probe_rev71_proxy.py 2>&1 | grep -c 'IoU 1.000000')"
+rm -f /tmp/_r73f.txt /tmp/_r73g.txt
+
 ck "newest brief states THIS script's row count" "$((PASS+1))" "${_BRIEF_TOTAL:-0}"
 
 UNTRACKED="$(git status --porcelain 2>/dev/null | grep -c '^??')"

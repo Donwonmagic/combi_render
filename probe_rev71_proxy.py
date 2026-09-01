@@ -96,10 +96,30 @@ def mask(p, w, rows=220, npx=NPX):
     k = max(1, npx//rows)
     return (np.array(im) > 128)[::k,::k]
 
-SHIPPED = dict(V_TIP_X=C.VW_V_TIP_X, APEX_Z=C.VW_APEX_Z, W_ARM_X=C.VW_W_ARM_X,
-               W_ARM_Z=C.VW_W_ARM_Z, W_TR_X=C.VW_W_TROUGH_X, W_TR_Z=C.VW_W_TROUGH_Z,
-               W_PEAK_Z=C.VW_W_PEAK_Z, on_band=True)
-WFRAC = 0.2283
+# *** rev 73, F301 -- SHIPPED FOLLOWS THE LIVE CONSTRUCTION, AND IT MUST.
+# This file's own note above says "the proxy must track the build or its
+# searches are void (F251/F256)", and that is not decoration: `prove()` reads
+# PROXY vs BUILT IoU 1.000000 and verify_clone.sh has a row on it.  When the
+# free-endpoint spine shipped, SHIPPED was still the ON-BAND dict, the proxy
+# stopped matching the mesh, and THAT ROW WENT RED -- correctly.  It is the
+# strongest of the three reds rev 73's own change produced, because the proxy's
+# 1.000000 is the licence for reading a proxy raster as what the mesh would
+# build, and rev 73 leaned on exactly that licence to look at the glyph before
+# building it.  A stale proxy would have made every future search void while
+# still printing a number. ***
+if C.vw_free():
+    SHIPPED = dict(V_TIP_X=C.VW_FREE_V_TIP_X, V_TIP_Z=C.VW_FREE_V_TIP_Z,
+                   APEX_Z=C.VW_FREE_APEX_Z, W_ARM_X=C.VW_FREE_W_ARM_X,
+                   W_ARM_Z=C.VW_FREE_W_ARM_Z, W_TR_X=C.VW_FREE_W_TR_X,
+                   W_TR_Z=C.VW_FREE_W_TR_Z, W_PEAK_Z=C.VW_FREE_W_PEAK_Z,
+                   on_band=False)
+    WFRAC = C.VW_FREE_WFRAC
+else:
+    SHIPPED = dict(V_TIP_X=C.VW_V_TIP_X, APEX_Z=C.VW_APEX_Z,
+                   W_ARM_X=C.VW_W_ARM_X, W_ARM_Z=C.VW_W_ARM_Z,
+                   W_TR_X=C.VW_W_TROUGH_X, W_TR_Z=C.VW_W_TROUGH_Z,
+                   W_PEAK_Z=C.VW_W_PEAK_Z, on_band=True)
+    WFRAC = 0.2283
 
 
 def prove(rows=276, verbose=True):
