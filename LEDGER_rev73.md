@@ -1,7 +1,9 @@
 # LEDGER — rev 73
 
-`python3 revstats.py` at close: **rev 73 — 0 GEOMETRY lines, 476 instrument lines, 0 findings
-closed.** Band `rev 71-80`: 97 geometry/rev, doc:geo 16.53.
+`python3 revstats.py` at close: **rev 73 — 7 commits, 0 GEOMETRY lines, 1466 doc, 583 instrument,
+0 findings closed.** *(Read after the last content commit. The earlier reading in this file's own
+drafting — 0 / 8 / 476 — was taken before the ledger and brief were tracked; both are true of the
+moment they were run, which is exactly the ceiling below.)*
 
 ⚠ **AND THE CEILING ON THAT LINE, WHICH NO LEDGER HAS EVER STATED: IT IS MEASURED BEFORE THE
 HANDOFF COMMIT AND THE HANDOFF COMMIT INVALIDATES IT.** This file and
