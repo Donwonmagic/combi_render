@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-09-01 06:39:45 UTC |
-| git commit | `7742fd0` |
-| git subject | rev 73: the ledger, the rev-74 brief, and rev 73's own regression lock |
+| generated | 2026-09-01 14:56:18 UTC |
+| git commit | `8897f44` |
+| git subject | rev 73: F301 -- the emblem's free-endpoint spine SHIPS.  Geometry, and it is visible. |
 | working tree | clean |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=2 (applied, destructive, before booleans) |
