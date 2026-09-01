@@ -1416,10 +1416,21 @@ ck "every T1_ switch the brief names exists" 0 "$_ABL_MISSING"
 _ABL_DEAD=0
 if [ -n "$_LATEST_BRIEF" ]; then
   for _v in $(grep -oE 'T1_[A-Z0-9_]+' "$_LATEST_BRIEF" 2>/dev/null | sort -u); do
-    grep -lE "environ.*$_v|$_v.*environ" ./*.py >/dev/null 2>&1 || _ABL_DEAD=$((_ABL_DEAD+1))
+    grep -lE "(environ|getenv|_env[ifsb]?\()[^\"']*[\"']$_v" ./*.py >/dev/null 2>&1 \
+      || _ABL_DEAD=$((_ABL_DEAD+1))
   done
 fi
 ck "every T1_ switch the brief names is a LIVE lever" 0 "$_ABL_DEAD"
+# *** rev 73, F293 -- WIDENED IN THE SAME EDIT AS audit_brief.py's twin row,
+# which is what that row's own comment demands ("loosen BOTH or neither").
+# THE CAUSE: the old pattern needed "environ" on the SAME LINE as the switch.
+# studio.py reads several switches through its own wrappers -- `_envi("T1_FX",
+# 1)`, `_envf("T1_SHADOW", 9.0)` -- so those LIVE levers read as dead.
+# THE COMPANIONS, so the widening cannot become a hole:
+_HELPER_LIVE="$(grep -lE '_env[ifsb]?\("T1_SHADOW' ./*.py >/dev/null 2>&1 && echo 1 || echo 0)"
+ck "F293 a switch read ONLY through a helper wrapper is detected as LIVE" 1 "$_HELPER_LIVE"
+_FAKE_LIVE="$(grep -lE '(environ|getenv|_env[ifsb]?\()[^"'"'"']*["'"'"']T1_NOT_A_REAL_SWITCH' ./*.py >/dev/null 2>&1 && echo 1 || echo 0)"
+ck "F293 ... and a fabricated switch is still DEAD under the widened pattern" 0 "$_FAKE_LIVE"
 
 # THE INTAKE DOORS.  README.md pointed at NEXT_CONTEXT_PROMPT_rev43.md for NINE
 # revisions and START_HERE.md still said "rev 7" thirty revisions on.  Both are

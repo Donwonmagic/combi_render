@@ -3,6 +3,12 @@
 `python3 revstats.py` at close: **rev 73 — 0 GEOMETRY lines, 476 instrument lines, 0 findings
 closed.** Band `rev 71-80`: 97 geometry/rev, doc:geo 16.53.
 
+⚠ **AND THE CEILING ON THAT LINE, WHICH NO LEDGER HAS EVER STATED: IT IS MEASURED BEFORE THE
+HANDOFF COMMIT AND THE HANDOFF COMMIT INVALIDATES IT.** This file and
+`NEXT_CONTEXT_PROMPT_rev74.md` are ~600 lines of doc that land AFTER the figure is read, against
+0 geometry. **Re-run `revstats.py` after the handoff lands if you want rev 73's true doc:geo — it
+is worse than the number above, and it is unbounded above because it divides by zero geometry.**
+
 ---
 ## RULE 55, AT THE TOP, NOT IN A FOOTNOTE
 
@@ -121,14 +127,40 @@ ACROSS THE MIDDLE**, and that changes what the number means.
   standing on a measured column?* — rather than on an invented bar.
 
 **AND THE LARGER CEILING, WHICH IS `P3w`'s RULE-6 PROOF READ THE OTHER WAY.** `P3w` **measures**
-that the front orthographic camera is blind to X. **The plan bow is an X quantity.** So P3's
-+0.45 px over 640 px is the edge's curvature **IN ELEVATION** — it says the bumper's top edge
-images as a level line, and it says **NOTHING** about `BUMP_BOW`.
+that the front orthographic camera is blind to X **geometrically**. So P3's +0.45 px over 640 px is
+the edge's curvature **IN ELEVATION**.
 
-**WHAT IT IS NEVERTHELESS WORTH:** P2's own ceiling says a three-quarter frame cannot separate
-plan bow from elevation curvature because both give the same sign. A `front` frame measures the
-**ELEVATION term alone**. It is the missing half of that separation — **and rev 73 did not spend
-the other half.** No three-quarter render-side reading exists to subtract it from.
+### §2c ⚠ AND REV 73's FIRST DRAFT WENT ONE STEP FURTHER THAN THAT AND WAS WRONG (F292)
+
+It said the reading *"says NOTHING about `BUMP_BOW`"*. **A rule-17 adversary dispatched at this
+revision's own outgoing brief made the distinction I had slid over: `P3w` displaces a WINDOW
+ANCHOR, so it proves the WINDOW is X-blind and says nothing whatever about the TRACE — and
+`T1_BUMP_BOW`, the switch that would settle it, HAD NEVER BEEN RUN.** Rule 36 unfired on the
+revision's headline row.
+
+**IT WAS RUN, WITH A FLOOR UNDER IT.** Build log: `bumper_f nose face: BUMP_BOW 0.000 … bow at
+y=0 +0.00 mm` against the shipped `+21.09 mm`.
+
+```
+    shipped bow (+21.09 mm)          sagitta +0.45 px   span 640   n 340
+    T1_BUMP_BOW=0  (+0.00 mm)        sagitta +0.07 px   span 627   n 314
+    FLOOR, the same config twice     +0.45 -> +0.44     span 640   n 335
+```
+
+**THE ABLATION MOVES THE SAGITTA 0.38 px AGAINST A BETWEEN-RENDER FLOOR OF 0.01 px — 38×.**
+It also costs 13 px of span and 26 columns.
+
+**SO THE TRACE IS SENSITIVE TO THE BOW, AND BOTH FACTS ARE TRUE AT ONCE.** `P3w`'s `0.000e+00`
+stands — the window is X-blind geometrically. What is refuted is the slide from *the window is
+blind* to *the reading is blind*. **The mechanism is PHOTOMETRIC**: bowing the blade turns it
+against the light, which moves the sub-pixel red/cream threshold and changes which columns carry a
+detectable step at all.
+
+⚠ **CEILING, AND IT IS THE WHOLE POINT: SHADING IS NOT A RULER.** 0.38 px is not convertible to
+millimetres by anything in this tree, and one ablation at one value is **two points** — it
+establishes SENSITIVITY, not a calibration and not a monotone response. **Do not read +0.45 px as a
+measurement of `BUMP_BOW`. Do read it as a channel a ladder could calibrate — which is a better
+position than F231's *"cannot be recovered"*, and rev 73 did not build the ladder.**
 
 ---
 ## §3 THE OWNER'S SECOND ITEM — GLOSS: F239's ONE UNTRIED PAIRING IS MEASURED, AND IT IS A NULL
@@ -225,6 +257,41 @@ that was not is graded `INHERITED` and says so.
 | **F290** | *"gloss/flank 2.89e6 px², BOTH gates failing"* **prices two gates with one gate's pixels.** `flank_compare` tests the **`Señor` lockup — item 10 at 2.26e4 px², 0.68× the emblem.** **The ruling was put to him in that form** | premise of F282 |
 | **F291** | `flank_compare` reads **0.676**, not 0.689. And the ranking's own **#1 item — the contact shadow, 3.83e6 px², 115× the emblem — is in no version of the choice** | figures |
 
+**AND THE TWELVE THE SIX ROWS ABOVE DO NOT COVER, CARRIED BY NAME RATHER THAN DROPPED (rule 16) —
+the rule-17 adversary caught this ledger recording *"18 defects"* and carrying six.** None of these
+became a register row; they are listed so a rev-74 context can find them without the transcript:
+
+1. **`probe_rev72_bits.py`'s B4 ladder RISES (0.40 % → 1.02 %) on a fresh frame**, where the rev-73
+   brief printed *"FALLS (0.46 % → 0.07 %)"* — **the opposite direction**, quoted from a row that
+   fails by design and says it must not be quoted. **Carried into the rev-74 brief's §0b.**
+2. **F271's headline null does not reproduce: 0.708 % on `out/r73_hero34f.png`, not the published
+   0.623 %** — a move of 13 % of itself, **with no floor under it** (rule 49). ⚠ **This figure is
+   in NO carrier but this line and the rev-74 brief; it names a frame here and there only.**
+3. **The rev-73 brief contradicted itself on the rear pane in one document** — §2.3 *"Measured: it
+   is TRANSMITTING"* against a "weakest" bullet *"THE PANE STILL RENDERS OPAQUE DARK"*. The
+   adversary rendered, cropped and looked: **transmitting.** The weakness bullet is the false half.
+4. **`audit_adversary.py` STILL PRINTS `ok` ON QUESTIONS WHOSE TEXT ASSERTS REFUTED STATES** — the
+   overfit question quotes F255's withdrawn *"LOSES by 0.0249"*, the traced-pressing question says
+   *"RENDERS AS AN UNRECOGNISABLE BLOB"* against F262's shards. **Rule 50's shape, recorded at
+   rev 68, live at rev 73, and in NO register row.** Its only other home was the rev-73 brief's
+   "weakest" section. **`grep -rln "UNRECOGNISABLE BLOB"`.**
+5. **§2.3's G/R 0.204 was published from a SINGLE UNPAINTED PIXEL** (r645, c1050) whose 21×21
+   neighbourhood spans 0.000–0.988. The conclusion is right; the number is rule-8 contraband.
+6. **`probe_rev71_emblem.py`'s own comment says `~40 s` for `T1_REV71_SEARCH=AB`; it is ~13 min.**
+   **Carried into the rev-74 brief's §2.2 and §4.**
+7. **`probe_rev69_fitpose` P3's *"NEAR BALANCED"* is 87/212 — 2.4×**, which does not support *"the
+   ink is the right AMOUNT arranged the WRONG WAY"* as strongly as F104's phrase implies.
+8. **§2.5's *"TEN revisions unacted"* on F156 is hand-incremented** (five → six → seven → NINE →
+   TEN, skipping eight) and derived from nothing. F156 is `MEASURED-rev62`.
+9. **§0b's *"five kills"* in `photometry.py` is six** by the probe's own printed rows.
+10. **§4's `probe_rev71_bulbs` comment says *"window MISPLACED"*; F250's live ceiling is DILUTION** —
+    the shipped third cut was painted and looked at. **Carried into the rev-74 brief's §4.**
+11. **§3 said `verify._rear_hatch` has *"three kills"*; F278 and the brief's own audit block say
+    FIVE.** `--guards` exercises five. **Carried into the rev-74 brief's §4 with the live counts.**
+12. **§6 under-counted the register by seven rows** — *"F268–F276 are rev 72's"* when F268–F281 and
+    F283 are all `MEASURED-rev72` and F282 is `RULED-rev72`. **Among the uncounted was F283, whose
+    subject is the very script §3b tells you to run.**
+
 **THE ONE I DID NOT REPRODUCE, STATED RATHER THAN ABSORBED.** The adversary re-ran
 `T1_REV71_SEARCH=AB` and reports the emblem's free-endpoint lever measuring **+0.0056 / +0.0090,
 both positive** — the **sign of the brief's "0.0010 WORSE" reverses**. **Rev 73 did not reproduce
@@ -239,8 +306,12 @@ RE-RUN IT BEFORE ACTING ON IT.**
 bootstrap.sh              10 PASS  (row 9 FAILED on pickup -- see §1 -- and passes after the merge)
 bootstrap.sh --guards     ALL 25 PASS.  All FIVE rear-hatch kills exercised; probe_rev45_ground
                           reads 5/0, so F283's 4 -> 5 re-base holds
-verify_clone.sh           ALL 392 PASS on a clean tree, 0 FIDELITY / 392 SELF-CONSISTENCY
-                          (+2 rows added this revision -- see the close)
+verify_clone.sh           read the verdict block; the row count is written LAST by
+                          `audit_brief.py --fix-count` and is stated in the brief, not here --
+                          a ledger that types it goes stale the moment a row is added.
+                          Rev 73 added NINE ck rows and removed one (net +8) on rev 72's 392.
+                          ⚠ THE FIRST DRAFT OF THIS LINE SAID "ALL 392 PASS ... +2 rows" AND
+                          BOTH HALVES WERE WRONG -- caught by the rule-17 adversary
 build.py T1_VERIFY=1      VERIFY: 0 fail, 0 warn at SUB=1 and SUB=2 (both via --guards)
 photometry.py             9 checked, 0 FAILED
 probe_rev67_nose.py       7 checked, 1 FAILED -- P3c, BY DESIGN.  READ ITS MESSAGE

@@ -578,9 +578,17 @@ def main():
             # ------------------------------------------- THE KILL, rule 3/36
             # T1_NOSE_NOWIN=1 restores the PRE-REV-73 whole-frame scan.  P3
             # must go RED.  Watched at rev 73 on out/r73_front.png:
-            #   windowed  rms   2.09 px over 620 px  -> ONE EDGE, PASSES
+            #   windowed  rms   0.81 px over 640 px, 0 of 340 points clipped
+            #                   -> ONE EDGE, PASSES
             #   T1_NOSE_NOWIN=1 rms 113.70 px over 926 px, 481 of 481 points
             #                   clipped -> REFUSED
+            # *** THE FIRST CUT OF THIS COMMENT READ "rms 2.09 px over 620 px"
+            # AND THAT FIGURE WAS NEVER PRINTED BY ANYTHING.  It was typed into
+            # the patch BEFORE the windowed run existed and never re-read
+            # afterwards, so it disagreed with the number this same revision
+            # published in five other places.  RULE 5: never put a figure in an
+            # acceptance test unless you watched it print.  Caught by the
+            # rule-17 adversary dispatched at rev 73's own outgoing brief. ***
             win = dict(ucol=(0, aa.shape[1]),
                        vrow=(int(aa.shape[0] * 0.45), aa.shape[0]),
                        xblind=float("nan"), n_fix=0, n_ground=0,
@@ -783,9 +791,27 @@ def main():
     print("  100 mm displacement along X moves a window anchor's pixel by 0.")
     print("  The plan bow is an X quantity.  The same orthographic")
     print("  X-blindness that makes this window safe under rule 6 makes the")
-    print("  FRAME blind to the bow.  So P3's +0.45 px over 640 px is the")
-    print("  edge's curvature IN ELEVATION -- it says the bumper's top edge")
-    print("  images as a level line, and it says NOTHING about BUMP_BOW.")
+    print("  FRAME blind to the bow GEOMETRICALLY.  P3's +0.45 px over 640 px")
+    print("  is therefore the edge's curvature IN ELEVATION.")
+    print()
+    print("  *** AND THE FIRST DRAFT OF THIS BLOCK WENT ONE STEP FURTHER AND")
+    print("  WAS WRONG (F292).  It said the reading 'says NOTHING about")
+    print("  BUMP_BOW'.  A rule-17 adversary pointed out that P3w displaces a")
+    print("  WINDOW ANCHOR, so it proves the WINDOW is X-blind and says")
+    print("  nothing about the TRACE -- and that T1_BUMP_BOW, the switch that")
+    print("  would settle it, had never been run (rule 36).  IT WAS RUN:")
+    print("      shipped bow (+21.09 mm)  sagitta +0.45 px  span 640  n 340")
+    print("      T1_BUMP_BOW=0 (+0.00 mm) sagitta +0.07 px  span 627  n 314")
+    print("      FLOOR, same config twice  +0.45 -> +0.44   span 640  n 335")
+    print("  The ablation moves the sagitta by 0.38 px against a between-render")
+    print("  floor of 0.01 px -- 38x.  THE TRACE IS SENSITIVE TO THE BOW.  Not")
+    print("  geometrically -- P3w's 0.000e+00 stands -- but PHOTOMETRICALLY:")
+    print("  bowing the blade turns it against the light, which moves the")
+    print("  sub-pixel red/cream threshold and changes which columns carry a")
+    print("  detectable step at all (26 columns of span, 26 points).  So a")
+    print("  `front` frame DOES carry bow information; it carries it through")
+    print("  SHADING, which is not a geometric ruler and must not be read as")
+    print("  one until something calibrates it. ***")
     print("  WHAT THAT IS WORTH, AND IT IS NOT NOTHING: P2's own ceiling says")
     print("  a three-quarter frame cannot separate plan bow from elevation")
     print("  curvature because both give the same sign.  A `front` frame")

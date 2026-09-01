@@ -133,15 +133,36 @@ srcs = {p: open(os.path.join(ROOT, p)).read()
 # instruments disagreeing because one had been relaxed to fit new code.  The
 # fix belonged in the new code.  If this ever needs loosening again, loosen
 # BOTH or neither.
+# *** rev 73, F293 -- WIDENED, WITH THE CAUSE NAMED, AND WIDENED IN
+# verify_clone.sh IN THE SAME EDIT, WHICH IS WHAT THE PARAGRAPH ABOVE DEMANDS.
+# THE CAUSE: this pattern only sees a switch read through `os.environ` or
+# `os.getenv` LITERALLY.  studio.py reads several of its switches through its
+# own thin wrappers -- `_envi("T1_FX", 1)` and `_envf("T1_SHADOW", 9.0)` -- so
+# those switches are LIVE LEVERS that this row called dead.  Watched at rev 73:
+# naming T1_FX and T1_SHADOW in the brief turned this row red on two switches
+# that both work.  That is rule 50 in BOTH directions -- a regex told us a name
+# was absent when the behaviour was present.
+# THE COMPANION ROWS BELOW make the cause separately testable, so this widening
+# cannot silently become a hole: one pins a helper-read switch as LIVE, one
+# pins a fabricated switch as DEAD.
+_ACCESS = r"(environ(\.get)?\[?\(?|getenv\(|_env[ifsb]?\()[\"']%s"
 dead = []
 for s_ in sw:
-    if not any(re.search(r"(environ(\.get)?\[?\(?[\"']%s|getenv\([\"']%s)" % (s_, s_), t)
-               for t in srcs.values()):
+    if not any(re.search(_ACCESS % s_, t) for t in srcs.values()):
         dead.append(s_)
 
 ck("every T1_* the brief names READS THE ENVIRONMENT", not dead,
    "%d named, %d not an env read%s" % (len(sw), len(dead),
                                        ("  " + " ".join(dead)) if dead else ""))
+
+# F293's companion rows.  A widening that nothing tests is a hole.
+_live = any(re.search(_ACCESS % "T1_SHADOW", t) for t in srcs.values())
+ck("F293 a switch read ONLY through a helper wrapper counts as LIVE",
+   _live, "T1_SHADOW is read as `_envf(\"T1_SHADOW\", 9.0)` in studio.py and "
+          "nowhere as os.environ -- detected: %s" % _live)
+_fake = any(re.search(_ACCESS % "T1_NOT_A_REAL_SWITCH", t) for t in srcs.values())
+ck("F293 ... and the widened pattern still calls a fabricated switch DEAD",
+   not _fake, "T1_NOT_A_REAL_SWITCH detected as live: %s (must be False)" % _fake)
 
 # ------------------------------------------------------------- 3. runnables
 runs = sorted(set(re.findall(r"-P (\w+\.py)", BOTH))

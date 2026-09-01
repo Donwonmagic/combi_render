@@ -56,8 +56,10 @@ git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 were **the owner's own regression lock**. Until they were merged, `main` had **no `§3b`, no
 `bootstrap.sh --guards` sweep, and 381 `verify_clone.sh` rows instead of 392**, while the owner's
 message for rev 73 cited §3b and instructed `--guards`. **In the same `git fetch --prune`, rev 73's
-own designated branch was DELETED from the remote.** **NINE CONSECUTIVE REVISIONS OF STALE BRANCH
-PROSE. Believe row 9 and the loop, never this paragraph.**
+own designated branch was DELETED from the remote.** **THE REV-73 BRIEF SAID *"EIGHT CONSECUTIVE REVISIONS"* (F253/F267) AND REV 73 MADE IT
+NINE. `LEDGER_rev73.md` §1 SAYS "SEVENTH" AND IS WRONG — IT DROPPED F253/F267's OWN COUNT.
+THE COUNT IS HAND-INCREMENTED AND DERIVED FROM NOTHING: DO NOT TRUST IT EITHER. Believe row 9
+and the loop, never this paragraph.**
 
 ---
 ## §2 RANKED WORK FOR REV 74
@@ -72,20 +74,38 @@ nose, is item 8 at 4.20e4 px², only **1.27×** the emblem he put third, which i
 The ranked list is `REMAINING_WORK_rev61.md`, triaged into `ROADMAP_rev68.md`.
 
 ### **1. SHIP GEOMETRY. ANY GEOMETRY. RULE 55 IS THE BINDING CONSTRAINT ON REV 74.**
-**THE RANKING'S OWN #1 ITEM HAS NEVER BEEN IN ANY BRIEF: `F67`, THE CONTACT SHADOW'S FOOTPRINT ON
-THE GROUND, `3.83e6 px²` — 1.33× the whole gloss aggregate and 115× the emblem (F291).**
-`HANDOFF_CARRIERS.md` §0.09 has carried it since rev 69 and no brief has named it. It was **not**
-among the options the owner was shown at rev 72. **Check it against the frame before ranking it —
-`visibility_budget.py`'s own ceiling says pixels are not visibility — but do not let a third
-revision pass without geometry.** Also unbuilt and cheap: the tyres' TREAD, the tail's barrel, the
-shut lines, **F143 the roof loudspeakers (unmodelled for 57 revisions)**.
+**AND THE CHEAPEST GEOMETRY ON THE TREE WAS SITTING IN THE BRIEF REV 73 RECEIVED AND WAS NOT
+DONE: `HANDOFF_CARRIERS.md` §0.05 ITEMS 2–5, of which item 2 — *"the **dark angled recess** in its
+forward-lower area"* — is *"genuinely absent"* and needs NO NEW MEASUREMENT.** F276 killed §0.05's
+item 1 only. **Rev 73 spent ten renders on a null and shipped no mesh; this is the item that was
+available and it is still available.** Also unbuilt and cheap: the tyres' TREAD, the tail's barrel,
+the shut lines, **F143 the roof loudspeakers (unmodelled for 57 revisions)**.
+
+**⚠ AND ONE THING THE FIRST DRAFT OF THIS SECTION GOT FLATLY WRONG, CORRECTED BY THE RULE-17
+ADVERSARY BEFORE THIS FILE SHIPPED — KEPT VISIBLE RATHER THAN QUIETLY EDITED, BECAUSE IT WOULD HAVE
+COST REV 74 ITS TOP JOB.** It said *"the ranking's own #1 item has never been in any brief: `F67`,
+the contact shadow, `3.83e6 px²`… no brief has named it."* **THREE THINGS WERE WRONG:**
+* **F67 IS THE OWNER'S OWN ITEM D** and had whole sections — `NEXT_CONTEXT_PROMPT_rev60.md` §3.3
+  *"ITEM D — THE GROUND SHADOW AND UNDERBODY (F67). NEVER ATTEMPTED."*, `rev61` §2.1 *"ITEM D — THE
+  UNDERBODY, BUILT (F67)"*. It was partly built at rev 61.
+* **THE FIGURE WAS PUBLISHED AT REV 71** — `NEXT_CONTEXT_PROMPT_rev71.md` prints *"3.32e4 px²
+  against a top item of 3.83e6 px², **115× bigger**"*.
+* **`HANDOFF_CARRIERS.md` GRADES IT `CEILED`** (§9's table) — and it is **NOT GEOMETRY**: it is a
+  compositor/lighting item, `SURVEY_rev49_photoreal.md` records *"THE CONTACT SHADOW'S MAGNITUDE IS
+  DELIVERED ON THE DIRECT PATH AND MATCHES ITS DECLARED TARGET… Do not re-tune `T1_SHADOW`"*.
+**So F67's 3.83e6 px² is real and it is still the largest item on the delivery frame, and F291's
+point stands that it was not among the options the owner was shown at rev 72 — but it is CEILED,
+it is not new, and it will not satisfy rule 55.** Check its live residue (`hero.py`'s `T1_FX=0` on
+the **stitched** path) before spending anything on it.
 
 ### **2. THE EMBLEM — HIS NINTH REPORT, AND REV 73 FOUND THE BRIEF HAD BURIED A LIVE LEVER (F289).**
 **DO NOT REPEAT *"EVERY CHEAP LEVER IS DEAD"*. IT IS NOT TRUE AS WRITTEN.**
 * The rev-73 brief printed *"free endpoints measured **0.0010 WORSE** (F252)"* **while F252's own
   row says *"EVERY FIGURE IN THIS ROW WAS COMPUTED ON THE BROKEN RULER (F246) AND HAS NOT BEEN
-  RE-RUN ON THE REPAIRED ONE."*** Measured: `grep -c "0.0010 WORSE"` → **1**,
+  RE-RUN ON THE REPAIRED ONE."*** Measured **on the rev-73 brief, `NEXT_CONTEXT_PROMPT_rev73.md`** —
+  name the file, line numbers rot (rule 18): `grep -c "0.0010 WORSE"` → **1**,
   `grep -c "BROKEN RULER"` → **0**. The figure travelled; its ceiling did not (rule 46).
+  ⚠ **Both strings read 2 in THIS file, because this paragraph quotes them — check rev 73's.**
 * **F252's OPTION (C) IS NAMED IN NO BRIEF AT ALL** — the 1400-start global search, **0.7586 fit /
   0.6698 independent**, *"the only one of the three that improves BOTH frames"*, **never shipped**.
   `probe_rev71_emblem.py`, `T1_REV71_SEARCH=ABC`.
@@ -100,31 +120,68 @@ shut lines, **F143 the roof loudspeakers (unmodelled for 57 revisions)**.
 `probe_rev67_nose.py`'s **P3 now reads the render's bumper edge** — the first render-side reading
 this project has had. **BEFORE `rms 113.70 px = 12 % of span, 481 of 481 points clipped, REFUSED`;
 AFTER `sagitta +0.45 px ± 0.07 over 640 px, rms 0.81 px, 0 of 340 clipped, ONE EDGE`.**
-**⚠ AND IT CANNOT SEE THE PLAN BOW, WHICH `P3w` MEASURES RATHER THAN ASSERTS: a 100 mm X
-displacement of a window anchor moves its pixel by 0 under the front ORTHOGRAPHIC camera. The bow
-is an X quantity.** So +0.45 px is the edge's curvature **IN ELEVATION** and says nothing about
-`BUMP_BOW`. **THE HALF REV 73 DID NOT SPEND, AND IT IS THE ACTIONABLE ONE:** P2's ceiling says a
-three-quarter frame cannot separate plan bow from elevation curvature. **A `front` frame measures
-the ELEVATION term ALONE. Build the three-quarter render-side reading and SUBTRACT IT.** That is a
-real route to `BUMP_BOW`, and F231's *"cannot be recovered"* was never tested against it.
+**⚠ AND HERE IS WHERE REV 73's OWN CENTRAL CEILING WAS TOO STRONG AND ITS OWN ABLATION REFUTED IT
+(F292) — READ THIS BEFORE YOU BUILD ANYTHING ON P3.** `P3w` proves the **WINDOW** is X-blind (a
+100 mm X displacement of a window anchor moves its pixel by **0.000e+00**), and rev 73's first
+draft slid from that to *"the reading says NOTHING about `BUMP_BOW`"*. **A rule-17 adversary caught
+the slide and pointed out `T1_BUMP_BOW` had never been run — rule 36 unfired on the headline row.
+IT WAS RUN, WITH A FLOOR:**
+
+```
+    shipped bow (+21.09 mm)          sagitta +0.45 px   span 640   n 340
+    T1_BUMP_BOW=0  (+0.00 mm)        sagitta +0.07 px   span 627   n 314
+    FLOOR, the same config twice     +0.45 -> +0.44     span 640   n 335
+```
+
+**0.38 px against a 0.01 px floor — 38×. THE TRACE IS SENSITIVE TO THE BOW**, not geometrically but
+**PHOTOMETRICALLY**: bowing the blade turns it against the light, moving the sub-pixel red/cream
+threshold and changing which columns carry a step at all. ⚠ **CEILING: SHADING IS NOT A RULER.
+0.38 px converts to no millimetres, and two points is sensitivity, not calibration.**
+**THE ACTIONABLE ROUTE THIS OPENS, AND REV 73 DID NOT TAKE IT: BUILD THE LADDER.** Render
+`T1_BUMP_BOW` at 0 / 0.5 / 1.0 / 1.5 and see whether the sagitta responds monotonically. **If it
+does, this project has a render-side channel on the bow for the first time, and F231's *"cannot be
+recovered from what we hold"* is about the PHOTOGRAPHS, not about this.** If it does not, say so
+and the channel is dead. **Either way it is four `front` renders and it is cheap.**
+⚠ **AND THE 3/4 ROUTE HAS A TRAP THE ADVERSARY FOUND: on any non-orthographic view the fixture
+anchors' X reaches the pixel, and `build.py` puts them at `HL_X0 + S.nose_fixture_dx(...)` — the
+fixture X FOLLOWS `NOSE_BULGE`, while `t1_detail._nose_plan_x` derives the bumper's bow by
+raycasting that same shell. On a 3/4 frame the window would move with the quantity being measured.
+That is a rule-6 tautology one step downstream. Cut the 3/4 window from something else.**
+
 **`P3c` FAILS BY DESIGN on a `front` frame** — 340 of 641 columns, vertex u 839 in the gap
 836–847, because the cream V-swage meets the cream bumper at the centreline. **READ ITS MESSAGE.**
 **DO NOT ASK HIM THE NOSE AGAIN — both askings are spent (F214/F215).**
 
 ### **4. THE GLOSS — F239's PRESCRIPTION IS CLOSED BY MEASUREMENT. DO NOT RE-RUN THIS GRID.**
-Eleven renders, the full 3 × 3 of `T1_BODY_RGH` × `T1_REFLENV`, two-render floor **0.001 / 0.002**:
+**Eight configurations of the 3 × 3** of `T1_BODY_RGH` × `T1_REFLENV` (only `(0.060, env 0.0)` was
+not rendered), **10 renders in all — 8 `hero34f` plus 2 `side` on the Raw path for the chroma**.
+Two-render floor **0.001 spread / 0.002 headroom**:
 
 | `T1_BODY_RGH` → | **0.060** | **0.120** | **0.250** *(shipped)* |
 |---|---|---|---|
-| **`T1_REFLENV` 0.0** | — | 0.408 / 0.113 | **0.412 / 0.120** |
+| **`T1_REFLENV` 0.0** | *(not rendered)* | 0.408 / 0.113 | **0.412 / 0.120** |
 | **`T1_REFLENV` 1.0** | 0.410 / 0.116 | 0.411 / 0.116 | **0.416 / 0.126** |
 | **`T1_REFLENV` 21.0** | 0.388 / 0.108 | 0.388 / 0.110 | 0.388 / 0.118 |
 
-**F239's *"the binding constraint is the ROUGHNESS"* IS REFUTED: lowering roughness costs spread at
-EVERY environment level** (0.412→0.408; 0.416→0.411→0.410; 0.388→0.388→0.388). The only cell above
-shipped is **environment ALONE at 1.0**, and it is **INVISIBLE**: A/B **2.367 %** of pixels >8
-levels against a **2.044 %** floor, `>32` levels **0.044 % vs 0.043 %**. Chroma cost on F266's Raw
-path: red linear G/R **0.1091 → 0.1099** (photograph 0.0307). **NOTHING SHIPPED.**
+**F239's *"the binding constraint is the ROUGHNESS"* IS NOT SUPPORTED — AND HERE IS EXACTLY HOW FAR
+THAT GOES, BECAUSE THE FIRST DRAFT OF THIS PARAGRAPH OVERSTATED IT AND AN ADVERSARY CAUGHT IT.**
+It claimed roughness *"costs spread at EVERY environment level"*. **Against the revision's own
+0.001 floor, only TWO steps clear it:** `0.416 → 0.411` at env 1.0 (5× the floor) and
+`0.412 → 0.408` at env 0.0 (4×). **At env 21.0 the three cells read `0.388 / 0.388 / 0.388` — no
+cost at all**, and `0.411 → 0.410` is exactly one floor. **So the honest statement is: lowering
+roughness never HELPS at any environment level, and where it moves the gate at all it moves it
+DOWN. That refutes the prescription; it is not a monotone trend across nine cells.**
+The only cell above shipped is **environment ALONE at 1.0**, and it is **INVISIBLE**: A/B **2.367 %**
+of pixels >8 levels against a **2.044 %** floor, `>32` levels **0.044 % vs 0.043 %**.
+**NOTHING SHIPPED.**
+**CHROMA COST on F266's Raw path: red linear G/R `0.1091 → 0.1099`.** ⚠ **DO NOT PUT A SINGLE
+FIGURE ON THE PHOTOGRAPH'S SIDE OF THAT RATIO. `probe_rev71_red.py` PRINTS THE PROHIBITION ITSELF,
+DIRECTLY ABOVE THE NUMBER: *"the photograph's red G/R is 0.0149 .. 0.0344, a 2.3x span. DO NOT
+QUOTE A SINGLE FIGURE FOR IT. This span is larger than most of the effects the red has been tuned
+against."*** The rev-73 ledger's *"0.0307 … 3.55× the photograph"* inherits that defect and the
+multiple is not quotable; **the RENDER-side pair, 0.1091 vs 0.1099, is measured on one window and
+is comparable to itself.**
+
 **WHAT IS STILL OPEN: the gate misses by 30 % and neither lever reaches it. F62's own answer —
 *"this flank's specular image is white cyclorama 19.3 m away"* — is now the only one left, and the
 owner has ruled *"keep studio"* TWICE. If you want to re-open it, ask him; do not just do it.**
@@ -171,7 +228,8 @@ python3 probe_rev67_nose.py out/r74_front.png    # 7 checked, 1 FAILED -- P3c BY
 T1_NOSE_NOWIN=1 python3 probe_rev67_nose.py out/r74_front.png   # THE KILL.  P3 must go RED
 python3 gloss_compare.py out/r74_hero34f.png      # PASS IT A FRAME
 python3 flank_compare.py out/r74_side.png /tmp/fc.png   # 0.676 (i) at rev 73, NOT 0.689
-python3 probe_rev69_fitpose.py                # the emblem.  P2 and P4 fail BY DESIGN
+python3 probe_rev69_fitpose.py                # the emblem.  P1b PASSES; P2 and P4 fail BY
+  # DESIGN -- READ P4's MESSAGE, its red is NOT a licence (F262, rule 56)
 python3 probe_rev71_emblem.py                 # ⚠ T1_REV71_SEARCH=AB is ~13 MIN, not the 40 s
 python3 probe_rev71_proxy.py                  # must read IoU 1.000000
 python3 probe_rev71_red.py out/r74_side.png --transform=agx   # REFUSES *with a summary line* now
@@ -270,3 +328,56 @@ done off self-review. Report the measurement with its ceiling. Do not say anythi
    six of which became `OPEN_FINDINGS.md` rows and two of which were live code defects.
 5. **Keep the split, and KEEP THIS FILE SHORT.** `cp` it over `PASTE_INTO_CLAUDE_CODE.txt` in the
    same commit. `python3 audit_brief.py --fix-count` LAST.
+
+---
+**⚠ THIS BRIEF WAS AUDITED AGAINST THE MACHINE, AND BOTH HALVES OF RULE 17 WERE RUN.**
+
+`audit_brief.py` **10 checked, 0 FAILED** — and it FAILED FIRST, on the row count.
+`audit_adversary.py` **61 asked, 0 BROKE** — and it BROKE at pickup on *"is `STATE.md` CURRENT for
+the geometry? (19 verify rows read it)"*, a staleness inherited from rev 72's close;
+`STATE.md` was regenerated and **its diff is three provenance lines and nothing else**, which is the
+machine agreeing that rev 73 moved no geometry. **`verify_clone.sh` then failed THREE rows on the
+first handoff commit — the modified-tree row, the ranking-rule row and this audit block — every one
+a defect in what I had just written, not in the machine.** They are listed here rather than quietly
+fixed, because that is the evidence the guards work.
+
+**AND THE RULE-17 ADVERSARY DISPATCHED AT *THIS* FILE RETURNED 18 DEFECTS AND REVERSED THIS
+REVISION'S OWN CENTRAL CONCLUSION. TOP FOUR, ALL FIXED BEFORE CLOSE:**
+1. **F285's *"P3 says NOTHING about `BUMP_BOW`"* IS REFUTED BY REV 73's OWN ABLATION (F292).**
+   `P3w` displaces a **window anchor**, so it proves the WINDOW is X-blind and says nothing about
+   the TRACE — and **`T1_BUMP_BOW` had never been run**, rule 36 unfired on the headline row.
+   Run: **+0.45 → +0.07 px against a two-render floor of 0.01 px — 38×.** The trace IS bow-sensitive,
+   photometrically. **§2.3 now carries the ladder that would calibrate it.**
+2. **§2.1 CLAIMED F67 *"has never been in any brief"*. FALSE THREE WAYS** — it is the owner's own
+   item D with whole sections in the rev-60 and rev-61 briefs, its figure was printed at rev 71, and
+   `HANDOFF_CARRIERS.md` grades it **`CEILED`**. It is also not geometry. **Rewritten, and the
+   cheap geometry that WAS available (§0.05 items 2–5) named in its place.**
+3. **§2.4 SAID ROUGHNESS *"costs spread at EVERY environment level"*. FALSE ON ITS OWN TABLE** — at
+   env 21.0 the three cells are `0.388 / 0.388 / 0.388`, no cost at all, and one other step is
+   exactly one floor. **Weakened to the two steps that clear the floor.**
+4. **THE PHOTOGRAPH'S RED G/R WAS QUOTED AS A SINGLE FIGURE (0.0307)** against `probe_rev71_red.py`'s
+   own printed prohibition, on the same screen: *"0.0149 .. 0.0344, a 2.3x span. DO NOT QUOTE A
+   SINGLE FIGURE FOR IT."* **The 3.55× multiple is withdrawn; the render-side pair stands.**
+
+**WHERE THIS BRIEF IS WEAKEST, STATED RATHER THAN HIDDEN:**
+* **REV 73 SHIPPED NO GEOMETRY, AND ITS EXPLANATION IS ABOUT THE OWNER'S ITEMS, NOT ABOUT WHAT WAS
+  AVAILABLE.** §0.05 items 2–5 were live, unrefuted and needed no new measurement. **This is why it
+  *chose not to*, which is not the same as *could not*.** §2.1.
+* **F292 ESTABLISHES SENSITIVITY, NOT CALIBRATION. TWO POINTS.** 0.38 px converts to no
+  millimetres, the response may not be monotone, and **shading is not a ruler.** The ladder in §2.3
+  is a proposal, not a result.
+* **P3's WINDOW IS `front`-ONLY AND THE 3/4 EXTENSION HAS A KNOWN TAUTOLOGY IN IT** — the fixtures'
+  X follows `NOSE_BULGE` and the bumper's bow is raycast off the same shell. §2.3 says so; nobody
+  has built the alternative anchor.
+* **F289's REVERSAL IS STILL SECOND-HAND.** Rev 73 ran `T1_REV71_SEARCH=AB` at the close and it did
+  not finish inside the session; **(A) reproduced at `fit 0.8633 / indep 0.8284`, (B) DID NOT
+  COMPLETE.** The lever may be live. **RE-RUN IT.** ⚠ ~13 min, not the `~40 s` the probe claims.
+* **THE GLOSS GRID IS 8 OF 9 CELLS AT ONE FRAME, ONE VIEW, ONE STATISTIC.** Roughness **above**
+  0.250 was never tested, and only the one winning cell got a chroma render.
+* **THE `--guards` CEILING FROM F283 IS NOT DISCHARGED.** Rev 73 ran the suite and read its rows but
+  did **not** audit the remaining count rows against their probes' live output.
+* **THE STALE-BRANCH COUNT IS HAND-INCREMENTED AND DERIVED FROM NOTHING** — §1 says nine, the ledger
+  said seventh, rev 73's brief said eight. **Do not trust any of them; run the loop.**
+* **`revstats.py`'s DOC FIGURE FOR REV 73 IS READ BEFORE THE HANDOFF COMMIT THAT INVALIDATES IT.**
+  ~600 lines of doc land after it is measured, against 0 geometry. **Re-run it after this lands.**
+* **Every figure quoted from `out/` needs a re-render before you quote it** — `out/` starts empty.
