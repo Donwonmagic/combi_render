@@ -122,10 +122,13 @@ rulers disagree about this change and rev 73 followed one of them.** If you can 
 term (there still is none), that is the tiebreak the objective has always lacked.
 
 ⚠ **AND THE WEIGHT IS NOT SETTLED (F302).** It ships at **0.2205**, the LIVE L6 crossing. F204 fixed
-0.2283 on TWO agreeing statistics and **rev 73 re-ran only ONE of them** — the ink-inside-band
-statistic, which F204 says crosses at 0.2280, **has not been re-run**. Do that before treating
-0.2205 as settled. Live L6 also reads **0.1579** at 0.2283 against F204's recorded 0.1530, and
-`T1_VW_RES` does not change it.
+0.2283 on TWO agreeing statistics; **live L6 reads 0.1579 at 0.2283 against F204's recorded 0.1530**
+(`T1_VW_RES` does not change it), and **the second statistic CANNOT BE RE-RUN — it is not in the
+tree.** `T1_VW_WSWEEP`'s `_ink_frac` is NOT it: it reads the whole disc at `frac=0.97`, band
+included, prints **photograph 0.6062** against F204's **0.525**, and puts the build ABOVE the
+photograph where F204 has it below — value and SIGN both differ. `grep -rn "inboard" --include=*.py`
+finds it in no emblem probe. **RE-IMPLEMENTING F204's ink-strictly-inboard-of-the-band statistic,
+not re-running it, is what would settle 0.2205.**
 
 * **STILL OPEN, AND UNCHANGED BY THIS:** F252's **option (C)** — the 1400-start global search,
   **0.7586 / 0.6698**, *"the only one of the three that improves BOTH frames"* — **is still named in
