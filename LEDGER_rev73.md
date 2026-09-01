@@ -315,6 +315,57 @@ see fragmentation, and this objective still has **no legibility term**. **The em
 record had written off; it does not yet have a fix.**
 
 ---
+## §4b WORK DONE AFTER THE HANDOFF WAS WRITTEN, UNSUPERVISED (F294–F296)
+
+The owner went to sleep and asked for the revision to continue. **All three results are
+NEGATIVE or NON-EXCLUDING, and two of them withdraw claims this revision's own outgoing brief had
+already made.** Rule 55 is still unmet: **no geometry moved, and the reason is that every geometry
+candidate the brief named turned out not to be grounded.**
+
+**1. THE `BUMP_BOW` LADDER (F294) — the brief proposed it, and it answers NO.**
+Six `front` renders, one window built once (P3w proves it is bow-blind), all six tracing as ONE
+EDGE with 0 points clipped:
+
+```
+    BUMP_BOW 0.00   mesh  +0.00 mm   sagitta +0.068 +- 0.073   rms 0.79
+    BUMP_BOW 0.50   mesh +10.54 mm   sagitta +0.047 +- 0.069   rms 0.77
+    BUMP_BOW 1.00   mesh +21.09 mm   sagitta +0.446 +- 0.070   rms 0.81
+    BUMP_BOW 1.00   mesh +21.09 mm   sagitta +0.443 +- 0.070   rms 0.81  <- FLOOR 0.003 px
+    BUMP_BOW 1.50   mesh +31.62 mm   sagitta +0.605 +- 0.069   rms 0.80
+    BUMP_BOW 2.50   mesh +52.70 mm   sagitta +7.480 +- 0.316   rms 3.56
+```
+
+**DETECTION YES** — 0.00 against 1.00 is **0.378 px, 126× the floor**. **INVERSION NO** — the first
+rung is flat (**10.54 mm** of real bow moves it **−0.021**, the wrong way and inside the per-fit SE)
+and the last explodes (**+6.875 px** in one rung). **F292's ceiling is confirmed, not lifted, and
+F231's *"cannot be recovered"* stands.** What survives is a **regression detector**.
+
+**2. §0.05's ITEM 2 — THE "DARK ANGLED RECESS" — CANNOT BE BUILT (F295). THIS WITHDRAWS THIS
+REVISION'S OWN CLAIM**, made in the outgoing brief hours earlier, that it was rev 74's cheapest
+geometry and *"needs NO NEW MEASUREMENT"*. Measured in raw pixels rather than off an upscale: **64 px
+below luminance 100, 30 × 12 px in a 480 × 320 JPEG, a bent LINE one to four pixels thick.** And
+**`ref_side.jpg`, the primary frame, shows the board EDGE-ON** — rendered, cropped and looked at —
+so it cannot see a face feature at all, which is F276's own argument applied to item 2. Two readings
+survive and nothing separates them: a cut slot, or the shadowed gap the model **already makes**
+standing `+4.0 mm clear`.
+
+**3. §0.05's ITEM 3 — THE TILT, ON THE CONSTANT'S OWN RULER AT LAST (F296).**
+`probe_rev73_tailboard.py`. The `side` view is orthographic with square pixels, so an XZ angle
+projects true and `STATE.md`'s **38.0** is a known answer. **Both detectors are made to recover it
+from pixels before either is pointed at a photograph: silhouette 38.005 (+0.005), gradient 38.62
+(bias +0.62, MEASURED). A 7.00° rotation kill was watched (+6.25°).** On `ref_side.jpg` the board's
+edge is **not single-valued — 43.12° and 35.12°, both running its whole length** — and the
+drip-rail datum converts that to a world bracket of **32.99°–40.99°**. **The shipped 38.0 is INSIDE
+it; F165's 28.0 is 4.99° OUTSIDE.** **A NON-EXCLUSION, not a confirmation: 8° cannot distinguish 38
+from 35, and no constant was moved.**
+
+**AND ITS OWN CONTROL CAUGHT A DEFECT FIRST.** The silhouette detector originally took the
+**largest** blob, which in that window is the **roof dome** (4016 px against the board's 2556), and
+reported **123.17°** against a known 38.0. Elongation is the pose-free fix — board L/W 16.1, dome
+1.5. **That is four instruments this revision caught being wrong before they published: the tyre
+naming, the stale camera matrix, the typed 2.09 px, and this.**
+
+---
 ## §5 THE MACHINE AT CLOSE
 
 ```
