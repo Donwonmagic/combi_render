@@ -154,30 +154,22 @@ the **stitched** path) before spending anything on it.
 `probe_rev67_nose.py`'s **P3 now reads the render's bumper edge** — the first render-side reading
 this project has had. **BEFORE `rms 113.70 px = 12 % of span, 481 of 481 points clipped, REFUSED`;
 AFTER `sagitta +0.45 px ± 0.07 over 640 px, rms 0.81 px, 0 of 340 clipped, ONE EDGE`.**
-**⚠ AND HERE IS WHERE REV 73's OWN CENTRAL CEILING WAS TOO STRONG AND ITS OWN ABLATION REFUTED IT
-(F292) — READ THIS BEFORE YOU BUILD ANYTHING ON P3.** `P3w` proves the **WINDOW** is X-blind (a
-100 mm X displacement of a window anchor moves its pixel by **0.000e+00**), and rev 73's first
-draft slid from that to *"the reading says NOTHING about `BUMP_BOW`"*. **A rule-17 adversary caught
-the slide and pointed out `T1_BUMP_BOW` had never been run — rule 36 unfired on the headline row.
-IT WAS RUN, WITH A FLOOR:**
-
-```
-    shipped bow (+21.09 mm)          sagitta +0.45 px   span 640   n 340
-    T1_BUMP_BOW=0  (+0.00 mm)        sagitta +0.07 px   span 627   n 314
-    FLOOR, the same config twice     +0.45 -> +0.44     span 640   n 335
-```
-
-**0.38 px against a 0.01 px floor — 38×. THE TRACE IS SENSITIVE TO THE BOW**, not geometrically but
-**PHOTOMETRICALLY**: bowing the blade turns it against the light, moving the sub-pixel red/cream
-threshold and changing which columns carry a step at all. ⚠ **CEILING: SHADING IS NOT A RULER.
-0.38 px converts to no millimetres, and two points is sensitivity, not calibration.**
-**⚠ THE LADDER WAS RUN AT REV 73's CLOSE AND IT ANSWERS ITS OWN QUESTION *NO* (F294). DO NOT
-RE-RUN IT.** Six rungs, `BUMP_BOW` 0.00–2.50, all tracing as ONE EDGE, two-render floor **0.003 px**.
-**DETECTION YES** — 0.00 against 1.00 is **0.3776 px, 145× the floor**. **INVERSION NO** — the first
-rung is FLAT (10.54 mm of real bow moves it −0.021, the wrong way and inside the per-fit SE) and the
-last EXPLODES (+6.875 px in one rung). **F292's ceiling is CONFIRMED, not lifted; F231's *"cannot be
-recovered"* STANDS. What survives is a REGRESSION DETECTOR.** Full six-rung table with every
-sagitta, rms and mesh bow: **`HANDOFF_CARRIERS.md` §0.10**, and `LEDGER_rev73.md` §4b.
+**⚠ AND REV 73's OWN CENTRAL CEILING WAS TOO STRONG AND ITS OWN ABLATION REFUTED IT (F292/F294).**
+`P3w` proves the **WINDOW** is X-blind (100 mm along X moves a window anchor's pixel by
+**0.000e+00**), and the first draft slid from that to *"the reading says NOTHING about `BUMP_BOW`"*.
+A rule-17 adversary caught the slide: **`T1_BUMP_BOW` had never been run — rule 36 unfired on the
+headline row.** It was run, then laddered to six rungs (0.00–2.50), all tracing as ONE EDGE,
+two-render floor **0.0026 px**.
+**DETECTION YES** — 0.00 against 1.00 is **0.3776 px, 145× the floor, 3.7σ**. The trace IS
+bow-sensitive, not geometrically but **PHOTOMETRICALLY**: bowing the blade turns it against the
+light and moves the sub-pixel red/cream threshold.
+**INVERSION NO** — the first rung is **0.2σ, UNRESOLVED** (⚠ *on the between-render floor alone it
+is 7.9× and a real inversion; the two noise models disagree and rev 73 does not know which is
+right*), the slope varies **170×** across the range and reverses sign once, and the blow-up's onset
+is unconstrained anywhere in **31.6–52.7 mm**. **F231's *"cannot be recovered"* STANDS; what
+survives is a REGRESSION DETECTOR.** ⚠ **SHADING IS NOT A RULER — 0.3776 px converts to no
+millimetres.** Full table, every sagitta/rms/mesh bow, and the 3/4 route's rule-6 trap:
+**`HANDOFF_CARRIERS.md` §0.10**; also `LEDGER_rev73.md` §4b. **DO NOT RE-RUN IT.**
 
 **`P3c` FAILS BY DESIGN on a `front` frame** — 340 of 641 columns, vertex u 839 in the gap
 836–847, because the cream V-swage meets the cream bumper at the centreline. **READ ITS MESSAGE.**
@@ -228,9 +220,9 @@ owner has ruled *"keep studio"* TWICE. If you want to re-open it, ask him; do no
 | **F239's UNTRIED PAIRING (§2.4)** | **NULL, and the surviving claim REFUTED.** See §2.4. |
 | **`probe_rev71_red.py` (F286)** | Died on a **bare traceback with no summary line** on the command §4 prints. **Rule 9 had nothing to read.** Fixed and watched: rc 3, `0 checked, 0 FAILED, 1 REFUSED`. |
 | **F275's "bare" COUNT (F287)** | *"bare → 2 checked"* is the **`--nomesh`** reading; **bare is 4**. Wrong in five carriers **including the guard row written to lock it, which was NAMED "bare" and RAN `--nomesh`**. Renamed + companion row. |
-| **THE `BUMP_BOW` LADDER (F294)** | **DETECTION YES, INVERSION NO.** Six rungs, floor 0.003 px. Flat over the first 10 mm, super-linear above 32 mm. **F231's *"cannot be recovered"* stands.** What survives is a regression detector at 145× the floor. **DO NOT RE-RUN IT.** |
+| **THE `BUMP_BOW` LADDER (F294)** | **DETECTION YES, INVERSION NO.** Six rungs, floor 0.0026 px. The slope varies **170×** across the range and reverses sign once; the blow-up's onset is unconstrained anywhere in 31.6–52.7 mm. **F231's *"cannot be recovered"* stands.** What survives is a regression detector at 145× the floor. **DO NOT RE-RUN IT.** |
 | **§0.05 ITEM 2, THE RECESS (F295)** | **CANNOT BE BUILT FROM WHAT WE HOLD.** 64 px, 30 × 12, a bent LINE not an area, in one 480 × 320 frame; the primary frame is EDGE-ON and cannot see a face feature at all. Two readings survive and nothing separates them. |
-| **§0.05 ITEM 3, THE TILT (F296)** | **MEASURED ON THE CONSTANT'S OWN RULER AT LAST.** Photograph brackets 32.99–40.99°; shipped 38.0 is INSIDE, F165's 28.0 is 4.99° OUTSIDE. **A NON-EXCLUSION, not a confirmation — it licenses no change.** `probe_rev73_tailboard.py`, 5 checked 0 FAILED, detectors calibrated on the mesh's own 38.0 and a 7° rotation kill watched. |
+| **§0.05 ITEM 3, THE TILT (F296) — ⚠ HALF RETRACTED SAME REVISION (F300)** | **WHAT STANDS: the RENDER-SIDE CALIBRATION.** The ortho `side` view projects an XZ angle TRUE, and two detectors recover the mesh's own 38.0 from pixels (silhouette 37.995, gradient 38.62). **WHAT IS WITHDRAWN: everything the photograph half said.** Its bracket's span was the detector's own 8° peak-separation constant — 38.0 falls inside at that ONE value and outside at sep 2/4/6/10/12 — and the "second peak" is the FOURTH strongest. **ITEM 3 IS STILL NOT MEASURED.** `probe_rev73_tailboard.py` now reads **5 checked, 1 FAILED — T4 sweeps and REFUSES BY DESIGN**. |
 | **F228's FLOOR** | **RE-MEASURED: 2.044 % / worst 41** on hero34f, against the published 2.441 % / 40. ⚠ F228's frame and view are unrecorded, so say **"2.044 % on hero34f"**, not "F228 was wrong". |
 
 ---

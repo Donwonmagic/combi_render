@@ -360,7 +360,7 @@ so it cannot see a face feature at all, which is F276's own argument applied to 
 survive and nothing separates them: a cut slot, or the shadowed gap the model **already makes**
 standing `+4.0 mm clear`.
 
-**3. §0.05's ITEM 3 — THE TILT, ON THE CONSTANT'S OWN RULER AT LAST (F296).**
+**3. §0.05's ITEM 3 — THE TILT (F296) — ⚠ AND ITS PHOTOGRAPH HALF IS RETRACTED BY F300, BELOW.**
 `probe_rev73_tailboard.py`. The `side` view is orthographic with square pixels, so an XZ angle
 projects true and `STATE.md`'s **38.0** is a known answer. **Both detectors are made to recover it
 from pixels before either is pointed at a photograph: silhouette 37.995 (−0.005), gradient 38.62
@@ -369,6 +369,8 @@ edge is **not single-valued — 43.12° and 35.12°, both running its whole leng
 drip-rail datum converts that to a world bracket of **32.99°–40.99°**. **The shipped 38.0 is INSIDE
 it; F165's 28.0 is 4.99° OUTSIDE.** **A NON-EXCLUSION, not a confirmation: 8° cannot distinguish 38
 from 35, and no constant was moved.**
+
+**⚠ EVERYTHING IN THE PARAGRAPH ABOVE FROM "On `ref_side.jpg`" ONWARDS IS WITHDRAWN — SEE §4c.**
 
 **AND ITS OWN CONTROL CAUGHT A DEFECT FIRST.** The silhouette detector originally took the
 **largest** blob, which in that window is the **roof dome** (4016 px against the board's 2556), and
@@ -399,6 +401,43 @@ RENDER IT, CROP IT AND LOOK."* Nobody could: **the nine numbers were never print
 weight as *"ink inside the disc: photograph 28.4 %, shipped 68.2 %"*. **That is not a like-for-like:
 the photograph is a CHROME PRESSING in a grey crop, so a threshold measures SHADOW, not stroke
 coverage.** Two rulers. **The 87/212 split is the defensible number; 28.4/68.2 is not to be quoted.**
+
+---
+## §4c ⚠ AND THEN THE SECOND RULE-17 ADVERSARY REFUTED §4b's ITEM 3 (F300)
+
+**F296's PHOTOGRAPH BRACKET WAS THE DETECTOR'S OWN TUNING CONSTANT.** `dom_edge_peaks` refused a
+second peak within **8°** of the first; **the published bracket's span was exactly 8.00.** Swept:
+
+```
+    sep= 2  43.12 45.12 -> 41.00..43.00   38.0 inside: no
+    sep= 4  43.12 47.62 -> 41.00..45.50   38.0 inside: no
+    sep= 6  43.12 49.12 -> 41.00..47.00   38.0 inside: no
+    sep= 8  43.12 35.12 -> 33.00..41.00   38.0 inside: YES   <- the shipped value
+    sep=10  43.12 92.38 -> 41.00..90.25   38.0 inside: no
+```
+
+**38.0 falls inside at ONE value of an unswept constant and outside at every other.** And the
+histogram's true ranked maxima are **43.12 (4555), 40.12 (3447), 47.62 (3282), 35.12 (2201)** — the
+reported *"second peak"* is the **FOURTH strongest**, and the two stronger ones were suppressed by
+the same rule. **It was never two peaks. It is ONE BROAD RIDGE, ~35–48°, mode 43.12.**
+
+**SO THE BRACKET 32.99–40.99, *"the shipped 38.0 is INSIDE"* AND *"F165's 28.0 is 4.99° OUTSIDE"*
+ARE ALL WITHDRAWN.** Rule 39 (a gate's target is an instrument too) and rule 6.
+
+**AND A SECOND, INDEPENDENT REASON, WHICH IS WORSE: F296 QUOTED THE KILL THAT REFUTES IT AS IF IT
+VALIDATED IT.** T3 was ONE rung — 7.00° → +6.25°, residual −0.75, passing a `< 1.0` bar. Laddered:
+**`−7.0 → −6.75; +3.0 → +2.75; +5.0 → +4.25; +7.0 → +6.25; +10.0 → +8.75` — MEAN GAIN 0.900.**
+That is a **gain below 1, not a constant offset**, so the +0.62° bias measured *at 38°* is not the
+bias *at 43°*, and subtracting it as a constant is invalid.
+
+**T4 now SWEEPS its own constant and FAILS BY DESIGN; T3 is a ladder that reports the gain; T5
+states the ridge as a description that licenses nothing.** `probe_rev73_tailboard.py` reads
+**5 checked, 1 FAILED**. **§0.05 item 3 is STILL NOT MEASURED.**
+
+**WHAT SURVIVES IS REAL AND REUSABLE: the render-side calibration.** An XZ angle projects TRUE in
+the orthographic `side` view, and two independent detectors recover the mesh's own figure from
+pixels (**silhouette 37.995, gradient 38.62**). That is the first render-side angular ruler this
+project has, and it is not in doubt.
 
 ---
 ## §5 THE MACHINE AT CLOSE
