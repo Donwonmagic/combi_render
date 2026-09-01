@@ -1,6 +1,6 @@
 # NEXT CONTEXT PROMPT — rev 74   ·   **ACTION BRIEF**
 
-**REV 73 SHIPPED NO GEOMETRY. `revstats.py` SAYS `73 | 0 geometry | 0 closed` — **RUN IT for the doc and instrument columns; they are still growing as this handoff lands and every figure typed for them here has already gone stale twice**, AND
+**REV 73 SHIPPED GEOMETRY: THE EMBLEM'S FREE-ENDPOINT SPINE (F301), THE OWNER'S NINTH REPORT. `revstats.py` SAYS `73 | 123 geometry | 0 closed` — **RUN IT for the doc and instrument columns; they are still growing as this handoff lands and every figure typed for them here has already gone stale twice**, AND
 THAT IS TWO REVISIONS IN THREE THE OWNER CAN SEE NOTHING FROM.** Both of his ranked items were
 instrument-shaped and the second returned a null. **DO NOT LET REV 74 BE A THIRD.** Run
 `python3 revstats.py` and read ITS numbers. Every carrier lives in `HANDOFF_CARRIERS.md`; every
@@ -104,51 +104,36 @@ point stands that it was not among the options the owner was shown at rev 72 —
 it is not new, and it will not satisfy rule 55.** Check its live residue (`hero.py`'s `T1_FX=0` on
 the **stitched** path) before spending anything on it.
 
-### **2. THE EMBLEM — HIS NINTH REPORT, AND REV 73 FOUND THE BRIEF HAD BURIED A LIVE LEVER (F289).**
-**DO NOT REPEAT *"EVERY CHEAP LEVER IS DEAD"*. IT IS NOT TRUE AS WRITTEN.**
-* The rev-73 brief printed *"free endpoints measured **0.0010 WORSE** (F252)"* **while F252's own
-  row says *"EVERY FIGURE IN THIS ROW WAS COMPUTED ON THE BROKEN RULER (F246) AND HAS NOT BEEN
-  RE-RUN ON THE REPAIRED ONE."*** Measured **on the rev-73 brief, `NEXT_CONTEXT_PROMPT_rev73.md`** —
-  name the file, line numbers rot (rule 18): `grep -c "0.0010 WORSE"` → **1**,
-  `grep -c "BROKEN RULER"` → **0**. The figure travelled; its ceiling did not (rule 46).
-  ⚠ **Both strings read 2 in THIS file, because this paragraph quotes them — check rev 73's.**
-* **F252's OPTION (C) IS NAMED IN NO BRIEF AT ALL** — the 1400-start global search, **0.7586 fit /
-  0.6698 independent**, *"the only one of the three that improves BOTH frames"*, **never shipped**.
-  `probe_rev71_emblem.py`, `T1_REV71_SEARCH=ABC`.
-* **⚠ AND THE LEVER IS LIVE. REV 73 RE-RAN IT TO COMPLETION (F289b) AND THE SIGN REVERSES:**
-```
-    shipped                                       fit 0.8425   indep 0.8215
-    (A) CURRENT parameterisation re-searched       fit 0.8633   indep 0.8284
-    (B) THE BRIEF'S PRESCRIPTION, free endpoints   fit 0.8689   indep 0.8374
-```
-  **(B) − (A) = +0.0056 / +0.0090; (B) − shipped = +0.0264 / +0.0159. ALL FOUR POSITIVE, including
-  on the INDEPENDENT frame P4 exists to test overfitting on.** ⚠ **BUT RULE 56: THIS IS AN IoU, AND
-  AN IoU RANKED THE TRACED PRESSING ABOVE THE SHIPPED GLYPH TOO, AND THAT RENDERS AS SHARDS (F262).
-  NOTHING HERE HAS BEEN BUILT, RENDERED OR LOOKED AT. BUILD IT AND LOOK BEFORE BELIEVING IT.**
-  ⚠ **~13 MINUTES, not the "~40 s" the probe's own comment claims.**
-* **⚠ AND REV 73 THEN BUILT THE PICTURE AND LOOKED AT IT (F298/F299). READ THIS BEFORE ANYTHING
-  ELSE ON THE EMBLEM.** `probe_rev71_emblem.py` now EMITS (B)'s nine numbers — they had never been
-  printed, so the result could be cited and not built. **No `t1_core` edit was needed to see it:
-  `probe_rev71_proxy` reads `PROXY vs BUILT IoU 1.000000` against the real mesh, so its raster IS
-  what the mesh would build.**
-  **LOOK AT `probe_scratch/rev73_emblem_free_ab.png` — photograph, shipped, (B), three panels.**
-  * **(B) IS CONNECTED AND LEGIBLE. Rule 56's failure mode does NOT repeat** — this is not F262's
-    shards. Its strokes are steeper, narrower and more parallel, which is the direction F104 names.
-    **The step is SMALL.**
-  * **AND THE BIGGER THING THE CROP SHOWS IS NOT ARRANGEMENT AT ALL — IT IS WEIGHT.**
-    **`probe_rev69_fitpose.py` PRINTS `photo-only/model-only inside the ring is 87/212 — NEAR
-    BALANCED` — and 87 against 212 is 2.44×.** The word contradicts the numbers beside it.
-    **So F104/F235/F237's *"the ink AMOUNT is right and the ARRANGEMENT is wrong"*, carried in every
-    brief since rev 60, is NOT supported by the instrument it rests on.** (B)'s search, given weight
-    as a free parameter, independently pulled it **0.2283 → 0.20429**.
-  * **STROKE WEIGHT IS THEREFORE A LIVE LEVER THE RECORD CLOSED**, and F237 closed it on the BROKEN
-    ruler (F246) which F252's own row says was never re-run. **⚠ IT IS NOT YOURS TO SHIP: `wfrac
-    0.2283` was MEASURED and shipped at rev 66 (F204) AFTER the owner reported the strokes.
-    THE CROP IS READY. ASK HIM, as multiple choice, with that image attached.**
+### **2. THE EMBLEM — THE FREE-ENDPOINT SPINE SHIPPED AT REV 73 (F301). LOOK BEFORE YOU TOUCH IT.**
+**`probe_scratch/rev73_emblem_render_ab.png` — the shipped build against the new one, rendered.**
+In the OLD build the W's right outer arm is a **DETACHED SLIVER floating inside the ring**, which is
+the owner's own F205 (*"the strokes still don't reach the ring"*). **In the new one both outer arms
+reach the ring**, the strokes are steeper and more parallel, nothing is fragmented.
+`T1_VW_FREE=0` ablates it back to the rev-72 spine exactly.
+
+**WHY IT SHIPPED, AND ON WHAT:** pose-free IoU **+0.0103 fit / +0.0060 independent** (the spine
+carries it — the weight alone buys +0.0015 / +0.0003); `probe_rev46_vw`'s **L6 0.1532 against the
+photograph's 0.1528**; and **it was rendered, cropped and LOOKED AT** (rule 1, rule 56).
+
+⚠ **WHAT IT COST, AND DO NOT LET THIS GO UNREAD: C4's landmark residual regressed 0.0689 → 0.0745**
+against a 0.045 bar it fails either way. §0.07 and F184 hold those L-landmarks *"optimise a quantity
+that is not the defect"* and name the pose-free IoU as the objective — **but two photograph-facing
+rulers disagree about this change and rev 73 followed one of them.** If you can build a legibility
+term (there still is none), that is the tiebreak the objective has always lacked.
+
+⚠ **AND THE WEIGHT IS NOT SETTLED (F302).** It ships at **0.2205**, the LIVE L6 crossing. F204 fixed
+0.2283 on TWO agreeing statistics and **rev 73 re-ran only ONE of them** — the ink-inside-band
+statistic, which F204 says crosses at 0.2280, **has not been re-run**. Do that before treating
+0.2205 as settled. Live L6 also reads **0.1579** at 0.2283 against F204's recorded 0.1530, and
+`T1_VW_RES` does not change it.
+
+* **STILL OPEN, AND UNCHANGED BY THIS:** F252's **option (C)** — the 1400-start global search,
+  **0.7586 / 0.6698**, *"the only one of the three that improves BOTH frames"* — **is still named in
+  no brief and has never been built.** `probe_rev71_emblem.py`, `T1_REV71_SEARCH=ABC`, ~9 min.
+  `T1_REV71_SCORE=1` scores a construction on this probe's own targets with the shipped pair as a
+  control that REFUSES if it drifts (~2 min).
 * Rule 56 still stands: **the objective has no legibility term, and the traced glyph renders as
   SHARDS (F262).** Watch any new term REJECT the traced glyph before trusting a search against it.
-  ⚠ **(B) passing the LOOK test is not the same as passing a legibility TERM — there is still no
-  such term, and (B) has not been through a Blender build or a render.**
 
 ### **3. THE NOSE — CLOSED AT REV 73 AS FAR AS A `front` FRAME CAN CLOSE IT (F284/F285). READ THE CEILING BEFORE RE-OPENING IT.**
 `probe_rev67_nose.py`'s **P3 now reads the render's bumper edge** — the first render-side reading
@@ -223,6 +208,7 @@ owner has ruled *"keep studio"* TWICE. If you want to re-open it, ask him; do no
 | **THE `BUMP_BOW` LADDER (F294)** | **DETECTION YES, INVERSION NO.** Six rungs, floor 0.0026 px. The slope varies **170×** across the range and reverses sign once; the blow-up's onset is unconstrained anywhere in 31.6–52.7 mm. **F231's *"cannot be recovered"* stands.** What survives is a regression detector at 145× the floor. **DO NOT RE-RUN IT.** |
 | **§0.05 ITEM 2, THE RECESS (F295)** | **CANNOT BE BUILT FROM WHAT WE HOLD.** 64 px, 30 × 12, a bent LINE not an area, in one 480 × 320 frame; the primary frame is EDGE-ON and cannot see a face feature at all. Two readings survive and nothing separates them. |
 | **§0.05 ITEM 3, THE TILT (F296) — ⚠ HALF RETRACTED SAME REVISION (F300)** | **WHAT STANDS: the RENDER-SIDE CALIBRATION.** The ortho `side` view projects an XZ angle TRUE, and two detectors recover the mesh's own 38.0 from pixels (silhouette 37.995, gradient 38.62). **WHAT IS WITHDRAWN: everything the photograph half said.** Its bracket's span was the detector's own 8° peak-separation constant — 38.0 falls inside at that ONE value and outside at sep 2/4/6/10/12 — and the "second peak" is the FOURTH strongest. **ITEM 3 IS STILL NOT MEASURED.** `probe_rev73_tailboard.py` now reads **5 checked, 1 FAILED — T4 sweeps and REFUSES BY DESIGN**. |
+| **THE EMBLEM'S SPINE (F301/F301b)** | **SHIPPED — GEOMETRY, AND VISIBLE.** Free endpoints, `T1_VW_FREE=0` ablates. IoU **+0.0103 / +0.0060** (both frames), L6 **0.1532** vs the photograph's 0.1528, and **rendered and looked at**. **THREE CONTROLS WENT RED AND ALL THREE WERE RIGHT** — the proxy stopped matching the mesh, C12 perturbed a dead constant, C3/C5's baseline collapsed; each repaired at its cause. ⚠ **C4's residual regressed 0.0689 → 0.0745.** |
 | **F228's FLOOR** | **RE-MEASURED: 2.044 % / worst 41** on hero34f, against the published 2.441 % / 40. ⚠ F228's frame and view are unrecorded, so say **"2.044 % on hero34f"**, not "F228 was wrong". |
 
 ---
@@ -283,6 +269,9 @@ T1_REAR_NOSWING=1   -> 1 fail      T1_REAR_SEALSHIFT=1 -> 2 fail
 T1_REAR_FOLD=1      -> 1 fail      T1_REAR_OPEN=0      -> 0 fail (HONEST close)
 T1_REAR_OPEN=-64    -> REFUSES at the parse site, naming the switch (F281)
 T1_NOSE_NOWIN=1     -> P3 RED (rev 73, F284)
+T1_VW_FREE=0        -> ablates the emblem's free spine back to rev 72's (F301);
+                       probe_rev46_vw's L6 goes 0.1532 -> 0.1579 and C12 names
+                       VW_W_ARM_X instead of VW_FREE_W_ARM_X
 ```
 
 **FACTS THAT BITE:** `bootstrap.sh` fails 3/10 without pillow. The render is **not** run-to-run
