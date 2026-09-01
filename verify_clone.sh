@@ -1356,8 +1356,22 @@ ck "the action brief CITES the carriers file" 1 \
 # row is where it becomes visible -- BEFORE ten more revisions pass.
 ck "the ACTION brief is still an ACTION brief (<32 KB)" 1 \
    "$(if [ "$(wc -c < PASTE_INTO_CLAUDE_CODE.txt)" -lt 32768 ]; then echo 1; else echo 0; fi)"
-ck "every carrier SECTION is present in the carriers file" 14 \
+# *** rev 73 -- RE-BASED 14 -> 15, CAUSE NAMED, WITH A COMPANION ROW.
+# THE CAUSE: rev 73 ADDED HANDOFF_CARRIERS.md SS0.10, the BUMP_BOW ladder
+# (F292/F294).  It was written in the ACTION BRIEF first and moved here because
+# the row directly above -- "the ACTION brief is still an ACTION brief (<32 KB)"
+# -- went RED at 33,045 bytes.  That is the split working exactly as designed:
+# the brief keeps the verdict, the carrier keeps the table.
+# THIS ROW GUARDS AGAINST SECTIONS BEING *DELETED*, so an ADDITION raising the
+# count is legitimate and a re-base is the honest response -- but a bare
+# re-base would also silently accept a DELETION plus a different ADDITION, so
+# the companion row below pins the new section BY NAME (SS3b's requirement).
+ck "every carrier SECTION is present in the carriers file" 15 \
    "$(grep -cE '^## (SS|§)(0\.|0 |1 |2 |4 |5 |6 |7 |8 |9 |10 )' HANDOFF_CARRIERS.md 2>/dev/null | head -1)"
+ck "F294 the BUMP_BOW ladder's own carrier section is still there, BY NAME" 1 \
+   "$(grep -cE '^## §0\.10 THE .BUMP_BOW. LADDER' HANDOFF_CARRIERS.md 2>/dev/null | head -1)"
+ck "F294 ... and it still carries the six-rung table the brief points at" 1 \
+   "$(if grep -q 'BUMP_BOW   mesh bow      sagitta' HANDOFF_CARRIERS.md && grep -q 'THE FLOOR PAIR, 0.003 px' HANDOFF_CARRIERS.md; then echo 1; else echo 0; fi)"
 
 # ==========================================================================
 # RULE 55 -- THE FIRST RULE IN THIS PROJECT ABOUT OUTPUT (rev 70)
