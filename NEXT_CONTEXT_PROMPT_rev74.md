@@ -63,8 +63,12 @@ PROSE. Believe row 9 and the loop, never this paragraph.**
 ## §2 RANKED WORK FOR REV 74
 
 **⚠ THE OWNER'S REV-72 RULING IS SPENT — IT WAS EXPLICITLY FOR ONE REVISION (F282). DO NOT READ IT
-AS STANDING ORDER, AND DO NOT INVENT A NEW ONE FOR HIM.** Rank by the delivery frame —
+AS STANDING ORDER, AND DO NOT INVENT A NEW ONE FOR HIM.** **RANK BY PIXELS OF THE DELIVERY FRAME** —
 `python3 visibility_budget.py 3840 out/r74_hero34f.png` — and **the owner outranks the ranking**.
+⚠ **AND READ THAT TABLE'S OWN CEILING BEFORE USING IT: *"pixels are not visibility … Use this to
+catch ORDERS OF MAGNITUDE, not to rank neighbours."*** At rev 72 the brief claimed the owner and
+the ranking *"AGREED for the first time"*; the ranking cannot support that — his first item, the
+nose, is item 8 at 4.20e4 px², only **1.27×** the emblem he put third, which is neighbours (F291).
 The ranked list is `REMAINING_WORK_rev61.md`, triaged into `ROADMAP_rev68.md`.
 
 ### **1. SHIP GEOMETRY. ANY GEOMETRY. RULE 55 IS THE BINDING CONSTRAINT ON REV 74.**
