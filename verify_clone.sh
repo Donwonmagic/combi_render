@@ -2546,6 +2546,41 @@ ck "F281 a non-numeric T1_REAR_OPEN refuses too, rather than crashing" 1 \
    "$(grep -c 'is not a number' /tmp/_r72t.txt)"
 rm -f /tmp/_r72n.txt /tmp/_r72g.txt /tmp/_r72b.txt /tmp/_r72r.txt /tmp/_r72s.txt /tmp/_r72t.txt
 
+# ---------------------------------------------------------------------------
+# REV 73's OWN LOCK.  Same contract as the block above: BEHAVIOURAL rows that
+# RUN the thing and read what it does, every one WATCHED FAILING against the
+# pre-rev-73 code before it was written here (rule 3).  They cost ~3 s: none
+# of them builds the mesh, and none of them needs a frame out of `out/`, which
+# starts EMPTY on a clone (rule 37 -- a row that cannot run must not read as a
+# pass).  A 2x2 PNG carrying the right FILENAME is enough, because what is
+# under test is the probe's REFUSAL LOGIC, not its arithmetic.
+python3 - <<'_PYMK' >/dev/null 2>&1
+from PIL import Image
+for n in ("_r73_x_hero34f.png", "_r73_x_front.png"):
+    Image.new("RGB", (2, 2), (128, 0, 0)).save("/tmp/" + n)
+_PYMK
+python3 probe_rev67_nose.py /tmp/_r73_x_hero34f.png --nomesh >/tmp/_r73a.txt 2>&1
+ck "F284 probe_rev67_nose REFUSES to window a frame that is not the \`front\` elevation (rule 42)" 1 \
+   "$(grep -c 'is not a .front. frame' /tmp/_r73a.txt)"
+ck "F284 ... and counts that refusal as ABSENT, never as a pass (rule 37)" 1 \
+   "$(grep -cE 'checked,.*ABSENT' /tmp/_r73a.txt)"
+python3 probe_rev67_nose.py /tmp/_r73_x_front.png --nomesh >/tmp/_r73b.txt 2>&1
+ck "F284 ... and REFUSES a \`front\` frame with no build, because the window is PROJECTED" 1 \
+   "$(grep -c 'window is PROJECTED off the built fixtures' /tmp/_r73b.txt)"
+T1_NOSE_NOWIN=1 python3 probe_rev67_nose.py /tmp/_r73_x_front.png --nomesh >/tmp/_r73c.txt 2>&1
+ck "F284 the T1_NOSE_NOWIN kill really ablates -- it restores the WHOLE-FRAME scan (rule 47)" 1 \
+   "$(grep -c 'T1_NOSE_NOWIN -- ABLATED, whole frame' /tmp/_r73c.txt)"
+ck "F284 ... and the ablated window is NOT the projected one, so the switch cannot go inert" 0 \
+   "$(grep -c 'projected off hl_ring' /tmp/_r73c.txt)"
+# F286 -- the refusal that had no summary line for rule 9 to read.
+python3 probe_rev71_red.py /tmp/_r73_x_front.png --transform=agx >/tmp/_r73d.txt 2>&1
+ck "F286 probe_rev71_red REFUSES an AgX frame with a SUMMARY LINE, not a bare traceback (rule 9)" 1 \
+   "$(grep -cE '^  0 checked, 0 FAILED, 1 REFUSED' /tmp/_r73d.txt)"
+ck "F286 ... and the traceback is GONE -- rule 51, losing the input is a RESULT, print it" 0 \
+   "$(grep -c 'Traceback (most recent call last)' /tmp/_r73d.txt)"
+rm -f /tmp/_r73a.txt /tmp/_r73b.txt /tmp/_r73c.txt /tmp/_r73d.txt \
+      /tmp/_r73_x_hero34f.png /tmp/_r73_x_front.png
+
 ck "newest brief states THIS script's row count" "$((PASS+1))" "${_BRIEF_TOTAL:-0}"
 
 UNTRACKED="$(git status --porcelain 2>/dev/null | grep -c '^??')"
