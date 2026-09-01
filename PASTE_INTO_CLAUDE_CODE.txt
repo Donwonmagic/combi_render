@@ -172,28 +172,12 @@ IT WAS RUN, WITH A FLOOR:**
 threshold and changing which columns carry a step at all. ⚠ **CEILING: SHADING IS NOT A RULER.
 0.38 px converts to no millimetres, and two points is sensitivity, not calibration.**
 **⚠ THE LADDER WAS RUN AT REV 73's CLOSE AND IT ANSWERS ITS OWN QUESTION *NO* (F294). DO NOT
-RE-RUN IT.** Six `front` renders, one window built once, all six tracing as ONE EDGE:
-
-```
-    BUMP_BOW 0.00   mesh  +0.00 mm   sagitta +0.068 +- 0.073
-    BUMP_BOW 0.50   mesh +10.54 mm   sagitta +0.047 +- 0.069
-    BUMP_BOW 1.00   mesh +21.09 mm   sagitta +0.446 +- 0.070
-    BUMP_BOW 1.00   mesh +21.09 mm   sagitta +0.443 +- 0.070   <- the FLOOR pair, 0.003 px
-    BUMP_BOW 1.50   mesh +31.62 mm   sagitta +0.605 +- 0.069
-    BUMP_BOW 2.50   mesh +52.70 mm   sagitta +7.480 +- 0.316
-```
-
-**DETECTION YES — 0.00 vs 1.00 is 0.378 px, 126× the floor. INVERSION NO.** The first rung is
-FLAT (10.54 mm of real bow moves it **−0.021**, the wrong way and inside the per-fit SE), and the
-last EXPLODES (**+6.875 px** for one rung). **A response flat over its first 10 mm and super-linear
-above 32 mm cannot be inverted to millimetres.** So F292's ceiling is CONFIRMED, not lifted, and
-**F231's *"cannot be recovered"* is NOT overturned.** **WHAT SURVIVES IS A REGRESSION DETECTOR:** if
-something silently zeroed `BUMP_BOW`, this reading would catch it at 126× the floor.
-⚠ **AND THE 3/4 ROUTE HAS A TRAP THE ADVERSARY FOUND: on any non-orthographic view the fixture
-anchors' X reaches the pixel, and `build.py` puts them at `HL_X0 + S.nose_fixture_dx(...)` — the
-fixture X FOLLOWS `NOSE_BULGE`, while `t1_detail._nose_plan_x` derives the bumper's bow by
-raycasting that same shell. On a 3/4 frame the window would move with the quantity being measured.
-That is a rule-6 tautology one step downstream. Cut the 3/4 window from something else.**
+RE-RUN IT.** Six rungs, `BUMP_BOW` 0.00–2.50, all tracing as ONE EDGE, two-render floor **0.003 px**.
+**DETECTION YES** — 0.00 against 1.00 is **0.378 px, 126× the floor**. **INVERSION NO** — the first
+rung is FLAT (10.54 mm of real bow moves it −0.021, the wrong way and inside the per-fit SE) and the
+last EXPLODES (+6.875 px in one rung). **F292's ceiling is CONFIRMED, not lifted; F231's *"cannot be
+recovered"* STANDS. What survives is a REGRESSION DETECTOR.** Full six-rung table with every
+sagitta, rms and mesh bow: **`HANDOFF_CARRIERS.md` §0.10**, and `LEDGER_rev73.md` §4b.
 
 **`P3c` FAILS BY DESIGN on a `front` frame** — 340 of 641 columns, vertex u 839 in the gap
 836–847, because the cream V-swage meets the cream bumper at the centreline. **READ ITS MESSAGE.**

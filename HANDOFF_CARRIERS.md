@@ -204,6 +204,54 @@ z 0.608…1.103, below the counter) and is **NOT** this hatch.
 ---
 
 ---
+## §0.10 THE `BUMP_BOW` LADDER — RUN AT REV 73, AND IT ANSWERS *NO* (F292/F294)
+
+**MOVED HERE FROM THE ACTION BRIEF, WHICH HIT ITS OWN 32 KB GUARD CARRYING IT.** Nothing is
+deleted; the brief carries the verdict and points here for the table (rule 16, and this is exactly
+what the rev-70 split is for).
+
+**WHY IT WAS RUN.** F292 established that `probe_rev67_nose.py`'s P3 trace responds to the bumper's
+plan bow PHOTOMETRICALLY — `P3w` proves the front orthographic camera is X-blind *geometrically*,
+but bowing the blade turns it against the light, moving the sub-pixel red/cream threshold. F292's
+ceiling was *"two points is sensitivity, not calibration"*. The ladder tests whether it calibrates.
+
+**SIX `front` RENDERS, one window built ONCE and shared (P3w proves it is bow-blind), all six
+tracing as ONE EDGE with 0 points clipped and rms far under the bar:**
+
+```
+    BUMP_BOW   mesh bow      sagitta            rms    bar
+      0.00      +0.00 mm    +0.068 +- 0.073    0.79   18.81
+      0.50     +10.54 mm    +0.047 +- 0.069    0.77   18.66
+      1.00     +21.09 mm    +0.446 +- 0.070    0.81   19.20
+      1.00     +21.09 mm    +0.443 +- 0.070    0.81   19.20   <- THE FLOOR PAIR, 0.003 px
+      1.50     +31.62 mm    +0.605 +- 0.069    0.80   19.14
+      2.50     +52.70 mm    +7.480 +- 0.316    3.56   18.72
+```
+
+*(the mesh-bow column is `build.py`'s own printed line, `bumper_f nose face: BUMP_BOW k … bow at
+y=0 …`, not a derived figure)*
+
+**DETECTION: YES.** 0.00 against 1.00 is **0.378 px — 126× the between-render floor and 3.8× the
+per-fit standard error.**
+
+**INVERSION: NO, AND THE LADDER SHOWS EXACTLY WHY.** The first rung is FLAT — a real **10.54 mm** of
+bow moves the sagitta **−0.021**, the wrong direction and *inside* the per-fit SE of ±0.07. The last
+rung EXPLODES — **+6.875 px** in one step, an order of magnitude more per millimetre than
+1.00 → 1.50's +0.159. **A response flat over its first 10 mm and super-linear above 32 mm cannot be
+inverted to a millimetre reading.**
+
+**SO F231's *"the plan bulge cannot be recovered from what we hold"* IS NOT OVERTURNED**, and the
+rev-74 brief's hopeful clause — *"if it does [respond monotonically], this project has a render-side
+channel on the bow for the first time"* — **does not fire.**
+
+**WHAT SURVIVES AND IS WORTH KEEPING: A PASS/FAIL REGRESSION DETECTOR.** If a future change silently
+zeroed `BUMP_BOW`, this reading would catch it at 126× the floor. That is a guard, not a ruler.
+
+⚠ **CEILINGS: one view, one frame per rung, `front` only. The top rung's rms rises 0.80 → 3.56, so
+the parabola models that edge worse — PAINTED at `probe_scratch/rev73_bow25.png` and the trace IS
+still on the bumper, the edge is genuinely more curved. The 0.003 floor is ONE pair.**
+
+---
 ## §0.06 THE NOSE — THE SHAPE IS BUILT AND GUARDED. WHAT IS MISSING IS THE LOOK.
 
 **REV 69 SHIPPED THE NOSE'S ONLY MEASURED, CAMERA-FREE DEFECT.** `t1_detail.bumper` appended eleven
