@@ -1370,8 +1370,15 @@ ck "every carrier SECTION is present in the carriers file" 15 \
    "$(grep -cE '^## (SS|§)(0\.|0 |1 |2 |4 |5 |6 |7 |8 |9 |10 )' HANDOFF_CARRIERS.md 2>/dev/null | head -1)"
 ck "F294 the BUMP_BOW ladder's own carrier section is still there, BY NAME" 1 \
    "$(grep -cE '^## §0\.10 THE .BUMP_BOW. LADDER' HANDOFF_CARRIERS.md 2>/dev/null | head -1)"
+# *** rev 73 -- RE-ANCHORED, CAUSE NAMED.  This row first keyed on the literal
+# "THE FLOOR PAIR, 0.003 px" and went red the moment the floor was re-quoted to
+# its live precision (0.0026).  A guard keyed to a FIGURE fails whenever the
+# figure is corrected, which is backwards: it punishes the correction.  It now
+# keys on the table's SHAPE -- the header and all six BUMP_BOW rungs -- which
+# is what "still carries the six-rung table" actually means.
 ck "F294 ... and it still carries the six-rung table the brief points at" 1 \
-   "$(if grep -q 'BUMP_BOW   mesh bow      sagitta' HANDOFF_CARRIERS.md && grep -q 'THE FLOOR PAIR, 0.003 px' HANDOFF_CARRIERS.md; then echo 1; else echo 0; fi)"
+   "$(if grep -q 'BUMP_BOW   mesh bow      sagitta' HANDOFF_CARRIERS.md \
+        && [ "$(grep -cE '^      [0-9]\.[0-9]{2} ' HANDOFF_CARRIERS.md)" -eq 6 ]; then echo 1; else echo 0; fi)"
 
 # ==========================================================================
 # RULE 55 -- THE FIRST RULE IN THIS PROJECT ABOUT OUTPUT (rev 70)
@@ -2618,9 +2625,18 @@ ck "F296 ... and its gradient detector's bias is MEASURED, not assumed zero" 1 \
    "$(grep -c 'PASS T2 the GRADIENT detector recovers' /tmp/_r73e.txt)"
 ck "F296 ... and the 7-degree ROTATION KILL fires (a detector that cannot move is not measuring)" 1 \
    "$(grep -c 'PASS T3 KILL -- rotating the SAME frame' /tmp/_r73e.txt)"
-# The SHAPE of the result, not its value: 38.0 inside the bracket, 28.0 outside.
-ck "F296 ... and the shipped TB_TILT_DEG is NOT EXCLUDED by the photograph" 1 \
-   "$(grep -c 'PASS T4 the shipped TB_TILT_DEG lies INSIDE' /tmp/_r73e.txt)"
+# *** rev 73, F300 -- THIS ROW USED TO LOCK A CONCLUSION THAT IS NOW RETRACTED.
+# It read: "F296 ... and the shipped TB_TILT_DEG is NOT EXCLUDED by the
+# photograph", keyed on `PASS T4`.  A second rule-17 adversary showed that
+# bracket WAS the detector's own 8-degree minimum-peak-separation constant --
+# 38.0 falls inside at that one value and outside at sep 2, 4, 6, 10 and 12 --
+# so the row was locking an artefact.  IT IS REPLACED, NOT DELETED, BY THE ROW
+# THAT LOCKS THE REFUTATION: T4 now SWEEPS the constant and must FAIL, and if
+# some future edit makes it pass again that is a finding about that edit.
+ck "F300 the tailboard probe SWEEPS its own peak-separation constant and REFUSES (rule 39)" 1 \
+   "$(grep -c 'FAIL T4 the photograph.s BRACKET survives a sweep' /tmp/_r73e.txt)"
+ck "F300 ... and its rotation KILL is a LADDER that reports a GAIN, not one rung" 1 \
+   "$(grep -c 'MEAN GAIN' /tmp/_r73e.txt)"
 # ⚠ THE ROW BELOW IS A SOURCE-TEXT CHECK, NOT A BEHAVIOURAL ONE, AND IT IS
 # NAMED THAT WAY ON PURPOSE (rule 50).  The behaviour it is about -- refusing
 # when out/ holds no side render -- cannot be exercised here without moving

@@ -252,7 +252,7 @@ only thing that exercises the five rear-hatch kills. **AT REV 73 IT PAID: it rea
 ```bash
 ./bootstrap.sh                                # 10 PASS -- read ROW 9
 ./bootstrap.sh --guards                       # ALL 25 PASS.  NOT while a render queue runs
-./verify_clone.sh                             # ALL 409 PASS -- 0 FIDELITY, 402
+./verify_clone.sh                             # ALL 410 PASS -- 0 FIDELITY, 402
   # SELF-CONSISTENCY.  READ THE VERDICT BLOCK TOO: not one row measures the vehicle
   # against a photograph, so never quote this total as fidelity
 T1_SUB=1 T1_VERIFY=1 /tmp/blender/blender -b -P build.py     # -> "VERIFY: 0 fail, 0 warn"
