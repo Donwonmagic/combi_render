@@ -2592,6 +2592,33 @@ ck "F286 ... and the traceback is GONE -- rule 51, losing the input is a RESULT,
 rm -f /tmp/_r73a.txt /tmp/_r73b.txt /tmp/_r73c.txt /tmp/_r73d.txt \
       /tmp/_r73_x_hero34f.png /tmp/_r73_x_front.png
 
+# --- rev 73, F296: the tail board's tilt probe.  BEHAVIOURAL, ~2 s, no build.
+# The point of this probe is that it CALIBRATES on a known answer before it
+# reads a photograph, so the rows below lock the CALIBRATION and the KILL --
+# not the photograph's number, which is a bracket and will move if the window
+# is ever re-cut.
+python3 probe_rev73_tailboard.py >/tmp/_r73e.txt 2>&1
+ck "F296 tailboard probe calibrates on the mesh's own angle before reading a photograph" 1 \
+   "$(grep -c 'PASS T1 the SILHOUETTE detector recovers' /tmp/_r73e.txt)"
+ck "F296 ... and its gradient detector's bias is MEASURED, not assumed zero" 1 \
+   "$(grep -c 'PASS T2 the GRADIENT detector recovers' /tmp/_r73e.txt)"
+ck "F296 ... and the 7-degree ROTATION KILL fires (a detector that cannot move is not measuring)" 1 \
+   "$(grep -c 'PASS T3 KILL -- rotating the SAME frame' /tmp/_r73e.txt)"
+# The SHAPE of the result, not its value: 38.0 inside the bracket, 28.0 outside.
+ck "F296 ... and the shipped TB_TILT_DEG is NOT EXCLUDED by the photograph" 1 \
+   "$(grep -c 'PASS T4 the shipped TB_TILT_DEG lies INSIDE' /tmp/_r73e.txt)"
+# ⚠ THE ROW BELOW IS A SOURCE-TEXT CHECK, NOT A BEHAVIOURAL ONE, AND IT IS
+# NAMED THAT WAY ON PURPOSE (rule 50).  The behaviour it is about -- refusing
+# when out/ holds no side render -- cannot be exercised here without moving
+# out/ aside, which a verifier must not do.  It can tell you the refusal path
+# is still WRITTEN; it cannot tell you it still FIRES.
+ck "F296 ... and its no-side-render refusal path is still PRESENT IN SOURCE (a grep, not a behaviour)" 1 \
+   "$(python3 -c "
+import re,io
+s=io.open('probe_rev73_tailboard.py').read()
+print(1 if ('NO SIDE RENDER' in s and '2 ABSENT' in s) else 0)")"
+rm -f /tmp/_r73e.txt
+
 ck "newest brief states THIS script's row count" "$((PASS+1))" "${_BRIEF_TOTAL:-0}"
 
 UNTRACKED="$(git status --porcelain 2>/dev/null | grep -c '^??')"
