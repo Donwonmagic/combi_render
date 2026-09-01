@@ -170,6 +170,27 @@ def main():
         vB, cB = descend(vB, sc9, [.06] * 8 + [.04], 7, dst_fit)
         print("  (B) THE BRIEF'S PRESCRIPTION, free endpoints   fit %.4f  indep %.4f"
               % (cB, F.fit(sc9(vB), dst_ind)[0]))
+        # ---------------------------------------------------- rev 73, F298
+        # THE VECTORS WERE NEVER PRINTED, SO THE SEARCH COULD BE QUOTED BUT NOT
+        # BUILT.  F289b re-ran (B) and found it positive on BOTH frames -- and
+        # then the only thing anyone could do with that result was cite it,
+        # because the nine numbers that produce it existed for the ~13 minutes
+        # of the run and were then discarded.  Rule 1 says RENDER IT AND LOOK;
+        # you cannot look at a number that was never emitted.
+        _names = ("V_TIP_X", "V_TIP_Z", "APEX_Z", "W_ARM_X", "W_ARM_Z",
+                  "W_TR_X", "W_TR_Z", "W_PEAK_Z", "WFRAC")
+        print("      (A) vector, CURRENT parameterisation (8): "
+              + " ".join("%s=%.5f" % (n, v) for n, v in
+                         zip(("V_TIP_X", "APEX_Z", "W_ARM_X", "W_ARM_Z",
+                              "W_TR_X", "W_TR_Z", "W_PEAK_Z", "WFRAC"), vA)))
+        print("      (B) vector, FREE ENDPOINTS (9), on_band=False: "
+              + " ".join("%s=%.5f" % (n, v) for n, v in zip(_names, vB)))
+        print("      ^ THESE ARE PROXY-SPACE NUMBERS IN R=1 UNITS.  They are a "
+              "SEARCH RESULT, not a measurement of the vehicle, and nothing "
+              "has rendered them.  Rule 56: this objective is a silhouette IoU "
+              "and CANNOT SEE FRAGMENTATION -- the traced pressing scored "
+              "positive on both frames by this same instrument and renders as "
+              "SHARDS (F262).  BUILD, RENDER, CROP, LOOK before believing it.")
         if "C" in want:
             t0 = time.time()
             BND = [(.10, .70), (.20, .82), (-.50, .60), (.20, .82), (-.60, .60),
