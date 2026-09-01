@@ -218,7 +218,9 @@ only thing that exercises the five rear-hatch kills. **AT REV 73 IT PAID: it rea
 ```bash
 ./bootstrap.sh                                # 10 PASS -- read ROW 9
 ./bootstrap.sh --guards                       # ALL 25 PASS.  NOT while a render queue runs
-./verify_clone.sh                             # read the verdict block too
+./verify_clone.sh                             # ALL 402 PASS -- 0 FIDELITY, 402
+  # SELF-CONSISTENCY.  READ THE VERDICT BLOCK TOO: not one row measures the vehicle
+  # against a photograph, so never quote this total as fidelity
 T1_SUB=1 T1_VERIFY=1 /tmp/blender/blender -b -P build.py     # -> "VERIFY: 0 fail, 0 warn"
 python3 photometry.py                         # 9 checked, 0 FAILED
 python3 probe_rev67_nose.py out/r74_front.png    # 7 checked, 1 FAILED -- P3c BY DESIGN.
