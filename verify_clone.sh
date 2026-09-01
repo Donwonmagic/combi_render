@@ -2682,6 +2682,16 @@ ck "F301 ... and both paths still read 12 checked, 1 FAILED (C4 only)" 2 \
 # to whichever spine happens to ship would pass that row and be void here.
 ck "F301 the emblem proxy reproduces the build under the ABLATION too" 1 \
    "$(T1_VW_FREE=0 python3 probe_rev71_proxy.py 2>&1 | grep -c 'IoU 1.000000')"
+# AND THE ABLATION IS EXACT, NOT MERELY SELF-CONSISTENT.  Rev 73 checked out the
+# REAL pre-change t1_core/t1_detail/proxy at HEAD~7 and read on-px 41701; the
+# ablated path reads 41701 too, so "T1_VW_FREE=0 restores the rev-72 spine
+# exactly" is a measurement, not a claim.  Pinning the count is what stops the
+# on-band path drifting once nothing ships on it.  (The free path reads 41474 --
+# a DIFFERENT number, which is how we know the switch is not a no-op.)
+ck "F301 ... and the ablated glyph is the rev-72 glyph to the PIXEL (41701 on-px)" 1 \
+   "$(T1_VW_FREE=0 python3 probe_rev71_proxy.py 2>&1 | grep -c 'on-px 41701 / 41701')"
+ck "F301 ... while the SHIPPED glyph is a different one (41474) -- the switch is no no-op" 1 \
+   "$(python3 probe_rev71_proxy.py 2>&1 | grep -c 'on-px 41474 / 41474')"
 rm -f /tmp/_r73f.txt /tmp/_r73g.txt
 
 ck "newest brief states THIS script's row count" "$((PASS+1))" "${_BRIEF_TOTAL:-0}"
