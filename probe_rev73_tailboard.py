@@ -103,7 +103,10 @@ def silhouette_angle(sel, opens=3, minpx=200):
     before any photograph was touched, which is what the control is for.
     Elongation is also the POSE-FREE choice (rule 35): a blade is a blade at
     any angle, whereas "the big one" encodes what else happens to be in frame.
-    Measured on out/r73_side.png: board L/W 16.1, roof dome L/W 1.5. ***"""
+    Measured on out/r73_side.png, BEFORE the opening: roof dome 4016 px,
+    board 2556 px -- which is the stage the wrong selection compared.
+    AFTER it, T1's own live row prints the board at 2305 px, L/W 16.3;
+    the dome's L/W is 1.5.  Say which stage a px figure is from. ***"""
     st = ndimage.generate_binary_structure(2, 1)
     op = ndimage.binary_opening(sel, structure=st, iterations=opens)
     if op.sum() < minpx:

@@ -371,8 +371,10 @@ from 35, and no constant was moved.**
 
 **AND ITS OWN CONTROL CAUGHT A DEFECT FIRST.** The silhouette detector originally took the
 **largest** blob, which in that window is the **roof dome** (4016 px against the board's 2556), and
-reported **123.17°** against a known 38.0. Elongation is the pose-free fix — board L/W 16.1, dome
-1.5. **That is four instruments this revision caught being wrong before they published: the tyre
+reported **123.17°** against a known 38.0. Elongation is the pose-free fix. *(Those two px figures
+are the components BEFORE the opening, which is the stage the wrong selection compared; the probe's
+own live row now prints the board AFTER it at **2305 px, L/W 16.3** — a rule-17 adversary caught
+that this was never said.)* **That is four instruments this revision caught being wrong before they published: the tyre
 naming, the stale camera matrix, the typed 2.09 px, and this.**
 
 **4. THE EMBLEM — THE FREE-ENDPOINT CONSTRUCTION WAS LOOKED AT (F298), AND IT MOVED THE QUESTION
