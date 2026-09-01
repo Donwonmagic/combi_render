@@ -133,8 +133,19 @@ not re-running it, is what would settle 0.2205.**
 * **STILL OPEN, AND UNCHANGED BY THIS:** F252's **option (C)** — the 1400-start global search,
   **0.7586 / 0.6698**, *"the only one of the three that improves BOTH frames"* — **is still named in
   no brief and has never been built.** `probe_rev71_emblem.py`, `T1_REV71_SEARCH=ABC`, ~9 min.
-  `T1_REV71_SCORE=1` scores a construction on this probe's own targets with the shipped pair as a
-  control that REFUSES if it drifts (~2 min).
+  `T1_REV71_SCORE=1` scores BOTH spines at BOTH weights on this probe's own targets, with the
+  REV-72 on-band pair as a control that REFUSES if it drifts (~2 min). ⚠ **It REFUSED on the shipped
+  tree until rev 73's close — F303 — because its control read whatever ships.**
+* **⚠ AND THE ONE THING STILL WAITING ON HIM, WHICH THE §2.2 REWRITE DROPPED AND A RULE-17
+  ADVERSARY PUT BACK (rule 16): THE STROKE WEIGHT IS CONTESTED AND THE CROP IS READY.**
+  **`probe_scratch/rev73_emblem_free_ab.png`** — photograph | shipped | free — is the image to put
+  to him. **F299:** `probe_rev69_fitpose` prints *"photo-only/model-only inside the ring is 73/178 —
+  NEAR BALANCED"* and **73 against 178 is 2.4×**, so F104/F235/F237's *"the ink AMOUNT is right and
+  the ARRANGEMENT is wrong"* — carried in every brief since rev 60 — **is not supported by the
+  instrument it rests on.** **F303:** on the pose-free IoU the search's **0.20429** beats the shipped
+  **0.2205** by **+0.0129 / +0.0089** — *more than the ship itself gained* — while L6 says 0.2205.
+  **TWO RULERS, TWO ANSWERS, AND REV 73 TOOK ONE FOR THE SPINE AND THE OTHER FOR THE WEIGHT.**
+  **ASK HIM, as multiple choice, with that image attached.**
 * Rule 56 still stands: **the objective has no legibility term, and the traced glyph renders as
   SHARDS (F262).** Watch any new term REJECT the traced glyph before trusting a search against it.
 
@@ -164,34 +175,18 @@ millimetres.** Full table, every sagitta/rms/mesh bow, and the 3/4 route's rule-
 **DO NOT ASK HIM THE NOSE AGAIN — both askings are spent (F214/F215).**
 
 ### **4. THE GLOSS — F239's PRESCRIPTION IS CLOSED BY MEASUREMENT. DO NOT RE-RUN THIS GRID.**
-**Eight configurations of the 3 × 3** of `T1_BODY_RGH` × `T1_REFLENV` (only `(0.060, env 0.0)` was
-not rendered), **10 renders in all — 8 `hero34f` plus 2 `side` on the Raw path for the chroma**.
-Two-render floor **0.001 spread / 0.002 headroom**:
-
-| `T1_BODY_RGH` → | **0.060** | **0.120** | **0.250** *(shipped)* |
-|---|---|---|---|
-| **`T1_REFLENV` 0.0** | *(not rendered)* | 0.408 / 0.113 | **0.412 / 0.120** |
-| **`T1_REFLENV` 1.0** | 0.410 / 0.116 | 0.411 / 0.116 | **0.416 / 0.126** |
-| **`T1_REFLENV` 21.0** | 0.388 / 0.108 | 0.388 / 0.110 | 0.388 / 0.118 |
-
-**F239's *"the binding constraint is the ROUGHNESS"* IS NOT SUPPORTED — AND HERE IS EXACTLY HOW FAR
-THAT GOES, BECAUSE THE FIRST DRAFT OF THIS PARAGRAPH OVERSTATED IT AND AN ADVERSARY CAUGHT IT.**
-It claimed roughness *"costs spread at EVERY environment level"*. **Against the revision's own
-0.001 floor, only TWO steps clear it:** `0.416 → 0.411` at env 1.0 (5× the floor) and
-`0.412 → 0.408` at env 0.0 (4×). **At env 21.0 the three cells read `0.388 / 0.388 / 0.388` — no
-cost at all**, and `0.411 → 0.410` is exactly one floor. **So the honest statement is: lowering
-roughness never HELPS at any environment level, and where it moves the gate at all it moves it
-DOWN. That refutes the prescription; it is not a monotone trend across nine cells.**
-The only cell above shipped is **environment ALONE at 1.0**, and it is **INVISIBLE**: A/B **2.367 %**
-of pixels >8 levels against a **2.044 %** floor, `>32` levels **0.044 % vs 0.043 %**.
-**NOTHING SHIPPED.**
-**CHROMA COST on F266's Raw path: red linear G/R `0.1091 → 0.1099`.** ⚠ **DO NOT PUT A SINGLE
-FIGURE ON THE PHOTOGRAPH'S SIDE OF THAT RATIO. `probe_rev71_red.py` PRINTS THE PROHIBITION ITSELF,
-DIRECTLY ABOVE THE NUMBER: *"the photograph's red G/R is 0.0149 .. 0.0344, a 2.3x span. DO NOT
-QUOTE A SINGLE FIGURE FOR IT. This span is larger than most of the effects the red has been tuned
-against."*** The rev-73 ledger's *"0.0307 … 3.55× the photograph"* inherits that defect and the
-multiple is not quotable; **the RENDER-side pair, 0.1091 vs 0.1099, is measured on one window and
-is comparable to itself.**
+**Eight of the 3 × 3** of `T1_BODY_RGH` × `T1_REFLENV`, 10 renders, two-render floor
+**0.001 spread / 0.002 headroom**. **NOTHING SHIPPED.** **F239's *"the binding constraint is the
+ROUGHNESS"* IS NOT SUPPORTED:** against the floor only two steps clear it — `0.416 → 0.411` at
+env 1.0 and `0.412 → 0.408` at env 0.0 — and **at env 21.0 the three cells read
+`0.388 / 0.388 / 0.388`, no cost at all.** Lowering roughness never HELPS at any environment level;
+where it moves the gate it moves it DOWN. The only cell above shipped is **environment ALONE at
+1.0**, and it is **INVISIBLE**: A/B **2.367 %** of pixels >8 levels against a **2.044 %** floor
+(read through `photometry.read_png`, integer-scaled — PIL's uint8 path gives 2.058 %/2.387 %, which
+is F263 in miniature), `>32` levels **0.044 % vs 0.043 %**. **CHROMA COST on F266's Raw path: red
+linear G/R `0.1091 → 0.1099`.** ⚠ **DO NOT PUT A SINGLE FIGURE ON THE PHOTOGRAPH'S SIDE — the probe
+prints the prohibition itself: *"0.0149 .. 0.0344, a 2.3x span. DO NOT QUOTE A SINGLE FIGURE FOR
+IT."*** Full nine-cell table: **`HANDOFF_CARRIERS.md` §0.11**, and `LEDGER_rev73.md` §3.
 
 **WHAT IS STILL OPEN: the gate misses by 30 % and neither lever reaches it. F62's own answer —
 *"this flank's specular image is white cyclorama 19.3 m away"* — is now the only one left, and the
@@ -233,7 +228,7 @@ only thing that exercises the five rear-hatch kills. **AT REV 73 IT PAID: it rea
 ```bash
 ./bootstrap.sh                                # 10 PASS -- read ROW 9
 ./bootstrap.sh --guards                       # ALL 25 PASS.  NOT while a render queue runs
-./verify_clone.sh                             # ALL 420 PASS -- 0 FIDELITY, 402
+./verify_clone.sh                             # ALL 423 PASS -- 0 FIDELITY, 420
   # SELF-CONSISTENCY.  READ THE VERDICT BLOCK TOO: not one row measures the vehicle
   # against a photograph, so never quote this total as fidelity
 T1_SUB=1 T1_VERIFY=1 /tmp/blender/blender -b -P build.py     # -> "VERIFY: 0 fail, 0 warn"
@@ -245,8 +240,12 @@ python3 probe_rev67_nose.py out/r74_front.png    # 7 checked, 1 FAILED -- P3c BY
 T1_NOSE_NOWIN=1 python3 probe_rev67_nose.py out/r74_front.png   # THE KILL.  P3 must go RED
 python3 gloss_compare.py out/r74_hero34f.png      # PASS IT A FRAME
 python3 flank_compare.py out/r74_side.png /tmp/fc.png   # 0.676 (i) at rev 73, NOT 0.689
-python3 probe_rev69_fitpose.py                # the emblem.  P1b PASSES; P2 and P4 fail BY
-  # DESIGN -- READ P4's MESSAGE, its red is NOT a licence (F262, rule 56)
+python3 probe_rev69_fitpose.py                # 5 checked, 1 FAILED -- P4 only.
+  # ⚠ P2 CROSSED ITS BAR ON THE SHIP: 0.8425 -> 0.8528 against a 0.85 bar, so a
+  # photograph-facing gate went RED -> GREEN (F305).  T1_VW_FREE=0 puts it back red.
+  # ⚠ AND P4's MESSAGE NO LONGER MATCHES ITS OWN NUMBERS -- the trace now LOSES on
+  # its source frame and WINS on the independent one, the inverse of the argument
+  # the message makes.  Read the NUMBERS, not the prose (F305, rule 56 still holds)
 python3 probe_rev71_emblem.py                 # ⚠ T1_REV71_SEARCH=AB is ~13 MIN, not the 40 s
 python3 probe_rev71_proxy.py                  # must read IoU 1.000000
 python3 probe_rev71_red.py out/r74_side.png --transform=agx   # REFUSES *with a summary line* now
@@ -255,7 +254,8 @@ python3 probe_rev71_red.py out/r74_side.png --transform=agx   # REFUSES *with a 
   # T1_DIFFB / T1_SPEC / T1_CYCALB / T1_BODY_COAT are the ablations.
 python3 probe_rev71_bulbs.py out/r74_side.png # ceiling is DILUTION, not misplacement (F250)
 python3 probe_rev72_bits.py out/r74_hero34f.png   # 5 checked, 1 FAILED -- B4 REFUSES BY DESIGN
-python3 probe_rev73_tailboard.py             # NEW at rev 73.  5 checked, 0 FAILED.  It
+python3 probe_rev73_tailboard.py             # NEW at rev 73.  5 checked, 1 FAILED --
+  # T4 SWEEPS its own peak-separation constant and REFUSES BY DESIGN (F300).  It
   # CALIBRATES on the mesh's own 38.0 before it reads a photograph, and its T3 row is a
   # 7-degree ROTATION KILL.  Bare it needs a *_side.png in out/ and REFUSES without one
 python3 probe_rev70_tyre.py out/r74_side.png ; python3 probe_rev46_vw.py
@@ -320,20 +320,19 @@ MEANS TWO DIFFERENT THINGS IN LIVE SOURCE** (*"a control's kill is a preconditio
 | file | what it holds |
 |---|---|
 | **`HANDOFF_CARRIERS.md`** | every carrier: the goal, the reference set, §2's refuted emblem routes, §4 the owner's rulings, §5 rules 34–58, the horizon |
-| `OPEN_FINDINGS.md` | the register. **F284–F300 are rev 73's** (17 rows; F296's photograph half is retracted by F300 and F285's by F292 — read the annotations, not just the rows). It outranks prose |
+| `OPEN_FINDINGS.md` | the register. **F284–F305 are rev 73's** (23 rows, including F289b and F301b; F296's photograph half is retracted by F300 and F285's by F292 — read the annotations, not just the rows). It outranks prose |
 | `STATE.md` | machine-written; outranks every prose description. **Regenerate it before trusting a row that reads it — 19 verify rows do** |
 | `LEDGER_rev73.md` | what rev 73 did, **and §6, the four things it got wrong in its own work** |
 | `photometry.py` | the measurement protocol, with a selftest |
 | `SPEC.md`, `REF_MEASUREMENTS.md`, `SURVEY_rev49_photoreal.md`, `ROADMAP_rev68.md`, `PANEL_rev61.md`, `REMAINING_WORK_rev61.md`, `PHOTOS_WANTED_rev49.md`, `PHOTOS_WANTED_rev52.md`, `EMBLEM_HANDOFF.md` | large; load the one the task needs |
 
-**⚠ IDs THIS BRIEF LEANS ON WITHOUT NAMING, SO A GREP FINDS THEM (rule 16): `F282`** the owner's
-spent one-revision ruling, **`F252`** the emblem's free-endpoint row and its option (C), **`F246`**
-the broken ruler those figures were computed on, **`F277`** the refuted "give it an elevation
-frame" prescription, **`F231`** the plan bulge's "cannot be recovered", **`F222`/`F223`** the bumper
-as the nose's measured object, **`F283`** the `--guards` false failure rev 72 re-based 4 → 5,
-**`F267`** the branch-prose defect §1 exists for, **`F71`** the flat-glazing branch (REFUTED as the
-cause of the dark rectangle), **`F254`** the projected pane, **`F21`** paint-or-light, answered by
-**`F266`**, **`F143`** the roof loudspeakers.
+**⚠ IDs THIS BRIEF LEANS ON WITHOUT NAMING, SO A GREP FINDS THEM (rule 16): `F282`** his spent
+one-revision ruling, **`F252`** the free-endpoint row and its option (C), **`F246`** the broken
+ruler, **`F277`** the refuted elevation-frame prescription, **`F231`** "cannot be recovered",
+**`F222`/`F223`** the bumper, **`F283`** the `--guards` false failure, **`F267`** the branch-prose
+defect, **`F71`**/**`F254`** the rear pane, **`F21`** paint-or-light answered by **`F266`**,
+**`F143`** the loudspeakers, **`F298`/`F299`** the glyph looked at and the mark's weight,
+**`F303`** the weight two rulers disagree on, **`F304`** C10's vacuous raster.
 
 ---
 ## §7 HOW TO CLOSE

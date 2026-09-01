@@ -139,10 +139,10 @@ ANCHOR, so it proves the WINDOW is X-blind and says nothing whatever about the T
 revision's headline row.
 
 **IT WAS RUN, WITH A FLOOR UNDER IT.** Build log: `bumper_f nose face: BUMP_BOW 0.000 … bow at
-y=0 +0.00 mm` against the shipped `+21.09 mm`.
+y=0 +0.00 mm` against the shipped `+21.08 mm` *(the build logs print +21.08; +21.09 appears on a later build and the figure wobbles ±0.01 mm — two significant figures, `HANDOFF_CARRIERS.md` §0.10)*.
 
 ```
-    shipped bow (+21.09 mm)          sagitta +0.45 px   span 640   n 340
+    shipped bow (+21.08 mm)          sagitta +0.45 px   span 640   n 340
     T1_BUMP_BOW=0  (+0.00 mm)        sagitta +0.07 px   span 627   n 314
     FLOOR, the same config twice     +0.45 -> +0.44     span 640   n 335
 ```
@@ -327,8 +327,8 @@ EDGE with 0 points clipped:
 ```
     BUMP_BOW 0.00   mesh  +0.00 mm   sagitta +0.068 +- 0.073   rms 0.79
     BUMP_BOW 0.50   mesh +10.54 mm   sagitta +0.047 +- 0.069   rms 0.77
-    BUMP_BOW 1.00   mesh +21.09 mm   sagitta +0.446 +- 0.070   rms 0.81
-    BUMP_BOW 1.00   mesh +21.09 mm   sagitta +0.443 +- 0.070   rms 0.81  <- FLOOR 0.003 px
+    BUMP_BOW 1.00   mesh +21.08 mm   sagitta +0.446 +- 0.070   rms 0.81
+    BUMP_BOW 1.00   mesh +21.08 mm   sagitta +0.443 +- 0.070   rms 0.81  <- FLOOR 0.0026 px
     BUMP_BOW 1.50   mesh +31.62 mm   sagitta +0.605 +- 0.069   rms 0.80
     BUMP_BOW 2.50   mesh +52.70 mm   sagitta +7.480 +- 0.316   rms 3.56
 ```
@@ -459,7 +459,11 @@ gloss_compare.py          0.412 (bar 0.60) on out/r73_hero34f.png -- FAILS
 flank_compare.py          0.676 (i) (bar 0.75) on out/r73_side.png -- FAILS.  NOT 0.689
 visibility_budget.py      gloss 2.89e6 px^2; emblem item 9 of 16 at 3.32e4; 87x.
                           TOP ITEM: F67 the contact shadow, 3.83e6 px^2
-revstats.py               rev 73: 0 geometry, 476 instrument, 0 closed
+revstats.py               rev 73: 123 GEOMETRY, and re-read at the header -- the doc and
+                          instrument columns move with every handoff commit, so this block
+                          quotes the geometry only.  ⚠ THE FIRST DRAFT OF THIS LINE SAID
+                          '0 geometry, 476 instrument' and CONTRADICTED THIS FILE'S OWN
+                          RULE-55 HEADER, on the one number rule 55 turns on
 ```
 
 **AND THE NONDETERMINISM FLOOR, RE-MEASURED BECAUSE THE BRIEF SAID TO AND IT WAS FIVE REVISIONS
@@ -495,5 +499,5 @@ significant figure. **That is not noise, it is F263 in miniature: quote the read
 3. **`F283` was used as this revision's own finding ID for two commits' worth of drafting** before
    the rule-15 adversary pointed out it was already taken by rev 72's `--guards` row. Renumbered
    to F284/F285 before the first commit.
-4. **The gloss grid is 6 of 9 cells and was called a sweep in the first draft of §3.** Corrected
+4. **The gloss grid is 8 of 9 cells** — the first draft of this line said 6 of 9 and the brief said a full 3×3; both were wrong and a rule-17 adversary counted them. Corrected
    to name the missing cells.

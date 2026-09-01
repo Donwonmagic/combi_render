@@ -204,6 +204,61 @@ z 0.608…1.103, below the counter) and is **NOT** this hatch.
 ---
 
 ---
+## §0.11 THE GLOSS GRID — F239's ONE UNTRIED PAIRING, MEASURED AT REV 73 AND A NULL
+
+**MOVED HERE FROM THE ACTION BRIEF, which hit its 32 KB guard carrying it (rule 16; this is what the
+rev-70 split is for).** The brief carries the verdict and points here for the table.
+
+**Eight configurations of the 3 × 3** of `T1_BODY_RGH` × `T1_REFLENV` (only `(0.060, env 0.0)` was
+not rendered), **10 renders in all — 8 `hero34f` plus 2 `side` on the Raw path for the chroma**.
+Two-render floor **0.001 spread / 0.002 headroom**:
+
+| `T1_BODY_RGH` → | **0.060** | **0.120** | **0.250** *(shipped)* |
+|---|---|---|---|
+| **`T1_REFLENV` 0.0** | *(not rendered)* | 0.408 / 0.113 | **0.412 / 0.120** |
+| **`T1_REFLENV` 1.0** | 0.410 / 0.116 | 0.411 / 0.116 | **0.416 / 0.126** |
+| **`T1_REFLENV` 21.0** | 0.388 / 0.108 | 0.388 / 0.110 | 0.388 / 0.118 |
+
+**F239's *"the binding constraint is the ROUGHNESS"* IS NOT SUPPORTED — AND HERE IS EXACTLY HOW FAR
+THAT GOES, BECAUSE THE FIRST DRAFT OF THIS PARAGRAPH OVERSTATED IT AND AN ADVERSARY CAUGHT IT.**
+It claimed roughness *"costs spread at EVERY environment level"*. **Against the revision's own
+0.001 floor, only TWO steps clear it:** `0.416 → 0.411` at env 1.0 (5× the floor) and
+`0.412 → 0.408` at env 0.0 (4×). **At env 21.0 the three cells read `0.388 / 0.388 / 0.388` — no
+cost at all**, and `0.411 → 0.410` is exactly one floor. **So the honest statement is: lowering
+roughness never HELPS at any environment level, and where it moves the gate at all it moves it
+DOWN. That refutes the prescription; it is not a monotone trend across nine cells.**
+The only cell above shipped is **environment ALONE at 1.0**, and it is **INVISIBLE**: A/B **2.367 %**
+of pixels >8 levels against a **2.044 %** floor, `>32` levels **0.044 % vs 0.043 %**.
+**NOTHING SHIPPED.**
+**CHROMA COST on F266's Raw path: red linear G/R `0.1091 → 0.1099`.** ⚠ **DO NOT PUT A SINGLE
+FIGURE ON THE PHOTOGRAPH'S SIDE OF THAT RATIO. `probe_rev71_red.py` PRINTS THE PROHIBITION ITSELF,
+DIRECTLY ABOVE THE NUMBER: *"the photograph's red G/R is 0.0149 .. 0.0344, a 2.3x span. DO NOT
+QUOTE A SINGLE FIGURE FOR IT. This span is larger than most of the effects the red has been tuned
+against."*** The rev-73 ledger's *"0.0307 … 3.55× the photograph"* inherits that defect and the
+multiple is not quotable; **the RENDER-side pair, 0.1091 vs 0.1099, is measured on one window and
+is comparable to itself.**
+
+
+**AND THE ONE POSITIVE CELL, PRICED.** `T1_REFLENV=1.0` at the shipped roughness is the only cell
+above shipped. Its chroma cost on F266's physics-closed path — `side` rendered **Raw 16-bit stopped
+down** (`T1_VT=Raw T1_LOOK=None T1_EXP=-2.5`), read with `probe_rev71_red.py --transform=raw`:
+red linear **G/R 0.1091 → 0.1099**. ⚠ **The photograph's side of that ratio must NOT be quoted as a
+single figure — the probe prints *"0.0149 .. 0.0344, a 2.3x span"* directly above the number.**
+The flank gate is unmoved (0.687 → 0.688, `Señor`).
+**AND THE DECIDING NUMBER: IT IS INVISIBLE.** A/B against the two-render floor, hero34f, 8-bit
+levels, read through `photometry.read_png` and integer-scaled:
+
+```
+    FLOOR: shipped vs shipped again    >8 levels 2.044 %   worst 41   >32 0.043 %
+    shipped vs T1_REFLENV=1.0          >8 levels 2.367 %   worst 46   >32 0.044 %
+```
+
+**The >32-level tail is 0.044 % against 0.043 % — identical.** ⚠ **THE READER IS PART OF THE
+MEASUREMENT (F263): the same pair through PIL's uint8 path gives 2.058 % and 2.387 %.** A change
+worth +0.004 on one gate's statistic and invisible to the frame is not a change to ship.
+**`T1_REFLENV` keeps its shipped default of 0.0, where F239 put it, now for a second reason.**
+
+---
 ## §0.10 THE `BUMP_BOW` LADDER — RUN AT REV 73, AND IT ANSWERS *NO* (F292/F294)
 
 **MOVED HERE FROM THE ACTION BRIEF, WHICH HIT ITS OWN 32 KB GUARD CARRYING IT.** Nothing is
@@ -435,6 +490,19 @@ fit L1–L6 (VERTICAL LANDMARK POSITIONS on the ring), optimise a quantity that 
 **WHAT TO BUILD:** give each stroke its own centreline with free endpoints — **not** forced onto the
 band circle — so the six strokes can be made near-parallel, and fit that against
 `probe_rev69_fitpose.fit()`.
+
+> **⚠ THIS SHIPPED AT REV 73 (F301). THIS SECTION IS PRE-SHIP TEXT AND IS ANNOTATED, NOT REWRITTEN
+> (rule 16).** `t1_core` carries the nine free constants; **`T1_VW_FREE=0` ablates to the rev-72
+> spine EXACTLY** (41701 on-px, checked against the real pre-change source and pinned by a row); and
+> it was rendered and LOOKED AT before it shipped — `probe_scratch/rev73_emblem_render_ab.png`, where
+> the old build's W right outer arm is a **detached sliver** and the new one's reaches the ring.
+> **SO THE FIGURES IN THIS SECTION AND IN §0's GATE TABLE ARE PRE-SHIP:** *"EVERY LEVER THE EMBLEM
+> HAS … ALL EXHAUSTED (F237)"* is refuted by F289b and by the ship, and *"probe_rev69_fitpose 4
+> checked, 1 FAILED — 0.7345 against 0.9882"* now reads **5 checked, 1 FAILED, best 0.8528 against
+> P1b 0.9465, with P2 CROSSED (F305)**.
+> ⚠ **AND WHAT DID NOT CHANGE: rule 56 — this objective still has NO LEGIBILITY TERM, 0.8528 is
+> ~0.09 short of P1b's own ceiling, and the shipped WEIGHT is contested between two rulers (F303).
+> THE EMBLEM IS NOT RIGHT.**
 
 > **⚠ FIT ON ONE FRAME AND SCORE ON THE OTHER — NOT "BOTH JOINTLY". THE FIRST DRAFT SAID JOINTLY AND
 > F237's OWN CEILING FORBIDS IT:** *"the two frames are NOT comparable to each other — 0.7345 vs 0.6671

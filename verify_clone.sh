@@ -1366,7 +1366,10 @@ ck "the ACTION brief is still an ACTION brief (<32 KB)" 1 \
 # count is legitimate and a re-base is the honest response -- but a bare
 # re-base would also silently accept a DELETION plus a different ADDITION, so
 # the companion row below pins the new section BY NAME (SS3b's requirement).
-ck "every carrier SECTION is present in the carriers file" 15 \
+# rev 73 -- RE-BASED 15 -> 16: SS0.11, the gloss grid, moved here when the brief
+# hit its 32 KB guard a SECOND time.  Same shape as the SS0.10 re-base above and
+# the same companion treatment: the new section is pinned BY NAME below.
+ck "every carrier SECTION is present in the carriers file" 16 \
    "$(grep -cE '^## (SS|§)(0\.|0 |1 |2 |4 |5 |6 |7 |8 |9 |10 )' HANDOFF_CARRIERS.md 2>/dev/null | head -1)"
 ck "F294 the BUMP_BOW ladder's own carrier section is still there, BY NAME" 1 \
    "$(grep -cE '^## §0\.10 THE .BUMP_BOW. LADDER' HANDOFF_CARRIERS.md 2>/dev/null | head -1)"
@@ -1376,6 +1379,10 @@ ck "F294 the BUMP_BOW ladder's own carrier section is still there, BY NAME" 1 \
 # figure is corrected, which is backwards: it punishes the correction.  It now
 # keys on the table's SHAPE -- the header and all six BUMP_BOW rungs -- which
 # is what "still carries the six-rung table" actually means.
+ck "F239 the gloss grid's own carrier section is still there, BY NAME" 1 \
+   "$(grep -cE '^## §0\.11 THE GLOSS GRID' HANDOFF_CARRIERS.md 2>/dev/null | head -1)"
+ck "F239 ... and it still carries all NINE cells the brief points at" 1 \
+   "$(if [ "$(grep -cE '^\| \*\*.T1_REFLENV. [0-9]' HANDOFF_CARRIERS.md)" -eq 3 ]; then echo 1; else echo 0; fi)"
 ck "F294 ... and it still carries the six-rung table the brief points at" 1 \
    "$(if grep -q 'BUMP_BOW   mesh bow      sagitta' HANDOFF_CARRIERS.md \
         && [ "$(grep -cE '^      [0-9]\.[0-9]{2} ' HANDOFF_CARRIERS.md)" -eq 6 ]; then echo 1; else echo 0; fi)"
@@ -2675,8 +2682,15 @@ ck "F301 C12 perturbs the constant the LIVE construction uses, and names it" 1 \
    "$(grep -c 'VW_FREE_W_ARM_X .* moves .* of .* outline radii' /tmp/_r73f.txt)"
 ck "F301 ... and names the OTHER one when ablated" 1 \
    "$(grep -cE '^ +VW_W_ARM_X .* moves .* of .* outline radii' /tmp/_r73g.txt)"
-ck "F301 ... and both paths still read 12 checked, 1 FAILED (C4 only)" 2 \
-   "$(cat /tmp/_r73f.txt /tmp/_r73g.txt | grep -c 'CONTROLS: 12 checked, 1 FAILED -- C4')"
+# *** rev 73 -- RE-BASED 1 FAILED -> 2, CAUSE NAMED (F304).  C10 was found to
+# compare a raster with ITSELF -- built_mask caps at NPX = 552, so 552 and 1104
+# rows return the same array and its "worst move 0.0000" was arithmetic
+# identity (rule 6).  It now detects the cap and REFUSES, so both constructions
+# read C4 and C10.  A false pass became a true finding; the bar was not moved.
+ck "F301 ... and both paths still read 12 checked, 2 FAILED (C4 + C10)" 2 \
+   "$(cat /tmp/_r73f.txt /tmp/_r73g.txt | grep -c 'CONTROLS: 12 checked, 2 FAILED -- C4,C10')"
+ck "F304 ... and C10's refusal names the CAP rather than reporting convergence" 2 \
+   "$(cat /tmp/_r73f.txt /tmp/_r73g.txt | grep -c 'VACUOUS: built_mask CAPS AT NPX')"
 # The proxy must track the build in BOTH constructions.  The live case already
 # has a row above; this one covers the ablated path, because a proxy hard-coded
 # to whichever spine happens to ship would pass that row and be void here.

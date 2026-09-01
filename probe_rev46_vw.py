@@ -474,9 +474,37 @@ if os.environ.get("T1_VW_SOLVE"):
                                            for k in KEYS if k in Ls))
 
 eC, LC = err(built_landmarks(**CURRENT))
+# *** rev 73, F303 -- SAY WHICH CONSTANTS THE BUILD ACTUALLY READS.
+# Under the shipped free-endpoint spine (t1_core.vw_free()) NONE of the six
+# names below drives the glyph -- it is driven by VW_FREE_*.  This block used
+# to print them under "IN t1_core NOW:" beside landmarks produced by nine
+# DIFFERENT constants, and C4's message named them as "the constants in
+# t1_core [that] reproduce the photographed landmarks".  That is C12's defect
+# one screen up, unrepaired: a reader is handed the wrong six numbers.
+# Proved inert: wrecking three of them moves the residual not at all under the
+# free spine (0.0745 -> 0.0745) and to the 9.9 sentinel under the on-band one.
+# CONSEQUENCE THE READER MUST BE TOLD: `solve()` searches these same six names,
+# so T1_VW_SOLVE IS A NO-OP ON A SHIPPED TREE, and C4's known passing
+# configuration (0.0755 -> 0.0294, HANDOFF_CARRIERS.md's gate table) is
+# UNREACHABLE until the solver is taught the free parameterisation.
+_FREE_NOW = C.vw_free()
 print("\n    IN t1_core NOW:")
+if _FREE_NOW:
+    print("        *** THE FREE-ENDPOINT SPINE IS SHIPPING (F301), SO THE SIX")
+    print("        NAMES BELOW DRIVE NOTHING.  The glyph is built from")
+    print("        VW_FREE_* and they are printed here only because this")
+    print("        probe's landmark objective, C4, C5 and solve() are all")
+    print("        still written against the ON-BAND parameterisation.")
+    print("        T1_VW_SOLVE IS A NO-OP ON THIS TREE (F303).  Run with")
+    print("        T1_VW_FREE=0 for a run in which these constants are live.")
+    for k in ("VW_FREE_V_TIP_X", "VW_FREE_V_TIP_Z", "VW_FREE_APEX_Z",
+              "VW_FREE_W_ARM_X", "VW_FREE_W_ARM_Z", "VW_FREE_W_TR_X",
+              "VW_FREE_W_TR_Z", "VW_FREE_W_PEAK_Z", "VW_FREE_WFRAC"):
+        print("        %-18s = %.5f  <- LIVE" % (k, getattr(C, k)))
+    print("        -- and the six the rows below actually vary: --")
 for k in PARAMS:
-    print("        %-16s = %.4f" % (k, CURRENT[k]))
+    print("        %-16s = %.4f%s"
+          % (k, CURRENT[k], "  (INERT on this tree)" if _FREE_NOW else ""))
 if LC:
     print("        built     " + "  ".join("%s %.4f" % (k, LC[k])
                                            for k in KEYS if k in LC))
@@ -487,7 +515,10 @@ if LC:
 print("        residual  %.4f   (rev 45: %.4f)" % (eC, e45))
 
 ctl("C4", LC is not None and eC < 0.045,
-    "the constants in t1_core reproduce the photographed landmarks to %.4f "
+    ("the LIVE construction (FREE spine -- NOT the six on-band constants, "
+     "which are inert here, F303) " if C.vw_free() else
+     "the constants in t1_core ") +
+    "reproduce the photographed landmarks to %.4f "
     "(rev 45 missed by %.4f)" % (eC, e45))
 ctl("C5", eC < e45 * 0.6,
     "and they are BETTER THAN REV 45 BY A FACTOR OF %.1f -- a solver that "
@@ -827,7 +858,26 @@ _why276 = ("reading them at 276 instead LOSES them entirely -- landmarks() "
            if _lost276 else
            "reading them at 276 instead moves one by %.4f, which is the whole "
            "of F203" % _swing)
+# *** rev 73, F304 -- THIS CONTROL COMPARED A RASTER WITH ITSELF FOR SEVEN
+# REVISIONS.  `built_mask` ends `k = max(1, NPX // rows)` then `[::k, ::k]`, and
+# `NPX = 69 * 8 = 552`.  For any rows >= 552, k == 1 and the SAME (552, 552)
+# array comes back: built_mask(552), (1104) and (2208) are IDENTICAL arrays.
+# So "doubling the raster to 1104 rows moves no landmark by more than 0.01"
+# was arithmetic identity, and its 0.0000 was not evidence of convergence.
+# Rule 6 -- a guard that derives its answer from the expression it checks.
+# The comment above it claimed "C10 checks that claim on every run instead of
+# trusting this comment"; it could not.
+# IT NOW DETECTS THE CAP AND REFUSES, which is also the MECHANISM behind F302:
+# L6 reads 0.1579 at every reachable row count because the raster cannot change
+# above 552, so F204's "converged 552-row raster: L6 0.1530" is unreachable BY
+# ROW COUNT -- not merely "possibly a different raster".
+_capped = bool((built_mask(BUILT_ROWS) == built_mask(2 * BUILT_ROWS)).all())
 print("\n    CONVERGENCE -- is the built raster read where the answer has settled?")
+if _capped:
+    print("        *** VACUOUS: built_mask CAPS AT NPX = %d, so %d and %d rows"
+          % (NPX, BUILT_ROWS, 2 * BUILT_ROWS))
+    print("        return the SAME ARRAY.  The 'worst move 0.0000' below is")
+    print("        ARITHMETIC IDENTITY, not convergence (F304, rule 6).")
 print("        %d rows vs %d rows: worst landmark move %.4f"
       % (BUILT_ROWS, 2 * BUILT_ROWS,
          max(abs(_Lc[0][k] - _Lf[0][k]) for k in _Lc[0] if k in _Lf[0])
@@ -836,7 +886,7 @@ print("        %d rows vs 276 rows: %s  <- why 276 was not enough"
       % (BUILT_ROWS, "NO LANDMARKS AT ALL -- the glyph does not present "
                      "L1..L4 at that raster" if _lost276
                      else "worst landmark move %.4f" % _swing))
-ctl("C10", _conv,
+ctl("C10", _conv and not _capped,
     "the built landmarks have CONVERGED: doubling the raster to %d rows moves "
     "no landmark by more than 0.01.  And %s"
     % (2 * BUILT_ROWS, _why276))

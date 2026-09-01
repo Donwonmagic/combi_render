@@ -125,43 +125,63 @@ def main():
     # THE CONTROL IS THE FIRST ROW HERE AND IT REFUSES IF IT DRIFTS.
     if os.environ.get("T1_REV71_SCORE") == "1":
         import t1_core as C
+        # *** rev 73, F303 -- THE CONTROL MUST BE BUILT IN THE CONSTRUCTION IT
+        # IS A CONTROL FOR.  The first cut read X.SHIPPED, and F301b then made
+        # X.SHIPPED follow t1_core.vw_free() -- correctly -- so on a shipped
+        # tree the "control" became the FREE spine while its reference pair
+        # (0.8425 / 0.8215) is the ON-BAND one.  It could never hold again, and
+        # the `if ok:` guard meant ZERO ROWS PRINTED: the tool the brief hands
+        # forward refused on the tree that ships.  A FOURTH control red on the
+        # ship, and F301b said three.  The on-band dict is now built explicitly
+        # here rather than read from whatever happens to ship. ***
+        ONBAND = dict(V_TIP_X=C.VW_V_TIP_X, APEX_Z=C.VW_APEX_Z,
+                      W_ARM_X=C.VW_W_ARM_X, W_ARM_Z=C.VW_W_ARM_Z,
+                      W_TR_X=C.VW_W_TROUGH_X, W_TR_Z=C.VW_W_TROUGH_Z,
+                      W_PEAK_Z=C.VW_W_PEAK_Z, on_band=True)
+        ONBAND_W = 0.2283
         FREE = dict(V_TIP_X=C.VW_FREE_V_TIP_X, V_TIP_Z=C.VW_FREE_V_TIP_Z,
                     APEX_Z=C.VW_FREE_APEX_Z, W_ARM_X=C.VW_FREE_W_ARM_X,
                     W_ARM_Z=C.VW_FREE_W_ARM_Z, W_TR_X=C.VW_FREE_W_TR_X,
                     W_TR_Z=C.VW_FREE_W_TR_Z, W_PEAK_Z=C.VW_FREE_W_PEAK_Z,
                     on_band=False)
+
         def _s(p_, w_, dst):
             return F.fit(X.mask(p_, w_, rows=220), dst)[0]
-        # THE LIVE L6 CROSSING.  F204 fixed the weight by probe_rev46_vw's L6
-        # -- stroke width / ring width AT THE SAME ROW, a horizontal over a
-        # horizontal, so the viewing angle's cosine cancels -- and that is a
-        # better ruler for WEIGHT than a nine-parameter silhouette fit.  Swept
-        # live at rev 73, L6 crosses the photograph's 0.1528 near here for BOTH
-        # spines.  It is an env override so the sweep can be redone, not typed
-        # into an argument list.
-        _L6W = float(os.environ.get("T1_REV71_L6W", 0.2205))
-        base_f = _s(X.SHIPPED, X.WFRAC, dst_fit)
-        base_i = _s(X.SHIPPED, X.WFRAC, dst_ind)
+        base_f = _s(ONBAND, ONBAND_W, dst_fit)
+        base_i = _s(ONBAND, ONBAND_W, dst_ind)
         print("\n  T1_REV71_SCORE -- constructions on THIS probe's own targets")
-        print("  CONTROL, the SHIPPED spine at the SHIPPED wfrac %.4f: "
-              "fit %.4f  indep %.4f" % (X.WFRAC, base_f, base_i))
+        print("  CONTROL, the REV-72 on-band spine at its own wfrac %.4f: "
+              "fit %.4f  indep %.4f" % (ONBAND_W, base_f, base_i))
         ok = abs(base_f - 0.8425) < 0.002 and abs(base_i - 0.8215) < 0.002
-        print("     %s -- the published shipped pair is 0.8425 / 0.8215%s"
+        print("     %s -- the published rev-72 pair is 0.8425 / 0.8215%s"
               % ("CONTROL HOLDS" if ok else "*** CONTROL FAILED ***",
                  "" if ok else ".  EVERY ROW BELOW IS VOID (rule 37)."))
         if ok:
+            # *** BOTH WEIGHTS ARE SCORED, ALWAYS.  The first cut labelled its
+            # first row "the SEARCH's wfrac" and fed it VW_FREE_WFRAC -- which
+            # rev 73 then changed to the L6 crossing -- so the row printed the
+            # WRONG NAME, duplicated row 3, and the 0.20429 evaluation stopped
+            # running at all.  That row is the strongest counter-evidence to
+            # the shipped weight and it must not be able to vanish (F303). ***
             for lab, pp, ww in (
                     ("(B) free spine, the SEARCH's wfrac %.5f"
+                     % C.VW_SEARCH_WFRAC, FREE, C.VW_SEARCH_WFRAC),
+                    ("(B) free spine, F204's wfrac %.4f" % ONBAND_W,
+                     FREE, ONBAND_W),
+                    ("(B) free spine, THE SHIPPED wfrac %.4f (L6 crossing)"
                      % C.VW_FREE_WFRAC, FREE, C.VW_FREE_WFRAC),
-                    ("(B) free spine, F204's MEASURED wfrac %.4f"
-                     % X.WFRAC, FREE, X.WFRAC),
-                    ("(B) free spine, the LIVE L6 crossing %.4f"
-                     % _L6W, FREE, _L6W),
-                    ("SHIPPED spine, the LIVE L6 crossing %.4f"
-                     % _L6W, X.SHIPPED, _L6W)):
+                    ("on-band spine, the SHIPPED wfrac %.4f"
+                     % C.VW_FREE_WFRAC, ONBAND, C.VW_FREE_WFRAC),
+                    ("on-band spine, the SEARCH's wfrac %.5f"
+                     % C.VW_SEARCH_WFRAC, ONBAND, C.VW_SEARCH_WFRAC)):
                 f_, i_ = _s(pp, ww, dst_fit), _s(pp, ww, dst_ind)
-                print("  %-46s fit %.4f (%+.4f)  indep %.4f (%+.4f)"
+                print("  %-52s fit %.4f (%+.4f)  indep %.4f (%+.4f)"
                       % (lab, f_, f_ - base_f, i_, i_ - base_i))
+            print("     ⚠ READ ROWS 1 AND 3 TOGETHER (F303).  The SHIPPED "
+                  "weight is the L6 crossing, chosen on a ruler that cancels "
+                  "the viewing angle -- but ON THIS OBJECTIVE it gives back "
+                  "MORE than the ship gained.  Both facts are true and the "
+                  "record must carry both.")
         raise SystemExit(0 if ok else 3)
 
     want = os.environ.get("T1_REV71_SEARCH", "")
