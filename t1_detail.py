@@ -2974,6 +2974,14 @@ def vw_logo_fit(ring_r, x=2.1215, depth=0.0110, wfrac=0.2283):
     # concentric with its own bbox (its annulus never reads 100 % red), so the
     # INK side is good to about +-0.02 in wfrac.  L6 does not depend on that
     # registration, which is why it is the one quoted first.
+    # ----------------------------------------------------------- rev 73, F301
+    # THE WEIGHT FOLLOWS THE SPINE.  F204's 0.2283 is the weight that puts the
+    # SHIPPED spine's L6 on the photograph; a different spine has a different
+    # L6 at the same weight, so the constant is not transferable and the
+    # signature default is only correct for the on-band construction.
+    # Swept live under the free spine, L6 crosses 0.1528 at ~0.2205 (F302).
+    if T.vw_free():
+        wfrac = T.VW_FREE_WFRAC
     wfrac = float(os.environ.get("T1_VW_WFRAC", wfrac))
     _BAND_FRAC = 0.028 / 0.140              # roundel()'s band / outer radius
     _FIT_COEF = VW_FIT_COEF

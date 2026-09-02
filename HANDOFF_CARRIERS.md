@@ -204,6 +204,126 @@ z 0.608…1.103, below the counter) and is **NOT** this hatch.
 ---
 
 ---
+## §0.11 THE GLOSS GRID — F239's ONE UNTRIED PAIRING, MEASURED AT REV 73 AND A NULL
+
+**MOVED HERE FROM THE ACTION BRIEF, which hit its 32 KB guard carrying it (rule 16; this is what the
+rev-70 split is for).** The brief carries the verdict and points here for the table.
+
+**Eight configurations of the 3 × 3** of `T1_BODY_RGH` × `T1_REFLENV` (only `(0.060, env 0.0)` was
+not rendered), **10 renders in all — 8 `hero34f` plus 2 `side` on the Raw path for the chroma**.
+Two-render floor **0.001 spread / 0.002 headroom**:
+
+| `T1_BODY_RGH` → | **0.060** | **0.120** | **0.250** *(shipped)* |
+|---|---|---|---|
+| **`T1_REFLENV` 0.0** | *(not rendered)* | 0.408 / 0.113 | **0.412 / 0.120** |
+| **`T1_REFLENV` 1.0** | 0.410 / 0.116 | 0.411 / 0.116 | **0.416 / 0.126** |
+| **`T1_REFLENV` 21.0** | 0.388 / 0.108 | 0.388 / 0.110 | 0.388 / 0.118 |
+
+**F239's *"the binding constraint is the ROUGHNESS"* IS NOT SUPPORTED — AND HERE IS EXACTLY HOW FAR
+THAT GOES, BECAUSE THE FIRST DRAFT OF THIS PARAGRAPH OVERSTATED IT AND AN ADVERSARY CAUGHT IT.**
+It claimed roughness *"costs spread at EVERY environment level"*. **Against the revision's own
+0.001 floor, only TWO steps clear it:** `0.416 → 0.411` at env 1.0 (5× the floor) and
+`0.412 → 0.408` at env 0.0 (4×). **At env 21.0 the three cells read `0.388 / 0.388 / 0.388` — no
+cost at all**, and `0.411 → 0.410` is exactly one floor. **So the honest statement is: lowering
+roughness never HELPS at any environment level, and where it moves the gate at all it moves it
+DOWN. That refutes the prescription; it is not a monotone trend across nine cells.**
+The only cell above shipped is **environment ALONE at 1.0**, and it is **INVISIBLE**: A/B **2.367 %**
+of pixels >8 levels against a **2.044 %** floor, `>32` levels **0.044 % vs 0.043 %**.
+**NOTHING SHIPPED.**
+**CHROMA COST on F266's Raw path: red linear G/R `0.1091 → 0.1099`.** ⚠ **DO NOT PUT A SINGLE
+FIGURE ON THE PHOTOGRAPH'S SIDE OF THAT RATIO. `probe_rev71_red.py` PRINTS THE PROHIBITION ITSELF,
+DIRECTLY ABOVE THE NUMBER: *"the photograph's red G/R is 0.0149 .. 0.0344, a 2.3x span. DO NOT
+QUOTE A SINGLE FIGURE FOR IT. This span is larger than most of the effects the red has been tuned
+against."*** The rev-73 ledger's *"0.0307 … 3.55× the photograph"* inherits that defect and the
+multiple is not quotable; **the RENDER-side pair, 0.1091 vs 0.1099, is measured on one window and
+is comparable to itself.**
+
+
+**AND THE ONE POSITIVE CELL, PRICED.** `T1_REFLENV=1.0` at the shipped roughness is the only cell
+above shipped. Its chroma cost on F266's physics-closed path — `side` rendered **Raw 16-bit stopped
+down** (`T1_VT=Raw T1_LOOK=None T1_EXP=-2.5`), read with `probe_rev71_red.py --transform=raw`:
+red linear **G/R 0.1091 → 0.1099**. ⚠ **The photograph's side of that ratio must NOT be quoted as a
+single figure — the probe prints *"0.0149 .. 0.0344, a 2.3x span"* directly above the number.**
+The flank gate is unmoved (0.687 → 0.688, `Señor`).
+**AND THE DECIDING NUMBER: IT IS INVISIBLE.** A/B against the two-render floor, hero34f, 8-bit
+levels, read through `photometry.read_png` and integer-scaled:
+
+```
+    FLOOR: shipped vs shipped again    >8 levels 2.044 %   worst 41   >32 0.043 %
+    shipped vs T1_REFLENV=1.0          >8 levels 2.367 %   worst 46   >32 0.044 %
+```
+
+**The >32-level tail is 0.044 % against 0.043 % — identical.** ⚠ **THE READER IS PART OF THE
+MEASUREMENT (F263): the same pair through PIL's uint8 path gives 2.058 % and 2.387 %.** A change
+worth +0.004 on one gate's statistic and invisible to the frame is not a change to ship.
+**`T1_REFLENV` keeps its shipped default of 0.0, where F239 put it, now for a second reason.**
+
+---
+## §0.10 THE `BUMP_BOW` LADDER — RUN AT REV 73, AND IT ANSWERS *NO* (F292/F294)
+
+**MOVED HERE FROM THE ACTION BRIEF, WHICH HIT ITS OWN 32 KB GUARD CARRYING IT.** Nothing is
+deleted; the brief carries the verdict and points here for the table (rule 16, and this is exactly
+what the rev-70 split is for).
+
+**WHY IT WAS RUN.** F292 established that `probe_rev67_nose.py`'s P3 trace responds to the bumper's
+plan bow PHOTOMETRICALLY — `P3w` proves the front orthographic camera is X-blind *geometrically*,
+but bowing the blade turns it against the light, moving the sub-pixel red/cream threshold. F292's
+ceiling was *"two points is sensitivity, not calibration"*. The ladder tests whether it calibrates.
+
+**SIX `front` RENDERS, one window built ONCE and shared (P3w proves it is bow-blind), all six
+tracing as ONE EDGE with 0 points clipped and rms far under the bar:**
+
+```
+    BUMP_BOW   mesh bow      sagitta            rms    bar
+      0.00      +0.00 mm    +0.068 +- 0.073    0.79   18.81
+      0.50     +10.54 mm    +0.047 +- 0.069    0.77   18.66
+      1.00     +21.08 mm    +0.446 +- 0.070    0.81   19.20
+      1.00     +21.08 mm    +0.443 +- 0.070    0.81   19.20   <- THE FLOOR PAIR, 0.0026 px
+      1.50     +31.62 mm    +0.605 +- 0.069    0.80   19.14
+      2.50     +52.70 mm    +7.480 +- 0.316    3.56   18.72
+```
+
+*(the mesh-bow column is `build.py`'s own printed line, `bumper_f nose face: BUMP_BOW k … bow at
+y=0 …`, not a derived figure. ⚠ **AND IT WOBBLES ±0.01 mm BUILD-TO-BUILD AT A FIXED `BUMP_BOW`** —
+`/tmp/r73.log` and `/tmp/f2.log` both printed **+21.08** for `BUMP_BOW 1.0` while a later build
+printed +21.09, and rev 73 first published the +21.09 for all of them. Two significant figures.)*
+
+**DETECTION: YES.** 0.00 against 1.00 is **0.3776 px — 145× the between-render floor (0.0026 px) and 3.7× the two SEs in
+quadrature.**
+
+**INVERSION: NO.** ⚠ **AND THE FIRST DRAFT OF THIS PARAGRAPH SWITCHED NOISE MODELS MID-ARGUMENT —
+detection against the between-render floor, the first rung dismissed against the per-fit SE. A
+rule-17 adversary caught it. ON THE SE, USED THROUGHOUT: detection 0.00 → 1.00 is 3.7σ; the first
+rung is 0.2σ — UNRESOLVED, not "the wrong way". On the floor alone that rung is 7.9× and a real
+INVERSION. The two models disagree and rev 73 does not know which is right.**
+**THE PER-MILLIMETRE SLOPES:** `0→0.5 −0.0019 · 0.5→1.0 +0.0377 · 1.0→1.5 +0.0152 ·
+1.5→2.5 +0.3262` px/mm — **the slope varies by 170× and reverses sign once, and 0.5→1.0 is 2.5×
+steeper than 1.0→1.5, so the response is not monotone in slope either.** The onset of the blow-up
+is unconstrained anywhere in **31.6–52.7 mm** on one interval. **A response like that cannot be
+inverted to a millimetre reading** — the verdict is unchanged and if anything strengthened.
+
+**SO F231's *"the plan bulge cannot be recovered from what we hold"* IS NOT OVERTURNED**, and the
+rev-74 brief's hopeful clause — *"if it does [respond monotonically], this project has a render-side
+channel on the bow for the first time"* — **does not fire.**
+
+**WHAT SURVIVES AND IS WORTH KEEPING: A PASS/FAIL REGRESSION DETECTOR.** If a future change silently
+zeroed `BUMP_BOW`, this reading would catch it at 145× the floor. That is a guard, not a ruler.
+
+**AND THE TRAP ANY 3/4 EXTENSION WALKS INTO — RESTORED HERE AFTER THE 32 KB SHRINK DROPPED IT FROM
+THE ACTION BRIEF, WHERE IT WAS ITS ONLY HOME (rule 16).** The obvious next move is a three-quarter
+render-side reading, to separate plan bow from elevation curvature. **On any non-orthographic view
+the window anchors' X reaches the pixel** — and `build.py` stands the nose fixtures at
+`HL_X = HL_X0 + S.nose_fixture_dx(HL_X0, HL_Y, HL_Z)`, i.e. **the fixture X FOLLOWS `NOSE_BULGE`**,
+while `t1_detail._nose_plan_x` derives the bumper's bow by **raycasting that same shell**. So on a
+3/4 frame the window would move with the quantity being measured: **a rule-6 tautology one step
+downstream.** `P3w`'s `0.000e+00` is honest ONLY because the `front` camera is orthographic down X.
+**CUT ANY 3/4 WINDOW FROM SOMETHING ELSE.** *(Found by the first rule-17 adversary at rev 73.)*
+
+⚠ **CEILINGS: one view, one frame per rung, `front` only. The top rung's rms rises 0.80 → 3.56, so
+the parabola models that edge worse — PAINTED at `probe_scratch/rev73_bow25.png` and the trace IS
+still on the bumper, the edge is genuinely more curved. The 0.003 floor is ONE pair.**
+
+---
 ## §0.06 THE NOSE — THE SHAPE IS BUILT AND GUARDED. WHAT IS MISSING IS THE LOOK.
 
 **REV 69 SHIPPED THE NOSE'S ONLY MEASURED, CAMERA-FREE DEFECT.** `t1_detail.bumper` appended eleven
@@ -370,6 +490,19 @@ fit L1–L6 (VERTICAL LANDMARK POSITIONS on the ring), optimise a quantity that 
 **WHAT TO BUILD:** give each stroke its own centreline with free endpoints — **not** forced onto the
 band circle — so the six strokes can be made near-parallel, and fit that against
 `probe_rev69_fitpose.fit()`.
+
+> **⚠ THIS SHIPPED AT REV 73 (F301). THIS SECTION IS PRE-SHIP TEXT AND IS ANNOTATED, NOT REWRITTEN
+> (rule 16).** `t1_core` carries the nine free constants; **`T1_VW_FREE=0` ablates to the rev-72
+> spine EXACTLY** (41701 on-px, checked against the real pre-change source and pinned by a row); and
+> it was rendered and LOOKED AT before it shipped — `probe_scratch/rev73_emblem_render_ab.png`, where
+> the old build's W right outer arm is a **detached sliver** and the new one's reaches the ring.
+> **SO THE FIGURES IN THIS SECTION AND IN §0's GATE TABLE ARE PRE-SHIP:** *"EVERY LEVER THE EMBLEM
+> HAS … ALL EXHAUSTED (F237)"* is refuted by F289b and by the ship, and *"probe_rev69_fitpose 4
+> checked, 1 FAILED — 0.7345 against 0.9882"* now reads **5 checked, 1 FAILED, best 0.8528 against
+> P1b 0.9465, with P2 CROSSED (F305)**.
+> ⚠ **AND WHAT DID NOT CHANGE: rule 56 — this objective still has NO LEGIBILITY TERM, 0.8528 is
+> ~0.09 short of P1b's own ceiling, and the shipped WEIGHT is contested between two rulers (F303).
+> THE EMBLEM IS NOT RIGHT.**
 
 > **⚠ FIT ON ONE FRAME AND SCORE ON THE OTHER — NOT "BOTH JOINTLY". THE FIRST DRAFT SAID JOINTLY AND
 > F237's OWN CEILING FORBIDS IT:** *"the two frames are NOT comparable to each other — 0.7345 vs 0.6671

@@ -133,15 +133,110 @@ srcs = {p: open(os.path.join(ROOT, p)).read()
 # instruments disagreeing because one had been relaxed to fit new code.  The
 # fix belonged in the new code.  If this ever needs loosening again, loosen
 # BOTH or neither.
+# *** rev 73, F293 -- WIDENED, WITH THE CAUSE NAMED, AND WIDENED IN
+# verify_clone.sh IN THE SAME EDIT, WHICH IS WHAT THE PARAGRAPH ABOVE DEMANDS.
+# THE CAUSE: this pattern only sees a switch read through `os.environ` or
+# `os.getenv` LITERALLY.  studio.py reads several of its switches through its
+# own thin wrappers -- `_envi("T1_FX", 1)` and `_envf("T1_SHADOW", 9.0)` -- so
+# those switches are LIVE LEVERS that this row called dead.  Watched at rev 73:
+# naming T1_FX and T1_SHADOW in the brief turned this row red on two switches
+# that both work.  That is rule 50 in BOTH directions -- a regex told us a name
+# was absent when the behaviour was present.
+# THE COMPANION ROWS BELOW make the cause separately testable, so this widening
+# cannot silently become a hole: one pins a helper-read switch as LIVE, one
+# pins a fabricated switch as DEAD.
+_ACCESS = r"(environ(\.get)?\[?\(?|getenv\(|_env[ifsb]?\()[\"']%s"
 dead = []
 for s_ in sw:
-    if not any(re.search(r"(environ(\.get)?\[?\(?[\"']%s|getenv\([\"']%s)" % (s_, s_), t)
-               for t in srcs.values()):
+    if not any(re.search(_ACCESS % s_, t) for t in srcs.values()):
         dead.append(s_)
 
 ck("every T1_* the brief names READS THE ENVIRONMENT", not dead,
    "%d named, %d not an env read%s" % (len(sw), len(dead),
                                        ("  " + " ".join(dead)) if dead else ""))
+
+# F293's companion rows.  A widening that nothing tests is a hole.
+_live = any(re.search(_ACCESS % "T1_SHADOW", t) for t in srcs.values())
+ck("F293 a switch read ONLY through a helper wrapper counts as LIVE",
+   _live, "T1_SHADOW is read as `_envf(\"T1_SHADOW\", 9.0)` in studio.py and "
+          "nowhere as os.environ -- detected: %s" % _live)
+_fake = any(re.search(_ACCESS % "T1_NOT_A_REAL_SWITCH", t) for t in srcs.values())
+ck("F293 ... and the widened pattern still calls a fabricated switch DEAD",
+   not _fake, "T1_NOT_A_REAL_SWITCH detected as live: %s (must be False)" % _fake)
+
+# ---------------------------------------------- rev 73, F306: BOTH HALVES
+# "ALL n PASS -- 0 FIDELITY, n SELF-CONSISTENCY".  The two figures are the same
+# quantity and a mismatch is a transcription defect, not a measurement.
+# the two halves are often split across a line break and a `#` continuation,
+# which is exactly how the mismatch hid: match across it, bounded.
+# ANCHOR ON `FIDELITY`, which is the token that actually joins the pair.  A
+# looser window matched "ALL 25 PASS" (the --guards line) against the NEXT
+# line's SELF-CONSISTENCY figure and reported a mismatch between two unrelated
+# numbers -- a false red is as bad as a false green (rule 50, both directions).
+_halves = re.findall(r"ALL (\d+) PASS\s*--\s*0 FIDELITY,\s*(\d+)"
+                     r"[\s\S]{0,12}?SELF-CONSISTENCY", TXT)
+_bad_half = [(a, b) for a, b in _halves if a != b]
+ck("F306 the verifier's two verdict halves state the SAME number", not _bad_half,
+   "%d verdict line(s) checked%s" % (len(_halves),
+    "" if not _bad_half else "; MISMATCHED: " + ", ".join(
+        "ALL %s PASS vs %s SELF-CONSISTENCY" % t for t in _bad_half)))
+
+# ------------------------------------------- rev 73, F306: THE EXPECTED-OUTPUT
+# MAP MUST MATCH WHAT THE PROBES ACTUALLY PRINT.
+#
+# THIS IS THE DEFECT CLASS THREE CONSECUTIVE RULE-17 ADVERSARIES KEPT FINDING,
+# and it kept recurring because nothing MECHANICAL checked it: sec 4 is the map a
+# next context reads as "what this should say" (rule 9), and every figure in it
+# was hand-carried.  At rev 73 it said probe_rev73_tailboard reads "5 checked,
+# 0 FAILED" while it read 1 FAILED, and said probe_rev69_fitpose's P2 fails
+# after the ship had made it pass.  RUN THE CHEAP ONES AND COMPARE.
+# Only probes that need NO frame argument are run -- a frame lives in out/,
+# which starts empty, and a row that cannot run must not read as a pass.
+_claims = re.findall(
+    r"^python3 (\S+\.py)\s+#[^\n]*?(\d+) checked, (\d+) FAILED",
+    TXT, re.M)
+_probe_bad, _probe_ran, _probe_skip = [], 0, []
+for _sc, _wc, _wf in _claims:
+    if not os.path.exists(os.path.join(ROOT, _sc)):
+        continue
+    try:
+        _o = subprocess.run([sys.executable, _sc], cwd=ROOT,
+                            capture_output=True, text=True, timeout=300).stdout
+    except Exception as _e:
+        _probe_bad.append("%s DID NOT RUN (%s)" % (_sc, type(_e).__name__))
+        continue
+    _m = re.findall(r"(\d+) checked, (\d+) FAILED", _o)
+    if not _m:
+        _probe_bad.append("%s printed no summary line" % _sc)
+        continue
+    # *** rev 73, F307 -- A PROBE THAT COULD NOT RUN IS NOT A MISMATCH.
+    # The first cut of this row claimed it only ran probes needing no frame
+    # ARGUMENT.  That was the wrong test: probe_rev73_tailboard takes no
+    # argument but still needs a *_side.png in out/, and `out/` is UNTRACKED
+    # and starts EMPTY -- so ON A FRESH CLONE, before sec 0's render, this row
+    # went RED on a brief that was CORRECT.  A false red is as bad as a false
+    # green (rule 50, both directions), and CLAUDE.md forbids the next context
+    # from editing a script to make it pass -- so it would have cost them the
+    # pickup.  A probe that REFUSES for want of an input is skipped and COUNTED
+    # as skipped, never compared (rule 37: an absent input is not a
+    # measurement, and it is not a defect in the brief either).
+    if re.search(r"\bABSENT\b|NO SIDE RENDER|NO RENDER|NO FRAME GIVEN", _o):
+        _probe_skip.append(_sc)
+        continue
+    _probe_ran += 1
+    _gc, _gf = _m[-1]
+    if (_gc, _gf) != (_wc, _wf):
+        _probe_bad.append("%s: brief says %s checked/%s FAILED, live says "
+                          "%s/%s" % (_sc, _wc, _wf, _gc, _gf))
+ck("F306 every probe the brief gives an expected count for still prints it",
+   not _probe_bad,
+   "%d claim(s), %d DISTINCT probe(s) run%s%s"
+   % (len(_claims), len(set(_sc for _sc, _, _ in _claims)) - len(set(_probe_skip)),
+      ("; %d SKIPPED for want of a rendered frame (%s) -- out/ starts EMPTY, "
+       "so these are unguarded until sec 0 has run (F307)"
+       % (len(_probe_skip), ", ".join(sorted(set(_probe_skip)))))
+      if _probe_skip else "",
+      "" if not _probe_bad else ";  " + ";  ".join(_probe_bad)))
 
 # ------------------------------------------------------------- 3. runnables
 runs = sorted(set(re.findall(r"-P (\w+\.py)", BOTH))
@@ -235,16 +330,39 @@ else:
 # `cp`.  --fix-count writes it, so the ritual costs one command instead of
 # three rounds.  It writes the CLEAN-TREE total (a dirty tree costs one
 # passing row), which is the number the brief must carry.
+# *** rev 73, F306 -- NORMALISE THE SECOND HALF UNCONDITIONALLY.
+# The block below only runs when the TOTAL changed, and it rewrites the lines
+# _stated_rows attributes to verify_clone.  The SELF-CONSISTENCY figure lives on
+# the NEXT line (a `#` continuation), so whenever the total happened to be
+# already correct the stale half survived -- which is exactly the state rev 73
+# shipped twice.  Fix the pair first, then the total.
+if real is not None and "--fix-count" in sys.argv:
+    _t = open(BRIEF).read()
+    _t2 = re.sub(r"(ALL )(\d+)( PASS\s*--\s*0 FIDELITY,\s*)(\d+)",
+                 lambda m: m.group(1) + str(real) + m.group(3) + str(real), _t)
+    if _t2 != _t:
+        open(BRIEF, "w").write(_t2)
+        open(pst, "w").write(_t2)
+        print("  --fix-count: normalised the verdict PAIR to %d/%d" % (real, real))
+
 if real is not None and real != stated and "--fix-count" in sys.argv:
     import glob as _g
     # LINE-TARGETED.  A blind string replace hits bootstrap's "ALL 10 PASS"
     # too -- that is exactly what corrupted the rev-59 brief.  Only lines this
     # file has ATTRIBUTED to verify_clone are rewritten.
     _lines = open(BRIEF).read().splitlines(keepends=True)
+    # *** rev 73, F306 -- REWRITE BOTH HALVES, NOT JUST THE FIRST.
+    # The second sub keyed on the OLD total, so whenever the two halves had
+    # already drifted apart it matched nothing and left the stale one behind --
+    # and this row then PASSED, because it only ever compared the first figure.
+    # HANDOFF_CARRIERS.md sec 0 records the same defect at rev 69 ("351 PASS ...
+    # 342 SELF-CONSISTENCY") with the rule beside it: "The two halves must
+    # always be the SAME number."  It recurred at rev 73 twice.  Keying the
+    # SELF-CONSISTENCY sub on ANY integer is what stops it recurring a third
+    # time; the row below then checks the invariant rather than trusting it.
     for _i, _ in _stated_rows("".join(_lines)):
-        _lines[_i] = re.sub(r"ALL %d PASS" % stated, "ALL %d PASS" % real,
-                            _lines[_i])
-        _lines[_i] = re.sub(r"%d SELF-CONSISTENCY" % stated,
+        _lines[_i] = re.sub(r"ALL \d+ PASS", "ALL %d PASS" % real, _lines[_i])
+        _lines[_i] = re.sub(r"\d+ SELF-CONSISTENCY",
                             "%d SELF-CONSISTENCY" % real, _lines[_i])
     t = "".join(_lines)
     open(BRIEF, "w").write(t)

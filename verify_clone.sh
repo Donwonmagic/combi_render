@@ -1356,8 +1356,36 @@ ck "the action brief CITES the carriers file" 1 \
 # row is where it becomes visible -- BEFORE ten more revisions pass.
 ck "the ACTION brief is still an ACTION brief (<32 KB)" 1 \
    "$(if [ "$(wc -c < PASTE_INTO_CLAUDE_CODE.txt)" -lt 32768 ]; then echo 1; else echo 0; fi)"
-ck "every carrier SECTION is present in the carriers file" 14 \
+# *** rev 73 -- RE-BASED 14 -> 15, CAUSE NAMED, WITH A COMPANION ROW.
+# THE CAUSE: rev 73 ADDED HANDOFF_CARRIERS.md SS0.10, the BUMP_BOW ladder
+# (F292/F294).  It was written in the ACTION BRIEF first and moved here because
+# the row directly above -- "the ACTION brief is still an ACTION brief (<32 KB)"
+# -- went RED at 33,045 bytes.  That is the split working exactly as designed:
+# the brief keeps the verdict, the carrier keeps the table.
+# THIS ROW GUARDS AGAINST SECTIONS BEING *DELETED*, so an ADDITION raising the
+# count is legitimate and a re-base is the honest response -- but a bare
+# re-base would also silently accept a DELETION plus a different ADDITION, so
+# the companion row below pins the new section BY NAME (SS3b's requirement).
+# rev 73 -- RE-BASED 15 -> 16: SS0.11, the gloss grid, moved here when the brief
+# hit its 32 KB guard a SECOND time.  Same shape as the SS0.10 re-base above and
+# the same companion treatment: the new section is pinned BY NAME below.
+ck "every carrier SECTION is present in the carriers file" 16 \
    "$(grep -cE '^## (SS|§)(0\.|0 |1 |2 |4 |5 |6 |7 |8 |9 |10 )' HANDOFF_CARRIERS.md 2>/dev/null | head -1)"
+ck "F294 the BUMP_BOW ladder's own carrier section is still there, BY NAME" 1 \
+   "$(grep -cE '^## §0\.10 THE .BUMP_BOW. LADDER' HANDOFF_CARRIERS.md 2>/dev/null | head -1)"
+# *** rev 73 -- RE-ANCHORED, CAUSE NAMED.  This row first keyed on the literal
+# "THE FLOOR PAIR, 0.003 px" and went red the moment the floor was re-quoted to
+# its live precision (0.0026).  A guard keyed to a FIGURE fails whenever the
+# figure is corrected, which is backwards: it punishes the correction.  It now
+# keys on the table's SHAPE -- the header and all six BUMP_BOW rungs -- which
+# is what "still carries the six-rung table" actually means.
+ck "F239 the gloss grid's own carrier section is still there, BY NAME" 1 \
+   "$(grep -cE '^## §0\.11 THE GLOSS GRID' HANDOFF_CARRIERS.md 2>/dev/null | head -1)"
+ck "F239 ... and it still carries all NINE cells the brief points at" 1 \
+   "$(if [ "$(grep -cE '^\| \*\*.T1_REFLENV. [0-9]' HANDOFF_CARRIERS.md)" -eq 3 ]; then echo 1; else echo 0; fi)"
+ck "F294 ... and it still carries the six-rung table the brief points at" 1 \
+   "$(if grep -q 'BUMP_BOW   mesh bow      sagitta' HANDOFF_CARRIERS.md \
+        && [ "$(grep -cE '^      [0-9]\.[0-9]{2} ' HANDOFF_CARRIERS.md)" -eq 6 ]; then echo 1; else echo 0; fi)"
 
 # ==========================================================================
 # RULE 55 -- THE FIRST RULE IN THIS PROJECT ABOUT OUTPUT (rev 70)
@@ -1416,10 +1444,21 @@ ck "every T1_ switch the brief names exists" 0 "$_ABL_MISSING"
 _ABL_DEAD=0
 if [ -n "$_LATEST_BRIEF" ]; then
   for _v in $(grep -oE 'T1_[A-Z0-9_]+' "$_LATEST_BRIEF" 2>/dev/null | sort -u); do
-    grep -lE "environ.*$_v|$_v.*environ" ./*.py >/dev/null 2>&1 || _ABL_DEAD=$((_ABL_DEAD+1))
+    grep -lE "(environ|getenv|_env[ifsb]?\()[^\"']*[\"']$_v" ./*.py >/dev/null 2>&1 \
+      || _ABL_DEAD=$((_ABL_DEAD+1))
   done
 fi
 ck "every T1_ switch the brief names is a LIVE lever" 0 "$_ABL_DEAD"
+# *** rev 73, F293 -- WIDENED IN THE SAME EDIT AS audit_brief.py's twin row,
+# which is what that row's own comment demands ("loosen BOTH or neither").
+# THE CAUSE: the old pattern needed "environ" on the SAME LINE as the switch.
+# studio.py reads several switches through its own wrappers -- `_envi("T1_FX",
+# 1)`, `_envf("T1_SHADOW", 9.0)` -- so those LIVE levers read as dead.
+# THE COMPANIONS, so the widening cannot become a hole:
+_HELPER_LIVE="$(grep -lE '_env[ifsb]?\("T1_SHADOW' ./*.py >/dev/null 2>&1 && echo 1 || echo 0)"
+ck "F293 a switch read ONLY through a helper wrapper is detected as LIVE" 1 "$_HELPER_LIVE"
+_FAKE_LIVE="$(grep -lE '(environ|getenv|_env[ifsb]?\()[^"'"'"']*["'"'"']T1_NOT_A_REAL_SWITCH' ./*.py >/dev/null 2>&1 && echo 1 || echo 0)"
+ck "F293 ... and a fabricated switch is still DEAD under the widened pattern" 0 "$_FAKE_LIVE"
 
 # THE INTAKE DOORS.  README.md pointed at NEXT_CONTEXT_PROMPT_rev43.md for NINE
 # revisions and START_HERE.md still said "rev 7" thirty revisions on.  Both are
@@ -2486,9 +2525,25 @@ ck "T1_DIFFB reaches the renderer's diffuse bounce count" 1 \
 #
 # EVERY ONE WAS WATCHED FAILING against the pre-rev-72 behaviour before it was
 # written into this file (rule 3); the values are read off runs, not typed.
+# ⚠ rev 73, F287 -- THIS ROW WAS NAMED "bare" AND RUNS `--nomesh`, AND THE TWO
+# ARE NOT THE SAME RUN.  Measured at rev 73, true exit codes, no pipe:
+#     probe_rev67_nose.py            -> 4 checked, 0 FAILED, 1 ABSENT, rc 2
+#     probe_rev67_nose.py --nomesh   -> 2 checked, 0 FAILED, 1 ABSENT, rc 2
+# Bare runs P1, P2 and the two mesh rows; `--nomesh` drops the mesh rows.  The
+# rc-2 / ABSENT behaviour this row locks is REAL and identical on both paths --
+# only the NAME was wrong, and it was wrong in five places at once (F275's
+# register row, this row, probe_rev67_nose.py's own comment, LEDGER_rev72.md §3
+# and the rev-73 brief), all of them publishing the `--nomesh` count of 2 as
+# the "bare" one.  A guard written to lock a fix could not see the mislabel
+# because it REPRODUCED it.  RENAMED, not re-based: the assertion is untouched.
+# `--nomesh` is deliberate here -- bare costs a ~70 s in-process build.
 _R72_NOSE="$(python3 probe_rev67_nose.py --nomesh >/tmp/_r72n.txt 2>&1; echo $?)"
-ck "F275 probe_rev67_nose bare EXITS NON-ZERO on an absent frame" 1 \
+ck "F275 probe_rev67_nose --nomesh EXITS NON-ZERO on an absent frame" 1 \
    "$([ "${_R72_NOSE:-0}" -ne 0 ] && echo 1 || echo 0)"
+# and the count that goes with THAT invocation, so the two can never drift
+# apart again without a row going red (F287)
+ck "F287 ... and --nomesh's own summary count is 2, not the 4 a bare run gives" 1 \
+   "$(grep -cE '^  2 checked, 0 FAILED, 1 ABSENT' /tmp/_r72n.txt)"
 # ⚠ THE FIRST CUT OF THIS ROW COUNTED OCCURRENCES OF "ABSENT" AND TYPED want=1.
 # It read 2 -- the word appears in the summary AND in the "NOT A PASS" line --
 # so the row went red on a probe that was behaving correctly.  Rule 5, caught by
@@ -2529,6 +2584,129 @@ T1_REAR_OPEN=banana python3 -c 'import t1_shell' >/tmp/_r72t.txt 2>&1
 ck "F281 a non-numeric T1_REAR_OPEN refuses too, rather than crashing" 1 \
    "$(grep -c 'is not a number' /tmp/_r72t.txt)"
 rm -f /tmp/_r72n.txt /tmp/_r72g.txt /tmp/_r72b.txt /tmp/_r72r.txt /tmp/_r72s.txt /tmp/_r72t.txt
+
+# ---------------------------------------------------------------------------
+# REV 73's OWN LOCK.  Same contract as the block above: BEHAVIOURAL rows that
+# RUN the thing and read what it does, every one WATCHED FAILING against the
+# pre-rev-73 code before it was written here (rule 3).  They cost ~3 s: none
+# of them builds the mesh, and none of them needs a frame out of `out/`, which
+# starts EMPTY on a clone (rule 37 -- a row that cannot run must not read as a
+# pass).  A 2x2 PNG carrying the right FILENAME is enough, because what is
+# under test is the probe's REFUSAL LOGIC, not its arithmetic.
+python3 - <<'_PYMK' >/dev/null 2>&1
+from PIL import Image
+for n in ("_r73_x_hero34f.png", "_r73_x_front.png"):
+    Image.new("RGB", (2, 2), (128, 0, 0)).save("/tmp/" + n)
+_PYMK
+python3 probe_rev67_nose.py /tmp/_r73_x_hero34f.png --nomesh >/tmp/_r73a.txt 2>&1
+ck "F284 probe_rev67_nose REFUSES to window a frame that is not the \`front\` elevation (rule 42)" 1 \
+   "$(grep -c 'is not a .front. frame' /tmp/_r73a.txt)"
+ck "F284 ... and counts that refusal as ABSENT, never as a pass (rule 37)" 1 \
+   "$(grep -cE 'checked,.*ABSENT' /tmp/_r73a.txt)"
+python3 probe_rev67_nose.py /tmp/_r73_x_front.png --nomesh >/tmp/_r73b.txt 2>&1
+ck "F284 ... and REFUSES a \`front\` frame with no build, because the window is PROJECTED" 1 \
+   "$(grep -c 'window is PROJECTED off the built fixtures' /tmp/_r73b.txt)"
+T1_NOSE_NOWIN=1 python3 probe_rev67_nose.py /tmp/_r73_x_front.png --nomesh >/tmp/_r73c.txt 2>&1
+ck "F284 the T1_NOSE_NOWIN kill really ablates -- it restores the WHOLE-FRAME scan (rule 47)" 1 \
+   "$(grep -c 'T1_NOSE_NOWIN -- ABLATED, whole frame' /tmp/_r73c.txt)"
+ck "F284 ... and the ablated window is NOT the projected one, so the switch cannot go inert" 0 \
+   "$(grep -c 'projected off hl_ring' /tmp/_r73c.txt)"
+# F286 -- the refusal that had no summary line for rule 9 to read.
+python3 probe_rev71_red.py /tmp/_r73_x_front.png --transform=agx >/tmp/_r73d.txt 2>&1
+ck "F286 probe_rev71_red REFUSES an AgX frame with a SUMMARY LINE, not a bare traceback (rule 9)" 1 \
+   "$(grep -cE '^  0 checked, 0 FAILED, 1 REFUSED' /tmp/_r73d.txt)"
+ck "F286 ... and the traceback is GONE -- rule 51, losing the input is a RESULT, print it" 0 \
+   "$(grep -c 'Traceback (most recent call last)' /tmp/_r73d.txt)"
+rm -f /tmp/_r73a.txt /tmp/_r73b.txt /tmp/_r73c.txt /tmp/_r73d.txt \
+      /tmp/_r73_x_hero34f.png /tmp/_r73_x_front.png
+
+# --- rev 73, F296: the tail board's tilt probe.  BEHAVIOURAL, ~2 s, no build.
+# The point of this probe is that it CALIBRATES on a known answer before it
+# reads a photograph, so the rows below lock the CALIBRATION and the KILL --
+# not the photograph's number, which is a bracket and will move if the window
+# is ever re-cut.
+python3 probe_rev73_tailboard.py >/tmp/_r73e.txt 2>&1
+ck "F296 tailboard probe calibrates on the mesh's own angle before reading a photograph" 1 \
+   "$(grep -c 'PASS T1 the SILHOUETTE detector recovers' /tmp/_r73e.txt)"
+ck "F296 ... and its gradient detector's bias is MEASURED, not assumed zero" 1 \
+   "$(grep -c 'PASS T2 the GRADIENT detector recovers' /tmp/_r73e.txt)"
+ck "F296 ... and the 7-degree ROTATION KILL fires (a detector that cannot move is not measuring)" 1 \
+   "$(grep -c 'PASS T3 KILL -- rotating the SAME frame' /tmp/_r73e.txt)"
+# *** rev 73, F300 -- THIS ROW USED TO LOCK A CONCLUSION THAT IS NOW RETRACTED.
+# It read: "F296 ... and the shipped TB_TILT_DEG is NOT EXCLUDED by the
+# photograph", keyed on `PASS T4`.  A second rule-17 adversary showed that
+# bracket WAS the detector's own 8-degree minimum-peak-separation constant --
+# 38.0 falls inside at that one value and outside at sep 2, 4, 6, 10 and 12 --
+# so the row was locking an artefact.  IT IS REPLACED, NOT DELETED, BY THE ROW
+# THAT LOCKS THE REFUTATION: T4 now SWEEPS the constant and must FAIL, and if
+# some future edit makes it pass again that is a finding about that edit.
+ck "F300 the tailboard probe SWEEPS its own peak-separation constant and REFUSES (rule 39)" 1 \
+   "$(grep -c 'FAIL T4 the photograph.s BRACKET survives a sweep' /tmp/_r73e.txt)"
+ck "F300 ... and its rotation KILL is a LADDER that reports a GAIN, not one rung" 1 \
+   "$(grep -c 'MEAN GAIN' /tmp/_r73e.txt)"
+# ⚠ THE ROW BELOW IS A SOURCE-TEXT CHECK, NOT A BEHAVIOURAL ONE, AND IT IS
+# NAMED THAT WAY ON PURPOSE (rule 50).  The behaviour it is about -- refusing
+# when out/ holds no side render -- cannot be exercised here without moving
+# out/ aside, which a verifier must not do.  It can tell you the refusal path
+# is still WRITTEN; it cannot tell you it still FIRES.
+ck "F296 ... and its no-side-render refusal path is still PRESENT IN SOURCE (a grep, not a behaviour)" 1 \
+   "$(python3 -c "
+import re,io
+s=io.open('probe_rev73_tailboard.py').read()
+print(1 if ('NO SIDE RENDER' in s and '2 ABSENT' in s) else 0)")"
+rm -f /tmp/_r73e.txt
+
+# --- rev 73, F301: THE FREE-ENDPOINT SPINE SHIPS.  Behavioural, ~3 s, no build.
+# It is a GEOMETRY change to the vehicle, so it gets the same treatment rev 72's
+# fixes got: rows that RUN the thing and read what it does, each watched failing
+# against the real pre-change code.
+python3 probe_rev46_vw.py >/tmp/_r73f.txt 2>&1
+T1_VW_FREE=0 python3 probe_rev46_vw.py >/tmp/_r73g.txt 2>&1
+ck "F301 the free-endpoint spine is what SHIPS (t1_core.vw_free defaults ON)" 1 \
+   "$(python3 -c "import t1_core as C; print(1 if C.vw_free() else 0)")"
+ck "F301 ... and T1_VW_FREE=0 really ablates it back to the on-band spine" 1 \
+   "$(python3 -c "
+import os; os.environ['T1_VW_FREE']='0'
+import t1_core as C; print(0 if C.vw_free() else 1)")"
+# THE MEASUREMENT, not the switch: L6 is stroke width / ring width at the SAME
+# row, so the viewing angle cancels.  The shipped build must sit on the
+# photograph's 0.1528, and the ablated one must NOT -- if both matched, the
+# weight would not be following the spine and F301's whole argument would be void.
+ck "F301 the shipped glyph's L6 sits on the photograph's 0.1528 (0.1532)" 1 \
+   "$(grep -cE '^ *built .*L6 0\.153' /tmp/_r73f.txt)"
+ck "F301 ... and the ABLATED glyph's does not (0.1579) -- the weight follows the spine" 1 \
+   "$(grep -cE '^ *built .*L6 0\.1579' /tmp/_r73g.txt)"
+# C12 was RIGHT to go red when the free spine shipped: it was perturbing a
+# constant the build no longer reads.  Lock the repair, not the bar.
+ck "F301 C12 perturbs the constant the LIVE construction uses, and names it" 1 \
+   "$(grep -c 'VW_FREE_W_ARM_X .* moves .* of .* outline radii' /tmp/_r73f.txt)"
+ck "F301 ... and names the OTHER one when ablated" 1 \
+   "$(grep -cE '^ +VW_W_ARM_X .* moves .* of .* outline radii' /tmp/_r73g.txt)"
+# *** rev 73 -- RE-BASED 1 FAILED -> 2, CAUSE NAMED (F304).  C10 was found to
+# compare a raster with ITSELF -- built_mask caps at NPX = 552, so 552 and 1104
+# rows return the same array and its "worst move 0.0000" was arithmetic
+# identity (rule 6).  It now detects the cap and REFUSES, so both constructions
+# read C4 and C10.  A false pass became a true finding; the bar was not moved.
+ck "F301 ... and both paths still read 12 checked, 2 FAILED (C4 + C10)" 2 \
+   "$(cat /tmp/_r73f.txt /tmp/_r73g.txt | grep -c 'CONTROLS: 12 checked, 2 FAILED -- C4,C10')"
+ck "F304 ... and C10's refusal names the CAP rather than reporting convergence" 2 \
+   "$(cat /tmp/_r73f.txt /tmp/_r73g.txt | grep -c 'VACUOUS: built_mask CAPS AT NPX')"
+# The proxy must track the build in BOTH constructions.  The live case already
+# has a row above; this one covers the ablated path, because a proxy hard-coded
+# to whichever spine happens to ship would pass that row and be void here.
+ck "F301 the emblem proxy reproduces the build under the ABLATION too" 1 \
+   "$(T1_VW_FREE=0 python3 probe_rev71_proxy.py 2>&1 | grep -c 'IoU 1.000000')"
+# AND THE ABLATION IS EXACT, NOT MERELY SELF-CONSISTENT.  Rev 73 checked out the
+# REAL pre-change t1_core/t1_detail/proxy at HEAD~7 and read on-px 41701; the
+# ablated path reads 41701 too, so "T1_VW_FREE=0 restores the rev-72 spine
+# exactly" is a measurement, not a claim.  Pinning the count is what stops the
+# on-band path drifting once nothing ships on it.  (The free path reads 41474 --
+# a DIFFERENT number, which is how we know the switch is not a no-op.)
+ck "F301 ... and the ablated glyph is the rev-72 glyph to the PIXEL (41701 on-px)" 1 \
+   "$(T1_VW_FREE=0 python3 probe_rev71_proxy.py 2>&1 | grep -c 'on-px 41701 / 41701')"
+ck "F301 ... while the SHIPPED glyph is a different one (41474) -- the switch is no no-op" 1 \
+   "$(python3 probe_rev71_proxy.py 2>&1 | grep -c 'on-px 41474 / 41474')"
+rm -f /tmp/_r73f.txt /tmp/_r73g.txt
 
 ck "newest brief states THIS script's row count" "$((PASS+1))" "${_BRIEF_TOTAL:-0}"
 

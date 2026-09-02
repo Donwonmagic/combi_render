@@ -112,6 +112,78 @@ def main():
     # ⚠ EVERY IoU THEY PRINT IS ON THE INSTRUMENT F246 REFUTES.  They RANK
     # constructions against each other on ONE fixed ruler, which is what a
     # search needs; their DISTANCE from 0.9882 is NOT a shape deficit.
+    # ------------------------------------------------------- rev 73, F301
+    # SCORE A NAMED CONSTRUCTION AT A NAMED WEIGHT, ON THIS PROBE'S OWN
+    # TARGETS.  T1_REV71_SCORE=1, ~2 min.
+    #
+    # IT EXISTS BECAUSE AN AD-HOC HARNESS GOT IT WRONG.  Rev 73 first scored
+    # (B) in a scratch script that called F.photo_mark WITHOUT the box and the
+    # bbox-crop flag this probe passes -- `(262, 492, 352, 600), True` and
+    # `(283, 537, 357, 662), True` -- and the SHIPPED construction came back
+    # 0.4718 / 0.6313 instead of 0.8425 / 0.8215.  The harness could not
+    # reproduce a known answer, so nothing measured through it was usable.
+    # THE CONTROL IS THE FIRST ROW HERE AND IT REFUSES IF IT DRIFTS.
+    if os.environ.get("T1_REV71_SCORE") == "1":
+        import t1_core as C
+        # *** rev 73, F303 -- THE CONTROL MUST BE BUILT IN THE CONSTRUCTION IT
+        # IS A CONTROL FOR.  The first cut read X.SHIPPED, and F301b then made
+        # X.SHIPPED follow t1_core.vw_free() -- correctly -- so on a shipped
+        # tree the "control" became the FREE spine while its reference pair
+        # (0.8425 / 0.8215) is the ON-BAND one.  It could never hold again, and
+        # the `if ok:` guard meant ZERO ROWS PRINTED: the tool the brief hands
+        # forward refused on the tree that ships.  A FOURTH control red on the
+        # ship, and F301b said three.  The on-band dict is now built explicitly
+        # here rather than read from whatever happens to ship. ***
+        ONBAND = dict(V_TIP_X=C.VW_V_TIP_X, APEX_Z=C.VW_APEX_Z,
+                      W_ARM_X=C.VW_W_ARM_X, W_ARM_Z=C.VW_W_ARM_Z,
+                      W_TR_X=C.VW_W_TROUGH_X, W_TR_Z=C.VW_W_TROUGH_Z,
+                      W_PEAK_Z=C.VW_W_PEAK_Z, on_band=True)
+        ONBAND_W = 0.2283
+        FREE = dict(V_TIP_X=C.VW_FREE_V_TIP_X, V_TIP_Z=C.VW_FREE_V_TIP_Z,
+                    APEX_Z=C.VW_FREE_APEX_Z, W_ARM_X=C.VW_FREE_W_ARM_X,
+                    W_ARM_Z=C.VW_FREE_W_ARM_Z, W_TR_X=C.VW_FREE_W_TR_X,
+                    W_TR_Z=C.VW_FREE_W_TR_Z, W_PEAK_Z=C.VW_FREE_W_PEAK_Z,
+                    on_band=False)
+
+        def _s(p_, w_, dst):
+            return F.fit(X.mask(p_, w_, rows=220), dst)[0]
+        base_f = _s(ONBAND, ONBAND_W, dst_fit)
+        base_i = _s(ONBAND, ONBAND_W, dst_ind)
+        print("\n  T1_REV71_SCORE -- constructions on THIS probe's own targets")
+        print("  CONTROL, the REV-72 on-band spine at its own wfrac %.4f: "
+              "fit %.4f  indep %.4f" % (ONBAND_W, base_f, base_i))
+        ok = abs(base_f - 0.8425) < 0.002 and abs(base_i - 0.8215) < 0.002
+        print("     %s -- the published rev-72 pair is 0.8425 / 0.8215%s"
+              % ("CONTROL HOLDS" if ok else "*** CONTROL FAILED ***",
+                 "" if ok else ".  EVERY ROW BELOW IS VOID (rule 37)."))
+        if ok:
+            # *** BOTH WEIGHTS ARE SCORED, ALWAYS.  The first cut labelled its
+            # first row "the SEARCH's wfrac" and fed it VW_FREE_WFRAC -- which
+            # rev 73 then changed to the L6 crossing -- so the row printed the
+            # WRONG NAME, duplicated row 3, and the 0.20429 evaluation stopped
+            # running at all.  That row is the strongest counter-evidence to
+            # the shipped weight and it must not be able to vanish (F303). ***
+            for lab, pp, ww in (
+                    ("(B) free spine, the SEARCH's wfrac %.5f"
+                     % C.VW_SEARCH_WFRAC, FREE, C.VW_SEARCH_WFRAC),
+                    ("(B) free spine, F204's wfrac %.4f" % ONBAND_W,
+                     FREE, ONBAND_W),
+                    ("(B) free spine, THE SHIPPED wfrac %.4f (L6 crossing)"
+                     % C.VW_FREE_WFRAC, FREE, C.VW_FREE_WFRAC),
+                    ("on-band spine, the SHIPPED wfrac %.4f"
+                     % C.VW_FREE_WFRAC, ONBAND, C.VW_FREE_WFRAC),
+                    ("on-band spine, the SEARCH's wfrac %.5f"
+                     % C.VW_SEARCH_WFRAC, ONBAND, C.VW_SEARCH_WFRAC)):
+                f_, i_ = _s(pp, ww, dst_fit), _s(pp, ww, dst_ind)
+                print("  %-52s fit %.4f (%+.4f)  indep %.4f (%+.4f)"
+                      % (lab, f_, f_ - base_f, i_, i_ - base_i))
+            print("     ⚠ READ ROWS 1 AND 3 TOGETHER (F303).  The SHIPPED "
+                  "weight is the L6 crossing, chosen on a ruler that cancels "
+                  "the viewing angle -- but ON THIS OBJECTIVE it gives back "
+                  "MORE than the ship gained.  Both facts are true and the "
+                  "record must carry both.")
+        raise SystemExit(0 if ok else 3)
+
     want = os.environ.get("T1_REV71_SEARCH", "")
     if want:
         import math
@@ -170,6 +242,27 @@ def main():
         vB, cB = descend(vB, sc9, [.06] * 8 + [.04], 7, dst_fit)
         print("  (B) THE BRIEF'S PRESCRIPTION, free endpoints   fit %.4f  indep %.4f"
               % (cB, F.fit(sc9(vB), dst_ind)[0]))
+        # ---------------------------------------------------- rev 73, F298
+        # THE VECTORS WERE NEVER PRINTED, SO THE SEARCH COULD BE QUOTED BUT NOT
+        # BUILT.  F289b re-ran (B) and found it positive on BOTH frames -- and
+        # then the only thing anyone could do with that result was cite it,
+        # because the nine numbers that produce it existed for the ~13 minutes
+        # of the run and were then discarded.  Rule 1 says RENDER IT AND LOOK;
+        # you cannot look at a number that was never emitted.
+        _names = ("V_TIP_X", "V_TIP_Z", "APEX_Z", "W_ARM_X", "W_ARM_Z",
+                  "W_TR_X", "W_TR_Z", "W_PEAK_Z", "WFRAC")
+        print("      (A) vector, CURRENT parameterisation (8): "
+              + " ".join("%s=%.5f" % (n, v) for n, v in
+                         zip(("V_TIP_X", "APEX_Z", "W_ARM_X", "W_ARM_Z",
+                              "W_TR_X", "W_TR_Z", "W_PEAK_Z", "WFRAC"), vA)))
+        print("      (B) vector, FREE ENDPOINTS (9), on_band=False: "
+              + " ".join("%s=%.5f" % (n, v) for n, v in zip(_names, vB)))
+        print("      ^ THESE ARE PROXY-SPACE NUMBERS IN R=1 UNITS.  They are a "
+              "SEARCH RESULT, not a measurement of the vehicle, and nothing "
+              "has rendered them.  Rule 56: this objective is a silhouette IoU "
+              "and CANNOT SEE FRAGMENTATION -- the traced pressing scored "
+              "positive on both frames by this same instrument and renders as "
+              "SHARDS (F262).  BUILD, RENDER, CROP, LOOK before believing it.")
         if "C" in want:
             t0 = time.time()
             BND = [(.10, .70), (.20, .82), (-.50, .60), (.20, .82), (-.60, .60),

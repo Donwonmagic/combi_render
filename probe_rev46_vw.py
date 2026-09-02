@@ -329,8 +329,23 @@ PARAMS = ("VW_V_TIP_X", "VW_APEX_Z", "VW_W_ARM_X", "VW_W_ARM_Z",
 BUILT_ROWS = 552
 
 
-def built_landmarks(rows=BUILT_ROWS, **over):
+def built_landmarks(rows=BUILT_ROWS, on_band=None, **over):
+    """the built glyph's landmarks, optionally with constants overridden.
+
+    *** rev 73, F301 -- `on_band=True` FORCES THE ON-BAND CONSTRUCTION for the
+    duration.  It exists because the six constants this function is asked to
+    override -- VW_V_TIP_X and friends -- belong to the ON-BAND spine, and the
+    free-endpoint spine now SHIPS and does not read them.  Overriding them
+    under the free spine is INERT, so the rev-45 baseline came back identical
+    to the live residual and C3/C5 went red reporting "better by a factor of
+    1.0".  That red was CORRECT -- it is rule 47's failure mode, a control
+    whose input stopped reaching the thing it controls -- and the fix is to
+    evaluate a historical on-band baseline in the construction it belongs to,
+    NOT to relax the bar. ***"""
     old = {k: getattr(C, k) for k in over}
+    _env = os.environ.get("T1_VW_FREE")
+    if on_band:
+        os.environ["T1_VW_FREE"] = "0"
     for k, v in over.items():
         setattr(C, k, v)
     try:
@@ -338,6 +353,11 @@ def built_landmarks(rows=BUILT_ROWS, **over):
     finally:
         for k, v in old.items():
             setattr(C, k, v)
+        if on_band:
+            if _env is None:
+                os.environ.pop("T1_VW_FREE", None)
+            else:
+                os.environ["T1_VW_FREE"] = _env
 
 
 def err(res):
@@ -403,7 +423,7 @@ ctl("C2", abs(bspan - pspan) < 0.02,
 # ---- C3 THE KILL: the rev-45 constants must MISS
 REV45 = dict(VW_V_TIP_X=0.270, VW_APEX_Z=0.284, VW_W_ARM_X=0.760,
              VW_W_ARM_Z=-0.060, VW_W_TROUGH_X=0.380, VW_W_TROUGH_Z=-0.700)
-e45, L45 = err(built_landmarks(**REV45))
+e45, L45 = err(built_landmarks(on_band=True, **REV45))
 print("\n    rev 45  " + "  ".join("%s %.4f" % (k, L45[k]) for k in
                                    ("L1", "L2", "L3", "L4")) if L45 else "")
 print("            residual vs photograph = %.4f" % e45)
@@ -454,9 +474,37 @@ if os.environ.get("T1_VW_SOLVE"):
                                            for k in KEYS if k in Ls))
 
 eC, LC = err(built_landmarks(**CURRENT))
+# *** rev 73, F303 -- SAY WHICH CONSTANTS THE BUILD ACTUALLY READS.
+# Under the shipped free-endpoint spine (t1_core.vw_free()) NONE of the six
+# names below drives the glyph -- it is driven by VW_FREE_*.  This block used
+# to print them under "IN t1_core NOW:" beside landmarks produced by nine
+# DIFFERENT constants, and C4's message named them as "the constants in
+# t1_core [that] reproduce the photographed landmarks".  That is C12's defect
+# one screen up, unrepaired: a reader is handed the wrong six numbers.
+# Proved inert: wrecking three of them moves the residual not at all under the
+# free spine (0.0745 -> 0.0745) and to the 9.9 sentinel under the on-band one.
+# CONSEQUENCE THE READER MUST BE TOLD: `solve()` searches these same six names,
+# so T1_VW_SOLVE IS A NO-OP ON A SHIPPED TREE, and C4's known passing
+# configuration (0.0755 -> 0.0294, HANDOFF_CARRIERS.md's gate table) is
+# UNREACHABLE until the solver is taught the free parameterisation.
+_FREE_NOW = C.vw_free()
 print("\n    IN t1_core NOW:")
+if _FREE_NOW:
+    print("        *** THE FREE-ENDPOINT SPINE IS SHIPPING (F301), SO THE SIX")
+    print("        NAMES BELOW DRIVE NOTHING.  The glyph is built from")
+    print("        VW_FREE_* and they are printed here only because this")
+    print("        probe's landmark objective, C4, C5 and solve() are all")
+    print("        still written against the ON-BAND parameterisation.")
+    print("        T1_VW_SOLVE IS A NO-OP ON THIS TREE (F303).  Run with")
+    print("        T1_VW_FREE=0 for a run in which these constants are live.")
+    for k in ("VW_FREE_V_TIP_X", "VW_FREE_V_TIP_Z", "VW_FREE_APEX_Z",
+              "VW_FREE_W_ARM_X", "VW_FREE_W_ARM_Z", "VW_FREE_W_TR_X",
+              "VW_FREE_W_TR_Z", "VW_FREE_W_PEAK_Z", "VW_FREE_WFRAC"):
+        print("        %-18s = %.5f  <- LIVE" % (k, getattr(C, k)))
+    print("        -- and the six the rows below actually vary: --")
 for k in PARAMS:
-    print("        %-16s = %.4f" % (k, CURRENT[k]))
+    print("        %-16s = %.4f%s"
+          % (k, CURRENT[k], "  (INERT on this tree)" if _FREE_NOW else ""))
 if LC:
     print("        built     " + "  ".join("%s %.4f" % (k, LC[k])
                                            for k in KEYS if k in LC))
@@ -467,7 +515,10 @@ if LC:
 print("        residual  %.4f   (rev 45: %.4f)" % (eC, e45))
 
 ctl("C4", LC is not None and eC < 0.045,
-    "the constants in t1_core reproduce the photographed landmarks to %.4f "
+    ("the LIVE construction (FREE spine -- NOT the six on-band constants, "
+     "which are inert here, F303) " if C.vw_free() else
+     "the constants in t1_core ") +
+    "reproduce the photographed landmarks to %.4f "
     "(rev 45 missed by %.4f)" % (eC, e45))
 ctl("C5", eC < e45 * 0.6,
     "and they are BETTER THAN REV 45 BY A FACTOR OF %.1f -- a solver that "
@@ -807,7 +858,26 @@ _why276 = ("reading them at 276 instead LOSES them entirely -- landmarks() "
            if _lost276 else
            "reading them at 276 instead moves one by %.4f, which is the whole "
            "of F203" % _swing)
+# *** rev 73, F304 -- THIS CONTROL COMPARED A RASTER WITH ITSELF FOR SEVEN
+# REVISIONS.  `built_mask` ends `k = max(1, NPX // rows)` then `[::k, ::k]`, and
+# `NPX = 69 * 8 = 552`.  For any rows >= 552, k == 1 and the SAME (552, 552)
+# array comes back: built_mask(552), (1104) and (2208) are IDENTICAL arrays.
+# So "doubling the raster to 1104 rows moves no landmark by more than 0.01"
+# was arithmetic identity, and its 0.0000 was not evidence of convergence.
+# Rule 6 -- a guard that derives its answer from the expression it checks.
+# The comment above it claimed "C10 checks that claim on every run instead of
+# trusting this comment"; it could not.
+# IT NOW DETECTS THE CAP AND REFUSES, which is also the MECHANISM behind F302:
+# L6 reads 0.1579 at every reachable row count because the raster cannot change
+# above 552, so F204's "converged 552-row raster: L6 0.1530" is unreachable BY
+# ROW COUNT -- not merely "possibly a different raster".
+_capped = bool((built_mask(BUILT_ROWS) == built_mask(2 * BUILT_ROWS)).all())
 print("\n    CONVERGENCE -- is the built raster read where the answer has settled?")
+if _capped:
+    print("        *** VACUOUS: built_mask CAPS AT NPX = %d, so %d and %d rows"
+          % (NPX, BUILT_ROWS, 2 * BUILT_ROWS))
+    print("        return the SAME ARRAY.  The 'worst move 0.0000' below is")
+    print("        ARITHMETIC IDENTITY, not convergence (F304, rule 6).")
 print("        %d rows vs %d rows: worst landmark move %.4f"
       % (BUILT_ROWS, 2 * BUILT_ROWS,
          max(abs(_Lc[0][k] - _Lf[0][k]) for k in _Lc[0] if k in _Lf[0])
@@ -816,7 +886,7 @@ print("        %d rows vs 276 rows: %s  <- why 276 was not enough"
       % (BUILT_ROWS, "NO LANDMARKS AT ALL -- the glyph does not present "
                      "L1..L4 at that raster" if _lost276
                      else "worst landmark move %.4f" % _swing))
-ctl("C10", _conv,
+ctl("C10", _conv and not _capped,
     "the built landmarks have CONVERGED: doubling the raster to %d rows moves "
     "no landmark by more than 0.01.  And %s"
     % (2 * BUILT_ROWS, _why276))
@@ -859,23 +929,35 @@ ctl("C11", (npho_raw - npho == 1) and (nb_raw - nb == 0)
 # and the sentence did not move.  No audit can catch a number that prints
 # without being measured, so this control moves a constant and insists the
 # reported figures move with it.
+# *** rev 73, F301 -- IT MUST PERTURB THE CONSTANT THE BUILD ACTUALLY USES.
+# The free-endpoint spine ships (t1_core.vw_free()), and under it the shipped
+# glyph is driven by VW_FREE_W_ARM_X, NOT VW_W_ARM_X.  This control kept
+# perturbing the old constant and correctly went RED -- "moves 0 of 108" --
+# which is rule 47's failure mode caught by a guard rather than by a reader:
+# an ablation that stops ablating.  THE RED WAS RIGHT AND THE FIX IS HERE, not
+# a relaxed bar.  It now perturbs whichever constant is live, and SAYS WHICH.
 _r_before = terminal_reach()
-_keep = C.VW_W_ARM_X
-C.VW_W_ARM_X = _keep * 0.80
+_FREE = C.vw_free()
+_NAME = "VW_FREE_W_ARM_X" if _FREE else "VW_W_ARM_X"
+_keep = getattr(C, _NAME)
+setattr(C, _NAME, _keep * 0.80)
 try:
     _r_after = terminal_reach()
 finally:
-    C.VW_W_ARM_X = _keep
+    setattr(C, _NAME, _keep)
 _moved = sum(1 for a, b in zip(sorted(_r_before), sorted(_r_after))
              if abs(a - b) > 1e-6)
 print("\n    IS C6's MESSAGE A MEASUREMENT?  (F198's kill)")
-print("        VW_W_ARM_X %.4f -> %.4f moves %d of %d outline radii"
-      % (_keep, _keep * 0.80, _moved, len(_r_before)))
+print("        %s %.4f -> %.4f moves %d of %d outline radii  (free spine: %s)"
+      % (_NAME, _keep, _keep * 0.80, _moved, len(_r_before), _FREE))
 ctl("C12", _moved > 0 and len(_r_before) == len(_reach),
     "THE REACH FIGURES IN C6's MESSAGE ARE READ OFF THE MESH, NOT TYPED.  "
-    "Perturbing VW_W_ARM_X by 20 %% moves %d of %d of them.  A string literal "
-    "would move none -- which is exactly how F198 survived five revisions"
-    % (_moved, len(_r_before)))
+    "Perturbing %s -- the constant the LIVE construction uses -- by 20 %% "
+    "moves %d of %d of them.  A string literal would move none, which is "
+    "exactly how F198 survived five revisions; and a guard aimed at a constant "
+    "the build no longer reads would move none either, which is how this row "
+    "caught rev 73 shipping the free spine (F301)"
+    % (_NAME, _moved, len(_r_before)))
 
 nfail = sum(1 for v in CTL.values() if not v)
 print("\nCONTROLS: %d checked, %d FAILED%s"
