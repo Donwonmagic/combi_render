@@ -268,3 +268,43 @@ done off self-review. Report the measurement with its ceiling. Do not say anythi
    (rule 15). DO NOT CLOSE UNTIL BOTH REPORT.** ⚠ **AND RE-RUN THE OUTGOING ONE AFTER ANYTHING SHIPS.**
 5. **Keep the split, and KEEP THIS FILE SHORT.** `cp` it over `PASTE_INTO_CLAUDE_CODE.txt` in the
    same commit. `python3 audit_brief.py --fix-count` LAST.
+
+---
+**⚠ THIS BRIEF WAS AUDITED AGAINST THE MACHINE, AND BOTH HALVES OF RULE 17 WERE RUN.**
+
+**AND THE RULE-17 ADVERSARY CHANGED THE SHIP, WHICH IS THE POINT OF RULE 17.** It returned FOURTEEN
+defects and **four of them were repaired in the geometry, not in the prose** (F319/F320):
+
+1. **THE TREAD SHIPPED IRREGULAR** — 99 of 384 equator vertices cut in runs of 1 AND 2, because the
+   phase threshold left the LEADING edge on the modulo wrap with **zero** margin. My source comment
+   argued the float-safety case and had it exactly half right. **Fixed; 128 of 384, one run width.**
+2. **T5 DID NOT MEASURE WHAT IT NAMED** — it compared max RADIUS while claiming to protect `TYRE_D`,
+   which `verify.py:690` defines as `max(z)-min(z)`, a bbox extent. **It does move, by 0.0890 mm.**
+   ⚠ **`STATE.md` had already recorded it and I read the `+0.0 → -0.0 mm` flip as float noise.**
+3. **F309's *"SAME LOCATION"* IS WITHDRAWN** — `ref_rear34.jpg` is a planted café patio,
+   `ref_playa_34.png` a paved yard. **The retirement of F143 survives on absence in two independent
+   scenes, at n = 1 on the present side. Said at its real strength, not the strength I first gave it.**
+4. **THE SHIP HAD NO GUARD ROW AT ALL** — in the revision whose §3b makes *"no silent regression"* a
+   heading, `grep -c probe_rev74 verify_clone.sh` returned **0**. **Five rows added.**
+
+**AND THE RULE-15 ADVERSARY ON THE INCOMING BRIEF RETURNED EIGHTEEN** (F316/F316b), the most
+consequential being that `probe_rev67_nose.py` reads **`7 checked, 0 FAILED` with P3c PASSING** where
+the brief said it fails BY DESIGN — verified independently.
+
+**WHERE THIS BRIEF IS WEAKEST, STATED RATHER THAN HIDDEN:**
+* **`verify_clone.sh` DOES NOT REACH ALL-PASS, AND §1 IS ABOUT WHY.** One row —
+  `F296 ... the 7-degree ROTATION KILL fires` — **is correctly reporting a real failure** (F312/F312b:
+  the miss reproduces across three frames at 1.75–2.00 against a 1.5 bar). **It is not re-based here.
+  Do not re-base it without reading F312b.**
+* **T6's FLOOR IS A STRING LITERAL** (F320f). The reasoning is sound — a revolve has no angular
+  structure — but `0.0503 px / amplitude 4` is a recorded reading on a frame not retained, and no row
+  recomputes it. **One `T1_TYRE_TREAD=0` render re-derives it.**
+* **THE TREAD'S COUNT, DEPTH AND DUTY ARE ALL DECLARED, NOT MEASURED** (F308b). T2 refuses to publish
+  a count and prints its six disagreeing estimates instead. **Do not quote 64 as a measurement, and
+  do not read T6's recovery of 64 from pixels as confirming it (rule 6).**
+* **T7 READS THE EQUATOR RING ONLY.** Lug edges away from `y = 0` are unchecked.
+* **THE PIXEL-DIFF A/B IS A FLAT NULL, INCLUDING BOX-LOCALLY**, and I published a "localisation
+  confirmed" reading one step before the floor that refutes it.
+* **THE EMBLEM IS NOT RIGHT.** P2 crossed its bar at 0.8528 against P1b's 0.9465, the objective still
+  has no legibility term (rule 56), and **the weight is closed to tuning by F314 but NOT resolved.**
+* **Every figure quoted from `out/` needs a re-render before you quote it** — `out/` starts empty.
