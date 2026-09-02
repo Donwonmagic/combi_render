@@ -160,7 +160,7 @@ deliberately FRAME-INDEPENDENT so they cannot repeat F311.**
 ```bash
 ./bootstrap.sh                                # READ ROW 9
 ./bootstrap.sh --guards                       # NOT while a render queue runs
-./verify_clone.sh                             # ALL 428 PASS -- 0 FIDELITY, 428 SELF-CONSISTENCY.
+./verify_clone.sh                             # ALL 429 PASS -- 0 FIDELITY, 429 SELF-CONSISTENCY.
   # ⚠ AND THAT TOTAL IS NOT REACHED ON A CLEAN CLONE, WHICH IS §1's WHOLE SUBJECT: four rows
   # want a rendered frame, one is correctly reporting a real failure (F312b), and the count
   # row can only agree once the rest are green.  READ THE VERDICT BLOCK TOO: not one row
