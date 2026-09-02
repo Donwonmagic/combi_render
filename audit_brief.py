@@ -195,7 +195,7 @@ ck("F306 the verifier's two verdict halves state the SAME number", not _bad_half
 _claims = re.findall(
     r"^python3 (\S+\.py)\s+#[^\n]*?(\d+) checked, (\d+) FAILED",
     TXT, re.M)
-_probe_bad, _probe_ran = [], 0
+_probe_bad, _probe_ran, _probe_skip = [], 0, []
 for _sc, _wc, _wf in _claims:
     if not os.path.exists(os.path.join(ROOT, _sc)):
         continue
@@ -209,6 +209,20 @@ for _sc, _wc, _wf in _claims:
     if not _m:
         _probe_bad.append("%s printed no summary line" % _sc)
         continue
+    # *** rev 73, F307 -- A PROBE THAT COULD NOT RUN IS NOT A MISMATCH.
+    # The first cut of this row claimed it only ran probes needing no frame
+    # ARGUMENT.  That was the wrong test: probe_rev73_tailboard takes no
+    # argument but still needs a *_side.png in out/, and `out/` is UNTRACKED
+    # and starts EMPTY -- so ON A FRESH CLONE, before sec 0's render, this row
+    # went RED on a brief that was CORRECT.  A false red is as bad as a false
+    # green (rule 50, both directions), and CLAUDE.md forbids the next context
+    # from editing a script to make it pass -- so it would have cost them the
+    # pickup.  A probe that REFUSES for want of an input is skipped and COUNTED
+    # as skipped, never compared (rule 37: an absent input is not a
+    # measurement, and it is not a defect in the brief either).
+    if re.search(r"\bABSENT\b|NO SIDE RENDER|NO RENDER|NO FRAME GIVEN", _o):
+        _probe_skip.append(_sc)
+        continue
     _probe_ran += 1
     _gc, _gf = _m[-1]
     if (_gc, _gf) != (_wc, _wf):
@@ -216,8 +230,13 @@ for _sc, _wc, _wf in _claims:
                           "%s/%s" % (_sc, _wc, _wf, _gc, _gf))
 ck("F306 every probe the brief gives an expected count for still prints it",
    not _probe_bad,
-   "%d claim(s) found, %d run%s" % (len(_claims), _probe_ran,
-    "" if not _probe_bad else ";  " + ";  ".join(_probe_bad)))
+   "%d claim(s), %d DISTINCT probe(s) run%s%s"
+   % (len(_claims), len(set(_sc for _sc, _, _ in _claims)) - len(set(_probe_skip)),
+      ("; %d SKIPPED for want of a rendered frame (%s) -- out/ starts EMPTY, "
+       "so these are unguarded until sec 0 has run (F307)"
+       % (len(_probe_skip), ", ".join(sorted(set(_probe_skip)))))
+      if _probe_skip else "",
+      "" if not _probe_bad else ";  " + ";  ".join(_probe_bad)))
 
 # ------------------------------------------------------------- 3. runnables
 runs = sorted(set(re.findall(r"-P (\w+\.py)", BOTH))
