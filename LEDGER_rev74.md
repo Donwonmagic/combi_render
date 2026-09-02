@@ -69,8 +69,8 @@ and `r74_tread_ab.png` on the delivery view). **Preview frames are 1600 px; the 
 
 **THE MACHINE AT CLOSE:** `bootstrap.sh` **9 PASSED, 1 FAILED**; `bootstrap.sh --guards`
 **24 PASSED, 1 FAILED** (all fifteen guard rows green, including the five rear-hatch kills, and
-`VERIFY: 0 fail, 0 warn` at **both** SUB=1 and SUB=2); `verify_clone.sh` **426 PASSED, 2 FAILED**
-against an all-pass total of **428**. **The one failure in each of the first two IS `verify_clone`,
+`VERIFY: 0 fail, 0 warn` at **both** SUB=1 and SUB=2); `verify_clone.sh` **427 PASSED, 2 FAILED**
+against an all-pass total of **429**. **The one failure in each of the first two IS `verify_clone`,
 and its two reds are the ROTATION KILL — correctly reporting a real failure (F312b) — and, downstream
 of it, the count row, which misses by exactly the number of other reds.** `probe_rev74_tread.py`
 **8 checked, 0 FAILED**; `photometry.py` **9 checked, 0 FAILED**. **Nothing was re-based to get here.**

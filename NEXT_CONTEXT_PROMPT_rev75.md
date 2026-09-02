@@ -52,9 +52,9 @@ failure.**
 
 **AND THE COUNT ROW CANNOT AGREE WHILE ANY OTHER ROW IS RED — BY CONSTRUCTION, NOT BY DEFECT.** It
 is `ck "…" "$((PASS+1))" "$_BRIEF_TOTAL"`, so `PASS` drops by one for every red row and the row
-misses by exactly that many. **On this tree it reads `got 428, want 427`: 428 is the ALL-PASS total
-that `audit_brief.py --fix-count` wrote, and the 1 is the ROTATION KILL.** ⚠ **DO NOT "FIX" IT BY
-WRITING 427 — that would encode today's failure as the target and break the row the moment T3 is
+misses by exactly that many. **On rev 74's closing tree it reads `got 429, want 428`: 429 is the ALL-PASS
+total that `audit_brief.py --fix-count` wrote, and the 1 is the ROTATION KILL.** ⚠ **DO NOT "FIX" IT
+BY WRITING 428 — that would encode today's failure as the target and break the row the moment T3 is
 repaired.** The gap is a live count of genuine reds, and reading it that way is more useful than
 making it green. The sixth is `ck "newest brief states THIS script's row count" "$((PASS+1))"`, which can
 only agree once the rest are green. With a side frame present the script reads **421 PASSED,
@@ -303,8 +303,8 @@ consequential being that `probe_rev67_nose.py` reads **`7 checked, 0 FAILED` wit
 the brief said it fails BY DESIGN — verified independently.
 
 **WHERE THIS BRIEF IS WEAKEST, STATED RATHER THAN HIDDEN:**
-* **`verify_clone.sh` READS `426 PASSED, 2 FAILED` ON THIS TREE, AND §1 IS ABOUT WHY.** The
-  all-pass total is **428**; the two reds are the ROTATION KILL and, downstream of it, the count row,
+* **`verify_clone.sh` READS `427 PASSED, 2 FAILED` ON THIS TREE, AND §1 IS ABOUT WHY.** The
+  all-pass total is **429**; the two reds are the ROTATION KILL and, downstream of it, the count row,
   which misses by exactly the number of other reds and **must not be papered over.** One row —
   `F296 ... the 7-degree ROTATION KILL fires` — **is correctly reporting a real failure** (F312/F312b:
   the miss reproduces across three frames at 1.75–2.00 against a 1.5 bar). **It is not re-based here.
