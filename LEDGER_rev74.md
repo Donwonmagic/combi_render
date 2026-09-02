@@ -8,8 +8,9 @@ CIRCUMFERENTIAL rings and the transverse lugs the photograph shows were **not a 
 the model at all**. That is rule 54's shape for the second time in this project's history. Sixty-four
 grooves are now cut INWARD from the crown; `T1_TYRE_TREAD=0` restores the rev-73 tyre exactly.
 
-`python3 revstats.py` — **live at close: `74 | 69 geometry | 0 closed`** (rev 73 reads
-`73 | 123 geometry | 0 closed`). ⚠ **The geometry column is a PROXY and `revstats.py` says so
+`python3 revstats.py` — **at the last read before this line was written: `74 | 115 geometry |
+0 closed`** (rev 73 reads `73 | 123 geometry | 0 closed`). ⚠ **IT GROWS WITH EVERY FURTHER COMMIT,
+INCLUDING THE ONE CARRYING THIS SENTENCE — RUN IT, DO NOT QUOTE THIS.** ⚠ **The geometry column is a PROXY and `revstats.py` says so
 itself: *"a one-line constant can be a revision's whole result"*. Rev 74's shipped change is ~60
 lines and turns a rotationally-symmetric object into one that is not.**
 
@@ -63,6 +64,16 @@ brackets the count at 48..84 and that is still open. **Looking agrees**: the sil
 smooth curve to a visibly serrated one (`probe_scratch/r74_tyre_BEFORE.png` / `r74_tyre_AFTER.png`,
 and `r74_tread_ab.png` on the delivery view). **Preview frames are 1600 px; the delivery frame is
 3840, where the lugs are 2.4× larger.**
+
+---
+
+**THE MACHINE AT CLOSE:** `bootstrap.sh` **9 PASSED, 1 FAILED**; `bootstrap.sh --guards`
+**24 PASSED, 1 FAILED** (all fifteen guard rows green, including the five rear-hatch kills, and
+`VERIFY: 0 fail, 0 warn` at **both** SUB=1 and SUB=2); `verify_clone.sh` **426 PASSED, 2 FAILED**
+against an all-pass total of **428**. **The one failure in each of the first two IS `verify_clone`,
+and its two reds are the ROTATION KILL — correctly reporting a real failure (F312b) — and, downstream
+of it, the count row, which misses by exactly the number of other reds.** `probe_rev74_tread.py`
+**8 checked, 0 FAILED**; `photometry.py` **9 checked, 0 FAILED**. **Nothing was re-based to get here.**
 
 ---
 
