@@ -149,7 +149,7 @@ gate — which is exactly why they survived.** These are the highest fidelity-pe
 | **3.7** | **F74(a) — `tex/lidmural.png` is CROPPED AT THE BOTTOM**, flowers sliced mid-bloom | the render is faithful to the asset; the defect is in `lid_gen.py`'s output. **⚠ `lid_gen.py` is NOT called by `build.py` — regenerate by hand or the render silently uses the old texture** |
 | **3.8** | **F74(b) — `GAL_RED` is a dusty beige-pink** | (0.5350, 0.3600, 0.3120) ≈ sRGB (196,163,153) where `ref_rear34.jpg` shows saturated red and yellow. **One constant** |
 | **3.9** | **the galley is monochrome; the counter is a floating slab** | inherited; **not re-measured** |
-| **3.10** | **F143 — TWO LOUDSPEAKERS STAND ON THE ROOF AND ARE UNMODELLED** | **56 revisions.** They are on the vehicle in the frames |
+| ~~**3.10**~~ **RETIRED** | ~~**F143 — TWO LOUDSPEAKERS STAND ON THE ROOF AND ARE UNMODELLED**~~ | ⚠ **RETIRED AT REV 74 (F309). *"They are on the vehicle in the frames"* IS THE CLAIM THAT WAS WRONG** — they are on it in ONE frame, with the mural board up, and the roof is BARE in two independent scenes. **REMOVABLE EVENT GEAR, i.e. a POSE. Annotated, not deleted (rule 16). Read F309.** |
 
 ---
 

@@ -1,19 +1,20 @@
-# NEXT CONTEXT PROMPT — rev 74   ·   **ACTION BRIEF**
+# NEXT CONTEXT PROMPT — rev 75   ·   **ACTION BRIEF**
 
-**REV 73 SHIPPED GEOMETRY: THE EMBLEM'S FREE-ENDPOINT SPINE (F301), THE OWNER'S NINTH REPORT. `revstats.py` SAYS `73 | 123 geometry | 0 closed` — **RUN IT for the doc and instrument columns; they are still growing as this handoff lands and every figure typed for them here has already gone stale twice**, AND
-THAT IS TWO REVISIONS IN THREE THE OWNER CAN SEE NOTHING FROM.** Both of his ranked items were
-instrument-shaped and the second returned a null. **DO NOT LET REV 74 BE A THIRD.** Run
-`python3 revstats.py` and read ITS numbers. Every carrier lives in `HANDOFF_CARRIERS.md`; every
-finding in `OPEN_FINDINGS.md`; every measurement in a probe that RUNS. **This file is only what to
-do next. DO NOT GROW IT.**
+**REV 74 SHIPPED GEOMETRY: THE TYRE'S TRANSVERSE TREAD (F308).** `t1_detail.tyre()` returned
+`T.revolve(...)` — **rotationally symmetric BY CONSTRUCTION**, so its four grooves are
+CIRCUMFERENTIAL rings and the transverse lugs the photograph shows were **not a free parameter of
+the model at all** (rule 54, second time in this project). 64 grooves are cut INWARD from the crown;
+`T1_TYRE_TREAD=0` restores the rev-73 tyre exactly. **Run `python3 revstats.py` and read ITS
+numbers.** Every carrier lives in `HANDOFF_CARRIERS.md`; every finding in `OPEN_FINDINGS.md`; every
+measurement in a probe that RUNS. **This file is only what to do next. DO NOT GROW IT.**
 
-> *[owner, rev 72]* **"Nose, then gloss/flank."**  — **BOTH DONE AT REV 73, AND THE SECOND IS A NULL.**
+> *[owner, rev 74, shown `probe_scratch/rev74_weight_ask.png`]* **"I can't tell them apart — stop
+> tuning the weight."** — **F314. THE WEIGHT IS *UNRESOLVED*, NOT SETTLED. DO NOT RE-ASK IT.**
 > *[owner, rev 71]* **"The ultimate goal is a 3d render from which to build promotional material
 > from."** and **"I certainly want physics closed."**
 > *[owner, rev 72]* **"set up for success so that it can only carry forward, no regression allowed."**
 
-**THE EMBLEM IS STILL HIS NINTH REPORT AND IT IS STILL WRONG. F191 AND F234 BOTH STAND.** Rev 72's
-ruling set an ORDER for ONE revision and that revision is over.
+**THE EMBLEM IS STILL HIS NINTH REPORT AND IT IS STILL WRONG. F191 AND F234 BOTH STAND.**
 
 ---
 ## §0 DO THIS FIRST — THE MACHINE IS IDLE WHILE YOU READ
@@ -22,300 +23,219 @@ ruling set an ORDER for ONE revision and that revision is over.
 cd /home/user/combi_render
 ./bootstrap.sh                 # the toolchain is NOT on the clone -- this builds it
 pip install pillow             # bootstrap FAILS 3 of 10 without it, EVERY revision
-nohup setsid env T1_SUB=1 T1_PREVIEW=front,side,hero34f,hero34r T1_PFX=r74 T1_RX=1600 T1_RY=1100 \
-  T1_SAMP=96 /tmp/blender/blender -b -P build.py > /tmp/r74.log 2>&1 < /dev/null &
+nohup setsid env T1_SUB=1 T1_PREVIEW=front,side,hero34f,hero34r T1_PFX=r75 T1_RX=1600 T1_RY=1100 \
+  T1_SAMP=96 /tmp/blender/blender -b -P build.py > /tmp/r75.log 2>&1 < /dev/null &
 ```
-**`grep -c Saved: /tmp/r74.log` must be 4**, ~5.5 min a frame. `setsid`, not a bare `nohup &` (F173).
+**`grep -c Saved: /tmp/r75.log` must be 4**, ~5.5 min a frame. `setsid`, not a bare `nohup &` (F173).
 **`out/` starts EMPTY** — re-render before quoting any frame. **DO NOT EDIT SOURCE WHILE THE QUEUE
 RUNS** (probes and `.md` are fine; `build.py` and the `t1_*` modules are not).
-Then `./judge_set.sh r74`.
 
 ## §0b BEFORE YOU MEASURE ANYTHING
-
 ```bash
 python3 photometry.py          # 9 checked, 0 FAILED
 ```
 **READ LINEAR / REFUSE CLIPPED / MEDIAN NOT MEAN / PAINT THE WINDOW. Import it; do not re-derive it.**
 
-⚠ **AND DO NOT SPEND REV 74 RE-READING THE GATES AT 16 BITS.** F271 measured it a null; the
-rev-73 adversary showed the published **0.623 %** does not reproduce (**0.708 %** on a fresh frame,
-a move of 13 % of itself, **with no floor under it — rule 49**). The conclusion survives, the
-figure does not. **DO NOT REDO IT AND DO NOT RE-QUOTE 0.623 %.**
-
 ---
-## §1 THE BRANCH — MEASURE IT, DO NOT TRANSCRIBE IT, **INCLUDING THIS SENTENCE**
+## §1 ⚠ **`bootstrap.sh` WILL STOP ON YOU AT PICKUP, AND IT IS NOT YOUR FAULT — FIX IT FIRST (F311)**
 
+At rev 74's pickup, on a **clean tree, before anything was touched**: `bootstrap.sh` read
+**9 PASSED, 1 FAILED** and `verify_clone.sh` read **417 PASSED, 6 FAILED**.
+
+**FOUR ARE ONE CAUSE — NOT FIVE, AND THE DIFFERENCE MATTERS.** The `F296`/`F300` rows run
+`python3 probe_rev73_tailboard.py` and grep for its PASS lines — but **that probe needs a
+`*_side.png` in `out/`, and `out/` is untracked and starts EMPTY**, so it correctly prints
+`0 checked, 0 FAILED, 2 ABSENT — no side render` (rule 37) and every grep returns 0.
+⚠ **BUT THE FIFTH — `ck "F296 ... and the 7-degree ROTATION KILL fires"` — STAYS RED EVEN WITH A
+FRAME, BECAUSE T3 IS GENUINELY FAILING (F312/F312b). DO NOT RE-BASE IT: it is correctly reporting a
+failure.** The sixth is `ck "newest brief states THIS script's row count" "$((PASS+1))"`, which can
+only agree once the rest are green. With a side frame present the script reads **421 PASSED,
+2 FAILED** — 417 + 4, which is the arithmetic that gives the fifth row away.
+
+**THIS IS F307's SHAPE ONE LEVEL UP.** F307 taught `audit_brief.py` to SKIP a probe that wants a
+frame; **nobody checked whether `verify_clone.sh` had the same rows, and it has five that HARD-FAIL
+rather than skip.** `verify_clone.sh`'s own header claims it needs *"no render … and `out/` is
+untracked and starts EMPTY"* — **false for these five rows.**
+**REV 74 RECORDED IT AND DID NOT PATCH IT**, because the repair is a re-base of five rows and needs
+the cause NAMED plus companion rows. **That is rev 75's first job.** `probe_rev74_tread.py`'s **T6**
+is the worked example: it SKIPS with a message when `out/` has no side frame.
+
+**AND MEASURE THE BRANCH, DO NOT TRANSCRIBE IT, INCLUDING THIS SENTENCE:**
 ```bash
 git fetch --all --prune
 for b in $(git branch -r | grep -v HEAD); do printf "%-52s ahead %-3s behind %s\n" "$b" \
   "$(git rev-list --count origin/main..$b)" "$(git rev-list --count $b..origin/main)"; done
 git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 ```
-**⚠ THIS IS NOT A RITUAL. AT REV 73 IT PAID.** `bootstrap.sh` row 9 FAILED on pickup:
-**`STRANDED: origin/claude/combi-render-r72-fqgsj5 (2 commits, 6 files)`** — and those two commits
-were **the owner's own regression lock**. Until they were merged, `main` had **no `§3b`, no
-`bootstrap.sh --guards` sweep, and 381 `verify_clone.sh` rows instead of 392**, while the owner's
-message for rev 73 cited §3b and instructed `--guards`. **In the same `git fetch --prune`, rev 73's
-own designated branch was DELETED from the remote.** **THE REV-73 BRIEF SAID *"EIGHT CONSECUTIVE REVISIONS"* (F253/F267) AND REV 73 MADE IT
-NINE. `LEDGER_rev73.md` §1 SAYS "SEVENTH" AND IS WRONG — IT DROPPED F253/F267's OWN COUNT.
-THE COUNT IS HAND-INCREMENTED AND DERIVED FROM NOTHING: DO NOT TRUST IT EITHER. Believe row 9
-and the loop, never this paragraph.**
+**At rev 74 the designated branch again had NO REMOTE COPY at pickup (F317) — second revision
+running. Nothing was stranded: row 9 PASSED, all 27 remote branches `ahead 0`, the diff empty.**
+**The "N consecutive revisions" count in every brief is HAND-INCREMENTED AND DERIVED FROM NOTHING.
+Believe row 9 and the loop, never a sentence.**
 
 ---
-## §2 RANKED WORK FOR REV 74
+## §2 RANKED WORK FOR REV 75
 
-**⚠ THE OWNER'S REV-72 RULING IS SPENT — IT WAS EXPLICITLY FOR ONE REVISION (F282). DO NOT READ IT
-AS STANDING ORDER, AND DO NOT INVENT A NEW ONE FOR HIM.** **RANK BY PIXELS OF THE DELIVERY FRAME** —
-`python3 visibility_budget.py 3840 out/r74_hero34f.png` — and **the owner outranks the ranking**.
-⚠ **AND READ THAT TABLE'S OWN CEILING BEFORE USING IT: *"pixels are not visibility … Use this to
-catch ORDERS OF MAGNITUDE, not to rank neighbours."*** At rev 72 the brief claimed the owner and
-the ranking *"AGREED for the first time"*; the ranking cannot support that — his first item, the
-nose, is item 8 at 4.20e4 px², only **1.27×** the emblem he put third, which is neighbours (F291).
-The ranked list is `REMAINING_WORK_rev61.md`, triaged into `ROADMAP_rev68.md`.
+**RANK BY PIXELS OF THE DELIVERY FRAME** — `python3 visibility_budget.py 3840 out/r75_hero34f.png` —
+**and the owner outranks the ranking.** ⚠ **READ THAT TABLE'S OWN CEILING: *"pixels are not
+visibility … catch ORDERS OF MAGNITUDE, not rank neighbours."*** The ranked list is
+`REMAINING_WORK_rev61.md`, triaged into `ROADMAP_rev68.md`.
 
-### **1. SHIP GEOMETRY. ANY GEOMETRY. RULE 55 IS THE BINDING CONSTRAINT ON REV 74.**
-**⚠ AND THE FIRST DRAFT OF THIS SECTION NAMED §0.05's ITEM 2 — the *"dark angled recess"* — AS
-THAT GEOMETRY, *"needs NO NEW MEASUREMENT"*. REV 73 THEN WENT AND LOOKED, AND WITHDREW IT (F295).**
-In RAW pixels the feature is **64 px below luminance 100, 30 × 12 px in a 480 × 320 JPEG, and it is
-a BENT LINE one to four pixels thick, not an area.** And the primary frame cannot corroborate it by
-construction: **`ref_side.jpg` shows the board almost exactly EDGE-ON**, so its FACE is invisible
-there — the same fact F276 used to kill item 1, applied to item 2. **Two readings survive and
-nothing separates them: a slot cut in the face, or the shadowed GAP between the board and the roof
-dome — which the model ALREADY produces, standing `+4.0 mm clear`.** Building the first would
-invent a feature and hide a correct one. **ITEM 3 IS NOW MEASURED (F296) AND ALSO LICENSES NO
-CHANGE.** So the honest geometry candidates for rev 74 are elsewhere: the tyres' TREAD, the tail's
-barrel, the shut lines, **F143 the roof loudspeakers (unmodelled for 57 revisions)** — **and every
-one of them needs its grounding checked FIRST, which is the lesson of items 2 and 3.**
+### **1. FIX §1's SIX RED ROWS.** Cheap, and it unblocks every future pickup. See §1.
 
-**⚠ AND ONE THING AN EARLIER DRAFT OF THIS SECTION GOT FLATLY WRONG, KEPT VISIBLE RATHER THAN
-QUIETLY EDITED.** It said *"the ranking's own #1 item has never been in any brief: `F67`, the contact
-shadow, `3.83e6 px²`"*. **THREE THINGS WERE WRONG:** F67 **IS the owner's own item D**, with whole
-sections in `NEXT_CONTEXT_PROMPT_rev60.md` §3.3 and `rev61` §2.1, and it was partly built at rev 61;
-**the figure was published at rev 71**; and **`HANDOFF_CARRIERS.md` grades it `CEILED`** — it is a
-compositor/lighting item, not geometry (`SURVEY_rev49_photoreal.md`: *"the contact shadow's magnitude
-is delivered on the direct path and matches its declared target… Do not re-tune `T1_SHADOW`"*).
-**So F67 is real and still the largest item on the delivery frame, and F291's point stands that it
-was not among the options the owner was shown — but it is CEILED, not new, and it will not satisfy
-rule 55.** Check its live residue (`hero.py`'s `T1_FX=0` on the **stitched** path) first.
+### **2. SHIP GEOMETRY. RULE 55 IS STILL THE BINDING CONSTRAINT.**
+⚠ **AND CHECK THE GROUNDING BEFORE YOU BUILD — THAT IS THE LESSON REV 74 PAID FOR TWICE.**
+**F143's roof loudspeakers are now RETIRED as a geometry item (F309): they are a POSE.** The
+identification was right, but **three frames of the same vehicle show the roof BARE** — decisively
+`ref_playa_34.png`, **the same location** as `ref_rear34.jpg`. Building it would plant removable
+event gear permanently into every delivery frame. `probe_scratch/r74_F143_grounding.png`.
+**So the live geometry candidates are: the tail's barrel, the shut lines, the glass, and the tyre
+tread's own open constants (§2.3).** Check each one's grounding FIRST.
 
-### **2. THE EMBLEM — THE FREE-ENDPOINT SPINE SHIPPED AT REV 73 (F301). LOOK BEFORE YOU TOUCH IT.**
-**`probe_scratch/rev73_emblem_render_ab.png` — the shipped build against the new one, rendered.**
-In the OLD build the W's right outer arm is a **DETACHED SLIVER floating inside the ring**, which is
-the owner's own F205 (*"the strokes still don't reach the ring"*). **In the new one both outer arms
-reach the ring**, the strokes are steeper and more parallel, nothing is fragmented.
-`T1_VW_FREE=0` ablates it back to the rev-72 spine exactly.
+### **3. THE TREAD'S COUNT, DEPTH AND DUTY ARE ALL DECLARED, NOT MEASURED (F308b).**
+`probe_rev74_tread.py`'s **T2 REFUSES to publish a count** and prints six estimates instead —
+**peak 55 / fft 64 / peak 61 / fft 74 / peak 48 / fft 84**, a **48..84 bracket** (1.73× on the unrounded floats the probe prints; 84/48 = 1.75 on the rounded ones — **quote the bracket, not the ratio**) — because two
+independent methods disagree by ~30 % and each moves with the radius. The pitch is **~3 px in a
+500×400 frame**. **`TREAD_LUGS = 64` has exactly the standing of `TB_WIDTH`'s "POSE CHOICE, NOT
+MEASURED".** ⚠ **AND THE FIRST CUT SHIPPED AN IRREGULAR TREAD — 99 of 384 cut in runs of 1 AND 2,
+because the phase threshold left the LEADING edge on the modulo wrap with zero margin (F319).
+Fixed, and T7 now MEASURES the regularity rather than trusting the comment.** ⚠ **DO NOT QUOTE 64 AS A MEASUREMENT, and do not read T6's recovery of 64 from the
+render as confirmation of it — that is rule 6.** **What would close it is a CLOSER TYRE FRAME, and
+`PHOTOS_WANTED` has never had a tyre item. Consider adding one.**
 
-**WHY IT SHIPPED, AND ON WHAT:** pose-free IoU **+0.0103 fit / +0.0060 independent**;
-`probe_rev46_vw`'s **L6 0.1532 against the photograph's 0.1528**; and **it was rendered, cropped and
-LOOKED AT** (rule 1, rule 56).
-⚠ **AND THE SPINE AND THE WEIGHT ARE A PACKAGE, NOT TWO SEPARABLE GAINS (F303). DO NOT SPLIT THEM.**
-The first draft of this line said *"the spine carries it — the weight alone buys +0.0015 / +0.0003"*.
-That is true only of the ON-BAND spine. **Put the free spine at F204's 0.2283 and the INDEPENDENT
-frame goes NEGATIVE: `fit 0.8531 (+0.0107) indep 0.8109 (−0.0106)`.** On the independent frame the
-two components sum to **−0.0103** while the ship is **+0.0060** — non-additive, and neither part
-carries it alone. **So anyone acting on §2.2's own "settle the weight" instruction by restoring
-0.2283 would silently regress the frame P4 exists to catch overfitting on.**
+### **4. THE EMBLEM.** His ninth report. P2 crossed its 0.85 bar at **0.8528** against P1b's own
+ceiling of **0.9465**, so it is still ~0.09 short, and **the objective still has no legibility term**
+(rule 56). **The weight is closed to further tuning by F314 but is NOT resolved** — F302 and F303
+both stand. **F252's option (C)** — the 1400-start global search, **0.7586 / 0.6698** — is still
+built by nobody; ⚠ **and every figure in that row was computed on the BROKEN RULER (F246) and has
+never been re-run** (F316b(d): the rev-74 brief carried those figures without that ceiling, which is
+F289 recurring).
 
-⚠ **WHAT IT COST, AND DO NOT LET THIS GO UNREAD: C4's landmark residual regressed 0.0689 → 0.0745**
-against a 0.045 bar it fails either way. §0.07 and F184 hold those L-landmarks *"optimise a quantity
-that is not the defect"* and name the pose-free IoU as the objective — **but two photograph-facing
-rulers disagree about this change and rev 73 followed one of them.** If you can build a legibility
-term (there still is none), that is the tiebreak the objective has always lacked.
+### **4b. THE TREAD'S ONE MEASURED COST IS OPEN (F318).** `probe_rev70_tyre.py`'s T2 moved
+**0.2457 → 0.2522** (1.26× → 1.29×) — **16× its measured two-render floor of 0.0004**, so real; but
+**2.6 % against the probe's own `±20 %` ceiling**, and **its painted band straddles the wheel-arch
+shadow and the outer silhouette** (`probe_scratch/rev70_tyre_render.png`), so the mechanism is NOT
+established. ⚠ **DO NOT "FIX" IT BY LOWERING `T1_TYRE_FILM`** — that tunes shading to mask geometry
+and leaves the ablation too dark. **Give T2 a band MEASURED to lie inside the rubber (paint it
+first) and re-read both frames.**
 
-⚠ **AND THE WEIGHT IS NOT SETTLED (F302).** It ships at **0.2205**, the LIVE L6 crossing. F204 fixed
-0.2283 on TWO agreeing statistics; **live L6 reads 0.1579 at 0.2283 against F204's recorded 0.1530**
-(`T1_VW_RES` does not change it), and **the second statistic CANNOT BE RE-RUN — it is not in the
-tree.** `T1_VW_WSWEEP`'s `_ink_frac` is NOT it: it reads the whole disc at `frac=0.97`, band
-included, prints **photograph 0.6062** against F204's **0.525**, and puts the build ABOVE the
-photograph where F204 has it below — value and SIGN both differ. `grep -rn "inboard" --include=*.py`
-finds it in no emblem probe. **RE-IMPLEMENTING F204's ink-strictly-inboard-of-the-band statistic,
-not re-running it, is what would settle 0.2205.**
-
-* **STILL OPEN, AND UNCHANGED BY THIS:** F252's **option (C)** — the 1400-start global search,
-  **0.7586 / 0.6698**, *"the only one of the three that improves BOTH frames"* — **is still named in
-  no brief and has never been built.** `probe_rev71_emblem.py`, `T1_REV71_SEARCH=ABC`, ~9 min.
-  `T1_REV71_SCORE=1` scores BOTH spines at BOTH weights on this probe's own targets, with the
-  REV-72 on-band pair as a control that REFUSES if it drifts (~2 min). ⚠ **It REFUSED on the shipped
-  tree until rev 73's close — F303 — because its control read whatever ships.**
-* **⚠ AND THE ONE THING STILL WAITING ON HIM, WHICH THE §2.2 REWRITE DROPPED AND A RULE-17
-  ADVERSARY PUT BACK (rule 16): THE STROKE WEIGHT IS CONTESTED AND THE CROP IS READY.**
-  **`probe_scratch/rev73_emblem_free_ab.png`** — photograph | shipped | free — is the image to put
-  to him. **F299:** `probe_rev69_fitpose` prints *"photo-only/model-only inside the ring is 73/178 —
-  NEAR BALANCED"* and **73 against 178 is 2.4×**, so F104/F235/F237's *"the ink AMOUNT is right and
-  the ARRANGEMENT is wrong"* — carried in every brief since rev 60 — **is not supported by the
-  instrument it rests on.** **F303:** on the pose-free IoU the search's **0.20429** beats the shipped
-  **0.2205** by **+0.0129 / +0.0089** — *more than the ship itself gained* — while L6 says 0.2205.
-  **TWO RULERS, TWO ANSWERS, AND REV 73 TOOK ONE FOR THE SPINE AND THE OTHER FOR THE WEIGHT.**
-  **ASK HIM, as multiple choice, with that image attached.**
-* Rule 56 still stands: **the objective has no legibility term, and the traced glyph renders as
-  SHARDS (F262).** Watch any new term REJECT the traced glyph before trusting a search against it.
-
-### **3. THE NOSE — CLOSED AT REV 73 AS FAR AS A `front` FRAME CAN CLOSE IT (F284/F285). READ THE CEILING BEFORE RE-OPENING IT.**
-`probe_rev67_nose.py`'s **P3 now reads the render's bumper edge** — the first render-side reading
-this project has had. **BEFORE `rms 113.70 px = 12 % of span, 481 of 481 points clipped, REFUSED`;
-AFTER `sagitta +0.45 px ± 0.07 over 640 px, rms 0.81 px, 0 of 340 clipped, ONE EDGE`.**
-**⚠ AND REV 73's OWN CENTRAL CEILING WAS TOO STRONG AND ITS OWN ABLATION REFUTED IT (F292/F294).**
-`P3w` proves the **WINDOW** is X-blind (100 mm along X moves a window anchor's pixel by
-**0.000e+00**), and the first draft slid from that to *"the reading says NOTHING about `BUMP_BOW`"*.
-A rule-17 adversary caught the slide: **`T1_BUMP_BOW` had never been run — rule 36 unfired on the
-headline row.** It was run, then laddered to six rungs (0.00–2.50), all tracing as ONE EDGE,
-two-render floor **0.0026 px**.
-**DETECTION YES** — 0.00 against 1.00 is **0.3776 px, 145× the floor, 3.7σ**. The trace IS
-bow-sensitive, not geometrically but **PHOTOMETRICALLY**: bowing the blade turns it against the
-light and moves the sub-pixel red/cream threshold.
-**INVERSION NO** — the first rung is **0.2σ, UNRESOLVED** (⚠ *on the between-render floor alone it
-is 7.9× and a real inversion; the two noise models disagree and rev 73 does not know which is
-right*), the slope varies **170×** across the range and reverses sign once, and the blow-up's onset
-is unconstrained anywhere in **31.6–52.7 mm**. **F231's *"cannot be recovered"* STANDS; what
-survives is a REGRESSION DETECTOR.** ⚠ **SHADING IS NOT A RULER — 0.3776 px converts to no
-millimetres.** Full table, every sagitta/rms/mesh bow, and the 3/4 route's rule-6 trap:
-**`HANDOFF_CARRIERS.md` §0.10**; also `LEDGER_rev73.md` §4b. **DO NOT RE-RUN IT.**
-
-**`P3c` FAILS BY DESIGN on a `front` frame** — 340 of 641 columns, vertex u 839 in the gap
-836–847, because the cream V-swage meets the cream bumper at the centreline. **READ ITS MESSAGE.**
-**DO NOT ASK HIM THE NOSE AGAIN — both askings are spent (F214/F215).**
-
-### **4. THE GLOSS — F239's PRESCRIPTION IS CLOSED BY MEASUREMENT. DO NOT RE-RUN THIS GRID.**
-**Eight of the 3 × 3** of `T1_BODY_RGH` × `T1_REFLENV`, 10 renders, two-render floor
-**0.001 spread / 0.002 headroom**. **NOTHING SHIPPED.** **F239's *"the binding constraint is the
-ROUGHNESS"* IS NOT SUPPORTED:** against the floor only two steps clear it — `0.416 → 0.411` at
-env 1.0 and `0.412 → 0.408` at env 0.0 — and **at env 21.0 the three cells read
-`0.388 / 0.388 / 0.388`, no cost at all.** Lowering roughness never HELPS at any environment level;
-where it moves the gate it moves it DOWN. The only cell above shipped is **environment ALONE at
-1.0**, and it is **INVISIBLE**: A/B **2.367 %** of pixels >8 levels against a **2.044 %** floor
-(read through `photometry.read_png`, integer-scaled — PIL's uint8 path gives 2.058 %/2.387 %, which
-is F263 in miniature), `>32` levels **0.044 % vs 0.043 %**. **CHROMA COST on F266's Raw path: red
-linear G/R `0.1091 → 0.1099`.** ⚠ **DO NOT PUT A SINGLE FIGURE ON THE PHOTOGRAPH'S SIDE — the probe
-prints the prohibition itself: *"0.0149 .. 0.0344, a 2.3x span. DO NOT QUOTE A SINGLE FIGURE FOR
-IT."*** Full nine-cell table: **`HANDOFF_CARRIERS.md` §0.11**, and `LEDGER_rev73.md` §3.
-
-**WHAT IS STILL OPEN: the gate misses by 30 % and neither lever reaches it. F62's own answer —
-*"this flank's specular image is white cyclorama 19.3 m away"* — is now the only one left, and the
-owner has ruled *"keep studio"* TWICE. If you want to re-open it, ask him; do not just do it.**
-
-### **5. F156 — the `Senor` gate row scores a DELIBERATE DEPARTURE.** ELEVEN revisions unacted (rule 40).
+### **5. F156 — the `Senor` gate row scores a DELIBERATE DEPARTURE.** TWELVE revisions unacted (rule 40).
 
 ---
-## §3 WHAT REV 73 CLOSED — **DO NOT RE-OPEN ANY OF IT**
+## §3 WHAT REV 74 CLOSED — **DO NOT RE-OPEN ANY OF IT**
 
 | closed | the result |
 |---|---|
-| **THE NOSE'S P3 (F284)** | **WINDOWED AND PASSING.** Window PROJECTED off `hl_ring`/`ind*_lens`/`tyre*` through `studio.views()["front"]`, **never off the bumper**. `T1_NOSE_NOWIN=1` watched; rule-42 and rule-37 refusals watched. **Two of its own defects caught by its own controls first: the tyres are `tyre1.31` not `tyre.001`, and `aim()` leaves `matrix_world` stale (u 1745 on a 1600 px frame).** |
-| **F239's UNTRIED PAIRING (§2.4)** | **NULL, and the surviving claim REFUTED.** See §2.4. |
-| **`probe_rev71_red.py` (F286)** | Died on a **bare traceback with no summary line** on the command §4 prints. **Rule 9 had nothing to read.** Fixed and watched: rc 3, `0 checked, 0 FAILED, 1 REFUSED`. |
-| **F275's "bare" COUNT (F287)** | *"bare → 2 checked"* is the **`--nomesh`** reading; **bare is 4**. Wrong in five carriers **including the guard row written to lock it, which was NAMED "bare" and RAN `--nomesh`**. Renamed + companion row. |
-| **THE `BUMP_BOW` LADDER (F294)** | **DETECTION YES, INVERSION NO.** Six rungs, floor 0.0026 px. The slope varies **170×** across the range and reverses sign once; the blow-up's onset is unconstrained anywhere in 31.6–52.7 mm. **F231's *"cannot be recovered"* stands.** What survives is a regression detector at 145× the floor. **DO NOT RE-RUN IT.** |
-| **§0.05 ITEM 2, THE RECESS (F295)** | **CANNOT BE BUILT FROM WHAT WE HOLD.** 64 px, 30 × 12, a bent LINE not an area, in one 480 × 320 frame; the primary frame is EDGE-ON and cannot see a face feature at all. Two readings survive and nothing separates them. |
-| **§0.05 ITEM 3, THE TILT (F296) — ⚠ HALF RETRACTED SAME REVISION (F300)** | **WHAT STANDS: the RENDER-SIDE CALIBRATION** — the ortho `side` view projects an XZ angle TRUE and two detectors recover the mesh's own 38.0 from pixels. **WHAT IS WITHDRAWN: the whole photograph half.** Its bracket's span WAS the detector's own 8° separation constant. **ITEM 3 IS STILL NOT MEASURED.** `probe_rev73_tailboard.py` reads 5 checked, 1 FAILED — T4 sweeps and REFUSES BY DESIGN. |
-| **THE EMBLEM'S SPINE (F301/F301b)** | **SHIPPED — GEOMETRY, AND VISIBLE.** Free endpoints, `T1_VW_FREE=0` ablates. IoU **+0.0103 / +0.0060** (both frames), L6 **0.1532** vs the photograph's 0.1528, and **rendered and looked at**. **THREE CONTROLS WENT RED AND ALL THREE WERE RIGHT** — the proxy stopped matching the mesh, C12 perturbed a dead constant, C3/C5's baseline collapsed; each repaired at its cause. ⚠ **C4's residual regressed 0.0689 → 0.0745.** |
-| **F228's FLOOR** | **RE-MEASURED: 2.044 % / worst 41** on hero34f, against the published 2.441 % / 40. ⚠ F228's frame and view are unrecorded, so say **"2.044 % on hero34f"**, not "F228 was wrong". |
+| **THE TYRE'S TREAD (F308)** | **SHIPPED — GEOMETRY, AND IT REACHES THE RENDER.** T3 goes **0.0000 → 0.0060 m**; T4's KILL WATCHED restoring the revolve; T5 reads `TYRE_D` unmoved to **5.56e-10 m** (grooves cut INWARD, so a locked dimension cannot move *by construction*). `VERIFY: 0 fail, 0 warn`. |
+| **IS IT VISIBLE? (F308)** | **THE PIXEL-DIFF STATISTIC IS A FLAT NULL — INCLUDING LOCALLY.** front wheel `4.418 %` change vs `4.372 %` box-local floor = **1.01×**; rear **1.04×**; whole frame **1.00×**. ⚠ **I read the painted diff's two bright wheel rings as localisation and the box floor REFUTED it — they are a noise feature.** **WHAT SEES IT IS STRUCTURAL: the rendered silhouette's angular rms goes 0.0503 → 0.5286 px at exactly 64 cycles/rev, amplitude 4 → 161 (on `out/r74f_side.png`; the irregular first cut read 0.4499 / 130). ⚠ **THE FLOOR IS A RECORDED READING, NOT ONE ANY ROW RECOMPUTES (F320f)** — it was read once on a frame of the ablated tree that is not retained, so `0.0503 / 4` are STRING LITERALS in T6's message, which now says so. **Re-derive them with one `T1_TYRE_TREAD=0` render before quoting.** The *reasoning* is sound (a revolve has no angular structure); the *figures* are unverified.** |
+| **F143, THE ROOF LOUDSPEAKERS (F309)** | **RETIRED AS A GEOMETRY ITEM — IT IS A POSE.** 57 revisions of the record called it *"an unmodelled object"* without anyone checking whether it belongs to the vehicle. ⚠ **And its second frame is not an independent sighting**: that crop sits where the mural board, its frame, its bulb string and the roof all overlap. |
+| **THE OWNER'S WEIGHT QUESTION (F313/F314/F315)** | **ASKED AND ANSWERED.** The crop the rev-74 brief pointed at was **stale** (captioned `SHIPPED wfrac 0.2283`; 0.2205 ships) **and compared an oblique photograph against head-on masks** — F184's trap. Rebuilt in one projection. **And fitting each candidate to its own pose inflated the A/B from 89 px / 2.83 % to 226 px / 7.20 % — more than half the apparent disagreement was POSE.** |
+| **MY OWN HEADLINE ROW (F310)** | **WRONG FIRST TIME, CAUGHT BY WATCHING IT FAIL.** T3's first cut pooled every crown vertex and read the PROFILE's radial variation — a confident `0.0119 m` PASS on a tyre that IS a revolve. Fixed by binning on exact `y`. **Written after the build it would have passed for the wrong reason and guarded nothing.** |
 
 ---
-## §3b ⚠ REV 72's AND REV 73's FIXES ARE LOCKED. YOU CANNOT REGRESS THEM SILENTLY.
+## §3b ⚠ REV 72's, 73's AND 74's FIXES ARE LOCKED. YOU CANNOT REGRESS THEM SILENTLY.
 
-**11 behavioural rows in `verify_clone.sh` and 8 in `bootstrap.sh --guards` from rev 72, plus rev
-73's.** They RUN the thing and read what it does (rule 50). **YOU MAY IMPROVE ANY OF IT; YOU MAY NOT
-SILENTLY UNDO IT.** A red row is a FINDING ABOUT YOUR CHANGE. A re-base needs the cause NAMED **and**
-a companion row making that cause separately testable.
+They RUN the thing and read what it does (rule 50). **YOU MAY IMPROVE ANY OF IT; YOU MAY NOT SILENTLY
+UNDO IT.** A red row is a FINDING ABOUT YOUR CHANGE. A re-base needs the cause NAMED **and** a
+companion row making that cause separately testable. **§1's six rows are the one exception already
+diagnosed — fix them with the cause named, per F311** (and read F312b before touching the fifth).
+**Rev 74 added FIVE rows of its own** covering the tread: the probe's clean run, the mesh reading
+that the tyre is not a revolve, the `T1_TYRE_TREAD=0` KILL, the tread's REGULARITY (128 of 384), and
+T5b's distinction between the max radius and the bbox extent `verify.py` actually locks. **They are
+deliberately FRAME-INDEPENDENT so they cannot repeat F311.**
 
 **RUN `./bootstrap.sh --guards` ONCE THIS REVISION** (~10 min, and it BUILDS BLENDER EIGHT TIMES —
-**do not run it while the §0 queue is going**, `CLAUDE.md` says do not fan out Blender). It is the
-only thing that exercises the five rear-hatch kills. **AT REV 73 IT PAID: it read
-`T1_REAR_SEALSTAY=1 → 2 fail` against the rev-73 brief's `# 1 fail` (F288).**
+**not while the §0 queue is going**). It is the only thing that exercises the five rear-hatch kills.
 
 ---
 ## §4 THE MACHINE
 
 ```bash
-./bootstrap.sh                                # 10 PASS -- read ROW 9
-./bootstrap.sh --guards                       # ALL 25 PASS.  NOT while a render queue runs
-./verify_clone.sh                             # ALL 423 PASS -- 0 FIDELITY, 423
-  # SELF-CONSISTENCY.  READ THE VERDICT BLOCK TOO: not one row measures the vehicle
-  # against a photograph, so never quote this total as fidelity
+./bootstrap.sh                                # READ ROW 9
+./bootstrap.sh --guards                       # NOT while a render queue runs
+./verify_clone.sh                             # 0 FIDELITY rows.  READ THE VERDICT BLOCK:
+  # not one row measures the vehicle against a photograph, so never quote its total as fidelity
 T1_SUB=1 T1_VERIFY=1 /tmp/blender/blender -b -P build.py     # -> "VERIFY: 0 fail, 0 warn"
 python3 photometry.py                         # 9 checked, 0 FAILED
-python3 probe_rev67_nose.py out/r74_front.png    # 7 checked, 1 FAILED -- P3c BY DESIGN.
-  # PASS IT THE `front` FRAME: it REFUSES any other by name (rule 42).  --nomesh -> 1 ABSENT,
-  # because the window is PROJECTED and there is no window without the build (~74 s).
-  # BARE reads 4 checked / 1 ABSENT, NOT 2 -- 2 is the --nomesh count (F287).
-T1_NOSE_NOWIN=1 python3 probe_rev67_nose.py out/r74_front.png   # THE KILL.  P3 must go RED
-python3 gloss_compare.py out/r74_hero34f.png      # PASS IT A FRAME
-python3 flank_compare.py out/r74_side.png /tmp/fc.png   # 0.676 (i) at rev 73, NOT 0.689
-python3 probe_rev69_fitpose.py                # 5 checked, 1 FAILED -- P4 only.
-  # ⚠ P2 CROSSED ITS BAR ON THE SHIP: 0.8425 -> 0.8528 against a 0.85 bar, so a
-  # photograph-facing gate went RED -> GREEN (F305).  T1_VW_FREE=0 puts it back red.
-  # ⚠ AND P4's MESSAGE NO LONGER MATCHES ITS OWN NUMBERS -- the trace now LOSES on
-  # its source frame and WINS on the independent one, the inverse of the argument
-  # the message makes.  Read the NUMBERS, not the prose (F305, rule 56 still holds)
-python3 probe_rev71_emblem.py                 # ⚠ T1_REV71_SEARCH=AB is ~13 MIN, not the 40 s
+python3 probe_rev74_tread.py out/r75_side.png   # NEW at rev 74.  8 checked, 0 FAILED.
+  # NAME YOUR FRAME: with no argument it takes the alphabetically-last out/*_side.png and
+  # PRINTS which -- rev 74 attributed a reading to a frame a probe could not have read
+  # (F320c).  Bare, with an empty out/, T6 SKIPS and says so: 7 checked, 0 FAILED, 1 ABSENT
+  # -- the pattern §1 wants, and why verify_clone's five new tread rows pin FAILED not CHECKED
+T1_TYRE_TREAD=0 python3 probe_rev74_tread.py  # THE KILL.  T3 must go RED (0.0000 m)
+python3 probe_rev67_nose.py out/r75_front.png
+  # ⚠ THE REV-74 BRIEF SAID "7 checked, 1 FAILED -- P3c BY DESIGN".  ON out/r74_front.png IT
+  # READ 7 checked, 0 FAILED AND P3c PASSED (F316).  THE OUTCOME IS FRAME-DEPENDENT.  NAME
+  # YOUR FRAME AND READ THE ROWS -- do not assume a red P3c is by design
+python3 probe_rev73_tailboard.py              # ⚠ 5 checked, **2** FAILED on out/r74_side.png --
+  # T3 (a WATCHED KILL, bar 1.5, the -7.0 rung misses at 1.75) AND T4.  The rev-74 brief said
+  # 1.  Cause NOT established: no source moved, rev 73's frame is gone, and T3's bar has no
+  # floor under it.  TWO side renders of ONE tree would settle it (F312)
+python3 probe_rev46_vw.py                     # 12 checked, 2 FAILED -- C4 AND C10 (F304)
+python3 probe_rev69_fitpose.py                # 5 checked, 1 FAILED -- P4 only.  ⚠ P1's MESSAGE
+  # hardcodes a 0.9703 ceiling while P1b prints 0.9465; read the NUMBERS, not the prose
+python3 gloss_compare.py out/r75_hero34f.png ; python3 flank_compare.py out/r75_side.png /tmp/fc.png
+  # ⚠ flank_compare read 0.688 on out/r74_side.png, NOT the 0.676 the rev-74 brief printed
 python3 probe_rev71_proxy.py                  # must read IoU 1.000000
-python3 probe_rev71_red.py out/r74_side.png --transform=agx   # REFUSES *with a summary line* now
-  # F266's PHYSICS RECIPE: render Raw 16-bit stopped down (T1_VT=Raw T1_LOOK=None T1_EXP=-2.5)
-  # and pass --transform=raw.  He asked for physics closed; do not lose the pointer.
-  # T1_DIFFB / T1_SPEC / T1_CYCALB / T1_BODY_COAT are the ablations.
-python3 probe_rev71_bulbs.py out/r74_side.png # ceiling is DILUTION, not misplacement (F250)
-python3 probe_rev72_bits.py out/r74_hero34f.png   # 5 checked, 1 FAILED -- B4 REFUSES BY DESIGN
-python3 probe_rev73_tailboard.py             # NEW at rev 73.  5 checked, 1 FAILED --
-  # T4 SWEEPS its own peak-separation constant and REFUSES BY DESIGN (F300).  It
-  # CALIBRATES on the mesh's own 38.0 before it reads a photograph, and its T3 row is a
-  # 7-degree ROTATION KILL.  Bare it needs a *_side.png in out/ and REFUSES without one
-python3 probe_rev70_tyre.py out/r74_side.png ; python3 probe_rev46_vw.py
-python3 visibility_budget.py 3840 out/r74_hero34f.png ; python3 revstats.py
+python3 probe_rev71_red.py out/r75_side.png --transform=agx   # REFUSES with a summary line
+  # F266's PHYSICS RECIPE: T1_VT=Raw T1_LOOK=None T1_EXP=-2.5, then --transform=raw
+python3 probe_rev70_tyre.py out/r75_side.png ; python3 probe_rev46_vw.py
+python3 visibility_budget.py 3840 out/r75_hero34f.png ; python3 revstats.py
 T1_SUB=2 /tmp/blender/blender -b -P audit.py            # rewrites STATE.md -- COMMIT FIRST
 python3 audit_brief.py ; python3 audit_adversary.py     # rules 15/17, MECHANICAL half only
 ```
 
-**THE ABLATIONS THAT MAKE GATES REFUSE — `--guards` RUNS ALL OF THESE. The fail counts below are
-`--guards`' OWN OUTPUT at rev 73, not typed (F288):**
+**THE ABLATIONS THAT MAKE GATES REFUSE.** ⚠ **`--guards` RUNS ONLY THE `T1_REAR_*` BLOCK — the four
+below it are HAND-RUN, and the rev-74 brief's heading claimed otherwise for three of them
+(`grep -n "TYRE_TREAD\|NOSE_NOWIN\|VW_FREE" bootstrap.sh` finds nothing). Corrected here rather than
+inherited:**
 ```bash
 T1_REAR_SEAL=0      -> 1 fail      T1_REAR_SEALSTAY=1  -> 2 fail
 T1_REAR_NOSWING=1   -> 1 fail      T1_REAR_SEALSHIFT=1 -> 2 fail
 T1_REAR_FOLD=1      -> 1 fail      T1_REAR_OPEN=0      -> 0 fail (HONEST close)
 T1_REAR_OPEN=-64    -> REFUSES at the parse site, naming the switch (F281)
-T1_NOSE_NOWIN=1     -> P3 RED (rev 73, F284)
-T1_VW_FREE=0        -> ablates the emblem's free spine back to rev 72's (F301);
-                       probe_rev46_vw's L6 goes 0.1532 -> 0.1579 and C12 names
-                       VW_W_ARM_X instead of VW_FREE_W_ARM_X
+T1_NOSE_NOWIN=1     -> P3 RED (F284)
+T1_VW_FREE=0        -> ablates the emblem's free spine to rev 72's (F301)
+T1_TYRE_TREAD=0     -> NEW at rev 74.  probe_rev74_tread's T3 goes 0.0060 -> 0.0000 m,
+                       and the tyre is a surface of revolution again (F308).
+                       verify_clone.sh RUNS this one -- it is the row that stops
+                       _cut_tread being deleted silently
 ```
 
 **FACTS THAT BITE:** `bootstrap.sh` fails 3/10 without pillow. The render is **not** run-to-run
-deterministic — floor **2.044 %** of pixels >8 levels, worst channel 41, on hero34f at 1600×1100/96
-spp (F228's published 2.441 %/40 is on an unrecorded frame). `lid_gen.py` / `script_gen.py` are
-**not** called by `build.py`. `audit.py` rewrites `STATE.md` — **commit first**, and
-`audit_adversary.py` has a row that goes red when `STATE.md` is stale for the geometry. `ck` in
-`verify_clone.sh` collapses whitespace. **A backgrounded runner's `rc=$?` is the redirect's — and
-so is `rc=$?` after a PIPE, which is how rev 73 first mis-read this probe suite's exit codes.**
-`bpy` is a pip module, so most probes run in ~1 s without the Blender CLI.
+deterministic — floor **~2.04 %** of pixels >8 levels on hero34f at 1600×1100/96 spp, **and take the
+floor IN THE BOX YOU ARE READING: it is 4.37 % inside the front-wheel box and 7.90 % on the body**
+(F308). `lid_gen.py` / `script_gen.py` are **not** called by `build.py`. `audit.py` rewrites
+`STATE.md` — **commit first**. `ck` in `verify_clone.sh` collapses whitespace. **A backgrounded
+runner's `rc=$?` is the redirect's.** `bpy` is a pip module, so most probes run in ~1 s.
 
 ---
 ## §5 THE RULES THAT WILL BITE YOU
 
-Full canon in `HANDOFF_CARRIERS.md` §5 — **⚠ WHICH CARRIES RULES 34–58 ONLY. RULES 1–33 ARE IN
-`NEXT_CONTEXT_PROMPT_rev50.md` §11**, as that file's own first line says; the rev-73 brief pointed
-at the wrong file. **AND §5 CONTAINS TWO DIFFERENT RULE 56s AND TWO DIFFERENT RULE 57s, AND RULE 42
-MEANS TWO DIFFERENT THINGS IN LIVE SOURCE** (*"a control's kill is a precondition on its pass"* in
-`probe_rev46_vw.py`, *"a control must be framed the way its measurement is framed"* in
-`probe_rev67_nose.py`). **UNRESOLVED — do not renumber silently, and say which you mean.**
+Full canon in `HANDOFF_CARRIERS.md` §5 — **⚠ WHICH CARRIES RULES 34–58, THOUGH ITS OWN FIRST LINE
+SAYS 34–52. RULES 1–33 ARE IN `NEXT_CONTEXT_PROMPT_rev50.md` §11.** **AND §5 CONTAINS TWO DIFFERENT
+RULE 56s AND TWO DIFFERENT RULE 57s, AND RULE 42 MEANS TWO DIFFERENT THINGS IN LIVE SOURCE.**
+**UNRESOLVED — do not renumber silently, and say which you mean.**
 
-1. **RENDER IT, CROP IT, AND LOOK AT IT.** Rev 73's P3 passed at rms 0.81 px and the PAINT showed
-   the trace broken across the middle — which is the whole of F285.
-3. **A control is finished when you have WATCHED IT FAIL.** Rev 73 watched five.
-6. **A guard that derives its threshold from the expression it checks is a tautology.** P3w TESTS
-   this rather than claiming it.
-8. **PAINT THE WINDOW BEFORE THE NUMBER.** Twice this revision it was the paint, not the
-   arithmetic, that caught the defect.
-9. **READ THE SUMMARY LINE, NOT THE EXIT CODE** — and if a probe has no summary line to read, that
-   is a defect in the probe (F286).
+1. **RENDER IT, CROP IT, AND LOOK AT IT.** Rev 74's tread was confirmed by a silhouette trace *and*
+   by looking; its pixel-diff A/B is a flat null and would have said "nothing shipped".
+3. **A control is finished when you have WATCHED IT FAIL.** Rev 74's T3 was watched at 0.0000 m —
+   **and the first version of T3 passed at 0.0119 m on the very defect it exists to detect (F310).**
+6. **A guard that derives its threshold from the expression it checks is a tautology.** T6 recovers
+   64 cycles/rev from a render built with `TREAD_LUGS = 64`; that is NOT evidence 64 is right.
+8. **PAINT THE WINDOW BEFORE THE NUMBER.** Rev 74's first two tread windows were both off the tread.
+9. **READ THE SUMMARY LINE, NOT THE EXIT CODE.**
 12. **Report the measurement WITH ITS CEILING.**
-37. **AN ABSENT INPUT MUST NEVER READ AS A MEASUREMENT.**
-46. **A REFUTATION INHERITS ITS INSTRUMENT** — F289 is this rule firing on the brief itself.
-49. **A DIFFERENCE WITH NO FLOOR UNDER IT IS NOT A MEASUREMENT.**
-50. **A GREP IS NOT A REGRESSION TEST** — and neither is a row's NAME (F287).
+37. **AN ABSENT INPUT MUST NEVER READ AS A MEASUREMENT** — and it must not read as a FAILING one
+    either. **That is F311, and it costs the next context its pickup.**
+49. **A DIFFERENCE WITH NO FLOOR UNDER IT IS NOT A MEASUREMENT** — **and take the floor IN THE SAME
+    WINDOW.** Rev 74 read a whole-frame floor, called a localised change visible, and its own
+    box-local floor refuted it.
+50. **A GREP IS NOT A REGRESSION TEST** — `audit_brief.py`'s regex cannot match a command line with a
+    frame argument, so it is blind to the largest instance of its own class (F316).
+54. **A CONSTRUCTION THAT CANNOT EXPRESS THE DEFECT CANNOT BE TUNED INTO EXPRESSING IT.** The tyre is
+    the second instance; the emblem's on-band spine was the first.
 55. **EVERY REVISION SHIPS A VISIBLE CHANGE TO THE VEHICLE, OR SAYS PLAINLY WHY IT COULD NOT.**
-    **REV 73 DID: the emblem's free-endpoint spine (F301), 123 geometry lines.** ⚠ **THE FIRST DRAFT
-    OF THIS LINE SAID *"REV 73 COULD NOT"* AND POINTED AT THE TOP OF THIS FILE — WHICH SAYS THE
-    OPPOSITE. It was pre-ship text that survived the ship.** That is the defect F306 exists for,
-    committed in the rules section that names it.
+    **REV 74 DID: the tyre's transverse tread (F308).**
 56. **AN INSTRUMENT CAN RANK A THING THE EYE REJECTS, AND IT WILL NOT TELL YOU** (F262).
 
 ---
@@ -324,19 +244,14 @@ MEANS TWO DIFFERENT THINGS IN LIVE SOURCE** (*"a control's kill is a preconditio
 | file | what it holds |
 |---|---|
 | **`HANDOFF_CARRIERS.md`** | every carrier: the goal, the reference set, §2's refuted emblem routes, §4 the owner's rulings, §5 rules 34–58, the horizon |
-| `OPEN_FINDINGS.md` | the register. **F284–F305 are rev 73's** (23 rows, including F289b and F301b; F296's photograph half is retracted by F300 and F285's by F292 — read the annotations, not just the rows). It outranks prose |
-| `STATE.md` | machine-written; outranks every prose description. **Regenerate it before trusting a row that reads it — 19 verify rows do** |
-| `LEDGER_rev73.md` | what rev 73 did, **and §6, the four things it got wrong in its own work** |
+| `OPEN_FINDINGS.md` | the register. **F308–F320 are rev 74's** (16 rows, including F308b, F312b and F316b). It outranks prose |
+| `STATE.md` | machine-written; outranks every prose description. **Regenerate it before trusting a row that reads it** |
+| `LEDGER_rev74.md` | what rev 74 did, **including the reading it made and then refuted itself** |
 | `photometry.py` | the measurement protocol, with a selftest |
 | `SPEC.md`, `REF_MEASUREMENTS.md`, `SURVEY_rev49_photoreal.md`, `ROADMAP_rev68.md`, `PANEL_rev61.md`, `REMAINING_WORK_rev61.md`, `PHOTOS_WANTED_rev49.md`, `PHOTOS_WANTED_rev52.md`, `EMBLEM_HANDOFF.md` | large; load the one the task needs |
 
-**⚠ IDs THIS BRIEF LEANS ON WITHOUT NAMING, SO A GREP FINDS THEM (rule 16): `F282`** his spent
-one-revision ruling, **`F252`** the free-endpoint row and its option (C), **`F246`** the broken
-ruler, **`F277`** the refuted elevation-frame prescription, **`F231`** "cannot be recovered",
-**`F222`/`F223`** the bumper, **`F283`** the `--guards` false failure, **`F267`** the branch-prose
-defect, **`F71`**/**`F254`** the rear pane, **`F21`** paint-or-light answered by **`F266`**,
-**`F143`** the loudspeakers, **`F298`/`F299`** the glyph looked at and the mark's weight,
-**`F303`** the weight two rulers disagree on, **`F304`** C10's vacuous raster.
+**⚠ IDs THIS BRIEF LEANS ON WITHOUT NAMING, SO A GREP FINDS THEM (rule 16): `F277`, `F283`, `F71`,
+`F254`, `F21`, `F298`, `F304`, `F222`/`F223`, `F231`, `F242`, `F262`, `F276`, `F282`, `F295`.**
 
 ---
 ## §7 HOW TO CLOSE
@@ -345,66 +260,11 @@ defect, **`F71`**/**`F254`** the rear pane, **`F21`** paint-or-light answered by
 **Any single measurement off is unacceptable** — per-measurement, not on average. **Never call it
 done off self-review. Report the measurement with its ceiling. Do not say anything is ready.**
 
-1. `./bootstrap.sh` and `./verify_clone.sh` all-PASS on a **clean** tree.
+1. `./bootstrap.sh` and `./verify_clone.sh` all-PASS on a **clean** tree. **See §1 first.**
 2. `python3 revstats.py` — **put its geometry/closure line in the ledger header; if the revision
    shipped nothing, say so at the TOP** (rule 55).
 3. Regenerate `STATE.md` (`T1_SUB=2 … audit.py`) — **commit first**.
 4. **DISPATCH an adversary at the brief you WROTE (rule 17), and one at the brief you RECEIVED
-   (rule 15). DO NOT CLOSE UNTIL BOTH REPORT.** ⚠ **AND RE-RUN THE OUTGOING ONE AFTER ANYTHING
-   SHIPS.** Rev 73 audited its brief, then shipped geometry, and the brief went stale in the same
-   hour (F306).
+   (rule 15). DO NOT CLOSE UNTIL BOTH REPORT.** ⚠ **AND RE-RUN THE OUTGOING ONE AFTER ANYTHING SHIPS.**
 5. **Keep the split, and KEEP THIS FILE SHORT.** `cp` it over `PASTE_INTO_CLAUDE_CODE.txt` in the
    same commit. `python3 audit_brief.py --fix-count` LAST.
-
----
-**⚠ THIS BRIEF WAS AUDITED AGAINST THE MACHINE, AND BOTH HALVES OF RULE 17 WERE RUN.**
-
-`audit_brief.py` **14 checked, 0 FAILED** — and it FAILED FIRST, on the row count; the two extra rows are F306's own.
-`audit_adversary.py` **61 asked, 0 BROKE** — and it BROKE at pickup on *"is `STATE.md` CURRENT for
-the geometry? (19 verify rows read it)"*, a staleness inherited from rev 72's close;
-`STATE.md` was regenerated. ⚠ **ITS DIFF IS THREE PROVENANCE LINES AND NOTHING ELSE — AND THE FIRST
-DRAFT READ THAT AS *"the machine agreeing that rev 73 moved no geometry"*, WHICH IS THE WRONG READING
-OF THAT SILENCE.** Rev 73 then shipped geometry and the diff was still three provenance lines:
-**`STATE.md` publishes NO nose-glyph metric at all** (its `hubcap badge` rows are a different
-object), so it cannot see an emblem change. **Its silence is a gap in the instrument, not evidence
-about the vehicle** — and that gap is not closed. **`verify_clone.sh` then failed THREE rows on the
-first handoff commit — the modified-tree row, the ranking-rule row and this audit block — every one
-a defect in what I had just written, not in the machine.** They are listed here rather than quietly
-fixed, because that is the evidence the guards work.
-
-**AND FOUR RULE-15/17 ADVERSARIES RAN ACROSS THIS REVISION. THEY RETURNED 18, 20, 16 AND 11 DEFECTS
-AND EACH ROUND FOUND REAL ONES — INCLUDING TWO THAT REVERSED THIS REVISION'S OWN CONCLUSIONS AND ONE
-CREATED BY THE PREVIOUS ROUND'S REPAIR.** The four that mattered most, all fixed above:
-1. **F285's *"P3 says NOTHING about `BUMP_BOW`"* WAS REFUTED BY REV 73's OWN ABLATION (F292/F294)** —
-   `P3w` displaces a WINDOW ANCHOR, and `T1_BUMP_BOW` had never been run. Rule 36, unfired.
-2. **F296's TAIL-BOARD BRACKET WAS THE DETECTOR'S OWN 8° SEPARATION CONSTANT (F300)** — 38.0 falls
-   inside at that one value and outside at every other. Withdrawn; T4 now sweeps and REFUSES.
-3. **THE SCORING TOOL REFUSED ON THE SHIPPED TREE (F303)** — a fourth control red on the ship, and
-   the row that most undermines the shipped weight had stopped running.
-4. **THE NARRATIVE LAYER STILL SAID REV 73 SHIPPED NOTHING** after it had shipped geometry. Corrected
-   in §5, §2.2 and this block. **That is the defect F306's two new rows exist to make mechanical.**
-
-**WHERE THIS BRIEF IS WEAKEST, STATED RATHER THAN HIDDEN:**
-* **THE NARRATIVE LAYER WAS WRITTEN BEFORE THE SHIP AND RE-AUDITED AFTER IT ONLY IN THE REGISTER.**
-  A closing adversary found §5's rule 55 and this block still saying *"REV 73 COULD NOT [ship]"*,
-  and §2.2 still saying *"the spine carries it"* after F303 had refuted that in
-  `OPEN_FINDINGS.md`. **Both are corrected above. The lesson generalises: when something ships late
-  in a revision, the BRIEF is what goes stale, and the register is not a substitute for it.**
-* **THE SPINE AND THE WEIGHT ARE A PACKAGE (F303) AND THE RECORD ALMOST LOST IT.** At F204's 0.2283
-  the free spine is **negative on the independent frame**. Shipping 0.2205 instead of the search's
-  0.20429 also gives back **−0.0129 / −0.0089** on the pose-free IoU — more than the ship gained.
-  **Two rulers, and rev 73 took L6 for the weight and the IoU for the spine.** Defensible per ruler;
-  not one criterion. **§2.2 carries it; so does F303.**
-* **`STATE.md` CANNOT SEE THE EMBLEM.** It publishes no nose-glyph metric, so the revision's only
-  shipped geometry moved it by three provenance lines. **Do not read its silence as evidence.**
-* **`probe_rev46_vw`'s C4/C5 AND `solve()` ARE WRITTEN AGAINST THE ON-BAND SPINE**, so `T1_VW_SOLVE`
-  is a **no-op on a shipped tree** and C4's known passing configuration is unreachable until the
-  solver learns the free parameterisation (F303). The probe says so on every run.
-* **F306's PROBE-COUNT ROW ONLY GUARDS PROBES THAT CAN RUN WITHOUT A RENDERED FRAME.** On a fresh
-  clone `out/` is empty, so `probe_rev73_tailboard` is SKIPPED and says so (F307). Everything that
-  needs a frame is still hand-carried and still unguarded.
-* **THE EMBLEM IS NOT RIGHT.** P2 crossed its 0.85 bar at 0.8528 (F305) — against P1b's own ceiling
-  of **0.9465**, so it is still ~0.09 short, and **the objective still has no legibility term**
-  (rule 56). A crossed bar is not a finished mark, and he has reported it nine times.
-* **THE STALE-BRANCH COUNT IS HAND-INCREMENTED AND DERIVED FROM NOTHING.** Run the loop.
-* **Every figure quoted from `out/` needs a re-render before you quote it** — `out/` starts empty.

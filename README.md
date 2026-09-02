@@ -15,7 +15,7 @@ straight at the one.
 
 ## Start here
 
-1. **The highest-numbered `NEXT_CONTEXT_PROMPT_rev*.md`** — the live brief, **rev 74 at
+1. **The highest-numbered `NEXT_CONTEXT_PROMPT_rev*.md`** — the live brief, **rev 75 at
    this edit** (find it with `ls`, never by trusting this line). It names
    `REMAINING_WORK_rev61.md` and the rest of the carriers. Read
    it first, in full. **Find it with `ls`; do not trust a filename typed in any

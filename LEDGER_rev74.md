@@ -8,8 +8,10 @@ CIRCUMFERENTIAL rings and the transverse lugs the photograph shows were **not a 
 the model at all**. That is rule 54's shape for the second time in this project's history. Sixty-four
 grooves are now cut INWARD from the crown; `T1_TYRE_TREAD=0` restores the rev-73 tyre exactly.
 
-`python3 revstats.py` — run it for the live row; at the time of writing rev 73 reads
-`73 | 123 geometry | 0 closed`.
+`python3 revstats.py` — **live at close: `74 | 69 geometry | 0 closed`** (rev 73 reads
+`73 | 123 geometry | 0 closed`). ⚠ **The geometry column is a PROXY and `revstats.py` says so
+itself: *"a one-line constant can be a revision's whole result"*. Rev 74's shipped change is ~60
+lines and turns a rotationally-symmetric object into one that is not.**
 
 **AND THE HONEST SIZE OF IT, STATED HERE RATHER THAN IN A FOOTNOTE (rule 12), INCLUDING A READING
 I MADE AND THEN REFUTED MYSELF.**
@@ -22,10 +24,17 @@ recorded that as localisation confirmed. **THAT WAS WRONG AND THE BOX-LOCAL FLOO
 Measured per box, change against a second render of the SAME tree:
 
 ```
-    front wheel              change 4.418 %   FLOOR 4.372 %   1.01x
-    rear wheel               change 1.923 %   FLOOR 1.847 %   1.04x
-    body (control, no tyre)  change 7.941 %   FLOOR 7.900 %   1.01x
+    box (x0,y0,x1,y1)                      change   FLOOR   ratio
+    front wheel   (690, 790, 830, 930)     4.418 %  4.372 %  1.01x
+    rear wheel   (1010, 760, 1150, 900)    1.923 %  1.847 %  1.04x
+    body control  (500, 300, 900, 600)     7.941 %  7.900 %  1.01x
 ```
+**THE BOXES ARE PRINTED WITH THE FIGURES ON PURPOSE — a measurement's window is part of the
+measurement (rule 8), and the first draft published these three pairs with no coordinates anywhere
+in the tree.** Frames: `out/r74_hero34f.png` (before), `out/r74t_hero34f.png` (after),
+`out/r74t2_hero34f.png` (the floor's second render of the after tree), read through
+`photometry.read_png` with a truncating integer scale to 8 bits. ⚠ **The statistic is
+READER-SENSITIVE (F263): PIL's uint8 path gives 2.051 / 2.056 on the same pair.**
 
 **The rings are a NOISE feature — high-contrast wheel edges are where sampling noise lives — and
 they appear in the floor too.** Rule 49, and I published the interpretation one step before the
@@ -37,11 +46,17 @@ silhouette is raster noise. Tracing the rear tyre's silhouette in the `side` fra
 
 ```
     BEFORE (a revolve -- THIS IS THE FLOOR)   rms 0.0503 px   dominant amplitude   4
-    AFTER  (64 lugs)                          rms 0.4499 px   dominant amplitude 130
+    AFTER  (64 REGULAR lugs, out/r74f_side.png) rms 0.5286 px  dominant amplitude 161
+      (the IRREGULAR first cut, F319, read 0.4499 px / 130 -- fixing the tread
+       made the 64-cycle signal CLEANER, which is the direction it should move)
                                                               at exactly 64 cycles/rev
 ```
 
-**8.9× the floor on rms, 32× on amplitude, and the render recovers the lug count from PIXELS.**
+**10.5× the floor on rms, 40× on amplitude, and the render recovers the lug count from PIXELS.**
+⚠ **THE FLOOR PAIR — 0.0503 px / amplitude 4 — WAS READ ONCE, ON A FRAME OF THE ABLATED TREE THAT IS
+NOT RETAINED, AND IT IS A STRING LITERAL IN T6's MESSAGE. T6 COMPUTES ONLY THE *AFTER* SIDE.** That
+is F198's shape in a probe shipped this revision; it is labelled in the row rather than dressed up,
+and re-deriving it costs one `T1_TYRE_TREAD=0` render.
 `probe_rev74_tread.py`'s **T6** carries it. ⚠ **AND WHAT T6 DOES NOT SAY (rule 6): recovering 64 is
 NOT evidence that 64 is RIGHT** — it says the declared geometry reached the frame. The photograph
 brackets the count at 48..84 and that is still open. **Looking agrees**: the silhouette went from a
@@ -102,6 +117,42 @@ peak 48 / fft 84** — a **48..84 bracket, 1.73×**, the two methods disagreeing
 moving with the radius. The pitch is ~3 px in a 500×400 frame. **So `TREAD_LUGS = 64` has exactly the
 standing of `TB_WIDTH`'s "POSE CHOICE, NOT MEASURED"** and is labelled that way above the constant.
 **What is measured is the KIND.**
+
+---
+
+## §2b THE SHIP'S ONE MEASURED COST, REPORTED NOT COMPENSATED (F318)
+
+`probe_rev70_tyre.py`'s **T2** moves **0.2457 → 0.2522** (1.26× → 1.29× the photograph's 0.1953).
+**The floor is measured: the same tree rendered twice reads 0.2522 / 0.2526, spread 0.0004**, so the
+`0.0065` move is **16× the floor** and real. **It is also 2.6 % of the value against the probe's own
+declared `±20 %` ceiling — an eighth of it.** And the probe's paint
+(`probe_scratch/rev70_tyre_render.png`), **looked at**, shows its "tyre" band is the *darkest
+annulus* and **straddles the wheel-arch shadow at the top and the outer silhouette at the bottom**:
+adding lug highlights and a serrated edge changes what falls in it. **So the mechanism is not
+established — it may be the rubber or it may be the window.**
+
+**NOT COMPENSATED, DELIBERATELY.** Lowering `T1_TYRE_FILM` below F238's measured 0.15 until T2
+recovers would be tuning a SHADING constant to mask a GEOMETRY change, and would leave the ablation
+too dark. **What would settle it: give T2 a band measured to lie inside the rubber — painted first
+— instead of "the darkest annulus".**
+
+---
+
+## §2c THE SHIP WAS WRONG TWICE AND THE RULE-17 ADVERSARY CAUGHT BOTH (F319)
+
+**THE TREAD SHIPPED IRREGULAR.** `_cut_tread`'s phase test protected the TRAILING edge and left the
+LEADING edge on the modulo wrap with **zero** margin. Measured on the mesh: **99 of 384 equator
+vertices cut instead of 128, in runs of 1 AND 2** — 34 lugs two segments wide, 31 one. Fixed by
+offsetting the phase half a segment; **after: 128 of 384, every groove run width 2**, and **T7 now
+MEASURES it** instead of trusting the comment that was wrong.
+
+**AND T5 DID NOT MEASURE WHAT IT NAMED.** It compared max RADIUS and concluded *"the tread does NOT
+move TYRE_D … by construction"*. **`verify.py:690` locks `TYRE_D = max(zs) - min(zs)`, a BBOX
+EXTENT** — and the vertex nearest the +Z pole falls in a groove, so it **does** move:
+**0.6650000 → 0.6649110, 0.0890 mm.** ⚠ **`STATE.md` had already recorded it and I read it as float
+noise** — the tyre-diameter delta flipped `+0.0 → -0.0 mm` and I called that *"sub-micron"* in a
+commit message. **T5b now reads the bbox extent and names it: 281× inside `verify.py`'s own
+`TOL = 0.025 m`, and a discretisation artefact rather than a change in diameter over the lands.**
 
 ---
 

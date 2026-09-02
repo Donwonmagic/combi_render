@@ -65,21 +65,45 @@ TREAD_LUGS = 64          # DECLARED, inside the MEASURED bracket 48..84 (F308)
 TREAD_CUT  = 0.0060      # DECLARED groove depth, m.  NOT measured -- see above
 TREAD_SEG  = 6           # revolve segments per lug: 2 groove + 4 land
 # The threshold is a PHASE, and the revolve emits phases at exact multiples of
-# 1/TREAD_SEG.  0.25 sits midway between 1/6 and 2/6, so float error at a
-# segment boundary cannot flip a segment in or out of a groove.  The REALISED
-# duty is therefore 2 of 6 = one third of the pitch, not 0.25.
-TREAD_DUTY = 0.25
+# 1/TREAD_SEG.
+#
+# *** THE FIRST CUT OF THIS GOT IT HALF RIGHT AND SHIPPED AN IRREGULAR TREAD
+# (F319).  It used threshold 0.25 with no phase offset, reasoning that 0.25
+# sits midway between 1/6 and 2/6 so float error cannot flip a segment.  THAT
+# PROTECTS ONLY THE TRAILING EDGE.  The LEADING edge sits at phase exactly 0 --
+# the modulo wrap -- where the margin is ZERO, so every phase-0 segment was a
+# coin flip.  MEASURED on the mesh: 99 of 384 vertices cut instead of 128, in
+# runs of 1 and 2 (34 lugs two segments wide, 31 one segment wide).  Found by a
+# rule-17 adversary, not by me. ***
+#
+# FIXED by offsetting the phase HALF A SEGMENT, so vertex phases land at
+# (2k+1)/12 of a turn -- 1/12, 3/12, 5/12 ... -- and NO vertex sits on a
+# boundary.  With the threshold at 1/3 = 4/12 the two grooved segments are at
+# 1/12 and 3/12, each a full 1/12 of a turn clear of the cut.  The realised
+# duty is then genuinely 2 of 6, and probe_rev74_tread's T7 MEASURES it rather
+# than trusting this comment (rule 10).
+TREAD_PHASE = 0.5 / TREAD_SEG        # half a segment, so no vertex is on an edge
+TREAD_DUTY = 1.0 / 3.0
 TREAD_HALF = 0.0522      # tread band half-width, from the profile in tyre()
 
 
 def _cut_tread(ob):
     """Cut TREAD_LUGS transverse grooves into the tread band, INWARD.
 
-    INWARD IS THE WHOLE POINT.  The crown radius -- and hence TYRE_D 0.665,
-    which verify.py locks and STATE.md publishes -- is the SAME OBJECT before
-    and after, so this cannot move a guarded dimension.  It is not asserted:
-    probe_rev74_tread.py's T5 compares the built and ablated maxima and reads
-    delta 0.00e+00.
+    INWARD IS THE WHOLE POINT: the crown's maximum RADIUS is the same object
+    before and after, and probe_rev74_tread.py's T5 reads that delta as
+    5.56e-10 m.
+
+    *** BUT "SO IT CANNOT MOVE A GUARDED DIMENSION" WAS FALSE AND IS WITHDRAWN
+    (F319).  `verify.py` does not lock the maximum radius; `_measure_wheels`
+    locks `TYRE_D = max(zs) - min(zs)`, a Z BOUNDING-BOX EXTENT.  The vertex
+    nearest the +Z pole falls inside a groove, so that extent DOES shrink:
+    0.6650000 -> 0.6649555, a delta of 0.0445 mm.  It is harmless -- verify.py's
+    own TOL is 0.025 m, so this is 560x inside it, and it is a DISCRETISATION
+    artefact (which discrete vertex lands nearest the pole), not a change in the
+    tyre's diameter over its lands.  What is NOT harmless is a guard that does
+    not measure the quantity it names (rule 38), so T5 now reads BOTH and says
+    which is which.  Caught by a rule-17 adversary. ***
     """
     me = ob.data
     for v in me.vertices:
@@ -88,7 +112,9 @@ def _cut_tread(ob):
         r = math.hypot(v.co.x, v.co.z)
         if r < T.TIRE_R - 0.030:              # sidewall/bead, not the crown
             continue
-        if (math.atan2(v.co.z, v.co.x) * TREAD_LUGS) % T.TAU < T.TAU * TREAD_DUTY:
+        _ph = (math.atan2(v.co.z, v.co.x) * TREAD_LUGS
+               + T.TAU * TREAD_PHASE) % T.TAU
+        if _ph < T.TAU * TREAD_DUTY:
             k = (r - TREAD_CUT) / r
             v.co.x *= k
             v.co.z *= k

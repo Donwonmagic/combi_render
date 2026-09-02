@@ -1452,7 +1452,7 @@ to actually use that fact** — it fits the pose rather than assuming it.)*
 | **near** | **GLOSS: roughness AND environment together (F239)** | The one pairing never tried |
 | **near** | **F156 — the `Senor` gate row scores a DEPARTURE** | NINE revisions unacted |
 | **near** | **Glass, the tyres' TREAD, the tail's barrel, the shut lines** | Untouched for nine revisions |
-| **near** | **F143 — the roof loudspeakers** | Unmodelled since rev 12 — 57 revisions |
+| ~~near~~ **RETIRED** | ~~**F143 — the roof loudspeakers**~~ | **RETIRED AS A GEOMETRY ITEM AT REV 74 (F309): they are a POSE, not vehicle geometry.** Present in `ref_rear34.jpg` with the mural board up; the roof is BARE in `ref_playa_34.png` and in the Nolita frames. Building it would plant removable event gear permanently into every delivery frame. **The row is annotated, not deleted (rule 16). Read F309.** |
 | **LOWERED** | **F192 — prove the large-format chain** | **He ruled the MODEL comes first (F193).** |
 | **then** | **F10–F14 — the galley cluster** | F14 is SEVENTEEN revisions inherited |
 | **CEILED** | **F153; F168; F183; F195; F231; F44/F60/F62 gloss; F83; F67; F142; F148** | **F62 is now a TABLE, not an assertion — see F239** |

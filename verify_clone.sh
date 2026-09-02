@@ -2708,6 +2708,39 @@ ck "F301 ... while the SHIPPED glyph is a different one (41474) -- the switch is
    "$(python3 probe_rev71_proxy.py 2>&1 | grep -c 'on-px 41474 / 41474')"
 rm -f /tmp/_r73f.txt /tmp/_r73g.txt
 
+# --- rev 74, F308/F319: THE TYRE'S TRANSVERSE TREAD.  BEHAVIOURAL, ~2 s each.
+# ⚠ THESE ROWS ARE DELIBERATELY FRAME-INDEPENDENT.  probe_rev74_tread's T6
+# reads a *_side.png and SKIPS when out/ is empty, so its CHECKED count is 7 or
+# 8 depending on whether the render has run.  Pinning "8 checked" would recreate
+# F311 exactly -- five rows that hard-fail on a clean clone and stop the next
+# context's pickup.  The FAILED count is 0 either way, and the named rows below
+# do not depend on a frame.
+python3 probe_rev74_tread.py >/tmp/_r74a.txt 2>&1
+T1_TYRE_TREAD=0 python3 probe_rev74_tread.py >/tmp/_r74b.txt 2>&1
+ck "F308 the tread probe passes every row it can run (frame or no frame)" 1 \
+   "$(grep -cE '^  [0-9]+ checked, 0 FAILED' /tmp/_r74a.txt)"
+# The headline: the built tyre is NOT a surface of revolution.  This is the
+# thing that shipped, and it is read off the MESH, not off a name (rule 50).
+ck "F308 the built tyre is NOT a surface of revolution" 1 \
+   "$(grep -c 'PASS T3   the built tyre is NOT a surface of revolution' /tmp/_r74a.txt)"
+# THE KILL, and it is the row that stops the tread being silently deleted:
+# with the ablation on, T3 must go RED.  A guard that only checks the built
+# case would stay green if _cut_tread were removed.
+ck "F308 ... and T1_TYRE_TREAD=0 drives T3 RED -- the ablation is WATCHED" 1 \
+   "$(grep -c 'FAIL T3' /tmp/_r74b.txt)"
+# rev 74 shipped an IRREGULAR tread first: 99 of 384 equator vertices cut in
+# runs of 1 AND 2, because the phase threshold left the LEADING edge on the
+# modulo wrap with zero margin (F319, found by a rule-17 adversary).  This row
+# locks the repair, and it locks it on the MESH's own count.
+ck "F319 the tread is REGULAR -- 128 of 384 cut, every groove run one width" 1 \
+   "$(grep -c 'PASS T7   THE TREAD IS REGULAR: 128 of 384' /tmp/_r74a.txt)"
+# AND THE QUANTITY verify.py ACTUALLY LOCKS.  T5 used to compare max RADIUS
+# while claiming to protect TYRE_D, which is max(z)-min(z) -- rule 38.  Both
+# are read now, and this row holds the distinction rather than the figure.
+ck "F319 ... and T5b reads TYRE_D as the BBOX EXTENT verify.py locks, not a radius" 1 \
+   "$(grep -c 'PASS T5b  AND THE QUANTITY verify.py ACTUALLY LOCKS' /tmp/_r74a.txt)"
+rm -f /tmp/_r74a.txt /tmp/_r74b.txt
+
 ck "newest brief states THIS script's row count" "$((PASS+1))" "${_BRIEF_TOTAL:-0}"
 
 UNTRACKED="$(git status --porcelain 2>/dev/null | grep -c '^??')"

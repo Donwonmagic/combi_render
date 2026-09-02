@@ -23,6 +23,8 @@ BRACKET, exactly as `TB_WIDTH` is, and it is labelled that way in the source.
 """
 import os, sys, math
 
+TREAD_DUTY_EXPECT = 1.0 / 3.0   # 2 of TREAD_SEG=6, and T7 MEASURES it
+
 FAIL = []
 CHECK = 0
 ABSENT = 0
@@ -150,7 +152,9 @@ def _crown_spread(ob):
     from collections import defaultdict
     g = defaultdict(list)
     for v in ob.data.vertices:
-        if abs(v.co.y) > 0.052:
+        # NOT a re-typed 0.052: read the live constant the cut uses (F319)
+        import t1_detail as _D
+        if abs(v.co.y) > _D.TREAD_HALF:
             continue
         r = math.hypot(v.co.x, v.co.z)
         if r < T.TIRE_R - 0.030:            # sidewall/bead, not the crown
@@ -197,11 +201,52 @@ if D is not None:
     # T5 -- THE LOCKED DIAMETER MUST NOT MOVE.  The grooves are cut INWARD
     # from the crown, so the tyre's maximum radius -- which verify.py locks as
     # TYRE_D 0.665 -- is the same object before and after.
+    # *** T5 USED TO READ THE WRONG QUANTITY AND SAID SO IN ITS OWN MESSAGE
+    # (F319).  It compared max RADIUS and concluded "the tread does NOT move
+    # TYRE_D".  `verify.py` locks no radius: `_measure_wheels` sets
+    # `out["TYRE_D"] = max(zs) - min(zs)`, a Z BOUNDING-BOX EXTENT, and the
+    # vertex nearest the +Z pole falls in a groove, so that extent DOES move.
+    # A guard must measure the quantity it names (rule 38).  It now reads BOTH.
+    def _zext(o):
+        zs = [v.co.z for v in o.data.vertices]
+        return max(zs) - min(zs)
+    ze, ze0 = _zext(ob), _zext(ob0)
     row("T5", abs(rmax - rmax0) < 1e-6,   # same float floor as T4, declared
-        "the tread does NOT move TYRE_D: max crown radius %.6f built vs "
-        "%.6f ablated, delta %.2e m.  The grooves cut INWARD, so the locked "
-        "0.665 is untouched by construction"
+        "the tread does not move the crown's maximum RADIUS: %.6f built vs "
+        "%.6f ablated, delta %.2e m -- the grooves cut INWARD"
         % (rmax, rmax0, abs(rmax - rmax0)))
+    _TOL = 0.025                          # verify.py's own tolerance on TYRE_D
+    row("T5b", abs(ze - ze0) < _TOL,
+        "AND THE QUANTITY verify.py ACTUALLY LOCKS -- TYRE_D = max(z)-min(z), "
+        "a BBOX EXTENT, not a radius -- DOES move: %.7f built vs %.7f ablated, "
+        "delta %.4f mm.  That is %.0fx inside verify.py's own TOL of %.3f m, "
+        "and it is a DISCRETISATION artefact: which discrete vertex lands "
+        "nearest the +Z pole, not the tyre's diameter over its lands"
+        % (ze, ze0, 1000 * abs(ze - ze0), _TOL / max(abs(ze - ze0), 1e-12), _TOL))
+
+    # T7 -- THE REALISED DUTY, MEASURED OFF THE MESH (rule 10: a claim in a
+    # source comment is not a measurement).  The first cut of _cut_tread
+    # shipped an IRREGULAR tread -- 99 of 384 vertices cut instead of 128, in
+    # runs of 1 AND 2 -- because its phase threshold left the LEADING edge on
+    # the modulo wrap with zero margin (F319).  This row would have caught it.
+    import re as _re
+    _ring = sorted((math.atan2(v.co.z, v.co.x), math.hypot(v.co.x, v.co.z))
+                   for v in ob.data.vertices if abs(v.co.y) < 1e-9)
+    _R = max(r for _, r in _ring)
+    _pat = "".join("X" if r < _R - 0.001 else "." for _, r in _ring)
+    # ROTATE so the string starts on a land: otherwise a groove straddling the
+    # array wrap is counted as two short runs and the row reports [1, 2] on a
+    # perfectly regular tread.  (My first cut of T7 did exactly that.)
+    _i = _pat.find(".X")
+    _pat = _pat[_i + 1:] + _pat[:_i + 1] if _i >= 0 else _pat
+    _runs = sorted(set(len(m) for m in _re.findall(r"X+", _pat)))
+    _cut = _pat.count("X")
+    _want = len(_ring) * TREAD_DUTY_EXPECT
+    row("T7", len(_runs) == 1 and abs(_cut - _want) < 2,
+        "THE TREAD IS REGULAR: %d of %d equator vertices cut (expected %.0f = "
+        "%d of %d segments per lug), every groove run the SAME width %s.  The "
+        "shipped-then-fixed defect read 99/384 in runs of 1 AND 2"
+        % (_cut, len(_ring), _want, round(TREAD_DUTY_EXPECT * 6), 6, _runs))
 
 # ------------------------------------------------------------- render side
 # T6 -- DID THE GEOMETRY REACH THE RENDER?  The BEFORE frame cannot be used
@@ -211,13 +256,21 @@ if D is not None:
 # than an assumed one.  Rev 74 read it as 0.0503 px rms / dominant amplitude 4
 # against the shipped 0.4499 px / amplitude 130 at exactly 64 cycles/rev.
 #
-# ⚠ WHAT THIS ROW DOES **NOT** SAY (rule 6): recovering 64 from the pixels is
-# NOT evidence that 64 is the RIGHT count.  TREAD_LUGS is declared and the
-# photograph brackets it at 48..84 (T2).  This row says the declared geometry
-# REACHED THE FRAME, nothing more.
+# ⚠ TWO THINGS THIS ROW DOES **NOT** SAY.
+#  (a) rule 6: recovering 64 from the pixels is NOT evidence that 64 is the
+#      RIGHT count.  TREAD_LUGS is declared and the photograph brackets it at
+#      48..84 (T2).  This row says the declared geometry REACHED THE FRAME.
+#  (b) rule 5 / F198: the FLOOR figures in its message are RECORDED, not
+#      recomputed -- see the message itself.  Do not read "measured" as
+#      "measured by this row".
+# NAME YOUR FRAME (F316).  An explicit argv frame wins; otherwise the
+# alphabetically-last out/*_side.png, and the row PRINTS which it used -- a
+# probe that silently picks a frame is how rev 74 attributed a reading to a
+# frame the probe could not have read (F320(c)).
 import glob
-_side = sorted(glob.glob(os.path.join(HERE if 'HERE' in dir() else '.',
-                                      "out", "*_side.png")))
+_argv = [a for a in sys.argv[1:] if a.endswith(".png")]
+_side = _argv if _argv else sorted(
+    glob.glob(os.path.join(HERE if 'HERE' in dir() else '.', "out", "*_side.png")))
 if not _side or lum is None:
     row("T6", None, "no *_side.png in out/ -- out/ is untracked and starts "
                     "EMPTY, so the render-side row cannot run (rule 37).  It "
@@ -256,10 +309,14 @@ else:
         _dom = _fr[_lo + int(np.argmax(_F[_lo:_hi]))]
         row("T6", _res.std() > 0.20 and abs(_dom - 64) < 8,
             "THE GEOMETRY REACHED THE RENDER: %s silhouette angular rms "
-            "%.4f px at %.0f cycles/rev.  FLOOR, MEASURED not assumed: the "
-            "ablated tyre is a REVOLVE, so its silhouette carries no angular "
-            "structure -- rev 74 read 0.0503 px / amplitude 4 there against "
-            "%.0f here" % (os.path.basename(f), _res.std(), _dom, _F[_lo:_hi].max()))
+            "%.4f px at %.0f cycles/rev, dominant amplitude %.0f.  "
+            "*** THE FLOOR IS A RECORDED READING, NOT ONE THIS ROW COMPUTES "
+            "(F320): rev 74 read 0.0503 px / amplitude 4 on a frame of the "
+            "ABLATED tree, which is NOT retained, so those two figures are "
+            "STRING LITERALS here -- F198's shape.  This row computes only the "
+            "AFTER side.  Re-derive the floor with one T1_TYRE_TREAD=0 render "
+            "before quoting it. ***"
+            % (os.path.basename(f), _res.std(), _dom, _F[_lo:_hi].max()))
     except Exception as _e:
         row("T6", None, "render-side row could not run: %s" % _e)
         ABSENT += 1
