@@ -152,8 +152,11 @@ deliberately FRAME-INDEPENDENT so they cannot repeat F311.**
 ```bash
 ./bootstrap.sh                                # READ ROW 9
 ./bootstrap.sh --guards                       # NOT while a render queue runs
-./verify_clone.sh                             # 0 FIDELITY rows.  READ THE VERDICT BLOCK:
-  # not one row measures the vehicle against a photograph, so never quote its total as fidelity
+./verify_clone.sh                             # ALL 428 PASS -- 0 FIDELITY, 428 SELF-CONSISTENCY.
+  # ⚠ AND THAT TOTAL IS NOT REACHED ON A CLEAN CLONE, WHICH IS §1's WHOLE SUBJECT: four rows
+  # want a rendered frame, one is correctly reporting a real failure (F312b), and the count
+  # row can only agree once the rest are green.  READ THE VERDICT BLOCK TOO: not one row
+  # measures the vehicle against a photograph, so NEVER quote this total as fidelity
 T1_SUB=1 T1_VERIFY=1 /tmp/blender/blender -b -P build.py     # -> "VERIFY: 0 fail, 0 warn"
 python3 photometry.py                         # 9 checked, 0 FAILED
 python3 probe_rev74_tread.py out/r75_side.png   # NEW at rev 74.  8 checked, 0 FAILED.
