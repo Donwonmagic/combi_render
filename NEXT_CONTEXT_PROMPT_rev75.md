@@ -255,7 +255,7 @@ RULE 56s AND TWO DIFFERENT RULE 57s, AND RULE 42 MEANS TWO DIFFERENT THINGS IN L
 | file | what it holds |
 |---|---|
 | **`HANDOFF_CARRIERS.md`** | every carrier: the goal, the reference set, §2's refuted emblem routes, §4 the owner's rulings, §5 rules 34–58, the horizon |
-| `OPEN_FINDINGS.md` | the register. **F308–F320 are rev 74's** (16 rows, including F308b, F312b and F316b). It outranks prose |
+| `OPEN_FINDINGS.md` | the register. **F308–F321 are rev 74's** (17 rows, including F308b, F312b and F316b). It outranks prose |
 | `STATE.md` | machine-written; outranks every prose description. **Regenerate it before trusting a row that reads it** |
 | `LEDGER_rev74.md` | what rev 74 did, **including the reading it made and then refuted itself** |
 | `photometry.py` | the measurement protocol, with a selftest |

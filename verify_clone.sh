@@ -2741,6 +2741,31 @@ ck "F319 ... and T5b reads TYRE_D as the BBOX EXTENT verify.py locks, not a radi
    "$(grep -c '\[PASS\] T5b  AND THE QUANTITY verify.py ACTUALLY LOCKS' /tmp/_r74a.txt)"
 rm -f /tmp/_r74a.txt /tmp/_r74b.txt
 
+# --- rev 74, F321: A PROBE'S USER-FACING MESSAGE MUST NOT NAME A FRAME THAT
+# DOES NOT EXIST.  probe_rev67_nose's NO-FRAME message told the reader to run
+# `out/r72_front.png` -- a prefix two revisions stale, on a path that resolves
+# to NOTHING because out/ is untracked and starts EMPTY.
+# ⚠ THIS ROW IS DELIBERATELY NARROW AND IT IS A SOURCE-TEXT CHECK, NAMED AS ONE
+# (rule 50).  It scopes to the NO-FRAME print's own string literals.  The same
+# file's COMMENTS name r67/r68/r72/r73 frames on purpose -- recording which
+# frame a reading came from is what the rules require, not a defect -- so a
+# blanket grep would be wrong here and would push the next context to scrub
+# exactly the provenance this project keeps losing.
+ck "F321 the nose probe's NO-FRAME message names no stale frame prefix (a source check)" 1 \
+   "$(python3 -c "
+import ast, io, sys
+src = io.open('probe_rev67_nose.py').read()
+bad = 0
+for n in ast.walk(ast.parse(src)):
+    if not (isinstance(n, ast.Call) and getattr(n.func, 'id', '') == 'print'):
+        continue
+    txt = ''.join(a.value for a in ast.walk(n)
+                  if isinstance(a, ast.Constant) and isinstance(a.value, str))
+    if 'NO FRAME GIVEN' in txt:
+        import re
+        bad += len(re.findall(r'out/r[0-9]+[a-z0-9]*_', txt))
+print(0 if bad else 1)" 2>/dev/null)"
+
 ck "newest brief states THIS script's row count" "$((PASS+1))" "${_BRIEF_TOTAL:-0}"
 
 UNTRACKED="$(git status --porcelain 2>/dev/null | grep -c '^??')"
