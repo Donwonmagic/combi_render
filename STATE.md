@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-09-01 14:56:18 UTC |
-| git commit | `8897f44` |
-| git subject | rev 73: F301 -- the emblem's free-endpoint spine SHIPS.  Geometry, and it is visible. |
+| generated | 2026-09-02 14:35:57 UTC |
+| git commit | `a86ba3d` |
+| git subject | rev 74: F308 -- the tyre's TRANSVERSE TREAD ships.  Geometry, and it reaches the render. |
 | working tree | clean |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=2 (applied, destructive, before booleans) |
@@ -88,7 +88,7 @@ Shaders read the dropped frame, so `Z_BELT`/`V_APEX` are already AG.
 | wheelbase | 2.4000 | 2.4000 | +0.0 mm ok |
 | track front | 1.3690 | 1.3690 | +0.0 mm ok |
 | track rear | 1.3590 | 1.3590 | +0.0 mm ok |
-| tyre diameter | 0.6650 | 0.6650 | +0.0 mm ok |
+| tyre diameter | 0.6650 | 0.6650 | -0.0 mm ok |
 | rocker to ground | 0.3177 | — | — |
 | belt line @ x=0.962 (live) | 1.2070 | 1.2070 | +0.0 mm ok |
 | window sill @ x=0.962 | 1.3070 | 1.3070 | +0.0 mm ok |
@@ -158,8 +158,8 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 | | |
 |---|---|
 | mesh objects | 229 |
-| vertices (all meshes) | 331775 |
-| faces (all meshes) | 321882 |
+| vertices (all meshes) | 376383 |
+| faces (all meshes) | 366490 |
 
 | prefix | n |
 |---|---|
