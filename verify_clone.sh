@@ -1462,6 +1462,19 @@ ck "F294 ... and it still carries the six-rung table the brief points at" 1 \
 ck "the drift detector exists"                1 "$(if [ -f revstats.py ]; then echo 1; else echo 0; fi)"
 ck "the brief names the drift detector"       1 "$(if grep -q 'revstats.py' PASTE_INTO_CLAUDE_CODE.txt; then echo 1; else echo 0; fi)"
 ck "the brief carries rule 55"                1 "$(if grep -q 'SHIPS A VISIBLE CHANGE TO THE VEHICLE' PASTE_INTO_CLAUDE_CODE.txt; then echo 1; else echo 0; fi)"
+# ⚠⚠ REV 75, F328: THIS ROW AND THE "<32 KB" ROW ARE IN TENSION, AND THE TENSION
+# BIT.  The brief must CARRY certain literal strings (this one, `revstats.py`,
+# and the "ALL n PASS" attachment row) while staying under 32768 bytes.  Rev 75
+# compressed the brief's rules list to make room for cold-start fixes, and the
+# compression DROPPED the phrase this row greps for -- so `bootstrap.sh` went
+# 9 PASSED / 1 FAILED on a fresh clone, which is F311's whole disease returning
+# by a different route, in the revision that fixed F311.
+#
+# IT WAS CAUGHT ONLY BY COLD-CLONING AND RUNNING bootstrap -- NOT by audit_brief,
+# NOT by audit_adversary, and NOT by three passes of rules 15 and 17.
+#
+# SO: IF YOU TRIM THE BRIEF TO FIT THE GUARD, RE-RUN ./verify_clone.sh BEFORE YOU
+# COMMIT.  The brief sits near the limit and every future revision will face this.
 
 ck "brief still names the die-cut sticker"   1 "$(_has 'die.?cut')"
 ck "brief still names the open-findings reg" 1 "$(_has 'open.?findings')"

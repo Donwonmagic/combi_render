@@ -21,9 +21,9 @@ next. DO NOT GROW IT.**
 ```bash
 cd /home/user/combi_render     # <- OR YOUR CLONE'S ROOT.  Nothing here needs this exact path
 ./bootstrap.sh                 # the toolchain is NOT on the clone -- this builds it
-  # ⚠ bootstrap INSTALLS pillow ITSELF (`for m in numpy PIL scipy` ... pip install), and has
-  # since rev 45, so the "pip install pillow FIRST" every brief has ordered is BACKWARDS.
-  # If it still reads 3 of 10 FAILED on PIL, run `pip install pillow` and re-run it (F327)
+  # ⚠ bootstrap INSTALLS pillow ITSELF (`for m in numpy PIL scipy`), and has since rev 45, so
+  # every brief's "pip install pillow FIRST" is BACKWARDS.  If it still reads 3 of 10 FAILED
+  # on PIL, run `pip install pillow` and re-run it (F327)
 nohup setsid env T1_SUB=1 T1_PREVIEW=front,side,hero34f,hero34r T1_PFX=r76 T1_RX=1600 T1_RY=1100 \
   T1_SAMP=96 /tmp/blender/blender -b -P build.py > /tmp/r76.log 2>&1 < /dev/null &
 ```
@@ -77,9 +77,8 @@ for b in $(git branch -r | grep -v HEAD); do printf "%-52s ahead %-3s behind %s\
   "$(git rev-list --count origin/main..$b)" "$(git rev-list --count $b..origin/main)"; done
 git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 ```
-⚠ **AND NAME YOUR BRANCH: you are on `claude/rev-75-pickup-po0rs3`, named for the PREVIOUS
-revision, and no brief has ever said where the next revision's work belongs. Decide at pickup and
-say so in your ledger.** **At rev 75 the designated branch again had no remote copy at pickup
+⚠ **NAME YOUR BRANCH: you are on `claude/rev-75-pickup-po0rs3`, named for the PREVIOUS revision,
+and no brief has said where the next revision's work belongs. Decide it and say so in your ledger.** **At rev 75 the designated branch again had no remote copy at pickup
 (F317's shape, third revision running). Nothing was stranded: row 9 PASSED, all 29 remote branches `ahead 0`, HEAD 0 ahead / 0
 behind `origin/main`, the diff empty.** **The "N consecutive revisions" count in every brief is
 HAND-INCREMENTED AND DERIVED FROM NOTHING. Believe row 9 and the loop, never a sentence.**
@@ -88,8 +87,7 @@ HAND-INCREMENTED AND DERIVED FROM NOTHING. Believe row 9 and the loop, never a s
 ## §2 RANKED WORK FOR REV 76
 
 ⚠ **ITEM 2 IS THE BINDING CONSTRAINT, NOT ITEM 1.** Item 1 is a cheap DECISION; item 2 is rule 55
-and **rev 75 failed it.** Do both — **if you can only do one, SHIP GEOMETRY.** The rev-75 brief
-ranked T3 first without saying so, which is how a context repeats rev 75's outcome.
+and **rev 75 failed it.** **If you can only do one, SHIP GEOMETRY.**
 
 **RANK BY PIXELS OF THE DELIVERY FRAME** — `python3 visibility_budget.py 3840 out/r76_hero34f.png` —
 **and the owner outranks the ranking.** ⚠ **READ THAT TABLE'S OWN CEILING: *"pixels are not
@@ -199,7 +197,7 @@ Read the grade, not any of the four sentences.**
 |---|---|
 | **THE PICKUP (F311 → F323)** | **REPAIRED.** `ckabs` reads the absent flag from **the probe's own summary line** (rule 9); the skip **still calls `ck`** so `PASS` is unchanged (omitting rows re-breaks the count row — measured, 424 vs 428); it prints **ABSENT**, never a number, and says **UNGUARDED** in the label (rule 37). **Four companion rows** (§3b): a WATCHED KILL through both branches with tallies snapshotted, the flag cross-checked against an INDEPENDENT `ls` (rule 6), and `SKIPPED` BOUNDED at 5/0. **T3's comparison is UNTOUCHED.** |
 | **F312 / F312b (F324)** | **T3's VERDICT IS RENDER NOISE ON THIS TREE** — three renders of one tree read the deciding rung at **−7.00 / −8.50 / −6.50**, a 2.00° range on a 1.5 bar. ⚠ **F312b is NOT refuted wholesale and rev 75's first draft said it was (retracted, rule 13): its `r74t`/`r74t3` are a SAME-TREE pair that AGREED at −9.00/−9.00.** Only its GENERALISATION falls. **Full detail and the unread decisive comparison are in §2.1 — read that, not this row.** Not re-based (rule 5). |
-| **THE ARTEFACT-EDGE HYPOTHESIS (F324)** | **MINE, AND I KILLED IT WITH ITS OWN CONTROL.** T3's `rotate(expand, fillcolor=white)` **does** inject axis-aligned edges at **≈179.6° and ≈90.4°** that do not rotate with the content — **artefact 2090..3650 against the board's 4899..5864 on `out/r75_side.png`, and 2111..3585 against 4698..5884 on `out/r75b_side.png`** (⚠ my first draft published `2732–3650`, a range over only some rungs, and named NO frame). ⚠ **And *"absent unrotated"* is half wrong: a ≈179° peak is present unrotated at w ≈ 1047–1088; the rotation ADDS the ≈90° one.** **Masking them out changes no rung by more than the histogram's 0.25° bin, and the one that moved got WORSE.** Real, and **NOT causal**. |
+| **THE ARTEFACT-EDGE HYPOTHESIS (F324)** | **MINE, AND I KILLED IT WITH ITS OWN CONTROL.** T3's `rotate(expand, fillcolor=white)` DOES inject non-rotating axis-aligned edges at ≈179.6°/≈90.4°. **Masking them out changes no rung by more than the histogram's 0.25° bin, and the one that moved got WORSE. Real, and NOT causal.** Figures, frames and two corrections to them: `LEDGER_rev75.md`. |
 | **THE RECESS'S GROUNDING (F325)** | **REFUSED ON THE MEASUREMENT, BEFORE BUILDING.** 30 × 12 px, n = 1, the corroborating frame edge-on by construction. *"It cannot be recovered from what we hold"* is the result (rule 12). |
 | **A SECOND COPY OF A WITHDRAWN CLAIM** | `t1_detail.tyre()` still read *"so `TYRE_D` is independent of both halves"* — F319 withdrew that at rev 74 and **one copy was missed**. `TYRE_D` is a **bbox extent** and moves by **0.0890 mm**. Withdrawn in place. |
 
@@ -336,8 +334,8 @@ why T3 was not re-based on n = 3. **9** — `ckabs`'s absent flag is read from a
 an absent input must not read as a measurement **nor as a failing one**; that was F311, three
 contexts' pickups, now fixed. **44** — fired twice on rev 75's own edits; the guard won both times.
 **49** — T3's bar never had a floor. **50** — rev 75 "corrected" a claim with a grep of the wrong
-file. **55** — **REV 75 COULD NOT SHIP GEOMETRY AND SAYS SO AT THE TOP OF ITS LEDGER.** **6, 8, 12,
-56** all still bite.
+file. **55 — EVERY REVISION SHIPS A VISIBLE CHANGE TO THE VEHICLE, OR SAYS PLAINLY WHY IT COULD NOT**:
+rev 75 could not, and says so atop its ledger. **6, 8, 12, 56** all still bite.
 
 ---
 ## §6 WHERE EVERYTHING ELSE LIVES
@@ -377,6 +375,10 @@ done off self-review. Report the measurement with its ceiling. Do not say anythi
    (rule 15). DO NOT CLOSE UNTIL BOTH REPORT.** ⚠ **AND RE-RUN THE OUTGOING ONE AFTER ANYTHING SHIPS.**
 5. **Keep the split, and KEEP THIS FILE SHORT.** `cp` it over `PASTE_INTO_CLAUDE_CODE.txt` in the
    same commit. `python3 audit_brief.py --fix-count` LAST.
+6. ⚠⚠ **THEN COLD-CLONE AND RUN `./bootstrap.sh` — LAST, ON A FRESH CLONE (F328).** Rev 75 broke its
+   own pickup after three adversary passes AND a cold-start pass: trimming this file to fit the hard
+   `<32768` guard deleted a phrase `verify_clone.sh` greps for; bootstrap went 9/1 on a clone while
+   `audit_brief` and `audit_adversary` read CLEAN. **Only a cold clone catches that.**
 
 ---
 **⚠ THIS BRIEF WAS AUDITED AGAINST THE MACHINE. FOUR PASSES, AND EACH ONE CHANGED THE SHIP.**
