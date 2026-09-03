@@ -2708,6 +2708,69 @@ ck "F301 ... while the SHIPPED glyph is a different one (41474) -- the switch is
    "$(python3 probe_rev71_proxy.py 2>&1 | grep -c 'on-px 41474 / 41474')"
 rm -f /tmp/_r73f.txt /tmp/_r73g.txt
 
+# --- rev 74, F308/F319: THE TYRE'S TRANSVERSE TREAD.  BEHAVIOURAL, ~2 s each.
+# ⚠ THESE ROWS ARE DELIBERATELY FRAME-INDEPENDENT.  probe_rev74_tread's T6
+# reads a *_side.png and SKIPS when out/ is empty, so it SKIPS a row when out/ is empty.
+# ⚠ THE FIRST VERSION OF THIS COMMENT SAID THE CHECKED COUNT IS "7 or 8
+# depending on whether the render has run".  IT IS ALWAYS 8: row() does CHECK += 1
+# BEFORE it tests for ABSENT, so a skipped row is still counted, and bare it reads
+# "8 checked, 0 FAILED, 1 ABSENT" (F322).  These rows are still right to pin FAILED
+# rather than CHECKED -- but for the reason that an ABSENT input must never read as
+# a FAILING one (rule 37), not for the reason first given.  Pinning "8 checked" would recreate
+# F311 exactly -- five rows that hard-fail on a clean clone and stop the next
+# context's pickup.  The FAILED count is 0 either way, and the named rows below
+# do not depend on a frame.
+python3 probe_rev74_tread.py >/tmp/_r74a.txt 2>&1
+T1_TYRE_TREAD=0 python3 probe_rev74_tread.py >/tmp/_r74b.txt 2>&1
+ck "F308 the tread probe passes every row it can run (frame or no frame)" 1 \
+   "$(grep -cE '^  [0-9]+ checked, 0 FAILED' /tmp/_r74a.txt)"
+# The headline: the built tyre is NOT a surface of revolution.  This is the
+# thing that shipped, and it is read off the MESH, not off a name (rule 50).
+ck "F308 the built tyre is NOT a surface of revolution" 1 \
+   "$(grep -c '\[PASS\] T3   the built tyre is NOT a surface of revolution' /tmp/_r74a.txt)"
+# THE KILL, and it is the row that stops the tread being silently deleted:
+# with the ablation on, T3 must go RED.  A guard that only checks the built
+# case would stay green if _cut_tread were removed.
+ck "F308 ... and T1_TYRE_TREAD=0 drives T3 RED -- the ablation is WATCHED" 1 \
+   "$(grep -c '\[FAIL\] T3' /tmp/_r74b.txt)"
+# rev 74 shipped an IRREGULAR tread first: 99 of 384 equator vertices cut in
+# runs of 1 AND 2, because the phase threshold left the LEADING edge on the
+# modulo wrap with zero margin (F319, found by a rule-17 adversary).  This row
+# locks the repair, and it locks it on the MESH's own count.
+ck "F319 the tread is REGULAR -- 128 of 384 cut, every groove run one width" 1 \
+   "$(grep -c '\[PASS\] T7   THE TREAD IS REGULAR: 128 of 384' /tmp/_r74a.txt)"
+# AND THE QUANTITY verify.py ACTUALLY LOCKS.  T5 used to compare max RADIUS
+# while claiming to protect TYRE_D, which is max(z)-min(z) -- rule 38.  Both
+# are read now, and this row holds the distinction rather than the figure.
+ck "F319 ... and T5b reads TYRE_D as the BBOX EXTENT verify.py locks, not a radius" 1 \
+   "$(grep -c '\[PASS\] T5b  AND THE QUANTITY verify.py ACTUALLY LOCKS' /tmp/_r74a.txt)"
+rm -f /tmp/_r74a.txt /tmp/_r74b.txt
+
+# --- rev 74, F321: A PROBE'S USER-FACING MESSAGE MUST NOT NAME A FRAME THAT
+# DOES NOT EXIST.  probe_rev67_nose's NO-FRAME message told the reader to run
+# `out/r72_front.png` -- a prefix two revisions stale, on a path that resolves
+# to NOTHING because out/ is untracked and starts EMPTY.
+# ⚠ THIS ROW IS DELIBERATELY NARROW AND IT IS A SOURCE-TEXT CHECK, NAMED AS ONE
+# (rule 50).  It scopes to the NO-FRAME print's own string literals.  The same
+# file's COMMENTS name r67/r68/r72/r73 frames on purpose -- recording which
+# frame a reading came from is what the rules require, not a defect -- so a
+# blanket grep would be wrong here and would push the next context to scrub
+# exactly the provenance this project keeps losing.
+ck "F321 the nose probe's NO-FRAME message names no stale frame prefix (a source check)" 1 \
+   "$(python3 -c "
+import ast, io, sys
+src = io.open('probe_rev67_nose.py').read()
+bad = 0
+for n in ast.walk(ast.parse(src)):
+    if not (isinstance(n, ast.Call) and getattr(n.func, 'id', '') == 'print'):
+        continue
+    txt = ''.join(a.value for a in ast.walk(n)
+                  if isinstance(a, ast.Constant) and isinstance(a.value, str))
+    if 'NO FRAME GIVEN' in txt:
+        import re
+        bad += len(re.findall(r'out/r[0-9]+[a-z0-9]*_', txt))
+print(0 if bad else 1)" 2>/dev/null)"
+
 ck "newest brief states THIS script's row count" "$((PASS+1))" "${_BRIEF_TOTAL:-0}"
 
 UNTRACKED="$(git status --porcelain 2>/dev/null | grep -c '^??')"

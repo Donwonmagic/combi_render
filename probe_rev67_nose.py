@@ -675,10 +675,22 @@ def main():
         # attributed to "bare" was wrong.  verify_clone.sh's row was NAMED
         # "bare" while RUNNING --nomesh, so the guard reproduced the mislabel
         # instead of catching it; it is renamed and has a companion row now. ***
+        # *** THIS MESSAGE USED TO HARDCODE `out/r72_front.png` (F321).  That
+        # prefix went stale two revisions later, and `out/` is untracked and
+        # starts EMPTY on a clone, so the example it told the reader to run
+        # resolved to NOTHING.  A probe that names a frame must name one that
+        # exists: it now offers whatever `out/` actually holds, and falls back
+        # to naming the SOURCE of the prefix rather than a guess at its value.
+        # Same class as F320(c); found by the rule-15 adversary. ***
+        import glob as _g
+        _have = sorted(_g.glob(os.path.join(HERE, "out", "*_front.png")))
+        _eg = ("out/%s" % os.path.basename(_have[-1]) if _have
+               else "out/<the T1_PFX you rendered>_front.png  (out/ is empty "
+                    "here -- run the brief's SS0 render first)")
         print("NO FRAME GIVEN -- P3 (the RENDER's bumper edge) DID NOT RUN.  "
-              "Pass a frame, e.g. `python3 probe_rev67_nose.py "
-              "out/r72_front.png`.  The photograph and mesh rows below stand; "
-              "the render row is ABSENT, not passed.")
+              "Pass a frame, e.g. `python3 probe_rev67_nose.py %s`.  "
+              "The photograph and mesh rows below stand; "
+              "the render row is ABSENT, not passed." % _eg)
         absent.append("P3 (the RENDER's bumper edge) -- no frame given")
 
     if win and not nowin:

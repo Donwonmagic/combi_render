@@ -8,9 +8,9 @@ is right. Regenerate with `T1_SUB=n blender -b --python audit.py`.
 
 | | |
 |---|---|
-| generated | 2026-09-01 14:56:18 UTC |
-| git commit | `8897f44` |
-| git subject | rev 73: F301 -- the emblem's free-endpoint spine SHIPS.  Geometry, and it is visible. |
+| generated | 2026-09-03 02:10:50 UTC |
+| git commit | `0729b2a` |
+| git subject | rev 74: F322 -- the re-audit after the late ships, and its twenty defects |
 | working tree | clean |
 | blender | 4.5.3 LTS |
 | subdivision | T1_SUB=2 (applied, destructive, before booleans) |
@@ -34,7 +34,7 @@ underbody/shell fit: worst intrusion +10.5 mm at (x +1.897, y -0.03) over 1400 p
 dims  L=4.065 W=1.750 roof@rear-axle=1.9833 (regression baseline 1.9835, -0.2 mm; dome deficit +0 mm still unmodelled) (bbox top 3.132)
 H_ROOF 1.960 is RETIRED as an accuracy target (rev 22, owner's call): its only ground-line-free support was withdrawn by SPEC 10.34. The model reads 1.9833; the real vehicle's absolute roof height is OPEN and UNMEASURED. The +23 mm warn is gone because THE TEST WAS WITHDRAWN, not because the model improved -- the mesh did not move.
 rear overhang 0.7730 m = 0.3221 of the wheelbase (measured 0.773 +- 0.022 m)
-measured TRACK_F=1.3713  TRACK_R=1.3613  TYRE_D=0.6650
+measured TRACK_F=1.3713  TRACK_R=1.3613  TYRE_D=0.6649
 SPEC 10.91 ban-exemption control: 2 exempt names, 4 planted near-misses all still banned
 zero-area sweep: 0 of 229 meshes have zero area; 0 exempt (rev 56: lid_rail was the only exemption and it is BUILT now)
 lid_rail width = RAIL_PROUD 0.0213 m (owner, rev 56, off ref_workshop.jpg: 'narrow lip, ~as wide as it is tall')
@@ -88,7 +88,7 @@ Shaders read the dropped frame, so `Z_BELT`/`V_APEX` are already AG.
 | wheelbase | 2.4000 | 2.4000 | +0.0 mm ok |
 | track front | 1.3690 | 1.3690 | +0.0 mm ok |
 | track rear | 1.3590 | 1.3590 | +0.0 mm ok |
-| tyre diameter | 0.6650 | 0.6650 | +0.0 mm ok |
+| tyre diameter | 0.6649 | 0.6650 | -0.1 mm ok |
 | rocker to ground | 0.3177 | — | — |
 | belt line @ x=0.962 (live) | 1.2070 | 1.2070 | +0.0 mm ok |
 | window sill @ x=0.962 | 1.3070 | 1.3070 | +0.0 mm ok |
@@ -158,8 +158,8 @@ rev-3's three equal 0.600s are retired too, for a different reason.
 | | |
 |---|---|
 | mesh objects | 229 |
-| vertices (all meshes) | 331775 |
-| faces (all meshes) | 321882 |
+| vertices (all meshes) | 376383 |
+| faces (all meshes) | 366490 |
 
 | prefix | n |
 |---|---|

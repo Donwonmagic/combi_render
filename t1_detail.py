@@ -41,6 +41,89 @@ def place(o, loc=(0, 0, 0), rot=(0, 0, 0), scale=(1, 1, 1)):
 
 
 # ============================================================== WHEEL / TYRE
+# --------------------------------------------------------------------- rev 74
+# F308 -- THE TYRE'S TRANSVERSE TREAD.
+#
+# `T.revolve` is ROTATIONALLY SYMMETRIC BY CONSTRUCTION, so the tyre's four
+# grooves are CIRCUMFERENTIAL rings and NO amount of profile tuning could ever
+# produce the transverse lugs the photograph shows on the shoulder.  That is
+# rule 54 exactly -- the quantity is not a free parameter of the model -- so it
+# needs new construction, not a swept constant.  The lugs were LOOKED AT FIRST,
+# at TRUE PIXEL RESOLUTION with no interpolation, before any of this was
+# written: probe_scratch/r74_tread_nearest.png, off ref_playa_34.png.
+#
+# *** THE COUNT IS A DECLARED CHOICE INSIDE A MEASURED BRACKET.  IT IS NOT A
+# MEASUREMENT AND MUST NOT BE QUOTED AS ONE. ***  probe_rev74_tread.py's T2
+# puts the bracket at 48..84 lugs per revolution -- a 1.73x span -- because two
+# independent estimators (a groove PEAK COUNT and an FFT of the same angular
+# signal) disagree by ~30 % and each moves with the radius it is read at.  The
+# tread pitch is ~3 px in a 500x400 frame.  This is the same standing as
+# t1_shell.TB_WIDTH's "POSE CHOICE, NOT MEASURED", and it is labelled the same
+# way.  WHAT **IS** MEASURED IS THE KIND: the tyre must not be a surface of
+# revolution, and T3 reads 0.000000 m of angular variation before this change.
+TREAD_LUGS = 64          # DECLARED, inside the MEASURED bracket 48..84 (F308)
+TREAD_CUT  = 0.0060      # DECLARED groove depth, m.  NOT measured -- see above
+TREAD_SEG  = 6           # revolve segments per lug: 2 groove + 4 land
+# The threshold is a PHASE, and the revolve emits phases at exact multiples of
+# 1/TREAD_SEG.
+#
+# *** THE FIRST CUT OF THIS GOT IT HALF RIGHT AND SHIPPED AN IRREGULAR TREAD
+# (F319).  It used threshold 0.25 with no phase offset, reasoning that 0.25
+# sits midway between 1/6 and 2/6 so float error cannot flip a segment.  THAT
+# PROTECTS ONLY THE TRAILING EDGE.  The LEADING edge sits at phase exactly 0 --
+# the modulo wrap -- where the margin is ZERO, so every phase-0 segment was a
+# coin flip.  MEASURED on the mesh: 99 of 384 vertices cut instead of 128, in
+# runs of 1 and 2 (34 lugs two segments wide, 31 one segment wide).  Found by a
+# rule-17 adversary, not by me. ***
+#
+# FIXED by offsetting the phase HALF A SEGMENT, so vertex phases land at
+# (2k+1)/12 of a turn -- 1/12, 3/12, 5/12 ... -- and NO vertex sits on a
+# boundary.  With the threshold at 1/3 = 4/12 the two grooved segments are at
+# 1/12 and 3/12, each a full 1/12 of a turn clear of the cut.  The realised
+# duty is then genuinely 2 of 6, and probe_rev74_tread's T7 MEASURES it rather
+# than trusting this comment (rule 10).
+TREAD_PHASE = 0.5 / TREAD_SEG        # half a segment, so no vertex is on an edge
+TREAD_DUTY = 1.0 / 3.0
+TREAD_HALF = 0.0522      # tread band half-width, from the profile in tyre()
+
+
+def _cut_tread(ob):
+    """Cut TREAD_LUGS transverse grooves into the tread band, INWARD.
+
+    INWARD IS THE WHOLE POINT: the crown's maximum RADIUS is the same object
+    before and after, and probe_rev74_tread.py's T5 reads that delta as
+    5.56e-10 m.
+
+    *** BUT "SO IT CANNOT MOVE A GUARDED DIMENSION" WAS FALSE AND IS WITHDRAWN
+    (F319).  `verify.py` does not lock the maximum radius; `_measure_wheels`
+    locks `TYRE_D = max(zs) - min(zs)`, a Z BOUNDING-BOX EXTENT.  The vertex
+    nearest the +Z pole falls inside a groove, so that extent DOES shrink:
+    0.6650000 -> 0.6649110, a delta of 0.0890 mm.  (The 0.0445 mm / 560x this
+    docstring carried until F322 was measured on the IRREGULAR first cut and was
+    never re-read after the phase fix applied in the SAME commit -- rule 5, inside
+    the paragraph written to record a withdrawal.)  It is harmless -- verify.py's
+    own TOL is 0.025 m, so this is 281x inside it, and it is a DISCRETISATION
+    artefact (which discrete vertex lands nearest the pole), not a change in the
+    tyre's diameter over its lands.  What is NOT harmless is a guard that does
+    not measure the quantity it names (rule 38), so T5 now reads BOTH and says
+    which is which.  Caught by a rule-17 adversary. ***
+    """
+    me = ob.data
+    for v in me.vertices:
+        if abs(v.co.y) > TREAD_HALF:
+            continue
+        r = math.hypot(v.co.x, v.co.z)
+        if r < T.TIRE_R - 0.030:              # sidewall/bead, not the crown
+            continue
+        _ph = (math.atan2(v.co.z, v.co.x) * TREAD_LUGS
+               + T.TAU * TREAD_PHASE) % T.TAU
+        if _ph < T.TAU * TREAD_DUTY:
+            k = (r - TREAD_CUT) / r
+            v.co.x *= k
+            v.co.z *= k
+    me.update()
+
+
 def tyre(name="tyre"):
     """5.60-15 bias-ply cross-section; ribbed tread"""
     R = T.TIRE_R
@@ -90,7 +173,20 @@ def tyre(name="tyre"):
     # SPEC r4: BLACKWALL. The white ring in the reference is the painted
     # steel rim, not a whitewall band (measured: SPEC 8.1). Single slot -
     # this also removes the materials.clear() index-loss bug (old D2).
-    return T.revolve(prof, seg=112, axis='Y', name=name)
+    #
+    # rev 74, F308: seg goes 112 -> TREAD_SEG*TREAD_LUGS so each lug gets six
+    # segments.  T1_TYRE_TREAD=0 restores BOTH the old seg AND the plain
+    # revolve, i.e. the rev-73 tyre exactly -- the switch moves two things and
+    # that is stated rather than hidden, because its job is "back to what
+    # shipped".  seg does not touch the maximum radius either way (revolve
+    # places every vertex at exactly its profile radius), so TYRE_D is
+    # independent of both halves.
+    _tread = os.environ.get("T1_TYRE_TREAD", "1") != "0"
+    ob = T.revolve(prof, seg=(TREAD_SEG * TREAD_LUGS) if _tread else 112,
+                   axis='Y', name=name)
+    if _tread:
+        _cut_tread(ob)
+    return ob
 
 
 # rev 51: the disc face profile, hoisted out of rim() so it can be compared with

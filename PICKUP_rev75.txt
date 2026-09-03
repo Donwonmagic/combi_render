@@ -1,0 +1,67 @@
+# SUGGESTED PICKUP NOTES FOR REV 75 -- WRITTEN BY REV 74, NOT BY THE OWNER.
+#
+# THIS IS NOT A CARRIER AND IT OUTRANKS NOTHING.  The BRIEF
+# (PASTE_INTO_CLAUDE_CODE.txt) is what CLAUDE.md auto-imports and is the real entry
+# document.  Where this file and the brief, OPEN_FINDINGS.md, STATE.md or the scripts
+# disagree, THEY ARE RIGHT AND THIS IS WRONG.
+#
+# WARNING, AND IT IS WHY THIS FILE WAS REWRITTEN.  An earlier draft was written in the
+# OWNER'S FIRST PERSON -- ">>> MY RULING FOR THIS REVISION", "I could not tell the two
+# apart and I said so" -- including a paraphrase of F314.  A rule-17 adversary flagged
+# it: a first-person line quoted onward becomes an owner ruling he never made, and this
+# project's register is full of exactly that failure (F92; F188; and the "playa_env.py
+# is not on the table" sentence, which was a brief's INFERENCE carried as his words for
+# twelve revisions).  REWRITTEN IN NEUTRAL VOICE (F322).  The only quoted words below
+# are verbatim from OPEN_FINDINGS.md, marked as quotes and carrying their finding IDs.
+# Everything else is rev 74 speaking.
+#
+# It carries NO figures by design: it names findings to read, never values to trust.
+# Tracked only because the stop hook requires a clean tree, not because it belongs to
+# the handoff set -- HANDOFF_CARRIERS.md sec.10 names that set as the ledger, the next
+# brief, and the cp over PASTE_INTO_CLAUDE_CODE.txt, and this is none of them.
+
+
+WHAT REV 74 WOULD PUT IN FRONT OF THE OWNER WHEN HE OPENS REV 75
+================================================================
+
+The standing frame, already his and not needing restatement: photo-real parity with
+that exact bus; any single measurement off is unacceptable, per-measurement and not on
+average; report the measurement with its ceiling; never call anything ready off
+self-review.
+
+RULINGS ALREADY GIVEN -- REV 75 MUST NOT RE-ASK THESE
+-----------------------------------------------------
+* F314, rev 74, verbatim: "I can't tell them apart -- stop tuning the weight."
+  The emblem's stroke weight is UNRESOLVED, not settled, and that asking is SPENT.
+  It does NOT withdraw the emblem: F191 and F234 both stand, and it is still his
+  ninth report of it.
+* F229, rev 68: check the catalogue literature before asking him to measure a FACTORY
+  part.
+* F214 / F215: the nose.  Both askings spent.  Do not ask him the nose again.
+* PHOTOS_WANTED_rev49 items 1-5: he has said they are not possible now.
+
+WHAT REV 74 SUGGESTS RANKING FIRST -- THE OWNER'S CALL, NOT REV 74's
+-------------------------------------------------------------------
+1. THE PICKUP.  bootstrap.sh stopped on a clean clone at rev 74's pickup.  Rev 75
+   should MEASURE whether it still does rather than believe any sentence about it.
+   Read F311 and F312b first: four of those rows are one cause, the fifth is a real
+   red, and repairing the four does NOT clear bootstrap on its own.
+2. GEOMETRY, WITH THE GROUNDING CHECKED BEFORE BUILDING.  Rev 74 paid for that lesson
+   twice -- F309 (the roof loudspeakers are a POSE, not vehicle geometry) and F319 (the
+   tread shipped irregular).  Live candidates: the tail's barrel, the shut lines, the
+   glass, and the tread's own open constants.
+3. F318, the tread's one measured cost.  It is open, and rev 74 published its figure
+   stale once already.
+
+PROCESS POINTS REV 74 GOT WRONG AND WOULD FLAG
+----------------------------------------------
+* Regenerate STATE.md AFTER the last geometry edit, then run audit_adversary.py.
+  Rev 74 had that order backwards and the audit caught it.
+* Rule 17's "re-run the outgoing adversary after anything ships" is not optional.
+  Rev 74 shipped three times after its first audit and the brief went stale each time;
+  the second audit returned 20 defects, four of them top-severity, including a
+  photograph-facing figure measured on geometry that had since been replaced.
+* A red row is a finding about YOUR change.  Do not edit a script to make it pass.
+  A re-base needs the cause NAMED and a companion row making that cause separately
+  testable.
+* Run ./bootstrap.sh --guards once, and not while a render queue is going.
