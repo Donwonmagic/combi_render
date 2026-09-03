@@ -1,0 +1,74 @@
+# DRAFT PICKUP MESSAGE FOR REV 75 -- WRITTEN BY REV 74, NOT BY THE OWNER.
+#
+# THIS IS NOT A CARRIER AND IT OUTRANKS NOTHING.  It is a suggested wording for the
+# short message the owner types when opening rev 75; the BRIEF
+# (PASTE_INTO_CLAUDE_CODE.txt) is what CLAUDE.md auto-imports and is the real
+# entry document.  Where this file and the brief, OPEN_FINDINGS.md, STATE.md or the
+# scripts disagree, THEY ARE RIGHT AND THIS IS WRONG.
+#
+# The owner's ACTUAL words, whatever he types, supersede this entirely.  If rev 75
+# has opened, this file has already served its purpose -- do not act on it, and do
+# not carry it forward.  Every figure in it is deliberately absent for that reason:
+# it names findings to read, never values to trust.
+#
+# Tracked only because the stop hook requires a clean tree, not because it is part
+# of the handoff set (HANDOFF_CARRIERS.md sec.10 names that set: the ledger, the
+# next brief, and the cp over PASTE_INTO_CLAUDE_CODE.txt).
+
+Pick up combi_render at rev 75.
+
+READ FIRST, IN FULL: PASTE_INTO_CLAUDE_CODE.txt (auto-imported) and
+HANDOFF_CARRIERS.md when the brief points you at it. Do not act on any figure
+in THIS message — the brief, OPEN_FINDINGS.md and the scripts outrank it, and
+this message will be stale before you finish reading it.
+
+§0 FIRST, BEFORE YOU READ: bootstrap, `pip install pillow`, launch the render
+queue with setsid. §0b before you measure anything: `python3 photometry.py`
+must read 9 checked, 0 FAILED.
+
+§1 IS NOT A RITUAL. Run the ahead/behind loop and believe the output. At rev 74
+the designated branch again had NO remote copy at pickup — nothing was
+stranded, and row 9 is what told me so, not a sentence.
+
+RULE 55 IS THE BINDING CONSTRAINT. Rev 74 shipped geometry — the tyre's
+transverse tread. Ship a visible change to the vehicle, or say plainly at the
+TOP of your ledger why you could not. Run `python3 revstats.py` and read ITS
+numbers; do not quote a drift figure from prose.
+
+>>> MY RULING FOR THIS REVISION:
+
+FIX THE PICKUP FIRST (§1). `bootstrap.sh` stopped on a clean clone at rev 74's
+pickup — MEASURE whether it still does, do not take my word or the brief's.
+Four of those rows are one cause and the fifth is a real red: read F311 and
+F312b before you touch either. I do not want another context to lose its first
+hour to this.
+
+THEN SHIP GEOMETRY, AND CHECK THE GROUNDING BEFORE YOU BUILD. Rev 74 paid for
+that lesson twice: the roof loudspeakers turned out to be a POSE, and the tread
+shipped irregular before an adversary caught it. The live candidates are the
+tail's barrel, the shut lines, the glass, and the tread's own open constants.
+
+DO NOT RE-ASK ME THE EMBLEM'S STROKE WEIGHT. I could not tell the two apart and
+I said so — that asking is spent. The emblem itself is NOT withdrawn; it is
+still my ninth report and it is still wrong.
+
+REV 72's, 73's AND 74's FIXES ARE LOCKED AND THAT IS DELIBERATE. §3b explains
+it. You may improve any of it; you may not silently undo it. A red row is a
+finding about YOUR change. Do not edit a script to make it pass. A re-base needs
+the cause NAMED and a companion row that makes that cause separately testable.
+
+RUN `./bootstrap.sh --guards` ONCE THIS REVISION — not while the render queue is
+going. It is the only thing that exercises the five rear-hatch kills.
+
+REGENERATE STATE.md AFTER YOUR LAST GEOMETRY EDIT, NOT BEFORE IT, THEN RUN
+`audit_adversary.py`. Rev 74 got that order wrong and the audit caught it.
+
+DO NOT RE-OPEN what §3 lists as closed. The nose, the gloss grid, the BUMP_BOW
+ladder and F143's loudspeakers each closed with a ceiling, not a task.
+
+RULES 15 AND 17: dispatch an adversary at this brief, and one at the brief you
+write. Do not close until both report, and RE-RUN THE OUTGOING ONE AFTER
+ANYTHING SHIPS — rev 74 shipped three times after its audit and had to re-run it
+each time.
+
+Report the measurement with its ceiling. Do not tell me anything is ready.
