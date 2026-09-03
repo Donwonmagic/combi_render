@@ -213,6 +213,42 @@ wants 1. Caught by running it, reworded, row reads 1 again. **Recorded rather th
    (`92 checked, 3 unresolved`): I had written `r75_side.png` and `r75b_side.png` bare instead of
    `out/…`. Fixed. **The mechanical half of rule 17 earned its place.**
 
+### 6. **A FOURTH ADVERSARY PASS, OF A KIND THIS PROJECT HAD NEVER RUN: COLD-START PREPAREDNESS** (F326/F327)
+
+Asked whether the handoff was adversarially audited for **preparedness**, the honest answer was **no**.
+Rules 15 and 17 put adversaries on the incoming and outgoing briefs and rev 75 ran three such passes —
+**every one asked *are these figures true?*** Nobody had ever asked ***can a fresh context work from
+this?*** `audit_brief.py` says as much in its own output: *"This is the MECHANICAL half of rule 17."*
+
+**A fresh clone was made and the pickup followed literally. 19 defects, 3 TOP.**
+
+**THE LOAD-BEARING RESULT IS GOOD:** on a cold clone with **no `out/` directory at all**,
+`./bootstrap.sh` reads **ALL 10 PASS** and `./verify_clone.sh` reads **`5 ROW(S) SKIPPED`** then
+**`ALL 434 PASS`**, exit 0. **F323's repair works under the REAL pickup condition** — not the
+simulated one I tested, which was an empty `out/` I made by moving files aside, **a different state
+from what a clone gives you.**
+
+**THE THREE TOP, ALL FIXED:**
+1. **THE RULE CANON COLLIDES AND EVERY BRIEF POINTED AT THE WRONG ONE.** §5 sent readers to
+   `NEXT_CONTEXT_PROMPT_rev50.md` §11 for "rules 1–33", whose **rule 3 is *"read the summary line"***
+   where `CLAUDE.md`'s rule 3 is *"a control is finished when you have WATCHED IT FAIL"* — and live
+   source uses `CLAUDE.md`'s senses throughout. **A context looking up a low-numbered rule got a
+   different rule.** Now a table in §5.
+2. **EVERY FRAME THE BRIEF REASONS FROM IS GONE** — eight of them, named seventeen times, and §2.1
+   and §4 called two of them *"surviving"*. They are not on any clone.
+3. **`probe_rev70_tyre.py` CRASHED INSTEAD OF REFUSING** on an absent frame — bare
+   `FileNotFoundError`, no summary line, **in the copy-paste block**, for six revisions (F326).
+   It was the **only** frame-consuming command in §4 that did not already refuse cleanly.
+
+⚠ **AND THE MOST USEFUL MID: `out/r74f_side.png` — the "decisive unread frame" I sent rev 76 hunting
+for — IS JUST HEAD RENDERED.** `git diff --name-only 94b3751 HEAD` is three files and the
+`t1_detail.py` diff is comment-only, so HEAD's geometry **is** the rev-74 shipped tree. I wrote that
+obliquely and then instructed otherwise.
+
+**THE LESSON, AND IT BELONGS IN THE METHOD: CORRECTNESS AND PREPAREDNESS ARE DIFFERENT PROPERTIES,
+AND 19 DEFECTS SURVIVED THREE PASSES THAT ONLY TESTED THE FIRST.** Run a cold-start pass at every
+close.
+
 ## THE MACHINE AT CLOSE OF REV 75 — every figure watched print, every frame named
 
 ```
