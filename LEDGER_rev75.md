@@ -1,0 +1,171 @@
+# LEDGER — rev 75
+
+`python3 revstats.py`, live at this commit:
+
+```
+  band        revs   GEOMETRY/rev   DOC/rev   INSTR/rev   doc:geo   closed
+  rev  8-20    13         718         1007         44       1.40      0
+  rev 71-80     5         110         1885        882      17.07      2
+  LAST FIVE REVISIONS (71-75): 552 geometry lines, 2 findings closed.
+```
+
+## RULE 55, AT THE TOP AND PLAINLY: **REV 75 SHIPPED NO GEOMETRY, AND HERE IS THE MEASUREMENT BEHIND THAT.**
+
+The candidate rev 75 took to the grounding check was `HANDOFF_CARRIERS.md` §0.05's
+**build item 2, the tail board's "dark angled recess"** — live since rev 62 and explicitly
+left standing by F276 when it refuted item 1. **The grounding was checked BEFORE building,
+which is the lesson rev 74 paid for twice (F309, F319), and it does not hold up (F325).**
+
+* The feature exists in **one frame**, `IMG_3840.jpeg` (480×320), at **u 401..430, v 108..119
+  — 30 × 12 px, 58 pixels below lum 90** in a 45 × 25 px window. Window painted and looked
+  at before the number (rule 8).
+* That frame is **byte-identical to `ref_nolita_doorshut.jpg`**, so it is **n = 1**, not two
+  sightings — §0.05 carries that fact itself.
+* The only other frame showing the board propped, `ref_side.jpg` rows 180–320 cols 855–1010
+  — §0.05's own PRIMARY citation — was cropped and **looked at**: the board is **EDGE-ON**,
+  exactly as F276 established, so a recess in its face is invisible there whether or not it
+  exists. It cannot corroborate.
+* At 30 × 12 px in one oblique view, **a shadow, the panel-to-roof gap and a genuine recess
+  are not separable.**
+
+**So the honest result is *"it cannot be recovered from what we hold"* — a real result
+(rule 12, §0.1), not a task.** Building a shaped recess from this would plant an unmeasured
+feature permanently into every delivery frame, which is F309's mistake exactly. **The item is
+NOT struck; it keeps its place with the ceiling attached (rule 16).**
+
+---
+
+## WHAT REV 75 DID SHIP
+
+### 1. **F311 IS REPAIRED. THE PICKUP IS CLEARABLE — AND THE BRIEF SAID IT WAS NOT.** (F323)
+
+**MEASURED AT PICKUP**, clean tree, `out/` empty, before anything was touched:
+
+```
+  bootstrap.sh      9 PASSED, 1 FAILED          (the 1 is verify_clone.sh)
+  verify_clone.sh   423 PASSED, 6 FAILED        on a 429-row script
+                    count row: got 429, want 424  -- missing by exactly the other five
+```
+
+**THE COUNT IS FIVE, NOT FOUR** — and the incoming brief said four, five *and* six in three
+places. All five `ck` rows keyed on `probe_rev73_tailboard.py` hard-fail on an empty `out/`,
+**the ROTATION KILL row included**, so a context repairing only "the four" leaves one row
+failing for exactly the F311 reason and the pickup still red.
+
+**THE REPAIR** — new `ckabs <absent> <label> <want> <got>`:
+
+* the absent flag is read from **the probe's own summary line** (rule 9), not an `ls`, not an
+  exit code;
+* the skip path **still calls `ck`** with a comparison that cannot fail, because omitting rows
+  drops `PASS` and re-breaks the self-referential count row — **measured: empty `out/` wants
+  424 against a full `out/`'s 428**;
+* it prints the literal token **ABSENT**, never a number, with **UNGUARDED** in the row's own
+  label, so a skipped row cannot read as a measurement (rule 37);
+* `probe_rev74_tread.py`'s T6 was **not** a usable template — it is a probe row and `ck` has no
+  skip path — so the pattern was **built, not copied** (F322 called this out and was right).
+
+**FOUR COMPANION ROWS** make the cause separately testable (§3b): a **WATCHED KILL** putting the
+same deliberately wrong expectation (want 1, got 0) through **both** branches — PRESENT must go
+RED, ABSENT must pass, with the tallies snapshotted so probing the guard costs the verdict
+nothing; the flag cross-checked against an **INDEPENDENT** count of `out/*_side.png` (rule 6);
+and `SKIPPED` **bounded** at 5 with an empty `out/` and 0 with a frame, so a real row cannot be
+quietly converted into a skipping one. The verdict prints the skipped count **before** the total.
+
+```
+  MEASURED AFTER, empty out/     431 PASSED, 2 FAILED   (this session's own edit + count row)
+  MEASURED AFTER, four frames    432 PASSED, 1 FAILED   (the count row, written last)
+```
+
+⚠ **SO THE INCOMING BRIEF'S §7.1 — *"ALL-PASS IS NOT REACHABLE"* — IS REFUTED.** The all-pass
+total is **433** and it is reachable. §2.1's *"clearing the pickup needs T3 diagnosed as well —
+that is a second job"* is refuted with it.
+
+### 2. **T3's VERDICT IS RENDER NOISE, AND F312b IS REFUTED BY THE EXPERIMENT F312 PRESCRIBED.** (F324)
+
+F312 named it: *"TWO `side` renders of ONE tree would settle it … if they differ, T3 is
+measuring noise and should not have a 1.5 bar at all."* **F312b answered "systematic, it
+reproduces" — but its three frames came from THREE DIFFERENT TREES** (`r74_side` no tread,
+`r74t_side` / `r74t3_side` the irregular tread). Rev 75 made the pair on **one** tree, no source
+change between the renders:
+
+```
+  out/r75_side.png     -7.0 -> -7.00   miss 0.00   MEAN GAIN 0.883   bias +0.88   T3 PASSES
+  out/r75b_side.png    -7.0 -> -8.50   miss 1.50   MEAN GAIN 0.982   bias +0.62   T3 FAILS
+```
+
+**The one rung the verdict turns on moves 1.50° between two renders of one tree — the entire
+width of its own `abs(m-r) < 1.5` bar.**
+
+**AND THE ROW'S VERDICT DISAGREES WITH ITS OWN PUBLISHED STATISTIC.** `r75b` has the gain
+**nearer** 1.000 (0.982 against 0.883) and **four of its five rungs tighter**, and it is the one
+that fails: the verdict is set by a single outlier rung, not by the ladder. **The gain itself
+moves 0.883 → 0.982 across the pair — a spread of 0.099 against its own ~0.068 mean departure
+from 1.000 — so the probe's headline claim that the bias *"has a GAIN, not a constant offset"*
+is NOT ESTABLISHED at n = 2 either.**
+
+**NOT RE-BASED, DELIBERATELY.** A replacement bar set on n = 2 would be an invented figure
+(rule 5). Instead **T3's own message now carries this floor**, so neither its verdict nor its
+gain can be quoted without it.
+
+### 3. **A HYPOTHESIS I FORMED AND THEN KILLED WITH ITS OWN CONTROL** (rule 3, rule 4)
+
+T3's `rotate(expand=True, fillcolor=white)` **does** inject two strong axis-aligned edges —
+**measured at 179.62° and 90.38°, weights 2732–3650 against the board's 4899–5864, present in
+every rung and absent unrotated.** I expected them to be the cause. **Masking the injected
+border out removes those peaks entirely and leaves every rung unchanged to within the
+histogram's own 0.25° bin — and the one rung that moved got WORSE (+5.0: miss 1.00 → 1.25).**
+**The artefact is real and NOT causal. Recorded instead of the tidy story.**
+
+### 4. **A SECOND COPY OF A WITHDRAWN CLAIM, IN LIVE SOURCE** (F319's shape again)
+
+`t1_detail.tyre()` still read *"so `TYRE_D` is independent of both halves"* — the claim F319
+withdrew at rev 74. `verify.py` locks `out["TYRE_D"] = max(zs) - min(zs)`, a **bbox extent**, and
+it moves by **0.0890 mm**. One copy was repaired and this one was missed. **Withdrawn in place,
+not deleted.** Found by the rule-15 adversary.
+
+### 5. **MY OWN CHANGE WENT RED ON AN EXISTING GUARD AND THE GUARD WON** (rule 44)
+
+Rewording T3's message made `verify_clone.sh`'s `grep -c 'MEAN GAIN'` match **twice** where it
+wants 1. Caught by running it, reworded, row reads 1 again. **Recorded rather than quietly fixed.**
+
+---
+
+## THE MACHINE AT CLOSE OF REV 75 — every figure watched print, every frame named
+
+```
+bootstrap.sh              9 PASSED, 1 FAILED at PICKUP.  See sec.0 of the brief for the close.
+verify_clone.sh           432 PASSED, 1 FAILED with out/r75_side.png newest -- the 1 is the
+                          count row, written LAST by audit_brief.py --fix-count.
+                          ALL-PASS TOTAL 433.  0 FIDELITY, 433 SELF-CONSISTENCY
+build.py T1_VERIFY=1      VERIFY: 0 fail, 0 warn at SUB=1 AND at SUB=2
+STATE.md                  regenerated AFTER the last source edit; moved ONLY in provenance,
+                          which is the evidence the change carried no geometry
+photometry.py             9 checked, 0 FAILED
+probe_rev74_tread.py      out/r75_side.png -- 8 checked, 0 FAILED
+probe_rev73_tailboard.py  out/r75_side.png  -- 5 checked, 1 FAILED (T4)
+                          out/r75b_side.png -- 5 checked, 2 FAILED (T3, T4).  SAME TREE.  F324
+probe_rev67_nose.py       out/r75_front.png -- 7 checked, 1 FAILED (P3c).  ** THE OUTCOME IS
+                          FRAME-DEPENDENT: F316 measured 7 checked, 0 FAILED with P3c PASSING
+                          on out/r74_front.png.  Here P3c is RED: 333 of 641 columns (52 %),
+                          fitted vertex u 839 IN the gap u 836..847, against r74's 341 and
+                          u 849 SUPPORTED.  A THIRD frame, and the outcome flips again --
+                          F316's conclusion corroborated, its OUTCOME not reproduced.
+                          NO DOCUMENT MAY STATE AN EXPECTED COUNT FOR THIS PROBE **
+probe_rev46_vw.py         12 checked, 2 FAILED -- C4, C10
+probe_rev69_fitpose.py    5 checked, 1 FAILED -- P4 only
+probe_rev71_proxy.py      IoU 1.000000
+flank_compare.py          out/r75_side.png -- FAILS, worst region `i` at 0.686 (NOT `Senor`)
+gloss_compare.py          out/r75_hero34f.png -- FAILS at 0.412 (bar 0.60)
+audit_brief.py            14 checked, 1 FAILED (the count row, written last)
+audit_adversary.py        61 asked, 0 BROKE
+```
+
+**AND THE STANDING WARNING: NOT ONE of those `verify_clone` rows measures the vehicle against a
+photograph.** The four that do — `flank_compare`, `gloss_compare`, `probe_rev70_tyre`,
+`probe_rev69_fitpose` — **all fail.** Never quote 433 as fidelity.
+
+## WHAT DID NOT MOVE
+
+The emblem (his **ninth** report; F191 and F234 both stand). The nose. The back opening's form.
+F318's tyre-gate cost — **still open, and its prescribed fix, a band MEASURED to lie inside the
+rubber, is NOT done.** F156, thirteen revisions unacted. **And no geometry, per rule 55 above.**
