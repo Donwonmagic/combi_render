@@ -305,9 +305,8 @@ done off self-review. Report the measurement with its ceiling. Do not say anythi
 
 1. `./bootstrap.sh` and `./verify_clone.sh` on a **clean** tree. **All-PASS IS reachable now (433)** —
    ⚠ **but read §1's warning: the total DEPENDS ON WHICH SIDE FRAME IS NEWEST, because T3 is a coin
-   flip (F324) — rev 75 WATCHED **ALL 433 PASS** print on a clean tree TWICE (empty `out/`, five rows
-   SKIPPING; and with four frames present), and its render 2 would have given 432/1. Decide T3
-   before you treat all-PASS as a stable bar.** The honest closing condition
+   flip (F324) — rev 75 WATCHED **ALL 434 PASS** print on a clean tree, and its render 2 would have
+   given 433/1. Decide T3 before you treat all-PASS as a stable bar.** The honest closing condition
    remains: **every red is one you can name, and none of them is yours.**
 2. `python3 revstats.py` — **put its geometry/closure line in the ledger header; if the revision
    shipped nothing, say so at the TOP** (rule 55).
@@ -352,7 +351,7 @@ hats, and the root cause was **mine, not a transcription**:
    §4 told you `r75b_side` gives 2 FAILED while §2.1 said it gives 1. **F322's class exactly, in the
    brief whose rule-15 list boasts of fixing it. All four now agree.**
 3. **THE REFUTED CLAIM WAS LIVE IN TWO SOURCE FILES** — `verify_clone.sh`'s comment still asserted
-   the row *"is RED … misses by 1.75 to 2.00"* on a tree where it reads **ALL 433 PASS**, and the
+   the row *"is RED … misses by 1.75 to 2.00"* on a tree where it reads **ALL PASS**, and the
    probe's own T3 message still published the n=2 story and a reading from a deleted frame. **Both
    corrected — and this is the very defect my own ledger congratulates itself for catching in
    `t1_detail.py`, committed one file over in the same revision.**
@@ -363,7 +362,7 @@ hats, and the root cause was **mine, not a transcription**:
    a `verify_clone.sh` row instead of only in prose** — CLAUDE.md's opening rule, which I had broken.
 
 **IT ALSO CONFIRMED THE THINGS THAT MATTER**, independently and on a fresh clone: the pickup
-reproduces at **423 PASSED / 6 FAILED**; the repair gives **ALL 433 PASS with an EMPTY `out/`** (five
+reproduces at **423 PASSED / 6 FAILED**; the repair gives **ALL PASS with an EMPTY `out/`** (five
 rows printing `[UNGUARDED … ] ABSENT`) **and with four frames**; `ckabs`'s watched kill is really
 wired; and *"rev 75 shipped no geometry"* is true of the diff.
 

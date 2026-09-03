@@ -200,10 +200,16 @@ wants 1. Caught by running it, reworded, row reads 1 again. **Recorded rather th
 ## THE MACHINE AT CLOSE OF REV 75 — every figure watched print, every frame named
 
 ```
-bootstrap.sh              9 PASSED, 1 FAILED at PICKUP.  See sec.0 of the brief for the close.
-verify_clone.sh           432 PASSED, 1 FAILED with out/r75_side.png newest -- the 1 is the
-                          count row, written LAST by audit_brief.py --fix-count.
-                          ALL-PASS TOTAL 433.  0 FIDELITY, 433 SELF-CONSISTENCY
+bootstrap.sh              9 PASSED, 1 FAILED at PICKUP -> ALL 10 PASS at the CLOSE.
+                          The pickup is cleared for the first time in three revisions.
+bootstrap.sh --guards     ALL 25 PASS.  ** The incoming brief expected "24 PASSED, 1
+                          FAILED, the 1 being verify_clone" -- verify_clone now passes,
+                          so the expected reading is superseded. **
+verify_clone.sh           ALL 434 PASS on a clean tree -- WATCHED, at the close, with
+                          out/r75b_side.png (render 3) newest.  0 FIDELITY, 434
+                          SELF-CONSISTENCY.  ** AND THE TOTAL DEPENDS ON WHICH SIDE
+                          FRAME IS NEWEST (F324): render 2 would have given 433/1,
+                          because T3 is a coin flip.  Say which frame you read. **
 build.py T1_VERIFY=1      VERIFY: 0 fail, 0 warn at SUB=1 AND at SUB=2
 STATE.md                  regenerated AFTER the last source edit; moved ONLY in provenance,
                           which is the evidence the change carried no geometry
