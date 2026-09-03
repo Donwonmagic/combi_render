@@ -43,9 +43,13 @@ side frame now **SKIP and say so** — `ok … [UNGUARDED -- input absent; run t
 ABSENT` — via the new `ckabs` helper. **`PASS` is unchanged either way**, so the self-referential
 count row stays meaningful.
 
-⚠ **THE COUNT WAS FIVE, NOT FOUR, AND THE REV-75 INCOMING BRIEF SAID FOUR, FIVE *AND* SIX IN THREE
-PLACES.** All five rows keyed on `probe_rev73_tailboard.py` hard-fail on an empty `out/`, **the
-ROTATION KILL included**. Repairing "the four" would have left the pickup red.
+⚠ **THE COUNT WAS FIVE, NOT FOUR.** All five rows keyed on `probe_rev73_tailboard.py` hard-fail on
+an empty `out/`, **the ROTATION KILL included**; repairing "the four" would have left the pickup red.
+⚠ **BE FAIR TO THE REV-75 BRIEF ABOUT THIS, WHICH REV 75's OWN FIRST DRAFT WAS NOT.** Its three
+numbers — *"FOUR ARE ONE CAUSE — NOT FIVE"*, *"it has five that HARD-FAIL"*, *"§1's six rows"* — had
+three DIFFERENT stated referents and were a partition, not three counts of one thing. **The partition
+was wrong only because F312b was wrong.** Calling it "four, five and six in three places" overstates
+it, and that phrasing is corrected here and in F323.
 
 **MEASURED AT REV 75 — expect DIFFERENT numbers, the script has 433 rows now:**
 ```
@@ -106,7 +110,11 @@ of five rungs TIGHTEST, and it is the one that fails.** ⚠ **AND THE GAIN CLAIM
 ESTABLISHED — 0.883 / 0.982 / 0.919 is a spread of 0.099 against a ~0.072 mean departure from
 1.000.**
 **REV 75 DID NOT RE-BASE IT** — a bar set on n = 3 is still an invented figure (rule 5) — **but it
-did put the floor into T3's own message so the row cannot be quoted without it.** ⚠ **DO NOT simply
+did put the floor into T3's own message so the row cannot be quoted without it.**
+⚠ **AND A TRAP THIS SETS FOR YOU, NAMED SO YOU DO NOT SPRING IT: `verify_clone.sh` has a row
+`grep -c 'MEAN GAIN'` expecting exactly 1, keyed on T3's PROSE — rule 50's own class. Rev 75
+reworded that message and the row went red at two matches (rule 44; it reworded, not re-based).
+IF YOU EDIT T3's MESSAGE, RUN `verify_clone.sh` BEFORE YOU COMMIT.** ⚠ **DO NOT simply
 widen the bar. What the row is FOR is "the detector moves"; the 1:1 requirement is the part that is
 not reproducible. And the honest fix needs more than n = 3: rev 75's three renders give a 2.00°
 RANGE but no distribution. FIVE OR SIX side renders of one tree is ~30 minutes and would set a real
@@ -153,7 +161,11 @@ stand. **F252's option (C)** — 1400-start global search, **0.7586 / 0.6698** �
 F289b shows (A) and (B) WERE re-run at rev 73 — only (C) was not — so "every figure in that row has
 never been re-run" is too strong. F252's own grade reads REFUTED AT REV 73.**
 
-### **6. F156 — the `Senor` gate row scores a DELIBERATE DEPARTURE.** THIRTEEN revisions unacted (rule 40).
+### **6. F156 — the `Senor` gate row scores a DELIBERATE DEPARTURE.** THIRTEEN revisions unacted
+(rule 40). ⚠ **THAT COUNT IS HAND-INCREMENTED, like the branch count §1 warns about. It checks out
+against F156's `MEASURED-rev62` grade — but `HANDOFF_CARRIERS.md` simultaneously carries "NINE
+revisions unacted", "EIGHT revisions un-re-based" and "five revisions unacted" for the SAME finding.
+Read the grade, not any of the four sentences.**
 
 ---
 ## §3 WHAT REV 75 CLOSED — **DO NOT RE-OPEN ANY OF IT**
@@ -171,8 +183,13 @@ never been re-run" is too strong. F252's own grade reads REFUTED AT REV 73.**
 
 **YOU MAY IMPROVE ANY OF IT; YOU MAY NOT SILENTLY UNDO IT.** A red row is a FINDING ABOUT YOUR
 CHANGE. A re-base needs the cause NAMED **and** a companion row making that cause separately testable.
-**Rev 75 added FOUR rows of its own**, all frame-independent by construction so they cannot repeat
-F311. ⚠ **AND REV 75's OWN CHANGE WENT RED ON AN EXISTING ROW: rewording T3's message made
+**Rev 75 added FIVE rows of its own** — four for `ckabs` (F323) and one pinning F325's recess
+measurement against the TRACKED `IMG_3840.jpeg`. ⚠ **"Frame-independent" needs one qualification the
+rule-17 adversary supplied: two of the four DO read `out/` (`ls out/*_side.png`), so they are
+frame-AWARE, not frame-blind — they are correct either way, which is the property that matters, but
+do not repeat the phrase without it. And the `SKIPPED` bound catches a new skipping row only when
+`out/` is EMPTY: a sixth `ckabs` call whose absent flag were always 0 would leave SKIPPED at 5/0 and
+pass unnoticed.** ⚠ **AND REV 75's OWN CHANGE WENT RED ON AN EXISTING ROW: rewording T3's message made
 `grep -c 'MEAN GAIN'` match twice. The guard won (rule 44) and the text was reworded.**
 
 **RUN `./bootstrap.sh --guards` ONCE THIS REVISION.** ⚠ **BUDGET IT FROM THE MACHINE, NOT FROM PROSE:
