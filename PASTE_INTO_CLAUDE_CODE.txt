@@ -59,8 +59,8 @@ which F324 refutes.**
 
 ⚠ **BUT ONE THING IS NOW LOAD-BEARING AND YOU MUST READ IT (F324): `verify_clone.sh`'s result
 DEPENDS ON WHICH `out/*_side.png` IS ALPHABETICALLY LAST.** `probe_rev73_tailboard.py` takes no
-argument and reads that frame; T3 **passes on `out/r75_side.png` and fails on `out/r75b_side.png`, two
-renders of ONE tree**. So a verifier's verdict now turns on render luck. **That is F311's disease one
+argument and reads that frame; across **THREE renders of ONE tree** T3 **passed twice and failed
+once** (F324). So a verifier's verdict now turns on render luck. **That is F311's disease one
 level deeper and it is the first thing to decide — see §2.1.**
 
 **AND MEASURE THE BRANCH, DO NOT TRANSCRIBE IT, INCLUDING THIS SENTENCE:**
@@ -86,20 +86,25 @@ visibility … catch ORDERS OF MAGNITUDE, not rank neighbours."*** The ranked li
 ### **1. DECIDE T3, WITH THE DATA NOW IN HAND (F324). THIS IS A DECISION, NOT A MEASUREMENT.**
 F312 named the experiment; **rev 75 ran it and it lands on F312's SECOND branch:**
 ```
-  out/r75_side.png     -7.0 -> -7.00   miss 0.00   MEAN GAIN 0.883   T3 PASSES
-  out/r75b_side.png    -7.0 -> -8.50   miss 1.50   MEAN GAIN 0.982   T3 FAILS
+  render 1   out/r75_side.png    -7.0 -> -7.00   miss 0.00   GAIN 0.883   T3 PASSES
+  render 2   (deleted; see the ledger)  -7.0 -> -8.50  miss 1.50  GAIN 0.982  T3 FAILS
+  render 3   out/r75b_side.png   -7.0 -> -6.50   miss 0.50   GAIN 0.919   T3 PASSES
 ```
-**Same tree, no source change between the two renders. The rung the verdict turns on moves 1.50° —
-the entire width of its own 1.5 bar.** So *"if they differ, T3 is measuring noise and should not have
-a 1.5 bar at all"* — F312's own words — **fires.** ⚠ **AND THE VERDICT DISAGREES WITH ITS OWN
-STATISTIC: `r75b` has the gain NEARER 1.000 and four of five rungs TIGHTER, and it is the one that
-fails.** ⚠ **AND THE GAIN CLAIM ITSELF IS NOT ESTABLISHED — 0.883 → 0.982 is a spread of 0.099
-against a ~0.068 mean departure from 1.000, at n = 2.**
-**REV 75 DID NOT RE-BASE IT** — a bar set on n = 2 is an invented figure (rule 5) — **but it did put
-the floor into T3's own message so the row cannot be quoted without it.** ⚠ **DO NOT simply widen the
-bar. What the row is FOR is "the detector moves"; the 1:1 requirement is the part that is not
-reproducible. And the honest fix needs more than n = 2: THREE OR FOUR side renders of one tree is
-~20 minutes and would set a real floor (rule 49).**
+**THREE renders of ONE tree, no source change between any of them. The rung the verdict turns on
+reads −7.00 / −8.50 / −6.50 — a RANGE of 2.00°, on a rung whose bar is 1.5.** n = 3, 2 pass / 1 fail.
+So *"if they differ, T3 is measuring noise and should not have a 1.5 bar at all"* — F312's own words
+— **fires.** ⚠ **NAME THE FRAME (F316/F320c): render 2 was deleted and re-made, so the file NOW
+called `out/r75b_side.png` is render 3 and reads −6.50. The −8.50 frame no longer exists.**
+⚠ **AND THE VERDICT DISAGREES WITH ITS OWN STATISTIC: render 2 has the gain NEAREST 1.000 and four
+of five rungs TIGHTEST, and it is the one that fails.** ⚠ **AND THE GAIN CLAIM ITSELF IS NOT
+ESTABLISHED — 0.883 / 0.982 / 0.919 is a spread of 0.099 against a ~0.072 mean departure from
+1.000.**
+**REV 75 DID NOT RE-BASE IT** — a bar set on n = 3 is still an invented figure (rule 5) — **but it
+did put the floor into T3's own message so the row cannot be quoted without it.** ⚠ **DO NOT simply
+widen the bar. What the row is FOR is "the detector moves"; the 1:1 requirement is the part that is
+not reproducible. And the honest fix needs more than n = 3: rev 75's three renders give a 2.00°
+RANGE but no distribution. FIVE OR SIX side renders of one tree is ~30 minutes and would set a real
+floor (rule 49) — THEN a bar can be set on something WATCHED rather than invented.**
 
 ### **2. SHIP GEOMETRY. RULE 55 IS THE BINDING CONSTRAINT AND REV 75 DID NOT MEET IT.**
 ⚠ **CHECK THE GROUNDING BEFORE YOU BUILD — and be ready for the answer to be NO.**
@@ -285,8 +290,9 @@ RULE 56s AND TWO DIFFERENT RULE 57s, AND RULE 42 MEANS TWO DIFFERENT THINGS IN L
 done off self-review. Report the measurement with its ceiling. Do not say anything is ready.**
 
 1. `./bootstrap.sh` and `./verify_clone.sh` on a **clean** tree. **All-PASS IS reachable now (433)** —
-   ⚠ **but read §1's warning: with `out/r75b_side.png` newest it is 432/1, because T3 is a coin flip
-   (F324). Decide T3 before you treat all-PASS as a stable bar.** The honest closing condition
+   ⚠ **but read §1's warning: the total DEPENDS ON WHICH SIDE FRAME IS NEWEST, because T3 is a coin
+   flip (F324) — rev 75 saw all-PASS on two of its three renders of ONE tree and one short on the
+   other. Decide T3 before you treat all-PASS as a stable bar.** The honest closing condition
    remains: **every red is one you can name, and none of them is yours.**
 2. `python3 revstats.py` — **put its geometry/closure line in the ledger header; if the revision
    shipped nothing, say so at the TOP** (rule 55).

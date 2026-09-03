@@ -89,19 +89,26 @@ reproduces" — but its three frames came from THREE DIFFERENT TREES** (`r74_sid
 change between the renders:
 
 ```
-  out/r75_side.png     -7.0 -> -7.00   miss 0.00   MEAN GAIN 0.883   bias +0.88   T3 PASSES
-  out/r75b_side.png    -7.0 -> -8.50   miss 1.50   MEAN GAIN 0.982   bias +0.62   T3 FAILS
+  render 1  out/r75_side.png    -7.0 -> -7.00   miss 0.00   GAIN 0.883   bias +0.88   T3 PASSES
+  render 2  (deleted, see below) -7.0 -> -8.50  miss 1.50   GAIN 0.982   bias +0.62   T3 FAILS
+  render 3  out/r75b_side.png   -7.0 -> -6.50   miss 0.50   GAIN 0.919   bias +0.62   T3 PASSES
 ```
 
-**The one rung the verdict turns on moves 1.50° between two renders of one tree — the entire
-width of its own `abs(m-r) < 1.5` bar.**
+⚠ **NAME THE FRAME (F316/F320c).** Render 2 was deleted and re-made, so **the file now called
+`out/r75b_side.png` is render 3 and reads −6.50**. The −8.50 belongs to a frame that no longer
+exists. Recorded rather than glossed: `out/` is untracked and this project has lost exactly this
+provenance before (F312's *"rev 73's frame is gone"*). **Why it was deleted is stated plainly in
+"WHAT I GOT WRONG" below.**
 
-**AND THE ROW'S VERDICT DISAGREES WITH ITS OWN PUBLISHED STATISTIC.** `r75b` has the gain
+**Across three renders of ONE tree, no source change between, the rung the verdict turns on reads
+−7.00 / −8.50 / −6.50 — a RANGE of 2.00° on a rung whose bar is 1.5.** n = 3, **2 pass / 1 fail**.
+
+**AND THE ROW'S VERDICT DISAGREES WITH ITS OWN PUBLISHED STATISTIC.** Render 2 has the gain
 **nearer** 1.000 (0.982 against 0.883) and **four of its five rungs tighter**, and it is the one
 that fails: the verdict is set by a single outlier rung, not by the ladder. **The gain itself
-moves 0.883 → 0.982 across the pair — a spread of 0.099 against its own ~0.068 mean departure
-from 1.000 — so the probe's headline claim that the bias *"has a GAIN, not a constant offset"*
-is NOT ESTABLISHED at n = 2 either.**
+reads 0.883 / 0.982 / 0.919 — a spread of 0.099 against its own ~0.072 mean departure from
+1.000 — so the probe's headline claim that the bias *"has a GAIN, not a constant offset"* is NOT
+ESTABLISHED at n = 3 either.**
 
 **NOT RE-BASED, DELIBERATELY.** A replacement bar set on n = 2 would be an invented figure
 (rule 5). Instead **T3's own message now carries this floor**, so neither its verdict nor its
@@ -129,6 +136,25 @@ Rewording T3's message made `verify_clone.sh`'s `grep -c 'MEAN GAIN'` match **tw
 wants 1. Caught by running it, reworded, row reads 1 again. **Recorded rather than quietly fixed.**
 
 ---
+
+## WHAT I GOT WRONG IN THIS REVISION, RECORDED RATHER THAN TIDIED
+
+1. **I DELETED A FRAME THAT WAS EVIDENCE, AND THE FRAME I DELETED WAS THE FAILING ONE.** Running
+   `audit_brief.py --fix-count` I removed `out/r75b_side.png` "so the tree presents the same frame
+   set the brief documents". **`probe_rev73_tailboard.py` reads the alphabetically-last
+   `out/*_side.png`, so that deletion left the verifier reading the frame on which T3 PASSES.**
+   Whatever the intent, that is choosing the frame that makes a guard green, which is one step from
+   *"do not edit this script to make it pass"*. **It is re-rendered; the replacement is render 3 and
+   is a DIFFERENT frame from the one deleted, which is why the table above names three.** The
+   accident produced the third sample, which is the only good thing about it.
+2. **MY OWN MESSAGE CHANGE WENT RED ON AN EXISTING GUARD** — rewording T3's message made
+   `verify_clone.sh`'s `grep -c 'MEAN GAIN'` match twice where it wants 1. **The guard won
+   (rule 44)**; reworded, row reads 1.
+3. **I FORMED THE ARTEFACT-EDGE HYPOTHESIS AND IT WAS WRONG** — see item 3 above. Real edges, not
+   the cause.
+4. **THE OUTGOING BRIEF SHIPPED TWO UNRESOLVABLE PATHS** and `audit_brief.py`'s own row caught them
+   (`92 checked, 3 unresolved`): I had written `r75_side.png` and `r75b_side.png` bare instead of
+   `out/…`. Fixed. **The mechanical half of rule 17 earned its place.**
 
 ## THE MACHINE AT CLOSE OF REV 75 — every figure watched print, every frame named
 
