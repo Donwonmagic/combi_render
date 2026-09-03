@@ -146,12 +146,26 @@ gain can be quoted without it.
 
 ### 3. **A HYPOTHESIS I FORMED AND THEN KILLED WITH ITS OWN CONTROL** (rule 3, rule 4)
 
-T3's `rotate(expand=True, fillcolor=white)` **does** inject two strong axis-aligned edges —
-**measured at 179.62° and 90.38°, weights 2732–3650 against the board's 4899–5864, present in
-every rung and absent unrotated.** I expected them to be the cause. **Masking the injected
-border out removes those peaks entirely and leaves every rung unchanged to within the
-histogram's own 0.25° bin — and the one rung that moved got WORSE (+5.0: miss 1.00 → 1.25).**
-**The artefact is real and NOT causal. Recorded instead of the tidy story.**
+T3's `rotate(expand=True, fillcolor=white)` **does** inject strong axis-aligned edges at **≈179.6°
+and ≈90.4°**, which do **not** rotate with the content. Recomputed across all five rungs, **naming
+the frame** (rule 38/49 — my first draft quoted `2732–3650` and named none, which is a range taken
+over only some of the rungs):
+
+```
+  out/r75_side.png    board 4899..5864   axis-aligned artefact 2090..3650
+  out/r75b_side.png   board 4698..5884   axis-aligned artefact 2111..3585
+  unrotated top-3     38.88(w6068) 73.88(w1402) 179.12(w1047)   [r75_side]
+                      38.62(w6136) 73.88(w1324) 179.12(w1088)   [r75b_side]
+```
+
+⚠ **AND MY *"absent unrotated"* WAS HALF WRONG, as the rule-17 adversary said: a ≈179° peak IS
+present unrotated at w ≈ 1047–1088. What the rotation adds is the ≈90° peak, and it roughly
+DOUBLES to TRIPLES the near-horizontal one.**
+
+I expected these to be the cause. **Masking the injected border out removes those peaks entirely
+and leaves every rung unchanged to within the histogram's own 0.25° bin — and the one rung that
+moved got WORSE (+5.0: miss 1.00 → 1.25).** **The artefact is real and NOT causal. Recorded
+instead of the tidy story.**
 
 ### 4. **A SECOND COPY OF A WITHDRAWN CLAIM, IN LIVE SOURCE** (F319's shape again)
 
