@@ -305,8 +305,8 @@ done off self-review. Report the measurement with its ceiling. Do not say anythi
 
 1. `./bootstrap.sh` and `./verify_clone.sh` on a **clean** tree. **All-PASS IS reachable now (433)** —
    ⚠ **but read §1's warning: the total DEPENDS ON WHICH SIDE FRAME IS NEWEST, because T3 is a coin
-   flip (F324) — rev 75 WATCHED **ALL 434 PASS** print on a clean tree, and its render 2 would have
-   given 433/1. Decide T3 before you treat all-PASS as a stable bar.** The honest closing condition
+   flip (F324) — rev 75 WATCHED `verify_clone.sh` print **ALL 434 PASS** on a clean tree, and its
+   render 2 would have given 433/1. Decide T3 before you treat all-PASS as a stable bar.** The honest closing condition
    remains: **every red is one you can name, and none of them is yours.**
 2. `python3 revstats.py` — **put its geometry/closure line in the ledger header; if the revision
    shipped nothing, say so at the TOP** (rule 55).
