@@ -51,11 +51,12 @@ three DIFFERENT stated referents and were a partition, not three counts of one t
 was wrong only because F312b was wrong.** Calling it "four, five and six in three places" overstates
 it, and that phrasing is corrected here and in F323.
 
-**MEASURED AT REV 75 — expect DIFFERENT numbers, the script has 433 rows now:**
+**MEASURED AT REV 75 — expect DIFFERENT numbers, the script has 434 rows now:**
 ```
   PICKUP  bootstrap 9 PASSED, 1 FAILED   ·  verify_clone 423 PASSED, 6 FAILED  (429 rows)
-  CLOSE   verify_clone 432 PASSED, 1 FAILED with frames; the 1 is the count row
-          ALL-PASS TOTAL 433
+  CLOSE   verify_clone ALL 434 PASS on a clean tree -- with an EMPTY out/ (5 rows
+          SKIPPING) and with four frames.  bootstrap ALL 10 PASS; --guards ALL 25 PASS
+          ALL-PASS TOTAL 434  (WATCHED, empty out/ AND with four frames)
 ```
 ⚠ **AND THE REV-75 INCOMING BRIEF'S *"ALL-PASS IS NOT REACHABLE"* IS REFUTED** — as is its §2.1
 *"clearing the pickup needs T3 diagnosed as well — that is a second job"*. **Both rested on F312b,
@@ -100,8 +101,12 @@ So *"if they differ, T3 is measuring noise and should not have a 1.5 bar at all"
 — **fires on this tree.** ⚠ **BUT DO NOT READ F312b AS SIMPLY WRONG. Its `r74t_side`/`r74t3_side`
 ARE a SAME-TREE pair — F312b's own row says so — and they AGREED TO THE BIN at −9.00/−9.00, both
 failing. Rev 74 already ran this experiment and landed on F312's OTHER branch. THE TWO TREES ARE
-DISJOINT CLUSTERS: −9.00 / −9.00 / −8.75 against −7.00 / −8.50 / −6.50 — a TREE- OR
-BUILD-DEPENDENCE on top of the render scatter, which NEITHER of F312's two branches covers. REV 75's
+DISJOINT CLUSTERS: −9.00 / −9.00 / −8.75 against −7.00 / −8.50 / −6.50 — a BUILD-DEPENDENCE on top
+of the render scatter, which NEITHER of F312's two branches covers. ⚠ **CALL THEM CLUSTERS, NOT "THE
+TWO TREES": THREE builds are in play — no-tread, irregular tread, shipped tread — so rev 74's
+cluster itself spans two.** ⚠⚠ **AND THE DECISIVE FRAME WAS NEVER READ: `out/r74f_side.png` is the
+SHIPPED build, geometrically identical to rev 75's tree, and NO DOCUMENT REPORTS T3 ON IT. ONE
+`side` RENDER OF THE REV-74 TREE WOULD RESTORE THAT COMPARISON — DO IT BEFORE YOU SET ANY BAR.** REV 75's
 FIRST DRAFT CALLED F312b REFUTED ON A "THREE DIFFERENT TREES" PREMISE THAT F312b's OWN ROW
 CONTRADICTS; retracted (rule 13). ANY BAR YOU SET MUST SURVIVE BOTH CLUSTERS.** ⚠ **NAME THE FRAME (F316/F320c): render 2 was deleted and re-made, so the file NOW
 called `out/r75b_side.png` is render 3 and reads −6.50. The −8.50 frame no longer exists.**
@@ -320,10 +325,11 @@ RULE 56s AND TWO DIFFERENT RULE 57s, AND RULE 42 MEANS TWO DIFFERENT THINGS IN L
 **Any single measurement off is unacceptable** — per-measurement, not on average. **Never call it
 done off self-review. Report the measurement with its ceiling. Do not say anything is ready.**
 
-1. `./bootstrap.sh` and `./verify_clone.sh` on a **clean** tree. **All-PASS IS reachable now (433)** —
+1. `./bootstrap.sh` and `./verify_clone.sh` on a **clean** tree. **All-PASS IS reachable now (434)** —
    ⚠ **but read §1's warning: the total DEPENDS ON WHICH SIDE FRAME IS NEWEST, because T3 is a coin
    flip (F324) — rev 75 WATCHED `verify_clone.sh` print **ALL 434 PASS** on a clean tree, and its
-   render 2 would have given 433/1. Decide T3 before you treat all-PASS as a stable bar.** The honest closing condition
+   render 2 would have given **432 PASSED, 2 FAILED** — T3 plus the count row, which misses by
+   exactly the number of other reds. Decide T3 before you treat all-PASS as a stable bar.** The honest closing condition
    remains: **every red is one you can name, and none of them is yours.**
 2. `python3 revstats.py` — **put its geometry/closure line in the ledger header; if the revision
    shipped nothing, say so at the TOP** (rule 55).

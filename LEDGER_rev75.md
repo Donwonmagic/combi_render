@@ -90,7 +90,9 @@ quietly converted into a skipping one. The verdict prints the skipped count **be
 ```
 
 ⚠ **SO THE INCOMING BRIEF'S §7.1 — *"ALL-PASS IS NOT REACHABLE"* — IS REFUTED.** The all-pass
-total is **433** and it is reachable. §2.1's *"clearing the pickup needs T3 diagnosed as well —
+total is **434** *(433 when this was first written; the F325 row was added after)* and it is
+reachable — **WATCHED printing `ALL 434 PASS` on a clean tree BOTH with an empty `out/` and with
+four frames.** §2.1's *"clearing the pickup needs T3 diagnosed as well —
 that is a second job"* is refuted with it.
 
 ### 2. **T3's VERDICT IS RENDER NOISE, AND F312b IS REFUTED BY THE EXPERIMENT F312 PRESCRIBED.** (F324)
@@ -222,15 +224,26 @@ bootstrap.sh --guards     ALL 25 PASS.  ** The incoming brief expected "24 PASSE
 verify_clone.sh           ALL 434 PASS on a clean tree -- WATCHED, at the close, with
                           out/r75b_side.png (render 3) newest.  0 FIDELITY, 434
                           SELF-CONSISTENCY.  ** AND THE TOTAL DEPENDS ON WHICH SIDE
-                          FRAME IS NEWEST (F324): render 2 would have given 433/1,
-                          because T3 is a coin flip.  Say which frame you read. **
+                          FRAME IS NEWEST (F324): render 2 would have given
+                          432 PASSED, 2 FAILED -- T3 plus the count row, which
+                          misses by exactly the number of other reds.  (This said
+                          "433/1"; that is arithmetically impossible by the count
+                          row's own mechanism and the second rule-17 pass caught
+                          it.)  Say which frame you read. **
 build.py T1_VERIFY=1      VERIFY: 0 fail, 0 warn at SUB=1 AND at SUB=2
 STATE.md                  regenerated AFTER the last source edit; moved ONLY in provenance,
                           which is the evidence the change carried no geometry
 photometry.py             9 checked, 0 FAILED
 probe_rev74_tread.py      out/r75_side.png -- 8 checked, 0 FAILED
-probe_rev73_tailboard.py  out/r75_side.png  -- 5 checked, 1 FAILED (T4)
-                          out/r75b_side.png -- 5 checked, 2 FAILED (T3, T4).  SAME TREE.  F324
+probe_rev73_tailboard.py  out/r75_side.png  -- 5 checked, 1 FAILED (T4 only, T3 PASSES)
+                          out/r75b_side.png -- 5 checked, 1 FAILED (T4 only, T3 PASSES)
+                          ** BOTH SURVIVING FRAMES READ 1 FAILED.  The 2 FAILED
+                          reading belongs to RENDER 2, which was deleted and
+                          re-made -- see F324 and "WHAT I GOT WRONG" above.  This
+                          block said "out/r75b_side.png -- 2 FAILED" until the
+                          second rule-17 pass caught it contradicting the ALL 434
+                          PASS line eleven lines above: that total is only
+                          reachable if T3 PASSES on the newest frame. **
 probe_rev67_nose.py       out/r75_front.png -- 7 checked, 1 FAILED (P3c).  ** THE OUTCOME IS
                           FRAME-DEPENDENT: F316 measured 7 checked, 0 FAILED with P3c PASSING
                           on out/r74_front.png.  Here P3c is RED: 333 of 641 columns (52 %),
@@ -249,7 +262,7 @@ audit_adversary.py        61 asked, 0 BROKE
 
 **AND THE STANDING WARNING: NOT ONE of those `verify_clone` rows measures the vehicle against a
 photograph.** The four that do — `flank_compare`, `gloss_compare`, `probe_rev70_tyre`,
-`probe_rev69_fitpose` — **all fail.** Never quote 433 as fidelity.
+`probe_rev69_fitpose` — **all fail.** Never quote 434 as fidelity.
 
 ## WHAT DID NOT MOVE
 
