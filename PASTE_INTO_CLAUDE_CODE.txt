@@ -117,19 +117,16 @@ failing. Rev 74 already ran this experiment and landed on F312's OTHER branch. T
 DISJOINT CLUSTERS: −9.00 / −9.00 / −8.75 against −7.00 / −8.50 / −6.50 — a BUILD-DEPENDENCE on top
 of the render scatter, which NEITHER of F312's two branches covers. ⚠ **CALL THEM CLUSTERS, NOT "THE
 TWO TREES": THREE builds are in play — no-tread, irregular tread, shipped tread — so rev 74's
-cluster itself spans two.** ⚠⚠ **AND THE DECISIVE FRAME WAS NEVER READ: `out/r74f_side.png` is the
-SHIPPED build, geometrically identical to rev 75's tree, and NO DOCUMENT REPORTS T3 ON IT. AND HERE IS
-THE CHEAP PART, WHICH THE REV-75 BRIEF BURIED: `git diff --name-only 94b3751 HEAD` is
-`probe_rev73_tailboard.py, t1_detail.py, verify_clone.sh`, and the `t1_detail.py` diff is
-COMMENT-ONLY — so **HEAD's GEOMETRY *IS* THE REV-74 SHIPPED TREE, AND §0's `out/r76_side.png` IS
-THAT RENDER.** You do not need to check anything out. Just read T3 on your own §0 side frames.** REV 75's
-FIRST DRAFT CALLED F312b REFUTED ON A "THREE DIFFERENT TREES" PREMISE THAT F312b's OWN ROW
-CONTRADICTS; retracted (rule 13). ANY BAR YOU SET MUST SURVIVE BOTH CLUSTERS.** ⚠ **NAME THE FRAME (F316/F320c): render 2 was deleted and re-made, so the file NOW
-called `out/r75b_side.png` is render 3 and reads −6.50. The −8.50 frame no longer exists.**
-⚠ **AND THE VERDICT DISAGREES WITH ITS OWN STATISTIC: render 2 has the gain NEAREST 1.000 and four
-of five rungs TIGHTEST, and it is the one that fails.** ⚠ **AND THE GAIN CLAIM ITSELF IS NOT
-ESTABLISHED — 0.883 / 0.982 / 0.919 is a spread of 0.099 against a ~0.072 mean departure from
-1.000.**
+cluster itself spans two.** ⚠⚠ **THE DECISIVE FRAME WAS NEVER READ: `out/r74f_side.png` is the
+SHIPPED build and NO DOCUMENT REPORTS T3 ON IT — but `git diff --name-only 94b3751 HEAD` is three
+files and the `t1_detail.py` diff is COMMENT-ONLY, so HEAD's GEOMETRY *IS* THE REV-74 TREE and §0's
+own side render IS that frame. Check nothing out; just read T3 on your §0 frames.** Rev 75's first
+draft called F312b refuted on a "three different trees" premise its own row contradicts; retracted
+(rule 13). **ANY BAR MUST SURVIVE BOTH CLUSTERS.** ⚠ **NAME THE FRAME: render 2 was deleted and
+re-made, so `out/r75b_side.png` is render 3 and reads −6.50; the −8.50 frame is gone (F316/F320c).**
+⚠ **THE VERDICT DISAGREES WITH ITS OWN STATISTIC: render 2 has the gain NEAREST 1.000 and four of
+five rungs TIGHTEST, and it is the one that fails. And the gain claim is NOT ESTABLISHED — 0.883 /
+0.982 / 0.919, a spread of 0.099 against a ~0.072 mean departure from 1.000.**
 **REV 75 DID NOT RE-BASE IT** — a bar set on n = 3 is still an invented figure (rule 5) — **but it
 did put the floor into T3's own message so the row cannot be quoted without it.**
 ⚠ **AND A TRAP THIS SETS FOR YOU, NAMED SO YOU DO NOT SPRING IT: `verify_clone.sh` has a row
@@ -263,11 +260,13 @@ python3 probe_rev70_tyre.py out/r76_side.png
   # summary line, six revisions, in this copy-paste block (rule 37 + rule 51).  It now REFUSES:
   # "NO SUCH FRAME ... nothing was measured (rule 37)", then "1 checked, 0 FAILED".  It was the
   # ONLY frame-consuming probe in sec.4 that did not already refuse cleanly.
-  # ⚠ IT OVERWRITES THE TRACKED FILE probe_scratch/rev70_tyre_render.png, so running it REDS
-  # verify_clone's "modified tracked files" row and breaks sec.7 step 1 as a side effect.
-  # `git checkout -- probe_scratch/rev70_tyre_render.png` after.
-  # ⚠ AND SO DOES probe_rev67_nose.py, which repaints probe_scratch/rev73_bumper_window.png --
-  # unlisted for two revisions, found by rev 75's rule-15 adversary
+  # ⚠⚠ IT REPAINTS TRACKED FILES, AND SO DO 16 OTHERS: MEASURED at rev 75, 17 probes write 42
+  # TRACKED probe_scratch/*.png (F329).  Every earlier brief named one or two -- whack-a-mole.
+  # ANY probe sweep REDS "modified tracked files" and breaks sec.7 step 1.  THE RULE, NOT THE LIST:
+  #   git status --porcelain ; git checkout -- probe_scratch/   # repaints are side effects, NOT work
+  # ⚠ AND LOOK BEFORE COMMITTING: a probe run without a frame can repaint a tracked PNG SMALLER and
+  # DEGRADED -- rev 75 caught rev69_emblem_render.png going 24578 -> 13500 bytes.  Committing that
+  # destroys a painted window rule 8 depends on
 python3 visibility_budget.py 3840 out/r76_hero34f.png ; python3 revstats.py
 T1_SUB=2 /tmp/blender/blender -b -P audit.py            # rewrites STATE.md -- COMMIT FIRST,
   # and do it AFTER your LAST source edit, THEN run audit_adversary.py
