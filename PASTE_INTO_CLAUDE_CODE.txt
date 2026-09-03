@@ -192,7 +192,14 @@ python3 probe_rev71_red.py out/r75_side.png --transform=agx   # REFUSES with a s
 python3 probe_rev70_tyre.py out/r75_side.png ; python3 probe_rev46_vw.py
 python3 visibility_budget.py 3840 out/r75_hero34f.png ; python3 revstats.py
 T1_SUB=2 /tmp/blender/blender -b -P audit.py            # rewrites STATE.md -- COMMIT FIRST
-python3 audit_brief.py ; python3 audit_adversary.py     # rules 15/17, MECHANICAL half only
+python3 audit_brief.py ; python3 audit_adversary.py     # rules 15/17, MECHANICAL half only.
+  # At rev 74's close: audit_brief 14 checked / 0 FAILED; audit_adversary 61 asked / 0 BROKE.
+  # AND audit_adversary IS WHAT CAUGHT STATE.md STALE AT REV 74 -- it asks "is STATE.md
+  # CURRENT for the geometry? (19 verify rows read it)" and it BROKE, because STATE.md had
+  # been regenerated BEFORE the revision's last geometry change instead of after it.
+  # ** REGENERATE STATE.md AFTER YOUR LAST GEOMETRY EDIT, THEN RUN THIS. ** Regenerating it
+  # is not cosmetic: on the repaired tread it moved TYRE_D 0.6650 -> 0.6649 and published
+  # the 0.089 mm the tread costs, which had been invisible as a -0.0 mm sign flip (F319)
 ```
 
 **THE ABLATIONS THAT MAKE GATES REFUSE.** ⚠ **`--guards` RUNS ONLY THE `T1_REAR_*` BLOCK — the four
@@ -274,7 +281,9 @@ done off self-review. Report the measurement with its ceiling. Do not say anythi
 1. `./bootstrap.sh` and `./verify_clone.sh` all-PASS on a **clean** tree. **See §1 first.**
 2. `python3 revstats.py` — **put its geometry/closure line in the ledger header; if the revision
    shipped nothing, say so at the TOP** (rule 55).
-3. Regenerate `STATE.md` (`T1_SUB=2 … audit.py`) — **commit first**.
+3. Regenerate `STATE.md` (`T1_SUB=2 … audit.py`) — **commit first, and do it AFTER your LAST
+   geometry edit.** ⚠ **REV 74 DID IT BEFORE ITS LAST ONE and `audit_adversary.py` caught it:
+   `61 asked, 1 BROKE — is STATE.md CURRENT for the geometry? (19 verify rows read it)`.**
 4. **DISPATCH an adversary at the brief you WROTE (rule 17), and one at the brief you RECEIVED
    (rule 15). DO NOT CLOSE UNTIL BOTH REPORT.** ⚠ **AND RE-RUN THE OUTGOING ONE AFTER ANYTHING SHIPS.**
 5. **Keep the split, and KEEP THIS FILE SHORT.** `cp` it over `PASTE_INTO_CLAUDE_CODE.txt` in the

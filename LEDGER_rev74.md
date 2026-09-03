@@ -164,6 +164,7 @@ EXTENT** — and the vertex nearest the +Z pole falls in a groove, so it **does*
 noise** — the tyre-diameter delta flipped `+0.0 → -0.0 mm` and I called that *"sub-micron"* in a
 commit message. **T5b now reads the bbox extent and names it: 281× inside `verify.py`'s own
 `TOL = 0.025 m`, and a discretisation artefact rather than a change in diameter over the lands.**
+**AND `STATE.md`, REGENERATED ON THE REPAIRED TREAD, NOW PUBLISHES IT: `TYRE_D=0.6649` and `tyre diameter 0.6649 / 0.6650 / -0.1 mm ok`**, where it read 0.6650 and `-0.0 mm`. The cost is now visible in the machine-written record at its own precision rather than hidden in a last-digit sign flip. ⚠ **AND IT WAS `audit_adversary.py` THAT CAUGHT `STATE.md` STALE IN THE FIRST PLACE** — `61 asked, 1 BROKE: is STATE.md CURRENT for the geometry?` — because I had regenerated it BEFORE the F319 fix, which is the exact failure `CLAUDE.md` warns about, in the revision whose own §7 step 3 requires it. **`61 asked, 0 BROKE` now.**
 
 ---
 
