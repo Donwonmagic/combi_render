@@ -1,6 +1,8 @@
 # LEDGER — rev 75
 
-`python3 revstats.py`, live at this commit:
+`python3 revstats.py` — ⚠ **RE-RUN IT: these move every commit, and the DOC/rev and doc:geo
+figures below were already stale by the close of this revision (the adversary read 2105 / 19.07
+against the 1885 / 17.07 printed here). The GEOMETRY and CLOSED columns are the ones to read:**
 
 ```
   band        revs   GEOMETRY/rev   DOC/rev   INSTR/rev   doc:geo   closed
@@ -21,15 +23,26 @@ which is the lesson rev 74 paid for twice (F309, F319), and it does not hold up 
   at before the number (rule 8).
 * That frame is **byte-identical to `ref_nolita_doorshut.jpg`**, so it is **n = 1**, not two
   sightings — §0.05 carries that fact itself.
-* The only other frame showing the board propped, `ref_side.jpg` rows 180–320 cols 855–1010
-  — §0.05's own PRIMARY citation — was cropped and **looked at**: the board is **EDGE-ON**,
-  exactly as F276 established, so a recess in its face is invisible there whether or not it
-  exists. It cannot corroborate.
-* At 30 × 12 px in one oblique view, **a shadow, the panel-to-roof gap and a genuine recess
-  are not separable.**
+* `ref_side.jpg` rows 180–320 cols 855–1010 — §0.05's own PRIMARY citation — was cropped and
+  **looked at**: the board is **EDGE-ON**, exactly as F276 established, so a recess in its face is
+  invisible there whether or not it exists. It cannot corroborate.
+* ⚠ **AND MY FIRST DRAFT CALLED THAT "THE ONLY OTHER FRAME", WHICH IS WRONG — §0.05 NAMES A THIRD,
+  `ref_rear34.jpg` (820, 0)–(1200, 300), AND I NEITHER OPENED NOR MENTIONED IT.** The rule-17
+  adversary cropped it and the propped board is plainly there. **Three frames show the board
+  propped, not two.** Whether its face is turned enough to show a recess is NOT established here —
+  **that is the first thing rev 76 should look at, and it may overturn this refusal.**
+* ⚠ **AND ONE OF MY THREE HYPOTHESES IS EXCLUDED BY THE SAME FRAME I MEASURED.** I wrote that
+  *"a shadow, the panel-to-roof gap and a genuine recess are not separable"*. Measured in the 3–4 px
+  bands around the blob's bbox — **above v104..107 median 217.7, below v120..123 median 204.1, left
+  u397..400 median 208.4, right u431..434 median 210.1, and `frac<90` is 0.00 on all four** — the
+  dark region is **fully interior to the board's cream face and nowhere near a silhouette edge.**
+  **The panel-gap reading is refuted from my own window.** The refusal now rests on **shadow versus
+  recess, and on depth**, which is narrower than I first claimed and which a reader must not take as
+  weaker evidence than it is.
 
 **So the honest result is *"it cannot be recovered from what we hold"* — a real result
-(rule 12, §0.1), not a task.** Building a shaped recess from this would plant an unmeasured
+(rule 12, §0.1), not a task — BUT HELD AT ITS TRUE STRENGTH: shadow-versus-recess at 30 × 12 px in
+one oblique view, with `ref_rear34.jpg` NOT YET LOOKED AT.** Building a shaped recess from this would plant an unmeasured
 feature permanently into every delivery frame, which is F309's mistake exactly. **The item is
 NOT struck; it keeps its place with the ceiling attached (rule 16).**
 
@@ -82,11 +95,9 @@ that is a second job"* is refuted with it.
 
 ### 2. **T3's VERDICT IS RENDER NOISE, AND F312b IS REFUTED BY THE EXPERIMENT F312 PRESCRIBED.** (F324)
 
-F312 named it: *"TWO `side` renders of ONE tree would settle it … if they differ, T3 is
-measuring noise and should not have a 1.5 bar at all."* **F312b answered "systematic, it
-reproduces" — but its three frames came from THREE DIFFERENT TREES** (`r74_side` no tread,
-`r74t_side` / `r74t3_side` the irregular tread). Rev 75 made the pair on **one** tree, no source
-change between the renders:
+F312 named it, verbatim: *"**WHAT WOULD SETTLE IT, AND IT IS CHEAP: two `side` renders of the
+SAME tree, T3 read on both.** … if they differ, T3 is measuring noise and should not have a 1.5 bar
+at all."* Rev 75 ran it on the **shipped** tree, no source change between the renders:
 
 ```
   render 1  out/r75_side.png    -7.0 -> -7.00   miss 0.00   GAIN 0.883   bias +0.88   T3 PASSES
@@ -110,7 +121,26 @@ reads 0.883 / 0.982 / 0.919 — a spread of 0.099 against its own ~0.072 mean de
 1.000 — so the probe's headline claim that the bias *"has a GAIN, not a constant offset"* is NOT
 ESTABLISHED at n = 3 either.**
 
-**NOT RE-BASED, DELIBERATELY.** A replacement bar set on n = 2 would be an invented figure
+⚠ **AND A CORRECTION I MADE IN THIS SAME REVISION, BECAUSE MY FIRST DRAFT OF THIS SECTION WAS
+WRONG (rule 13).** I wrote that F312b's three frames *"came from THREE DIFFERENT TREES"* and that
+**F312b was therefore refuted**. The rule-17 adversary checked F312b's own row and it says the
+opposite: *"Rev 74 had made exactly that pair — `r74t_side.png` and `r74t3_side.png`, **same tree,
+no source change between**"*, and **both read `-7.0 -> -9.00`, agreeing to the histogram bin.** So:
+
+* it is **TWO** trees, not three;
+* **rev 74 DID run F312's experiment**, on a same-tree pair, and landed on F312's **FIRST** branch
+  (*"the bar is simply too tight"*);
+* **the two trees give TWO DISJOINT CLUSTERS — `-9.00 / -9.00 / -8.75` against `-7.00 / -8.50 /
+  -6.50`** — which is a **tree- or build-dependence on top of the render scatter, and NEITHER of
+  F312's two branches covers it.**
+
+**So F312b is NOT refuted wholesale. What is refuted is its GENERALISATION** — *"the failure is not
+[render-sensitive]: it reproduces"* — **which held on its tree and does not hold on this one.**
+That is a better result than the one I first wrote, and I would not have found it: **`-9.00` and
+`-9.00` agreeing to the bin is the strongest single piece of evidence AGAINST "render noise", it
+sits inside the row I was quoting, and my first draft did not mention it.**
+
+**NOT RE-BASED, DELIBERATELY.** A replacement bar set on n = 3 would be an invented figure
 (rule 5). Instead **T3's own message now carries this floor**, so neither its verdict nor its
 gain can be quoted without it.
 
@@ -138,6 +168,17 @@ wants 1. Caught by running it, reworded, row reads 1 again. **Recorded rather th
 ---
 
 ## WHAT I GOT WRONG IN THIS REVISION, RECORDED RATHER THAN TIDIED
+
+0. **I CALLED F312b REFUTED ON A PREMISE THAT ITS OWN ROW CONTRADICTS** — "three different trees",
+   when two of the three are the same-tree pair F312 asked for and they AGREED at −9.00/−9.00.
+   Retracted above and in F324, in the same revision (rule 13). **This is the revision's most
+   consequential error and an adversary found it, not me.**
+0b. **AND `revstats.py` ATTRIBUTES 16 GEOMETRY LINES TO REV 75 WHILE THIS LEDGER'S HEADLINE SAYS NO
+   GEOMETRY SHIPPED.** Both are true and the reconciliation belongs here rather than left to trip
+   someone: the 16 lines are the **comment-only** withdrawal in `t1_detail.py`, which
+   `revstats.py` counts by file rather than by whether the mesh moved.
+   `git diff cc99248..HEAD -- t1_detail.py` is comments throughout, and `STATE.md` moved **only in
+   provenance** — which is the independent evidence.
 
 1. **I DELETED A FRAME THAT WAS EVIDENCE, AND THE FRAME I DELETED WAS THE FAILING ONE.** Running
    `audit_brief.py --fix-count` I removed `out/r75b_side.png` "so the tree presents the same frame

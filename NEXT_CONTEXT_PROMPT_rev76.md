@@ -93,7 +93,13 @@ F312 named the experiment; **rev 75 ran it and it lands on F312's SECOND branch:
 **THREE renders of ONE tree, no source change between any of them. The rung the verdict turns on
 reads −7.00 / −8.50 / −6.50 — a RANGE of 2.00°, on a rung whose bar is 1.5.** n = 3, 2 pass / 1 fail.
 So *"if they differ, T3 is measuring noise and should not have a 1.5 bar at all"* — F312's own words
-— **fires.** ⚠ **NAME THE FRAME (F316/F320c): render 2 was deleted and re-made, so the file NOW
+— **fires on this tree.** ⚠ **BUT DO NOT READ F312b AS SIMPLY WRONG. Its `r74t_side`/`r74t3_side`
+ARE a SAME-TREE pair — F312b's own row says so — and they AGREED TO THE BIN at −9.00/−9.00, both
+failing. Rev 74 already ran this experiment and landed on F312's OTHER branch. THE TWO TREES ARE
+DISJOINT CLUSTERS: −9.00 / −9.00 / −8.75 against −7.00 / −8.50 / −6.50 — a TREE- OR
+BUILD-DEPENDENCE on top of the render scatter, which NEITHER of F312's two branches covers. REV 75's
+FIRST DRAFT CALLED F312b REFUTED ON A "THREE DIFFERENT TREES" PREMISE THAT F312b's OWN ROW
+CONTRADICTS; retracted (rule 13). ANY BAR YOU SET MUST SURVIVE BOTH CLUSTERS.** ⚠ **NAME THE FRAME (F316/F320c): render 2 was deleted and re-made, so the file NOW
 called `out/r75b_side.png` is render 3 and reads −6.50. The −8.50 frame no longer exists.**
 ⚠ **AND THE VERDICT DISAGREES WITH ITS OWN STATISTIC: render 2 has the gain NEAREST 1.000 and four
 of five rungs TIGHTEST, and it is the one that fails.** ⚠ **AND THE GAIN CLAIM ITSELF IS NOT
@@ -109,10 +115,16 @@ floor (rule 49) — THEN a bar can be set on something WATCHED rather than inven
 ### **2. SHIP GEOMETRY. RULE 55 IS THE BINDING CONSTRAINT AND REV 75 DID NOT MEET IT.**
 ⚠ **CHECK THE GROUNDING BEFORE YOU BUILD — and be ready for the answer to be NO.**
 **F325: the tail board's *"dark angled recess"*, §0.05's build item 2, live since rev 62, IS NOT
-GROUNDED.** One frame, **30 × 12 px, 58 px below lum 90**; that frame is byte-identical to
-`ref_nolita_doorshut.jpg` so it is **n = 1**; and the only other frame showing the board propped is
-**EDGE-ON** and cannot corroborate it by construction. **Shadow, panel gap and recess are not
-separable at that size. NOT struck — carried with its ceiling (rule 16).**
+GROUNDED — AT ITS TRUE STRENGTH, WHICH IS NARROWER THAN REV 75 FIRST WROTE.** One frame,
+**30 × 12 px, 58 px below lum 90**; that frame is byte-identical to `ref_nolita_doorshut.jpg`, so
+**n = 1**; `ref_side.jpg` is **EDGE-ON** and cannot corroborate by construction.
+⚠ **(a) §0.05 NAMES A THIRD FRAME, `ref_rear34.jpg` (820, 0)–(1200, 300), WHICH REV 75 NEITHER
+OPENED NOR MENTIONED — the propped board IS in it. LOOK AT IT FIRST; IT MAY OVERTURN THIS REFUSAL.**
+⚠ **(b) rev 75's *"shadow, panel gap and recess are not separable"* IS ONE HYPOTHESIS TOO WIDE — the
+bands around the blob read median 204–218 with `frac<90` = 0.00 on all four sides, so the dark region
+is FULLY INTERIOR to the cream face and the PANEL-GAP reading is refuted from that same window. The
+refusal rests on SHADOW versus RECESS, and on depth.** **NOT struck — carried with its ceiling
+(rule 16).**
 **So the live candidates are: the tail's barrel, the shut lines, the glass, and the tread's own open
 constants (§2.3). CHECK EACH ONE'S GROUNDING FIRST — that is what rev 74 paid for twice and what
 rev 75 spent its geometry slot on.**
@@ -149,7 +161,7 @@ never been re-run" is too strong. F252's own grade reads REFUTED AT REV 73.**
 | closed | the result |
 |---|---|
 | **THE PICKUP (F311 → F323)** | **REPAIRED.** `ckabs` reads the absent flag from **the probe's own summary line** (rule 9); the skip **still calls `ck`** so `PASS` is unchanged (omitting rows re-breaks the count row — measured, 424 vs 428); it prints **ABSENT**, never a number, and says **UNGUARDED** in the label (rule 37). **Four companion rows** (§3b): a WATCHED KILL through both branches with tallies snapshotted, the flag cross-checked against an INDEPENDENT `ls` (rule 6), and `SKIPPED` BOUNDED at 5/0. **T3's comparison is UNTOUCHED.** |
-| **F312 / F312b (F324)** | **F312b IS REFUTED BY F312's OWN EXPERIMENT.** Its three frames were three DIFFERENT trees. One tree, two renders: **T3 passes on one and fails on the other**, the deciding rung moving **1.50°**. **T3's verdict is render noise.** Not re-based (rule 5); the floor is now in T3's own message. |
+| **F312 / F312b (F324)** | **T3's VERDICT IS RENDER NOISE ON THIS TREE.** THREE renders of ONE tree read the deciding rung at **−7.00 / −8.50 / −6.50 — a 2.00° range on a 1.5 bar**, 2 pass / 1 fail. ⚠ **BUT F312b IS *NOT* REFUTED WHOLESALE, AND REV 75's FIRST DRAFT SAID IT WAS (retracted, rule 13).** F312b's `r74t_side`/`r74t3_side` **are a SAME-TREE pair — its own row says so — and they AGREED at −9.00/−9.00.** It is TWO trees, not three. **The two trees are DISJOINT CLUSTERS (−9.00/−9.00/−8.75 against −7.00/−8.50/−6.50), so there is a TREE-DEPENDENCE too and NEITHER of F312's branches covers it.** What is refuted is F312b's GENERALISATION that it reproduces. Not re-based (rule 5); the floor is in T3's own message. |
 | **THE ARTEFACT-EDGE HYPOTHESIS (F324)** | **MINE, AND I KILLED IT WITH ITS OWN CONTROL.** T3's `rotate(expand, fillcolor=white)` **does** inject axis-aligned edges — **179.62° and 90.38°, weights 2732–3650 against the board's 4899–5864**, in every rung, absent unrotated. **Masking them out changes no rung by more than the histogram's 0.25° bin, and the one that moved got WORSE.** Real, and **NOT causal**. |
 | **THE RECESS'S GROUNDING (F325)** | **REFUSED ON THE MEASUREMENT, BEFORE BUILDING.** 30 × 12 px, n = 1, the corroborating frame edge-on by construction. *"It cannot be recovered from what we hold"* is the result (rule 12). |
 | **A SECOND COPY OF A WITHDRAWN CLAIM** | `t1_detail.tyre()` still read *"so `TYRE_D` is independent of both halves"* — F319 withdrew that at rev 74 and **one copy was missed**. `TYRE_D` is a **bbox extent** and moves by **0.0890 mm**. Withdrawn in place. |
@@ -173,7 +185,7 @@ times across 15 invocations. It is the only thing that exercises the five rear-h
 
 ```bash
 ./bootstrap.sh                                # READ ROW 9.  Row 10 is verify_clone.sh
-./verify_clone.sh                             # ALL 433 PASS -- 0 FIDELITY, 433 SELF-CONSISTENCY.
+./verify_clone.sh                             # ALL 434 PASS -- 0 FIDELITY, 434 SELF-CONSISTENCY.
   # ⚠ AND THE TOTAL DEPENDS ON WHICH out/*_side.png IS ALPHABETICALLY LAST (F324) -- see sec.2.1.
   # With an empty out/, five rows SKIP and say UNGUARDED; PASS is the same either way.
   # READ THE VERDICT BLOCK: not one row measures the vehicle against a photograph
@@ -186,7 +198,8 @@ python3 probe_rev74_tread.py out/r76_side.png   # 8 checked, 0 FAILED.  NAME YOU
 T1_TYRE_TREAD=0 python3 probe_rev74_tread.py  # THE KILL.  T3 must go RED (0.0000 m)
 python3 probe_rev73_tailboard.py              # ⚠ 5 checked, 1 or 2 FAILED -- IT DEPENDS ON THE
   # FRAME (F324) AND THE PROBE TAKES NO ARGUMENT.  T4 always fails BY DESIGN.  T3 is the
-  # coin-flip: r75_side 1 FAILED, r75b_side 2 FAILED, SAME TREE.  READ THE FRAME IT PRINTS
+  # coin flip.  ON THE LIVE TREE BOTH SURVIVING FRAMES READ 1 FAILED (T4 only); the frame that
+  # read 2 FAILED was render 2 and NO LONGER EXISTS.  READ THE FRAME THE PROBE PRINTS
 python3 probe_rev67_nose.py out/r76_front.png
   # ⚠ THE OUTCOME IS FRAME-DEPENDENT AND NO DOCUMENT MAY STATE AN EXPECTED COUNT.  Measured:
   # r74_front 7 checked 0 FAILED with P3c PASSING (F316); r75_front 7 checked 1 FAILED with
@@ -209,7 +222,8 @@ python3 visibility_budget.py 3840 out/r76_hero34f.png ; python3 revstats.py
 T1_SUB=2 /tmp/blender/blender -b -P audit.py            # rewrites STATE.md -- COMMIT FIRST,
   # and do it AFTER your LAST source edit, THEN run audit_adversary.py
 python3 audit_brief.py ; python3 audit_adversary.py     # rules 15/17, MECHANICAL half only.
-  # At rev 75's close: audit_brief 14 checked / 1 FAILED (the count row, fixed LAST);
+  # At rev 75's close, AFTER --fix-count: audit_brief 14 checked / 0 FAILED.  Before it the count
+  # row is red BY CONSTRUCTION -- that is sec.7.5's ordering, not a defect;
   # audit_adversary 61 asked / 0 BROKE.  ⚠ audit_adversary BREAKS if you cite an F-number
   # in verify_clone.sh before writing its row in OPEN_FINDINGS.md -- it caught exactly that
   # at rev 75 ("does every F-number cited by verify_clone.sh exist in the register?")
@@ -251,7 +265,7 @@ RULE 56s AND TWO DIFFERENT RULE 57s, AND RULE 42 MEANS TWO DIFFERENT THINGS IN L
 4. **AN INSTRUMENT THAT HAS NEVER BEEN WRONG HAS NEVER BEEN TESTED.** Rev 75's artefact-edge
    hypothesis was real, plausible, and **killed by its own control**.
 5. **NEVER PUT A FIGURE IN AN ACCEPTANCE TEST UNLESS YOU WATCHED IT PRINT.** This is why T3 was NOT
-   re-based on n = 2.
+   re-based on n = 3.
 6. **A guard that derives its threshold from the expression it checks is a tautology.**
 8. **PAINT THE WINDOW BEFORE THE NUMBER.**
 9. **READ THE SUMMARY LINE, NOT THE EXIT CODE.** `ckabs`'s absent flag is read from one.
@@ -291,8 +305,9 @@ done off self-review. Report the measurement with its ceiling. Do not say anythi
 
 1. `./bootstrap.sh` and `./verify_clone.sh` on a **clean** tree. **All-PASS IS reachable now (433)** —
    ⚠ **but read §1's warning: the total DEPENDS ON WHICH SIDE FRAME IS NEWEST, because T3 is a coin
-   flip (F324) — rev 75 saw all-PASS on two of its three renders of ONE tree and one short on the
-   other. Decide T3 before you treat all-PASS as a stable bar.** The honest closing condition
+   flip (F324) — rev 75 WATCHED **ALL 433 PASS** print on a clean tree TWICE (empty `out/`, five rows
+   SKIPPING; and with four frames present), and its render 2 would have given 432/1. Decide T3
+   before you treat all-PASS as a stable bar.** The honest closing condition
    remains: **every red is one you can name, and none of them is yours.**
 2. `python3 revstats.py` — **put its geometry/closure line in the ledger header; if the revision
    shipped nothing, say so at the TOP** (rule 55).
@@ -322,12 +337,41 @@ AND CHANGED WHAT REV 75 DID:**
 3. **The repair count was given as FOUR, FIVE and SIX in one document.** It is **five**; four would
    have left the pickup red.
 
-**AND THE RULE-17 ADVERSARY WAS DISPATCHED AT THIS BRIEF. WHAT IT FOUND IS RECORDED BELOW.**
+**AND THE RULE-17 ADVERSARY ON THIS BRIEF RETURNED EIGHTEEN DEFECTS, FOUR TOP-SEVERITY, AND IT
+CHANGED THE SHIP — WHICH IS THE POINT OF RULE 17.** All four TOP were one root cause wearing four
+hats, and the root cause was **mine, not a transcription**:
+
+1. **I CALLED F312b REFUTED ON A PREMISE F312b's OWN ROW CONTRADICTS.** I wrote its three frames
+   *"came from THREE DIFFERENT TREES"*. **`r74t_side` and `r74t3_side` are a SAME-TREE pair — F312b
+   says so verbatim — and they AGREED at −9.00/−9.00.** So rev 74 had already run F312's experiment
+   and landed on its OTHER branch, and **the two trees are DISJOINT CLUSTERS.** **Retracted in F324,
+   the ledger, the probe's message and `verify_clone.sh`'s comment (rule 13).** ⚠ **And `−9.00`
+   agreeing to the bin is the strongest evidence AGAINST "render noise"; it sat in the row I was
+   quoting and my draft did not mention it.**
+2. **THE n=3 AMENDMENT REACHED §1, §2.1 AND §7.1 AND NOT §3, §4, THE PROBE OR THE VERIFIER** — so
+   §4 told you `r75b_side` gives 2 FAILED while §2.1 said it gives 1. **F322's class exactly, in the
+   brief whose rule-15 list boasts of fixing it. All four now agree.**
+3. **THE REFUTED CLAIM WAS LIVE IN TWO SOURCE FILES** — `verify_clone.sh`'s comment still asserted
+   the row *"is RED … misses by 1.75 to 2.00"* on a tree where it reads **ALL 433 PASS**, and the
+   probe's own T3 message still published the n=2 story and a reading from a deleted frame. **Both
+   corrected — and this is the very defect my own ledger congratulates itself for catching in
+   `t1_detail.py`, committed one file over in the same revision.**
+4. **F325 OVERREACHED TWICE AND HAD NO GUARD ROW.** It claimed `ref_side.jpg` was *"the only other
+   frame"* — **§0.05 names a THIRD, `ref_rear34.jpg`, which I never opened**; and its *"shadow,
+   panel gap and recess are not separable"* is **one hypothesis too wide**, the panel-gap reading
+   being refutable from my own window. **Both corrected in §2.2, and F325's measurement now lives in
+   a `verify_clone.sh` row instead of only in prose** — CLAUDE.md's opening rule, which I had broken.
+
+**IT ALSO CONFIRMED THE THINGS THAT MATTER**, independently and on a fresh clone: the pickup
+reproduces at **423 PASSED / 6 FAILED**; the repair gives **ALL 433 PASS with an EMPTY `out/`** (five
+rows printing `[UNGUARDED … ] ABSENT`) **and with four frames**; `ckabs`'s watched kill is really
+wired; and *"rev 75 shipped no geometry"* is true of the diff.
 
 **WHERE THIS BRIEF IS WEAKEST, STATED RATHER THAN HIDDEN:**
-* **T3 IS A COIN FLIP AND IT IS NOT RE-BASED.** `verify_clone.sh`'s verdict now depends on which side
-  frame is alphabetically last. **That is the top item and it is left open on purpose** — n = 2 is not
-  enough to set a bar, and inventing one is the defect this project keeps paying for.
+* **T3 IS A COIN FLIP AND IT IS NOT RE-BASED.** `verify_clone.sh`'s verdict depends on which side
+  frame is alphabetically last. **That is the top item and it is left open on purpose** — n = 3 is not
+  enough to set a bar, and inventing one is the defect this project keeps paying for. ⚠ **AND ANY BAR
+  MUST SURVIVE BOTH CLUSTERS: rev 74's tree gave −9.00/−9.00/−8.75, rev 75's gives −7.00/−8.50/−6.50.**
 * **REV 75 SHIPPED NO GEOMETRY.** Rule 55's second clause is met with a measurement (F325), but the
   clause exists because the owner cannot see a revision that only measures.
 * **F318's PRESCRIBED FIX WAS NOT DONE**, in a revision that had a side-frame pair in hand.

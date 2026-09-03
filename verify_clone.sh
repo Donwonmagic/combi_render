@@ -2689,12 +2689,26 @@ ckabs "$_TB_ABSENT" "F296 tailboard probe calibrates on the mesh's own angle bef
    "$(grep -c 'PASS T1 the SILHOUETTE detector recovers' /tmp/_r73e.txt)"
 ckabs "$_TB_ABSENT" "F296 ... and its gradient detector's bias is MEASURED, not assumed zero" 1 \
    "$(grep -c 'PASS T2 the GRADIENT detector recovers' /tmp/_r73e.txt)"
-# *** THIS ROW IS NOT RE-BASED, AND MUST NOT BE.  With a side frame present it
-# is RED, and it is CORRECTLY REPORTING A REAL FAILURE: T3's -7-degree rung
-# misses its 1.5 bar by 1.75 to 2.00 across three frames (F312/F312b), cause
-# not established.  All `ckabs` changes here is the NO-FRAME case, where the
-# row had nothing to report and said FAIL anyway.  Read F312b before touching
-# the comparison itself. ***
+# *** THIS ROW IS NOT RE-BASED, AND ITS COMPARISON IS UNTOUCHED -- BUT WHAT
+# THE ROW *MEANS* CHANGED AT REV 75 AND THIS COMMENT SAID OTHERWISE UNTIL THE
+# RULE-17 ADVERSARY CAUGHT IT (F324).  It used to read "With a side frame
+# present it is RED, and it is CORRECTLY REPORTING A REAL FAILURE: T3's
+# -7-degree rung misses its 1.5 bar by 1.75 to 2.00 across three frames" --
+# every clause of which is now false or withdrawn.
+#
+# WHAT IS MEASURED.  THREE renders of ONE tree, no source change between any
+# of them, read that rung at -7.00 (PASS), -8.50 (FAIL) and -6.50 (PASS): a
+# RANGE of 2.00 deg on a rung whose bar is 1.5.  SO THIS ROW IS A COIN FLIP,
+# and `verify_clone.sh`'s own total therefore depends on which out/*_side.png
+# is alphabetically last -- the probe takes no argument and reads that one.
+#
+# AND F312b IS NOT SIMPLY WRONG.  Its r74t_side/r74t3_side ARE a same-tree
+# pair and they AGREED at -9.00/-9.00, both failing.  Rev 74's tree and rev
+# 75's give TWO DISJOINT CLUSTERS, so there is a TREE-DEPENDENCE here as well
+# as render scatter.  NOT re-based, because a bar set on n=3 would be an
+# invented figure (rule 5).  READ F324 AND F312b BEFORE TOUCHING THE
+# COMPARISON.  All `ckabs` changed is the NO-FRAME case, where the row had
+# nothing to report and said FAIL anyway. ***
 ckabs "$_TB_ABSENT" "F296 ... and the 7-degree ROTATION KILL fires (a detector that cannot move is not measuring)" 1 \
    "$(grep -c 'PASS T3 KILL -- rotating the SAME frame' /tmp/_r73e.txt)"
 # *** rev 73, F300 -- THIS ROW USED TO LOCK A CONCLUSION THAT IS NOW RETRACTED.
@@ -2760,6 +2774,37 @@ ck "F323 the skip flag agrees with an INDEPENDENT count of out/*_side.png (rule 
 # exists.  With a side frame in out/ it must be 0: nothing skips.
 ck "F323 rows skipped for want of an input: 5 with an empty out/, 0 with a side frame, never other" 1 \
    "$([ "${SKIPPED:-0}" -eq "$([ "${_SIDE_N:-0}" -eq 0 ] && echo 5 || echo 0)" ] && echo 1 || echo 0)"
+
+# --- rev 75, F325: THE TAIL BOARD'S "DARK ANGLED RECESS" IS NOT GROUNDED, AND
+# THE MEASUREMENT THAT SAYS SO LIVES HERE RATHER THAN ONLY IN PROSE.
+# CLAUDE.md's opening: "Every figure in this project lives in a script that
+# runs, because a figure in a paragraph goes stale silently."  F325's refusal
+# was published in the ledger, the brief and the register and in NO script --
+# found by the rule-17 adversary, and it is F320's "the ship had no guard row"
+# one revision later.
+#
+# THIS ROW IS FRAME-INDEPENDENT: IMG_3840.jpeg is a TRACKED reference image,
+# not a render, so out/ being empty cannot affect it and it needs no ckabs.
+#
+# THE WINDOW'S ORIGIN, which rule 8 makes part of the measurement and which
+# F325 did not record: v100..125 u395..440 was placed BY EYE on a 5x LANCZOS
+# crop of (355,85)-(480,215) -- the crop HANDOFF_CARRIERS.md sec.0.05 itself
+# cites for the panel's FORM -- and then the blob's own bbox was measured
+# inside it.  The bbox is stable for any window containing the blob.
+#
+# WHAT IT PINS: the feature is 30 x 12 px and 58 px below lum 90.  If a future
+# revision proposes BUILDING this recess, this row is the size of the evidence
+# it would be building from.
+_F325="$(python3 -c "
+from PIL import Image
+import numpy as np
+im = np.asarray(Image.open('IMG_3840.jpeg').convert('RGB')).astype(float)
+lum = im[100:125, 395:440].mean(axis=2)
+d = lum < 90
+ys, xs = np.nonzero(d)
+print('%d/%dx%d' % (int(d.sum()), xs.max()-xs.min()+1, ys.max()-ys.min()+1))" 2>/dev/null)"
+ck "F325 the recess evidence is 58 px below lum 90 in a 30x12 bbox -- the size of what a build would rest on" \
+   "58/30x12" "$_F325"
 rm -f /tmp/_r73e.txt
 
 # --- rev 73, F301: THE FREE-ENDPOINT SPINE SHIPS.  Behavioural, ~3 s, no build.
