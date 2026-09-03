@@ -2710,8 +2710,13 @@ rm -f /tmp/_r73f.txt /tmp/_r73g.txt
 
 # --- rev 74, F308/F319: THE TYRE'S TRANSVERSE TREAD.  BEHAVIOURAL, ~2 s each.
 # ⚠ THESE ROWS ARE DELIBERATELY FRAME-INDEPENDENT.  probe_rev74_tread's T6
-# reads a *_side.png and SKIPS when out/ is empty, so its CHECKED count is 7 or
-# 8 depending on whether the render has run.  Pinning "8 checked" would recreate
+# reads a *_side.png and SKIPS when out/ is empty, so it SKIPS a row when out/ is empty.
+# ⚠ THE FIRST VERSION OF THIS COMMENT SAID THE CHECKED COUNT IS "7 or 8
+# depending on whether the render has run".  IT IS ALWAYS 8: row() does CHECK += 1
+# BEFORE it tests for ABSENT, so a skipped row is still counted, and bare it reads
+# "8 checked, 0 FAILED, 1 ABSENT" (F322).  These rows are still right to pin FAILED
+# rather than CHECKED -- but for the reason that an ABSENT input must never read as
+# a FAILING one (rule 37), not for the reason first given.  Pinning "8 checked" would recreate
 # F311 exactly -- five rows that hard-fail on a clean clone and stop the next
 # context's pickup.  The FAILED count is 0 either way, and the named rows below
 # do not depend on a frame.

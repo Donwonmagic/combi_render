@@ -40,7 +40,10 @@ python3 photometry.py          # 9 checked, 0 FAILED
 ## §1 ⚠ **`bootstrap.sh` WILL STOP ON YOU AT PICKUP, AND IT IS NOT YOUR FAULT — FIX IT FIRST (F311)**
 
 At rev 74's pickup, on a **clean tree, before anything was touched**: `bootstrap.sh` read
-**9 PASSED, 1 FAILED** and `verify_clone.sh` read **417 PASSED, 6 FAILED**.
+**9 PASSED, 1 FAILED** and `verify_clone.sh` read **417 PASSED, 6 FAILED** on a 423-row script.
+⚠ **THOSE TWO TOTALS ARE HISTORY, NOT A PREDICTION — the script has 429 rows now, so MEASURE yours
+and expect different numbers. What is stable is the SHAPE: four rows red for want of a frame, one
+genuinely red, and the count row missing by the number of the others (F322).**
 
 **FOUR ARE ONE CAUSE — NOT FIVE, AND THE DIFFERENCE MATTERS.** The `F296`/`F300` rows run
 `python3 probe_rev73_tailboard.py` and grep for its PASS lines — but **that probe needs a
@@ -57,16 +60,26 @@ total that `audit_brief.py --fix-count` wrote, and the 1 is the ROTATION KILL.**
 BY WRITING 428 — that would encode today's failure as the target and break the row the moment T3 is
 repaired.** The gap is a live count of genuine reds, and reading it that way is more useful than
 making it green. The sixth is `ck "newest brief states THIS script's row count" "$((PASS+1))"`, which can
-only agree once the rest are green. With a side frame present the script reads **421 PASSED,
-2 FAILED** — 417 + 4, which is the arithmetic that gives the fifth row away.
+only agree once the rest are green. At rev 74's pickup, a side frame turned exactly four of the six green —
+**417 + 4** — which is the arithmetic that gives the fifth row away. **Re-derive it; do not expect
+417 or 421 again.**
 
 **THIS IS F307's SHAPE ONE LEVEL UP.** F307 taught `audit_brief.py` to SKIP a probe that wants a
 frame; **nobody checked whether `verify_clone.sh` had the same rows, and it has five that HARD-FAIL
 rather than skip.** `verify_clone.sh`'s own header claims it needs *"no render … and `out/` is
 untracked and starts EMPTY"* — **false for these five rows.**
 **REV 74 RECORDED IT AND DID NOT PATCH IT**, because the repair is a re-base of five rows and needs
-the cause NAMED plus companion rows. **That is rev 75's first job.** `probe_rev74_tread.py`'s **T6**
-is the worked example: it SKIPS with a message when `out/` has no side frame.
+the cause NAMED plus companion rows. **That is rev 75's first job.**
+
+⚠ **AND THE REV-74 BRIEF POINTED AT THE WRONG WORKED EXAMPLE (F322).** It named
+`probe_rev74_tread.py`'s **T6**, which skips when `out/` has no side frame — but T6 is a **probe**
+row, and the four broken rows are **`ck`** rows, and **`ck` has no skip path**: it either increments
+`PASS` or `FAIL`. **Nothing in this tree demonstrates a skipping `ck`, so the pattern has to be
+built, not copied.** ⚠ **AND THE OBVIOUS IMPLEMENTATION RE-BREAKS THE COUNT ROW: it is
+`ck "…" "$((PASS+1))"`, so a repair that OMITS rows when the frame is absent drops `PASS` and turns
+the count row red again — measured, empty `out/` wants 424 against a full `out/`'s 428. The repair
+that works keeps calling `ck` with a trivially-true comparison so `PASS` is unchanged, and says in
+the row's own label that it is unguarded until §0 has run.**
 
 **AND MEASURE THE BRANCH, DO NOT TRANSCRIBE IT, INCLUDING THIS SENTENCE:**
 ```bash
@@ -88,13 +101,22 @@ Believe row 9 and the loop, never a sentence.**
 visibility … catch ORDERS OF MAGNITUDE, not rank neighbours."*** The ranked list is
 `REMAINING_WORK_rev61.md`, triaged into `ROADMAP_rev68.md`.
 
-### **1. FIX §1's SIX RED ROWS.** Cheap, and it unblocks every future pickup. See §1.
+### **1. FIX §1's FOUR FRAME-DEPENDENT ROWS.** Cheap, and it is worth doing. See §1.
+⚠ **BUT IT DOES *NOT* UNBLOCK THE PICKUP, AND THE REV-74 BRIEF CLAIMED IT WOULD (F322).**
+`bootstrap.sh`'s row 10 IS `verify_clone.sh`, and `verify_clone` stays red **with every frame
+present** because of the ROTATION KILL, which §1 forbids re-basing and F312b shows is systematic
+(1.75–2.00 across three frames, no established repair). **So repairing the four rows leaves
+`bootstrap.sh` at 9 PASSED, 1 FAILED. Clearing the pickup needs T3 diagnosed as well — that is a
+second job, not a free consequence of the first.**
 
 ### **2. SHIP GEOMETRY. RULE 55 IS STILL THE BINDING CONSTRAINT.**
 ⚠ **AND CHECK THE GROUNDING BEFORE YOU BUILD — THAT IS THE LESSON REV 74 PAID FOR TWICE.**
 **F143's roof loudspeakers are now RETIRED as a geometry item (F309): they are a POSE.** The
-identification was right, but **three frames of the same vehicle show the roof BARE** — decisively
-`ref_playa_34.png`, **the same location** as `ref_rear34.jpg`. Building it would plant removable
+identification was right, but **three frames of the same vehicle show the roof BARE** — the roof is bare in
+`ref_playa_34.png` and in the two Nolita frames. ⚠ **DO NOT REPEAT THE REV-74 BRIEF'S *"the same
+location as `ref_rear34.jpg`"* — IT IS WITHDRAWN (F309): a planted café patio against a paved yard,
+plausibly the same premises but not the same view. And the two Nolita frames are the SAME indoor
+market, so the evidence is TWO independent scenes, not three, at n = 1 on the present side.** Building it would plant removable
 event gear permanently into every delivery frame. `probe_scratch/r74_F143_grounding.png`.
 **So the live geometry candidates are: the tail's barrel, the shut lines, the glass, and the tyre
 tread's own open constants (§2.3).** Check each one's grounding FIRST.
@@ -119,8 +141,12 @@ never been re-run** (F316b(d): the rev-74 brief carried those figures without th
 F289 recurring).
 
 ### **4b. THE TREAD'S ONE MEASURED COST IS OPEN (F318).** `probe_rev70_tyre.py`'s T2 moved
-**0.2457 → 0.2522** (1.26× → 1.29×) — **16× its measured two-render floor of 0.0004**, so real; but
-**2.6 % against the probe's own `±20 %` ceiling**, and **its painted band straddles the wheel-arch
+**0.2457 → 0.2558** (1.26× → 1.31×), reading `out/r74_side.png` against `out/r74f_side.png` — **25×
+its measured two-render floor of 0.0004**, so real; but **4.1 % against the probe's own `±20 %`
+ceiling**, ⚠ **and the rev-74 brief first published 0.2522 / 16× / 2.6 %, which was measured on the
+IRREGULAR first cut and never re-read after F319 repaired the tread — the repair made this cost
+55 % LARGER and no document named the frame, so it went unnoticed until a second rule-17 adversary
+re-read all four side frames (F322). NAME THE FRAME WHEN YOU RE-READ IT.** and **its painted band straddles the wheel-arch
 shadow and the outer silhouette** (`probe_scratch/rev70_tyre_render.png`), so the mechanism is NOT
 established. ⚠ **DO NOT "FIX" IT BY LOWERING `T1_TYRE_FILM`** — that tunes shading to mask geometry
 and leaves the ablation too dark. **Give T2 a band MEASURED to lie inside the rubber (paint it
@@ -133,9 +159,9 @@ first) and re-read both frames.**
 
 | closed | the result |
 |---|---|
-| **THE TYRE'S TREAD (F308)** | **SHIPPED — GEOMETRY, AND IT REACHES THE RENDER.** T3 goes **0.0000 → 0.0060 m**; T4's KILL WATCHED restoring the revolve; T5 reads `TYRE_D` unmoved to **5.56e-10 m** (grooves cut INWARD, so a locked dimension cannot move *by construction*). `VERIFY: 0 fail, 0 warn`. |
+| **THE TYRE'S TREAD (F308)** | **SHIPPED — GEOMETRY, AND IT REACHES THE RENDER.** T3 goes **0.0000 → 0.0060 m**; T4's KILL WATCHED restoring the revolve; T5 reads the crown's max RADIUS unmoved to **5.56e-10 m** — ⚠ **but NOT `TYRE_D`, and this row said `TYRE_D` until F322 caught it contradicting this same file's closing block.** `verify.py:690` locks `TYRE_D = max(z)-min(z)`, a BBOX EXTENT, which **does** move, by **0.0890 mm** (281× inside its own TOL); `STATE.md` publishes `TYRE_D=0.6649`. **T5b reads that one. Read F319.** `VERIFY: 0 fail, 0 warn`. |
 | **IS IT VISIBLE? (F308)** | **THE PIXEL-DIFF STATISTIC IS A FLAT NULL — INCLUDING LOCALLY.** front wheel `4.418 %` change vs `4.372 %` box-local floor = **1.01×**; rear **1.04×**; whole frame **1.00×**. ⚠ **I read the painted diff's two bright wheel rings as localisation and the box floor REFUTED it — they are a noise feature.** **WHAT SEES IT IS STRUCTURAL: the rendered silhouette's angular rms goes 0.0503 → 0.5286 px at exactly 64 cycles/rev, amplitude 4 → 161 (on `out/r74f_side.png`; the irregular first cut read 0.4499 / 130). ⚠ **THE FLOOR IS A RECORDED READING, NOT ONE ANY ROW RECOMPUTES (F320f)** — it was read once on a frame of the ablated tree that is not retained, so `0.0503 / 4` are STRING LITERALS in T6's message, which now says so. **Re-derive them with one `T1_TYRE_TREAD=0` render before quoting.** The *reasoning* is sound (a revolve has no angular structure); the *figures* are unverified.** |
-| **F143, THE ROOF LOUDSPEAKERS (F309)** | **RETIRED AS A GEOMETRY ITEM — IT IS A POSE.** 57 revisions of the record called it *"an unmodelled object"* without anyone checking whether it belongs to the vehicle. ⚠ **And its second frame is not an independent sighting**: that crop sits where the mural board, its frame, its bulb string and the roof all overlap. |
+| **F143, THE ROOF LOUDSPEAKERS (F309)** | **RETIRED AS A GEOMETRY ITEM — IT IS A POSE.** 62 revisions of the record called it *"an unmodelled object"* without anyone checking whether it belongs to the vehicle. ⚠ **And its second frame is not an independent sighting**: that crop sits where the mural board, its frame, its bulb string and the roof all overlap. |
 | **THE OWNER'S WEIGHT QUESTION (F313/F314/F315)** | **ASKED AND ANSWERED.** The crop the rev-74 brief pointed at was **stale** (captioned `SHIPPED wfrac 0.2283`; 0.2205 ships) **and compared an oblique photograph against head-on masks** — F184's trap. Rebuilt in one projection. **And fitting each candidate to its own pose inflated the A/B from 89 px / 2.83 % to 226 px / 7.20 % — more than half the apparent disagreement was POSE.** |
 | **MY OWN HEADLINE ROW (F310)** | **WRONG FIRST TIME, CAUGHT BY WATCHING IT FAIL.** T3's first cut pooled every crown vertex and read the PROFILE's radial variation — a confident `0.0119 m` PASS on a tyre that IS a revolve. Fixed by binning on exact `y`. **Written after the build it would have passed for the wrong reason and guarded nothing.** |
 
@@ -151,15 +177,20 @@ that the tyre is not a revolve, the `T1_TYRE_TREAD=0` KILL, the tread's REGULARI
 T5b's distinction between the max radius and the bbox extent `verify.py` actually locks. **They are
 deliberately FRAME-INDEPENDENT so they cannot repeat F311.**
 
-**RUN `./bootstrap.sh --guards` ONCE THIS REVISION** (~10 min, and it BUILDS BLENDER EIGHT TIMES —
-**not while the §0 queue is going**). It is the only thing that exercises the five rear-hatch kills.
+**RUN `./bootstrap.sh --guards` ONCE THIS REVISION** (**~22 min**, and it rebuilds the MODEL ten
+times — **not while the §0 queue is going**; it reads **24 PASSED, 1 FAILED**, the 1 being
+`verify_clone`). It is the only thing that exercises the five rear-hatch kills.
 
 ---
 ## §4 THE MACHINE
 
 ```bash
 ./bootstrap.sh                                # READ ROW 9
-./bootstrap.sh --guards                       # NOT while a render queue runs
+./bootstrap.sh --guards                       # 24 PASSED, 1 FAILED (the 1 is verify_clone).
+  # NOT while a render queue runs.  All fifteen guard rows green, and VERIFY 0 fail 0 warn at
+  # BOTH SUB=1 and SUB=2.  ⚠ IT DOES NOT "BUILD BLENDER EIGHT TIMES" -- the rev-74 brief said so
+  # and it is wrong twice (F322): Blender is not built at all, the MODEL is, and build.py runs
+  # 10 times across 15 invocations.  BUDGET ~22 MIN, not ~10
 ./verify_clone.sh                             # ALL 429 PASS -- 0 FIDELITY, 429 SELF-CONSISTENCY.
   # ⚠ AND THAT TOTAL IS NOT REACHED ON A CLEAN CLONE, WHICH IS §1's WHOLE SUBJECT: four rows
   # want a rendered frame, one is correctly reporting a real failure (F312b), and the count
@@ -171,14 +202,22 @@ python3 probe_rev74_tread.py out/r75_side.png   # NEW at rev 74.  8 checked, 0 F
   # NAME YOUR FRAME: with no argument it takes the alphabetically-last out/*_side.png and
   # PRINTS which -- rev 74 attributed a reading to a frame a probe could not have read
   # (F320c).  Bare, with an empty out/, T6 SKIPS and says so: 7 checked, 0 FAILED, 1 ABSENT
-  # -- the pattern §1 wants, and why verify_clone's five new tread rows pin FAILED not CHECKED
+  # -- the pattern §1 wants, and why verify_clone's five new tread rows pin FAILED not CHECKED.
+  # ⚠ THE COUNT IS 8, NOT 7: row() does CHECK += 1 BEFORE testing for ABSENT, so bare it reads
+  # "8 checked, 0 FAILED, 1 ABSENT".  The rev-74 brief said 7 and so did verify_clone's comment;
+  # both are corrected (F322), and audit_brief could not catch it because its regex cannot match
+  # a continuation line -- F316's structural blindness, letting a brand-new wrong count ship
 T1_TYRE_TREAD=0 python3 probe_rev74_tread.py  # THE KILL.  T3 must go RED (0.0000 m)
 python3 probe_rev67_nose.py out/r75_front.png
   # ⚠ THE REV-74 BRIEF SAID "7 checked, 1 FAILED -- P3c BY DESIGN".  ON out/r74_front.png IT
   # READ 7 checked, 0 FAILED AND P3c PASSED (F316).  THE OUTCOME IS FRAME-DEPENDENT.  NAME
   # YOUR FRAME AND READ THE ROWS -- do not assume a red P3c is by design
-python3 probe_rev73_tailboard.py              # ⚠ 5 checked, **2** FAILED on out/r74_side.png --
-  # T3 (a WATCHED KILL, bar 1.5, the -7.0 rung misses at 1.75) AND T4.  The rev-74 brief said
+python3 probe_rev73_tailboard.py              # ⚠ 5 checked, **2** FAILED -- T3 AND T4.
+  # ⚠ IT TAKES NO ARGUMENT AND READS THE ALPHABETICALLY-LAST out/*_side.png, SO IT PICKS YOUR
+  # NEWEST PREFIX -- read the frame it PRINTS, do not assume.  T3 is a WATCHED KILL, bar 1.5,
+  # and the -7.0 rung misses by 1.75 to 2.00 depending on the frame (F312b).  The rev-74 brief
+  # attributed its reading to out/r74_side.png when the probe had in fact read r74t_side.png,
+  # one section after recording that exact class as F320(c) -- F322.  The rev-74 brief said
   # 1.  Cause NOT established: no source moved, rev 73's frame is gone, and T3's bar has no
   # floor under it.  TWO side renders of ONE tree would settle it (F312)
 python3 probe_rev46_vw.py                     # 12 checked, 2 FAILED -- C4 AND C10 (F304)
@@ -190,6 +229,10 @@ python3 probe_rev71_proxy.py                  # must read IoU 1.000000
 python3 probe_rev71_red.py out/r75_side.png --transform=agx   # REFUSES with a summary line
   # F266's PHYSICS RECIPE: T1_VT=Raw T1_LOOK=None T1_EXP=-2.5, then --transform=raw
 python3 probe_rev70_tyre.py out/r75_side.png ; python3 probe_rev46_vw.py
+  # ⚠ probe_rev70_tyre OVERWRITES THE TRACKED FILE probe_scratch/rev70_tyre_render.png, so
+  # running this block REDS verify_clone's "modified tracked files" row and breaks §7 step 1
+  # as a side effect.  `git checkout -- probe_scratch/rev70_tyre_render.png` after, and note
+  # that §2.4b cites that same PNG as evidence -- it shows whatever frame you ran LAST (F322)
 python3 visibility_budget.py 3840 out/r75_hero34f.png ; python3 revstats.py
 T1_SUB=2 /tmp/blender/blender -b -P audit.py            # rewrites STATE.md -- COMMIT FIRST
 python3 audit_brief.py ; python3 audit_adversary.py     # rules 15/17, MECHANICAL half only.
@@ -202,8 +245,8 @@ python3 audit_brief.py ; python3 audit_adversary.py     # rules 15/17, MECHANICA
   # the 0.089 mm the tread costs, which had been invisible as a -0.0 mm sign flip (F319)
 ```
 
-**THE ABLATIONS THAT MAKE GATES REFUSE.** ⚠ **`--guards` RUNS ONLY THE `T1_REAR_*` BLOCK — the four
-below it are HAND-RUN, and the rev-74 brief's heading claimed otherwise for three of them
+**THE ABLATIONS THAT MAKE GATES REFUSE.** ⚠ **`--guards` RUNS THE `T1_REAR_*` BLOCK, `T1_REAR_OPEN=-64` INCLUDED — the THREE
+below that are HAND-RUN, and the rev-74 brief's heading claimed otherwise for three of them
 (`grep -n "TYRE_TREAD\|NOSE_NOWIN\|VW_FREE" bootstrap.sh` finds nothing). Corrected here rather than
 inherited:**
 ```bash
@@ -262,7 +305,7 @@ RULE 56s AND TWO DIFFERENT RULE 57s, AND RULE 42 MEANS TWO DIFFERENT THINGS IN L
 | file | what it holds |
 |---|---|
 | **`HANDOFF_CARRIERS.md`** | every carrier: the goal, the reference set, §2's refuted emblem routes, §4 the owner's rulings, §5 rules 34–58, the horizon |
-| `OPEN_FINDINGS.md` | the register. **F308–F321 are rev 74's** (17 rows, including F308b, F312b and F316b). It outranks prose |
+| `OPEN_FINDINGS.md` | the register. **F308–F322 are rev 74's** (18 rows, including F308b, F312b and F316b). It outranks prose |
 | `STATE.md` | machine-written; outranks every prose description. **Regenerate it before trusting a row that reads it** |
 | `LEDGER_rev74.md` | what rev 74 did, **including the reading it made and then refuted itself** |
 | `photometry.py` | the measurement protocol, with a selftest |
@@ -278,7 +321,11 @@ RULE 56s AND TWO DIFFERENT RULE 57s, AND RULE 42 MEANS TWO DIFFERENT THINGS IN L
 **Any single measurement off is unacceptable** — per-measurement, not on average. **Never call it
 done off self-review. Report the measurement with its ceiling. Do not say anything is ready.**
 
-1. `./bootstrap.sh` and `./verify_clone.sh` all-PASS on a **clean** tree. **See §1 first.**
+1. `./bootstrap.sh` and `./verify_clone.sh` on a **clean** tree — **and read §1 BEFORE you treat
+   all-PASS as the bar.** ⚠ **AS THINGS STAND ALL-PASS IS NOT REACHABLE without either repairing T3
+   (cause not established) or re-basing the row §1 forbids you to re-base (F322).** The honest
+   closing condition is: **every red is one you can name, and none of them is yours.** Rev 74 closed
+   at **427 PASSED, 2 FAILED** against an all-pass 429, both reds named.
 2. `python3 revstats.py` — **put its geometry/closure line in the ledger header; if the revision
    shipped nothing, say so at the TOP** (rule 55).
 3. Regenerate `STATE.md` (`T1_SUB=2 … audit.py`) — **commit first, and do it AFTER your LAST

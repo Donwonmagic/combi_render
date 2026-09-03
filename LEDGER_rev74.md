@@ -112,11 +112,15 @@ Reproduced en route, and the brief's figures stand: **A 0.8528 fit / 0.8276 inde
 ## §2 WHAT ELSE WAS MEASURED, INCLUDING TWO NULLS
 
 **F309 — F143's ROOF LOUDSPEAKERS ARE A POSE, NOT GEOMETRY, AND THE RECORD CARRIED THEM AS AN
-UNMODELLED OBJECT FOR 57 REVISIONS.** The identification is right: `ref_rear34.jpg` at 8× resolves a
-white cabinet, black baffle, a woofer with a visible surround and a tweeter. **But three frames of
-the same vehicle show the roof BARE** — decisively `ref_playa_34.png`, **the same location** as
-`ref_rear34.jpg` (same walls, same folk-art panels, same paving), plus `ref_nolita_flank.jpg` and
-`ref_nolita_front34.jpg`. Painted side by side: `probe_scratch/r74_F143_grounding.png`. **Building it
+UNMODELLED OBJECT FOR 62 REVISIONS.** (`AUDIT_rev12.md`; the "57" first written here was hand-
+arithmetic and wrong — 74 − 12 = 62, F322.) The identification is right: `ref_rear34.jpg` at 8× resolves a
+white cabinet, black baffle, a woofer with a visible surround and a tweeter. **But the roof is BARE in
+`ref_playa_34.png`, `ref_nolita_flank.jpg` and `ref_nolita_front34.jpg`.** ⚠ **THIS SENTENCE FIRST
+CALLED `ref_playa_34.png` *"the same location"* AS `ref_rear34.jpg` AND COUNTED THREE INDEPENDENT
+FRAMES. BOTH ARE WITHDRAWN (F309):** `ref_rear34.jpg` is a planted café patio and `ref_playa_34.png`
+a paved yard — plausibly the same premises, not the same view — and the two Nolita frames are **the
+same indoor market**, so they are ONE independent sighting. **The retirement stands on absence in TWO
+independent scenes, at n = 1 on the present side.** Painted side by side: `probe_scratch/r74_F143_grounding.png`. **Building it
 would plant removable event gear permanently into every delivery frame**, the same class as
 `REAR_OPEN_DEG`'s unmeasured pose. ⚠ **And half its corroboration does not survive either: F143's
 second frame is not an independent sighting** — that crop sits where the propped mural board, its
@@ -133,10 +137,14 @@ standing of `TB_WIDTH`'s "POSE CHOICE, NOT MEASURED"** and is labelled that way 
 
 ## §2b THE SHIP'S ONE MEASURED COST, REPORTED NOT COMPENSATED (F318)
 
-`probe_rev70_tyre.py`'s **T2** moves **0.2457 → 0.2522** (1.26× → 1.29× the photograph's 0.1953).
-**The floor is measured: the same tree rendered twice reads 0.2522 / 0.2526, spread 0.0004**, so the
-`0.0065` move is **16× the floor** and real. **It is also 2.6 % of the value against the probe's own
-declared `±20 %` ceiling — an eighth of it.** And the probe's paint
+`probe_rev70_tyre.py`'s **T2** moves **0.2457 → 0.2558** (1.26× → 1.31× the photograph's 0.1953), reading
+`out/r74_side.png` against `out/r74f_side.png`. **The floor is measured: the same tree rendered
+twice reads 0.2522 / 0.2526, spread 0.0004**, so the `0.0101` move is **25× the floor** and real.
+**It is 4.1 % of the value against the probe's own `±20 %` ceiling — a fifth of it.**
+⚠ **THIS PARAGRAPH FIRST SAID 0.2522 / 16× / 2.6 %, MEASURED ON THE IRREGULAR FIRST CUT AND NEVER
+RE-READ AFTER F319 REPAIRED THE TREAD. The repair made the ship's one measured cost 55 % LARGER, and
+because no document named the frame the staleness was invisible until a second rule-17 adversary
+re-read all four side frames (F322).** And the probe's paint
 (`probe_scratch/rev70_tyre_render.png`), **looked at**, shows its "tyre" band is the *darkest
 annulus* and **straddles the wheel-arch shadow at the top and the outer silhouette at the bottom**:
 adding lug highlights and a serrated edge changes what falls in it. **So the mechanism is not

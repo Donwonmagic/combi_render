@@ -254,7 +254,10 @@ if D is not None:
 # ONE thing that is provable: a surface of revolution has NO angular structure
 # in its silhouette, so a frame of the ABLATED tyre is a measured floor rather
 # than an assumed one.  Rev 74 read it as 0.0503 px rms / dominant amplitude 4
-# against the shipped 0.4499 px / amplitude 130 at exactly 64 cycles/rev.
+# against 0.5286 px / amplitude 161 at exactly 64 cycles/rev on the SHIPPED
+# tread (out/r74f_side.png).  The 0.4499 / 130 this comment used to call "the
+# shipped" is the IRREGULAR first cut, superseded by F319 -- fixing the tread
+# made the 64-cycle signal CLEANER, which is the direction it should move (F322).
 #
 # ⚠ TWO THINGS THIS ROW DOES **NOT** SAY.
 #  (a) rule 6: recovering 64 from the pixels is NOT evidence that 64 is the

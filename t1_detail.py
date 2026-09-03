@@ -98,8 +98,11 @@ def _cut_tread(ob):
     (F319).  `verify.py` does not lock the maximum radius; `_measure_wheels`
     locks `TYRE_D = max(zs) - min(zs)`, a Z BOUNDING-BOX EXTENT.  The vertex
     nearest the +Z pole falls inside a groove, so that extent DOES shrink:
-    0.6650000 -> 0.6649555, a delta of 0.0445 mm.  It is harmless -- verify.py's
-    own TOL is 0.025 m, so this is 560x inside it, and it is a DISCRETISATION
+    0.6650000 -> 0.6649110, a delta of 0.0890 mm.  (The 0.0445 mm / 560x this
+    docstring carried until F322 was measured on the IRREGULAR first cut and was
+    never re-read after the phase fix applied in the SAME commit -- rule 5, inside
+    the paragraph written to record a withdrawal.)  It is harmless -- verify.py's
+    own TOL is 0.025 m, so this is 281x inside it, and it is a DISCRETISATION
     artefact (which discrete vertex lands nearest the pole), not a change in the
     tyre's diameter over its lands.  What is NOT harmless is a guard that does
     not measure the quantity it names (rule 38), so T5 now reads BOTH and says

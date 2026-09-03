@@ -928,6 +928,24 @@ stands"* (twice); the front arch *"leave it circular"*.
 > **Rule 16 firing on the file that carries rule 16.** Restored before the handoff shipped.
 > **If you compact §4, that row is what stops you.**
 
+**RULED AT REV 71 — THE PROJECT'S PURPOSE, IN HIS WORDS, AND IT HAD NO CARRIER UNTIL REV 74.**
+
+> ***"The ultimate goal is a 3d render from which to build promotional material from."***
+> and ***"I certainly want physics closed."***
+
+⚠ **THIS PAIR LIVED ONLY IN THE ROLLING BRIEF AND SURVIVED FOUR REVISIONS BY HAND-COPYING.** A
+rule-17 adversary grepped it at rev 74: **five hits, every one a `NEXT_CONTEXT_PROMPT_rev*.md` or
+`PASTE_INTO_CLAUDE_CODE.txt`; ZERO in this file and ZERO in `OPEN_FINDINGS.md`** — while §6 of the
+brief advertises this section as *"the owner's rulings"*. **That is F92's shape and F188's shape: the
+statement of what the project is FOR was one careless rewrite from being lost, exactly as the
+Playa-hero ruling and the sticker's carrier were.** Recorded here so it cannot be (F322).
+
+**WHAT IT LICENSES:** it is the standing frame around every other ruling — the delivery render is the
+POINT, which is why F191's and F193's holds are holds and not cancellations, and why *"physics
+closed"* (F266's Raw-path recipe) is a stated goal rather than a nicety. **It does not by itself
+authorise a delivery render: F191 and F193 still gate that.**
+
+---
 **RULED AT REV 72 — THE FIRST TIME THE PIXEL RANKING AND THE OWNER HAVE AGREED (F282).**
 Shown the trade as multiple choice at the close of rev 72 — the gloss/flank surfaces at **2.89e6 px²
 with both gates failing** against the emblem at **3.32e4 px², 87× smaller**, plus the warning that the
