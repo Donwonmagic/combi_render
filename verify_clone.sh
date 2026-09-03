@@ -1,8 +1,18 @@
 #!/usr/bin/env bash
 # =============================================================================
-#  verify_clone.sh -- prove this working tree matches the rev-42 measured
-#  baseline, BY CONTENT.  That baseline is still current at rev 44: no geometry,
-#  artwork or constant has moved since, so these figures are the live ones.
+#  verify_clone.sh -- prove this working tree is INTERNALLY CONSISTENT, BY
+#  CONTENT.
+#
+#  ⚠ REV 75: THE SENTENCE THAT USED TO STAND HERE WAS 33 REVISIONS STALE AND WAS
+#  THE FIRST THING A READER SAW.  It said this script proves the tree "matches
+#  the rev-42 measured baseline ... still current at rev 44: no geometry,
+#  artwork or constant has moved since, so these figures are the live ones."
+#  Geometry has moved in most revisions since (rev 69's tyre film, rev 73's free
+#  spine, rev 74's tread, to name three), and the rows below have been re-based
+#  and added to throughout.  What the script actually does is check that the
+#  RECORD IS SELF-CONSISTENT AT HEAD -- see the verdict block, which says so
+#  itself and warns that NOT ONE ROW measures the vehicle against a photograph.
+#  Found by cold-starting the handoff on a fresh clone (F327).
 #
 #  WHY THIS FILE EXISTS.  Until rev 43 these checks lived as thirty lines of
 #  prose in NEXT_CONTEXT_PROMPT_revN.md, re-typed by hand every revision.  That
@@ -2805,6 +2815,26 @@ ys, xs = np.nonzero(d)
 print('%d/%dx%d' % (int(d.sum()), xs.max()-xs.min()+1, ys.max()-ys.min()+1))" 2>/dev/null)"
 ck "F325 the recess evidence is 58 px below lum 90 in a 30x12 bbox -- the size of what a build would rest on" \
    "58/30x12" "$_F325"
+
+# --- rev 75, F326: THE ONE PROBE IN THE BRIEF'S COPY-PASTE BLOCK THAT CRASHED
+# INSTEAD OF REFUSING.  probe_rev70_tyre.py opened its frame with no existence
+# check, so the line the brief tells every incoming context to run raised a bare
+# FileNotFoundError with NO SUMMARY LINE, exit 1 -- rule 37 and rule 51 together,
+# for six revisions.  Nothing caught it because every revision runs its probes
+# AFTER rendering; it was found by CLONING the repo and following the pickup.
+#
+# THIS ROW IS BEHAVIOURAL, NOT A GREP (rule 50): it RUNS the probe against a
+# frame that cannot exist and requires BOTH a refusal naming the frame AND the
+# normal summary line AND no traceback.  It is frame-INDEPENDENT by
+# construction -- it depends on the frame's ABSENCE, so it can never repeat F311.
+python3 probe_rev70_tyre.py out/_f326_absent_side.png >/tmp/_r75f326.txt 2>&1
+ck "F326 probe_rev70_tyre REFUSES an absent frame, naming it (rule 37)" 1 \
+   "$(grep -c 'NO SUCH FRAME' /tmp/_r75f326.txt)"
+ck "F326 ... and still prints its SUMMARY LINE, so the control is reported (rule 9)" 1 \
+   "$(grep -cE '^ *1 checked, 0 FAILED' /tmp/_r75f326.txt)"
+ck "F326 ... and the TRACEBACK IS GONE -- rule 51, losing the input is a RESULT" 0 \
+   "$(grep -c 'Traceback (most recent call last)' /tmp/_r75f326.txt)"
+rm -f /tmp/_r75f326.txt
 rm -f /tmp/_r73e.txt
 
 # --- rev 73, F301: THE FREE-ENDPOINT SPINE SHIPS.  Behavioural, ~3 s, no build.

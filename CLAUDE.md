@@ -26,7 +26,7 @@ in the same revision.**
    A failing row is a FINDING: report it with its actual value. Do not edit a script to make
    it pass. A re-base is allowed only with the cause named AND a companion row that makes the
    cause separately testable.
-3. Read the highest-numbered `NEXT_CONTEXT_PROMPT_rev*.md` in full — find it with `ls`, do not
+3. Read the highest-numbered `NEXT_CONTEXT_PROMPT_rev*.md` in full — find it with `ls -v` (⚠ PLAIN `ls` SORTS rev9 AFTER rev76 -- F327), do not
    trust a filename typed in any document, including this one.
 4. Re-run `git diff --name-only HEAD...origin/main` EVERY session. Reference photographs arrive
    there mid-revision without warning.

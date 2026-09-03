@@ -19,9 +19,11 @@ next. DO NOT GROW IT.**
 ## §0 DO THIS FIRST — THE MACHINE IS IDLE WHILE YOU READ
 
 ```bash
-cd /home/user/combi_render
+cd /home/user/combi_render     # <- OR YOUR CLONE'S ROOT.  Nothing here needs this exact path
 ./bootstrap.sh                 # the toolchain is NOT on the clone -- this builds it
-pip install pillow             # bootstrap FAILS 3 of 10 without it, EVERY revision
+  # ⚠ bootstrap INSTALLS pillow ITSELF (`for m in numpy PIL scipy` ... pip install), and has
+  # since rev 45, so the "pip install pillow FIRST" every brief has ordered is BACKWARDS.
+  # If it still reads 3 of 10 FAILED on PIL, run `pip install pillow` and re-run it (F327)
 nohup setsid env T1_SUB=1 T1_PREVIEW=front,side,hero34f,hero34r T1_PFX=r76 T1_RX=1600 T1_RY=1100 \
   T1_SAMP=96 /tmp/blender/blender -b -P build.py > /tmp/r76.log 2>&1 < /dev/null &
 ```
@@ -51,12 +53,12 @@ three DIFFERENT stated referents and were a partition, not three counts of one t
 was wrong only because F312b was wrong.** Calling it "four, five and six in three places" overstates
 it, and that phrasing is corrected here and in F323.
 
-**MEASURED AT REV 75 — expect DIFFERENT numbers, the script has 434 rows now:**
+**MEASURED AT REV 75 — expect DIFFERENT numbers, the script has 437 rows now:**
 ```
   PICKUP  bootstrap 9 PASSED, 1 FAILED   ·  verify_clone 423 PASSED, 6 FAILED  (429 rows)
-  CLOSE   verify_clone ALL 434 PASS on a clean tree -- with an EMPTY out/ (5 rows
+  CLOSE   verify_clone ALL 437 PASS on a clean tree -- with an EMPTY out/ (5 rows
           SKIPPING) and with four frames.  bootstrap ALL 10 PASS; --guards ALL 25 PASS
-          ALL-PASS TOTAL 434  (WATCHED, empty out/ AND with four frames)
+          ALL-PASS TOTAL 437  (WATCHED, empty out/ AND with four frames)
 ```
 ⚠ **AND THE REV-75 INCOMING BRIEF'S *"ALL-PASS IS NOT REACHABLE"* IS REFUTED** — as is its §2.1
 *"clearing the pickup needs T3 diagnosed as well — that is a second job"*. **Both rested on F312b,
@@ -75,13 +77,19 @@ for b in $(git branch -r | grep -v HEAD); do printf "%-52s ahead %-3s behind %s\
   "$(git rev-list --count origin/main..$b)" "$(git rev-list --count $b..origin/main)"; done
 git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 ```
-**At rev 75 the designated branch again had no remote copy at pickup (F317's shape, third revision
-running). Nothing was stranded: row 9 PASSED, all 29 remote branches `ahead 0`, HEAD 0 ahead / 0
+⚠ **AND NAME YOUR BRANCH: you are on `claude/rev-75-pickup-po0rs3`, named for the PREVIOUS
+revision, and no brief has ever said where the next revision's work belongs. Decide at pickup and
+say so in your ledger.** **At rev 75 the designated branch again had no remote copy at pickup
+(F317's shape, third revision running). Nothing was stranded: row 9 PASSED, all 29 remote branches `ahead 0`, HEAD 0 ahead / 0
 behind `origin/main`, the diff empty.** **The "N consecutive revisions" count in every brief is
 HAND-INCREMENTED AND DERIVED FROM NOTHING. Believe row 9 and the loop, never a sentence.**
 
 ---
 ## §2 RANKED WORK FOR REV 76
+
+⚠ **ITEM 2 IS THE BINDING CONSTRAINT, NOT ITEM 1.** Item 1 is a cheap DECISION; item 2 is rule 55
+and **rev 75 failed it.** Do both — **if you can only do one, SHIP GEOMETRY.** The rev-75 brief
+ranked T3 first without saying so, which is how a context repeats rev 75's outcome.
 
 **RANK BY PIXELS OF THE DELIVERY FRAME** — `python3 visibility_budget.py 3840 out/r76_hero34f.png` —
 **and the owner outranks the ranking.** ⚠ **READ THAT TABLE'S OWN CEILING: *"pixels are not
@@ -137,11 +145,11 @@ floor (rule 49) — THEN a bar can be set on something WATCHED rather than inven
 
 ### **2. SHIP GEOMETRY. RULE 55 IS THE BINDING CONSTRAINT AND REV 75 DID NOT MEET IT.**
 ⚠ **CHECK THE GROUNDING BEFORE YOU BUILD — and be ready for the answer to be NO.**
-**F325: the tail board's *"dark angled recess"*, §0.05's build item 2, live since rev 62, IS NOT
+**F325: the tail board's *"dark angled recess"*, `HANDOFF_CARRIERS.md` §0.05's build item 2, live since rev 62, IS NOT
 GROUNDED — AT ITS TRUE STRENGTH, WHICH IS NARROWER THAN REV 75 FIRST WROTE.** One frame,
 **30 × 12 px, 58 px below lum 90**; that frame is byte-identical to `ref_nolita_doorshut.jpg`, so
 **n = 1**; `ref_side.jpg` is **EDGE-ON** and cannot corroborate by construction.
-⚠ **(a) §0.05 NAMES A THIRD FRAME, `ref_rear34.jpg` (820, 0)–(1200, 300), WHICH REV 75 NEITHER
+⚠ **(a) `HANDOFF_CARRIERS.md` §0.05 NAMES A THIRD FRAME, `ref_rear34.jpg` (820, 0)–(1200, 300), WHICH REV 75 NEITHER
 OPENED NOR MENTIONED — the propped board IS in it. LOOK AT IT FIRST; IT MAY OVERTURN THIS REFUSAL.**
 ⚠ **(b) rev 75's *"shadow, panel gap and recess are not separable"* IS ONE HYPOTHESIS TOO WIDE — the
 bands around the blob read median 204–218 with `frac<90` = 0.00 on all four sides, so the dark region
@@ -171,13 +179,12 @@ NOT MEASURED".** ⚠ **Do not read T6's recovery of 64 from the render as confir
 rule 6.** **What would close it is a CLOSER TYRE FRAME, and `PHOTOS_WANTED` has never had a tyre
 item — nor a tail-board one (F325). Consider adding both.**
 
-### **5. THE EMBLEM.** His ninth report. P2 crossed its 0.85 bar at **0.8528** against P1b's own
-ceiling of **0.9465**, so it is still ~0.09 short, and **the objective still has no legibility term**
-(rule 56). **The weight is closed to further tuning by F314 but is NOT resolved** — F302 and F303
-stand. **F252's option (C)** — 1400-start global search, **0.7586 / 0.6698** — is built by nobody;
-⚠ **those figures were computed on the BROKEN RULER (F246) and have never been re-run.** ⚠ **AND
-F289b shows (A) and (B) WERE re-run at rev 73 — only (C) was not — so "every figure in that row has
-never been re-run" is too strong. F252's own grade reads REFUTED AT REV 73.**
+### **5. THE EMBLEM.** His ninth report. **0.8528 against P1b's ceiling of 0.9465 — ~0.09 short —
+and the objective STILL HAS NO LEGIBILITY TERM (rule 56).** The weight is closed to tuning by F314
+but **NOT resolved** (F302, F303 stand). **F252's option (C)**, the 1400-start search
+(**0.7586 / 0.6698**), is built by nobody — ⚠ **its figures came off the BROKEN RULER (F246) and
+option (C) alone was never re-run; F289b re-ran (A) and (B) at rev 73, and F252's own grade reads
+REFUTED AT REV 73.** ⚠ **Fix the legibility term before another search.**
 
 ### **6. F156 — the `Senor` gate row scores a DELIBERATE DEPARTURE.** THIRTEEN revisions unacted
 (rule 40). ⚠ **THAT COUNT IS HAND-INCREMENTED, like the branch count §1 warns about. It checks out
@@ -210,9 +217,10 @@ do not repeat the phrase without it. And the `SKIPPED` bound catches a new skipp
 pass unnoticed.** ⚠ **AND REV 75's OWN CHANGE WENT RED ON AN EXISTING ROW: rewording T3's message made
 `grep -c 'MEAN GAIN'` match twice. The guard won (rule 44) and the text was reworded.**
 
-**RUN `./bootstrap.sh --guards` ONCE THIS REVISION.** ⚠ **BUDGET IT FROM THE MACHINE, NOT FROM PROSE:
-`bootstrap.sh` PRINTS *"this takes about six minutes"* while the rev-75 brief said ~22 min. TIME IT
-AND RECORD WHAT YOU MEASURE.** It does **not** build Blender — the MODEL is built, `build.py` runs 10
+**RUN `./bootstrap.sh --guards` ONCE THIS REVISION.** ⚠ **MEASURED AT REV 75 ON A COLD CLONE:
+`bootstrap.sh --guards` = ALL 25 PASS in `real 19m25s`.** Its printed *"about six minutes"* is wrong by **3.2×** and two of its comments say *"~10 min"* — **so "budget it from the machine" FAILS here: the
+machine's own prose is the least accurate figure available (F327). BUDGET ~20 MIN**, and not while a
+render queue is going. It does **not** build Blender — the MODEL is built, `build.py` runs 10
 times across 15 invocations. It is the only thing that exercises the five rear-hatch kills.
 
 ---
@@ -220,7 +228,7 @@ times across 15 invocations. It is the only thing that exercises the five rear-h
 
 ```bash
 ./bootstrap.sh                                # READ ROW 9.  Row 10 is verify_clone.sh
-./verify_clone.sh                             # ALL 434 PASS -- 0 FIDELITY, 434 SELF-CONSISTENCY.
+./verify_clone.sh                             # ALL 437 PASS -- 0 FIDELITY, 437 SELF-CONSISTENCY.
   # ⚠ AND THE TOTAL DEPENDS ON WHICH out/*_side.png IS ALPHABETICALLY LAST (F324) -- see sec.2.1.
   # With an empty out/, five rows SKIP and say UNGUARDED; PASS is the same either way.
   # READ THE VERDICT BLOCK: not one row measures the vehicle against a photograph
@@ -253,10 +261,10 @@ python3 probe_rev71_proxy.py                  # must read IoU 1.000000
 python3 probe_rev71_red.py out/r76_side.png --transform=agx   # REFUSES with a summary line
   # F266's PHYSICS RECIPE: T1_VT=Raw T1_LOOK=None T1_EXP=-2.5, then --transform=raw
 python3 probe_rev70_tyre.py out/r76_side.png
-  # ⚠ FIXED AT REV 75 (F326): with an ABSENT frame this CRASHED with a bare FileNotFoundError and
-  # NO summary line, for six revisions, in this copy-paste block -- rule 37 and rule 51.  It now
-  # REFUSES: "NO SUCH FRAME ... nothing was measured (rule 37)", then "1 checked, 0 FAILED".
-  # It was the ONLY frame-consuming probe in sec.4 that did not already refuse cleanly.
+  # ⚠ FIXED AT REV 75 (F326): with an ABSENT frame this CRASHED -- bare FileNotFoundError, NO
+  # summary line, six revisions, in this copy-paste block (rule 37 + rule 51).  It now REFUSES:
+  # "NO SUCH FRAME ... nothing was measured (rule 37)", then "1 checked, 0 FAILED".  It was the
+  # ONLY frame-consuming probe in sec.4 that did not already refuse cleanly.
   # ⚠ IT OVERWRITES THE TRACKED FILE probe_scratch/rev70_tyre_render.png, so running it REDS
   # verify_clone's "modified tracked files" row and breaks sec.7 step 1 as a side effect.
   # `git checkout -- probe_scratch/rev70_tyre_render.png` after.
@@ -320,26 +328,16 @@ first line says 34–52.** rev50 §11 is HISTORY, not the canon; **do not cite i
 anything silently.** **AND §5 CONTAINS TWO DIFFERENT RULE 56s AND TWO DIFFERENT RULE 57s, AND RULE 42
 MEANS TWO DIFFERENT THINGS IN LIVE SOURCE. UNRESOLVED — say which you mean.**
 
-1. **RENDER IT, CROP IT, AND LOOK AT IT.** Rev 75's grounding refusal (F325) came from cropping two
-   reference frames and LOOKING, not from re-reading the prose that carried the item for 13 revisions.
-3. **A control is finished when you have WATCHED IT FAIL.** Rev 75's new guard was watched failing on
-   the SAME wrong expectation its skip branch passes.
-4. **AN INSTRUMENT THAT HAS NEVER BEEN WRONG HAS NEVER BEEN TESTED.** Rev 75's artefact-edge
-   hypothesis was real, plausible, and **killed by its own control**.
-5. **NEVER PUT A FIGURE IN AN ACCEPTANCE TEST UNLESS YOU WATCHED IT PRINT.** This is why T3 was NOT
-   re-based on n = 3.
-6. **A guard deriving its threshold from the expression it checks is a tautology.**
-8. **PAINT THE WINDOW BEFORE THE NUMBER.**  9. **READ THE SUMMARY LINE, NOT THE EXIT CODE** —
-   `ckabs`'s absent flag is read from one.  12. **Report the measurement WITH ITS CEILING.**
-37. **AN ABSENT INPUT MUST NEVER READ AS A MEASUREMENT** — **and it must not read as a FAILING one
-    either.** That was F311; it cost three contexts their pickup and is fixed.
-44. **WHEN A GUARD GOES RED ON YOUR OWN NEW WORK, THE GUARD IS THE DEFAULT WINNER.** Fired at rev 75.
-49. **A DIFFERENCE WITH NO FLOOR UNDER IT IS NOT A MEASUREMENT** — **and T3's bar never had one.**
-50. **A GREP IS NOT A REGRESSION TEST** — and rev 75's brief corrected a claim using a grep of the
-    wrong file, which is rule 50 firing on the correction itself.
-55. **EVERY REVISION SHIPS A VISIBLE CHANGE TO THE VEHICLE, OR SAYS PLAINLY WHY IT COULD NOT.**
-    **REV 75 COULD NOT, AND SAYS SO AT THE TOP OF ITS LEDGER WITH THE MEASUREMENT (F325).**
-56. **AN INSTRUMENT CAN RANK A THING THE EYE REJECTS, AND IT WILL NOT TELL YOU** (F262).
+**Read them in `CLAUDE.md` (1–18) and `HANDOFF_CARRIERS.md` §5 (34–58); what follows is only WHICH
+ONES BIT REV 75, so you know they are live.** **1** — F325's refusal came from cropping two frames
+and LOOKING. **3** — the new guard was watched failing on the same wrong expectation its skip branch
+passes. **4** — the artefact-edge hypothesis was plausible and **killed by its own control**. **5** —
+why T3 was not re-based on n = 3. **9** — `ckabs`'s absent flag is read from a summary line. **37** —
+an absent input must not read as a measurement **nor as a failing one**; that was F311, three
+contexts' pickups, now fixed. **44** — fired twice on rev 75's own edits; the guard won both times.
+**49** — T3's bar never had a floor. **50** — rev 75 "corrected" a claim with a grep of the wrong
+file. **55** — **REV 75 COULD NOT SHIP GEOMETRY AND SAYS SO AT THE TOP OF ITS LEDGER.** **6, 8, 12,
+56** all still bite.
 
 ---
 ## §6 WHERE EVERYTHING ELSE LIVES
@@ -364,9 +362,9 @@ MEANS TWO DIFFERENT THINGS IN LIVE SOURCE. UNRESOLVED — say which you mean.**
 **Any single measurement off is unacceptable** — per-measurement, not on average. **Never call it
 done off self-review. Report the measurement with its ceiling. Do not say anything is ready.**
 
-1. `./bootstrap.sh` and `./verify_clone.sh` on a **clean** tree. **All-PASS IS reachable now (434)** —
+1. `./bootstrap.sh` and `./verify_clone.sh` on a **clean** tree. **All-PASS IS reachable now (437)** —
    ⚠ **but read §1's warning: the total DEPENDS ON WHICH SIDE FRAME IS NEWEST, because T3 is a coin
-   flip (F324) — rev 75 WATCHED `verify_clone.sh` print **ALL 434 PASS** on a clean tree, and its
+   flip (F324) — rev 75 WATCHED `verify_clone.sh` print **ALL 437 PASS** on a clean tree, and its
    render 2 would have given **432 PASSED, 2 FAILED** — T3 plus the count row, which misses by
    exactly the number of other reds. Decide T3 before you treat all-PASS as a stable bar.** The honest closing condition
    remains: **every red is one you can name, and none of them is yours.**
@@ -394,7 +392,7 @@ rule 16, nothing deleted); rev 75's own errors are in `LEDGER_rev75.md`.** The h
    **stopped short of `OPEN_FINDINGS.md`, the file every other document says outranks prose.**
 4. ⚠ **A COLD-START PREPAREDNESS PASS — NEW, AND NOBODY HAD EVER RUN ONE. 19 defects, 3 TOP.**
    A fresh clone was made and the pickup followed literally. **The good news is load-bearing: a cold
-   clone with NO `out/` reads `bootstrap.sh` ALL 10 PASS and `verify_clone.sh` ALL 434 PASS — F323's
+   clone with NO `out/` reads `bootstrap.sh` ALL 10 PASS and `verify_clone.sh` ALL 437 PASS — F323's
    repair does what it claims.** The three TOP are fixed in this brief: **the rule-canon collision
    (§5), every frame being gone on a clone (§2.1), and `probe_rev70_tyre.py` crashing instead of
    refusing (F326).**

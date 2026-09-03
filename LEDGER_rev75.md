@@ -90,8 +90,8 @@ quietly converted into a skipping one. The verdict prints the skipped count **be
 ```
 
 ⚠ **SO THE INCOMING BRIEF'S §7.1 — *"ALL-PASS IS NOT REACHABLE"* — IS REFUTED.** The all-pass
-total is **434** *(433 when this was first written; the F325 row was added after)* and it is
-reachable — **WATCHED printing `ALL 434 PASS` on a clean tree BOTH with an empty `out/` and with
+total is **437** *(433 when first written; the F325 row then the three F326 rows were added after)* and it is
+reachable — **WATCHED printing `ALL 437 PASS` on a clean tree BOTH with an empty `out/` and with
 four frames.** §2.1's *"clearing the pickup needs T3 diagnosed as well —
 that is a second job"* is refuted with it.
 
@@ -224,7 +224,7 @@ this?*** `audit_brief.py` says as much in its own output: *"This is the MECHANIC
 
 **THE LOAD-BEARING RESULT IS GOOD:** on a cold clone with **no `out/` directory at all**,
 `./bootstrap.sh` reads **ALL 10 PASS** and `./verify_clone.sh` reads **`5 ROW(S) SKIPPED`** then
-**`ALL 434 PASS`**, exit 0. **F323's repair works under the REAL pickup condition** — not the
+**`ALL 434 PASS`** *(the total at that moment; 437 after the F326 rows)*, exit 0. **F323's repair works under the REAL pickup condition** — not the
 simulated one I tested, which was an empty `out/` I made by moving files aside, **a different state
 from what a clone gives you.**
 
@@ -257,8 +257,8 @@ bootstrap.sh              9 PASSED, 1 FAILED at PICKUP -> ALL 10 PASS at the CLO
 bootstrap.sh --guards     ALL 25 PASS.  ** The incoming brief expected "24 PASSED, 1
                           FAILED, the 1 being verify_clone" -- verify_clone now passes,
                           so the expected reading is superseded. **
-verify_clone.sh           ALL 434 PASS on a clean tree -- WATCHED, at the close, with
-                          out/r75b_side.png (render 3) newest.  0 FIDELITY, 434
+verify_clone.sh           ALL 437 PASS on a clean tree -- WATCHED, at the close, with
+                          out/r75b_side.png (render 3) newest.  0 FIDELITY, 437
                           SELF-CONSISTENCY.  ** AND THE TOTAL DEPENDS ON WHICH SIDE
                           FRAME IS NEWEST (F324): render 2 would have given
                           432 PASSED, 2 FAILED -- T3 plus the count row, which
@@ -298,7 +298,7 @@ audit_adversary.py        61 asked, 0 BROKE
 
 **AND THE STANDING WARNING: NOT ONE of those `verify_clone` rows measures the vehicle against a
 photograph.** The four that do — `flank_compare`, `gloss_compare`, `probe_rev70_tyre`,
-`probe_rev69_fitpose` — **all fail.** Never quote 434 as fidelity.
+`probe_rev69_fitpose` — **all fail.** Never quote 437 as fidelity.
 
 ## WHAT DID NOT MOVE
 

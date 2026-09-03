@@ -78,14 +78,22 @@ if _ARGS:
     if not os.path.exists(REND):
         P("NO RENDER -- %s does not exist.  out/ is untracked and starts EMPTY "
           "on a clone." % REND)
-        P("  Nothing was measured.  Render it first, e.g.")
-        P("  T1_SUB=1 T1_PREVIEW=hero34f T1_PFX=r72 ... build.py")
+        P("  Nothing was measured.  Render it first:")
+        # rev 75, F327: this named T1_PFX=r72, which went stale the revision
+        # after it was written -- F321's defect in a second file.  Name the
+        # SOURCE of the prefix, never a value.
+        P("  T1_SUB=1 T1_PREVIEW=hero34f T1_PFX=<the prefix the brief's sec.0 "
+          "renders> ... build.py")
         sys.exit(3)
 elif "--selftest" not in sys.argv:
     REND = _newest_hero()
     if REND is None:
         P("NO RENDER: out/ holds no *_hero.png.  This is not a measurement --")
-        P("  render one first, e.g. T1_PREVIEW=hero T1_PFX=r58 ... build.py")
+        # rev 75, F327: this named T1_PFX=r58 AND T1_PREVIEW=hero -- and there
+        # is no plain `hero` view in the brief's preview list, so the command
+        # as written produced nothing.  The views are front,side,hero34f,hero34r.
+        P("  render one first: T1_PREVIEW=hero34f T1_PFX=<the prefix the "
+          "brief's sec.0 renders> ... build.py")
         sys.exit(3)
     P("no frame named; taking the newest hero in out/: %s" % os.path.basename(REND))
 else:

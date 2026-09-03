@@ -53,6 +53,8 @@ document — what to do, and how to start. **This file holds every carrier, verb
 ## INDEX
 
 * **§0.05 THE BACK OPENING**
+* **§0.11 THE GLOSS GRID** — *(out of numeric order in the file: it sits BEFORE §0.10)*
+* **§0.10 THE `BUMP_BOW` LADDER**
 * **§0.06 THE NOSE**
 * **§0.07 THE EMBLEM**
 * **§0.08 WHAT REV 69 SHIPPED**
@@ -66,6 +68,12 @@ document — what to do, and how to start. **This file holds every carrier, verb
 * **§8 THE REGISTER**
 * **§9 THE HORIZON**
 * **§10 HOW TO GROW THIS HANDOFF**
+* **§11 REV 75's ADVERSARY PASSES, IN FULL**
+
+⚠ **§0.10, §0.11 AND §11 WERE MISSING FROM THIS INDEX** — the first two for two revisions, and
+§0.10/§0.11 are REFUTATIONS (the `BUMP_BOW` ladder and the gloss grid) that an un-indexed context
+could waste a revision re-attempting. **Found by cold-starting the handoff (F327). If you add a
+section, add it here in the same edit.**
 
 ---
 ## §0.05 THE BACK OPENING — RULED AT REV 62, MEASURED AT REV 62, NEVER BUILT

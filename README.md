@@ -16,7 +16,7 @@ straight at the one.
 ## Start here
 
 1. **The highest-numbered `NEXT_CONTEXT_PROMPT_rev*.md`** — the live brief, **rev 76 at
-   this edit** (find it with `ls`, never by trusting this line). It names
+   this edit** (find it with `ls -v` -- plain `ls` sorts rev9 last -- never by trusting this line). It names
    `REMAINING_WORK_rev61.md` and the rest of the carriers. Read
    it first, in full. **Find it with `ls`; do not trust a filename typed in any
    document, including this line** (`CLAUDE.md`). It was rev 71 when this line was
