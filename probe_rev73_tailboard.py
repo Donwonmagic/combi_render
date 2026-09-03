@@ -240,7 +240,21 @@ def main():
          "toward its unrotated reading, so its +%.2f deg offset measured AT "
          "38 deg is NOT the offset at 43 deg. Subtracting it as a CONSTANT is "
          "wrong, and T5's world figure inherits that error. One rung passed a "
-         "|moved-rot| < 1.0 bar and hid this (F300). ***" % (gain, bias)
+         "|moved-rot| < 1.0 bar and hid this (F300). ***"
+         "\n       *** AND THIS ROW'S OWN FLOOR, MEASURED AT REV 75 (F324), "
+         "WITHOUT WHICH NEITHER ITS VERDICT NOR ITS GAIN IS QUOTABLE: TWO "
+         "side renders of ONE tree, no source change between, read the -7.0 "
+         "rung at -7.00 (miss 0.00, PASS) and -8.50 (miss 1.50, FAIL). THE "
+         "RUNG THIS VERDICT TURNS ON MOVES BY 1.50 deg BETWEEN RENDERS -- "
+         "the entire width of its own 1.5 bar -- so the PASS/FAIL here is "
+         "RENDER NOISE, which is the branch F312 named ('if they differ, T3 "
+         "is measuring noise and should not have a 1.5 bar at all'). F312b's "
+         "'systematic, it reproduces' was read on THREE DIFFERENT TREES and "
+         "is REFUTED. That same pair moved the gain statistic 0.883 -> 0.982, "
+         "a spread of 0.099 against its own ~0.068 mean departure from "
+         "1.000, so the GAIN claim above is NOT ESTABLISHED at n=2 either. "
+         "NOT RE-BASED: a replacement bar set on n=2 would be an invented "
+         "figure (rule 5). ***" % (gain, bias)
        if lad else "no rotated reading")
 
     _pr = paint(rwin, [(rlum < 246, [0, 120, 255])], "rev73_tb_render.png",
