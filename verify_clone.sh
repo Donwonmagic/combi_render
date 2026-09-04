@@ -1343,8 +1343,29 @@ b = sorted(glob.glob('NEXT_CONTEXT_PROMPT_rev*.md'), key=lambda p: int(''.join(c
 print('OK' if 'OPEN_FINDINGS.md' in open(b).read() else 'NOT NAMED IN %s' % b)" 2>&1 | tail -1)"
 # The die-cut sticker is the project's ORIGINAL DELIVERABLE and its carrier has
 # already been deleted once. It is named here so the register cannot lose it.
-ck "the register still carries the sticker"    1 \
-   "$(grep -c 'DIE-CUT STICKER' OPEN_FINDINGS.md)"
+#
+# *** RE-BASED AT REV 77, CAUSE NAMED, WITH TWO COMPANION ROWS. ***
+# This row was `grep -c 'DIE-CUT STICKER' = 1`. It went RED at rev 77 on got 2,
+# because the OWNER FIRED F18's TRIGGER ("yes -- start it now") and that ruling
+# was recorded as F330, which names the sticker a second time. So the guard
+# failed on the register CARRYING MORE of the thing it exists to protect --
+# rule 50's own class, stated in rule 50's own words: "a grep is not a
+# regression test, and it fails in BOTH directions."
+# The property the comment above actually asks for is PRESENCE, so the row now
+# tests presence BEHAVIOURALLY and cannot be broken by a second mention. The
+# two rows under it make the re-base separately testable: one pins F18's own
+# register row BY ID (so "presence" cannot be satisfied by a passing mention in
+# some other row), and one is a WATCHED KILL that strips the phrase from a
+# scratch copy and requires the same expression to report LOST.
+ck "the register still carries the sticker"    PRESENT \
+   "$(grep -q 'DIE-CUT STICKER' OPEN_FINDINGS.md && echo PRESENT || echo LOST)"
+ck "and F18's own row is still there, by ID"   1 \
+   "$(grep -c '^| \*\*F18\*\* |' OPEN_FINDINGS.md)"
+ck "KILL: strip the phrase and the row must read LOST" LOST \
+   "$(sed 's/DIE-CUT STICKER/x/g' OPEN_FINDINGS.md > /tmp/_f18kill.md; \
+      grep -q 'DIE-CUT STICKER' /tmp/_f18kill.md && echo PRESENT || echo LOST)"
+ck "and the owner's rev-77 ruling on it is carried" 1 \
+   "$(grep -c "F18's TRIGGER IS FIRED" OPEN_FINDINGS.md)"
 ck "newest brief records its own audit"      1 "$(if [ -n "$_LATEST_BRIEF" ]; then grep -c 'AUDITED AGAINST THE MACHINE' "$_LATEST_BRIEF" 2>/dev/null; else echo 99; fi)"
 
 # ---- rev 52: THE CARRY-FORWARD BLOCK ------------------------------------

@@ -172,11 +172,30 @@ def main():
           "in XZ): %.2f deg" % truth)
 
     # ---------------------------------------------------- the render controls
+    #
+    # *** REV 77: THIS PROBE NOW TAKES AN OPTIONAL FRAME, AND THAT IS A REPAIR
+    # OF A NAMED FINDING. *** F324 recorded that `verify_clone.sh`'s verdict
+    # depends on which `out/*_side.png` happens to be alphabetically last,
+    # "because the probe takes no argument and reads that frame", and F316's
+    # rule is NAME THE FRAME.  A probe that cannot be pointed at a frame cannot
+    # be used to measure a distribution ACROSS frames, which is exactly what
+    # F324 left outstanding.  The bare behaviour is UNCHANGED -- `verify_clone`
+    # calls it with no argument and gets the same frame it always got -- so
+    # this adds an address without moving any verdict.
     ren = None
-    for cand in sorted(os.listdir(os.path.join(HERE, "out"))
-                       if os.path.isdir(os.path.join(HERE, "out")) else []):
-        if cand.endswith("_side.png") and "raw" not in cand:
-            ren = os.path.join(HERE, "out", cand)
+    if len(sys.argv) > 1 and not sys.argv[1].startswith("-"):
+        ren = sys.argv[1]
+        if not os.path.exists(ren):
+            print("NO SUCH FRAME: %s -- out/ is untracked and does not exist "
+                  "on a clone, so nothing was measured (rule 37)." % ren)
+            print("-" * 78)
+            print("  0 checked, 0 FAILED, 2 ABSENT  --  named frame absent")
+            return 2
+    else:
+        for cand in sorted(os.listdir(os.path.join(HERE, "out"))
+                           if os.path.isdir(os.path.join(HERE, "out")) else []):
+            if cand.endswith("_side.png") and "raw" not in cand:
+                ren = os.path.join(HERE, "out", cand)
     if ren is None:
         print("NO SIDE RENDER in out/ -- out/ is untracked and starts EMPTY. "
               "Both controls are ABSENT and the photograph row below CANNOT be "
