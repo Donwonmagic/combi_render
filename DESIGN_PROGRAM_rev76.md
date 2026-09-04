@@ -81,10 +81,11 @@ gets right). Unmeasured figures in 40% tint with open-bracket arrowheads.
 disagreement**: the tail board is built at 38.0° and photographed at 28.0°, unresolved for seven
 revisions — draw both. Invert the hierarchy so **`ENGINE: NONE. TRANSMISSION: SOLD.`** is the largest
 annotation on the sheet.
-**⚠ BLOCKER IT EXPOSES:** the orthographic cameras **clip the vehicle**. `studio.views()['front']`
-is ortho 3.55 with horizontal sensor fit → 2.4406 m vertical at 1600×1100, while the vehicle spans
-to `bbox top 3.132` with lids up. `out/r75_front.png` proves it: 42 ink pixels on the top row, 738 on
-the bottom. **Derive `ortho_scale` from the build's own bounds. This blocks every elevation concept.**
+**⚠ BLOCKER IT EXPOSES, RE-MEASURED AND NARROWED AT REV 76:** `front` and `rear` are `ortho=3.55`
+→ **2.4406 m** vertical at 1600×1100 against `bbox top 3.132`, so they **clip** — `out/r75_front.png`
+reads **43 ink pixels on the top row, 738 on the bottom**. ⚠ **BUT THE CONCEPT'S CLAIM THAT THIS
+"BLOCKS ANY ELEVATION SERIES" IS TOO STRONG: `side` is `ortho=5.90` → 4.0563 m and FITS.** This plate
+is a side elevation, so **it is not blocked today.** Fix front/rear before any multi-view series.
 
 ### 4. **PAPEL DE GRASA** · 9.0 / 2.67
 Deli paper printed both faces in back-to-front register: **top face, the bus shut and dark in maroon
@@ -135,8 +136,14 @@ THE HATCH · SOLD · CERO · AQUÍ · ÁBRELO (the pop-up).
    **non-manifold edges (body) 0**, 229,489 quads to 1,040 tris.
    **Unlocks concepts 1, 3 and 4 simultaneously, and it IS the owner's recovered rev-39 sentence.**
 2. **NORMAL + AO PASSES** to drive hatch direction and occlusion — the other half of that sentence.
-3. **FIX THE ORTHOGRAPHIC CLIPPING** (§2.3). Derive `ortho_scale` from the build's bounds. Blocks
-   every elevation.
+3. **FIX THE ORTHOGRAPHIC CLIPPING ON `front`/`rear` — ⚠ BUT IT DOES NOT BLOCK `side`, AND THE
+   AUDITED CONCEPT SAID IT DID.** Verified at rev 76 rather than inherited: `studio.py` sets
+   `"front"` and `"rear"` to **`ortho=3.55`** → 3.55 × 1100/1600 = **2.4406 m** vertical against
+   `STATE.md`'s **`bbox top 3.132`**, so both clip — and `out/r75_front.png` proves it with **43 ink
+   pixels on its top row against 738 on the bottom**. **`"side"` is `ortho=5.90` → 4.0563 m and
+   FITS.** Since the top concepts are side-elevation or single-object work, **the keystone view
+   works today**; this fixes front/rear elevations only. Derive `ortho_scale` from the build's own
+   bounds so it cannot silently regress.
 4. **PROVE `T1_ALPHA`.** Transparent output is built and guarded and has been **un-run for thirteen
    revisions** — no ledger contains the string. Every frame in `out/` is RGB with no alpha, and
    `deliver.py` correctly refuses them. **One env var stands between the record and the owner's
