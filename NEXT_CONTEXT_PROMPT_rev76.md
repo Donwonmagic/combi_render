@@ -1,5 +1,18 @@
 # NEXT CONTEXT PROMPT — rev 76   ·   **ACTION BRIEF**
 
+> ## ⚠⚠ THE OWNER REDIRECTED THE PROJECT AT REV 76. READ `DESIGN_PROGRAM_rev76.md` FIRST.
+> *"I don't want to be tied down by current ideas, I want fresh ones, good ones, and lots of em"* ·
+> *"we need to finally present something"* · *"Why do we keep doing Revs that don't ship geometry."*
+>
+> The work is now a **graphic-design, merchandise and animation program** built on the model.
+> **78 concepts, screened and adversarially audited, live in `DESIGN_PROGRAM_rev76.md` — a CARRIER.**
+> **THE SPINE, recovered from `NEXT_CONTEXT_PROMPT_rev39.md` §7 where the record lost it:**
+> *"cartoon with rendered depth — **vector line and flat colour, shading and occlusion sampled from
+> the 3D asset**."* **The model's value here is MEASUREMENT AND LINE, not photorealism.**
+> **FIRST JOB: build the line pass (Grease Pencil Line Art → SVG) and print ONE lotería card.**
+> **F191/F193 gate the PHOTOREAL render; a line program does not touch what they gate.**
+> **Everything below is the MACHINE and the model's open findings. Both still apply.**
+
 **REV 75 SHIPPED NO GEOMETRY AND SAYS SO AT THE TOP (rule 55).** It repaired the pickup (F323),
 refuted F312b with the experiment F312 itself prescribed (F324), and **checked the grounding of the
 one geometry candidate it took to the bench and REFUSED IT on the measurement** (F325). **Run
@@ -167,12 +180,10 @@ YOUR TREE — you must MAKE them: `out/r74f_side.png` is just HEAD rendered (§0
 darkest annulus", which straddles the wheel-arch shadow and the outer silhouette. **Rev 75 had a
 side-frame pair in hand and did NOT do this; it is cheap and it closes a finding.**
 
-### **4. THE TREAD'S COUNT, DEPTH AND DUTY ARE ALL DECLARED, NOT MEASURED (F308b).**
-T2 **REFUSES to publish a count** and prints six estimates — a **48..84 bracket** (**quote the
-bracket, not the ratio**). **`TREAD_LUGS = 64` has exactly the standing of `TB_WIDTH`'s "POSE CHOICE,
-NOT MEASURED".** ⚠ **Do not read T6's recovery of 64 from the render as confirmation — that is
-rule 6.** **What would close it is a CLOSER TYRE FRAME, and `PHOTOS_WANTED` has never had a tyre
-item — nor a tail-board one (F325). Consider adding both.**
+### **4. THE TREAD'S COUNT, DEPTH AND DUTY ARE DECLARED, NOT MEASURED (F308b).**
+T2 refuses to publish a count and prints a **48..84 bracket** — quote the bracket, not the ratio.
+`TREAD_LUGS = 64` has the standing of a POSE CHOICE. Closing it needs a CLOSER TYRE FRAME;
+`PHOTOS_WANTED` has no tyre item and no tail-board one (F325).
 
 ### **5. THE EMBLEM.** His ninth report. **0.8528 against P1b's ceiling of 0.9465 — ~0.09 short —
 and the objective STILL HAS NO LEGIBILITY TERM (rule 56).** The weight is closed to tuning by F314
@@ -192,13 +203,12 @@ Read the grade, not any of the four sentences.**
 
 | closed | the result |
 |---|---|
-| **THE PICKUP (F311 → F323)** | **REPAIRED.** `ckabs` reads the absent flag from **the probe's own summary line** (rule 9); the skip **still calls `ck`** so `PASS` is unchanged (omitting rows re-breaks the count row — measured, 424 vs 428); it prints **ABSENT**, never a number, and says **UNGUARDED** in the label (rule 37). **Four companion rows** (§3b): a WATCHED KILL through both branches with tallies snapshotted, the flag cross-checked against an INDEPENDENT `ls` (rule 6), and `SKIPPED` BOUNDED at 5/0. **T3's comparison is UNTOUCHED.** |
-| **F312 / F312b (F324)** | **T3's VERDICT IS RENDER NOISE ON THIS TREE** — three renders of one tree read the deciding rung at **−7.00 / −8.50 / −6.50**, a 2.00° range on a 1.5 bar. ⚠ **F312b is NOT refuted wholesale and rev 75's first draft said it was (retracted, rule 13): its `r74t`/`r74t3` are a SAME-TREE pair that AGREED at −9.00/−9.00.** Only its GENERALISATION falls. **Full detail and the unread decisive comparison are in §2.1 — read that, not this row.** Not re-based (rule 5). |
-| **THE ARTEFACT-EDGE HYPOTHESIS (F324)** | **MINE, AND I KILLED IT WITH ITS OWN CONTROL.** T3's `rotate(expand, fillcolor=white)` DOES inject non-rotating axis-aligned edges at ≈179.6°/≈90.4°. **Masking them out changes no rung by more than the histogram's 0.25° bin, and the one that moved got WORSE. Real, and NOT causal.** Figures, frames and two corrections to them: `LEDGER_rev75.md`. |
-| **THE RECESS'S GROUNDING (F325)** | **REFUSED ON THE MEASUREMENT, BEFORE BUILDING.** 30 × 12 px, n = 1, the corroborating frame edge-on by construction. *"It cannot be recovered from what we hold"* is the result (rule 12). |
-| **A SECOND COPY OF A WITHDRAWN CLAIM** | `t1_detail.tyre()` still read *"so `TYRE_D` is independent of both halves"* — F319 withdrew that at rev 74 and **one copy was missed**. `TYRE_D` is a **bbox extent** and moves by **0.0890 mm**. Withdrawn in place. |
+| **THE PICKUP (F311 → F323)** | **REPAIRED.** `ckabs` reads the absent flag from the probe's own summary line (rule 9); the skip still calls `ck` so `PASS` is unchanged; it prints **ABSENT**, never a number, and says **UNGUARDED**. Four companion rows including a WATCHED KILL through both branches. **T3's comparison is UNTOUCHED.** |
+| **F312 / F312b (F324)** | **T3's VERDICT IS RENDER NOISE ON THIS TREE** — three renders of one tree read the deciding rung at **−7.00 / −8.50 / −6.50**, a 2.00° range on a 1.5 bar. ⚠ **F312b is NOT refuted wholesale (retracted, rule 13): its `r74t`/`r74t3` are a SAME-TREE pair that AGREED at −9.00/−9.00.** Only its GENERALISATION falls. Detail in §2.1. Not re-based (rule 5). |
+| **THE ARTEFACT-EDGE HYPOTHESIS (F324)** | **MINE, AND I KILLED IT WITH ITS OWN CONTROL.** The rotation injects non-rotating axis-aligned edges; masking them changes no rung beyond the 0.25° bin and the one that moved got WORSE. Real, NOT causal. Figures: `LEDGER_rev75.md`. |
+| **THE RECESS'S GROUNDING (F325)** | **REFUSED ON THE MEASUREMENT, BEFORE BUILDING.** 30 × 12 px, n = 1, the corroborating frame edge-on by construction. |
+| **F326 / F327 / F328 / F329** | `probe_rev70_tyre` crashed instead of refusing; the first COLD-START preparedness pass; trimming this file broke its own pickup; 17 probes repaint 42 tracked files. **All in `OPEN_FINDINGS.md`.** |
 
----
 ## §3b ⚠ REV 72–75's FIXES ARE LOCKED. YOU CANNOT REGRESS THEM SILENTLY.
 
 **YOU MAY IMPROVE ANY OF IT; YOU MAY NOT SILENTLY UNDO IT.** A red row is a FINDING ABOUT YOUR
@@ -325,16 +335,11 @@ first line says 34–52.** rev50 §11 is HISTORY, not the canon; **do not cite i
 anything silently.** **AND §5 CONTAINS TWO DIFFERENT RULE 56s AND TWO DIFFERENT RULE 57s, AND RULE 42
 MEANS TWO DIFFERENT THINGS IN LIVE SOURCE. UNRESOLVED — say which you mean.**
 
-**Read them in `CLAUDE.md` (1–18) and `HANDOFF_CARRIERS.md` §5 (34–58); what follows is only WHICH
-ONES BIT REV 75, so you know they are live.** **1** — F325's refusal came from cropping two frames
-and LOOKING. **3** — the new guard was watched failing on the same wrong expectation its skip branch
-passes. **4** — the artefact-edge hypothesis was plausible and **killed by its own control**. **5** —
-why T3 was not re-based on n = 3. **9** — `ckabs`'s absent flag is read from a summary line. **37** —
-an absent input must not read as a measurement **nor as a failing one**; that was F311, three
-contexts' pickups, now fixed. **44** — fired twice on rev 75's own edits; the guard won both times.
-**49** — T3's bar never had a floor. **50** — rev 75 "corrected" a claim with a grep of the wrong
-file. **55 — EVERY REVISION SHIPS A VISIBLE CHANGE TO THE VEHICLE, OR SAYS PLAINLY WHY IT COULD NOT**:
-rev 75 could not, and says so atop its ledger. **6, 8, 12, 56** all still bite.
+**Read them in `CLAUDE.md` (1–18) and `HANDOFF_CARRIERS.md` §5 (34–58).** Which bit rev 75: **1**
+(F325's refusal came from LOOKING), **3**, **4** (a plausible hypothesis killed by its own control),
+**5**, **9**, **37** (F311 — three contexts' pickups, fixed), **44** (fired twice; the guard won
+both), **49**, **50**. **55 — EVERY REVISION SHIPS A VISIBLE CHANGE TO THE VEHICLE, OR SAYS PLAINLY
+WHY IT COULD NOT**: rev 75 could not, and says so atop its ledger. **6, 8, 12, 56** still bite.
 
 ---
 ## §6 WHERE EVERYTHING ELSE LIVES
