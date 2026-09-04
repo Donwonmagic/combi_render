@@ -250,40 +250,66 @@ def main():
             lad.append((rot, tr[0][0] - tops[0][0]))
     gains = [m / r for r, m in lad if r]
     gain = float(np.mean(gains)) if gains else float("nan")
+    # ------------------------------------------------------------- F334, rev 77
+    # THE -7.0 RUNG IS BELOW ITS OWN MEASURED FLOOR AND NO LONGER GATES.
+    # MEASURED on FIVE renders of ONE tree at rev 77, no source change between
+    # any of them, each read BY NAME (the probe took no argument until rev 77,
+    # which is why this could not be measured before).  Per-rung residual sd:
+    #     rung  -7.0   sd 1.282   range 2.500   <- 4x to 11x every other rung
+    #     rung  +3.0   sd 0.326   range 0.750
+    #     rung  +5.0   sd 0.112   range 0.250
+    #     rung  +7.0   sd 0.224   range 0.500
+    #     rung +10.0   sd 0.285   range 0.750
+    # A 1.5 deg bar on a rung whose own render-to-render sd is 1.282 deg is a
+    # coin flip and cannot report anything about the tree -- and it was the
+    # reason `verify_clone.sh`'s TOTAL depended on which side frame happened to
+    # be alphabetically last (F311's disease one level deeper).  The four rungs
+    # that ARE above their floor keep the bar unchanged, and MONOTONICITY --
+    # which held in 5 renders of 5 -- is now required as well, so the row still
+    # fails a detector that has stopped moving, which is what it exists for.
+    # NOT A WIDENING: no bar was relaxed.  One rung was found to be below its
+    # own noise and is now REPORTED WITHOUT GATING, labelled as such.
+    T3_UNGATED = (-7.0,)
+    _gated = [(r, m) for r, m in lad if r not in T3_UNGATED]
+    _mono = all(lad[i][1] < lad[i + 1][1] for i in range(len(lad) - 1))
     ck("T3 KILL -- rotating the SAME frame by known angles moves the gradient "
        "detector, AND the ladder measures HOW it moves (not just that it does)",
-       len(lad) >= 4 and all(abs(m - r) < 1.5 for r, m in lad),
-       "; ".join("%+.1f -> %+.2f" % t for t in lad)
+       len(lad) >= 4 and _mono and all(abs(m - r) < 1.5 for r, m in _gated),
+       "; ".join("%+.1f -> %+.2f%s" % (t[0], t[1],
+                 "  [UNGATED -- BELOW ITS OWN FLOOR, sd 1.282 deg over n=5]"
+                 if t[0] in T3_UNGATED else "") for t in lad)
        + ".  MEAN GAIN %.3f, NOT 1.000.  *** THIS REFUTES THE ERROR MODEL THE "
          "PHOTOGRAPH ROWS USE: a detector with a gain below 1 is pulled back "
          "toward its unrotated reading, so its +%.2f deg offset measured AT "
          "38 deg is NOT the offset at 43 deg. Subtracting it as a CONSTANT is "
          "wrong, and T5's world figure inherits that error. One rung passed a "
          "|moved-rot| < 1.0 bar and hid this (F300). ***"
-         "\n       *** AND THIS ROW'S OWN FLOOR, MEASURED AT REV 75 (F324), "
-         "WITHOUT WHICH NEITHER ITS VERDICT NOR ITS GAIN IS QUOTABLE. "
-         "THREE renders of ONE tree (the shipped regular tread), no source "
-         "change between any of them, read the -7.0 rung at -7.00 (PASS), "
-         "-8.50 (FAIL) and -6.50 (PASS): a RANGE of 2.00 deg on a rung whose "
-         "bar is 1.5, so the PASS/FAIL here is RENDER NOISE -- the branch "
-         "F312 named ('if they differ, T3 is measuring noise and should not "
-         "have a 1.5 bar at all'). The gain statistic reads 0.883 / 0.982 / "
-         "0.919 across the same three, a spread of 0.099 against its own "
-         "~0.072 mean departure from 1.000, so the GAIN claim above is NOT "
-         "ESTABLISHED at n=3 either. "
-         "*** BUT F312b IS NOT SIMPLY WRONG, AND REV 75 FIRST SAID IT WAS. "
-         "F312b's r74t_side/r74t3_side ARE a SAME-TREE pair -- its own row "
-         "says so -- and they AGREED TO THE HISTOGRAM BIN at -9.00 and "
-         "-9.00, both failing. So rev 74 already ran this experiment on ITS "
-         "tree and landed on F312's OTHER branch ('the bar is simply too "
-         "tight'). The two trees give TWO DISJOINT CLUSTERS: -9.00/-9.00/"
-         "-8.75 on rev 74's, -7.00/-8.50/-6.50 on rev 75's. That is a "
-         "TREE-DEPENDENCE as well as render scatter, and NEITHER of F312's "
-         "two branches covers it. What IS refuted is F312b's "
-         "GENERALISATION that the failure reproduces; it reproduced on its "
-         "tree and does not on this one. *** "
-         "NOT RE-BASED: a replacement bar set on n=3 would be an invented "
-         "figure (rule 5). ***" % (gain, bias)
+         "\n       *** THIS ROW'S FLOOR, MEASURED AT REV 77 ON n=5 (F334), "
+         "WITHOUT WHICH NEITHER ITS VERDICT NOR ITS GAIN IS QUOTABLE. FIVE "
+         "renders of ONE tree, no source change between any of them, read the "
+         "-7.0 rung at -8.75, -8.75, -6.50, -9.00, -6.50: a RANGE of 2.50 deg "
+         "and sd 1.282 deg on a rung whose bar is 1.5, 2 PASS / 3 FAIL. "
+         "THE INSTABILITY IS CONFINED TO THAT ONE RUNG: the other four read sd "
+         "0.326 / 0.112 / 0.224 / 0.285 over the same five frames, 4x to 11x "
+         "tighter, and the ladder was MONOTONIC in 5 of 5. So the honest "
+         "verdict is NOT 'T3 is noise' -- it is that ONE RUNG of five is below "
+         "its own floor, and it is now UNGATED rather than the bar being "
+         "widened. *** AND THIS REFUTES F324's OWN 'TWO DISJOINT CLUSTERS' "
+         "(retracted here, rule 13): F324 attributed -9.00/-9.00/-8.75 to rev "
+         "74's tree and -7.00/-8.50/-6.50 to rev 75's, and called the "
+         "difference a BUILD-dependence. ONE TREE -- this one, unchanged -- "
+         "produced -9.00 AND -8.75 AND -6.50. The clusters are not disjoint "
+         "and there is no evidence of build-dependence; it is one wide "
+         "distribution. *** THE GAIN CLAIM ABOVE IS STILL NOT ESTABLISHED, AND "
+         "n=5 WEAKENS IT: the gains read 0.967 / 0.979 / 0.936 / 0.935 / 0.893, "
+         "mean 0.942, sd 0.033, against a mean departure from 1.000 of 0.058 -- "
+         "1.8 sigma, which is not a result. Do not quote the gain to refute the "
+         "photograph rows' error model until it is established. *** A "
+         "HYPOTHESIS, NAMED SO IT IS NOT MISTAKEN FOR A FINDING: -7.0 is the "
+         "ONLY NEGATIVE rotation in the ladder, so the instability may be about "
+         "the direction of the resample -- but that is n=1 negative rung, "
+         "confounded with being the largest-magnitude and the first, and it is "
+         "UNTESTED. Add a -3.0 and a -10.0 rung to test it. ***" % (gain, bias)
        if lad else "no rotated reading")
 
     _pr = paint(rwin, [(rlum < 246, [0, 120, 255])], "rev73_tb_render.png",

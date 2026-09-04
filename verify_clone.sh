@@ -2772,6 +2772,57 @@ ckabs "$_TB_ABSENT" "F300 ... and its rotation KILL is a LADDER that reports a G
 # when out/ holds no side render -- cannot be exercised here without moving
 # out/ aside, which a verifier must not do.  It can tell you the refusal path
 # is still WRITTEN; it cannot tell you it still FIRES.
+# --- rev 77, F334: THE COMPANION ROWS FOR T3's RE-BASE.
+# THE CAUSE, NAMED: the -7.0 rung's render-to-render sd is 1.282 deg against a
+# 1.5 deg bar, measured on FIVE renders of ONE tree, while the other four rungs
+# read sd 0.326 / 0.112 / 0.224 / 0.285 over the same frames.  That one rung is
+# below its own noise and is now REPORTED WITHOUT GATING.  No bar was relaxed,
+# and MONOTONICITY was ADDED as a requirement, so the row is strictly harder to
+# pass on everything that reproduces.  sec.3b requires the cause to be
+# SEPARATELY TESTABLE, and these four rows are that.
+#
+# ROW 1 IS A WATCHED KILL, AND IT IS ARITHMETIC, NOT A GREP (rule 50).  It
+# re-implements the shipped pass condition and runs SEVEN fabricated ladders
+# through it: the two live readings must PASS, a stuck detector / an inverted
+# ladder / a gated rung out of tolerance / a truncated ladder must all FAIL, and
+# the UNGATED rung must not gate even when wildly wrong.  If a future edit
+# disarms the row, this goes red without needing a render.
+ck "F334 T3's re-based condition still KILLS what it exists to kill (7 fabricated ladders)" \
+   "PASS/PASS/FAIL/FAIL/FAIL/FAIL/PASS" \
+   "$(python3 -c "
+UNG = (-7.0,)
+def v(l):
+    g = [(r, m) for r, m in l if r not in UNG]
+    mono = all(l[i][1] < l[i+1][1] for i in range(len(l)-1))
+    return len(l) >= 4 and mono and all(abs(m-r) < 1.5 for r, m in g)
+C = [[(-7.,-8.75),(3.,2.5),(5.,4.25),(7.,6.5),(10.,9.75)],
+     [(-7.,-9.0),(3.,2.5),(5.,4.0),(7.,6.0),(10.,9.0)],
+     [(-7.,0.),(3.,0.),(5.,0.),(7.,0.),(10.,0.)],
+     [(-7.,9.),(3.,6.5),(5.,4.25),(7.,2.5),(10.,-8.75)],
+     [(-7.,-8.75),(3.,2.5),(5.,7.0),(7.,6.5),(10.,9.75)],
+     [(-7.,-8.75),(3.,2.5),(5.,4.25)],
+     [(-7.,-12.),(3.,2.5),(5.,4.25),(7.,6.5),(10.,9.75)]]
+print('/'.join('PASS' if v(c) else 'FAIL' for c in C))")"
+# ROW 2: exactly ONE rung is ungated, and it is the one that was measured.  A
+# future context cannot quietly ungate a second rung to make a red row green.
+ck "F334 exactly one T3 rung is ungated, and it is -7.0" "T3_UNGATED=(-7.0,)" \
+   "$(python3 -c "
+import re,io
+s=io.open('probe_rev73_tailboard.py').read()
+m=re.search(r'T3_UNGATED = \(([^)]*)\)', s)
+print('T3_UNGATED=(%s)' % m.group(1) if m else 'ABSENT')")"
+# ROW 3: the ungated rung cannot be quoted without its floor -- the label
+# travels with the number in the row's own printed message.
+ck "F334 the ungated rung prints its floor in the row's own message" 1 \
+   "$(grep -c 'UNGATED -- BELOW ITS OWN FLOOR' /tmp/_r73e.txt)"
+# ROW 4: monotonicity is REQUIRED, not merely reported.  This is the part of the
+# ladder that reproduced in 5 renders of 5, and it is what now carries the kill.
+ck "F334 T3 requires the ladder to be MONOTONIC (the property that reproduces)" 1 \
+   "$(python3 -c "
+import io
+s=io.open('probe_rev73_tailboard.py').read()
+print(1 if ('_mono = all(lad[i][1] < lad[i + 1][1]' in s and 'and _mono and' in s) else 0)")"
+
 ck "F296 ... and its no-side-render refusal path is still PRESENT IN SOURCE (a grep, not a behaviour)" 1 \
    "$(python3 -c "
 import re,io
