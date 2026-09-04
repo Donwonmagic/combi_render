@@ -25,8 +25,13 @@ stations.  It is NOT a body outline: no outline of that flank exists in anything
 we hold, and drawing a plausible one is precisely the defect this project has
 paid for most often.  The empty field is the measurement.
 
-INKS: one, `lid_gen.INK` (72,46,6), on `t1_mats.CREAM` sRGB (206,208,200).  Both
-are measured off this vehicle; nothing on this sheet is a colour we invented.
+INKS: one, `lid_gen.INK` (72,46,6), on `t1_mats.CREAM` sRGB (206,208,200).
+⚠ THE STOCK IS MEASURED; THE INK IS NOT, AND THIS DOCSTRING SAID "BOTH MEASURED"
+UNTIL A RULE-15 ADVERSARY CAUGHT IT.  `lid_gen.py`: "INK = (72, 46, 6)  # strip
+lettering; measured median (91,59,7) is blur-limited, so the core is set darker".
+So the ink is an AUTHORED darkening of a measured median.  Both figures are now
+printed in the title block.  On a sheet whose entire subject is evidence grading,
+that was the one mistake it could not make.
 
 Run:  python3 sheet3_notissued.py [outdir]
 """
@@ -118,6 +123,27 @@ def main(outdir):
     else:
         F["spec_feats"] = re.sub(r"\*\*", "", row.group(1))
     F["grade_E"] = grab(spec, r"\| \*\*E\*\* \| \*\*Expert inference\*\* — (.+?) \|", "SPEC grade-E legend", cast=None)
+    # ⚠ THE INK IS NOT MEASURED, AND REV 77's FIRST DRAFT OF THIS SHEET PRINTED
+    # "BOTH MEASURED".  A rule-15 adversary caught it: `lid_gen.py` says
+    # INK = (72, 46, 6)  # strip lettering; measured median (91,59,7) is
+    #                    # blur-limited, so the core is set darker
+    # so the shipped ink is an AUTHORED darkening of a measured median.  On a
+    # sheet whose entire subject is evidence grading, that was the one mistake
+    # it could not make.  Both figures are now parsed and BOTH are printed.
+    lid = open(os.path.join(ROOT, "lid_gen.py")).read()
+    F["ink_measured"] = grab(lid, r"INK = \(72, 46, 6\).*?measured median \((\d+,\d+,\d+)\)",
+                             "the ink's measured median", cast=None)
+    F["cream_measured"] = grab(open(os.path.join(ROOT, "t1_mats.py")).read(),
+                               r"# measured \((\d+,\d+,\d+)\) sRGB", "the stock's measured value",
+                               cast=None)
+    # the two colliding features, and the owner's own reading of them -- both
+    # already in SPEC.md and both stronger than "never photographed"
+    F["collide"] = grab(spec, r"`(side_cutters)` loops `s in \(1,-1\)`",
+                        "SPEC's colliding-features note", cast=None)
+    F["owner"] = grab(spec, r"the owner answered \*\*\"(cannot tell from this crop)\"\*\*",
+                      "the owner's reading of this flank", cast=None)
+    F["thumb"] = grab(spec, r"The primary user photograph is \*\*(\d+ × \d+ px)\*\*",
+                      "SPEC's stated grade-table evidence base", cast=None)
 
     if MISSING:
         print("SHEET 3: %d figure(s) NOT FOUND in STATE.md / SPEC.md -- REFUSING." % len(MISSING))
@@ -276,6 +302,17 @@ def main(outdir):
     s.text(cxm, cym + 27.0,
            "AGAINST %.1f mm ON THE PHOTOGRAPHED ONE.  THAT IS A REGRESSION BASELINE, NOT A READING."
            % F["showflank_mm"], pt=5.0, font="mono", align="c", tint=0.65)
+    s.text(cxm, cym + 34.0,
+           "AND THE TWO FEATURES CONTRADICT EACH OTHER: THE WINDOWS ARE A MIRROR OF THE SHOW",
+           pt=5.0, font="mono", align="c", tint=0.65)
+    s.text(cxm, cym + 39.0,
+           "FLANK — `%s` LOOPS s IN (1,-1) — WHILE THE DOOR WAS PLACED INDEPENDENTLY."
+           % F["collide"], pt=5.0, font="mono", align="c", tint=0.65)
+    s.text(cxm, cym + 45.0,
+           "SHOWN THE SIGHTLINES WITH EVERY BOX PRINTED, THE OWNER ANSWERED",
+           pt=5.0, font="mono", align="c", tint=0.7)
+    s.text(cxm, cym + 51.0, "“%s”" % F["owner"].upper(), pt=7.2,
+           font="mono-b", align="c", tint=0.95)
 
     # ------------------------------------------------------------ SCALE BAR
     sbx, sby = fx + 8, fy + fh - 50
@@ -314,14 +351,15 @@ def main(outdir):
         ("SHEET", "3 OF 4"),
         ("SCALE", "1:10 AT A2 (594 × 420)"),
         ("STATUS", "NOT ISSUED"),
-        ("EVIDENCE GRADE", "E — NEVER PHOTOGRAPHED"),
+        ("EVIDENCE GRADE", "E — EXPERT INFERENCE"),
     ]
     rows2 = [
         ("SOURCE", "STATE.md @ %s" % F["commit"]),
         ("GENERATED", F["gen"]),
         ("SUBDIVISION", "T1_SUB=%s, APPLIED" % F["sub"]),
         ("BODY", "%s QUAD FACES · %d NON-MANIFOLD EDGES" % (F["faces"], F["nonman"])),
-        ("INKS", "1 — (72,46,6) ON (206,208,200), BOTH MEASURED"),
+        ("INK", "(72,46,6) AUTHORED FROM A MEASURED (%s)" % F["ink_measured"]),
+        ("STOCK", "(%s) MEASURED" % F["cream_measured"]),
         ("DRAWN BY", "sheet3_notissued.py — FIGURES READ AT DRAW TIME"),
     ]
     for i, (k, v) in enumerate(rows):
@@ -338,15 +376,19 @@ def main(outdir):
 
     # ---------------------------------------------- THE FOOT: what disagrees
     fyy = fy + fh - 8.5
-    s.text(fx + 8, fyy - 4.4,
-           "THIS SHEET CARRIES TWO OVERALL LENGTHS AND THEY ARE NOT THE SAME MEASUREMENT: "
-           "%d mm EXCLUDING THE OPENED LIDS, %d mm INCLUDING THEM,"
-           % (round(F["len_nolid"] * 1000), round(F["len_withlid"] * 1000)),
+    s.text(fx + 8, fyy - 8.8,
+           "GRADE E IS 'EXPERT INFERENCE — NOT OBSERVED'.  '(NEVER PHOTOGRAPHED)' IS THIS ROW'S OWN "
+           "ANNOTATION, NOT THE GRADE'S DEFINITION.  AND SPEC.md STATES THE GRADE TABLE'S EVIDENCE",
            pt=4.8, font="mono", tint=0.8)
+    s.text(fx + 8, fyy - 4.4,
+           "BASE AS A %s PHOTOGRAPH, WHICH THE RECORD HAS SINCE RETIRED.  THREE OVERALL LENGTHS ARE "
+           "CARRIED HERE AND THEY ARE NOT THE SAME MEASUREMENT: %d mm EXCLUDING THE OPENED LIDS,"
+           % (F["thumb"], round(F["len_nolid"] * 1000)), pt=4.8, font="mono", tint=0.8)
     s.text(fx + 8, fyy,
-           "AND %d mm 'EX COUNTER' IN THE DIMENSIONS TABLE AGAINST A SPECIFIED %d — %+.1f mm, "
-           "STILL OUT.  THE DISAGREEMENT IS PRINTED BECAUSE IT IS REAL."
-           % (round(F["len_meas"] * 1000), round(F["len_spec"] * 1000), F["len_delta"]),
+           "%d mm INCLUDING THEM, AND %d mm 'EX COUNTER' AGAINST A SPECIFIED %d — %+.1f mm, STILL "
+           "OUT.  EVERY DISAGREEMENT ON THIS SHEET IS PRINTED BECAUSE IT IS REAL."
+           % (round(F["len_withlid"] * 1000), round(F["len_meas"] * 1000),
+              round(F["len_spec"] * 1000), F["len_delta"]),
            pt=4.8, font="mono", tint=0.8)
 
     os.makedirs(outdir, exist_ok=True)

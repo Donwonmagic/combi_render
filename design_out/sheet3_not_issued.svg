@@ -1895,6 +1895,10 @@
 <text x="286" y="234.9" font-family="DejaVu Sans Mono, monospace" font-size="2.2578" fill="#4f3610" text-anchor="middle" letter-spacing="0" font-weight="bold">TWIN OUTWARD-HINGED CARGO DOORS + THREE GLAZED WINDOWS IN THE SAME BAY POSITIONS</text>
 <text x="286" y="241.9" font-family="DejaVu Sans Mono, monospace" font-size="1.7639" fill="#77674a" text-anchor="middle" letter-spacing="0">THE MODEL ASSERTS THEM ANYWAY: 804.9 mm OF SHUT LINE OVER 2 PAIRS ON THIS FLANK,</text>
 <text x="286" y="246.9" font-family="DejaVu Sans Mono, monospace" font-size="1.7639" fill="#77674a" text-anchor="middle" letter-spacing="0">AGAINST 0.0 mm ON THE PHOTOGRAPHED ONE.  THAT IS A REGRESSION BASELINE, NOT A READING.</text>
+<text x="286" y="253.9" font-family="DejaVu Sans Mono, monospace" font-size="1.7639" fill="#77674a" text-anchor="middle" letter-spacing="0">AND THE TWO FEATURES CONTRADICT EACH OTHER: THE WINDOWS ARE A MIRROR OF THE SHOW</text>
+<text x="286" y="258.9" font-family="DejaVu Sans Mono, monospace" font-size="1.7639" fill="#77674a" text-anchor="middle" letter-spacing="0">FLANK — `side_cutters` LOOPS s IN (1,-1) — WHILE THE DOOR WAS PLACED INDEPENDENTLY.</text>
+<text x="286" y="264.9" font-family="DejaVu Sans Mono, monospace" font-size="1.7639" fill="#705f40" text-anchor="middle" letter-spacing="0">SHOWN THE SIGHTLINES WITH EVERY BOX PRINTED, THE OWNER ANSWERED</text>
+<text x="286" y="270.9" font-family="DejaVu Sans Mono, monospace" font-size="2.54" fill="#4f3610" text-anchor="middle" letter-spacing="0" font-weight="bold">“CANNOT TELL FROM THIS CROP”</text>
 <text x="28" y="356.5" font-family="DejaVu Sans Mono, monospace" font-size="1.9403" fill="#482e06" text-anchor="start" letter-spacing="0" font-weight="bold">SCALE 1:10 AT A2</text>
 <rect x="28" y="360" width="50" height="2.2" fill="#ced0c8"/>
 <line x1="28" y1="360" x2="78" y2="360" stroke="#482e06" stroke-width="0.18" stroke-linecap="butt"/>
@@ -1958,7 +1962,7 @@
 <text x="425" y="388.9" font-family="DejaVu Sans Mono, monospace" font-size="2.8222" fill="#482e06" text-anchor="start" letter-spacing="0" font-weight="bold">NOT ISSUED</text>
 <line x1="385" y1="391.3" x2="581" y2="390.9" stroke="#988f7a" stroke-width="0.18" stroke-linecap="butt"/>
 <text x="388" y="396.5" font-family="DejaVu Sans Mono, monospace" font-size="1.6228" fill="#77674a" text-anchor="start" letter-spacing="0">EVIDENCE GRADE</text>
-<text x="425" y="396.5" font-family="DejaVu Sans Mono, monospace" font-size="2.1872" fill="#482e06" text-anchor="start" letter-spacing="0">E — NEVER PHOTOGRAPHED</text>
+<text x="425" y="396.5" font-family="DejaVu Sans Mono, monospace" font-size="2.1872" fill="#482e06" text-anchor="start" letter-spacing="0">E — EXPERT INFERENCE</text>
 <line x1="475" y1="351" x2="475" y2="407" stroke="#7e6f54" stroke-width="0.3" stroke-linecap="butt"/>
 <text x="478" y="356.1" font-family="DejaVu Sans Mono, monospace" font-size="1.4817" fill="#7e6f54" text-anchor="start" letter-spacing="0">SOURCE</text>
 <text x="478" y="359.9" font-family="DejaVu Sans Mono, monospace" font-size="1.6228" fill="#4f3610" text-anchor="start" letter-spacing="0">STATE.md @ 8bbe354</text>
@@ -1968,10 +1972,13 @@
 <text x="478" y="375.1" font-family="DejaVu Sans Mono, monospace" font-size="1.6228" fill="#4f3610" text-anchor="start" letter-spacing="0">T1_SUB=2, APPLIED</text>
 <text x="478" y="378.9" font-family="DejaVu Sans Mono, monospace" font-size="1.4817" fill="#7e6f54" text-anchor="start" letter-spacing="0">BODY</text>
 <text x="478" y="382.7" font-family="DejaVu Sans Mono, monospace" font-size="1.6228" fill="#4f3610" text-anchor="start" letter-spacing="0">229489 QUAD FACES · 0 NON-MANIFOLD EDGES</text>
-<text x="478" y="386.5" font-family="DejaVu Sans Mono, monospace" font-size="1.4817" fill="#7e6f54" text-anchor="start" letter-spacing="0">INKS</text>
-<text x="478" y="390.3" font-family="DejaVu Sans Mono, monospace" font-size="1.6228" fill="#4f3610" text-anchor="start" letter-spacing="0">1 — (72,46,6) ON (206,208,200), BOTH MEASURED</text>
-<text x="478" y="394.1" font-family="DejaVu Sans Mono, monospace" font-size="1.4817" fill="#7e6f54" text-anchor="start" letter-spacing="0">DRAWN BY</text>
-<text x="478" y="397.9" font-family="DejaVu Sans Mono, monospace" font-size="1.6228" fill="#4f3610" text-anchor="start" letter-spacing="0">sheet3_notissued.py — FIGURES READ AT DRAW TIME</text>
-<text x="28" y="397.1" font-family="DejaVu Sans Mono, monospace" font-size="1.6933" fill="#634e2d" text-anchor="start" letter-spacing="0">THIS SHEET CARRIES TWO OVERALL LENGTHS AND THEY ARE NOT THE SAME MEASUREMENT: 4065 mm EXCLUDING THE OPENED LIDS, 4317 mm INCLUDING THEM,</text>
-<text x="28" y="401.5" font-family="DejaVu Sans Mono, monospace" font-size="1.6933" fill="#634e2d" text-anchor="start" letter-spacing="0">AND 4580 mm 'EX COUNTER' IN THE DIMENSIONS TABLE AGAINST A SPECIFIED 4055 — +525.0 mm, STILL OUT.  THE DISAGREEMENT IS PRINTED BECAUSE IT IS REAL.</text>
+<text x="478" y="386.5" font-family="DejaVu Sans Mono, monospace" font-size="1.4817" fill="#7e6f54" text-anchor="start" letter-spacing="0">INK</text>
+<text x="478" y="390.3" font-family="DejaVu Sans Mono, monospace" font-size="1.6228" fill="#4f3610" text-anchor="start" letter-spacing="0">(72,46,6) AUTHORED FROM A MEASURED (91,59,7)</text>
+<text x="478" y="394.1" font-family="DejaVu Sans Mono, monospace" font-size="1.4817" fill="#7e6f54" text-anchor="start" letter-spacing="0">STOCK</text>
+<text x="478" y="397.9" font-family="DejaVu Sans Mono, monospace" font-size="1.6228" fill="#4f3610" text-anchor="start" letter-spacing="0">(206,208,200) MEASURED</text>
+<text x="478" y="401.7" font-family="DejaVu Sans Mono, monospace" font-size="1.4817" fill="#7e6f54" text-anchor="start" letter-spacing="0">DRAWN BY</text>
+<text x="478" y="405.5" font-family="DejaVu Sans Mono, monospace" font-size="1.6228" fill="#4f3610" text-anchor="start" letter-spacing="0">sheet3_notissued.py — FIGURES READ AT DRAW TIME</text>
+<text x="28" y="392.7" font-family="DejaVu Sans Mono, monospace" font-size="1.6933" fill="#634e2d" text-anchor="start" letter-spacing="0">GRADE E IS 'EXPERT INFERENCE — NOT OBSERVED'.  '(NEVER PHOTOGRAPHED)' IS THIS ROW'S OWN ANNOTATION, NOT THE GRADE'S DEFINITION.  AND SPEC.md STATES THE GRADE TABLE'S EVIDENCE</text>
+<text x="28" y="397.1" font-family="DejaVu Sans Mono, monospace" font-size="1.6933" fill="#634e2d" text-anchor="start" letter-spacing="0">BASE AS A 246 × 197 px PHOTOGRAPH, WHICH THE RECORD HAS SINCE RETIRED.  THREE OVERALL LENGTHS ARE CARRIED HERE AND THEY ARE NOT THE SAME MEASUREMENT: 4065 mm EXCLUDING THE OPENED LIDS,</text>
+<text x="28" y="401.5" font-family="DejaVu Sans Mono, monospace" font-size="1.6933" fill="#634e2d" text-anchor="start" letter-spacing="0">4317 mm INCLUDING THEM, AND 4580 mm 'EX COUNTER' AGAINST A SPECIFIED 4055 — +525.0 mm, STILL OUT.  EVERY DISAGREEMENT ON THIS SHEET IS PRINTED BECAUSE IT IS REAL.</text>
 </svg>

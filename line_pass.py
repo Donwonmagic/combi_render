@@ -10,8 +10,13 @@ rev39.md` sec.7 and absent from every carrier since rev 43, is his own sentence:
      OCCLUSION SAMPLED FROM THE 3D ASSET."
 
 That is a render recipe, not a mood, and until rev 77 nothing in this tree could
-produce the first half of it: `grep -rl "freestyle|gpencil|use_pass_" *.py` found
-nothing.  Line Art is preferred to Freestyle because it emits EDITABLE VECTOR
+produce the first half of it.  ⚠ DO NOT REPEAT THE REV-76 PROGRAM'S EVIDENCE FOR
+THAT: it cites `grep -rln "freestyle|gpencil|use_pass_|cryptomatte" --include=*.py .`
+"finds nothing", and as written that is a BASIC-regex grep, so `|` is a literal
+pipe and it searches for one impossible string.  It would have printed "finds
+nothing" on a tree full of gpencil.  With `-E` it hits `probe_ctan_index.py` even
+at rev 76.  The CLAIM was true; the EVIDENCE was void (rule 50, found by a rule-15
+adversary).  Line Art is preferred to Freestyle because it emits EDITABLE VECTOR
 STROKES, which is what screen positives, flexo plates and die-cut cutters want --
 and F18's die-cut sticker, fired by the owner at rev 77 (F330), is a cutter job.
 
