@@ -53,6 +53,8 @@ document — what to do, and how to start. **This file holds every carrier, verb
 ## INDEX
 
 * **§0.05 THE BACK OPENING**
+* **§0.11 THE GLOSS GRID** — *(out of numeric order in the file: it sits BEFORE §0.10)*
+* **§0.10 THE `BUMP_BOW` LADDER**
 * **§0.06 THE NOSE**
 * **§0.07 THE EMBLEM**
 * **§0.08 WHAT REV 69 SHIPPED**
@@ -66,6 +68,12 @@ document — what to do, and how to start. **This file holds every carrier, verb
 * **§8 THE REGISTER**
 * **§9 THE HORIZON**
 * **§10 HOW TO GROW THIS HANDOFF**
+* **§11 REV 75's ADVERSARY PASSES, IN FULL**
+
+⚠ **§0.10, §0.11 AND §11 WERE MISSING FROM THIS INDEX** — the first two for two revisions, and
+§0.10/§0.11 are REFUTATIONS (the `BUMP_BOW` ladder and the gloss grid) that an un-indexed context
+could waste a revision re-attempting. **Found by cold-starting the handoff (F327). If you add a
+section, add it here in the same edit.**
 
 ---
 ## §0.05 THE BACK OPENING — RULED AT REV 62, MEASURED AT REV 62, NEVER BUILT
@@ -1498,3 +1506,73 @@ to actually use that fact** — it fits the pose rather than assuming it.)*
    **five** companion rows, two of which are behavioural kills.
 9. **DO NOT LET THE MACHINE IDLE.** Run `bootstrap.sh`, launch the render, then read.
 10. **ROOM TO GROW:** new findings go in `OPEN_FINDINGS.md` with an ID and a grade.
+
+
+---
+## §11 REV 75's THREE ADVERSARY PASSES, IN FULL — MOVED HERE FROM THE ACTION BRIEF
+
+**THE BRIEF HIT ITS 32 KB GUARD CARRYING THIS (rule 16, and this is exactly what the rev-70 split is
+for). NOTHING IS DELETED.** The rev-76 brief keeps the verdict and points here for the account;
+`LEDGER_rev75.md` carries rev 75's own "WHAT I GOT WRONG IN THIS REVISION".
+
+**REV 75 RAN THREE ADVERSARY PASSES: rule 15 on the incoming brief, rule 17 on the outgoing one, and rule 17 AGAIN after the late ships. A THIRD kind — a COLD-START PREPAREDNESS pass — was run for the first time in this project's history.**
+
+**THE RULE-15 ADVERSARY ON THE INCOMING BRIEF RETURNED THIRTEEN DEFECTS, AND THREE WERE TOP-SEVERITY
+AND CHANGED WHAT REV 75 DID:**
+
+1. **The incoming brief's central premise was refuted by rev 75's own frame** — *"T3 IS GENUINELY
+   FAILING"*, *"all-pass is NOT reachable"*, *"clearing the pickup needs T3 diagnosed as well"*. **T3
+   PASSES on `out/r75_side.png`.** That freed the revision to run F312's floor experiment instead of
+   chasing a diagnosis. **Verified independently, then extended by F324's second render.**
+2. ***"THE REV-74 BRIEF"* NAMED TWO DIFFERENT DOCUMENTS.** Five of the strings the incoming brief
+   corrected *"the rev-74 brief"* for are **not in `NEXT_CONTEXT_PROMPT_rev74.md` at all** — they
+   resolve to an earlier commit of the rev-75 file itself. **A context obeying rule 17 cannot tell a
+   real correction from a fabricated one.** *(This brief cites `NEXT_CONTEXT_PROMPT_rev75.md` by name
+   where it means that file, and says "the rev-75 brief" only for text that is in it.)*
+3. **The repair count was given as FOUR, FIVE and SIX in one document.** It is **five**; four would
+   have left the pickup red.
+
+**AND THE RULE-17 ADVERSARY ON THIS BRIEF RETURNED EIGHTEEN DEFECTS, FOUR TOP-SEVERITY, AND IT
+CHANGED THE SHIP — WHICH IS THE POINT OF RULE 17.** All four TOP were one root cause wearing four
+hats, and the root cause was **mine, not a transcription**:
+
+1. **I CALLED F312b REFUTED ON A PREMISE F312b's OWN ROW CONTRADICTS.** I wrote its three frames
+   *"came from THREE DIFFERENT TREES"*. **`r74t_side` and `r74t3_side` are a SAME-TREE pair — F312b
+   says so verbatim — and they AGREED at −9.00/−9.00.** So rev 74 had already run F312's experiment
+   and landed on its OTHER branch, and **the two trees are DISJOINT CLUSTERS.** **Retracted in F324,
+   the ledger, the probe's message and `verify_clone.sh`'s comment (rule 13).** ⚠ **And `−9.00`
+   agreeing to the bin is the strongest evidence AGAINST "render noise"; it sat in the row I was
+   quoting and my draft did not mention it.**
+2. **THE n=3 AMENDMENT REACHED §1, §2.1 AND §7.1 AND NOT §3, §4, THE PROBE OR THE VERIFIER** — so
+   §4 told you `r75b_side` gives 2 FAILED while §2.1 said it gives 1. **F322's class exactly, in the
+   brief whose rule-15 list boasts of fixing it. All four now agree.**
+3. **THE REFUTED CLAIM WAS LIVE IN TWO SOURCE FILES** — `verify_clone.sh`'s comment still asserted
+   the row *"is RED … misses by 1.75 to 2.00"* on a tree where it reads **ALL PASS**, and the
+   probe's own T3 message still published the n=2 story and a reading from a deleted frame. **Both
+   corrected — and this is the very defect my own ledger congratulates itself for catching in
+   `t1_detail.py`, committed one file over in the same revision.**
+4. **F325 OVERREACHED TWICE AND HAD NO GUARD ROW.** It claimed `ref_side.jpg` was *"the only other
+   frame"* — **§0.05 names a THIRD, `ref_rear34.jpg`, which I never opened**; and its *"shadow,
+   panel gap and recess are not separable"* is **one hypothesis too wide**, the panel-gap reading
+   being refutable from my own window. **Both corrected in §2.2, and F325's measurement now lives in
+   a `verify_clone.sh` row instead of only in prose** — CLAUDE.md's opening rule, which I had broken.
+
+**IT ALSO CONFIRMED THE THINGS THAT MATTER**, independently and on a fresh clone: the pickup
+reproduces at **423 PASSED / 6 FAILED**; the repair gives **ALL PASS with an EMPTY `out/`** (five
+rows printing `[UNGUARDED … ] ABSENT`) **and with four frames**; `ckabs`'s watched kill is really
+wired; and *"rev 75 shipped no geometry"* is true of the diff.
+
+**WHERE THIS BRIEF IS WEAKEST, STATED RATHER THAN HIDDEN:**
+* **T3 IS A COIN FLIP AND IT IS NOT RE-BASED.** `verify_clone.sh`'s verdict depends on which side
+  frame is alphabetically last. **That is the top item and it is left open on purpose** — n = 3 is not
+  enough to set a bar, and inventing one is the defect this project keeps paying for. ⚠ **AND ANY BAR
+  MUST SURVIVE BOTH CLUSTERS: rev 74's tree gave −9.00/−9.00/−8.75, rev 75's gives −7.00/−8.50/−6.50.**
+* **REV 75 SHIPPED NO GEOMETRY.** Rule 55's second clause is met with a measurement (F325), but the
+  clause exists because the owner cannot see a revision that only measures.
+* **F318's PRESCRIBED FIX WAS NOT DONE**, in a revision that had a side-frame pair in hand.
+* **T6's FLOOR IS STILL A STRING LITERAL** (F320f). One `T1_TYRE_TREAD=0` render re-derives it; still
+  not run.
+* **THE TREAD'S COUNT, DEPTH AND DUTY ARE ALL DECLARED, NOT MEASURED** (F308b).
+* **THE EMBLEM IS NOT RIGHT.** 0.8528 against P1b's 0.9465, no legibility term (rule 56), and the
+  weight closed to tuning by F314 but **NOT resolved**.
+* **Every figure quoted from `out/` needs a re-render before you quote it** — `out/` starts empty.

@@ -240,7 +240,31 @@ def main():
          "toward its unrotated reading, so its +%.2f deg offset measured AT "
          "38 deg is NOT the offset at 43 deg. Subtracting it as a CONSTANT is "
          "wrong, and T5's world figure inherits that error. One rung passed a "
-         "|moved-rot| < 1.0 bar and hid this (F300). ***" % (gain, bias)
+         "|moved-rot| < 1.0 bar and hid this (F300). ***"
+         "\n       *** AND THIS ROW'S OWN FLOOR, MEASURED AT REV 75 (F324), "
+         "WITHOUT WHICH NEITHER ITS VERDICT NOR ITS GAIN IS QUOTABLE. "
+         "THREE renders of ONE tree (the shipped regular tread), no source "
+         "change between any of them, read the -7.0 rung at -7.00 (PASS), "
+         "-8.50 (FAIL) and -6.50 (PASS): a RANGE of 2.00 deg on a rung whose "
+         "bar is 1.5, so the PASS/FAIL here is RENDER NOISE -- the branch "
+         "F312 named ('if they differ, T3 is measuring noise and should not "
+         "have a 1.5 bar at all'). The gain statistic reads 0.883 / 0.982 / "
+         "0.919 across the same three, a spread of 0.099 against its own "
+         "~0.072 mean departure from 1.000, so the GAIN claim above is NOT "
+         "ESTABLISHED at n=3 either. "
+         "*** BUT F312b IS NOT SIMPLY WRONG, AND REV 75 FIRST SAID IT WAS. "
+         "F312b's r74t_side/r74t3_side ARE a SAME-TREE pair -- its own row "
+         "says so -- and they AGREED TO THE HISTOGRAM BIN at -9.00 and "
+         "-9.00, both failing. So rev 74 already ran this experiment on ITS "
+         "tree and landed on F312's OTHER branch ('the bar is simply too "
+         "tight'). The two trees give TWO DISJOINT CLUSTERS: -9.00/-9.00/"
+         "-8.75 on rev 74's, -7.00/-8.50/-6.50 on rev 75's. That is a "
+         "TREE-DEPENDENCE as well as render scatter, and NEITHER of F312's "
+         "two branches covers it. What IS refuted is F312b's "
+         "GENERALISATION that the failure reproduces; it reproduced on its "
+         "tree and does not on this one. *** "
+         "NOT RE-BASED: a replacement bar set on n=3 would be an invented "
+         "figure (rule 5). ***" % (gain, bias)
        if lad else "no rotated reading")
 
     _pr = paint(rwin, [(rlum < 246, [0, 120, 255])], "rev73_tb_render.png",

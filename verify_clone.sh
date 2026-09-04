@@ -1,8 +1,18 @@
 #!/usr/bin/env bash
 # =============================================================================
-#  verify_clone.sh -- prove this working tree matches the rev-42 measured
-#  baseline, BY CONTENT.  That baseline is still current at rev 44: no geometry,
-#  artwork or constant has moved since, so these figures are the live ones.
+#  verify_clone.sh -- prove this working tree is INTERNALLY CONSISTENT, BY
+#  CONTENT.
+#
+#  ⚠ REV 75: THE SENTENCE THAT USED TO STAND HERE WAS 33 REVISIONS STALE AND WAS
+#  THE FIRST THING A READER SAW.  It said this script proves the tree "matches
+#  the rev-42 measured baseline ... still current at rev 44: no geometry,
+#  artwork or constant has moved since, so these figures are the live ones."
+#  Geometry has moved in most revisions since (rev 69's tyre film, rev 73's free
+#  spine, rev 74's tread, to name three), and the rows below have been re-based
+#  and added to throughout.  What the script actually does is check that the
+#  RECORD IS SELF-CONSISTENT AT HEAD -- see the verdict block, which says so
+#  itself and warns that NOT ONE ROW measures the vehicle against a photograph.
+#  Found by cold-starting the handoff on a fresh clone (F327).
 #
 #  WHY THIS FILE EXISTS.  Until rev 43 these checks lived as thirty lines of
 #  prose in NEXT_CONTEXT_PROMPT_revN.md, re-typed by hand every revision.  That
@@ -52,6 +62,16 @@ PASS=0; FAIL=0; FAILED_LINES=""
 # named in the rev-41/42/43 prompts and in SURVEY_rev49; 'zero mentions anywhere'
 # is too strong and was wrong in an earlier commit message.)  Reviving
 # THAT is the job; adding image rows here is not.
+#
+# ⚠ REV 75 -- THAT PARAGRAPH IS TRUE OF THE SCRIPT AND WAS READ AS TRUE OF ITS
+# ROWS, WHICH IT WAS NOT.  This script indeed runs no build and no render.  But
+# five rows RAN A PROBE THAT READS A RENDERED FRAME, and with out/ empty -- the
+# state this very paragraph describes -- they HARD-FAILED.  So the verifier
+# opened red on a clean clone at the rev-74 AND rev-75 pickups, reporting
+# nothing about the tree, and the count row below missed by exactly the number
+# of them.  Two revisions lost their pickup to it.  That is F311.  Fixed at
+# rev 75: see `ckabs`.  THE SCRIPT STILL RENDERS NOTHING -- a row whose input is
+# missing now says ABSENT and says UNGUARDED, instead of saying FAIL.
 FID=0
 ckf () { FID=$((FID+1)); ck "$@"; }
 
@@ -66,6 +86,49 @@ ck () {
   else
     FAIL=$((FAIL+1)); FAILED_LINES="$FAILED_LINES\n    $label -- got '$got', want '$want'"
     printf '  FAIL  %-52s got %s  want %s\n' "$label" "${got:-<empty>}" "$want"
+  fi
+}
+
+
+# ---------------------------------------------------------------------------
+# ckabs <absent> <label> <expected> <actual>   -- rev 75, F311/F323
+#
+# A ROW WHOSE INPUT MAY NOT BE IN THE TREE.  `out/` is untracked and starts
+# EMPTY on a clone, so any row that greps a probe which reads a rendered frame
+# has an input that is legitimately ABSENT at pickup.
+#
+# RULE 37: AN ABSENT INPUT MUST NEVER READ AS A MEASUREMENT -- AND IT MUST NOT
+# READ AS A FAILING ONE EITHER.  Five rows in this script hard-failed for want
+# of a frame at the rev-74 AND rev-75 pickups, while this script's own header
+# claimed it needs no render.  Both revisions opened on a red verifier that was
+# not reporting anything about the tree.  That is F311, and it costs the next
+# context its pickup.
+#
+# WHY THE SKIP STILL CALLS `ck`, WHICH LOOKS REDUNDANT AND IS NOT.  The verdict
+# has a self-referential count row, `ck "..." "$((PASS+1))"`.  A repair that
+# OMITS a row when its input is missing drops PASS and turns the count row red
+# again -- measured at the rev-75 pickup: an empty out/ wants 424 against a
+# full out/'s 428.  So the skip path still calls `ck`, with a comparison that
+# cannot fail, and PASS is identical either way.
+#
+# AND IT DOES NOT PRINT A FAKE MEASUREMENT.  The row prints the literal token
+# ABSENT, not a number, and its label says UNGUARDED out loud.  A reader
+# scanning the output cannot mistake it for a row that checked something.
+#
+# `probe_rev74_tread.py`'s T6 is the PROBE-side pattern for this.  It is NOT a
+# template for these rows: T6 is a probe row with a skip path, and `ck` has no
+# skip path at all -- it either increments PASS or FAIL.  Nothing in this tree
+# demonstrated a skipping `ck` before this one, so the pattern is built here
+# rather than copied (F322).
+# ---------------------------------------------------------------------------
+SKIPPED=0
+ckabs () {
+  local absent="$1"; shift
+  if [ "$absent" = "1" ]; then
+    SKIPPED=$((SKIPPED+1))
+    ck "$1 [UNGUARDED -- input absent; run the brief's sec.0 render]" ABSENT ABSENT
+  else
+    ck "$@"
   fi
 }
 
@@ -1399,6 +1462,19 @@ ck "F294 ... and it still carries the six-rung table the brief points at" 1 \
 ck "the drift detector exists"                1 "$(if [ -f revstats.py ]; then echo 1; else echo 0; fi)"
 ck "the brief names the drift detector"       1 "$(if grep -q 'revstats.py' PASTE_INTO_CLAUDE_CODE.txt; then echo 1; else echo 0; fi)"
 ck "the brief carries rule 55"                1 "$(if grep -q 'SHIPS A VISIBLE CHANGE TO THE VEHICLE' PASTE_INTO_CLAUDE_CODE.txt; then echo 1; else echo 0; fi)"
+# ⚠⚠ REV 75, F328: THIS ROW AND THE "<32 KB" ROW ARE IN TENSION, AND THE TENSION
+# BIT.  The brief must CARRY certain literal strings (this one, `revstats.py`,
+# and the "ALL n PASS" attachment row) while staying under 32768 bytes.  Rev 75
+# compressed the brief's rules list to make room for cold-start fixes, and the
+# compression DROPPED the phrase this row greps for -- so `bootstrap.sh` went
+# 9 PASSED / 1 FAILED on a fresh clone, which is F311's whole disease returning
+# by a different route, in the revision that fixed F311.
+#
+# IT WAS CAUGHT ONLY BY COLD-CLONING AND RUNNING bootstrap -- NOT by audit_brief,
+# NOT by audit_adversary, and NOT by three passes of rules 15 and 17.
+#
+# SO: IF YOU TRIM THE BRIEF TO FIT THE GUARD, RE-RUN ./verify_clone.sh BEFORE YOU
+# COMMIT.  The brief sits near the limit and every future revision will face this.
 
 ck "brief still names the die-cut sticker"   1 "$(_has 'die.?cut')"
 ck "brief still names the open-findings reg" 1 "$(_has 'open.?findings')"
@@ -2626,11 +2702,37 @@ rm -f /tmp/_r73a.txt /tmp/_r73b.txt /tmp/_r73c.txt /tmp/_r73d.txt \
 # not the photograph's number, which is a bracket and will move if the window
 # is ever re-cut.
 python3 probe_rev73_tailboard.py >/tmp/_r73e.txt 2>&1
-ck "F296 tailboard probe calibrates on the mesh's own angle before reading a photograph" 1 \
+# THE ABSENT FLAG COMES FROM THE PROBE'S OWN SUMMARY LINE (rule 9), NOT FROM AN
+# `ls` OF out/ AND NOT FROM ITS EXIT CODE.  The probe is the authority on
+# whether it ran; anything else here would be this script's guess about it.
+# Its refusal reads:  "  0 checked, 0 FAILED, 2 ABSENT  --  no side render"
+_TB_ABSENT="$(grep -cE '^ *0 checked, 0 FAILED, 2 ABSENT' /tmp/_r73e.txt)"
+[ "${_TB_ABSENT:-0}" -gt 1 ] && _TB_ABSENT=1
+ckabs "$_TB_ABSENT" "F296 tailboard probe calibrates on the mesh's own angle before reading a photograph" 1 \
    "$(grep -c 'PASS T1 the SILHOUETTE detector recovers' /tmp/_r73e.txt)"
-ck "F296 ... and its gradient detector's bias is MEASURED, not assumed zero" 1 \
+ckabs "$_TB_ABSENT" "F296 ... and its gradient detector's bias is MEASURED, not assumed zero" 1 \
    "$(grep -c 'PASS T2 the GRADIENT detector recovers' /tmp/_r73e.txt)"
-ck "F296 ... and the 7-degree ROTATION KILL fires (a detector that cannot move is not measuring)" 1 \
+# *** THIS ROW IS NOT RE-BASED, AND ITS COMPARISON IS UNTOUCHED -- BUT WHAT
+# THE ROW *MEANS* CHANGED AT REV 75 AND THIS COMMENT SAID OTHERWISE UNTIL THE
+# RULE-17 ADVERSARY CAUGHT IT (F324).  It used to read "With a side frame
+# present it is RED, and it is CORRECTLY REPORTING A REAL FAILURE: T3's
+# -7-degree rung misses its 1.5 bar by 1.75 to 2.00 across three frames" --
+# every clause of which is now false or withdrawn.
+#
+# WHAT IS MEASURED.  THREE renders of ONE tree, no source change between any
+# of them, read that rung at -7.00 (PASS), -8.50 (FAIL) and -6.50 (PASS): a
+# RANGE of 2.00 deg on a rung whose bar is 1.5.  SO THIS ROW IS A COIN FLIP,
+# and `verify_clone.sh`'s own total therefore depends on which out/*_side.png
+# is alphabetically last -- the probe takes no argument and reads that one.
+#
+# AND F312b IS NOT SIMPLY WRONG.  Its r74t_side/r74t3_side ARE a same-tree
+# pair and they AGREED at -9.00/-9.00, both failing.  Rev 74's tree and rev
+# 75's give TWO DISJOINT CLUSTERS, so there is a TREE-DEPENDENCE here as well
+# as render scatter.  NOT re-based, because a bar set on n=3 would be an
+# invented figure (rule 5).  READ F324 AND F312b BEFORE TOUCHING THE
+# COMPARISON.  All `ckabs` changed is the NO-FRAME case, where the row had
+# nothing to report and said FAIL anyway. ***
+ckabs "$_TB_ABSENT" "F296 ... and the 7-degree ROTATION KILL fires (a detector that cannot move is not measuring)" 1 \
    "$(grep -c 'PASS T3 KILL -- rotating the SAME frame' /tmp/_r73e.txt)"
 # *** rev 73, F300 -- THIS ROW USED TO LOCK A CONCLUSION THAT IS NOW RETRACTED.
 # It read: "F296 ... and the shipped TB_TILT_DEG is NOT EXCLUDED by the
@@ -2640,9 +2742,9 @@ ck "F296 ... and the 7-degree ROTATION KILL fires (a detector that cannot move i
 # so the row was locking an artefact.  IT IS REPLACED, NOT DELETED, BY THE ROW
 # THAT LOCKS THE REFUTATION: T4 now SWEEPS the constant and must FAIL, and if
 # some future edit makes it pass again that is a finding about that edit.
-ck "F300 the tailboard probe SWEEPS its own peak-separation constant and REFUSES (rule 39)" 1 \
+ckabs "$_TB_ABSENT" "F300 the tailboard probe SWEEPS its own peak-separation constant and REFUSES (rule 39)" 1 \
    "$(grep -c 'FAIL T4 the photograph.s BRACKET survives a sweep' /tmp/_r73e.txt)"
-ck "F300 ... and its rotation KILL is a LADDER that reports a GAIN, not one rung" 1 \
+ckabs "$_TB_ABSENT" "F300 ... and its rotation KILL is a LADDER that reports a GAIN, not one rung" 1 \
    "$(grep -c 'MEAN GAIN' /tmp/_r73e.txt)"
 # ⚠ THE ROW BELOW IS A SOURCE-TEXT CHECK, NOT A BEHAVIOURAL ONE, AND IT IS
 # NAMED THAT WAY ON PURPOSE (rule 50).  The behaviour it is about -- refusing
@@ -2654,6 +2756,98 @@ ck "F296 ... and its no-side-render refusal path is still PRESENT IN SOURCE (a g
 import re,io
 s=io.open('probe_rev73_tailboard.py').read()
 print(1 if ('NO SIDE RENDER' in s and '2 ABSENT' in s) else 0)")"
+
+# --- rev 75, F323: THE COMPANION ROWS FOR THE FIVE ROWS ABOVE.
+# The five rows above were re-based this revision -- not in their comparison,
+# which is untouched, but in what they do when their INPUT IS MISSING.  sec.3b of
+# the brief requires a re-base to NAME ITS CAUSE and to add companion rows that
+# make that cause SEPARATELY TESTABLE.  The cause is named at `ckabs` and is
+# F311.  These are the rows.
+#
+# ROW 1 AND 2 ARE ONE WATCHED KILL (rule 3: a control is finished when you have
+# WATCHED IT FAIL, not when it passes).  The same deliberately WRONG expectation
+# -- want 1, got 0 -- is put through both branches of the guard.  The PRESENT
+# branch must still go RED, or the guard has silently disarmed every row it
+# covers; the ABSENT branch must pass on that identical input, or the skip does
+# not skip.  The tallies are snapshotted and restored around it, so probing the
+# guard costs the verdict nothing and cannot itself add a PASS or a FAIL.
+_SP=$PASS; _SF=$FAIL; _SL="$FAILED_LINES"; _SS=$SKIPPED
+ckabs 0 "__selftest" 1 0 >/dev/null 2>&1
+_GUARD_RED=$((FAIL - _SF))
+ckabs 1 "__selftest" 1 0 >/dev/null 2>&1
+_GUARD_SKIP=$((PASS - _SP))
+PASS=$_SP; FAIL=$_SF; FAILED_LINES="$_SL"; SKIPPED=$_SS
+ck "F323 the absent-input guard's PRESENT branch still goes RED on a wrong expectation (WATCHED, rule 3)" 1 "$_GUARD_RED"
+ck "F323 ... and its ABSENT branch passes on that SAME wrong expectation -- that is the whole skip" 1 "$_GUARD_SKIP"
+
+# ROW 3 COMPARES TWO INDEPENDENTLY OBTAINED QUANTITIES (rule 6: a guard that
+# derives its threshold from the expression it checks is a tautology).  The
+# flag driving the skip is read from the PROBE'S OWN SUMMARY LINE; this row
+# derives the same fact a second way, from the filesystem, and they must agree.
+# If they ever disagree that is a finding about the probe or about the flag --
+# either the probe refused with a frame present, or it ran without one.
+_SIDE_N="$(ls out/*_side.png 2>/dev/null | wc -l | tr -d '[:space:]')"
+ck "F323 the skip flag agrees with an INDEPENDENT count of out/*_side.png (rule 6)" 1 \
+   "$([ "${_TB_ABSENT:-0}" = "$([ "${_SIDE_N:-0}" -eq 0 ] && echo 1 || echo 0)" ] && echo 1 || echo 0)"
+
+# ROW 4 BOUNDS THE MECHANISM.  Exactly five rows in this script may skip, and
+# only for want of a rendered frame.  If SKIPPED is ever larger, a row that
+# used to guard something has been quietly converted into one that does not --
+# which is the failure mode a skip path introduces, and the reason this row
+# exists.  With a side frame in out/ it must be 0: nothing skips.
+ck "F323 rows skipped for want of an input: 5 with an empty out/, 0 with a side frame, never other" 1 \
+   "$([ "${SKIPPED:-0}" -eq "$([ "${_SIDE_N:-0}" -eq 0 ] && echo 5 || echo 0)" ] && echo 1 || echo 0)"
+
+# --- rev 75, F325: THE TAIL BOARD'S "DARK ANGLED RECESS" IS NOT GROUNDED, AND
+# THE MEASUREMENT THAT SAYS SO LIVES HERE RATHER THAN ONLY IN PROSE.
+# CLAUDE.md's opening: "Every figure in this project lives in a script that
+# runs, because a figure in a paragraph goes stale silently."  F325's refusal
+# was published in the ledger, the brief and the register and in NO script --
+# found by the rule-17 adversary, and it is F320's "the ship had no guard row"
+# one revision later.
+#
+# THIS ROW IS FRAME-INDEPENDENT: IMG_3840.jpeg is a TRACKED reference image,
+# not a render, so out/ being empty cannot affect it and it needs no ckabs.
+#
+# THE WINDOW'S ORIGIN, which rule 8 makes part of the measurement and which
+# F325 did not record: v100..125 u395..440 was placed BY EYE on a 5x LANCZOS
+# crop of (355,85)-(480,215) -- the crop HANDOFF_CARRIERS.md sec.0.05 itself
+# cites for the panel's FORM -- and then the blob's own bbox was measured
+# inside it.  The bbox is stable for any window containing the blob.
+#
+# WHAT IT PINS: the feature is 30 x 12 px and 58 px below lum 90.  If a future
+# revision proposes BUILDING this recess, this row is the size of the evidence
+# it would be building from.
+_F325="$(python3 -c "
+from PIL import Image
+import numpy as np
+im = np.asarray(Image.open('IMG_3840.jpeg').convert('RGB')).astype(float)
+lum = im[100:125, 395:440].mean(axis=2)
+d = lum < 90
+ys, xs = np.nonzero(d)
+print('%d/%dx%d' % (int(d.sum()), xs.max()-xs.min()+1, ys.max()-ys.min()+1))" 2>/dev/null)"
+ck "F325 the recess evidence is 58 px below lum 90 in a 30x12 bbox -- the size of what a build would rest on" \
+   "58/30x12" "$_F325"
+
+# --- rev 75, F326: THE ONE PROBE IN THE BRIEF'S COPY-PASTE BLOCK THAT CRASHED
+# INSTEAD OF REFUSING.  probe_rev70_tyre.py opened its frame with no existence
+# check, so the line the brief tells every incoming context to run raised a bare
+# FileNotFoundError with NO SUMMARY LINE, exit 1 -- rule 37 and rule 51 together,
+# for six revisions.  Nothing caught it because every revision runs its probes
+# AFTER rendering; it was found by CLONING the repo and following the pickup.
+#
+# THIS ROW IS BEHAVIOURAL, NOT A GREP (rule 50): it RUNS the probe against a
+# frame that cannot exist and requires BOTH a refusal naming the frame AND the
+# normal summary line AND no traceback.  It is frame-INDEPENDENT by
+# construction -- it depends on the frame's ABSENCE, so it can never repeat F311.
+python3 probe_rev70_tyre.py out/_f326_absent_side.png >/tmp/_r75f326.txt 2>&1
+ck "F326 probe_rev70_tyre REFUSES an absent frame, naming it (rule 37)" 1 \
+   "$(grep -c 'NO SUCH FRAME' /tmp/_r75f326.txt)"
+ck "F326 ... and still prints its SUMMARY LINE, so the control is reported (rule 9)" 1 \
+   "$(grep -cE '^ *1 checked, 0 FAILED' /tmp/_r75f326.txt)"
+ck "F326 ... and the TRACEBACK IS GONE -- rule 51, losing the input is a RESULT" 0 \
+   "$(grep -c 'Traceback (most recent call last)' /tmp/_r75f326.txt)"
+rm -f /tmp/_r75f326.txt
 rm -f /tmp/_r73e.txt
 
 # --- rev 73, F301: THE FREE-ENDPOINT SPINE SHIPS.  Behavioural, ~3 s, no build.
@@ -2783,6 +2977,19 @@ fi
 # --------------------------------------------------------------------- verdict
 say
 say "=============================================================="
+# rev 75, F323.  A SKIPPED ROW IS NOT A PASSED ROW, AND THE VERDICT MUST SAY SO
+# BEFORE IT PRINTS A TOTAL.  Rule 37: an absent input must never read as a
+# measurement.  `ckabs` keeps PASS whole so the self-referential count row stays
+# meaningful, which means the total ALONE cannot tell you these rows ran.  This
+# line is what tells you.
+if [ "${SKIPPED:-0}" -gt 0 ]; then
+  printf '  %d ROW(S) SKIPPED -- INPUT ABSENT, NOT CHECKED.  They are counted in\n' "$SKIPPED"
+  printf '  the total below so the count row stays meaningful, and they are NOT\n'
+  printf '  evidence about the tree.  Every one needs a rendered frame in out/,\n'
+  printf '  which is untracked and starts EMPTY: run the brief sec.0 render, then\n'
+  printf '  re-run this script to actually exercise them.\n'
+  say "=============================================================="
+fi
 if [ $FAIL -eq 0 ]; then
   printf '  ALL %d PASS -- %d FIDELITY, %d SELF-CONSISTENCY.\n' \
          "$PASS" "$FID" "$((PASS-FID))"

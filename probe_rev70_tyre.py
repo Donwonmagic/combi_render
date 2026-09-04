@@ -97,7 +97,21 @@ def bands(a, cx, cy, rhub):
 
 
 def measure(path, box, tag, paint):
-    a = np.asarray(Image.open(os.path.join(HERE, path)).convert("RGB")).astype(float)
+    # *** REV 75, F326: AN ABSENT FRAME MUST REFUSE, NOT CRASH (rule 37 + rule 51).
+    # This raised a bare FileNotFoundError with NO SUMMARY LINE for six
+    # revisions, and it is in the brief's copy-paste block, so the FIRST thing
+    # a cold context saw from this probe was a traceback.  rule 51: "a
+    # module-level crash is a guard that reports nothing."  Every other
+    # frame-consuming probe in this tree already refuses cleanly; this was the
+    # one hole.  Found by cold-starting the handoff on a fresh clone, where
+    # out/ does not merely start empty -- IT DOES NOT EXIST. ***
+    _f = os.path.join(HERE, path)
+    if not os.path.exists(_f):
+        print("  %-28s NO SUCH FRAME: %s -- out/ is untracked and does not "
+              "exist on a clone, so nothing was measured (rule 37).  Render "
+              "the brief's sec.0 queue first." % (tag, path))
+        return None
+    a = np.asarray(Image.open(_f).convert("RGB")).astype(float)
     c = find_wheel(a, box)
     if c is None:
         print("  %-28s NO HUBCAP FOUND in the search box -- nothing measured "

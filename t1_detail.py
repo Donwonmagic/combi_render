@@ -178,9 +178,19 @@ def tyre(name="tyre"):
     # segments.  T1_TYRE_TREAD=0 restores BOTH the old seg AND the plain
     # revolve, i.e. the rev-73 tyre exactly -- the switch moves two things and
     # that is stated rather than hidden, because its job is "back to what
-    # shipped".  seg does not touch the maximum radius either way (revolve
-    # places every vertex at exactly its profile radius), so TYRE_D is
-    # independent of both halves.
+    # shipped".  seg does not touch the maximum RADIUS either way (revolve
+    # places every vertex at exactly its profile radius).
+    #
+    # *** THE SENTENCE THAT USED TO END HERE -- "so TYRE_D is independent of
+    # both halves" -- IS WITHDRAWN (F319, and this second copy of it was
+    # missed when the first was repaired; found by rev 75's rule-15
+    # adversary).  TYRE_D IS NOT A RADIUS.  verify.py locks it as
+    # `out["TYRE_D"] = max(zs) - min(zs)`, a Z BOUNDING-BOX EXTENT, and the
+    # vertex nearest the +Z pole falls in a groove -- so it DOES move, by
+    # 0.0890 mm, and STATE.md publishes TYRE_D=0.6649 where it read 0.6650.
+    # 281x inside verify.py's own TOL and a discretisation artefact, but the
+    # claim as written is false.  probe_rev74_tread.py's T5 reads the radius
+    # and T5b reads the bbox extent, naming which is which. ***
     _tread = os.environ.get("T1_TYRE_TREAD", "1") != "0"
     ob = T.revolve(prof, seg=(TREAD_SEG * TREAD_LUGS) if _tread else 112,
                    axis='Y', name=name)
