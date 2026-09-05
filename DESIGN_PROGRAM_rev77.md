@@ -133,5 +133,20 @@ AND THE THING THAT WOULD WORRY ME MOST IF THIS WERE MY BRAND: forty of these obj
 5. **THE 0.67 σ PILLAR FIGURE IS NOW 0.54 σ AND STILL WRONG TO PRINT (F336)** — and rev 76's §3
    still prints it. `AUDIT_rev43.md` already says the photograph's pillars are EQUAL and the model's
    asymmetry has the WRONG SIGN. **Use that instead; it is better material and it is true.**
-6. **F18's TRIGGER IS FIRED AND THE STICKER IS NOT DRAWN.** The line pass it needs now exists
+6. ⚠⚠ **THE REV-76 WORKFLOW OUTPUT WAS RECOVERED AT THE END OF REV 77 AND IT IS ~3 MB OF MATERIAL
+   THIS FILE'S RANKING NEVER SAW.** `WORKFLOW_rev76_CONCEPTS.md` (all 78 in full),
+   `WORKFLOW_rev76_SYNTHESIS.md` (the synthesis, the **six AMPLIFIED concepts** and the critique
+   verbatim), `WORKFLOW_rev76_output.json` (7 grounding reports, 7 expert discipline plans, 36 audit
+   verdicts). **`PICKUP_rev76.md` records that the context which wrote `DESIGN_PROGRAM_rev76.md`
+   NEVER READ the synthesis or the amplified round.** Its shortlist is organised into **four LINES —
+   SURVEY / CONVERSION / HAND / KEEPSAKE — and eleven ranked concepts**, which is where the critic's
+   *"eleven concepts, one aesthetic"* count comes from and which rev 76's own §3 does not carry.
+   **REV 77's TOP-16 WAS RANKED WITHOUT ANY OF IT. Merge the two benches before ranking again.**
+   ⚠ **AND CHECK IT AGAINST F336 FIRST: the retracted `109.5 | 129.5` figure appears 40 times in the
+   JSON, 21 in the concepts file and 5 in the synthesis, and the Line-2 hero `TRES HUECOS` IS the
+   asymmetry — *"that asymmetry is the fingerprint"*. That differentiator is a 0.54 σ non-result and
+   `AUDIT_rev43.md` says the model's asymmetry has the WRONG SIGN against a photograph whose pillars
+   are EQUAL. Re-found the concept on the THREE EQUAL HOLES, which are measured.**
+
+7. **F18's TRIGGER IS FIRED AND THE STICKER IS NOT DRAWN.** The line pass it needs now exists
    (F332). That is rev 78's first job, and it is no longer blocked by anything.
