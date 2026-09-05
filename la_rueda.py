@@ -97,7 +97,12 @@ def measure_rings(strokes, ortho, aspect, min_frac=0.010):
     # big -- the tyre read 966 mm against its measured 664.9.  It was caught by
     # the source-constant cross-check below refusing, which is what the check is
     # for (rule 6: compare two independently obtained quantities).
-    P = [(p[0] * ortho, p[1] * ortho / aspect) for s in strokes for p in s]
+    # *** ONE DEFINITION, in `line_pass.to_metres` (F339).  This file got the
+    # conversion wrong first, fixed it, and wrote the fix up in a comment --
+    # and `calendario.py` then made the identical mistake and said so in its own
+    # commit.  A comment did not stop it; a shared function does. ***
+    import line_pass
+    P = line_pass.to_metres(strokes, {"ortho": ortho, "res": [aspect * 1000.0, 1000.0]})
     x0, x1 = min(p[0] for p in P), max(p[0] for p in P)
     y0, y1 = min(p[1] for p in P), max(p[1] for p in P)
     cx, cy = (x0 + x1) / 2.0, (y0 + y1) / 2.0

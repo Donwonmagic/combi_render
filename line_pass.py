@@ -77,6 +77,60 @@ def stem(name):
     return m.group(0).rstrip("_") if m else name
 
 
+def to_metres(strokes, meta):
+    """Camera-normalised polylines -> METRES, as (x, y) pairs in one flat list.
+
+    *** THIS FUNCTION EXISTS BECAUSE A COMMENT DID NOT STOP THE BUG RECURRING. ***
+    `world_to_camera_view` normalises EACH AXIS over the frame independently, so
+    a uniform scale of (x, y) stretches the drawing by `res[0]/res[1]`.  An
+    orthographic camera's `ortho_scale` spans the LONG axis only:
+
+        x metres = x_norm * ortho              y metres = y_norm * ortho / aspect
+
+    `la_rueda.py` got this wrong first and read the tyre at 966 mm against its
+    measured 664.9 (F332c).  It was fixed there, and the fix was written up in a
+    comment.  `calendario.py` THEN MADE THE SAME MISTAKE AND SAID SO IN ITS OWN
+    commit message -- *"la_rueda.py records the same bug being made and fixed; I
+    made it again."*  A documented defect that recurs is evidence the
+    documentation is not where the next author looks (rule 50's shape, applied to
+    prose).  So the conversion now lives in ONE function that both call, and any
+    third consumer gets it right by default rather than by reading.
+
+    Returns metres in the camera's own frame; the caller centres and scales.
+    """
+    ortho = meta.get("ortho")
+    if not ortho:
+        raise ValueError("to_metres: the pass is not orthographic (ortho=%r), so "
+                         "normalised coordinates carry perspective and CANNOT be "
+                         "converted to metres by a scale factor (rule 37)." % (ortho,))
+    aspect = meta["res"][0] / float(meta["res"][1])
+    return [(p[0] * ortho, p[1] * ortho / aspect) for st in strokes for p in st]
+
+
+def selftest_to_metres():
+    """WATCHED KILL (rule 3): a square in metres must come back square.
+
+    The bug is invisible unless you check BOTH axes -- scaling x alone leaves a
+    circle looking circular on a proof while every radius is `aspect` times too
+    big, which is exactly how it survived into a second script.
+    """
+    meta = dict(ortho=5.90, res=[1600, 1100])
+    a = 5.90 / (1600 / 1100.0)                      # y-span in metres
+    sq = [[(0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0)]]
+    P = to_metres(sq, meta)
+    w = max(p[0] for p in P) - min(p[0] for p in P)
+    h = max(p[1] for p in P) - min(p[1] for p in P)
+    ok = abs(w - 5.90) < 1e-9 and abs(h - a) < 1e-9
+    bad = [(p[0] * 5.90 * (1600 / 1100.0), p[1] * 5.90) for st in sq for p in st]
+    bw = max(p[0] for p in bad) - min(p[0] for p in bad)
+    kill = abs(bw - 5.90) > 1e-6                    # the OLD arithmetic must differ
+    print("  to_metres: full-frame square -> %.4f x %.4f m (want %.4f x %.4f)  %s"
+          % (w, h, 5.90, a, "ok" if ok else "OUT"))
+    print("  KILL: the pre-fix arithmetic gives x-span %.4f m, %.3fx too big  %s"
+          % (bw, bw / 5.90, "ok" if kill else "OUT -- the kill does not discriminate"))
+    return ok and kill
+
+
 def build_scene(sub=None):
     """exec build.py the way audit.py does -- one definition of the model."""
     import bpy

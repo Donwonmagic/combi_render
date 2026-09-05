@@ -108,10 +108,17 @@ def find_badges(strokes, ortho, aspect, wheelbase, cap_emblem_d):
     STATE.md's mesh audit.  If they disagree the caller REFUSES rather than
     suppressing whatever happens to be there.
     """
+    # *** ONE DEFINITION, `line_pass.to_metres` (F339).  The per-axis scale was
+    # got wrong in `la_rueda.py`, fixed, written up in a comment -- and THIS
+    # FILE made the identical mistake anyway, as its own commit message records.
+    # It now goes through the shared function, which carries a watched kill. ***
+    import line_pass
+    _M = {"ortho": ortho, "res": [aspect * 1000.0, 1000.0]}
     E = []
     for st in strokes:
-        xs = [p[0] * ortho for p in st]
-        ys = [p[1] * ortho / aspect for p in st]
+        _P = line_pass.to_metres([st], _M)
+        xs = [q[0] for q in _P]
+        ys = [q[1] for q in _P]
         if max(max(xs) - min(xs), max(ys) - min(ys)) < 0.060:
             E.append((sum(xs) / len(xs), sum(ys) / len(ys)))
     used, groups = [False] * len(E), []
