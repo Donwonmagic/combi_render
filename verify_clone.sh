@@ -1572,6 +1572,39 @@ _RN="$(echo "$_LATEST_BRIEF" | grep -oE '[0-9]+' | tail -1)"
 # is the same reason CLAUDE.md sec.10 rejected a separate RULES_CANON.md.
 ck "the IMPORTED entry procedure IS the newest brief" 1 "$(if [ -n "$_LATEST_BRIEF" ] && cmp -s PASTE_INTO_CLAUDE_CODE.txt "$_LATEST_BRIEF"; then echo 1; else echo 0; fi)"
 ck "CLAUDE.md still imports that entry procedure"     1 "$(grep -c '^@PASTE_INTO_CLAUDE_CODE.txt' CLAUDE.md)"
+# ---------------------------------------------------------------- F342, rev 77
+# THE SENTENCE CLAUDE.md CARRIES ABOUT ITS OWN IMPORTS WAS FALSE FOR SEVEN
+# REVISIONS, AND THE FILE THAT SAYS "it is NOT imported" WAS THE LARGEST THING
+# IN THE STARTUP LOAD.  `**@HANDOFF_CARRIERS.md is ... NOT imported**` -- the
+# at-sign is picked up ANYWHERE on a line, not only at column 1, so 111,863
+# bytes of pre-rev-70 carrier text were pulled into every session on top of the
+# 48,345 the imports are meant to be: 160,208 total, of which 70 % was the file
+# the sentence disowned.  MEASURED with wc -c at rev 77, printed before written.
+#
+# THIS IS NOT A GREP FOR A NAME (rule 50).  Row 1 is a COUNT of the import
+# construct itself -- the quantity that decides what loads -- and rows 2 and 3
+# are ARITHMETIC over the bytes that count implies.  The KILL: put the at-sign
+# back in front of HANDOFF_CARRIERS.md in CLAUDE.md and rows 1 and 3 both red.
+# WATCHED FAILING at rev 77 -- 3 red (imports 3 want 2; carrier-import 1 want 0;
+# byte bound 0 want 1) and the fourth row CORRECTLY STAYING GREEN, which is what
+# proves the fix is not rule 16's defect.  Then reverted.
+_IMPORTS="$(grep -oE '@[A-Za-z0-9_./-]+\.(md|txt)' CLAUDE.md | sed 's/^@//' | sort -u)"
+ck "CLAUDE.md imports exactly the two files its Imports section names" 2 \
+   "$(echo "$_IMPORTS" | grep -c .)"
+ck "CLAUDE.md does NOT import the carrier it says it does not import" 0 \
+   "$(echo "$_IMPORTS" | grep -c '^HANDOFF_CARRIERS\.md$')"
+# ARITHMETIC, not a name: sum the bytes of what is ACTUALLY imported (plus
+# CLAUDE.md itself, which is always read) and require it to be under half of
+# what it would be with the carrier back in.  Both sides are computed from the
+# files on disk, so neither is a literal that can go stale (rule 5/rule 6).
+_LOAD=$(( $(wc -c < CLAUDE.md) + $(for f in $_IMPORTS; do wc -c < "$f"; done | paste -sd+ | bc) ))
+_LOAD_WITH=$(( _LOAD + $(wc -c < HANDOFF_CARRIERS.md) ))
+ck "the auto-loaded startup set is under half what the at-sign cost" 1 \
+   "$(if [ "$_LOAD" -lt $(( _LOAD_WITH / 2 )) ]; then echo 1; else echo 0; fi)"
+# AND THE CARRIER IS STILL REACHABLE -- this row is what stops the fix from
+# becoming rule 16's defect.  Removing the import must NOT remove the pointer.
+ck "CLAUDE.md still names the carrier by filename" 1 \
+   "$(if grep -q 'HANDOFF_CARRIERS.md' CLAUDE.md; then echo 1; else echo 0; fi)"
 ck "README points at the newest brief"       1 "$(if [ -n "$_RN" ] && grep -qE "rev $_RN\b" README.md 2>/dev/null; then echo 1; else echo 0; fi)"
 ck "START_HERE points at the newest brief"   1 "$(if [ -n "$_RN" ] && grep -qE "rev $_RN\b" START_HERE.md 2>/dev/null; then echo 1; else echo 0; fi)"
 # rev 57b, OWNER RULING.  The rule was "no hero PNG tracked, ever", and it is

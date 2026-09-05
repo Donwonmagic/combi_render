@@ -315,3 +315,131 @@ changed, and the resume cache missed. **If you fan out and intend to resume, SOR
 STABLE KEY.** The owner caught the second-order consequence — that I had jumped to the synthesis on
 8 of 14 amplifications — and two of the six I nearly skipped were among the only four concepts whose
 danger the audit found INTACT.
+
+
+---
+## §9 F342 — THE ENTRY FILE WAS LYING ABOUT ITS OWN IMPORTS, AND IT COST 70 % OF EVERY PICKUP
+
+**FOUND WHILE ANSWERING THE OWNER'S REQUEST FOR *"a healthy bit of leeway for this new context to
+execute effectively"* — so the finding is a direct answer to a question he asked, not a tidy-up.**
+
+`CLAUDE.md`'s Imports section carried, as prose rather than as a list entry:
+
+```
+    **@HANDOFF_CARRIERS.md is the OTHER HALF OF THE BRIEF and it is NOT imported -- read it when the
+    action brief points you at it.**
+```
+
+**THE AT-SIGN IS HONOURED ANYWHERE ON A LINE, NOT ONLY AT COLUMN 1.** So the file that sentence
+disowns was inlined into the system prompt of every session since the rev-70 split.
+
+**MEASURED, NOT INFERRED — `wc -c`, watched printing before any of it was written down:**
+
+```
+    CLAUDE.md                    9,469
+    PASTE_INTO_CLAUDE_CODE.txt  26,671
+    STATE.md                    12,205
+    HANDOFF_CARRIERS.md        111,863   <- the file that says it is not imported
+    ------------------------------------
+    auto-loaded                160,208   of which the disowned carrier is 69.8 %
+    what it should have been    48,345
+```
+
+⚠ **AND THE EVIDENCE IS DIRECT RATHER THAN A CLAIM ABOUT A PARSER: THIS REVISION'S OWN SYSTEM PROMPT
+CARRIES THE LINE `Contents of /home/user/combi_render/HANDOFF_CARRIERS.md (project instructions,
+checked into the codebase)`.** I did not reason about it; I read it in the context I was handed.
+
+**WHY IT MATTERS MORE THAN ITS SIZE.** The rev-70 split exists because the owner measured what a
+95 KB brief cost — *"I feel that we were way more productive in the first 20 or so handoffs and I fear
+we have drifted since then"* — and `HANDOFF_CARRIERS.md`'s own header announces that the split
+answered him. **It did not. The split moved 111 KB out of the working document and the at-sign put
+111 KB straight back into the context**, so seven revisions opened roughly 3.3× heavier than the split
+intended, while the file explaining the split was the payload.
+
+**THE FIX, AND WHAT IT DELIBERATELY DOES NOT DO.** The at-sign is removed and the paragraph now
+carries why, so the sentence is true for the first time. **NOTHING WAS DELETED (rule 16):** the
+carrier file is byte-unchanged, `CLAUDE.md` still names it, `PASTE_INTO_CLAUDE_CODE.txt` §6 still
+points at it, and — checked, not assumed — **all 16 `verify_clone.sh` rows that guard its content read
+the FILE ON DISK, never the import**, so the guard surface is exactly as strong. The one guard that
+does read an import (`grep -c '^@PASTE_INTO_CLAUDE_CODE.txt' CLAUDE.md`) is anchored at column 1 and
+was never involved.
+
+**FOUR NEW ROWS, AND THE KILL WAS WATCHED (rule 3).** Row 1 counts the import construct itself; row 2
+requires the carrier not to be among them; row 3 is **arithmetic over bytes computed from the files on
+disk on both sides**, so neither side is a literal that can go stale (rule 5, rule 6); row 4 requires
+`CLAUDE.md` to still name the carrier by filename. **Putting the at-sign back reds THREE and leaves
+row 4 correctly GREEN** — printed:
+
+```
+    FAIL  CLAUDE.md imports exactly the two files its Imports section names   got 3  want 2
+    FAIL  CLAUDE.md does NOT import the carrier it says it does not import    got 1  want 0
+    FAIL  the auto-loaded startup set is under half what the at-sign cost     got 0  want 1
+    ok    CLAUDE.md still names the carrier by filename                       1
+```
+
+**Row 4 staying green under the kill is the point of row 4: it is the row that stops this fix from
+becoming rule 16's defect**, and it would have caught me had I answered the load problem by deleting
+the pointer instead of the at-sign.
+
+⚠ **THE CEILING, AND IT IS NOT SMALL.** This is a fix to the project's ERGONOMICS. **It is not
+evidence about the vehicle, it closes nothing on the ranked list, and rule 55 does not count it.**
+And it moves a real cost onto the next context: **that carrier used to arrive free and now must be
+opened deliberately** — §2's seventeen refuted emblem rows, §4's rulings and §5's rules 34–58 are
+exactly the material a context is most likely to skip and most expensive to re-derive. **The brief's
+own F342 row says so in the imperative.**
+
+
+---
+## §10 F343 — THE TOP INSTRUMENT CANNOT BE RUN TWICE AT ONCE, AND IT FAILS BY LYING
+
+**FOUND BY ACCIDENT, WHICH IS THE ONLY REASON IT WAS FOUND AT ALL.** I ran `./verify_clone.sh` in the
+working tree while the rule-17 adversary was running it in `/tmp/cc`. My run returned:
+
+```
+    442 PASSED, 7 FAILED
+      FAIL  modified tracked files                                         got 6        want 0
+      FAIL  F281 a non-numeric T1_REAR_OPEN refuses too, rather than crashing  got <empty>  want 1
+      FAIL  F284 probe_rev67_nose REFUSES to window a frame that is not `front`  got <empty>  want 1
+      FAIL  F284 ... and counts that refusal as ABSENT, never as a pass      got <empty>  want 1
+      FAIL  F284 ... and REFUSES a `front` frame with no build               got 0        want 1
+      FAIL  F284 the T1_NOSE_NOWIN kill really ablates                       got 0        want 1
+      FAIL  newest brief states THIS script's row count                      got 445      want 443
+```
+
+**Two of those seven are expected** — a dirty tree, and the self-referential count that
+`audit_brief.py --fix-count` writes last. **The other five are a COLLISION.** The script writes and
+then `rm -f`s **twenty fixed `/tmp` paths**, counted off the source:
+
+```
+    _r72b _r72g _r72n _r72r _r72s _r72t _r73a _r73b _r73c _r73d _r73e _r73f _r73g
+    _r74a _r74b _r75f326   (.txt)
+    _r73_x_front.png  _r73_x_hero34f.png  _vc_senor.png  _vc_senor_pre.png
+```
+
+**None is namespaced by pid, clone or run**, so two runs delete each other's evidence mid-flight and
+the rows that read those files report `got <empty>` or `got 0`. **All five reds fall inside exactly
+the two blocks that share those paths.**
+
+**WHY THIS IS WORSE THAN NOISE, AND WHY IT BELONGS IN A LEDGER RATHER THAN A README.** The failure
+mode is **not an error — it is a plausible red row**, which is the defect class `CLAUDE.md` names as
+this project's most-repeated: *"every one produced a plausible number that would have been
+published."* And the brief's own §3b instructs the reader that **a red row is a FINDING ABOUT YOUR
+CHANGE**, with rule 44 making the guard the default winner. So a colliding run does not merely add
+noise; **it accuses the reader's own work, and the rules then tell them to believe it.**
+
+⚠ **AND IT IS STRUCTURALLY LIKELY, NOT A FREAK.** Rules 15 and 17 both require dispatching
+adversaries; an adversary's first act is `./bootstrap.sh` and `./verify_clone.sh`; and §7.6 makes a
+cold clone run it a third time. **The revision that mandates concurrent verifiers ships a verifier
+that cannot be run concurrently.**
+
+**NOT FIXED — RECORDED (rule 12, and stated rather than hidden).** The repair is source churn on the
+top instrument after its last clean run, and I would be editing the script that scores my own
+revision. **THE FIX IS PRESCRIBED AND CHEAP:** `_VCTMP=$(mktemp -d)`, every `/tmp/_r7*` moved under
+it, `trap 'rm -rf "$_VCTMP"' EXIT`, plus one row that reds if any bare `/tmp/_` path survives in the
+source — which is a row anchored on the SOURCE, not on a grep for a name (rule 50).
+
+⚠ **CEILING, AND IT IS THE honest one: n = 1.** I observed one collision; I did not construct the
+race deliberately. The five reds are consistent with the mechanism and clustered exactly where the
+shared paths are, and the mechanism is **read from the source** — but it has **not been WATCHED
+FAILING on a controlled pair** (rule 3). It is graded `OBSERVED-rev77`, not `MEASURED`. **Whoever
+fixes it should first run two verifiers on purpose and watch these same five rows go red.**
