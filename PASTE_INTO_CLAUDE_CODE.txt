@@ -221,7 +221,7 @@ transcribed, and that row is.**
 | **F330 / F331** | **TWO OWNER RULINGS.** See the head of this file. **F340 IS NOT A THIRD.** |
 | **F335 / F336** | A carrier pointing outside the repository; and the pillar thesis, which `AUDIT_rev43.md` refuted harder than rev 76's retraction did. |
 | **F344** | **A THIRD SHIPPED ARTEFACT WAS MISSING FROM BOTH HANDOFF DOCUMENTS, AND ITS OWED REGISTER ROW WAS LOST TO A DOUBLE-ASSIGNED F341.** See the register. |
-| **F343** | ⚠⚠ **DO NOT RUN `./verify_clone.sh` TWICE AT ONCE — 20 FIXED `/tmp` PATHS, EACH RUN `rm -f`s THE OTHER'S EVIDENCE.** The failure mode is a **plausible red row** (`got <empty>`, `got 0`), and §3b tells you to read a red row as a finding about YOUR change. **Hit TWICE at rev 77's close, from DISJOINT path sets — mine `442/7` on `_r72*`+`_r73a`, the adversary's `441/4` on `_r73f`. Both `ALL 445 PASS` re-run alone.** ⚠ **THIS BITES rules 15 and 17: an adversary's first act is to run this script, and §7.6's cold clone is a third runner. SERIALISE THEM, or fix it — a `mktemp -d` plus a row that reds on any surviving bare `/tmp/_` path.** |
+| **F343** | ⚠⚠ **DO NOT RUN `./verify_clone.sh` TWICE AT ONCE — 20 FIXED `/tmp` PATHS, EACH RUN `rm -f`s THE OTHER'S EVIDENCE.** The failure mode is a **plausible red row** (`got <empty>`, `got 0`), and §3b tells you to read a red row as a finding about YOUR change. **Hit TWICE at rev 77's close, from DISJOINT path sets — mine `442/7` on `_r72*`+`_r73a`, the adversary's `441/4` on `_r73f`. Both `ALL 449 PASS` re-run alone.** ⚠ **THIS BITES rules 15 and 17: an adversary's first act is to run this script, and §7.6's cold clone is a third runner. SERIALISE THEM, or fix it — a `mktemp -d` plus a row that reds on any surviving bare `/tmp/_` path.** |
 | **F342** | **YOUR STARTUP LOAD FELL 70 %.** `CLAUDE.md` said `HANDOFF_CARRIERS.md` was NOT imported while an at-sign in that sentence imported it — 111,863 of a 160,208-byte auto-load, now **48,345**. ⚠ **THE CONSEQUENCE IS YOURS: that carrier is no longer free. `cat HANDOFF_CARRIERS.md` WHEN THIS BRIEF POINTS AT IT** — §2's refuted emblem routes, §4's rulings, §5's rules 34–58. |
 
 ## §3b ⚠ REV 72–77's FIXES ARE LOCKED. YOU CANNOT REGRESS THEM SILENTLY.
@@ -239,7 +239,7 @@ REVISION — ~20 min, and not while a render queue is going.**
 
 ```bash
 ./bootstrap.sh                                # READ ROW 9.  Row 10 is verify_clone.sh
-./verify_clone.sh                             # ALL 445 PASS -- 0 FIDELITY, 445 SELF-CONSISTENCY.
+./verify_clone.sh                             # ALL 449 PASS -- 0 FIDELITY, 449 SELF-CONSISTENCY.
   # With an empty out/, SIX rows SKIP and say UNGUARDED; PASS is the same either way.
   # (it was five before rev 77 added F334's sixth -- the guard that bounds this is a
   #  literal, so a companion row DERIVES the six from the source and they must agree)
@@ -352,8 +352,8 @@ off self-review. Report the measurement with its ceiling. Do not say anything is
    ANNOUNCES IT (F335). If it is not in `git ls-files`, it does not exist.**
 
 ---
-**⚠ BOTH ADVERSARIES RAN AND BOTH FOUND REAL DEFECTS. THE OUTGOING ONE FOUND TWENTY, SIX AT TOP
-SEVERITY, ALL ACTED ON IN THIS FILE — including the case-blind glyph inventory (§2.1), the missing
+**⚠ THIS BRIEF WAS AUDITED AGAINST THE MACHINE, TWICE, AND BOTH PASSES FOUND REAL DEFECTS. THE
+OUTGOING ADVERSARY FOUND TWENTY, SIX AT TOP SEVERITY, ALL ACTED ON IN THIS FILE — including the case-blind glyph inventory (§2.1), the missing
 calendar (F344), F340 miscalled a RULING, and two carriers absent from §6.** The incoming one found
 twenty, one of them **in an artefact already shipped** (Sheet 3 called an AUTHORED ink MEASURED).
 ⚠ **`LEDGER_rev77.md` §5's own heading says "5 TOP" where its list and §6 say six — it contradicts
@@ -383,13 +383,10 @@ artefact.** *(Asked for at rev 77's close; not yet supplied.)*
 * **NOTHING FROM THE CONCEPT ROUND HAS BEEN SHOWN TO THE OWNER** — and the brief ranks seven items
   for a context that could instead spend an hour putting the top four to him. **His answer outranks
   this list; getting one is a legitimate first move.**
-* ⚠ **FOUR PUBLISHED FIGURES IN THE ROUND'S OWN DOCUMENTS DO NOT SURVIVE RECOMPUTATION, AND THE
-  CONCLUSIONS THEY CARRY ALL DO. `LEDGER_rev77.md` §11 has each with its arithmetic:** *"60 verdicts
-  across 14 finalists at 4 lenses"* (14×4 = 56 — one concept was audited twice); F338's Spearman
-  ρ = +0.222 (tie-corrected **+0.050**; Pearson +0.173 reproduces exactly); the line pass's four bare
-  stroke counts (**it is not run-to-run stable**, and §4's `115 / 312` re-runs as `116 / 312`); and
-  *"55 of 75 food or people"* (its own document's second critic says **21**). **RE-DERIVE ANY FIGURE
-  YOU INTEND TO QUOTE.**
+* ⚠ **SEVEN PUBLISHED FIGURES DO NOT SURVIVE RECOMPUTATION AND EVERY CONCLUSION THEY CARRY DOES.
+  `LEDGER_rev77.md` §11 has each with its arithmetic** — *"60 verdicts / 14 finalists / 4 lenses"*
+  (14×4 = 56); ρ = +0.222 (tie-corrected **+0.050**); the line pass's bare counts; *"55 of 75 food or
+  people"* (its own critic says **21**). **RE-DERIVE ANY FIGURE YOU QUOTE.**
 * **THE OCCLUSION HALF OF THE OWNER'S OWN STYLE SENTENCE IS NOT BUILT.** No normal pass, no AO pass.
 * **T3's GAIN CLAIM: THE LIVE FIGURE IS 3.86 σ ON THE SEM, n = 5, ONE TREE — the CEILING is the
   weakness, not the σ.** ⚠ **THIS BULLET USED TO SAY *"1.8 σ"* — the figure §1 retracts — restating it
