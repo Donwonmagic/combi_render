@@ -194,8 +194,19 @@ audited weak; the gap is the finding).
 ---
 ## §4 THE WIDER BENCH — all 78, so nothing good is lost (rule 16)
 
-Kept as titles + one-lines; full concepts are in the workflow journal at
-`subagents/workflows/wf_71e8a5d6-b52/journal.jsonl`.
+⚠ **THIS SECTION IS TITLES ONLY. THE FULL CONCEPTS ARE CARRIED IN THE REPO — and the first draft of
+this line pointed at `subagents/workflows/.../journal.jsonl`, WHICH IS NOT IN THE REPOSITORY.** It
+lives under `~/.claude/`, which died once mid-session already. **That was a dangling carrier, rule 16's
+exact failure mode, written by the orchestrator into the file that cites rule 16.** Fixed:
+
+* **`WORKFLOW_rev76_CONCEPTS.md`** — all 78 concepts IN FULL: the image, the emotional claim, the
+  formats, why-not-derivative, production notes, model work required, and the screener's note.
+* **`WORKFLOW_rev76_SYNTHESIS.md`** — the executive synthesis, the six AMPLIFIED concepts, and the
+  completeness critique verbatim. ⚠ **The orchestrator never read the synthesis or the amplified
+  round before writing this file, so that document may contain material this one does not reflect.
+  READ IT BEFORE EXPANDING.**
+* **`WORKFLOW_rev76_output.json`** — the complete structured return value: the 7 grounding reports,
+  the 7 expert discipline plans, all 78 concepts, and every audit verdict with its improvements.
 
 SECTION AA · MISE EN PLACE · CONDITION REPORT · RELIC · TOUCHED · STILL OPEN · TURN OFF THE LIGHT ·
 GRADIENTE · APERTURA · NUNCA DOS VECES · HANDBRAKE · CUT OPEN · SOMBRA · OPENING HOURS · FILAMENT

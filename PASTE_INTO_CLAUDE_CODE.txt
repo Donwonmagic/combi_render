@@ -6,6 +6,8 @@
 >
 > The work is now a **graphic-design, merchandise and animation program** built on the model.
 > **78 concepts, screened and adversarially audited, live in `DESIGN_PROGRAM_rev76.md` — a CARRIER.**
+> **The FULL concepts are `WORKFLOW_rev76_CONCEPTS.md`; the synthesis, the amplified round and the
+> critique are `WORKFLOW_rev76_SYNTHESIS.md`; everything structured is `WORKFLOW_rev76_output.json`.**
 > **THE SPINE, recovered from `NEXT_CONTEXT_PROMPT_rev39.md` §7 where the record lost it:**
 > *"cartoon with rendered depth — **vector line and flat colour, shading and occlusion sampled from
 > the 3D asset**."* **The model's value here is MEASUREMENT AND LINE, not photorealism.**
