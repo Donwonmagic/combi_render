@@ -147,7 +147,11 @@ claim that the emblem is fixed. F191 and F234 both stand.**
 
 ---
 
-## §5 WHAT THE RULE-15 ADVERSARY FOUND IN THE INCOMING BRIEF — 20 DEFECTS, 5 TOP
+## §5 WHAT THE RULE-15 ADVERSARY FOUND IN THE INCOMING BRIEF — 20 DEFECTS, 6 TOP
+
+*(This heading said **5 TOP** and its own list numbers SIX; §6 of this ledger flagged one instance and
+the brief flagged the other, so the document contradicted itself twice about its own count — four,
+five and six in one file. Corrected at rev 77's close, rule 13. **READ THE LIST, NOT A HEADING.**)*
 
 **AND ONE OF THEM WAS IN AN ARTEFACT I HAD ALREADY SHIPPED.** `sheet3_notissued.py`'s title block
 printed `1 -- (72,46,6) ON (206,208,200), BOTH MEASURED`. `lid_gen.py` says
@@ -443,3 +447,131 @@ race deliberately. The five reds are consistent with the mechanism and clustered
 shared paths are, and the mechanism is **read from the source** — but it has **not been WATCHED
 FAILING on a controlled pair** (rule 3). It is graded `OBSERVED-rev77`, not `MEASURED`. **Whoever
 fixes it should first run two verifiers on purpose and watch these same five rows go red.**
+
+
+---
+## §11 THE FINAL RULE-17 AUDIT — 20 DEFECTS, 6 TOP, ALL ACTED ON
+
+**Rule 17 says re-run the outgoing adversary after anything ships. Rev 77 shipped F342 and F343 after
+the first pass, so a second adversary was dispatched at the FINAL handoff. It returned twenty more.**
+Every top defect below was **re-measured by me before I acted on it** — an agent's report is not
+evidence either.
+
+### The six at top severity
+
+1. **THE BRIEF CONTRADICTED ITSELF ON THE GAIN CLAIM, IN THE FIRST AND LAST PLACES A READER LOOKS.**
+   §1 retracts *"1.8 σ"* and gives 3.86 σ on the SEM; the closing weakness list restated **"T3's GAIN
+   CLAIM IS 1.8 σ"** as the brief's standing position. Confirmed: `grep -n "1.8 σ"` → lines 109 and
+   355. **F322's class — an amendment reaching some sections and not others — in the brief whose §1
+   boasts of catching it.** Fixed.
+
+2. **THE GLYPH INVENTORY WAS CASE-BLIND, AND IT UNDERSTATED THE OWNER'S OWN RULING BY THREE LETTERS
+   PER NAME.** `script_gen.py` holds `draw_T` (*"Capital T"*) and six LOWERCASE letterforms. Recomputed:
+
+   ```
+                                   distinct   missing CAPS            published (case-blind)
+       TAQUERIA EL CRISTAL            10       9  A C E I L Q R S U    6  E L Q R S U
+       TAQUERIA BUENA BETHESDITA      12      11  A B D E H I N Q R S U 8  D E H N Q R S U
+   ```
+   No mixed-case escape: any capitalised second word needs a capital `C`, `E` or `B`. **The owner was
+   put a multiple-choice question about drawing "six to eight" glyphs for a setting that needs nine to
+   eleven. HIS RULING STANDS; THE QUANTITY HE WAS GIVEN DOES NOT, and he must be told.** Fixed in the
+   brief and in F340.
+
+3. **A THIRD SHIPPED ARTEFACT WAS INVISIBLE IN BOTH HANDOFF DOCUMENTS, AND ITS OWED REGISTER ROW WAS
+   LOST TO A DOUBLE-ASSIGNED ID.** `grep -c calendario` → **0** in both. `CONCEPT_ROUND_rev77.md`
+   §5.0b closes *"A register row is owed; the next free ID is F341"* — **F341 was spent on the
+   locational rulings.** This is **rule 16 firing twice in the revision that made F335 a headline.**
+   Now **F344**, and the calendar is named in the brief.
+
+4. **THE BRIEF PROMOTED F340 TO A "RULING" AND TO REV 78's #1 JOB; THE REGISTER SAYS IT IS NEITHER.**
+   F340, verbatim: *"THE WORD IS 'maybe' — this is recorded as a DIRECTION HE FLOATED, not a ruling he
+   made, and nothing should be built on it as though it were F330's kind of instruction."* The brief's
+   own §6 says that file **outranks prose**. **Ranking it above F18 — which he DID fire — inverted the
+   only two owner signals on the list.** Fixed: it is now *"a locational series he floated"*, and the
+   brief says **RANK THEM YOURSELF.**
+
+5. **THE FILE THE BRIEF NAMED AS *"ranks and decides"* STILL SAYS THE ROUND DID NOT FINISH, AND THE
+   TWO FILES THAT CONTRADICT IT WERE NAMED NOWHERE IN THE BRIEF.** `DESIGN_PROGRAM_rev77.md` §4.2, live:
+   *"STILL MISSING: 11 of 14 amplifications, the synthesis, and BOTH late completeness critics"* and
+   *"no concept has been through the full chain"* — and it **has no §5**, because
+   `CONCEPT_ROUND_rev77.md` §1 says *"This is §5, to append … placement is yours"* **and the placement
+   was never done.** `grep` found neither `CONCEPT_AUDIT_rev77` (765 KB) nor `CONCEPT_ROUND_rev77`
+   (255 KB) in the brief. **A next context following the brief literally would rank on the screen,
+   which F338 says not to do.** Both are now in §6 with what they hold.
+
+6. **`SPEC.md` §10.10 WAS QUOTED ACCURATELY AND APPLIED TO THE WRONG OBJECT — rule 34 exactly.** The
+   *"hard bar"*, *"Not approximated. Not invented."* all verify. **But the sentence they govern reads
+   *"Every painted element ON THIS VEHICLE"*, and its in-scope table is eight painted elements of the
+   combi.** A shop sign in Bethesda is not one. **The owner's first locational question was framed on
+   a requirement borrowed from another object.** The ruling may survive re-framing; the framing is now
+   stated in the brief as needing to be put to him.
+
+### The recomputations the brief's closing bullet points at
+
+**Four published figures do not survive recomputation. Every conclusion they carry does.**
+
+* **"60 verdicts across 14 finalists at 4 lenses"** — stated in `CONCEPT_AUDIT_rev77.md`,
+  `LEDGER_rev77.md` §8 and `DESIGN_PROGRAM_rev77.md` §4.2. **14 × 4 = 56.** Counted: 60 verdict blocks
+  over 14 concepts, because `BUENAS NOCHES, COMBI` carries **eight** — a residue of the resume-cache
+  defect in §8. So: **56 distinct verdicts plus one concept audited twice.** The `1.85/4` headline
+  double-weights it; the mean of the 14 concept means is **1.8486**. **Headline survives, stated basis
+  does not.**
+* **F338's Spearman ρ = +0.222** reproduces only under an arbitrary tie order; **tie-corrected it is
+  +0.050.** The audit column is heavily tied (1.88×4, 1.75×4, 2.25×2, 1.62×2). **Pearson r = +0.173
+  reproduces exactly.** This **strengthens** F338 — and ρ was published with no ceiling.
+* **The line pass's four bare stroke counts.** §5.0b measures 2711–2716 strokes / 19468–19475 points,
+  n = 5, one unchanged tree. §4's watched ablation `115 / 312` **re-runs as 116 / 312.** The ablation
+  is real and large (462 → 116); **the figure is one draw.** Same defect as the calendar colophon (F344).
+* **"55 of 75 food or people"** headlines `DESIGN_PROGRAM_rev77.md` §0 — and its own §3, ninety lines
+  later, says *"Food or people is the SUBJECT of **21** of 75, not the 55 that claim it."* **F336's
+  exact shape: a retracted figure still printed elsewhere in the same document.** This ledger's §6
+  listed it among what the adversary CONFIRMED, which is true of the count and false of the claim.
+* **"All 18 reference images are the vehicle"** — carried in three documents. `git ls-files` gives 22
+  reference-class entries; `HANDOFF_CARRIERS.md` §0.1 gives a floor of 54 with 16 guard rows; some are
+  DERIVED grids and `bus_model_ref.JPG` is a SCHOOL BUS. **The point — no photograph of a Tacombi
+  shopfront exists — is true and load-bearing. The number was prose.**
+* **"5,060,569 points across 250 frames"** is not re-derivable (20,234 × 250 is 2,069 short) and cannot
+  be, the spike being deleted and the pass unstable. **Demoted to an anecdote in §4.**
+* **`probe_rev77_t3floor.py` SILENTLY DROPS A FRAME IT CANNOT PARSE.** Six `*_side.png` on the rev-77
+  tree; it printed `n = 5`. `out/fierro_side.png` yields no parseable rung, `read()` returns `None`,
+  and the row is discarded with no message. **The distribution is conditioned on the ladder being
+  readable, and the excluded frame is where the detector failed hardest.** Rule 37. **UNFIXED** —
+  stated in the brief's §1.
+* **`audit_brief.py` covers 5 of the ~9 probe counts the brief publishes.** It is a piece of the
+  rule-17 half, not the half. Stated in §4.
+* **`LEDGER_rev77.md` §7's revstats row was already stale** under a heading saying nothing in it is
+  transcribed: `19 commits / 6804 doc` where live is `26 / 8731 / 374 instr`. The five-revision line
+  `73–77: 261 geometry lines, 0 findings closed` **does** still reproduce.
+
+### What the adversary CONFIRMED, on a genuine cold clone
+
+**`./verify_clone.sh` on a cold clone of `f5454c7` with NO `out/`: `ALL 445 PASS`, rc = 0** — and the
+brief's clause *"with an empty `out/`, SIX rows SKIP … PASS is the same either way"* verified in both
+directions. The five T3 rungs, the per-rung sds, Pearson +0.173, `462 / 1453`, the seven `draw_` glyph
+functions, §10.10's wording, the owner's locational quotation across three documents, the Sheet 3 ink
+correction, and every probe count in §4 (`photometry` 9/0, `sheet3` 45/0, `la_rueda` 14/0, tread 8/0
+with the kill reddening exactly T3 and T7, `vw` 12/2 = C4+C10, `fitpose` 5/1 = P4, proxy IoU 1.000000)
+**all reproduce.** It also re-ran `sheet3_notissued.py` and `la_rueda.py` against a freshly baked line
+pass and found `design_out/` **byte-identical** — stronger than this ledger had claimed for them.
+
+### Where it said the brief OVER-CONSTRAINS — and what I cut
+
+The owner asked for *"a healthy bit of leeway."* The adversary named six places the brief dictated a
+solution where it should state a problem. **Five are now loosened:** the sticker's build order (it
+said *"build the AO pass first or the sticker is line only"*, gating the project's original
+deliverable on an infrastructure job the day its trigger fired — while `CONCEPT_ROUND_rev77.md` §5.2,
+which the brief never named, argues for the daylight face BECAUSE it needs no occlusion); the garment
+re-run (*"re-run it with three directors"* → the ceiling stated, the remedy left open); F318's
+prescription (the `T1_TYRE_FILM` prohibition is earned and kept; the rest is now a suggestion, and the
+brief says so, since it has been carried unchanged and undone for three revisions); T3's follow-up
+rungs (*"Add a −3.0 and a −10.0. It is cheap"* → offered, not instructed); and the ranked list itself,
+which now carries **"NOTHING FROM THE CONCEPT ROUND HAS BEEN SHOWN TO THE OWNER — his answer outranks
+this list; getting one is a legitimate first move."** The sixth — §2.1's sequencing of the locational
+series — is loosened rather than removed: the measured constraint stays, *"recovery outranks
+invention"* is now *"worth weighing … your call, not this brief's."*
+
+⚠ **AND THE BRIEF IS NOW 32,675 BYTES AGAINST A 32,768 GUARD — 93 BYTES OF HEADROOM.** Landing twenty
+defects cost more than the trims recovered, even after compressing §1, §3, §5, §6, the head and the
+closing block. **The next context cannot add a paragraph to that file without cutting one.** That is a
+real constraint on the handoff and it is stated here rather than discovered by a red row.
