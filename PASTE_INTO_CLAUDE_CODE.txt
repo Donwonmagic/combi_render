@@ -62,6 +62,12 @@ renders of one tree. **Rev 77 rendered five and read the ladder off each BY NAME
 giving `probe_rev73_tailboard.py` a frame argument, something it never had, and which is why a
 distribution across frames had never been measured.
 
+⚠ **THESE FIVE READINGS ARE A RECORD, NOT FILES YOU CAN RE-READ. `out/` is untracked and §0 renders
+ONE side frame, so `probe_rev77_t3floor.py` will print `n = 1` and `sd n/a (n=1)` on your tree. TO
+REPRODUCE §1 YOU MUST RENDER FIVE `side` FRAMES — ~25 minutes.** ⚠ **AND THE FLOOR PARAGRAPH INSIDE
+T3's OWN MESSAGE IS A HARDCODED STRING LITERAL, printed on every frame of every tree — F320f's class
+(*"T6's FLOOR IS STILL A STRING LITERAL"*), now with a second instance.**
+
 ```
   the -7.0 rung, FIVE renders of ONE tree, no source change:  -8.75 -8.75 -6.50 -9.00 -6.50
       range 2.50 deg, sd 1.282 deg, on a rung whose bar is 1.5.   2 PASS / 3 FAIL
@@ -71,16 +77,30 @@ distribution across frames had never been measured.
 ```
 **THE INSTABILITY IS ONE RUNG OF FIVE AND NOBODY HAD EVER LOOKED AT THE OTHER FOUR.** That rung is now
 **REPORTED WITHOUT GATING**, carrying `[UNGATED -- BELOW ITS OWN FLOOR]` in the row's own message.
-**NO BAR WAS RELAXED** and **MONOTONICITY WAS ADDED**, so the row is strictly HARDER to pass on
-everything that reproduces. **Watched failing on seven fabricated ladders**; four companion rows.
+**NO BAR WAS RELAXED** and **MONOTONICITY WAS ADDED**. ⚠⚠ **BUT DO NOT READ THAT AS A
+STRENGTHENING, AND REV 77's FIRST DRAFT DID — RETRACTED (rule 13), caught by its own rule-17
+adversary.** Run over rev 77's five ladders, **the OLD condition passes 2 of 5 and the NEW passes
+5 of 5: three flip FAIL→PASS and none flips back.** The two are **INCOMPARABLE, not ordered**, and on
+this tree the change is a **NET LOOSENING**; monotonicity is near-vacuous here, the rungs never coming
+within 1.75° of crossing. **The re-base is still defensible — the ungated rung IS below its own noise
+— but not on the word that licensed it under rule 44.** ⚠ **AND "UNGATED" IS A HAIR TOO STRONG:
+`_mono` runs over the FULL ladder, so a −7.0 reading of +5.0 would still red the row. It is
+TOLERANCE-ungated.** **Watched failing on seven fabricated ladders**; four companion rows.
 
 ⚠ **AND F324's *"TWO DISJOINT CLUSTERS"* IS REFUTED (rule 13).** It attributed −9.00/−9.00/−8.75 to
 rev 74's tree and −7.00/−8.50/−6.50 to rev 75's and called it a BUILD-dependence. **One tree — this
-one, unchanged — produced −9.00 AND −8.75 AND −6.50.** One wide distribution, no build-dependence.
+one, unchanged — produced −9.00 AND −8.75 AND −6.50.** ⚠ **STATE IT AT ITS TRUE STRENGTH: that refutes
+DISJOINTNESS AS EVIDENCE. It does NOT test build-dependence — rev 77 rendered neither the no-tread nor
+the irregular-tread build. "NO EVIDENCE OF build-dependence", not "no build-dependence".** ⚠ **AND THE
+MECHANISM IS UNCHANGED: `verify_clone.sh` still calls the probe BARE, so it still reads the
+alphabetically-last side frame. Only the margin widened.**
 
-⚠ **WHAT IS NOT CLOSED, AND n=5 MAKES IT WORSE: THE GAIN CLAIM.** 0.967 / 0.979 / 0.936 / 0.935 /
-0.893 — mean 0.942, sd 0.033 against a mean departure from 1.000 of 0.058, **1.8 σ**. T3's message
-uses that gain to REFUTE the photograph rows' error model; **at 1.8 σ it may not be, and it says so.**
+⚠⚠ **THE GAIN CLAIM: REV 77 WITHDREW IT AND THE WITHDRAWAL WAS WRONG. RETRACTED (rule 13).**
+0.967 / 0.979 / 0.936 / 0.935 / 0.893 — mean 0.942, sd 0.033, departure from 1.000 **0.0579**. The
+first draft divided that by the sd of **INDIVIDUALS**, got **1.727**, printed *"1.8 σ"* and called it
+not a result. **THE SCALE FOR A MEAN IS THE SEM** — `sd/√5 = 0.0150` — **giving 3.86 σ**; excluding
+the −7.0 rung this row itself calls unusable, **mean 0.8955, departure 0.1045, 7.00 σ on the SEM.**
+**THE SUB-UNITY GAIN IS ESTABLISHED ON THIS TREE and T3 MAY quote it.** CEILING: n = 5, one tree.
 ⚠ **A HYPOTHESIS, NOT A FINDING: −7.0 is the ONLY NEGATIVE rotation in the ladder. n = 1, confounded
 with magnitude and order, UNTESTED. Add a −3.0 and a −10.0 rung. It is cheap.**
 
@@ -106,9 +126,13 @@ children are an audience — the F18 spec's *"spark joy … for children"* and F
 made for them.
 
 ### **3. THE GARMENT SLOT FAILED AND IT IS THE MOST INTERESTING FAILURE IN THE ROUND.**
-Three directors were aimed straight at *"cut-and-sew — the belt line as a SEAM, not a print"*, which
-the rev-76 critic called **"the only genuinely premium object in the whole document"**, and the slot
-**screened 5.07 — the LOWEST of all 25.** That is a real negative result. **Attack it.**
+⚠ **ONE director, three concepts — NOT three directors, and rev 77's first draft said three in two
+documents. Corrected (rule 13).** That slot was aimed straight at *"cut-and-sew — the belt line as a
+SEAM, not a print"*, which the rev-76 critic called **"the only genuinely premium object in the whole
+document"**, and it **screened 5.07 — the lowest BEST-of-slot of all 25; its MEAN is 4.58 (5.07 /
+4.67 / 4.00), also the lowest.** ⚠ **THE RANKING SURVIVES, THE EVIDENTIAL WEIGHT DOES NOT: a negative
+result over three attempts by ONE director is far weaker than over three independent ones. Re-run it
+with three directors before concluding anything.**
 
 ### **4. F318 — THE TREAD'S ONE MEASURED COST — IS STILL OPEN AND ITS FIX IS PRESCRIBED AND UNDONE.**
 `probe_rev70_tyre.py`'s T2 moves **0.2457 → 0.2558** between the no-tread and shipped-tread builds,
@@ -126,7 +150,14 @@ IN LINE.** One object, one scale, one view. **NOT a claim the emblem is fixed. F
 grade, not any of the four different revision-counts the carriers give for it.**
 
 ---
-## §3 WHAT REV 77 CLOSED — **DO NOT RE-OPEN ANY OF IT**
+## §3 WHAT REV 77 SETTLED — **DO NOT RE-OPEN ANY OF IT**
+
+⚠ **AND READ THE INSTRUMENT BEFORE THE WORD: `revstats.py` reads rev 77 as `0 findings closed`, and
+THAT IS ACCURATE.** Every rev-77 row is graded `RULED-rev77` or `MEASURED-rev77`; not one row was
+RETIRED or marked CLOSED. Rev 77 **refuted, superseded and corrected** rows — it did not retire any.
+*(The first draft of this heading said CLOSED and contradicted the instrument it tells you to run.
+Corrected, rule 13.)* **The five-revision line still reads `73–77: 261 geometry lines, 0 findings
+closed`. Rev 78 should close something.**
 
 | closed | the result |
 |---|---|
@@ -138,9 +169,12 @@ grade, not any of the four different revision-counts the carriers give for it.**
 
 ## §3b ⚠ REV 72–77's FIXES ARE LOCKED. YOU CANNOT REGRESS THEM SILENTLY.
 **A red row is a FINDING ABOUT YOUR CHANGE. A re-base needs the cause NAMED and a companion row making
-that cause separately testable.** Rev 77 re-based TWO rows and both carry their cause and companions:
-T3 (four companions, the first an arithmetic kill over seven fabricated ladders) and the sticker
-presence row (three companions, one a watched kill). **RUN `./bootstrap.sh --guards` ONCE THIS
+that cause separately testable.** Rev 77 re-based THREE rows and all three carry their cause and companions:
+T3's condition in the probe (four companions, the first an arithmetic kill over seven fabricated
+ladders); the sticker presence row (three companions, one a watched kill); and `verify_clone.sh`'s
+SKIPPED bound, 5 → 6, forced by F337 (one companion, which derives the number from source).
+⚠ **The first draft of this line said TWO. Counted, not transcribed — this project's own record names
+"four, five and six in one document" as a defect class.** **RUN `./bootstrap.sh --guards` ONCE THIS
 REVISION — ~20 min, and not while a render queue is going.**
 
 ---
@@ -149,7 +183,9 @@ REVISION — ~20 min, and not while a render queue is going.**
 ```bash
 ./bootstrap.sh                                # READ ROW 9.  Row 10 is verify_clone.sh
 ./verify_clone.sh                             # ALL 445 PASS -- 0 FIDELITY, 445 SELF-CONSISTENCY.
-  # With an empty out/, five rows SKIP and say UNGUARDED; PASS is the same either way.
+  # With an empty out/, SIX rows SKIP and say UNGUARDED; PASS is the same either way.
+  # (it was five before rev 77 added F334's sixth -- the guard that bounds this is a
+  #  literal, so a companion row DERIVES the six from the source and they must agree)
   # READ THE VERDICT BLOCK: not one row measures the vehicle against a photograph
 T1_SUB=1 T1_VERIFY=1 /tmp/blender/blender -b -P build.py     # -> "VERIFY: 0 fail, 0 warn"
 python3 photometry.py                         # 9 checked, 0 FAILED
@@ -257,7 +293,9 @@ off self-review. Report the measurement with its ceiling. Do not say anything is
 
 ---
 **⚠ THIS BRIEF WAS AUDITED AGAINST THE MACHINE.** The rule-15 adversary on the INCOMING brief returned
-**20 defects, 5 TOP**, and one of them was **in an artefact rev 77 had already shipped**: the Sheet 3
+**20 defects**, of which the ledger lists **six** at top severity *(its §5 describes one, then heads a
+list "THE OTHER TOP FOUR" and numbers five under it — the header is wrong, the list is right)*, and
+one of them was **in an artefact rev 77 had already shipped**: the Sheet 3
 title block printed its inks as *"BOTH MEASURED"* when `lid_gen.py` says the ink is an AUTHORED
 darkening of a measured median. **Fixed in the same revision (rule 13), and the same pass made the
 sheet stronger** — it now carries the owner's own *"cannot tell from this crop"* reading of that

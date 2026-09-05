@@ -188,6 +188,47 @@ right and `side` really does fit.
 
 ---
 
-## §6 THE MACHINE AT CLOSE
+## §6 WHAT THE RULE-17 ADVERSARY FOUND IN THE BRIEF I WROTE — 15 DEFECTS, 4 TOP
+
+**AND THREE OF THEM WERE WRONG CLAIMS OF MINE THAT CHANGE A CONCLUSION. All re-derived independently
+before being accepted — an adversary is not taken at face value either.**
+
+1. ***"the row is strictly HARDER to pass"* IS FALSE, AND IT IS THE SENTENCE THAT LICENSED THE T3
+   RE-BASE UNDER RULE 44.** Run over rev 77's own five ladders: **OLD passes 2 of 5, NEW passes 5 of
+   5. Three flip FAIL→PASS and none flips back.** The conditions are **INCOMPARABLE, not ordered** —
+   `(−7→−9.00, +3→+2.50, +5→+4.00, +7→+6.00, +10→+9.00)` fails OLD and passes NEW; `(−7→−6.00,
+   +3→+4.40, …)` passes OLD and fails NEW. **On this tree the change is a NET LOOSENING.** The
+   re-base stands on the measurement — the ungated rung IS below its own noise — but not on that
+   word. **Retracted in the probe, the verifier, the register and the brief.**
+2. **THE `1.8 σ` GAIN FIGURE WAS WRONG THREE WAYS AND I HAD WITHDRAWN A LIVE FINDING ON IT.**
+   Arithmetically it is **1.727**, not 1.8. **And it is the wrong statistic**: the departure of a
+   MEAN from 1.000 is scaled by the SEM, `0.033506/√5 = 0.01498`, giving **3.86 σ**. **And it was
+   contaminated by the very rung this revision declared unusable** — excluding −7.0 the gains read
+   mean **0.8955**, departure **0.1045**, **3.13 σ on the sd and 7.00 on the SEM.** **So the
+   sub-unity gain IS established on this tree and my "do not quote it" was an unjustified
+   withdrawal. Restored.**
+3. **THE F324 RETRACTION NEVER REACHED `OPEN_FINDINGS.md` OR `verify_clone.sh` — WHICH IS REV 75's
+   OWN TOP DEFECT, REPEATED TWO REVISIONS LATER.** F324's row still published *"TWO DISJOINT
+   CLUSTERS"* and *"a TREE- OR BUILD-DEPENDENCE"* at `MEASURED-rev75` with no rev-77 annotation, and
+   `verify_clone.sh` — the file I was editing — still carried *"SO THIS ROW IS A COIN FLIP"* twenty-five
+   lines above my own new companion block. **`HANDOFF_CARRIERS.md` §11 records rev 75 writing "my own
+   corrections had reached the prose carriers and stopped short of `OPEN_FINDINGS.md`". Same defect,
+   same two file classes.** Both corrected.
+4. **§4 SAID FIVE ROWS SKIP; THE GUARD I RE-BASED IN THE SAME REVISION DEMANDS SIX.** Carried forward
+   from rev 76 without re-deriving it, contradicting my own new row.
+
+**AND FOUR TRANSCRIPTION DEFECTS, WHICH IS THE CLASS RULE 17 EXISTS FOR:** *"three directors were
+aimed at cut-and-sew"* — **it was ONE director, three concepts**, and the negative result is
+correspondingly weaker; **5.07 is that slot's BEST, not its mean (4.58)**; *"rev 77 re-based TWO
+rows"* — **it was three**; and *"20 defects, 5 TOP"* where my own ledger lists **six**.
+
+**AND ONE IT CONFIRMED THAT MATTERS: every one of the nine probe readings the brief publishes
+reproduces**, as do all five T3 rungs, the per-rung sds, the four `LA RUEDA` cross-check deltas, the
+concept-round counts (75 / 25 / 13 / 32 % / 55-of-75 / 510 KB), and every carrier-string guard.
+**F328's trap was not sprung.**
+
+---
+
+## §7 THE MACHINE AT CLOSE
 
 *(every figure below was watched printing; none is transcribed)*

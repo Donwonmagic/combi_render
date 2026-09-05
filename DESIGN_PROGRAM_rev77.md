@@ -54,9 +54,17 @@ registers were named ABSENT. **Every one now has three concepts.** Best of each 
 
 ⚠ **READ THE WEAK ROW RATHER THAN THE STRONG ONES. `APPAREL AS A DESIGNED GARMENT` IS THE LOWEST-
 SCORING SLOT IN THE ENTIRE ROUND (5.07), AND IT IS THE ONE THE CRITIC CALLED *"the only genuinely
-premium object in the whole document"*.** Three directors were pointed straight at cut-and-sew and
+premium object in the whole document"*.** One director was pointed straight at cut-and-sew and
 none of them produced anything the screening lenses rated. **That is a real negative result and it
 is the first thing the next round should attack.** Do not read the full table as a clean sweep.
+
+⚠ **AND TWO CORRECTIONS TO THAT PARAGRAPH, MADE IN THE SAME REVISION (rule 13), CAUGHT BY THE RULE-17
+ADVERSARY. (a) IT WAS ONE DIRECTOR, NOT THREE** — the round ran 25 directors at three concepts each,
+so a slot is one director's three attempts. **A negative result over three tries by one director is
+far weaker evidence than over three independent ones; re-run the slot with three directors before
+concluding the register is barren. (b) 5.07 IS THE SLOT'S BEST CONCEPT, NOT ITS MEAN** — the three
+score 5.07 / 4.67 / 4.00, mean **4.58**. Both the lowest best and the lowest mean of all 25 slots, so
+the RANKING claim survives; the number's meaning does not.
 
 ---
 ## §2 THE RANKED SHORTLIST — top 16 of 75 by the mean of three screening lenses

@@ -2742,15 +2742,26 @@ ckabs "$_TB_ABSENT" "F296 ... and its gradient detector's bias is MEASURED, not 
 #
 # WHAT IS MEASURED.  THREE renders of ONE tree, no source change between any
 # of them, read that rung at -7.00 (PASS), -8.50 (FAIL) and -6.50 (PASS): a
-# RANGE of 2.00 deg on a rung whose bar is 1.5.  SO THIS ROW IS A COIN FLIP,
-# and `verify_clone.sh`'s own total therefore depends on which out/*_side.png
-# is alphabetically last -- the probe takes no argument and reads that one.
+# RANGE of 2.00 deg on a rung whose bar is 1.5.  SO THIS ROW WAS A COIN FLIP,
+# and `verify_clone.sh`'s own total therefore depended on which out/*_side.png
+# is alphabetically last -- the probe took no argument and read that one.
+# *** SUPERSEDED AT REV 77 (F334).  THE COIN FLIP IS GONE: the single rung the
+# verdict turned on is now UNGATED, T3 reads PASS on all five rev-77 frames, and
+# the probe TAKES A FRAME.  This paragraph is kept as history, corrected in
+# tense, because rev 75's own rule-17 pass recorded that its corrections
+# "stopped short of OPEN_FINDINGS.md" and a rev-77 adversary found this comment
+# still asserting the refuted claim in the file rev 77 was editing. ***
 #
 # AND F312b IS NOT SIMPLY WRONG.  Its r74t_side/r74t3_side ARE a same-tree
 # pair and they AGREED at -9.00/-9.00, both failing.  Rev 74's tree and rev
 # 75's give TWO DISJOINT CLUSTERS, so there is a TREE-DEPENDENCE here as well
-# as render scatter.  NOT re-based, because a bar set on n=3 would be an
-# invented figure (rule 5).  READ F324 AND F312b BEFORE TOUCHING THE
+# as render scatter.  *** REFUTED AT REV 77 (F334): FIVE renders of ONE
+# unchanged tree read -8.75 / -8.75 / -6.50 / -9.00 / -6.50, i.e. values from
+# BOTH clusters.  They are NOT disjoint and there is NO EVIDENCE of
+# build-dependence -- though rev 77 rendered neither the no-tread nor the
+# irregular-tread build, so it refutes DISJOINTNESS AS EVIDENCE rather than
+# testing build-dependence. ***  NOT re-based at rev 75, because a bar set on
+# n=3 would be an invented figure (rule 5); RE-BASED at rev 77 on n=5.  READ F324 AND F312b BEFORE TOUCHING THE
 # COMPARISON.  All `ckabs` changed is the NO-FRAME case, where the row had
 # nothing to report and said FAIL anyway. ***
 ckabs "$_TB_ABSENT" "F296 ... and the 7-degree ROTATION KILL fires (a detector that cannot move is not measuring)" 1 \
