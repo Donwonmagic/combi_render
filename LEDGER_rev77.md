@@ -147,6 +147,47 @@ claim that the emblem is fixed. F191 and F234 both stand.**
 
 ---
 
-## §5 THE MACHINE AT CLOSE
+## §5 WHAT THE RULE-15 ADVERSARY FOUND IN THE INCOMING BRIEF — 20 DEFECTS, 5 TOP
 
-*(filled in at close — every figure watched printing, none transcribed)*
+**AND ONE OF THEM WAS IN AN ARTEFACT I HAD ALREADY SHIPPED.** `sheet3_notissued.py`'s title block
+printed `1 -- (72,46,6) ON (206,208,200), BOTH MEASURED`. `lid_gen.py` says
+`INK = (72, 46, 6)  # strip lettering; measured median (91,59,7) is blur-limited, so the core is set
+darker`. **The ink is an AUTHORED darkening of a measured median, on a sheet whose entire subject is
+evidence grading.** Fixed in the same revision (rule 13); both figures are now parsed and both printed.
+**The stock's provenance was checked and does hold** — `t1_mats.py` carries `# measured (206,208,200) sRGB`.
+
+**AND THE SAME PASS MADE THE SHEET BETTER, because the repository already held stronger material than
+the sheet was using.** `SPEC.md` says the two off-side features **CONTRADICT each other** — the windows
+mirror the show flank because `side_cutters` loops `s in (1,-1)` while the cargo door was placed
+independently — and that, shown the sightlines with every box printed, **the owner answered *"cannot
+tell from this crop"***. His own reading of that elevation is now the largest sentence in the sheet's
+empty field. The grade wording was wrong too: **E is *"Expert inference — not observed"*; *"(never
+photographed)"* is that row's annotation, not the grade's definition.**
+
+**THE OTHER TOP FOUR, ALL VERIFIED INDEPENDENTLY BEFORE BEING RECORDED:**
+
+1. **`DESIGN_PROGRAM_rev76.md` §0 retracts `109.5 | 129.5` and its §3 still prints it, word for word,
+   in the *"measured figures in solid ink"* class, 122 lines later.** F322's class.
+2. **`AUDIT_rev43.md` already refutes the pillar thesis harder than the retraction does** — *"the
+   photograph's are equal, and the model's asymmetry has the wrong sign"*, with the cause named — and
+   `grep -c "109.5" OPEN_FINDINGS.md` is **0**. It has never been in a register. **F336.**
+3. **The retraction's own sigma is wrong.** Asymmetry is `2c₁ − c₀ − c₂`, so σ = 0.015·√6 = **36.7 mm
+   → 0.54 σ**, not the published 0.67. Conclusion strengthens; the figure was wrong in the direction
+   that overstates the effect.
+4. **The 78-concept bench's bodies are gone (F335)** — the program declared itself their only home and
+   pointed at an agent scratch path that was never tracked and no longer exists on this disk.
+5. **The evidence for the keystone claim was void.** `grep -rln "freestyle|gpencil|use_pass_|cryptomatte"
+   --include=*.py .` is a BASIC-regex grep, so the pipes are literal; it would have printed *"finds
+   nothing"* on a tree full of gpencil. **The claim was true; the evidence was not.** Rule 50.
+
+**AND WHAT IT CONFIRMED, which is worth as much:** the spine quote is **real and verbatim** in
+`NEXT_CONTEXT_PROMPT_rev39.md` §7 and absent from every carrier since — the single most important
+sentence in the programme survives; `post.py` really does destroy alpha; `deliver.py` really does
+write its whole package before it refuses; there really is no 3D export path; the ortho arithmetic is
+right and `side` really does fit.
+
+---
+
+## §6 THE MACHINE AT CLOSE
+
+*(every figure below was watched printing; none is transcribed)*
