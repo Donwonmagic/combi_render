@@ -124,8 +124,16 @@ AND THE THING THAT WOULD WORRY ME MOST IF THIS WERE MY BRAND: forty of these obj
 ## §4 WHAT THIS ROUND DID NOT FIX
 
 1. **THE GARMENT SLOT FAILED** — see §1's warning. 5.07 is the worst slot in the round.
-2. **THE AUDIT AND AMPLIFY STAGES ARE INCOMPLETE.** No concept below has been through all four
-   adversarial lenses, so **no risk claim in the shortlist has been adversarially tested yet.**
+2. ⚠⚠ **THE AUDIT LANDED, AND IT OVERTURNS §2's RANKING. READ `CONCEPT_AUDIT_rev77.md` BEFORE §2.**
+   All 14 finalists went through all four adversarial lenses — 60 verdicts — and **the screen and the
+   audit are essentially uncorrelated: Pearson r = +0.173, Spearman ρ = +0.222.** `PROVECHO`, §2's
+   **#1 of all 75 at 8.73**, audits **1.50/4 — last of the fourteen.** Audit mean over all 60 verdicts
+   is **1.85/4**. **`dangerIntact` is TRUE for only 4 of 14**, so the fourth lens judges ten finalists
+   to have had their danger sanded off — the rev-76 critic's finding 5 recurring inside rev 77's own
+   round. **F338. RANK ON THE AUDIT, NOT THE SCREEN; the screen decides what gets audited, not what
+   gets built.** ⚠ **STILL MISSING: 11 of 14 amplifications, the synthesis, and BOTH late completeness
+   critics — a session limit. So §9.2's *"run them BEFORE the synthesis as well as after"* is half
+   done, and no concept has been through the full chain.**
 3. **NOTHING HERE HAS BEEN SHOWN TO THE OWNER.** §2's ranking is three machine lenses.
 4. **THE EMBLEM IS STILL NOT ADVANCED** (critic finding 8). Declared, not routed around: F191 and
    F234 stand. ⚠ **BUT SEE F333 — the VW badge TRACES CLEANLY AND IS LEGIBLE IN LINE.** That is one
