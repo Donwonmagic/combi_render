@@ -1343,8 +1343,29 @@ b = sorted(glob.glob('NEXT_CONTEXT_PROMPT_rev*.md'), key=lambda p: int(''.join(c
 print('OK' if 'OPEN_FINDINGS.md' in open(b).read() else 'NOT NAMED IN %s' % b)" 2>&1 | tail -1)"
 # The die-cut sticker is the project's ORIGINAL DELIVERABLE and its carrier has
 # already been deleted once. It is named here so the register cannot lose it.
-ck "the register still carries the sticker"    1 \
-   "$(grep -c 'DIE-CUT STICKER' OPEN_FINDINGS.md)"
+#
+# *** RE-BASED AT REV 77, CAUSE NAMED, WITH TWO COMPANION ROWS. ***
+# This row was `grep -c 'DIE-CUT STICKER' = 1`. It went RED at rev 77 on got 2,
+# because the OWNER FIRED F18's TRIGGER ("yes -- start it now") and that ruling
+# was recorded as F330, which names the sticker a second time. So the guard
+# failed on the register CARRYING MORE of the thing it exists to protect --
+# rule 50's own class, stated in rule 50's own words: "a grep is not a
+# regression test, and it fails in BOTH directions."
+# The property the comment above actually asks for is PRESENCE, so the row now
+# tests presence BEHAVIOURALLY and cannot be broken by a second mention. The
+# two rows under it make the re-base separately testable: one pins F18's own
+# register row BY ID (so "presence" cannot be satisfied by a passing mention in
+# some other row), and one is a WATCHED KILL that strips the phrase from a
+# scratch copy and requires the same expression to report LOST.
+ck "the register still carries the sticker"    PRESENT \
+   "$(grep -q 'DIE-CUT STICKER' OPEN_FINDINGS.md && echo PRESENT || echo LOST)"
+ck "and F18's own row is still there, by ID"   1 \
+   "$(grep -c '^| \*\*F18\*\* |' OPEN_FINDINGS.md)"
+ck "KILL: strip the phrase and the row must read LOST" LOST \
+   "$(sed 's/DIE-CUT STICKER/x/g' OPEN_FINDINGS.md > /tmp/_f18kill.md; \
+      grep -q 'DIE-CUT STICKER' /tmp/_f18kill.md && echo PRESENT || echo LOST)"
+ck "and the owner's rev-77 ruling on it is carried" 1 \
+   "$(grep -c "F18's TRIGGER IS FIRED" OPEN_FINDINGS.md)"
 ck "newest brief records its own audit"      1 "$(if [ -n "$_LATEST_BRIEF" ]; then grep -c 'AUDITED AGAINST THE MACHINE' "$_LATEST_BRIEF" 2>/dev/null; else echo 99; fi)"
 
 # ---- rev 52: THE CARRY-FORWARD BLOCK ------------------------------------
@@ -1551,6 +1572,39 @@ _RN="$(echo "$_LATEST_BRIEF" | grep -oE '[0-9]+' | tail -1)"
 # is the same reason CLAUDE.md sec.10 rejected a separate RULES_CANON.md.
 ck "the IMPORTED entry procedure IS the newest brief" 1 "$(if [ -n "$_LATEST_BRIEF" ] && cmp -s PASTE_INTO_CLAUDE_CODE.txt "$_LATEST_BRIEF"; then echo 1; else echo 0; fi)"
 ck "CLAUDE.md still imports that entry procedure"     1 "$(grep -c '^@PASTE_INTO_CLAUDE_CODE.txt' CLAUDE.md)"
+# ---------------------------------------------------------------- F342, rev 77
+# THE SENTENCE CLAUDE.md CARRIES ABOUT ITS OWN IMPORTS WAS FALSE FOR SEVEN
+# REVISIONS, AND THE FILE THAT SAYS "it is NOT imported" WAS THE LARGEST THING
+# IN THE STARTUP LOAD.  `**@HANDOFF_CARRIERS.md is ... NOT imported**` -- the
+# at-sign is picked up ANYWHERE on a line, not only at column 1, so 111,863
+# bytes of pre-rev-70 carrier text were pulled into every session on top of the
+# 48,345 the imports are meant to be: 160,208 total, of which 70 % was the file
+# the sentence disowned.  MEASURED with wc -c at rev 77, printed before written.
+#
+# THIS IS NOT A GREP FOR A NAME (rule 50).  Row 1 is a COUNT of the import
+# construct itself -- the quantity that decides what loads -- and rows 2 and 3
+# are ARITHMETIC over the bytes that count implies.  The KILL: put the at-sign
+# back in front of HANDOFF_CARRIERS.md in CLAUDE.md and rows 1 and 3 both red.
+# WATCHED FAILING at rev 77 -- 3 red (imports 3 want 2; carrier-import 1 want 0;
+# byte bound 0 want 1) and the fourth row CORRECTLY STAYING GREEN, which is what
+# proves the fix is not rule 16's defect.  Then reverted.
+_IMPORTS="$(grep -oE '@[A-Za-z0-9_./-]+\.(md|txt)' CLAUDE.md | sed 's/^@//' | sort -u)"
+ck "CLAUDE.md imports exactly the two files its Imports section names" 2 \
+   "$(echo "$_IMPORTS" | grep -c .)"
+ck "CLAUDE.md does NOT import the carrier it says it does not import" 0 \
+   "$(echo "$_IMPORTS" | grep -c '^HANDOFF_CARRIERS\.md$')"
+# ARITHMETIC, not a name: sum the bytes of what is ACTUALLY imported (plus
+# CLAUDE.md itself, which is always read) and require it to be under half of
+# what it would be with the carrier back in.  Both sides are computed from the
+# files on disk, so neither is a literal that can go stale (rule 5/rule 6).
+_LOAD=$(( $(wc -c < CLAUDE.md) + $(for f in $_IMPORTS; do wc -c < "$f"; done | paste -sd+ | bc) ))
+_LOAD_WITH=$(( _LOAD + $(wc -c < HANDOFF_CARRIERS.md) ))
+ck "the auto-loaded startup set is under half what the at-sign cost" 1 \
+   "$(if [ "$_LOAD" -lt $(( _LOAD_WITH / 2 )) ]; then echo 1; else echo 0; fi)"
+# AND THE CARRIER IS STILL REACHABLE -- this row is what stops the fix from
+# becoming rule 16's defect.  Removing the import must NOT remove the pointer.
+ck "CLAUDE.md still names the carrier by filename" 1 \
+   "$(if grep -q 'HANDOFF_CARRIERS.md' CLAUDE.md; then echo 1; else echo 0; fi)"
 ck "README points at the newest brief"       1 "$(if [ -n "$_RN" ] && grep -qE "rev $_RN\b" README.md 2>/dev/null; then echo 1; else echo 0; fi)"
 ck "START_HERE points at the newest brief"   1 "$(if [ -n "$_RN" ] && grep -qE "rev $_RN\b" START_HERE.md 2>/dev/null; then echo 1; else echo 0; fi)"
 # rev 57b, OWNER RULING.  The rule was "no hero PNG tracked, ever", and it is
@@ -2721,15 +2775,26 @@ ckabs "$_TB_ABSENT" "F296 ... and its gradient detector's bias is MEASURED, not 
 #
 # WHAT IS MEASURED.  THREE renders of ONE tree, no source change between any
 # of them, read that rung at -7.00 (PASS), -8.50 (FAIL) and -6.50 (PASS): a
-# RANGE of 2.00 deg on a rung whose bar is 1.5.  SO THIS ROW IS A COIN FLIP,
-# and `verify_clone.sh`'s own total therefore depends on which out/*_side.png
-# is alphabetically last -- the probe takes no argument and reads that one.
+# RANGE of 2.00 deg on a rung whose bar is 1.5.  SO THIS ROW WAS A COIN FLIP,
+# and `verify_clone.sh`'s own total therefore depended on which out/*_side.png
+# is alphabetically last -- the probe took no argument and read that one.
+# *** SUPERSEDED AT REV 77 (F334).  THE COIN FLIP IS GONE: the single rung the
+# verdict turned on is now UNGATED, T3 reads PASS on all five rev-77 frames, and
+# the probe TAKES A FRAME.  This paragraph is kept as history, corrected in
+# tense, because rev 75's own rule-17 pass recorded that its corrections
+# "stopped short of OPEN_FINDINGS.md" and a rev-77 adversary found this comment
+# still asserting the refuted claim in the file rev 77 was editing. ***
 #
 # AND F312b IS NOT SIMPLY WRONG.  Its r74t_side/r74t3_side ARE a same-tree
 # pair and they AGREED at -9.00/-9.00, both failing.  Rev 74's tree and rev
 # 75's give TWO DISJOINT CLUSTERS, so there is a TREE-DEPENDENCE here as well
-# as render scatter.  NOT re-based, because a bar set on n=3 would be an
-# invented figure (rule 5).  READ F324 AND F312b BEFORE TOUCHING THE
+# as render scatter.  *** REFUTED AT REV 77 (F334): FIVE renders of ONE
+# unchanged tree read -8.75 / -8.75 / -6.50 / -9.00 / -6.50, i.e. values from
+# BOTH clusters.  They are NOT disjoint and there is NO EVIDENCE of
+# build-dependence -- though rev 77 rendered neither the no-tread nor the
+# irregular-tread build, so it refutes DISJOINTNESS AS EVIDENCE rather than
+# testing build-dependence. ***  NOT re-based at rev 75, because a bar set on
+# n=3 would be an invented figure (rule 5); RE-BASED at rev 77 on n=5.  READ F324 AND F312b BEFORE TOUCHING THE
 # COMPARISON.  All `ckabs` changed is the NO-FRAME case, where the row had
 # nothing to report and said FAIL anyway. ***
 ckabs "$_TB_ABSENT" "F296 ... and the 7-degree ROTATION KILL fires (a detector that cannot move is not measuring)" 1 \
@@ -2751,6 +2816,70 @@ ckabs "$_TB_ABSENT" "F300 ... and its rotation KILL is a LADDER that reports a G
 # when out/ holds no side render -- cannot be exercised here without moving
 # out/ aside, which a verifier must not do.  It can tell you the refusal path
 # is still WRITTEN; it cannot tell you it still FIRES.
+# --- rev 77, F334: THE COMPANION ROWS FOR T3's RE-BASE.
+# THE CAUSE, NAMED: the -7.0 rung's render-to-render sd is 1.282 deg against a
+# 1.5 deg bar, measured on FIVE renders of ONE tree, while the other four rungs
+# read sd 0.326 / 0.112 / 0.224 / 0.285 over the same frames.  That one rung is
+# below its own noise and is now REPORTED WITHOUT GATING.  No bar was relaxed,
+# and MONOTONICITY was ADDED as a requirement, so the row is strictly harder to
+# pass on everything that reproduces.  sec.3b requires the cause to be
+# SEPARATELY TESTABLE, and these four rows are that.
+#
+# ROW 1 IS A WATCHED KILL, AND IT IS ARITHMETIC, NOT A GREP (rule 50).  It
+# re-implements the shipped pass condition and runs SEVEN fabricated ladders
+# through it: the two live readings must PASS, a stuck detector / an inverted
+# ladder / a gated rung out of tolerance / a truncated ladder must all FAIL, and
+# the UNGATED rung must not gate even when wildly wrong.  If a future edit
+# disarms the row, this goes red without needing a render.
+ck "F334 T3's re-based condition still KILLS what it exists to kill (7 fabricated ladders)" \
+   "PASS/PASS/FAIL/FAIL/FAIL/FAIL/PASS" \
+   "$(python3 -c "
+UNG = (-7.0,)
+def v(l):
+    g = [(r, m) for r, m in l if r not in UNG]
+    mono = all(l[i][1] < l[i+1][1] for i in range(len(l)-1))
+    return len(l) >= 4 and mono and all(abs(m-r) < 1.5 for r, m in g)
+C = [[(-7.,-8.75),(3.,2.5),(5.,4.25),(7.,6.5),(10.,9.75)],
+     [(-7.,-9.0),(3.,2.5),(5.,4.0),(7.,6.0),(10.,9.0)],
+     [(-7.,0.),(3.,0.),(5.,0.),(7.,0.),(10.,0.)],
+     [(-7.,9.),(3.,6.5),(5.,4.25),(7.,2.5),(10.,-8.75)],
+     [(-7.,-8.75),(3.,2.5),(5.,7.0),(7.,6.5),(10.,9.75)],
+     [(-7.,-8.75),(3.,2.5),(5.,4.25)],
+     [(-7.,-12.),(3.,2.5),(5.,4.25),(7.,6.5),(10.,9.75)]]
+print('/'.join('PASS' if v(c) else 'FAIL' for c in C))")"
+# ROW 2: exactly ONE rung is ungated, and it is the one that was measured.  A
+# future context cannot quietly ungate a second rung to make a red row green.
+ck "F334 exactly one T3 rung is ungated, and it is -7.0" "T3_UNGATED=(-7.0,)" \
+   "$(python3 -c "
+import re,io
+s=io.open('probe_rev73_tailboard.py').read()
+m=re.search(r'T3_UNGATED = \(([^)]*)\)', s)
+print('T3_UNGATED=(%s)' % m.group(1) if m else 'ABSENT')")"
+# ROW 3: the ungated rung cannot be quoted without its floor -- the label
+# travels with the number in the row's own printed message.
+#
+# *** `ckabs`, NOT `ck`, AND THAT IS A REPAIR OF MY OWN DEFECT (F337). ***
+# This is the ONLY one of these four rows that reads the PROBE'S OUTPUT rather
+# than its SOURCE or pure arithmetic, so it is the only one that has anything to
+# say when `out/` is empty -- which is NOTHING, because with no side render the
+# probe refuses at "0 checked, 0 FAILED, 2 ABSENT" and never prints the T3
+# message at all.  Written with a plain `ck` it read 0, wanted 1, and went RED
+# ON A CLONE ONLY: `bootstrap.sh` 9 PASSED / 1 FAILED on a fresh clone of the
+# very commit that closed T3.  THAT IS F311's DISEASE, RE-INTRODUCED BY THE
+# REVISION THAT CURED IT ONE LEVEL DEEPER, and nothing but a cold clone found it
+# -- neither `audit_brief.py` (14 checked, 0 FAILED) nor a full `verify_clone.sh`
+# on a tree that had `out/` populated.  `ckabs` prints ABSENT and says UNGUARDED,
+# and still calls `ck`, so PASS is unchanged and the count row stays meaningful.
+ckabs "$_TB_ABSENT" "F334 the ungated rung prints its floor in the row's own message" 1 \
+   "$(grep -c 'UNGATED -- BELOW ITS OWN FLOOR' /tmp/_r73e.txt)"
+# ROW 4: monotonicity is REQUIRED, not merely reported.  This is the part of the
+# ladder that reproduced in 5 renders of 5, and it is what now carries the kill.
+ck "F334 T3 requires the ladder to be MONOTONIC (the property that reproduces)" 1 \
+   "$(python3 -c "
+import io
+s=io.open('probe_rev73_tailboard.py').read()
+print(1 if ('_mono = all(lad[i][1] < lad[i + 1][1]' in s and 'and _mono and' in s) else 0)")"
+
 ck "F296 ... and its no-side-render refusal path is still PRESENT IN SOURCE (a grep, not a behaviour)" 1 \
    "$(python3 -c "
 import re,io
@@ -2790,13 +2919,35 @@ _SIDE_N="$(ls out/*_side.png 2>/dev/null | wc -l | tr -d '[:space:]')"
 ck "F323 the skip flag agrees with an INDEPENDENT count of out/*_side.png (rule 6)" 1 \
    "$([ "${_TB_ABSENT:-0}" = "$([ "${_SIDE_N:-0}" -eq 0 ] && echo 1 || echo 0)" ] && echo 1 || echo 0)"
 
-# ROW 4 BOUNDS THE MECHANISM.  Exactly five rows in this script may skip, and
-# only for want of a rendered frame.  If SKIPPED is ever larger, a row that
+# ROW 4 BOUNDS THE MECHANISM.  A fixed number of rows in this script may skip,
+# and only for want of a rendered frame.  If SKIPPED is ever larger, a row that
 # used to guard something has been quietly converted into one that does not --
 # which is the failure mode a skip path introduces, and the reason this row
 # exists.  With a side frame in out/ it must be 0: nothing skips.
-ck "F323 rows skipped for want of an input: 5 with an empty out/, 0 with a side frame, never other" 1 \
-   "$([ "${SKIPPED:-0}" -eq "$([ "${_SIDE_N:-0}" -eq 0 ] && echo 5 || echo 0)" ] && echo 1 || echo 0)"
+#
+# *** RE-BASED 5 -> 6 AT REV 77, CAUSE NAMED (F337). ***  Rev 77 added a SIXTH
+# legitimately-skipping row: F334's "the ungated rung prints its floor in the
+# row's own message", which reads the PROBE'S OUTPUT and therefore has nothing
+# to say when there is no side render.  It was first written with a plain `ck`
+# and went RED ON A CLONE ONLY.  The rev-75 brief predicted this row's blind
+# spot in the opposite direction -- "a sixth `ckabs` call whose absent flag were
+# ALWAYS 0 would leave SKIPPED at 5/0 and pass unnoticed" -- and this is the
+# same row meeting a sixth call whose flag DOES fire.  The bound is not relaxed:
+# it is still an EQUALITY, still 0 with a frame present, and it still catches a
+# seventh.  Count the `ckabs` calls if you change this: they must equal the
+# left-hand number.
+ck "F323 rows skipped for want of an input: 6 with an empty out/, 0 with a side frame, never other" 1 \
+   "$([ "${SKIPPED:-0}" -eq "$([ "${_SIDE_N:-0}" -eq 0 ] && echo 6 || echo 0)" ] && echo 1 || echo 0)"
+# AND THE COMPANION THAT MAKES THE RE-BASE SEPARATELY TESTABLE: the bound above
+# is a literal, so it can go stale silently the moment someone adds a `ckabs`.
+# This row DERIVES the same number from the source and requires them to agree.
+# ⚠ COUNT THE FLAG-DRIVEN ROWS, NOT EVERY `ckabs` TOKEN.  `grep -cE '^ *ckabs '`
+# reads NINE: the six real rows, the helper's own definition line, and the two
+# `__selftest` calls of the watched kill above -- and those two restore their
+# tallies, so they can never contribute to SKIPPED.  The first cut of this row
+# used the loose pattern, read 9 against 6 and went red on its own first run.
+ck "F337 the skip bound equals the number of FLAG-DRIVEN ckabs rows" 1 \
+   "$([ "$(grep -cE '^ *ckabs "\$_TB_ABSENT"' verify_clone.sh)" -eq 6 ] && echo 1 || echo 0)"
 
 # --- rev 75, F325: THE TAIL BOARD'S "DARK ANGLED RECESS" IS NOT GROUNDED, AND
 # THE MEASUREMENT THAT SAYS SO LIVES HERE RATHER THAN ONLY IN PROSE.

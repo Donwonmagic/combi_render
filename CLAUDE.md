@@ -118,8 +118,11 @@ ask what a PHOTOGRAPH shows. If he does not understand the question, the figure 
 @PASTE_INTO_CLAUDE_CODE.txt — the owner's standing orders and this revision's entry procedure.
 @STATE.md — machine-written; outranks every prose description of the build.
 
-**@HANDOFF_CARRIERS.md is the OTHER HALF OF THE BRIEF and it is NOT imported — read it when the
-action brief points you at it.** The handoff was SPLIT at rev 70 because the brief had reached 95 KB
+**`HANDOFF_CARRIERS.md` is the OTHER HALF OF THE BRIEF and it is NOT imported — read it when the
+action brief points you at it. ⚠ THE `@` THAT USED TO PRECEDE THAT FILENAME MADE THIS SENTENCE A LIE
+FOR SEVEN REVISIONS: Claude Code treats an at-sign followed by a filename as an import ANYWHERE on a line, not only at column 1, so the file
+the sentence says is not imported WAS, at 111,863 bytes — 70 % of a 160,208-byte startup load. F342.
+DO NOT PUT THE `@` BACK, and `verify_clone.sh` has a row that reds if you do.** The handoff was SPLIT at rev 70 because the brief had reached 95 KB
 and the owner measured what that cost. **The figures that used to be typed here — "721", "209",
 "0, 0, 0, 0, 0" — are DELETED, because this file's own first paragraph forbids them and because two of
 the three were WRONG: `revstats.py` reads 287 geometry lines/rev for rev 61–70, not 209, and rev 70
