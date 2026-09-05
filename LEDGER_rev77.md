@@ -276,3 +276,42 @@ than left for the next rule-17 pass to find.
 `probe_scratch/`.** `git status --porcelain` went dirty, `git checkout -- probe_scratch/` restored it
 to 0. **That is the documented side effect of a probe sweep, not a change — but a context that
 committed without looking would have shipped it.**
+
+
+---
+
+## §8 WHAT REV 78 INHERITS, AND THE ONE THING IT IS OWED
+
+**THE CONCEPT ROUND IS COMPLETE AND IN THE REPOSITORY.** Three carriers, 1.53 MB, all in
+`git ls-files`: `CONCEPT_BENCH_rev77.md` (75 concepts in full), `CONCEPT_AUDIT_rev77.md` (60
+adversarial verdicts across four lenses), `CONCEPT_ROUND_rev77.md` (the synthesis, the last six
+amplifications, both late completeness critics). **The chain ran end to end for the first time**, and
+§9.2's *"critics BEFORE the synthesis as well as after"* is satisfied in both halves.
+
+**THE LIVE DIRECTION IS THE LOCATIONAL SERIES (F340 / F341), AND IT IS THE ONLY ITEM ON THE RANKED
+LIST THE OWNER RAISED HIMSELF.** Bethesda is the hero and sets the format. The constraint is already
+measured — the vehicle's hand can spell *Tacombi* and nothing else — and he has ruled on both the
+lettering (draw the missing glyphs, **labelled AUTHORED**) and the artefact (**the name is the
+system**, running across board, plate and table item).
+
+⚠ **THE ONE THING REV 78 IS OWED AND DOES NOT HAVE: A PHOTOGRAPH OF AN EXISTING TACOMBI SHOPFRONT.**
+All eighteen reference images in this tree are the vehicle. **Rev 76's completeness critic finding
+9(d) — *"an identity system is proposed against a brand whose identity nobody has seen"* — has been
+open since rev 76 and now bites directly**, because the next revision authors letterforms that will
+sit above a real door. It was asked for at this close and is not yet supplied. **The work can
+proceed; the ceiling is lower, and the artefact must say so.**
+
+⚠ **AND ONE ASSUMPTION THAT IS MINE, NOT HIS, LEFT VISIBLE ON PURPOSE:** *Crystal City → El Cristal*
+is the derivation I inferred from the name he gave. **He never said it.** If it is wrong, the
+generator recorded in F340 is wrong and every future site name inherits the error. **Confirm it
+before printing it as the system's rationale.**
+
+**AND THE ORCHESTRATION LESSON, WHICH COST MORE THAN ANY OTHER MISTAKE THIS REVISION.** The 107-agent
+round stalled three times on session limits and re-ran work on every resume — **110 audit verdicts
+where 56 were needed, 42 amplify agents for 14 concepts.** The cause was mine and it is one line: the
+finalist list was built by iterating an object whose insertion order depends on which screen agent
+returned first, so cached results came back in a different order, ties resolved differently, prompts
+changed, and the resume cache missed. **If you fan out and intend to resume, SORT YOUR WORK LIST ON A
+STABLE KEY.** The owner caught the second-order consequence — that I had jumped to the synthesis on
+8 of 14 amplifications — and two of the six I nearly skipped were among the only four concepts whose
+danger the audit found INTACT.

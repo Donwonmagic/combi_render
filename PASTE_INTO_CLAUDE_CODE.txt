@@ -11,6 +11,15 @@
 > it is now HALF the programme and a children's line of equal standing is owed. **Every future
 > shortlist must say WHICH LINE each item is in.**
 >
+> **THIRD RULING, AND IT IS REV 78's ACTUAL JOB: A LOCATIONAL SERIES. F340 / F341.**
+> *"I also want to maybe make a locational series. Starting with the main hero, Bethesda. Or taqueria
+> Buena Bethesdita. Also one for Arlington Taqueria El Cristal."* **The generator is HISPANICISE THE
+> NEIGHBOURHOOD** — Crystal City → *El Cristal*; Bethesda → *Buena Bethesdita*. ⚠ **THE CRYSTAL CITY
+> DERIVATION IS THE ASKER'S INFERENCE, NOT HIS WORDS, AND IS UNCONFIRMED. If it is wrong the whole
+> generator is wrong — CONFIRM IT BEFORE PRINTING IT AS THE SYSTEM'S RATIONALE.**
+> **HE RULED TWICE ON IT: the missing glyphs are to be DRAWN AND LABELLED AUTHORED, and the NAME is
+> the system, running across name board, per-site plate and table item — format decided per site.**
+>
 > **REV 77's JOB WAS §9 OF THE REV-76 PROGRAM: GROW THE IDEAS BEFORE EXECUTING THEM. IT RAN.**
 > **75 new concepts, 25 directors at `xhigh`, all 13 named-absent registers filled — and they are
 > COMMITTED IN FULL in `CONCEPT_BENCH_rev77.md`, which is the CARRIER. `DESIGN_PROGRAM_rev77.md`
@@ -112,7 +121,24 @@ with magnitude and order, UNTESTED. Add a −3.0 and a −10.0 rung. It is cheap
 … catch ORDERS OF MAGNITUDE, not rank neighbours."*** The ranked list is `REMAINING_WORK_rev61.md`,
 triaged into `ROADMAP_rev68.md`.
 
-### **1. DRAW THE STICKER. F18. HE FIRED IT AND NOTHING BLOCKS IT.**
+### **1. THE LOCATIONAL SERIES — BETHESDA FIRST. F340 / F341. THIS IS THE LIVE DIRECTION.**
+**He named it, he ruled twice on it, and it is the only item on this list he raised himself.**
+Bethesda is the hero and sets the format for every site after it. **The measured constraint is
+already done for you: `script_gen.py` is NOT a font** — it carries seven separable glyphs, `T a b c
+i m o`, which are exactly the letters of *Tacombi*, plus `Señor` as ONE composite.
+```
+    TAQUERIA EL CRISTAL         needs 10 distinct, MISSING 6:  E L Q R S U
+    TAQUERIA BUENA BETHESDITA   needs 12 distinct, MISSING 8:  D E H N Q R S U
+```
+**HE RULED: draw them, label them AUTHORED — on the artefact, not just in a comment.** Rev 77 already
+shipped one sheet that called an authored ink MEASURED and had to correct it in the same revision.
+⚠ **DO THE RECOVERY BEFORE THE INVENTION: segmenting the `Señor` composite would RECOVER `S E Ñ O R`
+from the photograph and cut the authored set from eight letters to five. He did not choose it, but he
+was choosing between it and drawing — nothing forbids doing both, and recovery outranks invention.**
+⚠ **AND THE SERIES CROSSES BOTH LINES, so F331 bites per CARRIER, not once: a name board is adult, a
+table item is the children's line that is owed and still empty.**
+
+### **2. DRAW THE STICKER. F18. HE FIRED IT AND NOTHING BLOCKS IT.**
 It is the register's oldest live row, the project's original deliverable, and **the only artefact with
 an owner-locked style, a locked scene, a named audience and a written spec.** The style is his own
 recovered sentence: *"cartoon with rendered depth — vector line and flat colour, shading and occlusion
@@ -120,12 +146,12 @@ sampled from the 3D asset."* **The line half is BUILT (`line_pass.py`).** ⚠ **
 NOT: there is still no normal pass and no AO pass. Build that first or the sticker is line only.**
 ⚠ **`AUDIT_rev43.md`'s sticker spec survives only TRUNCATED — 8 rows hard-cut. Read it, do not assume.**
 
-### **2. THE CHILDREN'S LINE. F331 MAKES IT HALF THE PROGRAMME AND IT DOES NOT EXIST.**
+### **3. THE CHILDREN'S LINE. F331 MAKES IT HALF THE PROGRAMME AND IT DOES NOT EXIST.**
 `CONCEPT_BENCH_rev77.md`'s `THE CHILD'S EYE` slot has three concepts. **He has now ruled twice that
 children are an audience — the F18 spec's *"spark joy … for children"* and F331.** Nothing has been
 made for them.
 
-### **3. THE GARMENT SLOT FAILED AND IT IS THE MOST INTERESTING FAILURE IN THE ROUND.**
+### **4. THE GARMENT SLOT FAILED AND IT IS THE MOST INTERESTING FAILURE IN THE ROUND.**
 ⚠ **ONE director, three concepts — NOT three directors, and rev 77's first draft said three in two
 documents. Corrected (rule 13).** That slot was aimed straight at *"cut-and-sew — the belt line as a
 SEAM, not a print"*, which the rev-76 critic called **"the only genuinely premium object in the whole
@@ -134,19 +160,19 @@ document"**, and it **screened 5.07 — the lowest BEST-of-slot of all 25; its M
 result over three attempts by ONE director is far weaker than over three independent ones. Re-run it
 with three directors before concluding anything.**
 
-### **4. F318 — THE TREAD'S ONE MEASURED COST — IS STILL OPEN AND ITS FIX IS PRESCRIBED AND UNDONE.**
+### **5. F318 — THE TREAD'S ONE MEASURED COST — IS STILL OPEN AND ITS FIX IS PRESCRIBED AND UNDONE.**
 `probe_rev70_tyre.py`'s T2 moves **0.2457 → 0.2558** between the no-tread and shipped-tread builds,
 **25× its measured 0.0004 two-render floor**. ⚠ **DO NOT "FIX" IT BY LOWERING `T1_TYRE_FILM`.**
 **THE PRESCRIBED FIX: give T2 a band MEASURED to lie inside the rubber (PAINT IT FIRST, rule 8) and
 re-read both frames.** Neither frame is on your tree — `out/r74_side.png` is a `side` render with
 `T1_TYRE_TREAD=0`; the other is just HEAD rendered.
 
-### **5. THE EMBLEM.** His ninth report. **0.8528 against P1b's ceiling of 0.9465 and the objective
+### **6. THE EMBLEM.** His ninth report. **0.8528 against P1b's ceiling of 0.9465 and the objective
 STILL HAS NO LEGIBILITY TERM (rule 56).** F314 closes the WEIGHT to tuning but does NOT resolve it.
 ⚠ **AND ONE NEW OBSERVATION AT ITS TRUE STRENGTH (F333): THE VW BADGE TRACES CLEANLY AND IS LEGIBLE
 IN LINE.** One object, one scale, one view. **NOT a claim the emblem is fixed. F191 and F234 stand.**
 
-### **6. F156 — the `Senor` gate row scores a DELIBERATE DEPARTURE.** Unacted (rule 40). **Read the
+### **7. F156 — the `Senor` gate row scores a DELIBERATE DEPARTURE.** Unacted (rule 40). **Read the
 grade, not any of the four different revision-counts the carriers give for it.**
 
 ---
@@ -301,10 +327,27 @@ darkening of a measured median. **Fixed in the same revision (rule 13), and the 
 sheet stronger** — it now carries the owner's own *"cannot tell from this crop"* reading of that
 elevation, which was in `SPEC.md` all along and unused. The full account is in `LEDGER_rev77.md`.
 
+**⚠⚠ THE ONE THING TO ASK HIM FOR, AND IT IS NOW LOAD-BEARING: A PHOTOGRAPH OF AN EXISTING TACOMBI
+SHOPFRONT OR SIGN.** All 18 reference images in this tree are the VEHICLE. Rev 76's completeness
+critic finding 9(d) — *"an identity system is proposed against a brand whose identity nobody has
+seen"* — has been open since rev 76 and **now bites directly: rev 78 authors letterforms that will
+sit above a real door, with no sight of the signage they must live beside.** The work can proceed
+without it — the glyphs are defensible extrapolations from the bus's own hand — but **say so on the
+artefact.** *(It was asked for at the close of rev 77 and not yet supplied.)*
+
 **WHERE THIS BRIEF IS WEAKEST, STATED RATHER THAN HIDDEN:**
-* **THE AUDIT AND AMPLIFY STAGES OF THE CONCEPT ROUND ARE INCOMPLETE** — a session limit. **No concept
-  in the shortlist has been through all four adversarial lenses, so NO RISK CLAIM IN IT HAS BEEN
-  ADVERSARIALLY TESTED.** The screen ranking is three machine lenses and nothing else.
+* **THE ROUND IS COMPLETE, BUT ITS RANKING IS NOT WHAT THE SCREEN SAID (F338).** The screen and the
+  four-lens audit are ESSENTIALLY UNCORRELATED — Pearson r = +0.173, Spearman ρ = +0.222 over the 14
+  finalists — and **the concept that screened FIRST of all 75 audits LAST of the fourteen.**
+  `dangerIntact` is TRUE for only 4 of 14. **RANK ON THE AUDIT.** ⚠ **CEILING: the 14 were selected
+  BY the screen, so that correlation is range-restricted and would likely be WEAKER over all 75;
+  single judge per lens; n = 14.**
+* ⚠ **THE ORCHESTRATION WASTED A GREAT DEAL AND THE CAUSE IS NAMED SO IT IS NOT REPEATED:** the run
+  stalled three times on session limits and RE-RAN work on each resume — **110 audit verdicts where
+  56 were needed, 42 amplify agents for 14 concepts.** The finalist list was built by iterating an
+  object whose insertion order depends on which screen agent returned first, so cached results came
+  back in a different order, ties resolved differently, prompts changed, and the cache missed.
+  **If you fan out and intend to resume, SORT YOUR WORK LIST ON A STABLE KEY.**
 * **NOTHING FROM THE CONCEPT ROUND HAS BEEN SHOWN TO THE OWNER.**
 * **THE OCCLUSION HALF OF THE OWNER'S OWN STYLE SENTENCE IS NOT BUILT.** No normal pass, no AO pass.
 * **T3's GAIN CLAIM IS 1.8 σ** and may not be quoted to refute the photograph rows' error model.
