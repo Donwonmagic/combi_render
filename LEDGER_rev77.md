@@ -231,4 +231,48 @@ concept-round counts (75 / 25 / 13 / 32 % / 55-of-75 / 510 KB), and every carrie
 
 ## §7 THE MACHINE AT CLOSE
 
-*(every figure below was watched printing; none is transcribed)*
+*(every figure below was watched printing in this session; none is transcribed)*
+
+```
+  verify_clone.sh         ALL 445 PASS -- 0 FIDELITY, 445 SELF-CONSISTENCY
+                          on the MERGED tree, five side frames in out/
+  bootstrap.sh            ALL 10 PASS  on a COLD CLONE at 73e8780, no out/ at all
+                          (it read 9 PASSED / 1 FAILED before F337's repair -- that
+                           is what the repair was for, and it is the whole reason
+                           the cold clone is the LAST act and not the first)
+  build.py T1_VERIFY=1    VERIFY: 0 fail, 0 warn  at T1_SUB=2, via audit.py
+  STATE.md                REGENERATED, and it moved THREE LINES, all provenance:
+                          generated / git commit / git subject.  Not one measured
+                          figure changed.  That is the evidence this revision
+                          carried no geometry, and it is why rule 55 is at the top
+  photometry.py           9 checked, 0 FAILED
+  audit_brief.py          14 checked, 0 FAILED
+  audit_adversary.py      61 asked, 0 BROKE
+  revstats.py             rev 77: 19 commits, 0 geometry, 6804 doc, 369 instr,
+                          0 CLOSED.  "LAST FIVE REVISIONS (73-77): 261 geometry
+                          lines, 0 findings closed."
+  sheet3_notissued.py     45 checked, 0 FAILED
+  la_rueda.py             14 checked, 0 FAILED
+  line_pass.py            side/front wheel: 462 strokes / 1453 points
+                          T1_LINE_NOCONTOUR=1 -> 115 / 312   (the watched kill)
+  probe_rev73_tailboard   5 checked, 1 FAILED -- T4 only, BY DESIGN, on every one
+                          of the five rev-77 side frames.  T3 no longer flips
+  probe_rev77_t3floor     n = 5, range 2.50 deg, sd 1.282, 2 PASS / 3 FAIL
+```
+
+⚠ **AND THE ROW THAT MATTERS MOST HERE IS `revstats.py`'s LAST COLUMN: 0 FINDINGS CLOSED, FOR THE
+FIFTH REVISION RUNNING.** Rev 77 refuted, superseded, corrected and retracted — F324's clusters,
+F335's own conclusion, two of my own claims in F334, and the pillar thesis's scope — **but it RETIRED
+nothing.** The brief's §3 heading was changed from *"WHAT REV 77 CLOSED"* to *"WHAT REV 77 SETTLED"*
+for exactly this reason: **the instrument and the heading disagreed, and the instrument was right.**
+
+⚠ **`audit_adversary.py` READS 61 ASKED / 0 BROKE AND THAT IS NOT ENTIRELY GOOD NEWS.** Its own output
+says *"The rev-63 batch is still the oldest and is the next one to replace"* — `HANDOFF_CARRIERS.md`
+§10.5 requires the adversary's questions to be REPLACED each revision, *"a question that can no longer
+fail is not a control"*, and **rev 77 replaced none.** Ten revisions unacted. Recorded here rather
+than left for the next rule-17 pass to find.
+
+⚠ **AND F329 FIRED AS PREDICTED: running the closing instruments repainted tracked files under
+`probe_scratch/`.** `git status --porcelain` went dirty, `git checkout -- probe_scratch/` restored it
+to 0. **That is the documented side effect of a probe sweep, not a change — but a context that
+committed without looking would have shipped it.**
