@@ -2813,7 +2813,20 @@ m=re.search(r'T3_UNGATED = \(([^)]*)\)', s)
 print('T3_UNGATED=(%s)' % m.group(1) if m else 'ABSENT')")"
 # ROW 3: the ungated rung cannot be quoted without its floor -- the label
 # travels with the number in the row's own printed message.
-ck "F334 the ungated rung prints its floor in the row's own message" 1 \
+#
+# *** `ckabs`, NOT `ck`, AND THAT IS A REPAIR OF MY OWN DEFECT (F337). ***
+# This is the ONLY one of these four rows that reads the PROBE'S OUTPUT rather
+# than its SOURCE or pure arithmetic, so it is the only one that has anything to
+# say when `out/` is empty -- which is NOTHING, because with no side render the
+# probe refuses at "0 checked, 0 FAILED, 2 ABSENT" and never prints the T3
+# message at all.  Written with a plain `ck` it read 0, wanted 1, and went RED
+# ON A CLONE ONLY: `bootstrap.sh` 9 PASSED / 1 FAILED on a fresh clone of the
+# very commit that closed T3.  THAT IS F311's DISEASE, RE-INTRODUCED BY THE
+# REVISION THAT CURED IT ONE LEVEL DEEPER, and nothing but a cold clone found it
+# -- neither `audit_brief.py` (14 checked, 0 FAILED) nor a full `verify_clone.sh`
+# on a tree that had `out/` populated.  `ckabs` prints ABSENT and says UNGUARDED,
+# and still calls `ck`, so PASS is unchanged and the count row stays meaningful.
+ckabs "$_TB_ABSENT" "F334 the ungated rung prints its floor in the row's own message" 1 \
    "$(grep -c 'UNGATED -- BELOW ITS OWN FLOOR' /tmp/_r73e.txt)"
 # ROW 4: monotonicity is REQUIRED, not merely reported.  This is the part of the
 # ladder that reproduced in 5 renders of 5, and it is what now carries the kill.
@@ -2862,13 +2875,35 @@ _SIDE_N="$(ls out/*_side.png 2>/dev/null | wc -l | tr -d '[:space:]')"
 ck "F323 the skip flag agrees with an INDEPENDENT count of out/*_side.png (rule 6)" 1 \
    "$([ "${_TB_ABSENT:-0}" = "$([ "${_SIDE_N:-0}" -eq 0 ] && echo 1 || echo 0)" ] && echo 1 || echo 0)"
 
-# ROW 4 BOUNDS THE MECHANISM.  Exactly five rows in this script may skip, and
-# only for want of a rendered frame.  If SKIPPED is ever larger, a row that
+# ROW 4 BOUNDS THE MECHANISM.  A fixed number of rows in this script may skip,
+# and only for want of a rendered frame.  If SKIPPED is ever larger, a row that
 # used to guard something has been quietly converted into one that does not --
 # which is the failure mode a skip path introduces, and the reason this row
 # exists.  With a side frame in out/ it must be 0: nothing skips.
-ck "F323 rows skipped for want of an input: 5 with an empty out/, 0 with a side frame, never other" 1 \
-   "$([ "${SKIPPED:-0}" -eq "$([ "${_SIDE_N:-0}" -eq 0 ] && echo 5 || echo 0)" ] && echo 1 || echo 0)"
+#
+# *** RE-BASED 5 -> 6 AT REV 77, CAUSE NAMED (F337). ***  Rev 77 added a SIXTH
+# legitimately-skipping row: F334's "the ungated rung prints its floor in the
+# row's own message", which reads the PROBE'S OUTPUT and therefore has nothing
+# to say when there is no side render.  It was first written with a plain `ck`
+# and went RED ON A CLONE ONLY.  The rev-75 brief predicted this row's blind
+# spot in the opposite direction -- "a sixth `ckabs` call whose absent flag were
+# ALWAYS 0 would leave SKIPPED at 5/0 and pass unnoticed" -- and this is the
+# same row meeting a sixth call whose flag DOES fire.  The bound is not relaxed:
+# it is still an EQUALITY, still 0 with a frame present, and it still catches a
+# seventh.  Count the `ckabs` calls if you change this: they must equal the
+# left-hand number.
+ck "F323 rows skipped for want of an input: 6 with an empty out/, 0 with a side frame, never other" 1 \
+   "$([ "${SKIPPED:-0}" -eq "$([ "${_SIDE_N:-0}" -eq 0 ] && echo 6 || echo 0)" ] && echo 1 || echo 0)"
+# AND THE COMPANION THAT MAKES THE RE-BASE SEPARATELY TESTABLE: the bound above
+# is a literal, so it can go stale silently the moment someone adds a `ckabs`.
+# This row DERIVES the same number from the source and requires them to agree.
+# ⚠ COUNT THE FLAG-DRIVEN ROWS, NOT EVERY `ckabs` TOKEN.  `grep -cE '^ *ckabs '`
+# reads NINE: the six real rows, the helper's own definition line, and the two
+# `__selftest` calls of the watched kill above -- and those two restore their
+# tallies, so they can never contribute to SKIPPED.  The first cut of this row
+# used the loose pattern, read 9 against 6 and went red on its own first run.
+ck "F337 the skip bound equals the number of FLAG-DRIVEN ckabs rows" 1 \
+   "$([ "$(grep -cE '^ *ckabs "\$_TB_ABSENT"' verify_clone.sh)" -eq 6 ] && echo 1 || echo 0)"
 
 # --- rev 75, F325: THE TAIL BOARD'S "DARK ANGLED RECESS" IS NOT GROUNDED, AND
 # THE MEASUREMENT THAT SAYS SO LIVES HERE RATHER THAN ONLY IN PROSE.
