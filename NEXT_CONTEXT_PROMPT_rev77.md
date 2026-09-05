@@ -148,7 +148,7 @@ REVISION — ~20 min, and not while a render queue is going.**
 
 ```bash
 ./bootstrap.sh                                # READ ROW 9.  Row 10 is verify_clone.sh
-./verify_clone.sh                             # ALL 447 PASS -- 0 FIDELITY, 447 SELF-CONSISTENCY.
+./verify_clone.sh                             # ALL 444 PASS -- 0 FIDELITY, 444 SELF-CONSISTENCY.
   # With an empty out/, five rows SKIP and say UNGUARDED; PASS is the same either way.
   # READ THE VERDICT BLOCK: not one row measures the vehicle against a photograph
 T1_SUB=1 T1_VERIFY=1 /tmp/blender/blender -b -P build.py     # -> "VERIFY: 0 fail, 0 warn"
