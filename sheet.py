@@ -14,10 +14,22 @@ That is the only reason this is a module and not a script.
 UNITS ARE MILLIMETRES ON THE SHEET, origin top-left, y down.  Vehicle
 coordinates are converted by the caller; this layer knows nothing about buses.
 
-CEILING, STATED (rule 12): the PNG backend is PIL, which has no antialiased
-line primitive, so it draws at SS x the final raster and downsamples.  Hairlines
-below about 0.10 mm at 300 dpi will therefore land as grey rather than as a
-thinner black line.  The SVG has no such limit -- print from the SVG.
+CEILINGS, STATED (rule 12):
+  * The PNG backend is PIL, which has no antialiased line primitive, so it draws
+    at SS x the final raster and downsamples.  Hairlines below about 0.10 mm at
+    300 dpi land as grey rather than as a thinner black line.  The SVG has no
+    such limit -- PRINT FROM THE SVG.
+  * `circle()` and `arc()` EMIT POLYLINES, NOT `<circle>` OR `<path A>`, in BOTH
+    backends.  That is deliberate -- it is what keeps the two backends provably
+    identical -- and it is why `loteria_la_rueda.svg` is 311 KB of 2595 `<line>`
+    elements for what is geometrically nine circles.  The polygonisation error
+    is bounded at 0.35 mm of chord by `arc()`'s own segment count, so it prints
+    and cuts correctly at any scale this programme uses.  BUT a plotter, a
+    die-cutter or a screen-positive house would rather have true arcs, and a
+    future context that needs them must add them to BOTH backends or state the
+    drift it has introduced.  MEASURED, not assumed: `sheet3_not_issued.svg` is
+    1882 lines / 92 texts, `loteria_la_rueda.svg` 2595 lines / 21 texts, both
+    parsing as valid XML with viewBoxes in millimetres.
 """
 import os, math
 
