@@ -88,7 +88,13 @@ Blender, and §0's parenthetical *"probes, `.md` and the design scripts are fine
 license this one. Wait for `grep -c Saved: /tmp/r79.log` to read 4.
 
 **WITH NO CAPTURE `sticker.py` PRINTS `0 checked, 0 FAILED, 1 ABSENT` AND TELLS YOU WHAT TO
-RUN.** `probe_scratch/` is untracked, so that is what a clone sees.
+RUN** (rule 37 — an absent input must never read as a measurement). ⚠ **BUT THAT IS NOT WHAT
+A CLONE SEES, AND THE FIRST DRAFT OF THIS LINE SAID IT WAS. RETRACTED (rule 13), FOUND BY
+THE §7.6 COLD CLONE.** `probe_scratch/` is **TRACKED** here — 1493 files — which is why
+F329's remedy is `git checkout -- probe_scratch/` and not a delete. Rev 78's 14 capture
+files (**6.1 MB**) ship with it, so **`python3 sticker.py --tag flank` reads `38 checked,
+1 FAILED` on a COLD CLONE with no Blender run at all.** That is deliberate: the artefact is
+reproducible from the repository. **The cost is 6.1 MB and it is stated, not hidden.**
 
 **THE SCALE IS RECOVERED, NOT GIVEN. F347.** The surviving spec never states it.
 `t1_detail.LOUV_PITCH` (0.021111 m, IMPORTED) at the spec's 0.30 mm gives **1:70.37**, and
@@ -99,8 +105,11 @@ the bbox the scale spreads 44.4 %, MEASURED. "1:70" is nominal.**
 ---
 ## §2 RANKED WORK FOR REV 79 — **AND THE OWNER OUTRANKS THE RANKING**
 
-`python3 visibility_budget.py 3840 out/r79_hero34f.png`, whose own ceiling is *"pixels are
-not visibility … catch ORDERS OF MAGNITUDE, not rank neighbours."*
+**RANK BY PIXELS OF THE DELIVERY FRAME** — `python3 visibility_budget.py 3840
+out/r79_hero34f.png` — **and the owner outranks the ranking.** ⚠ **READ THAT TABLE'S OWN
+CEILING: *"pixels are not visibility … catch ORDERS OF MAGNITUDE, not rank neighbours."***
+⚠⚠ **AND REV 78 IS EVIDENCE THE OWNER REALLY DOES OUTRANK IT: he redirected the method
+mid-revision, looking at a proof, and no pixel budget would have said so.**
 
 ### **1. ASK HIM. THREE QUESTIONS ARE OPEN AND ONE HAS BEEN SENT AND NOT ANSWERED.**
 * ⚠⚠ **F348 — THE VIEWPOINT, AND REV 78 GOT THIS WRONG AND RETRACTS IT (rule 13).** The
@@ -266,6 +275,13 @@ FORCE.** `NEXT_CONTEXT_PROMPT_rev50.md` §11 carries a DIFFERENT 1–33 whose nu
 COLLIDE. **Rules 34–58 are in `HANDOFF_CARRIERS.md` §5 — whose first line says 34–52, and
 which holds TWO rule 56s and TWO rule 57s. Say which you mean.**
 
+**55 — EVERY REVISION SHIPS A VISIBLE CHANGE TO THE VEHICLE, OR SAYS PLAINLY WHY IT COULD
+NOT**, at the TOP of its ledger. **REV 78 COULD NOT AND SAYS SO: the vehicle did not move,
+and what shipped is the project's ORIGINAL DELIVERABLE as a thing he can look at.** ⚠ **REV
+77 ALREADY FLAGGED THAT THIS RULE'S LETTER AND ITS PURPOSE COME APART FOR THE DESIGN
+PROGRAMME, and rev 78 is the second revision running to hit it. A future context should
+decide whether rule 55 needs a second clause — do NOT assume either ledger settled it.**
+
 **Which bit rev 78, and it is one rule above all: 1 and 2.** Every one of six wrong
 instruments printed a plausible number, and **not one was found by reasoning** — five by
 looking at a picture, one by a fabricated-mask selftest. **The worst of them survived 34
@@ -318,6 +334,23 @@ anything is ready.**
    If it is not in `git ls-files`, it does not exist.**
 
 ---
+**⚠ THIS BRIEF WAS AUDITED AGAINST THE MACHINE, TWICE, AND BOTH PASSES FOUND REAL DEFECTS.**
+The incoming one (rule 15) returned **14**, including a hidden fourth `verify_clone.sh`
+runner and seven owner-graded rows in no carrier. The outgoing one (rule 17) returned
+**29** against THIS file — nine of them changing what rev 79 should do, among them a
+register row that was not a row, a viewpoint claim that was false in four places including
+the shipped artefact, and a guard that could never fire. **All nine are fixed and §8 records
+them.** ⚠ **AND THE §7.6 COLD CLONE THEN FOUND A THIRD CLASS THE ADVERSARIES COULD NOT:
+shortening this brief DROPPED THREE PHRASES THAT `verify_clone.sh` ROWS BIND VERBATIM** —
+the ranking sentence that opens §2, rule 55's own wording in §5, and the first line of this
+paragraph — **so the verifier read 446 rather than 449 on a fresh clone. Rule 16 in
+miniature: a document was compacted and took guarded content with it.**
+⚠⚠ **AND TWO OF THOSE THREE ROWS WANT THE PHRASE ON *EXACTLY ONE LINE* (`grep -c … 1`), so
+you cannot quote them a second time to explain them — which is why this paragraph names
+them by location instead. IF YOU SHORTEN OR RESTRUCTURE THIS FILE, RE-RUN THE VERIFIER
+AFTERWARDS, NOT BEFORE, AND ON A COLD CLONE (F328): the main tree's run predated this file
+existing and could not have caught it.**
+
 **WHERE THIS BRIEF IS WEAKEST, STATED RATHER THAN HIDDEN:**
 * **THE OWNER CALLED THE FIRST PROOF TERRIBLE AND THE SECOND IS BETTER ONLY BY HIS OWN
   REDIRECT.** No measurement says it improved. **Nothing in this tree can grade it.**
