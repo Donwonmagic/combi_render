@@ -335,7 +335,7 @@ rev 78's ledger.** Also **10** (a default where a measurement existed), **13**,
 | **`CONCEPT_BENCH_rev77.md`** | **THE CARRIER. All 75 concepts in full. 510 KB. Do not compact it** |
 | **`CONCEPT_ROUND_rev77.md`** | 255 KB: the synthesis and the audit-based ranking that **SUPERSEDES `DESIGN_PROGRAM_rev77.md` §2**. ⚠ **Its §5.0b item 5 still says the sticker VIEWPOINT row is hard-cut. IT IS NOT — 142 chars, ends in a full stop, "choose the flank". F360. Do not inherit it** |
 | **`CONCEPT_AUDIT_rev77.md`** | 765 KB, the adversarial verdicts across four lenses. ⚠ **The rev-79 brief dropped this row and NOTHING pointed at it — `verify_clone.sh`'s own comment: "a carrier nothing points at is a carrier already half gone." Restored** |
-| **`WORKFLOW_rev76_CONCEPTS.md` / `_SYNTHESIS.md`** | 1.0 MB, named in NEITHER handoff document until now |
+| **`WORKFLOW_rev76_CONCEPTS.md` and `WORKFLOW_rev76_SYNTHESIS.md`** | 1.0 MB, named in NEITHER handoff document until now |
 | `AUDIT_rev43.md` | **the sticker spec — in `## 2. SURVIVING FINDINGS`, NOT §5 (F352)** |
 | `LEDGER_rev44.md` | §7.3's *"no code, no asset, nothing on disk"* — the sentence F345 falsified |
 | `apaga.py` | **NEW.** `APAGA LA LUZ`, the children's line's second object |
