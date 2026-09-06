@@ -424,7 +424,7 @@ fixed above — because it found them, not before it did.**
    detector, whose expression is a recursive grep over the REPOSITORY. The
    plant now lands inside the tree.
 5. **`sticker.py` STILL ASSERTED THE RETRACTED CLAIM** in different words
-   (*"one of the eight HARD-CUT AT 120 CHARACTERS"*), so F360's first close was
+   (it called the row one of the eight cut short at 120 — **the phrase is not quoted here, deliberately: this guard forbids it, and quoting a bound phrase to explain it is what redded the FIRST needle on a clean tree**), so F360's first close was
    incomplete and its guard too narrow. Fixed; a second needle binds that
    wording, **with its ceiling stated — a phrase guard is not a meaning guard.**
 6. **CARRIERS DROPPED (rule 16), the highest-value class:**
