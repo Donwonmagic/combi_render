@@ -74,6 +74,15 @@ def _hex(c):
     return "#%02x%02x%02x" % tuple(c)
 
 
+def ink_of(sheet, rgb, tint):
+    """The ONE place a primitive's colour is decided, so the two backends
+    cannot drift.  `rgb=None` means the sheet's own ink, which is what every
+    drawing before rev 78 used -- that path is byte-identical to the
+    single-ink sheet, and `sheet3_notissued.py` / `la_rueda.py` /
+    `calendario.py` re-emit unchanged, which is checked, not assumed."""
+    return mix(sheet.ink if rgb is None else tuple(rgb), sheet.stock, tint)
+
+
 class Sheet(object):
     def __init__(self, w_mm, h_mm, ink=(0, 0, 0), stock=(255, 255, 255),
                  dpi=300, ss=2):
@@ -82,22 +91,44 @@ class Sheet(object):
         self.ops = []                       # (kind, payload) -- the ONE record
 
     # ------------------------------------------------------------- primitives
-    def line(self, x1, y1, x2, y2, w=0.25, tint=1.0, dash=None):
-        self.ops.append(("line", (x1, y1, x2, y2, w, tint, dash)))
+    def line(self, x1, y1, x2, y2, w=0.25, tint=1.0, dash=None, rgb=None):
+        self.ops.append(("line", (x1, y1, x2, y2, w, tint, dash, rgb)))
 
-    def poly(self, pts, w=0.25, tint=1.0, close=False, dash=None):
+    def poly(self, pts, w=0.25, tint=1.0, close=False, dash=None, rgb=None):
         pts = list(pts)
         for i in range(len(pts) - 1):
-            self.line(pts[i][0], pts[i][1], pts[i + 1][0], pts[i + 1][1], w, tint, dash)
+            self.line(pts[i][0], pts[i][1], pts[i + 1][0], pts[i + 1][1],
+                      w, tint, dash, rgb)
         if close and len(pts) > 2:
-            self.line(pts[-1][0], pts[-1][1], pts[0][0], pts[0][1], w, tint, dash)
+            self.line(pts[-1][0], pts[-1][1], pts[0][0], pts[0][1],
+                      w, tint, dash, rgb)
 
-    def rect(self, x, y, w, h, lw=0.25, tint=1.0, dash=None):
+    def rect(self, x, y, w, h, lw=0.25, tint=1.0, dash=None, rgb=None):
         self.poly([(x, y), (x + w, y), (x + w, y + h), (x, y + h)],
-                  w=lw, tint=tint, close=True, dash=dash)
+                  w=lw, tint=tint, close=True, dash=dash, rgb=rgb)
 
-    def fill(self, x, y, w, h, tint=1.0):
-        self.ops.append(("fill", (x, y, w, h, tint)))
+    def fill(self, x, y, w, h, tint=1.0, rgb=None):
+        self.ops.append(("fill", (x, y, w, h, tint, rgb)))
+
+    def area(self, pts, tint=1.0, rgb=None, holes=()):
+        """A FILLED POLYGON -- rev 78, for F18's flat colour.
+
+        `sheet.py` before this shipped three DRAFTING sheets, where every mark
+        is a line and the only filled thing is a rectangular swatch.  A sticker
+        is the opposite object: it is flat colour first and line second, so an
+        arbitrary filled outline is the primitive that was missing.
+
+        `holes` are subtracted.  They are NOT decorative: `trace_outline.trace`
+        returns outer boundaries only and says so in its own docstring, so a
+        region with a hole (a window in a flank, the gap inside a wheel) would
+        otherwise fill solid and read as a defect that looks like a decision.
+        The caller passes what `trace_outline.has_holes` found; SVG gets an
+        even-odd path and PIL gets the hole painted back in stock.
+        """
+        pts = [(float(a), float(b)) for a, b in pts]
+        hs = [[(float(a), float(b)) for a, b in h] for h in holes]
+        if len(pts) > 2:
+            self.ops.append(("area", (pts, tint, rgb, hs)))
 
     def arc(self, cx, cy, r, a0, a1, w=0.25, tint=1.0, seg=None, dash=None):
         """angles in DEGREES, 0 = +x, counter-clockwise in sheet space (y down
@@ -127,17 +158,24 @@ class Sheet(object):
                % (mm(self.w), mm(self.h), _hex(self.stock))]
         for kind, p in self.ops:
             if kind == "line":
-                x1, y1, x2, y2, w, tint, dash = p
+                x1, y1, x2, y2, w, tint, dash, rgb = p
                 d = ' stroke-dasharray="%s"' % ",".join(mm(v) for v in dash) if dash else ""
                 out.append('<line x1="%s" y1="%s" x2="%s" y2="%s" stroke="%s" '
                            'stroke-width="%s" stroke-linecap="butt"%s/>'
                            % (mm(x1), mm(y1), mm(x2), mm(y2),
-                              _hex(mix(self.ink, self.stock, tint)), mm(w), d))
+                              _hex(ink_of(self, rgb, tint)), mm(w), d))
             elif kind == "fill":
-                x, y, w, h, tint = p
+                x, y, w, h, tint, rgb = p
                 out.append('<rect x="%s" y="%s" width="%s" height="%s" fill="%s"/>'
                            % (mm(x), mm(y), mm(w), mm(h),
-                              _hex(mix(self.ink, self.stock, tint))))
+                              _hex(ink_of(self, rgb, tint))))
+            elif kind == "area":
+                pts, tint, rgb, hs = p
+                ring = lambda q: "M " + " L ".join("%s %s" % (mm(a), mm(b))
+                                                  for a, b in q) + " Z"
+                dpath = " ".join([ring(pts)] + [ring(h) for h in hs])
+                out.append('<path d="%s" fill="%s" fill-rule="evenodd"/>'
+                           % (dpath, _hex(ink_of(self, rgb, tint))))
             elif kind == "text":
                 x, y, s, pt, font, tint, align, track, rot = p
                 anchor = {"l": "start", "c": "middle", "r": "end"}[align]
@@ -170,8 +208,8 @@ class Sheet(object):
 
         for kind, p in self.ops:
             if kind == "line":
-                x1, y1, x2, y2, w, tint, dash = p
-                col = mix(self.ink, self.stock, tint)
+                x1, y1, x2, y2, w, tint, dash, rgb = p
+                col = ink_of(self, rgb, tint)
                 lw = max(1, int(round(w * k)))
                 if dash:
                     L = math.hypot(x2 - x1, y2 - y1)
@@ -189,13 +227,20 @@ class Sheet(object):
                 else:
                     d.line([x1 * k, y1 * k, x2 * k, y2 * k], fill=col, width=lw)
             elif kind == "fill":
-                x, y, w, h, tint = p
+                x, y, w, h, tint, rgb = p
                 d.rectangle([x * k, y * k, (x + w) * k, (y + h) * k],
-                            fill=mix(self.ink, self.stock, tint))
+                            fill=ink_of(self, rgb, tint))
+            elif kind == "area":
+                pts, tint, rgb, hs = p
+                d.polygon([(a * k, b * k) for a, b in pts],
+                          fill=ink_of(self, rgb, tint))
+                for h in hs:                       # even-odd, the PIL way
+                    if len(h) > 2:
+                        d.polygon([(a * k, b * k) for a, b in h], fill=self.stock)
             elif kind == "text":
                 x, y, s, pt, font, tint, align, track, rot = p
                 f = face(font, pt)
-                col = mix(self.ink, self.stock, tint)
+                col = ink_of(self, rgb=None, tint=tint)
                 trk = track * k
                 widths = [d.textlength(ch, font=f) for ch in s]
                 total = sum(widths) + trk * max(0, len(s) - 1)

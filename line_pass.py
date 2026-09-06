@@ -201,14 +201,31 @@ def wheel_source(which, log=print):
 
 
 def bake(view="side", crease_deg=40.0, res=(1600, 1100), only=None,
-         thickness=1.0, log=print):
+         thickness=1.0, log=print, cam_override=None):
+    """`cam_override` = (loc, tgt, lens), for a camera that is not in
+    `studio.views()`.
+
+    IT MUST BE APPLIED BEFORE THE BAKE, NOT AFTER.  Line Art's CONTOUR edges
+    are the silhouette, which is VIEW-DEPENDENT: baking at one camera and
+    projecting through another yields a plausible stroke cloud drawn against
+    the wrong outline -- a defect that looks like a drawing rather than like an
+    error.  rev 78 caught that in its own first draft, which is why this
+    parameter exists instead of a re-aim between bake and project.
+    """
     import bpy
     import studio as ST
 
     sc = ST.setup_render(res, 8, True)
     cam = ST.camera()
-    v = ST.views()[view]
-    ST.aim(cam, v["loc"], v["tgt"], lens=v.get("lens"), ortho=v.get("ortho"))
+    if cam_override:
+        loc, tgt, lens = cam_override
+        ST.aim(cam, loc, tgt, lens=lens, fstop=0.0)
+        log("  camera OVERRIDE for the bake: %s -> %s at %s mm"
+            % (tuple(round(c, 3) for c in loc),
+               tuple(round(c, 3) for c in tgt), lens))
+    else:
+        v = ST.views()[view]
+        ST.aim(cam, v["loc"], v["tgt"], lens=v.get("lens"), ortho=v.get("ortho"))
     sc.camera = cam
 
     # ONE FRAME.  See the module docstring -- the default range bakes 250.
