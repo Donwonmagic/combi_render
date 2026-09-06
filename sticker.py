@@ -272,8 +272,11 @@ def classify(index, albedo, alpha, meta, log=log):
     if margins:
         m, n, h = margins[0]
         log("  ⚠ thinnest red/gold classification margin %.2f deg, on a "
-            "material holding %.1f %% of the chromatic area (hue %.2f).  The "
-            "split is REPORTED, not settled." % (m, 100.0 * n / tot, h))
+            "material holding %.1f %% of the chromatic area (hue %.2f).  "
+            "⚠ NEVER QUOTE THE MARGIN WITHOUT THE AREA -- a thin margin on a "
+            "0.1 %% material is not the same finding as a thin margin on a "
+            "60 %% one.  The split is REPORTED, not settled."
+            % (m, 100.0 * n / tot, h))
 
     masks = {}
     for k, f in fam.items():
@@ -1229,7 +1232,13 @@ def draw(cap, denom, tag, log=log):
         "the shading and the occlusion.  AUTHORED: sun, papel picado, the",
         "mural's rosette motif, the palette's seven inks%s." % (
             "" if cap["ao"] is not None else " (NO AO PASS -- occlusion UNBUILT)"),
-        "Viewpoint is a POSE: the spec row that fixes it is truncated.",
+        "Viewpoint: the spec row says CHOOSE THE FLANK and is NOT truncated;",
+        "only which axis the 18 deg is measured from is open.  A POSE, not a",
+        "measurement.  AUTHORED constants, all reported at run time:",
+        "  bleed %.2f | despeckle %.2f | albedo med %.2f | shade blur %.2f mm"
+        % (BLEED_MM, DESPECKLE_MM, ALBEDO_BLUR_MM, SHADE_BLUR_MM),
+        "  shade x%.2f | occlusion x%.2f | line floor %.2f mm | %d inks"
+        % (SHADE_MULT, AO_MULT, LINE_MIN_MM, SPEC_INKS),
         "The 'earlier cartoon version' of the wheels is NOT in the repository.",
     ]
     for i, t in enumerate(lines_):
@@ -1324,8 +1333,30 @@ def main(argv):
 
     # --- the spec's own arithmetic, cross-checked (rule 6) -------------------
     mm_per_m = 1000.0 / denom
-    ck(abs(pitch_m * 1000.0 / denom - SPEC_LOUV_PITCH_MM) < 5e-4,
-       "S1 the recovered scale does not reproduce the spec's louvre pitch")
+    # ⚠ S1 WAS A TAUTOLOGY AND IS REPLACED (rule 6, and rev 78's own rule-17
+    # adversary found it).  It asserted `pitch_m*1000/denom == 0.30` where
+    # `denom` is DEFINED as `pitch_m*1000/0.30` -- the residual evaluated to
+    # exactly 0.0 and the check could never red.  The honest test is against a
+    # quantity the recovery did NOT use: the vehicle's own overall length,
+    # read from STATE.md, must print at a size a hand-held sticker can be.
+    L_m = None
+    try:
+        for ln in open(os.path.join(ROOT, "STATE.md")):
+            if "overall length (ex counter)" in ln:
+                L_m = float(ln.split("|")[2])
+                break
+    except Exception:
+        L_m = None
+    if L_m is None:
+        ABSENT.append("STATE.md's overall length, for the S1 scale sanity check")
+    else:
+        L_mm = L_m * 1000.0 / denom
+        ck(35.0 <= L_mm <= 120.0,
+           "S1 at 1:%.2f the vehicle's MEASURED %.4f m length prints at "
+           "%.1f mm, which is not a hand-held sticker -- the recovered scale "
+           "is wrong" % (denom, L_m, L_mm))
+        log("  S1: the vehicle's own STATE.md length %.4f m prints at %.1f mm "
+            "at 1:%.2f -- a quantity the recovery did NOT use" % (L_m, L_mm, denom))
     min_cut_mm = SPEC_MIN_CUT_M * mm_per_m
     ck(1.5 <= min_cut_mm <= 3.5,
        "S2 the spec's 0.159 m minimum cut feature lands at %.3f mm, which is "
@@ -1365,8 +1396,8 @@ def main(argv):
     ck(wedge90 <= 70.0 + 1e-6,
        "C4 AUDIT_rev43's colour-separation row claims the vehicle is 'ONE 70 "
        "deg hue wedge'; the built asset MEASURES %.1f deg over every "
-       "chromatic material and %.1f deg over the 90 %% of chromatic area "
-       "nearest the mode.  The claim had never been checked -- this is a real "
+       "chromatic material VISIBLE IN THIS CAPTURE and %.1f deg over those "
+       "of them holding at least 0.1 %% of chromatic area.  The claim had never been checked -- this is a real "
        "result either way, and a RED here is a finding about the SPEC ROW, "
        "not about the drawing" % (wedge, wedge90))
 
@@ -1405,8 +1436,8 @@ def main(argv):
        % (stats.get("inks_cut", 0), SPEC_INKS_CUT))
     ck(stats.get("lines", 0) < 600,
        "D4d %d line(s) drawn.  The owner's ruling at rev 78 was that this is "
-       "a DRAWING, not a trace of the model; 2091 strokes is what he was "
-       "shown and rejected" % stats.get("lines", 0))
+       "a DRAWING, not a trace of the model; the proof he rejected drew "
+       "EVERY stroke the line pass returned" % stats.get("lines", 0))
     ck(stats.get("wordmark", 0) > 0,
        "D4f the wordmark is not drawn -- it is the brand's own hand and the "
        "model carries it exactly")

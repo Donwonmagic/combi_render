@@ -24,13 +24,17 @@ WHAT IT CAPTURES, AND WHY EACH IS AN EXACT INSTRUMENT RATHER THAN A GUESS
    and the window would select the wrong pixels while printing a plausible
    number.  A material index cannot do that.
 
-2. THE FAMILIES THEMSELVES ARE MEASURED, NOT TYPED.  Every material's Base
-   Color is read off its own Principled node and assigned to the nearest of the
-   inks `t1_mats` already defines (RED / CREAM / GOLD) or to a neutral, in
-   LINEAR space, by hue and chroma.  `AUDIT_rev43.md`'s colour-separation row
-   asserts the whole vehicle is *"ONE 70 deg hue wedge plus four neutrals"*.
-   That is a CLAIM ABOUT THIS ASSET, so this module measures the wedge and
-   `sticker.py` checks it.  It has never been checked before.
+2. THE ALBEDO, BECAUSE THE NODE TREE CANNOT BE ASKED.  ⚠ AN EARLIER DRAFT OF
+   THIS LIST SAID the families were read off each material's Principled Base
+   Color.  THAT METHOD IS RETRACTED -- see `base_colour_survey()` below and
+   F351: the socket is LINKED on 22 of this asset's 45 materials, `T1_paint`
+   among them, so the read returned the UNCONNECTED DEFAULT and `ink_red` came
+   out empty on a bus that is mostly red.  What this module captures is the
+   RENDERED ALBEDO plus the material-index map; classification happens
+   downstream in `sticker.py`, off an AUTHORED palette keyed on material
+   identity, under the owner's rev-78 ruling (F346).  `base_colour_survey()`
+   survives only as the DIAGNOSTIC that counts how many materials could never
+   have been classified that way.
 
 3. THE SILHOUETTE.  The alpha of a transparent-film render -- the die-cut path.
    F161 established `deliver.py`'s trimmed output is this geometry; here it is
@@ -53,17 +57,24 @@ WHAT IT CAPTURES, AND WHY EACH IS AN EXACT INSTRUMENT RATHER THAN A GUESS
 
 CEILINGS, STATED (rule 12)
 --------------------------
-  * THE VIEW IS A POSE, NOT A MEASUREMENT.  `AUDIT_rev43.md`'s sticker row
-    reads *"VIEWPOINT -- 18 deg front three-quarter from the serving side, eye
-    height 1.55 m"*, and that row is one of the EIGHT HARD-CUT AT 120
-    CHARACTERS, so the sentence that would disambiguate it does not survive.
-    18 deg admits two readings -- 18 deg off the NOSE axis, which shows the
-    face, or 18 deg off the FLANK, which shows the flank.  The SAME table says
-    *"The face and the flank are provably exclusive; choose the flank"*, so
-    this module DEFAULTS TO THE FLANK READING (azimuth 72 deg from the nose)
-    and exposes the other as `--az`.  BOTH ARE RENDERED AND BOTH ARE LOOKED AT;
-    the choice is the owner's and is put to him at rev 78.  Nothing downstream
-    may quote 18 deg as measured.
+  * THE VIEW IS A POSE, NOT A MEASUREMENT -- BUT LESS OF ONE THAN REV 78's
+    FIRST DRAFT CLAIMED, AND THAT CLAIM IS RETRACTED HERE (rule 13).
+    `AUDIT_rev43.md`'s row reads *"VIEWPOINT -- 18 deg front three-quarter
+    from the serving side, eye height 1.55 m.  The face and the flank are
+    provably exclusive; choose the flank."*  I wrote that this row was one of
+    the eight hard-cut at 120 characters and that the disambiguating sentence
+    did not survive.  **THAT IS FALSE.**  MEASURED: the DESIGN cell is 142
+    characters and ends in a FULL STOP.  What is hard-cut at 120 is a
+    DIFFERENT COLUMN -- the trailing symbol list -- on all eight rows, and
+    only rows 2 (the cab door) and 8 (colour separation) end mid-thought, at
+    149 and 150 characters.
+    So the record DOES answer the face/flank question: *choose the flank*.
+    The only genuine residual is WHICH AXIS the 18 deg is measured from, and
+    the flank reading (azimuth 72 deg) is the one consistent with the
+    surviving sentence.  This module defaults to it for that reason, not
+    because the question is open.  `--az 18` renders the nose reading, which
+    the record EXCLUDES; it is kept only as the painted evidence for that.
+    Nothing may quote 18 deg itself as measured.
   * `T1_SUB` matters.  The masks and the line pass MUST be baked at the same
     subdivision or the line will not sit on its own colour.
   * Cycles is not run-to-run deterministic (the brief's ~2.04 % floor), but an

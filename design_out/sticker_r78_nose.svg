@@ -799,6 +799,10 @@
 <text x="4.6" y="95.8516" font-family="DejaVu Sans Mono, monospace" font-size="1.0583" fill="#3c3937" text-anchor="start" letter-spacing="0">SAMPLED from the 3D asset: die-cut path, ink placement, the wordmark,</text>
 <text x="4.6" y="97.7516" font-family="DejaVu Sans Mono, monospace" font-size="1.0583" fill="#3c3937" text-anchor="start" letter-spacing="0">the shading and the occlusion.  AUTHORED: sun, papel picado, the</text>
 <text x="4.6" y="99.6516" font-family="DejaVu Sans Mono, monospace" font-size="1.0583" fill="#3c3937" text-anchor="start" letter-spacing="0">mural's rosette motif, the palette's seven inks.</text>
-<text x="4.6" y="101.5516" font-family="DejaVu Sans Mono, monospace" font-size="1.0583" fill="#3c3937" text-anchor="start" letter-spacing="0">Viewpoint is a POSE: the spec row that fixes it is truncated.</text>
-<text x="4.6" y="103.4516" font-family="DejaVu Sans Mono, monospace" font-size="1.0583" fill="#3c3937" text-anchor="start" letter-spacing="0">The 'earlier cartoon version' of the wheels is NOT in the repository.</text>
+<text x="4.6" y="101.5516" font-family="DejaVu Sans Mono, monospace" font-size="1.0583" fill="#3c3937" text-anchor="start" letter-spacing="0">Viewpoint: the spec row says CHOOSE THE FLANK and is NOT truncated;</text>
+<text x="4.6" y="103.4516" font-family="DejaVu Sans Mono, monospace" font-size="1.0583" fill="#3c3937" text-anchor="start" letter-spacing="0">only which axis the 18 deg is measured from is open.  A POSE, not a</text>
+<text x="4.6" y="105.3516" font-family="DejaVu Sans Mono, monospace" font-size="1.0583" fill="#3c3937" text-anchor="start" letter-spacing="0">measurement.  AUTHORED constants, all reported at run time:</text>
+<text x="4.6" y="107.2516" font-family="DejaVu Sans Mono, monospace" font-size="1.0583" fill="#3c3937" text-anchor="start" letter-spacing="0">  bleed 1.60 | despeckle 0.18 | albedo med 0.42 | shade blur 2.20 mm</text>
+<text x="4.6" y="109.1516" font-family="DejaVu Sans Mono, monospace" font-size="1.0583" fill="#3c3937" text-anchor="start" letter-spacing="0">  shade x0.74 | occlusion x0.58 | line floor 1.60 mm | 7 inks</text>
+<text x="4.6" y="111.0516" font-family="DejaVu Sans Mono, monospace" font-size="1.0583" fill="#3c3937" text-anchor="start" letter-spacing="0">The 'earlier cartoon version' of the wheels is NOT in the repository.</text>
 </svg>

@@ -47,7 +47,7 @@ closing that.
 | `design_out/sticker_r78_nose.svg` / `.png` | the other reading of the same truncated row, drawn so he can choose by looking |
 | `sticker_pass.py` | the 3D capture: material-index map, albedo, alpha, the light term, the AO pass, and the line pass baked **through the same camera** |
 | `sticker.py` | the drawing and its checks — **37 checked, 1 FAILED**, and the failure is F353, a finding about the spec row |
-| `sheet.py` | gains `area()` (filled polygon, with holes) and per-primitive colour. **The three rev-77 artefacts re-emit BYTE-IDENTICAL**, which is checked, not assumed |
+| `sheet.py` | gains `area()` (filled polygon, with holes) and per-primitive colour. **TWO of the three rev-77 artefacts re-emit BYTE-IDENTICAL** — `sheet3_notissued.py` (45/0) and `calendario.py` (14/0), both watched. ⚠ **THE THIRD, `la_rueda.py`, NEEDS `probe_scratch/rueda.json`, WHICH IS UNTRACKED — so on a clone it cannot be checked at all, and NO `verify_clone.sh` ROW BINDS ANY OF THIS.** The first draft said "the three … which is checked, not assumed"; two of three were, and a companion row is owed (§3b) |
 | `line_pass.py` | gains an explicit-camera bake path |
 
 **THE OCCLUSION HALF OF THE OWNER'S LOCKED STYLE SENTENCE NOW EXISTS.** The rev-77 brief
@@ -60,9 +60,13 @@ passing the shading term off as one** (rule 37).
 ---
 ## §3 THE INSTRUMENTS THAT WERE WRONG, AND HOW EACH WAS CAUGHT
 
-**Rule 4 says budget for this; it is normal here. Rev 78 found SIX of its own, and NOT
-ONE was found by reasoning about the code.** Five were found by looking at a picture and
-one by a fabricated-mask selftest.
+**Rule 4 says budget for this; it is normal here. Rev 78 found SIX of its own, and NOT ONE
+was found by reasoning about the code.** ⚠ **COUNTED FROM THE TABLE BELOW, not asserted:
+FOUR by looking at a picture, ONE by an ablation (`T1_STK_NOHOLES`, after three wrong causes
+had been eliminated), ONE by a fabricated-mask selftest.** The first draft of this sentence
+said "five by looking and one by selftest" and disagreed with its own table — this project's
+record names *"four, five and six in one document"* as a defect class, and the rule-17
+adversary caught it here (rule 13).
 
 | # | the defect | what it printed while wrong | how it was caught |
 |---|---|---|---|
@@ -110,7 +114,10 @@ test aerial survives. `T1_STK_NOHOLES=1` is kept because it is what identified d
 ---
 ## §5 WHAT THE RULE-15 ADVERSARY FOUND IN THE INCOMING BRIEF
 
-It ran read-only and returned **14 defects** plus a long confirmed list. It also **hit
+It ran read-only and returned **14 defects** plus a long confirmed list. ⚠ **EIGHT of the
+fourteen have register rows (F352–F359); SIX ARE UNLOCATED. An earlier draft of this ledger
+said "all carried" — withdrawn (rule 13, and rule 16 on the revision that made rule 16 a
+headline).** It also **hit
 F357 live** — `audit_brief.py` shells `verify_clone.sh` internally, a FOURTH runner
 F343's row does not name — and had to abort.
 
@@ -149,7 +156,56 @@ was true; the style sentence is genuinely his, from `NEXT_CONTEXT_PROMPT_rev39.m
   around it in `sticker.py` rather than fixing the module.
 * **THE SHEET IS A POSE IN ONE MORE WAY:** `DESPECKLE_MM`, `ALBEDO_BLUR_MM`,
   `SHADE_BLUR_MM`, `SHADE_MULT`, `AO_MULT`, `LINE_MIN_MM` and `BLEED_MM` are all AUTHORED
-  constants. They are reported on every run and labelled AUTHORED on the artefact, but
-  **they were tuned by looking, and a different context would tune them differently.**
+  constants. ⚠ **The first draft of this line claimed they were "labelled AUTHORED on the
+  artefact". THEY WERE NOT — they were reported at run time only, and the sheet's AUTHORED
+  line named four ELEMENTS, not one constant. The rule-17 adversary extracted the SVG's six
+  text nodes and showed it. The colophon now prints all seven** (rule 13). They are still
+  **tuned by looking, and a different context would tune them differently and get a
+  different sticker.**
 * **A PHOTOGRAPH OF A REAL TACOMBI SHOPFRONT OR SIGN IS STILL OWED AND STILL NOT SUPPLIED**
   (asked at rev 77's close). Every reference in this tree is the vehicle.
+
+---
+## §7 WHAT THE RULE-17 ADVERSARY FOUND IN THE BRIEF **I** WROTE
+
+**29 findings. Nine change what rev 79 should do; all nine are fixed, and the fixes are
+recorded in `NEXT_CONTEXT_PROMPT_rev78.md` §8 so the next context knows this file was
+tested and where it was weak.**
+
+**THE TWO THAT MATTER MOST WERE BOTH SELF-INFLICTED IRONIES:**
+
+**`F345` was not a row.** It had been appended to F344's line with no newline — one
+3465-character line carrying two findings — so the register's own table could not render
+the project's oldest live row. **F344 is the row about a finding that lost its register
+row.** One newline.
+
+**THE VIEWPOINT ROW IS NOT TRUNCATED, AND I SPENT AN OWNER QUESTION ON SOMETHING THE RECORD
+ANSWERS.** I wrote that `AUDIT_rev43.md`'s VIEWPOINT row was hard-cut and its disambiguating
+sentence lost. **MEASURED: its DESIGN cell is 142 characters and ends in a full stop** —
+*"…The face and the flank are provably exclusive; choose the flank."* What is hard-cut at
+120 is a DIFFERENT COLUMN on all eight rows, the trailing symbol list. Only rows 2 and 8
+end mid-thought. **So the face/flank question was already settled in the record, in favour
+of the flank, and the A/B I sent the owner asked him something he did not need to answer.**
+The claim was wrong in the brief, in F348, in `sticker_pass.py`'s docstring **and on the
+shipped artefact's own colophon** — all four are corrected. ⚠ **`CONCEPT_ROUND_rev77.md`
+§5.0b item 5 carries the same error and was almost certainly where I inherited it.**
+
+**AND ONE GUARD OF THE 37 COULD NEVER HAVE FIRED.** `sticker.py`'s S1 asserted the identity
+that DEFINES the recovered scale — residual exactly 0.0. Rule 6, in the revision whose own
+ledger quotes rule 6. Replaced with a comparison against `STATE.md`'s overall length
+(65.1 mm at 1:70.37, a quantity the recovery does not use) and **watched failing at 10× and
+¹⁄₁₀× the scale**.
+
+**Eight published figures did not recompute** and are corrected or withdrawn: the closure
+run (five per the script, **seven** in truth, not six); *"2091"* strokes (the captures read
+2103 and 1719); *"2104"*; *"153 characters"* (149 and 150); *"three untouched concepts"*
+(two — the third is the sticker this revision built); *"14 findings all carried"* (eight);
+the *"wrap-around artefact"* explanation of the nose capture's 200° (`_arc()` IS wrap-safe,
+so the span is real and remains **unexplained**); and the 0.18° classification margin quoted
+without the **0.1 % of chromatic area** that sizes it.
+
+⚠ **AND WHAT IT COULD NOT CHECK, WHICH IS THE REAL CEILING ON THIS AUDIT:** it did not run
+`verify_clone.sh`, `audit_brief.py`, Blender, `sticker_pass.py` or `la_rueda.py`. So the 449
+total, `--fix-count`'s behaviour, the three `T1_STK_*` ablations **against a real capture**
+rather than the fabricated mask, and the third leg of the byte-identity claim are unverified
+by it — and **no verifier row binds any of them.**
