@@ -179,7 +179,7 @@ def panels(cap, denom, log=log):
         "the owner's call, not this script's"
         % (draw_w, draw_h, art_w, denom, want_mm, draw_w, denom_for_200,
            want_mm))
-    COLOPHON_LINES = 15
+    COLOPHON_LINES = 19
     colophon_h = 5.0 + COLOPHON_LINES * 1.9 + 3.0
     label_h = 5.5
     sheet_w = art_w + 12.0
@@ -286,46 +286,109 @@ def panels(cap, denom, log=log):
                     break
     log("  shut BY GEOMETRY: %d component(s) whose bbox lies inside one of "
         "%d aperture bbox(es) -- measured, not named" % (n_geo, len(boxes)))
-    # ⚠ THE RESIDUAL, MEASURED AND NAMED RATHER THAN ITERATED AT A FOURTH TIME.
-    # The bbox rule above does not catch the counter shelf: `chrome_dull` is
-    # ONE component that runs the length of the flank, so its bbox is wider
-    # than any single aperture's and containment never fires.  Two grey blocks
-    # therefore survive inside bays 1 and 2.  I found them by sampling the
-    # proof (they are `chrome_dull`, measured, not guessed) and I am reporting
-    # the number rather than special-casing the name -- shutting `chrome_dull`
-    # by name would delete the trim and the bumper, which are correct drawing.
-    # A future context with a real aperture-aperture mask should finish this.
+    # AND SHUT WHAT THE SEAL RING ENCLOSES.  This is the pass that finally
+    # closes the bays, and it only became possible once the opening was
+    # defined correctly: the three serving apertures are UNGLAZED, so every
+    # earlier attempt (by name, by palette slot, by `glass` bbox) was looking
+    # at the wrong openings.  The seal is the physical surround; anything
+    # inside it that is not the body, the seal or the festoon string is seen
+    # THROUGH the aperture and the daylight state shuts it.
+    _seal0 = (index == ix["rubber"]) & art if "rubber" in ix else np.zeros_like(art)
+    _sl0, _ = _ndi.label(_seal0, structure=np.ones((3, 3)))
+    _open0 = np.zeros_like(art)
+    for sl in _ndi.find_objects(_sl0):
+        if sl is not None and (sl[0].stop - sl[0].start) > 40 \
+           and (sl[1].stop - sl[1].start) > 40:
+            _open0[sl] = True
+    if not NOSHUT:
+        _body0 = np.zeros_like(art)
+        for n0 in ix:
+            if who.get(n0) == "red" or n0 == "T1_paint":
+                _body0 |= (index == ix[n0]) & art
+        _extra = _open0 & art & (~_body0) & (~_seal0) & (~lamp) & (~shut)
+        shut |= _extra
+        log("  shut BY THE SEAL RING: %d further px enclosed by an aperture "
+            "surround -- the pass that actually closes the bays"
+            % int(_extra.sum()))
+    # ⚠⚠ THE RESIDUAL — AND ITS FIRST TWO VERSIONS WERE BOTH WRONG, RETRACTED
+    # HERE IN THE SAME REVISION (rule 13).
     #
-    # ⚠⚠ AND THE FIRST VERSION OF THIS MEASUREMENT WAS A TAUTOLOGY (rule 6).
-    # It read `(~shut) & fill(galley)`, and since `shut` is built FROM `galley`
-    # that expression is zero by construction -- it printed 0 px and could
-    # never print anything else.  Watched printing 0 and caught for that
-    # reason, on the same revision, which is rev 78's own S1 defect arriving
-    # by a different door.  The opening is now defined from a DIFFERENT
-    # quantity than the thing being tested: the bay GLAZING's own component
-    # bounding boxes.  Two independently obtained quantities (rule 6).
+    # v1 read `(~shut) & fill(galley)`.  `shut` is built FROM `galley`, so that
+    # is zero BY CONSTRUCTION -- a tautology (rule 6) that printed 0 px and
+    # could never print anything else.
+    #
+    # v2 defined the opening from the `glass` material's component boxes.  That
+    # IS independent of `shut`, so it escaped the tautology -- and it measured
+    # THE WRONG OPENINGS.  MEASURED: `open_reg` from `glass` overlaps `gal_*`
+    # by ZERO pixels, because THE THREE SERVING APERTURES HAVE NO GLAZING —
+    # `STATE.md` says so in terms ("open serving apertures on +Y: 3").  The
+    # only glazed openings on this flank are the cab door window and the front
+    # quarter light.  So v2's 1075 px was leakage around the CAB WINDOWS, and
+    # the cause published with it -- "the counter shelf, in bays 1 and 2" --
+    # was wrong: by material the 1075 px is 759 `rubber`, 232 `bulb` and only
+    # 84 `chrome_dull`.  **A number was published off a mask nobody painted.
+    # That is rule 8, the defect this project calls its most repeated.**
+    #
+    # v3, here.  The opening is the BAY SEAL RING -- the `rubber` components,
+    # which are the physical surround of each aperture.  Independent of the
+    # galley contents and of `shut` (rule 6), and it actually covers the bays:
+    # three seal components hold 11728 / 10457 / 9550 galley px, and the fourth
+    # large one is the cab window at 0.  MEASURED, and the mask is painted to
+    # `probe_scratch/apaga_resid.png` every run so the next reader can look at
+    # it instead of trusting this comment (rule 8).
+    seal = (index == ix["rubber"]) & art if "rubber" in ix else np.zeros_like(art)
+    s_lab, _ = _ndi.label(seal, structure=np.ones((3, 3)))
     open_reg = np.zeros_like(art)
-    if "glass" in ix:
-        g_lab, _ = _ndi.label((index == ix["glass"]) & art,
-                              structure=np.ones((3, 3)))
-        for sl in _ndi.find_objects(g_lab):
-            if sl is not None and (sl[0].stop - sl[0].start) > 20 \
-               and (sl[1].stop - sl[1].start) > 20:
-                open_reg[sl] = True
+    nbay = 0
+    for sl in _ndi.find_objects(s_lab):
+        if sl is None:
+            continue
+        if (sl[0].stop - sl[0].start) > 40 and (sl[1].stop - sl[1].start) > 40:
+            open_reg[sl] = True
+            nbay += 1
     body_ix = {ix[n] for n in ix if who.get(n) == "red" or n == "T1_paint"}
-    resid = open_reg & art & (~shut)
+    resid = open_reg & art & (~shut) & (~seal)
     for bk in body_ix:
         resid &= ~(index == bk)
+    resid &= ~lamp          # the lamps are DRAWN on purpose in panel 1
+    # AND EXCLUDE THE SEAL RING ITSELF.  It DEFINES the opening; it is not
+    # something showing THROUGH it, and it is drawn on purpose.  Painting the
+    # mask and looking is what showed this: the magenta was mostly the four
+    # seal outlines.  Counting the frame as leakage inflated the residual by
+    # 2751 px and would have made A8 a red about correct drawing (rule 8).
     n_resid = int(resid.sum())
-    log("  aperture opening region = %d px, from the GLAZING's own component "
-        "boxes (not from `shut`, which would be a tautology)"
-        % int(open_reg.sum()))
+    try:
+        from PIL import Image as _I
+        _I.fromarray((resid * 255).astype("uint8")).save(
+            os.path.join(ROOT, "probe_scratch", "apaga_resid.png"))
+    except Exception:
+        pass
+    by = {}
+    for k in np.unique(index[resid]) if n_resid else []:
+        nm3 = {v: q for q, v in ix.items()}.get(int(k), "?")
+        by[nm3] = int(((index == k) & resid).sum())
+    log("  aperture opening = %d px over %d seal ring(s), from the SEAL "
+        "geometry -- independent of `shut` AND of the galley (rule 6); it "
+        "covers the three OPEN serving bays, which have no glazing at all"
+        % (int(open_reg.sum()), nbay))
     log("  ⚠ RESIDUAL SHOWING THROUGH THE SHUT APERTURES: %d px (%.4f %% of "
-        "art).  NAMED, not hidden -- the daylight state is not perfectly the "
-        "panel van the concept asks for" % (n_resid, 100.0 * n_resid / tot))
+        "art), by material %s.  PAINTED to probe_scratch/apaga_resid.png -- "
+        "look at it before quoting it (rule 8)"
+        % (n_resid, 100.0 * n_resid / tot,
+           sorted(by.items(), key=lambda t: -t[1])[:6]))
+    # ⚠⚠ A8's CEILING, AND IT IS THE THIRD TIME THIS GUARD HAS BEEN A
+    # TAUTOLOGY IN ONE REVISION. STATED RATHER THAN DRESSED UP (rule 6, 12).
+    # Now that the seal-ring pass SHUTS exactly the set this expression
+    # MEASURES, `n_resid` is 0 on the normal path BY CONSTRUCTION. So A8's
+    # green is NOT evidence that the apertures are shut -- it is arithmetic.
+    # ALL of its discriminating power is in the ablation: with
+    # T1_APAGA_NOSHUT=1 it reads ~52 600 px and REDS. Read it that way and no
+    # other way, and DO NOT quote its green as a fidelity result.
+    # What IS evidence is the painted mask beside it: look at the PNG.
     ck(n_resid < 0.010 * tot,
-       "A8 %d px (%.3f %%) still show through the shut apertures -- the "
-       "daylight panel is not the panel van" % (n_resid, 100.0 * n_resid / tot))
+       "A8 %d px (%.3f %%) still show through the shut apertures against a "
+       "bar of %d px -- the daylight panel is not the panel van"
+       % (n_resid, 100.0 * n_resid / tot, int(0.010 * tot)))
     n_shut = lay(shut, y, DAY_BODY)
     n_lampd = lay(lamp, y, DAY_LAMP)
     # the line pass, clipped to the art, over the top
@@ -406,8 +469,18 @@ def panels(cap, denom, log=log):
        % (n_g2, n_g3))
     ck(n_l2 == n_l3, "A5 the two readings differ in lamp COUNT (%d vs %d); "
                      "they must differ only in INK" % (n_l2, n_l3))
+    # A9 -- THE CHECK THE OWNER'S A/B ACTUALLY DEPENDS ON, AND IT WAS MISSING.
+    # A4 and A5 assert the two night readings are the SAME in region count.
+    # NOTHING asserted they DIFFER. Set GLOW_DIM = DAY_LAMP and every other
+    # check here stays green while the owner is shown ONE answer twice -- a
+    # claim that lived only in a comment, which rule 10 says is not a test.
+    ck(tuple(GLOW_DIM) != tuple(DAY_LAMP),
+       "A9 reading A's lamp ink %s is identical to reading B's %s -- the two "
+       "night panels are the same picture and the owner's A/B is empty"
+       % (str(GLOW_DIM), str(DAY_LAMP)))
 
     return sh, y, dict(px_mm=px_mm, art_w=art_w, draw_w=draw_w,
+                       n_resid=n_resid,
                        draw_h=draw_h, want_mm=want_mm,
                        denom_for_200=denom_for_200,
                        n_lamp_regions=n_l2, tot=tot, tube=tube,
@@ -459,8 +532,16 @@ def colophon(sh, y, st, meta, denom, tag):
         "AUTORADO: cuerpo %s, crema %s, oscuro %s, lampara apagada %s."
         % (str(DAY_BODY), str(DAY_CREAM), str(DAY_DARK), str(DAY_LAMP)),
         "AUTORADO: simplificacion %.2f mm, area minima %.2f mm2, escala 1:%.3f,"
-        " separacion de paneles %.1f mm."
-        % (SIMPLIFY_MM, MIN_AREA_MM2, denom, PANEL_GAP_MM),
+        " separacion de paneles %.1f mm, VOID_FRAC %.2f, linea minima %.2f mm."
+        % (SIMPLIFY_MM, MIN_AREA_MM2, denom, PANEL_GAP_MM, VOID_FRAC,
+           LINE_MIN_MM),
+        "MEDIDO Y NO ARREGLADO: %d px (%.4f %% del arte) se ven todavia por las "
+        "aperturas cerradas.  El estado de DIA no es todavia" % (
+            st["n_resid"], 100.0 * st["n_resid"] / st["tot"]),
+        "   la panel van exacta que pide el concepto.  Se dice aqui, en la "
+        "hoja, no solo en el registro.",
+        "⚠ A8 vale 0 px POR CONSTRUCCION en la via normal; su unica fuerza "
+        "esta en la ablacion T1_APAGA_NOSHUT=1.  No se cite su verde.",
         "   Otro contexto elegiria distinto y obtendria otra calcomania.  Se "
         "dice, no se esconde.",
         "NINGUN INSTRUMENTO DE ESTE ARBOL PUEDE DECIR SI ESTO ESTA BIEN.  "
@@ -565,8 +646,13 @@ def main(argv):
        "has run off the bottom" % (ybot, st["sheet"][1]))
     # W6: the two dark readings must NOT be byte-identical pictures.  If they
     # are, the owner is being shown one answer twice.
-    ck(st["lamp"] > 0, "W6 the lamps are 0 px, so reading A and reading B are "
-                       "the same picture and the A/B is empty")
+    # W6 USED TO DUPLICATE A3 (both asserted `lamp > 0`) and its own comment
+    # claimed it compared the two night panels, which it never did. Rewritten
+    # to test a different failure: a glow ink that matches the night ground
+    # renders both dark panels blank.
+    ck(tuple(GLOW_INK) != tuple(NIGHT_GROUND),
+       "W6 the glow ink %s equals the night ground %s -- both dark panels are "
+       "blank" % (str(GLOW_INK), str(NIGHT_GROUND)))
     log("  wrote %s" % svg)
     log("  wrote %s" % png)
     log("%d checked, %d FAILED%s"

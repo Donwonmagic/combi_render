@@ -1390,17 +1390,40 @@ ck "and the owner's rev-77 ruling on it is carried" 1 \
 # explain it.  So the needle is built at run time and this comment names the
 # claim by DESCRIPTION only -- the sentence asserting that the spec row was cut
 # short.  Do not inline it, and do not "tidy" the concatenation away.
+# ⚠ COMPILED CACHES ARE EXCLUDED, AND THAT IS A REAL DECISION, NOT TIDYING:
+# a stale `__pycache__/*.pyc` still carries the OLD docstring after the source
+# is fixed, so without the exclusion this row reds on bytecode nobody edited
+# and the next context spends a session hunting a phrase that is not in any
+# source file.  Watched at rev 79: the second needle read 1 against a `.pyc`
+# alone.  The cost of the exclusion is stated -- these rows check SOURCE and
+# tracked content, and they cannot see a claim that survives only in bytecode.
 _f360n="TRUNCATED"" spec row"
 ck "no file claims the sticker spec row is truncated" 0 \
-   "$(grep -rl "$_f360n" . 2>/dev/null | grep -v '^\./\.git' | wc -l)"
-# THE KILL: plant the claim in a scratch copy and require the SAME expression
-# to find it.  mktemp, not a fixed /tmp path -- F343 counts 21 of those already.
-_f360d=$(mktemp -d)
-cp sticker_pass.py "$_f360d/plant.py"
-printf '\n# a POSE recovered from a %s\n' "$_f360n" >> "$_f360d/plant.py"
-ck "KILL: plant the retracted claim and it must be FOUND" FOUND \
-   "$(grep -q "$_f360n" "$_f360d/plant.py" && echo FOUND || echo MISSED)"
-rm -rf "$_f360d"
+   "$(grep -rl --exclude-dir=.git --exclude-dir=__pycache__ --exclude='*.pyc' \
+        "$_f360n" . 2>/dev/null | wc -l)"
+# ⚠ SECOND NEEDLE, rev 79: THE CLAIM HAS TWO PHRASINGS AND THE FIRST GUARD
+# CAUGHT ONLY ONE.  `sticker.py` asserted it as "one of the eight HARD-CUT AT
+# 120 CHARACTERS" and so passed a guard written for the other wording, which is
+# why F360's first close was incomplete.  Both are bound now.  ⚠⚠ CEILING,
+# STATED: this is a PHRASE guard, not a meaning guard.  A third wording would
+# pass it.  It is the best a grep can do and it is not a proof of absence.
+_f360m="eight HARD-CUT"" AT 120"
+ck "no file asserts the VIEWPOINT row is one of the cut ones" 0 \
+   "$(grep -rl --exclude-dir=.git --exclude-dir=__pycache__ --exclude='*.pyc' \
+        "$_f360m" . 2>/dev/null | wc -l)"
+# THE KILL.  ⚠⚠ ITS FIRST VERSION WAS A TAUTOLOGY AND COULD NOT FAIL: it wrote
+# the needle into a file under `mktemp -d` and grepped THAT FILE for it, so it
+# exercised printf and grep and never touched the detector -- whose expression
+# is a RECURSIVE grep over the REPOSITORY, which a scratch directory outside
+# the tree is invisible to.  Caught by the rule-17 adversary, rev 79.  The
+# plant now lands INSIDE the repository, is measured by the detector's OWN
+# expression, and is removed again.
+_f360p="./.f360_plant_$$.tmp"
+printf '# a POSE recovered from a %s\n' "$_f360n" > "$_f360p"
+ck "KILL: plant it in the TREE and the detector must count it" 1 \
+   "$(grep -rl --exclude-dir=.git --exclude-dir=__pycache__ --exclude='*.pyc' \
+        "$_f360n" . 2>/dev/null | wc -l)"
+rm -f "$_f360p"
 ck "newest brief records its own audit"      1 "$(if [ -n "$_LATEST_BRIEF" ]; then grep -c 'AUDITED AGAINST THE MACHINE' "$_LATEST_BRIEF" 2>/dev/null; else echo 99; fi)"
 
 # ---- rev 52: THE CARRY-FORWARD BLOCK ------------------------------------

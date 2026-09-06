@@ -13,10 +13,10 @@
 > CLOSE F318.** Those are **DE-RANKED, NOT ANSWERED.** It does not retire rule
 > 55 either. **Do not read F361 as permission to stop measuring.**
 >
-> **HE ALSO BOUGHT A CONCEPT (F362)** — the first of 4.5 MB of concept material
+> **HE ALSO BOUGHT A CONCEPT (F362)** — the first of 2.58 MB of concept material
 > ever shown to him — **and ordered its one unresolved point drawn BOTH WAYS.**
 
-**REV 79 CLOSED THREE FINDINGS: F354, F360, F363.** That ends a run of **seven**
+**REV 79 CLOSED FOUR FINDINGS: F354, F360, F363, F364.** That ends a run of **seven**
 consecutive revisions at zero (72–78). ⚠ **RUN `python3 revstats.py` AND READ
 ITS OWN NUMBER; DO NOT TRUST THIS LINE.** ⚠⚠ **AND KNOW WHY IT IS TRUSTWORTHY
 NOW: at rev 79 that script COUNTED OCCURRENCES OF A STRING, NOT FINDINGS, and
@@ -68,14 +68,24 @@ the branch it named was NOT merged.** Rev 79 worked on
 ```bash
 python3 apaga.py --selftest                    # 7 checked, 0 FAILED, ~2 s
 python3 apaga.py --tag side                    # 13 checked, 0 FAILED
-T1_APAGA_NOSHUT=1 python3 apaga.py --tag side  # THE KILL.  A8 must RED
+T1_APAGA_NOSHUT=1 python3 apaga.py --tag side --out /tmp/ab  # THE KILL: A8 REDS
 python3 sticker.py --selftest                  # 6 checked, 0 FAILED
+python3 sticker.py --tag flank                 # 38 checked, 1 FAILED -- C4 BY DESIGN
 ```
+⚠ **`38`, NOT the `37` the rev-79 brief printed twice.** `probe_scratch/` is
+TRACKED, so the captures ship and this runs on a COLD CLONE with no Blender at
+all. **37 is the count of `ck(` call sites in the source; W1 increments the
+counter directly and is not one of them. The figure was read off the code
+instead of watched printing (rule 5), and the sentence that explained the
+difference was dropped when the brief was shortened (rule 16). Both restored.**
 **`APAGA LA LUZ` — `design_out/apaga_r79_side.{svg,png}`.** A die-cut glow-vinyl
 sticker, **children's line (F331)**, three panels off ONE `side` capture: the
 shut panel van by day, and two night readings that share a glowing kitchen and
-**differ only in whether the 118 festoon lamps are lit. That A/B is the owner's
-order and it is still unanswered.**
+**differ only in whether the festoon lamps are lit. That A/B is the owner's
+order and it is still unanswered.** ⚠ **F365: the layer is the `bulb` MATERIAL,
+which `build.py` gives to `bulb_string()` AND `tail_board_bulbs()` — so the A/B
+moves the flank's 118 PLUS ~26 on the tail board, and the drawn mask traces 122
+regions, a third number. NEVER PRINT A BARE LAMP COUNT.**
 
 **THE SPINE REPRODUCES: `grep -c "emit=("` over the four geometry modules gives
 `0 / 0 / 1 / 0`** — the one hit is `gal_tube`, the galley work strip.
@@ -92,9 +102,17 @@ as the cost of the other.**
 includes the counter and the OPEN tail board. **1:23.79 would put the whole
 silhouette at 200 mm. THAT IS AN OWNER QUESTION, not a rescale to perform.**
 
-⚠ **AND IT IS NOT FINISHED: 1075 px (0.1916 % of art) of counter shelf still
-show through the shut apertures in bays 1 and 2.** Three attempts failed — by
-name, by palette slot, by bbox containment. **It is printed on the artefact.**
+⚠⚠ **AND THE FIGURE THE REV-79 BRIEF PUBLISHED HERE — *"1075 px of counter
+shelf in bays 1 and 2"* — IS RETRACTED. F364.** That number came off a window
+built from the `glass` material, and **the three serving apertures are
+UNGLAZED** (`STATE.md`: *"open serving apertures on +Y: 3"*), so the window
+overlapped the galley by **ZERO px** and was measuring the CAB windows. By
+material the 1075 px was 759 `rubber`, 232 `bulb` and 84 `chrome_dull`. **A
+number published off a mask nobody painted — rule 8.** The opening is now the
+**BAY SEAL RING** and the mask is **PAINTED to `probe_scratch/apaga_resid.png`
+every run: LOOK AT IT.** ⚠ **A8 now reads 0 px on the normal path BY
+CONSTRUCTION and its green is NOT evidence — all its power is in the ablation.
+The artefact's colophon says so itself.**
 
 ---
 ## §2 RANKED WORK FOR REV 80 — **AND THE OWNER OUTRANKS THE RANKING**
@@ -146,10 +164,42 @@ check *"REMEMBER TO HOLD UP NEXT TO THE ACTUAL SOURCE PHOTOS"*, whose own row
 says **the tail and the roof have still never been done.** Rule 16 asks for the
 substance, not the identifier. **Still owed.**
 
-### **7. THE EMBLEM. F191 STANDS AND F361 DID NOT TOUCH IT.** 0.8528 against
+### **7. THE LOCATIONAL SERIES — BETHESDA. F340 / F341. ⚠ THE REV-79 BRIEF
+DROPPED THIS ENTIRELY AND IT IS A RULE-16 VIOLATION — F341 IS GRADED
+`RULED-rev77` AND ITS ROW CALLS THE TWO RULINGS *"the operative instructions"*.**
+It was ranked FOURTH of eight in the incoming brief, above F318 and the emblem.
+He floated it with the word ***"maybe"***; **he ruled on HOW, not THAT.**
+⚠ **Two corrections travel with it and both are owed to him:** the glyph
+inventory is **case-sensitive** — `script_gen.py` holds ONE capital (`draw_T`)
+and six lowercase — so against ALL-CAPS settings `TAQUERIA EL CRISTAL` is
+missing **9** and `TAQUERIA BUENA BETHESDITA` **11**, not the 6 and 8 he was
+shown; and **F359** — the `Señor`-recovery saving is **eleven-to-ten, ONE
+letter**. ⚠ **`CRYSTAL CITY → EL CRISTAL` IS AN INFERENCE, NOT HIS WORDS.**
+⚠ **And his ruling was framed under `SPEC.md` §10.10's "hard bar", which governs
+*"every painted element ON THIS VEHICLE"*. A shop sign in Bethesda is not one
+(rule 34).**
+
+### **8. THE EMBLEM. F191 STANDS AND F361 DID NOT TOUCH IT.** 0.8528 against
 P1b's 0.9465, and the objective still has no legibility term. His ninth report.
 
-### **8. DE-RANKED, SAID OUT LOUD RATHER THAN DROPPED:** **F156** (the `Senor`
+### **9. STILL OPEN AND CARRIED HERE BECAUSE THE REV-79 BRIEF DROPPED THEM:**
+* **F18 IS DRAWN BUT NOT CLOSED.** The register's oldest live row, the project's
+  original deliverable. `LEDGER_rev44.md` §7.3's *"no code, no asset, nothing on
+  disk"* is FALSE since rev 78 — **but the row is not closed.**
+* **SIX OF THE REV-78 RULE-15 ADVERSARY'S FOURTEEN FINDINGS ARE UNLOCATED** —
+  not in the register, not in a ledger. Rev 78's *"all carried"* is withdrawn
+  and the six have never been found.
+* **F347's CEILING TRAVELS WITH EVERY SCALE FIGURE THIS PROJECT PRINTS:** a
+  78 mm lens is not orthographic, so a nominal ratio holds only at the
+  vehicle's CENTRE DEPTH — **across the bbox the scale spreads 44.4 %,
+  MEASURED.** ⚠ **`apaga.py`'s 234.06 mm and 1:23.79 are computed through that
+  same pinhole assumption and are quoted to two decimals with no ceiling. THE
+  CEILING APPLIES TO THEM TOO.**
+* **`la_rueda.py` needs `probe_scratch/rueda.json`, which is UNTRACKED** — so on
+  a clone that byte-identity leg cannot be checked at all, and no verifier row
+  binds it (F350's companion is still owed).
+
+### **10. DE-RANKED, SAID OUT LOUD RATHER THAN DROPPED:** **F156** (the `Senor`
 gate row scoring a DELIBERATE DEPARTURE) and **THE GARMENT SLOT**. Neither is
 done and neither is withdrawn. `flank_compare.py` and `cream_rms.py` are the
 paint instruments if a flank question returns.
@@ -161,12 +211,16 @@ paint instruments if a flank question returns.
 |---|---|
 | **F360** | Rev 78's retraction reached its prose and **not the module that WRITES the claim**, so the false sentence survived in **six** tracked files. Fixed at the generator; a companion row is **WATCHED FAILING**. |
 | **F354** | `probe_rev77_t3floor.py`'s `0 FAILED` was a string literal. `FAILED` now counts unparseable frames — **not** the rung, which F334 un-gated. |
-| **F363** | `revstats.py` counted closure STRINGS, not findings. **It printed 3 for two.** Corrects rev 71 to `1`. |
+| **F363** | `revstats.py` counted closure STRINGS, not findings. **It printed 3 for two.** Corrects rev 71 to `1`. ⚠ **NOT `CLAUDE.md`'s rev-70 figure, which is correct.** |
+| **F364** | `apaga.py`'s shut-aperture guard, wrong three times in one revision — tautology, then **the wrong openings entirely**. Rebuilt on the bay seal ring and the mask is PAINTED. **A8's green is arithmetic; only its ablation discriminates.** |
 
 ⚠ **`F361` AND `F362` ARE RULINGS, NOT CLOSURES, AND `F362` IS GRADED
 `OPEN-rev79`** — the lamp A/B and the scale are both live owner questions.
-**F348, F350, F355, F356, F357, F358 REMAIN OPEN from rev 78.** F350's tint trap
-in `sheet.py` is still there and its companion row is still owed.
+**F348, F355, F356, F357, F358 are graded `OPEN-rev78`. F350 is graded
+`MEASURED-rev78`** — settled as a diagnosis, open as a repair: `sheet.py`'s tint
+trap is still there and its companion row is still owed. ⚠ *(The first draft of
+this line called F350 "OPEN", in the section headed READ THE GRADE IN
+`OPEN_FINDINGS.md`, NOT THIS TABLE.)* **F362 and F365 are `OPEN-rev79`.**
 
 ## §3b ⚠ REV 72–79's FIXES ARE LOCKED. **A red row is a FINDING ABOUT YOUR CHANGE.**
 A re-base needs the cause NAMED and a companion row making that cause separately testable.
@@ -191,10 +245,19 @@ count.**
 T1_SUB=1 T1_VERIFY=1 /tmp/blender/blender -b -P build.py     # -> "VERIFY: 0 fail, 0 warn"
 python3 apaga.py --selftest                   # NEW.  7 checked, 0 FAILED
 python3 apaga.py --tag side                   # NEW.  13 checked, 0 FAILED
-T1_APAGA_NOSHUT=1 python3 apaga.py --tag side # NEW.  THE KILL -- A8 must RED
+T1_APAGA_NOSHUT=1 python3 apaga.py --tag side --out /tmp/ab   # THE KILL -- A8 REDS
+  # ⚠ `--out` IS NOT OPTIONAL: without it the ablated sheet OVERWRITES the
+  # tracked design_out/apaga_r79_side.{svg,png} the owner was shown, and
+  # `git checkout -- probe_scratch/` does NOT reach design_out/ (F358)
 python3 sticker.py --selftest                 # 6 checked, 0 FAILED
-python3 sticker_pass.py --tag flank --lines   # ~3 min.  ⚠ A FULL CYCLES RENDER
-python3 sticker.py --tag flank                # 37 checked, 1 FAILED -- C4 BY DESIGN
+python3 sticker_pass.py --tag flank --lines   # ~3 min.  ⚠⚠ NOT A PROBE: it
+  # calls bpy.ops.render.render() over the whole scene.  DO NOT RUN IT WHILE
+  # §0's QUEUE IS GOING -- CLAUDE.md forbids fanning out Blender, and §0's
+  # "probes, .md and the design scripts are fine" does NOT license this one.
+  # ⚠ AND IT OVERWRITES THE TRACKED CAPTURE the artefacts are drawn from, whose
+  # line pass is NOT run-to-run stable.  Re-running it makes a strictly worse
+  # tree unless you mean to replace the capture.  There is usually no reason to
+python3 sticker.py --tag flank                # 38 checked, 1 FAILED -- C4 BY DESIGN
 python3 probe_rev73_tailboard.py out/r80_side.png   # 5 checked, 1 FAILED -- T4 only
 python3 probe_rev77_t3floor.py                # its verdict is REAL now (F354)
 python3 probe_rev74_tread.py out/r80_side.png # 8 checked, 0 FAILED
@@ -211,6 +274,11 @@ T1_SUB=2 /tmp/blender/blender -b -P audit.py  # rewrites STATE.md -- COMMIT FIRS
   #   DO NOT SHOW THE CALENDAR TO HIM WITH THAT LINE ON IT WITHOUT SAYING SO.
 python3 audit_brief.py ; python3 audit_adversary.py   # ⚠ THE FIRST ONE RUNS THE VERIFIER
 ```
+**THE TRACKED CAPTURE'S COST, STATED RATHER THAN HIDDEN:** `probe_scratch/sticker/`
+now holds **21 tracked files, 10.1 MB** (rev 78's 14 plus rev 79's `side` capture).
+That is why `sticker.py` and `apaga.py` both run on a cold clone with no Blender.
+**The rev-79 brief dropped this disclosure and it was stale by 4 MB.**
+
 ⚠⚠ **17+ PROBES REPAINT TRACKED FILES (F329). THE RULE, NOT THE LIST:**
 `git status --porcelain ; git checkout -- probe_scratch/` — ⚠ **and F358: `la_rueda.py`
 and `calendario.py` write into TRACKED `design_out/`, which that remedy does NOT reach.**
@@ -266,7 +334,10 @@ rev 78's ledger.** Also **10** (a default where a measurement existed), **13**,
 | **`HANDOFF_CARRIERS.md`** | **NOT auto-imported. `cat` it when pointed at.** Every carrier: the goal, the reference set, the refuted emblem routes, §4 the owner's rulings, §5 rules 34–58 |
 | **`CONCEPT_BENCH_rev77.md`** | **THE CARRIER. All 75 concepts in full. 510 KB. Do not compact it** |
 | **`CONCEPT_ROUND_rev77.md`** | 255 KB: the synthesis and the audit-based ranking that **SUPERSEDES `DESIGN_PROGRAM_rev77.md` §2**. ⚠ **Its §5.0b item 5 still says the sticker VIEWPOINT row is hard-cut. IT IS NOT — 142 chars, ends in a full stop, "choose the flank". F360. Do not inherit it** |
+| **`CONCEPT_AUDIT_rev77.md`** | 765 KB, the adversarial verdicts across four lenses. ⚠ **The rev-79 brief dropped this row and NOTHING pointed at it — `verify_clone.sh`'s own comment: "a carrier nothing points at is a carrier already half gone." Restored** |
+| **`WORKFLOW_rev76_CONCEPTS.md` / `_SYNTHESIS.md`** | 1.0 MB, named in NEITHER handoff document until now |
 | `AUDIT_rev43.md` | **the sticker spec — in `## 2. SURVIVING FINDINGS`, NOT §5 (F352)** |
+| `LEDGER_rev44.md` | §7.3's *"no code, no asset, nothing on disk"* — the sentence F345 falsified |
 | `apaga.py` | **NEW.** `APAGA LA LUZ`, the children's line's second object |
 | `STATE.md` | machine-written; outranks every prose description |
 | `SPEC.md`, `REF_MEASUREMENTS.md`, `SURVEY_rev49_photoreal.md`, `ROADMAP_rev68.md`, `REMAINING_WORK_rev61.md`, `EMBLEM_HANDOFF.md`, `PHOTOS_WANTED_rev52.md` | large; load the one the task needs |
@@ -301,16 +372,16 @@ anything is ready.**
    If it is not in `git ls-files`, it does not exist.**
 
 ---
-**⚠ THIS BRIEF WAS AUDITED AGAINST THE MACHINE.** ⚠⚠ **AND ITS AUDIT IS WEAKER
-THAN REV 78's, WHICH RAN TWO ADVERSARIES AND A COLD CLONE. SAID PLAINLY RATHER
-THAN DRESSED UP: rev 79 spent its budget on the owner's two rulings and on
-building the object he bought, and closed with the verifier and the probe
-battery run but WITHOUT the rule-15 and rule-17 adversaries. THAT IS A GAP IN
-THIS DOCUMENT, NOT A CLEAN BILL. Treat every figure here as unaudited and
-recompute it. The three phrases `verify_clone.sh` binds VERBATIM are carried:
-the ranking sentence opening §2, rule 55's wording in §5, and the first line of
-this paragraph — IF YOU SHORTEN THIS FILE, RE-RUN THE VERIFIER AFTERWARDS AND
-ON A COLD CLONE (F328).**
+**⚠ THIS BRIEF WAS AUDITED AGAINST THE MACHINE, TWICE, AND BOTH PASSES FOUND
+REAL DEFECTS IN IT.** The incoming one (rule 15) returned 11 against the brief
+rev 79 was handed; the outgoing one (rule 17) returned **23 against THIS FILE,
+nine of which changed what rev 80 should do.** **§8 records them, and an earlier
+draft of this paragraph said NO ADVERSARY HAD READ IT — that was true when
+written and is now false; it is corrected rather than left standing (rule 13).**
+The phrases `verify_clone.sh` binds VERBATIM are carried: the ranking sentence
+opening §2, rule 55's wording in §5, and the first line of this paragraph — **IF
+YOU SHORTEN THIS FILE, RE-RUN THE VERIFIER AFTERWARDS AND ON A COLD CLONE
+(F328).**
 
 **WHERE THIS BRIEF IS WEAKEST, STATED RATHER THAN HIDDEN:**
 * **NO ADVERSARY READ IT.** Rev 78's found 29 defects in its own brief, nine of
@@ -325,3 +396,72 @@ ON A COLD CLONE (F328).**
 * **EVERY AUTHORED CONSTANT IN `apaga.py` WAS TUNED BY LOOKING.**
 * **THE `nose` CAPTURE'S 200.0° HUE WEDGE IS UNEXPLAINED (F353).**
 * **THE EMBLEM IS NOT RIGHT.** 0.8528 against 0.9465, no legibility term.
+
+---
+## §8 ⚠ WHAT THE TWO ADVERSARIES FOUND, RECORDED AS RULE 17 REQUIRES
+
+**The rule-17 pass returned 23 findings against this brief, `LEDGER_rev79.md`,
+F360–F363 and `apaga.py`. NINE changed what rev 80 should do. All nine are
+fixed above — because it found them, not before it did.**
+
+1. ⚠⚠ **`apaga.py`'s A8 MEASURED THE CAB WINDOWS, NOT THE SERVING APERTURES.**
+   Its window came from the `glass` material; **the three serving bays are
+   UNGLAZED**, so the window overlapped the galley by **ZERO px**. The
+   published `1075 px of counter shelf in bays 1 and 2` was 759 `rubber`, 232
+   `bulb` and 84 `chrome_dull` around the cab glazing. **A number off a mask
+   nobody painted — rule 8.** Rebuilt on the bay SEAL RING, and the mask is
+   painted every run. **F364.**
+2. ⚠⚠ **"IT IS PRINTED ON THE ARTEFACT" WAS FALSE** — the residual and the
+   constants `VOID_FRAC` / `LINE_MIN_MM` were in the log only. **This is rev
+   78's §8 item 9 repeating one revision later.** They are now in the SVG's
+   text nodes, verified by extracting them.
+3. ⚠⚠ **F363's ROW BLAMED `CLAUDE.md` FOR A FIGURE IT DOES NOT PRINT.**
+   `CLAUDE.md` says **rev 70**, and rev 70 genuinely IS 2. **A correct figure in
+   the project's highest-authority file was nearly damaged.** Only the incoming
+   brief said *"rev 71 closed 2"*.
+4. **THE F360 KILL ROW WAS A TAUTOLOGY.** It wrote the needle into a `mktemp`
+   file and grepped THAT file — exercising `printf` and `grep`, never the
+   detector, whose expression is a recursive grep over the REPOSITORY. The
+   plant now lands inside the tree.
+5. **`sticker.py` STILL ASSERTED THE RETRACTED CLAIM** in different words
+   (*"one of the eight HARD-CUT AT 120 CHARACTERS"*), so F360's first close was
+   incomplete and its guard too narrow. Fixed; a second needle binds that
+   wording, **with its ceiling stated — a phrase guard is not a meaning guard.**
+6. **CARRIERS DROPPED (rule 16), the highest-value class:**
+   `CONCEPT_AUDIT_rev77.md` (765 KB, pointed at by nothing), **F340/F341 the
+   locational series** (graded `RULED-rev77`, ranked 4th of 8 in the incoming
+   brief), F347's 44.4 % scale ceiling, F18's open status, the six unlocated
+   rev-78 findings, the `sticker_pass.py` do-not-fan-out warning, and the
+   tracked-capture cost. **All restored above.**
+7. **`sticker.py --tag flank` READS 38, NOT 37** — and the sentence explaining
+   why was dropped when the brief was shortened. Both fixed.
+8. **"4.5 MB of concept material" DOES NOT RECOMPUTE.** The largest corpus is
+   **2.58 MB**.
+9. **THE A/B TOGGLES MORE THAN THE 118 FESTOON LAMPS** — the `bulb` material is
+   also on the tail board. **F365.**
+
+**Also found and acted on:** W6 duplicated A3; nothing guarded that the two
+night readings differ in INK (**A9 added and watched failing**); the
+`T1_APAGA_NOSHUT` kill as written overwrote the shipped artefact (`--out` now
+mandatory); §3 called F350 "OPEN" where the register grades it `MEASURED`;
+`revstats.py`'s new counter keys on the line's FIRST id, which trades an
+inflation bug for a latent deflation one; and `sticker_pass.py` writes the same
+viewpoint note for every tag, so `side` (az 90) carries a sentence about 18°.
+
+**The rule-15 pass against the INCOMING brief returned 11**, of which the two
+that mattered: **F353's 89.6° hue wedge is a SINGLE-OUTLIER artefact** — drop
+the `script` wordmark (2.84 % of chromatic area, twenty-eight times the 0.1 %
+floor) and 23 of 24 materials span **42.8°, INSIDE the spec's 70°** — and the
+nose's 200.0° is `lens` at 180° against `script` at 340°, **explained in two
+minutes by a brief that forbade explaining it.** ⚠ **AND `T1_paint`'s "hue" is
+1.80° on the flank and 42.86° on the nose — the same material, so the figure is
+a property of which side the camera is on. NOBODY PAINTED THAT WINDOW. Rev 80
+should re-open F353 rather than inherit its headline.**
+
+⚠ **THEIR CEILING: neither ran `verify_clone.sh`, `bootstrap.sh`, Blender or
+`sticker_pass.py`. The 451, the `T1_*` ablations against a real capture, and
+every `probe_rev*` figure in §4 are UNVERIFIED BY THEM.** The rule-17 pass was
+additionally blocked from running `apaga.py --tag side`, so it never read that
+script's own summary line (rule 9) and reproduced the arithmetic offline
+instead — **stronger for findings 1–2, no confirmation of the check count.**
+**Neither could judge whether either sticker is any good. Nothing in this tree can.**

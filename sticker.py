@@ -48,9 +48,16 @@ WHAT IS SAMPLED FROM THE ASSET AND WHAT IS AUTHORED -- THE WHOLE POINT
 
 CEILINGS, STATED (rule 12)
 --------------------------
-  * THE VIEWPOINT IS A POSE.  See `sticker_pass.py`'s docstring: the spec row
-    that carries it is one of the eight HARD-CUT AT 120 CHARACTERS, and 18 deg
-    admits two readings.  Both are drawn.  Neither is measured.
+  * THE VIEWPOINT IS A POSE.  See `sticker_pass.py`'s docstring.  ⚠ F360,
+    rev 79: THIS PARAGRAPH USED TO SAY THE ROW CARRYING IT WAS ONE OF THE
+    EIGHT CUT AT 120 CHARACTERS.  THAT IS FALSE and it is the last surviving
+    copy of a claim rev 78 believed it had retracted everywhere.  Measured:
+    the VIEWPOINT row's DESIGN cell is 142 characters and ENDS IN A FULL STOP
+    -- "...provably exclusive; choose the flank."  What is cut at 120 is a
+    DIFFERENT column, the trailing symbol list, on all eight rows.  The record
+    ANSWERS face-vs-flank; only WHICH AXIS the 18 deg is measured from is
+    open, and that is a pose either way.  Both readings are drawn.  Neither
+    is measured.
   * THE SCALE IS RECOVERED, NOT GIVEN.  The surviving spec text never states
     the sticker's scale; it states CONSEQUENCES of one (*"the 0.30 mm louvre
     pitch"*, *"the 0.159 m minimum cut feature"*, *"0.40 mm"* gold components).

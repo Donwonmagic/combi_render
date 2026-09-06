@@ -4,12 +4,12 @@
 
 **REV 79 SHIPPED NO VEHICLE GEOMETRY, AND THIS TIME THAT IS NOT A CONFESSION —
 IT IS THE OWNER'S STANDING RULING.** `revstats.py` prints
-**`LAST FIVE REVISIONS (75-79): 16 geometry lines, 3 findings closed`**. The
+**`LAST FIVE REVISIONS (75-79): 16 geometry lines, 4 findings closed`**. The
 geometry column reads `0` for the fourth revision running, and at rev 79 the
 owner was asked directly whether that was a problem and ruled that it is not:
 **FREEZE THE MODEL, DRAW FROM IT (F361)**.
 
-**THE ZERO-CLOSURE RUN IS BROKEN. Rev 79 closed THREE: F354, F360, F363.** The
+**THE ZERO-CLOSURE RUN IS BROKEN. Rev 79 closed FOUR: F354, F360, F363, F364.** The
 run was rev 72 through rev 78, seven revisions, every one `0`.
 
 ⚠ **AND THE CLOSURE FIGURE IS ITSELF A REV-79 FINDING. `revstats.py` PRINTED
@@ -69,7 +69,8 @@ and in F362. **The concept's published *"FIRST STEP: ~$0, one A4 sheet and an
 evening"* is the VINYL EXTINCTION TEST and does not cover this drawing, which
 needed a capture that did not exist until this revision.**
 
-### THREE OF THIS REVISION'S OWN INSTRUMENTS WERE WRONG. NONE WAS FOUND BY REASONING.
+### FOUR OF THIS REVISION'S OWN INSTRUMENTS WERE WRONG. NONE WAS FOUND BY REASONING,
+### AND THE FOURTH WAS FOUND ONLY BECAUSE AN ADVERSARY WAS DISPATCHED AT MY OWN BRIEF.
 
 1. **THE DAYLIGHT PANEL WAS A FLAT RED SLAB.** One silhouette in one ink. **All
    twelve checks were green on it.** Found by cropping the proof and looking
@@ -87,18 +88,37 @@ needed a capture that did not exist until this revision.**
    component boxes — two independently obtained quantities (rule 6) — and it
    now reads **1075 px, 0.1916 % of art**.
 
-**AND THE DEFECT I DID NOT FIX, NAMED RATHER THAN ITERATED AT A FOURTH TIME:**
-those 1075 px are the counter shelf (`chrome_dull`, identified by SAMPLING THE
-PROOF, not guessed) showing through bays 1 and 2. Three attempts failed — by
-name, by palette slot, by bbox containment — because the component runs the
-length of the flank and no single aperture box contains it. **It is printed on
-the sheet. The daylight state is not perfectly the panel van the concept asks
-for, and the artefact says so.**
+4. ⚠⚠ **AND THE RESIDUAL GUARD WAS WRONG A SECOND TIME, WHICH THE FIRST DRAFT
+   OF THIS LEDGER PUBLISHED AS A RESULT. F364, RETRACTED HERE (rule 13), FOUND
+   BY THE RULE-17 ADVERSARY.** Having escaped the tautology, v2 defined the
+   opening from the `glass` material — and **the three serving apertures are
+   UNGLAZED** (`STATE.md`: *"open serving apertures on +Y: 3"*), so the window
+   overlapped the galley by **ZERO pixels** and was measuring the CAB WINDOWS.
+   **The `1075 px of counter shelf in bays 1 and 2` this ledger printed was 759
+   `rubber`, 232 `bulb` and 84 `chrome_dull`** — and the `bulb` share is the
+   object's OWN INTENDED DRAWING counted as a defect. **A number published off
+   a mask nobody painted: rule 8, the defect this project calls its most
+   repeated, committed on the revision that quoted the rule.**
 
-**A8 IS WATCHED FAILING**, which is the only reason it may be quoted:
-`T1_APAGA_NOSHUT=1` takes the residual from 1075 px to **18 075 px (3.2217 %)**
-and the row REDS. ⚠ **`verify_clone.sh` does not run it (F355's class); it is
-watched by hand.**
+**THE FIX, AND WHAT LOOKING FINALLY SHOWED.** v3 takes the opening from the
+**BAY SEAL RING** (`rubber` components ≥ 40×40) — independent of the galley and
+of `shut`, and it demonstrably covers the bays: three seal components enclose
+**11 728 / 10 457 / 9 550** galley px, the fourth being the cab window at **0**.
+The mask is now **PAINTED every run** to `probe_scratch/apaga_resid.png`.
+Looking at that painting showed two more things no check had: the seal ring
+itself was being counted as leakage (2751 px — the frame is not something
+showing *through* the frame), and the true leak was the counter shelf at the
+foot of bays 1 and 2, **which is what the original prose said and the original
+window could not see.** With the seal-ring pass shutting it, **the daylight
+panel is now the panel van.**
+
+⚠⚠ **AND A8's GREEN IS STILL NOT EVIDENCE — THE THIRD TAUTOLOGY IN ONE GUARD.**
+The seal-ring pass now shuts exactly the set A8 measures, so `n_resid` is 0 on
+the normal path BY CONSTRUCTION. **All of its discriminating power is in the
+ablation:** `T1_APAGA_NOSHUT=1` reads **52 643 px (9.3832 %)** and REDS. That
+is stated in the source, on the artefact's colophon, and in F364.
+⚠ **`verify_clone.sh` does not run it (F355's class); it is watched by hand,
+and `--out` is mandatory or the ablated sheet overwrites the shipped one.**
 
 ⚠ **THE SCALE IS NOT THE CONCEPT'S.** The drawn silhouette measures
 **234.06 × 156.86 mm**, not 200 mm. The concept's 200 mm is the BODY
@@ -146,7 +166,9 @@ not run this revision.** Stated, not skipped.
 * **NOTHING IN THIS TREE CAN GRADE THE STICKER, and that is still true of the
   new one.** The 13 checks measure self-consistency. **No check compares either
   artefact to a photograph of a printed sticker; none exists.**
-* **THE COUNTER SHELF STILL SHOWS THROUGH TWO BAYS** (1075 px). Named, not fixed.
+* **A8's GREEN IS ARITHMETIC, NOT EVIDENCE** (F364). Only its ablation discriminates.
+* **FOUR OF MY OWN INSTRUMENTS WERE WRONG**, and the worst was caught by an
+  adversary, not by me — after I had already published its number.
 * **THE SCALE DISAGREES WITH THE CONCEPT** (234 mm against 200 mm) and only he
   can settle which object he is buying.
 * **THE FOURTH FRAME NEVER RENDERED** and the cause is unknown.
