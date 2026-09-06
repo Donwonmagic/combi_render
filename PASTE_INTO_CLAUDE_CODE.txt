@@ -459,7 +459,7 @@ a property of which side the camera is on. NOBODY PAINTED THAT WINDOW. Rev 80
 should re-open F353 rather than inherit its headline.**
 
 ⚠ **THEIR CEILING: neither ran `verify_clone.sh`, `bootstrap.sh`, Blender or
-`sticker_pass.py`. The 451, the `T1_*` ablations against a real capture, and
+`sticker_pass.py`. The 452, the `T1_*` ablations against a real capture, and
 every `probe_rev*` figure in §4 are UNVERIFIED BY THEM.** The rule-17 pass was
 additionally blocked from running `apaga.py --tag side`, so it never read that
 script's own summary line (rule 9) and reproduced the arithmetic offline
