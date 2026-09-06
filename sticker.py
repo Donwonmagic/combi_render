@@ -875,7 +875,12 @@ def draw(cap, denom, tag, log=log):
     art_w, art_h = W * px_mm, H * px_mm
     pad_top = art_h * 0.42                          # room for sun + bunting
     sheet_w = art_w + 2 * BLEED_MM + 6.0
-    sheet_h = art_h + pad_top + 2 * BLEED_MM + 16.0
+    # the colophon's height is DERIVED from how many lines it has, not typed:
+    # rev 78 added lines to it twice and the second time they ran off the
+    # bottom of the sheet -- caught by cropping the proof and looking (rule 1)
+    COLOPHON_LINES = 8
+    colophon_h = 5.0 + COLOPHON_LINES * 1.9 + 3.0
+    sheet_h = art_h + pad_top + 2 * BLEED_MM + colophon_h
     ox = (sheet_w - art_w) * 0.5
     oy = pad_top + BLEED_MM
 
@@ -1224,7 +1229,7 @@ def draw(cap, denom, tag, log=log):
                                  (64, 132, 168), (206, 96, 150)]})
 
     # --- 7. what is authored, said ON the artefact (F341's standard) ---------
-    ty = sheet_h - 10.6
+    ty = sheet_h - colophon_h + 1.0
     sh.text(ox, ty, "F18  DIE-CUT STICKER  ~1:%.0f   CHILDREN'S LINE (F331)"
             % round(denom), pt=4.4, font="mono-b", tint=1.0)
     lines_ = [
@@ -1525,6 +1530,12 @@ def main(argv):
         ck(root.get("width", "").endswith("mm"),
            "W3 the SVG viewBox is not in millimetres; a cutter cannot use it")
     ck(os.path.getsize(png) > 20000, "W4 the PNG proof is empty or trivial")
+    # W5 -- EVERY text baseline must sit on the sheet.  The colophon ran off
+    # the bottom twice during rev 78 as lines were added to it, and nothing
+    # said so: an SVG happily writes text past its own viewBox.
+    off = [t for t in sh.ops if t[0] == "text" and t[1][1] > geo["sheet"][1] - 0.8]
+    ck(not off, "W5 %d colophon line(s) fall below the sheet -- the artefact "
+                "is printing text off its own edge" % len(off))
 
     log("  wrote %s" % svg)
     log("  wrote %s" % png)
