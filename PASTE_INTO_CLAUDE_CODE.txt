@@ -236,8 +236,8 @@ which shells it internally (F357). SERIALISE THEM.** There are **21** fixed
 count.**
 
 ```bash
-./verify_clone.sh                             # ALL 451 PASS on rev 79's tree --
-  # 0 FIDELITY, 451 SELF-CONSISTENCY.  ⚠ THAT COUNT IS WHAT `audit_brief.py`
+./verify_clone.sh                             # ALL 452 PASS on rev 79's tree --
+  # 0 FIDELITY, 452 SELF-CONSISTENCY.  ⚠ THAT COUNT IS WHAT `audit_brief.py`
   # PARSES OUT OF THIS FILE, and `--fix-count` can only REWRITE it, never
   # create it: delete the line and check 5 reds permanently.  With an EMPTY
   # out/ six rows SKIP and say UNGUARDED; the PASS total is the same (F323).
