@@ -60,7 +60,16 @@ def main(argv):
         print("0 checked, 0 FAILED, 1 ABSENT")
         return 2
 
-    rows = [r for r in (read(f) for f in frames) if r]
+    # F354 / rule 37, rev 79.  This comprehension USED to be the whole story
+    # and it DROPPED every unparseable frame in silence -- the rev-77 brief
+    # records six `*_side.png` on that tree, `n = 5` printed, and
+    # `fierro_side.png` discarded without a word, on THE VERY FRAME WHERE THE
+    # DETECTOR FAILED HARDEST.  The distribution was conditioned on being
+    # readable and said so nowhere.  Both halves are named now: what was read,
+    # and what could not be.
+    _read = [(f, read(f)) for f in frames]
+    rows = [r for _, r in _read if r]
+    dropped = [os.path.basename(f) for f, r in _read if not r]
     if not rows:
         print("NO T3 RUNG could be parsed from any of %d frame(s).  Nothing was "
               "measured (rule 37)." % len(frames))
@@ -94,8 +103,27 @@ def main(argv):
     print("  threshold, and build provenance is UNKNOWN unless you rendered these")
     print("  yourself from one tree -- a PNG does not carry the source that made it,")
     print("  which is how F324's cluster claim came to span three builds.")
-    print("%d checked, 0 FAILED  --  a distribution, not a verdict" % len(rows))
-    return 0
+    # F354, rev 79: THIS LINE'S `0 FAILED` USED TO BE A STRING LITERAL, so the
+    # probe the rev-77 brief rests T3's whole distribution on had a verdict that
+    # was incapable of saying anything but zero (F320f's class, its third
+    # instance here).  Rule 9 says read the summary line -- so the summary line
+    # has to be able to report something.
+    #
+    # WHAT `FAILED` MEANS HERE, STATED, BECAUSE IT IS NOT THE OBVIOUS THING:
+    # it is NOT the rung's tolerance.  T3's deciding rung is DELIBERATELY
+    # tolerance-ungated (F334) and counting `npass` here would silently
+    # re-gate it and undo that decision.  It is the probe's OWN precondition:
+    # a frame that was handed to this probe and could not be read.  That is the
+    # failure this instrument is actually able to observe, and until now it was
+    # the one it hid.
+    if dropped:
+        print("  ⚠ %d of %d FRAME(S) COULD NOT BE PARSED AND ARE NOT IN THE "
+              "NUMBERS ABOVE: %s" % (len(dropped), len(frames), ", ".join(dropped)))
+        print("    The distribution above is CONDITIONED ON BEING READABLE.")
+    print("%d checked, %d FAILED  --  a distribution, not a verdict; FAILED "
+          "counts frames that could not be parsed, NOT the ungated rung"
+          % (len(rows) + len(dropped), len(dropped)))
+    return 1 if dropped else 0
 
 
 if __name__ == "__main__":

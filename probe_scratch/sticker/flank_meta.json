@@ -106,7 +106,7 @@
   12.102187407682276,
   1.55
  ],
- "note": "the 18 deg viewpoint is a POSE recovered from a TRUNCATED spec row and admits two readings; see the module docstring",
+ "note": "the 18 deg viewpoint is a POSE.  The spec row is NOT truncated -- it says CHOOSE THE FLANK -- and the only residual is which axis the 18 deg is measured from; see the module docstring (F360)",
  "radius": 2.699369467738233,
  "res": [
   1400,

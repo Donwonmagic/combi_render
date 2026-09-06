@@ -87,9 +87,20 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(ROOT, "probe_scratch", "sticker")
 
 # The sticker's own view.  Kept HERE and not in `studio.views()` on purpose:
-# it is a POSE recovered from a TRUNCATED spec row, and `studio.views()` is
-# where MEASURED cameras live (the reference-photo solve, the delivery frame).
-# Mixing the two is how a pose becomes a measurement by adjacency.
+# it is a POSE, and `studio.views()` is where MEASURED cameras live (the
+# reference-photo solve, the delivery frame).  Mixing the two is how a pose
+# becomes a measurement by adjacency.
+#
+# F360, rev 79 -- THIS COMMENT USED TO SAY "recovered from a TRUNCATED spec
+# row" AND THAT IS FALSE.  Measured: `AUDIT_rev43.md`'s VIEWPOINT row is 142
+# characters and ENDS IN A FULL STOP -- "...The face and the flank are
+# provably exclusive; choose the flank."  What is hard-cut at 120 is a
+# DIFFERENT column, on all eight rows.  Rev 78 retracted the claim in the
+# register and on the artefact's colophon but NOT here, and this module is
+# what WRITES the claim into every capture's metadata, so it survived into
+# two TRACKED files.  The record ANSWERS face-vs-flank, in favour of the
+# flank.  What is genuinely open is only WHICH AXIS the 18 deg is measured
+# from, and that is a POSE either way -- which is why this block stays.
 EYE_Z = 1.55            # the spec row's own figure, and the only one it gives
 AZ_FLANK = 72.0         # 18 deg off the FLANK -- the default reading
 AZ_NOSE = 18.0          # 18 deg off the NOSE  -- the alternative, for the owner
@@ -394,9 +405,10 @@ def capture(az_deg, res, samples, tag, log=log):
                 base_colour_linked=linked, base_colour_flat=flat,
                 base_colour_none=nonp,
                 sub=os.environ.get("T1_SUB", ""),
-                note=("the 18 deg viewpoint is a POSE recovered from a "
-                      "TRUNCATED spec row and admits two readings; see the "
-                      "module docstring"))
+                note=("the 18 deg viewpoint is a POSE.  The spec row is "
+                      "NOT truncated -- it says CHOOSE THE FLANK -- and the "
+                      "only residual is which axis the 18 deg is measured "
+                      "from; see the module docstring (F360)"))
     open(os.path.join(OUT, "%s_meta.json" % tag), "w").write(
         json.dumps(meta, indent=1, sort_keys=True))
     log("  wrote %s" % os.path.join(OUT, "%s_meta.json" % tag))

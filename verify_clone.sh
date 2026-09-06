@@ -1366,6 +1366,41 @@ ck "KILL: strip the phrase and the row must read LOST" LOST \
       grep -q 'DIE-CUT STICKER' /tmp/_f18kill.md && echo PRESENT || echo LOST)"
 ck "and the owner's rev-77 ruling on it is carried" 1 \
    "$(grep -c "F18's TRIGGER IS FIRED" OPEN_FINDINGS.md)"
+
+# ---- rev 79: F360 -- THE RETRACTION THAT DID NOT REACH THE SOURCE ---------
+# `AUDIT_rev43.md`'s sticker VIEWPOINT row is NOT truncated.  Measured: its
+# DESIGN cell is 142 characters and ENDS IN A FULL STOP -- "...The face and
+# the flank are provably exclusive; choose the flank."  What is hard-cut at
+# 120 is a DIFFERENT column, on all eight rows.
+#
+# Rev 78 discovered this and retracted it -- in `OPEN_FINDINGS.md` F348 and on
+# the shipped artefact's colophon.  Its own §8 claimed FOUR places corrected.
+# MEASURED AT REV 79: `sticker_pass.py` was NOT one of them, and that module is
+# what WRITES the claim into every capture's metadata -- so the false sentence
+# survived in SIX tracked files, four of them machine-written and shipped:
+# the module docstring, the note writer, and both `_meta.json` + `_lines.json`.
+# An amendment that reached the prose and not the generator (F322's class).
+#
+# *** WHY THE NEEDLE IS ASSEMBLED FROM TWO PIECES AND NEVER WRITTEN WHOLE. ***
+# The first draft of this block quoted the retracted sentence in this comment,
+# so THIS FILE became a file claiming it, the row read 1 against want 0, and it
+# would have redded permanently on a clean tree.  Watched, at rev 79, before it
+# shipped.  That is the hazard the rev-78 brief names for its own three
+# verbatim-bound rows: you cannot quote a forbidden phrase a second time to
+# explain it.  So the needle is built at run time and this comment names the
+# claim by DESCRIPTION only -- the sentence asserting that the spec row was cut
+# short.  Do not inline it, and do not "tidy" the concatenation away.
+_f360n="TRUNCATED"" spec row"
+ck "no file claims the sticker spec row is truncated" 0 \
+   "$(grep -rl "$_f360n" . 2>/dev/null | grep -v '^\./\.git' | wc -l)"
+# THE KILL: plant the claim in a scratch copy and require the SAME expression
+# to find it.  mktemp, not a fixed /tmp path -- F343 counts 21 of those already.
+_f360d=$(mktemp -d)
+cp sticker_pass.py "$_f360d/plant.py"
+printf '\n# a POSE recovered from a %s\n' "$_f360n" >> "$_f360d/plant.py"
+ck "KILL: plant the retracted claim and it must be FOUND" FOUND \
+   "$(grep -q "$_f360n" "$_f360d/plant.py" && echo FOUND || echo MISSED)"
+rm -rf "$_f360d"
 ck "newest brief records its own audit"      1 "$(if [ -n "$_LATEST_BRIEF" ]; then grep -c 'AUDITED AGAINST THE MACHINE' "$_LATEST_BRIEF" 2>/dev/null; else echo 99; fi)"
 
 # ---- rev 52: THE CARRY-FORWARD BLOCK ------------------------------------

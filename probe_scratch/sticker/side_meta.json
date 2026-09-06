@@ -1,6 +1,6 @@
 {
  "ao": true,
- "az": 18.0,
+ "az": 90.0,
  "base_colour_flat": [
   "amber",
   "bulb",
@@ -102,8 +102,8 @@
  },
  "lens": 78,
  "loc": [
-  11.972146464059687,
-  3.9322504435896706,
+  -0.1300240755081169,
+  12.724992021759267,
   1.55
  ],
  "note": "the 18 deg viewpoint is a POSE.  The spec row is NOT truncated -- it says CHOOSE THE FLANK -- and the only residual is which axis the 18 deg is measured from; see the module docstring (F360)",
@@ -115,7 +115,7 @@
  "samples": 48,
  "shade_headroom": 4.0,
  "sub": "1",
- "tag": "nose",
+ "tag": "side",
  "tgt": [
   -0.13002407550811768,
   1.6868114471435547e-05,
