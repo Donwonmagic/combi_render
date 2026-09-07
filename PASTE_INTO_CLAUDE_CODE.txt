@@ -244,8 +244,8 @@ which shells it internally (F357). SERIALISE THEM.** There are **21** fixed
 count.**
 
 ```bash
-./verify_clone.sh                             # ALL 452 PASS on rev 79's tree --
-  # 0 FIDELITY, 452 SELF-CONSISTENCY.  ⚠ THAT COUNT IS WHAT `audit_brief.py`
+./verify_clone.sh                             # ALL 456 PASS on rev 79's tree --
+  # 0 FIDELITY, 456 SELF-CONSISTENCY.  ⚠ THAT COUNT IS WHAT `audit_brief.py`
   # PARSES OUT OF THIS FILE, and `--fix-count` can only REWRITE it, never
   # create it: delete the line and check 5 reds permanently.  With an EMPTY
   # out/ six rows SKIP and say UNGUARDED; the PASS total is the same (F323).
@@ -467,7 +467,7 @@ a property of which side the camera is on. NOBODY PAINTED THAT WINDOW. Rev 80
 should re-open F353 rather than inherit its headline.**
 
 ⚠ **THEIR CEILING: neither ran `verify_clone.sh`, `bootstrap.sh`, Blender or
-`sticker_pass.py`. The 452, the `T1_*` ablations against a real capture, and
+`sticker_pass.py`. The 456, the `T1_*` ablations against a real capture, and
 every `probe_rev*` figure in §4 are UNVERIFIED BY THEM.** The rule-17 pass was
 additionally blocked from running `apaga.py --tag side`, so it never read that
 script's own summary line (rule 9) and reproduced the arithmetic offline
