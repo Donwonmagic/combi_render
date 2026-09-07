@@ -1366,6 +1366,91 @@ ck "KILL: strip the phrase and the row must read LOST" LOST \
       grep -q 'DIE-CUT STICKER' /tmp/_f18kill.md && echo PRESENT || echo LOST)"
 ck "and the owner's rev-77 ruling on it is carried" 1 \
    "$(grep -c "F18's TRIGGER IS FIRED" OPEN_FINDINGS.md)"
+
+# ---- rev 79: F350's COMPANION ROW, OWED SINCE REV 78 ---------------------
+# `sheet.py`'s `tint` blends toward the STOCK, so anything drawn over existing
+# artwork through it prints an OPAQUE GREY WASH rather than a darker relative
+# of what is beneath.  Rev 78 diagnosed that, worked around it inside
+# `sticker.py`, and left the module trapped for the next caller with NO ROW
+# BINDING IT.  The brief has said the companion row is owed for two revisions.
+#
+# The repair is `shade_of(beneath, mult)`.  These rows test BOTH halves, and
+# they compare two independently obtained quantities rather than restating one
+# (rule 6): that the shaded ink is a DARKER RELATIVE of the ink beneath (its
+# hue survives), and that the trap's own output is NOT (it collapses to grey
+# whatever it is given).
+ck "F350 sheet.py grew the shade primitive it was missing" 1 \
+   "$(python3 -c "import sheet; print(1 if hasattr(sheet,'shade_of') else 0)" 2>/dev/null)"
+ck "F350 shade_of keeps the ink beneath, and tint does not" OK \
+   "$(python3 -c "
+import sheet as S
+red = (196, 58, 48)
+sh = S.shade_of(red, 0.74)
+# the shaded ink must stay RED: red channel still dominant, and darker overall
+keeps = sh[0] > sh[1] + 40 and sh[0] > sh[2] + 40 and sum(sh) < sum(red)
+# the trap must NOT: a dark ink at low tint over white stock goes grey, and the
+# spread between its channels collapses
+tr = S.mix((44, 40, 38), (255, 255, 255), 0.34)
+greys = (max(tr) - min(tr)) < 12
+print('OK' if keeps and greys else 'keeps=%s greys=%s %s %s' % (keeps, greys, sh, tr))" 2>&1 | tail -1)"
+
+# ---- rev 79: F360 -- THE RETRACTION THAT DID NOT REACH THE SOURCE ---------
+# `AUDIT_rev43.md`'s sticker VIEWPOINT row is NOT truncated.  Measured: its
+# DESIGN cell is 142 characters and ENDS IN A FULL STOP -- "...The face and
+# the flank are provably exclusive; choose the flank."  What is hard-cut at
+# 120 is a DIFFERENT column, on all eight rows.
+#
+# Rev 78 discovered this and retracted it -- in `OPEN_FINDINGS.md` F348 and on
+# the shipped artefact's colophon.  Its own §8 claimed FOUR places corrected.
+# MEASURED AT REV 79: `sticker_pass.py` was NOT one of them, and that module is
+# what WRITES the claim into every capture's metadata -- so the false sentence
+# survived in SIX tracked files, four of them machine-written and shipped:
+# the module docstring, the note writer, and both `_meta.json` + `_lines.json`.
+# An amendment that reached the prose and not the generator (F322's class).
+#
+# *** WHY THE NEEDLE IS ASSEMBLED FROM TWO PIECES AND NEVER WRITTEN WHOLE. ***
+# The first draft of this block quoted the retracted sentence in this comment,
+# so THIS FILE became a file claiming it, the row read 1 against want 0, and it
+# would have redded permanently on a clean tree.  Watched, at rev 79, before it
+# shipped.  That is the hazard the rev-78 brief names for its own three
+# verbatim-bound rows: you cannot quote a forbidden phrase a second time to
+# explain it.  So the needle is built at run time and this comment names the
+# claim by DESCRIPTION only -- the sentence asserting that the spec row was cut
+# short.  Do not inline it, and do not "tidy" the concatenation away.
+# ⚠ COMPILED CACHES ARE EXCLUDED, AND THAT IS A REAL DECISION, NOT TIDYING:
+# a stale `__pycache__/*.pyc` still carries the OLD docstring after the source
+# is fixed, so without the exclusion this row reds on bytecode nobody edited
+# and the next context spends a session hunting a phrase that is not in any
+# source file.  Watched at rev 79: the second needle read 1 against a `.pyc`
+# alone.  The cost of the exclusion is stated -- these rows check SOURCE and
+# tracked content, and they cannot see a claim that survives only in bytecode.
+_f360n="TRUNCATED"" spec row"
+ck "no file claims the sticker spec row is truncated" 0 \
+   "$(grep -rl --exclude-dir=.git --exclude-dir=__pycache__ --exclude='*.pyc' \
+        "$_f360n" . 2>/dev/null | wc -l)"
+# ⚠ SECOND NEEDLE, rev 79: THE CLAIM HAS TWO PHRASINGS AND THE FIRST GUARD
+# CAUGHT ONLY ONE.  `sticker.py` asserted it as "one of the eight HARD-CUT AT
+# 120 CHARACTERS" and so passed a guard written for the other wording, which is
+# why F360's first close was incomplete.  Both are bound now.  ⚠⚠ CEILING,
+# STATED: this is a PHRASE guard, not a meaning guard.  A third wording would
+# pass it.  It is the best a grep can do and it is not a proof of absence.
+_f360m="eight HARD-CUT"" AT 120"
+ck "no file asserts the VIEWPOINT row is one of the cut ones" 0 \
+   "$(grep -rl --exclude-dir=.git --exclude-dir=__pycache__ --exclude='*.pyc' \
+        "$_f360m" . 2>/dev/null | wc -l)"
+# THE KILL.  ⚠⚠ ITS FIRST VERSION WAS A TAUTOLOGY AND COULD NOT FAIL: it wrote
+# the needle into a file under `mktemp -d` and grepped THAT FILE for it, so it
+# exercised printf and grep and never touched the detector -- whose expression
+# is a RECURSIVE grep over the REPOSITORY, which a scratch directory outside
+# the tree is invisible to.  Caught by the rule-17 adversary, rev 79.  The
+# plant now lands INSIDE the repository, is measured by the detector's OWN
+# expression, and is removed again.
+_f360p="./.f360_plant_$$.tmp"
+printf '# a POSE recovered from a %s\n' "$_f360n" > "$_f360p"
+ck "KILL: plant it in the TREE and the detector must count it" 1 \
+   "$(grep -rl --exclude-dir=.git --exclude-dir=__pycache__ --exclude='*.pyc' \
+        "$_f360n" . 2>/dev/null | wc -l)"
+rm -f "$_f360p"
 ck "newest brief records its own audit"      1 "$(if [ -n "$_LATEST_BRIEF" ]; then grep -c 'AUDITED AGAINST THE MACHINE' "$_LATEST_BRIEF" 2>/dev/null; else echo 99; fi)"
 
 # ---- rev 52: THE CARRY-FORWARD BLOCK ------------------------------------
@@ -1453,10 +1538,38 @@ ck "the ACTION brief is still an ACTION brief (<32 KB)" 1 \
 # rev 73 -- RE-BASED 15 -> 16: SS0.11, the gloss grid, moved here when the brief
 # hit its 32 KB guard a SECOND time.  Same shape as the SS0.10 re-base above and
 # the same companion treatment: the new section is pinned BY NAME below.
-ck "every carrier SECTION is present in the carriers file" 16 \
+# rev 79 -- RE-BASED 16 -> 17, CAUSE NAMED: F356's carry added SS0.12, THE SEVEN
+# OWNER-GRADED ROWS.  Seven rows carrying the OWNER's own words -- the artwork
+# bar, the source-photo check, the texture bar, the emblem sentence, the relight
+# ruling, the forward panel, the baseline cost -- were in NO live carrier, and
+# the incoming brief "carried" them as a list of IDENTIFIERS.  That is the
+# name-carry F356 exists to name, and rule 16 asks for the substance.  Same
+# shape as the SS0.10 and SS0.11 re-bases above, same companion treatment: the
+# new section is pinned BY NAME below, so this re-base cannot silently accept a
+# DELETION plus a different addition.
+# rev 79 -- RE-BASED 17 -> 18, CAUSE NAMED: SS0.13, THE LOCATIONAL SERIES,
+# MOVED HERE FROM THE ACTION BRIEF when that file hit its 32 KB guard -- the
+# third time this has happened and the same response as SS0.10 and SS0.11.
+# The brief keeps the verdict and a pointer; the carrier keeps the detail,
+# including the two corrections owed to the owner.  Companion below, BY NAME.
+ck "every carrier SECTION is present in the carriers file" 18 \
    "$(grep -cE '^## (SS|§)(0\.|0 |1 |2 |4 |5 |6 |7 |8 |9 |10 )' HANDOFF_CARRIERS.md 2>/dev/null | head -1)"
 ck "F294 the BUMP_BOW ladder's own carrier section is still there, BY NAME" 1 \
    "$(grep -cE '^## §0\.10 THE .BUMP_BOW. LADDER' HANDOFF_CARRIERS.md 2>/dev/null | head -1)"
+ck "F356 the seven owner-graded rows' carrier section is there, BY NAME" 1 \
+   "$(grep -cE '^## §0\.12 THE SEVEN OWNER-GRADED ROWS' HANDOFF_CARRIERS.md 2>/dev/null | head -1)"
+# AND THE SUBSTANCE, NOT JUST THE HEADING -- a section that keeps its title and
+# loses its content is the exact failure F356 records.  The artwork bar is the
+# hardest thing the owner has said and it is the one pinned here.
+ck "F356 ... and the artwork bar is quoted in it, not just named" 1 \
+   "$(grep -c 'ABSOLUTE REPLICATION OF ALL ARTWORK' HANDOFF_CARRIERS.md 2>/dev/null | head -1)"
+ck "F340 the locational series' carrier section is there, BY NAME" 1 \
+   "$(grep -cE '^## §0\.13 THE LOCATIONAL SERIES' HANDOFF_CARRIERS.md 2>/dev/null | head -1)"
+# AND THE BRIEF MUST STILL POINT AT IT.  A section moved out of the brief and
+# then unpointed-at is a carrier already half gone -- this script's own words,
+# and exactly what happened to CONCEPT_AUDIT_rev77.md one revision ago.
+ck "... and the brief still points at where it went" 1 \
+   "$(if [ -n "$_LATEST_BRIEF" ]; then grep -c 'HANDOFF_CARRIERS.md` §0.13' "$_LATEST_BRIEF" 2>/dev/null; else echo 0; fi)"
 # *** rev 73 -- RE-ANCHORED, CAUSE NAMED.  This row first keyed on the literal
 # "THE FLOOR PAIR, 0.003 px" and went red the moment the floor was re-quoted to
 # its live precision (0.0026).  A guard keyed to a FIGURE fails whenever the

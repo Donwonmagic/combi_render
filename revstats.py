@@ -128,9 +128,28 @@ def closures():
         t = open('OPEN_FINDINGS.md', errors='replace').read()
     except OSError:
         return {}
+    # F363, rev 79: THIS COUNTED OCCURRENCES OF THE STRING, NOT FINDINGS.
+    # A row that says "CLOSED-rev79" in its fix column AND again in its grade
+    # column scored TWO closures.  Rev 79 wrote exactly such a row, printed
+    # "3 findings closed" for two findings, and caught it by grepping the rows
+    # rather than believing the total -- which is the closure column this
+    # project uses to judge whether a revision did anything.
+    #
+    # The count is now DISTINCT FINDING IDs per revision.  A row is one
+    # closure however many times it says so.  A closure marker on a line
+    # carrying no `**Fnnn**` id cannot be attributed to a finding and is
+    # counted once under a synthetic key, so it is not silently dropped
+    # either (rule 37).
     c = collections.Counter()
-    for kind, rev in re.findall(r'(CLOSED|REFUTED|RETRACTED)-rev(\d+)', t):
-        c[int(rev)] += 1
+    seen = set()
+    for i, ln in enumerate(t.split('\n')):
+        ids = re.findall(r'\*\*(F\d+[a-z]?)\*\*', ln)
+        for kind, rev in re.findall(r'(CLOSED|REFUTED|RETRACTED)-rev(\d+)', ln):
+            key = (int(rev), ids[0] if ids else 'line%d' % i)
+            if key in seen:
+                continue
+            seen.add(key)
+            c[int(rev)] += 1
     return c
 
 
