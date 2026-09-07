@@ -16,7 +16,7 @@
 > **HE ALSO BOUGHT A CONCEPT (F362)** — the first of 2.58 MB of concept material
 > ever shown to him — **and ordered its one unresolved point drawn BOTH WAYS.**
 
-**REV 79 CLOSED FOUR FINDINGS: F354, F360, F363, F364.** That ends a run of **seven**
+**REV 79 CLOSED FIVE FINDINGS: F354, F360, F363, F364, F366.** That ends a run of **seven**
 consecutive revisions at zero (72–78). ⚠ **RUN `python3 revstats.py` AND READ
 ITS OWN NUMBER; DO NOT TRUST THIS LINE.** ⚠⚠ **AND KNOW WHY IT IS TRUSTWORTHY
 NOW: at rev 79 that script COUNTED OCCURRENCES OF A STRING, NOT FINDINGS, and
@@ -148,23 +148,31 @@ on nothing: `DIRECTO` (2.25, ~2 h), `MANDIL 515` (1.88), `A LA ALTURA · 118`
 (1.75). **Drawing one beats describing all of them — rev 78's lesson, and rev 79
 is the second revision to confirm it.**
 
-### **4. FINISH `apaga.py`'s ONE NAMED DEFECT.** The 1075 px. A real
+### **4. ⚠⚠ THE OWNER REJECTED THIS SHEET'S FIRST NIGHT PANELS — *"that's not
+a product"* — WITH ALL FOURTEEN CHECKS GREEN ON THEM. F366.** Second revision
+running that he has caught a proof no instrument here could (rev 78: *"Oh god
+that looks terrible"*). **Read F366's four causes before drawing anything: the
+line pass belongs in the night panel, the glow is not one flat value, `glass`
+is the CAB and must never glow, and lay out on the ARTWORK not the capture.**
+**A green check is not evidence about a drawing.**
+
+### **5. FINISH `apaga.py`'s ONE NAMED DEFECT.** The 1075 px. A real
 aperture-opening mask (not a bbox) would do it. **PAINT IT FIRST (rule 8).**
 
-### **5. F318 — the tread's one measured cost — is still open for a FIFTH
+### **6. F318 — the tread's one measured cost — is still open for a FIFTH
 revision.** `probe_rev70_tyre.py`'s T2 moves **0.2457 → 0.2558**, 25× its
 measured 0.0004 floor. **DO NOT "fix" it by lowering `T1_TYRE_FILM`.** Give T2 a
 band measured to lie inside the rubber, or build a better instrument.
 **F361 DE-RANKED THIS. IT DID NOT ANSWER IT.**
 
-### **6. SEVEN OWNER-GRADED ROWS ARE STILL CARRIED ONLY BY NAME. F356.**
+### **7. SEVEN OWNER-GRADED ROWS ARE STILL CARRIED ONLY BY NAME. F356.**
 `F56` `F91` `F93` `F94` `F164` `F166` `F259`. **F94** is the artwork bar itself
 — *"ABSOLUTE REPLICATION OF ALL ARTWORK", "a hard bar"*. **F91** is his standing
 check *"REMEMBER TO HOLD UP NEXT TO THE ACTUAL SOURCE PHOTOS"*, whose own row
 says **the tail and the roof have still never been done.** Rule 16 asks for the
 substance, not the identifier. **Still owed.**
 
-### **7. THE LOCATIONAL SERIES — BETHESDA. F340 / F341. ⚠ THE REV-79 BRIEF
+### **8. THE LOCATIONAL SERIES — BETHESDA. F340 / F341. ⚠ THE REV-79 BRIEF
 DROPPED THIS ENTIRELY AND IT IS A RULE-16 VIOLATION — F341 IS GRADED
 `RULED-rev77` AND ITS ROW CALLS THE TWO RULINGS *"the operative instructions"*.**
 It was ranked FOURTH of eight in the incoming brief, above F318 and the emblem.
@@ -179,10 +187,10 @@ letter**. ⚠ **`CRYSTAL CITY → EL CRISTAL` IS AN INFERENCE, NOT HIS WORDS.**
 *"every painted element ON THIS VEHICLE"*. A shop sign in Bethesda is not one
 (rule 34).**
 
-### **8. THE EMBLEM. F191 STANDS AND F361 DID NOT TOUCH IT.** 0.8528 against
+### **9. THE EMBLEM. F191 STANDS AND F361 DID NOT TOUCH IT.** 0.8528 against
 P1b's 0.9465, and the objective still has no legibility term. His ninth report.
 
-### **9. STILL OPEN AND CARRIED HERE BECAUSE THE REV-79 BRIEF DROPPED THEM:**
+### **10. STILL OPEN AND CARRIED HERE BECAUSE THE REV-79 BRIEF DROPPED THEM:**
 * **F18 IS DRAWN BUT NOT CLOSED.** The register's oldest live row, the project's
   original deliverable. `LEDGER_rev44.md` §7.3's *"no code, no asset, nothing on
   disk"* is FALSE since rev 78 — **but the row is not closed.**
@@ -199,7 +207,7 @@ P1b's 0.9465, and the objective still has no legibility term. His ninth report.
   a clone that byte-identity leg cannot be checked at all, and no verifier row
   binds it (F350's companion is still owed).
 
-### **10. DE-RANKED, SAID OUT LOUD RATHER THAN DROPPED:** **F156** (the `Senor`
+### **11. DE-RANKED, SAID OUT LOUD RATHER THAN DROPPED:** **F156** (the `Senor`
 gate row scoring a DELIBERATE DEPARTURE) and **THE GARMENT SLOT**. Neither is
 done and neither is withdrawn. `flank_compare.py` and `cream_rms.py` are the
 paint instruments if a flank question returns.

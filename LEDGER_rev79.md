@@ -161,12 +161,49 @@ log** — the process was simply gone. Not diagnosed. **Anything wanting
 not run this revision.** Stated, not skipped.
 
 ---
+## §4b ⚠⚠ THE OWNER REJECTED THE FIRST NIGHT PANELS. F366.
+
+*"That's not a product."* Three words, on an artefact with **all fourteen checks
+green**. He was right, and **this is the second time in two revisions he has
+caught a proof that no instrument in this tree could** — rev 78's was *"Oh god
+that looks terrible."* **In neither case did a number move.** Rule 2 says a
+green check is not evidence about the vehicle. These two say it is not evidence
+about the DRAWING either, and that is now a pattern rather than an anecdote.
+
+Four causes, all found by looking (rule 1):
+1. **The line pass was computed, discarded and never reused.** The strokes the
+   daylight panel drops as "kitchen" are exactly the ones the night panel
+   needs. **388 are now knocked out of the glow** — a glow sticker's drawing is
+   made by what is PRINTED OVER the substrate, not by colour, so without them
+   twenty-odd adjacent objects merge into slabs.
+2. **The glow was one flat value.** The AO pass already measured where a single
+   strip fails to reach and it was thrown away. Two tiers now, **MEASURED**
+   placement at the 45th AO percentile, AUTHORED step.
+3. ⚠⚠ **THE STICKER LIT THE CAB.** `glass` was in the glow set, and because the
+   serving bays are UNGLAZED that material is **only** the cab door window and
+   quarter light. **The two biggest shapes in the picture were the cab glowing,
+   in the one drawing whose entire proposition is that the work light is on and
+   everything else is dark. The artefact contradicted its own concept.**
+4. **Every panel was laid out at CAPTURE size, not artwork size** — each night
+   panel a vast black rectangle with the art filling under a fifth of it.
+
+**And two things the sheet did not have at all:** a **DIE LINE** — a die-cut
+sticker with no cut path is a picture of a product — and any tie between the
+three panels. The cut is now on all three, faint on the dark ones, because the
+cut edge is physically there in both states. **It closes to ONE component with
+zero thin features left after the bridge.**
+
+---
 ## §5 WHERE THIS REVISION IS WEAKEST
 
 * **NOTHING IN THIS TREE CAN GRADE THE STICKER, and that is still true of the
   new one.** The 13 checks measure self-consistency. **No check compares either
   artefact to a photograph of a printed sticker; none exists.**
 * **A8's GREEN IS ARITHMETIC, NOT EVIDENCE** (F364). Only its ablation discriminates.
+* **THE OWNER HAS NOW REJECTED A PROOF IN EACH OF THE LAST TWO REVISIONS**, both
+  times on artefacts that passed every check written for them (F346, F366).
+  **Nothing in this tree can grade a drawing, and that is not a gap a check can
+  close.**
 * **FOUR OF MY OWN INSTRUMENTS WERE WRONG**, and the worst was caught by an
   adversary, not by me — after I had already published its number.
 * **THE SCALE DISAGREES WITH THE CONCEPT** (234 mm against 200 mm) and only he
