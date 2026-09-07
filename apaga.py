@@ -66,6 +66,9 @@ DAY_CREAM    = (232, 223, 200)   # daylight cream, AUTHORED
 DAY_DARK     = ( 44,  40,  38)   # daylight shadow/neutral, AUTHORED
 DAY_LAMP     = (228, 214, 176)   # unlit festoon lamp in daylight ink, AUTHORED
 LINE_INK     = ( 26,  22,  20)
+CUT_NIGHT    = ( 74,  78,  88)   # AUTHORED: the cut path on the dark panels
+CUT_INK      = (232,  30, 140)   # AUTHORED: the plotter path, magenta by
+                                 # convention so it is never mistaken for art
 STOCK        = (255, 255, 255)
 SIMPLIFY_MM  = 0.16       # RDP epsilon, AUTHORED
 LINE_MIN_MM  = 0.65       # drop line crumbs shorter than this, AUTHORED
@@ -78,6 +81,9 @@ FAM_INK = {"red": DAY_BODY, "neutral_light": DAY_CREAM,
            "gold": (239, 194, 69)}
 MIN_AREA_MM2 = 0.30       # drop specks below this, AUTHORED
 PANEL_GAP_MM = 9.0        # AUTHORED
+GLOW_LINE_FRAC = 0.35     # AUTHORED: a stroke this much over the glow is
+                          # interior detail and is knocked out of it
+GLOW_DIM_PCT = 45         # AUTHORED: the AO quantile that prints DIM
 VOID_FRAC    = 0.55       # AUTHORED: a stroke spending more than this share of
                           # its length over the galley is MODEL detail, not
                           # drawing.  Same figure sticker.py uses, and it is a
@@ -89,7 +95,15 @@ VOID_FRAC    = 0.55       # AUTHORED: a stroke spending more than this share of
 # to those actually on screen -- a name that renders zero pixels is reported
 # and dropped, never drawn as though it were there.
 GALLEY_PREFIX = "gal_"
-GALLEY_EXTRA  = ("glass",)
+# ⚠⚠ `glass` IS NOT IN THIS SET AND THAT IS THE WHOLE POINT OF THE OBJECT.
+# The first night panel glowed it, and because the three serving bays are
+# UNGLAZED the `glass` material is ONLY the cab door window and the front
+# quarter light -- so the sticker lit up the CAB, which nothing in the vehicle
+# lights.  Two blank slabs, the biggest shapes in the picture, in the one
+# drawing whose entire proposition is "the work light is on and everything
+# else is dark."  The concept was contradicted by its own artefact.  The glow
+# set is the galley and nothing else.
+GALLEY_EXTRA  = ()
 LAMP_MAT      = "bulb"
 
 CHECK = [0]
@@ -179,18 +193,28 @@ def panels(cap, denom, log=log):
         "the owner's call, not this script's"
         % (draw_w, draw_h, art_w, denom, want_mm, draw_w, denom_for_200,
            want_mm))
+    # ⚠ LAY OUT ON THE DRAWN BBOX, NOT THE FRAME.  The first sheet sized every
+    # panel to the full 1400x1000 capture, so each night panel was a vast black
+    # rectangle with the glow in a thin band across the middle and the artwork
+    # filling under a fifth of it.  The owner's words for the whole thing were
+    # "that's not a product", and this was half of why: a sheet that is mostly
+    # empty ground is a contact print, not a design.  Every panel is now the
+    # size of the thing drawn on it.
+    bx0, by0 = int(xs.min()), int(ys.min())
+    px0, py0 = bx0 * px_mm, by0 * px_mm
     COLOPHON_LINES = 19
     colophon_h = 5.0 + COLOPHON_LINES * 1.9 + 3.0
     label_h = 5.5
-    sheet_w = art_w + 12.0
-    sheet_h = 3 * (art_h + label_h) + 2 * PANEL_GAP_MM + colophon_h + 8.0
-    ox = (sheet_w - art_w) * 0.5
+    sheet_w = draw_w + 12.0
+    sheet_h = 3 * (draw_h + label_h) + 2 * PANEL_GAP_MM + colophon_h + 8.0
+    ox = (sheet_w - draw_w) * 0.5
     sh = S.Sheet(sheet_w, sheet_h, ink=LINE_INK, stock=STOCK, dpi=300, ss=2)
     log("  sheet %.1f x %.1f mm at 1:%.3f -- the art is %.1f mm long"
-        % (sheet_w, sheet_h, denom, art_w))
+        % (sheet_w, sheet_h, denom, draw_w))
 
     def regions(mask, oy):
-        return SK.contours(mask, px_mm, ox, oy, SIMPLIFY_MM, MIN_AREA_MM2)
+        return SK.contours(mask, px_mm, ox - px0, oy - py0,
+                           SIMPLIFY_MM, MIN_AREA_MM2)
 
     stats = dict(areas=0)
 
@@ -201,6 +225,18 @@ def panels(cap, denom, log=log):
             n += 1                             # is mix() toward the STOCK
         stats["areas"] += n
         return n
+
+    # ---- THE DIE CUT -------------------------------------------------------
+    # ⚠ THIS SHEET SHIPPED ITS FIRST PROOF WITH NO CUT PATH AT ALL -- a die-cut
+    # sticker with no die line, which is not a product, it is a picture of one.
+    # `sticker.py` already computes the path (bridge the underbody with the
+    # cast shadow; let no feature narrower than the spec's minimum touch the
+    # cut) and it was simply never called here.
+    min_cut_px = (SK.SPEC_MIN_CUT_M * (1000.0 / denom)) / px_mm
+    cut, cbody, thin, ncomp, thin_left, ncut = SK.die_cut(
+        art, px_mm, SK.BLEED_MM, min_cut_px, log=log)
+    ck(ncomp == 1, "A11 the die cut falls into %d pieces; a sticker is ONE "
+                   "piece of vinyl" % ncomp)
 
     y = 4.0
     # ---- PANEL 1: DAYLIGHT, the shut panel van ------------------------------
@@ -415,7 +451,8 @@ def panels(cap, denom, log=log):
                     continue
                 if shut[py, px]:
                     over += 1
-                pts.append((ox + u * W * px_mm, y + v * H * px_mm))
+                pts.append((ox - px0 + u * W * px_mm,
+                            y - py0 + v * H * px_mm))
             if pts and over > VOID_FRAC * len(pts):
                 n_void += 1
                 continue
@@ -428,6 +465,13 @@ def panels(cap, denom, log=log):
                 continue
             sh.poly(pts, w=0.22, rgb=LINE_INK, tint=1.0)
             n_line += 1
+    n_cut = 0
+    for pth in SK.contours(cut, px_mm, ox - px0, y - py0, SIMPLIFY_MM, 0.0):
+        sh.poly(pth, w=0.45, rgb=CUT_INK, tint=1.0, close=True, dash=(2.2, 1.4))
+        n_cut += 1
+    ck(n_cut > 0, "A12 no cut path was drawn -- this is a die-cut sticker")
+    log("  die cut: %d path(s) drawn on the daylight panel, %d component(s), "
+        "%d thin feature(s) left after the bridge" % (n_cut, ncomp, thin_left))
     log("  panel 1 DAYLIGHT: %d ground + %d material region(s) in the AUTHORED "
         "palette (%s), apertures SHUT over %d galley region(s), %d lamp "
         "region(s), %d line stroke(s) of %d kept, %d dropped as kitchen"
@@ -441,28 +485,97 @@ def panels(cap, denom, log=log):
                      "panel -- it is a silhouette again, not a drawing" % painted)
     ck(n_line > 50, "A7 only %d line stroke(s) survived; the daylight panel "
                     "has no drawing on it" % n_line)
-    y += art_h + PANEL_GAP_MM
+    y += draw_h + PANEL_GAP_MM
 
-    # ---- PANEL 2: DARK, reading A -- the lamps GLOW -------------------------
+    # ---- THE NIGHT PANELS ---------------------------------------------------
+    # ⚠⚠ THE FIRST VERSION OF THESE PANELS WAS NOT A PRODUCT AND THE OWNER SAID
+    # SO IN THREE WORDS.  It filled each galley material flat in ONE glow ink,
+    # so twenty-odd adjacent objects merged into slabs and the result read as a
+    # MASK DUMP -- a picture of the material index, not a lit kitchen.  All
+    # fourteen checks were green on it.  Found the way everything here is
+    # found: by looking at it (rule 1).
+    #
+    # WHAT A GLOW STICKER ACTUALLY IS, AND IT DICTATES THE FIX: the night image
+    # is the SUBSTRATE showing through.  Ink does not glow; bare glow-vinyl
+    # does.  So the drawing in the dark is made by what is PRINTED OVER the
+    # glow -- the separations between objects are ink lines knocked out of the
+    # glow, not colour differences.  Two things follow, and both were missing:
+    #   1. THE LINE PASS BELONGS HERE.  The strokes this sheet DROPS from the
+    #      daylight panel as "kitchen" are exactly the ones the night panel
+    #      needs; they were computed, discarded, and never reused.
+    #   2. THE GLOW IS NOT ONE FLAT VALUE.  A phosphor lit by one strip is
+    #      brighter where the strip sees it.  The AO pass already measures that
+    #      and it was thrown away.
+    def night(y_top, lamp_rgb, tag_):
+        sh.fill(ox, y_top, draw_w, draw_h, tint=1.0, rgb=NIGHT_GROUND)
+        # THE SAME CUT PATH, faint.  Without it the night panels are a band of
+        # light floating in a black rectangle and a reader cannot tell they are
+        # the SAME OBJECT as the panel above -- which is the one thing these
+        # three panels exist to show.  The cut edge is physically there in both
+        # states; drawing it is not a liberty.
+        for pth in SK.contours(cut, px_mm, ox - px0, y_top - py0,
+                               SIMPLIFY_MM, 0.0):
+            sh.poly(pth, w=0.30, rgb=CUT_NIGHT, tint=1.0, close=True,
+                    dash=(2.2, 1.4))
+        ng = lay(galley & ~_occ, y_top, GLOW_INK)
+        nd = lay(galley & _occ, y_top, GLOW_DIM)
+        nl = lay(lamp, y_top, lamp_rgb)
+        # THE KNOCK-OUT: ink lines printed over the glow, which is what makes
+        # the room read as objects.  Clipped to the glow so no stroke is
+        # printed on bare substrate, where it would be a black mark on a black
+        # panel and cost ink for nothing.
+        nk = 0
+        if cap.get("lines"):
+            import math as _m
+            for stk in cap["lines"]:
+                pts, on = [], 0
+                for u, v in stk:
+                    px, py = int(round(u * W)), int(round(v * H))
+                    if not (0 <= px < W and 0 <= py < H):
+                        continue
+                    if galley[py, px] or lamp[py, px]:
+                        on += 1
+                    pts.append((ox - px0 + u * W * px_mm,
+                                y_top - py0 + v * H * px_mm))
+                if not pts or on < GLOW_LINE_FRAC * len(pts):
+                    continue
+                pts = SK.rdp(pts, SIMPLIFY_MM)
+                if len(pts) < 2:
+                    continue
+                L = sum(_m.hypot(pts[i+1][0]-pts[i][0], pts[i+1][1]-pts[i][1])
+                        for i in range(len(pts)-1))
+                if L < LINE_MIN_MM:
+                    continue
+                sh.poly(pts, w=0.22, rgb=NIGHT_GROUND, tint=1.0)
+                nk += 1
+        log("  panel %s: %d bright + %d dim glow region(s), %d lamp region(s), "
+            "%d knocked-out line(s)" % (tag_, ng, nd, nl, nk))
+        return ng, nd, nl, nk
+
+    # THE TWO GLOW LEVELS, MEASURED off the AO pass rather than authored: the
+    # dimmer tier is the occluded quantile of the galley, which is where a
+    # single strip light genuinely fails to reach.
+    _occ = np.zeros_like(art)
+    if cap.get("ao") is not None and galley.any():
+        _a = cap["ao"][galley]
+        if len(_a):
+            _thr = np.percentile(_a, GLOW_DIM_PCT)
+            _occ = galley & (cap["ao"] < _thr)
+            log("  glow tiers: %d px below the %dth AO percentile (%.4f) print "
+                "DIM -- MEASURED placement, AUTHORED step"
+                % (int(_occ.sum()), GLOW_DIM_PCT, _thr))
+
     sh.text(ox, y + 3.2, "NOCHE  ---  lectura A: las series SI encienden", pt=8.0)
     y2 = y + label_h
-    sh.fill(ox, y2, art_w, art_h, tint=1.0, rgb=NIGHT_GROUND)
-    n_g2 = lay(galley, y2, GLOW_INK)
-    n_l2 = lay(lamp, y2, GLOW_DIM)
-    log("  panel 2 DARK / reading A: %d glowing galley region(s) + %d GLOWING "
-        "lamp region(s)" % (n_g2, n_l2))
-    y = y2 + art_h + PANEL_GAP_MM
+    n_g2, n_d2, n_l2, n_k2 = night(y2, GLOW_INK, "2 DARK / reading A")
+    y = y2 + draw_h + PANEL_GAP_MM
 
-    # ---- PANEL 3: DARK, reading B -- the lamps do NOT glow ------------------
     sh.text(ox, y + 3.2, "NOCHE  ---  lectura B: las series NO encienden", pt=8.0)
     y3 = y + label_h
-    sh.fill(ox, y3, art_w, art_h, tint=1.0, rgb=NIGHT_GROUND)
-    n_g3 = lay(galley, y3, GLOW_INK)
-    n_l3 = lay(lamp, y3, DAY_LAMP)
-    log("  panel 3 DARK / reading B: %d glowing galley region(s); the %d lamp "
-        "region(s) stay in DAYLIGHT ink so they visibly do NOT glow"
-        % (n_g3, n_l3))
-    y = y3 + art_h + 6.0
+    n_g3, n_d3, n_l3, n_k3 = night(y3, DAY_LAMP, "3 DARK / reading B")
+    y = y3 + draw_h + 6.0
+    ck(n_k2 > 100, "A10 only %d line(s) knocked out of the glow -- the night "
+                   "panel is a flat mask again, not a room" % n_k2)
 
     ck(n_g2 == n_g3, "A4 the two dark readings differ in the GALLEY, which is "
                      "the half they are supposed to share (%d vs %d)"
