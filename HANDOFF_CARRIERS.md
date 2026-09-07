@@ -650,6 +650,29 @@ about the vehicle. **Not one of those rows compares the model to a photograph** 
 ---
 
 ---
+## §0.13 THE LOCATIONAL SERIES — BETHESDA (F340 / F341)
+
+**Moved here from the ACTION brief at rev 79 because the brief hit its 32 KB
+guard. That is the split working as designed (the rev-73 precedent twice
+over): the brief keeps the verdict and the pointer, the carrier keeps the
+detail. NOTHING IS DROPPED — rule 16.**
+
+**THE LOCATIONAL SERIES — BETHESDA. F340 / F341. ⚠ THE REV-79 BRIEF
+DROPPED THIS ENTIRELY AND IT IS A RULE-16 VIOLATION — F341 IS GRADED
+`RULED-rev77` AND ITS ROW CALLS THE TWO RULINGS *"the operative instructions"*.**
+It was ranked FOURTH of eight in the incoming brief, above F318 and the emblem.
+He floated it with the word ***"maybe"***; **he ruled on HOW, not THAT.**
+⚠ **Two corrections travel with it and both are owed to him:** the glyph
+inventory is **case-sensitive** — `script_gen.py` holds ONE capital (`draw_T`)
+and six lowercase — so against ALL-CAPS settings `TAQUERIA EL CRISTAL` is
+missing **9** and `TAQUERIA BUENA BETHESDITA` **11**, not the 6 and 8 he was
+shown; and **F359** — the `Señor`-recovery saving is **eleven-to-ten, ONE
+letter**. ⚠ **`CRYSTAL CITY → EL CRISTAL` IS AN INFERENCE, NOT HIS WORDS.**
+⚠ **And his ruling was framed under `SPEC.md` §10.10's "hard bar", which governs
+*"every painted element ON THIS VEHICLE"*. A shop sign in Bethesda is not one
+(rule 34).**
+
+---
 ## §0.12 THE SEVEN OWNER-GRADED ROWS — CARRIED IN SUBSTANCE AT LAST (F356)
 
 **These seven were in NO live carrier, and rev 79's incoming brief "carried"

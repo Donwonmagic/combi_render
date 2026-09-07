@@ -185,20 +185,15 @@ check *"REMEMBER TO HOLD UP NEXT TO THE ACTUAL SOURCE PHOTOS"*, whose own row
 says **the tail and the roof have still never been done.** Rule 16 asks for the
 substance, not the identifier. **Still owed.**
 
-### **8. THE LOCATIONAL SERIES — BETHESDA. F340 / F341. ⚠ THE REV-79 BRIEF
-DROPPED THIS ENTIRELY AND IT IS A RULE-16 VIOLATION — F341 IS GRADED
-`RULED-rev77` AND ITS ROW CALLS THE TWO RULINGS *"the operative instructions"*.**
-It was ranked FOURTH of eight in the incoming brief, above F318 and the emblem.
-He floated it with the word ***"maybe"***; **he ruled on HOW, not THAT.**
-⚠ **Two corrections travel with it and both are owed to him:** the glyph
-inventory is **case-sensitive** — `script_gen.py` holds ONE capital (`draw_T`)
-and six lowercase — so against ALL-CAPS settings `TAQUERIA EL CRISTAL` is
-missing **9** and `TAQUERIA BUENA BETHESDITA` **11**, not the 6 and 8 he was
-shown; and **F359** — the `Señor`-recovery saving is **eleven-to-ten, ONE
-letter**. ⚠ **`CRYSTAL CITY → EL CRISTAL` IS AN INFERENCE, NOT HIS WORDS.**
-⚠ **And his ruling was framed under `SPEC.md` §10.10's "hard bar", which governs
-*"every painted element ON THIS VEHICLE"*. A shop sign in Bethesda is not one
-(rule 34).**
+### **8. THE LOCATIONAL SERIES — BETHESDA. F340 / F341. GRADED `RULED-rev77`,
+and its row calls the two rulings *"the operative instructions"*.** He floated
+it with the word ***"maybe"***; **he ruled on HOW, not THAT.** It was ranked
+FOURTH of eight in rev 79's incoming brief, above F318 and the emblem, and that
+brief's successor dropped it entirely — a rule-16 violation caught by the
+rule-17 adversary. ⚠ **THE DETAIL, INCLUDING THE TWO CORRECTIONS OWED TO HIM
+AND THE `SPEC.md` §10.10 SCOPE PROBLEM, IS IN `HANDOFF_CARRIERS.md` §0.13** —
+moved there at rev 79 when this file hit its 32 KB guard. **Read it before
+acting on this item.**
 
 ### **9. THE EMBLEM. F191 STANDS AND F361 DID NOT TOUCH IT.** 0.8528 against
 P1b's 0.9465, and the objective still has no legibility term. His ninth report.
@@ -260,8 +255,8 @@ which shells it internally (F357). SERIALISE THEM.** There are **21** fixed
 count.**
 
 ```bash
-./verify_clone.sh                             # ALL 456 PASS on rev 79's tree --
-  # 0 FIDELITY, 456 SELF-CONSISTENCY.  ⚠ THAT COUNT IS WHAT `audit_brief.py`
+./verify_clone.sh                             # ALL 458 PASS on rev 79's tree --
+  # 0 FIDELITY, 458 SELF-CONSISTENCY.  ⚠ THAT COUNT IS WHAT `audit_brief.py`
   # PARSES OUT OF THIS FILE, and `--fix-count` can only REWRITE it, never
   # create it: delete the line and check 5 reds permanently.  With an EMPTY
   # out/ six rows SKIP and say UNGUARDED; the PASS total is the same (F323).
@@ -483,7 +478,7 @@ a property of which side the camera is on. NOBODY PAINTED THAT WINDOW. Rev 80
 should re-open F353 rather than inherit its headline.**
 
 ⚠ **THEIR CEILING: neither ran `verify_clone.sh`, `bootstrap.sh`, Blender or
-`sticker_pass.py`. The 456, the `T1_*` ablations against a real capture, and
+`sticker_pass.py`. The 458, the `T1_*` ablations against a real capture, and
 every `probe_rev*` figure in §4 are UNVERIFIED BY THEM.** The rule-17 pass was
 additionally blocked from running `apaga.py --tag side`, so it never read that
 script's own summary line (rule 9) and reproduced the arithmetic offline

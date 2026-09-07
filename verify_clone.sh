@@ -1547,7 +1547,12 @@ ck "the ACTION brief is still an ACTION brief (<32 KB)" 1 \
 # shape as the SS0.10 and SS0.11 re-bases above, same companion treatment: the
 # new section is pinned BY NAME below, so this re-base cannot silently accept a
 # DELETION plus a different addition.
-ck "every carrier SECTION is present in the carriers file" 17 \
+# rev 79 -- RE-BASED 17 -> 18, CAUSE NAMED: SS0.13, THE LOCATIONAL SERIES,
+# MOVED HERE FROM THE ACTION BRIEF when that file hit its 32 KB guard -- the
+# third time this has happened and the same response as SS0.10 and SS0.11.
+# The brief keeps the verdict and a pointer; the carrier keeps the detail,
+# including the two corrections owed to the owner.  Companion below, BY NAME.
+ck "every carrier SECTION is present in the carriers file" 18 \
    "$(grep -cE '^## (SS|§)(0\.|0 |1 |2 |4 |5 |6 |7 |8 |9 |10 )' HANDOFF_CARRIERS.md 2>/dev/null | head -1)"
 ck "F294 the BUMP_BOW ladder's own carrier section is still there, BY NAME" 1 \
    "$(grep -cE '^## §0\.10 THE .BUMP_BOW. LADDER' HANDOFF_CARRIERS.md 2>/dev/null | head -1)"
@@ -1558,6 +1563,13 @@ ck "F356 the seven owner-graded rows' carrier section is there, BY NAME" 1 \
 # hardest thing the owner has said and it is the one pinned here.
 ck "F356 ... and the artwork bar is quoted in it, not just named" 1 \
    "$(grep -c 'ABSOLUTE REPLICATION OF ALL ARTWORK' HANDOFF_CARRIERS.md 2>/dev/null | head -1)"
+ck "F340 the locational series' carrier section is there, BY NAME" 1 \
+   "$(grep -cE '^## §0\.13 THE LOCATIONAL SERIES' HANDOFF_CARRIERS.md 2>/dev/null | head -1)"
+# AND THE BRIEF MUST STILL POINT AT IT.  A section moved out of the brief and
+# then unpointed-at is a carrier already half gone -- this script's own words,
+# and exactly what happened to CONCEPT_AUDIT_rev77.md one revision ago.
+ck "... and the brief still points at where it went" 1 \
+   "$(if [ -n "$_LATEST_BRIEF" ]; then grep -c 'HANDOFF_CARRIERS.md` §0.13' "$_LATEST_BRIEF" 2>/dev/null; else echo 0; fi)"
 # *** rev 73 -- RE-ANCHORED, CAUSE NAMED.  This row first keyed on the literal
 # "THE FLOOR PAIR, 0.003 px" and went red the moment the floor was re-quoted to
 # its live precision (0.0026).  A guard keyed to a FIGURE fails whenever the
