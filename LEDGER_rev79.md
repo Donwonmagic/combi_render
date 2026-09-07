@@ -4,12 +4,12 @@
 
 **REV 79 SHIPPED NO VEHICLE GEOMETRY, AND THIS TIME THAT IS NOT A CONFESSION —
 IT IS THE OWNER'S STANDING RULING.** `revstats.py` prints
-**`LAST FIVE REVISIONS (75-79): 16 geometry lines, 4 findings closed`**. The
+**`LAST FIVE REVISIONS (75-79): 16 geometry lines, 7 findings closed`**. The
 geometry column reads `0` for the fourth revision running, and at rev 79 the
 owner was asked directly whether that was a problem and ruled that it is not:
 **FREEZE THE MODEL, DRAW FROM IT (F361)**.
 
-**THE ZERO-CLOSURE RUN IS BROKEN. Rev 79 closed FOUR: F354, F360, F363, F364.** The
+**THE ZERO-CLOSURE RUN IS BROKEN. Rev 79 closed SEVEN: F350, F354, F356, F360, F363, F364, F366.** The
 run was rev 72 through rev 78, seven revisions, every one `0`.
 
 ⚠ **AND THE CLOSURE FIGURE IS ITSELF A REV-79 FINDING. `revstats.py` PRINTED

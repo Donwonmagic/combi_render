@@ -16,7 +16,7 @@
 > **HE ALSO BOUGHT A CONCEPT (F362)** — the first of 2.58 MB of concept material
 > ever shown to him — **and ordered its one unresolved point drawn BOTH WAYS.**
 
-**REV 79 CLOSED FIVE FINDINGS: F354, F360, F363, F364, F366.** That ends a run of **seven**
+**REV 79 CLOSED SEVEN FINDINGS: F350, F354, F356, F360, F363, F364, F366.** That ends a run of **seven**
 consecutive revisions at zero (72–78). ⚠ **RUN `python3 revstats.py` AND READ
 ITS OWN NUMBER; DO NOT TRUST THIS LINE.** ⚠⚠ **AND KNOW WHY IT IS TRUSTWORTHY
 NOW: at rev 79 that script COUNTED OCCURRENCES OF A STRING, NOT FINDINGS, and
@@ -233,6 +233,9 @@ paint instruments if a flank question returns.
 | **F360** | Rev 78's retraction reached its prose and **not the module that WRITES the claim**, so the false sentence survived in **six** tracked files. Fixed at the generator; a companion row is **WATCHED FAILING**. |
 | **F354** | `probe_rev77_t3floor.py`'s `0 FAILED` was a string literal. `FAILED` now counts unparseable frames — **not** the rung, which F334 un-gated. |
 | **F363** | `revstats.py` counted closure STRINGS, not findings. **It printed 3 for two.** Corrects rev 71 to `1`. ⚠ **NOT `CLAUDE.md`'s rev-70 figure, which is correct.** |
+| **F350** | `sheet.py`'s tint trap, a NAMED TRAP for two revisions, is **repaired**: `shade_of(beneath, mult)` prints a darker relative of the ink beneath. `mix()` deliberately unchanged, so the drafting sheets re-emit byte-identical. Two rows bind it. |
+| **F356** | The seven owner-graded rows are **carried in substance** in `HANDOFF_CARRIERS.md` §0.12, in his own words. The name-carry had hidden that **F164 is CLOSED by his own ruling** and was listed beside six live rows. |
+| **F366** | The owner rejected the first night panels — *"that's not a product"* — with all fourteen checks green. **Four causes, none findable by a check.** |
 | **F364** | `apaga.py`'s shut-aperture guard, wrong three times in one revision — tautology, then **the wrong openings entirely**. Rebuilt on the bay seal ring and the mask is PAINTED. **A8's green is arithmetic; only its ablation discriminates.** |
 
 ⚠ **`F361` AND `F362` ARE RULINGS, NOT CLOSURES, AND `F362` IS GRADED
