@@ -154,11 +154,20 @@ probe_rev71_proxy              IoU 1.000000
 probe_rev77_t3floor            1 checked, 0 FAILED     (its verdict is real now)
 ```
 
+**`visibility_budget.py` RAN, after the missing frame was re-rendered alone.**
+Top by area: F67 the contact shadow `3.83e+06 px²`, F44 the gloss on the cream
+upper body `2.08e+06`, F44 on the red flank `8.08e+05`, F15 the unlit roofed
+body `6.92e+05`. ⚠⚠ **The EMBLEM ranks 9th, 11th, 15th and 16th** — `3.32e+04`
+down to `1.15e+00 px²` — and the table's own verdict reads *"THE ITEM AT THE
+BOTTOM WAS THE TOP JOB FOR FOUR REVISIONS."* **Not an argument to drop it: he
+outranks the ranking and F191 stands. It is the figure to show him if it is
+ever proposed as the top job again.**
+
 ⚠ **THE §0 RENDER QUEUE DIED AT THREE FRAMES OF FOUR.** `front`, `side` and
 `hero34f` landed; `hero34r` was cut off at sample 9/96 **with no error in the
-log** — the process was simply gone. Not diagnosed. **Anything wanting
-`out/r79_hero34r.png` has no frame, and `visibility_budget.py` was therefore
-not run this revision.** Stated, not skipped.
+log** — the process was simply gone. Not diagnosed. **Re-launched alone at the close with `T1_PREVIEW=hero34r` and it landed on the
+first attempt**, which unblocked the budget above but leaves the original
+failure undiagnosed. Stated, not skipped.
 
 ---
 ## §4b ⚠⚠ THE OWNER REJECTED THE FIRST NIGHT PANELS. F366.

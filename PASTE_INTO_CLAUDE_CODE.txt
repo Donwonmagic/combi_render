@@ -124,6 +124,19 @@ not rank neighbours.** ⚠⚠ **AND UNDER F361 IT RANKS A FROZEN OBJECT. A pixel
 budget over the vehicle cannot rank DRAWN WORK at all, which is now the main
 line. Use it to rank model repairs against each other, not against drawings.**
 
+**IT RAN AT REV 79 (the re-rendered `hero34r` unblocked it) AND HERE IS WHAT IT
+SAYS, WITH ITS CEILING ATTACHED.** Top by area: **F67** the contact shadow's
+footprint, `3.83e+06 px²`; **F44** the paint's gloss over the cream upper body,
+`2.08e+06`; F44 again on the red flank, `8.08e+05`; **F15** the unlit roofed
+body, `6.92e+05`. ⚠⚠ **AND THE EMBLEM — the thing F191 holds the whole project
+on — RANKS 9th, 11th, 15th AND 16th, at `3.32e+04`, `1.28e+04`, `3.81e+00` and
+`1.15e+00 px²`. The largest item is 3 335 815× the smallest, and the table's own
+verdict block says THE ITEM AT THE BOTTOM WAS THE TOP JOB FOR FOUR REVISIONS.**
+⚠ **THIS IS NOT AN ARGUMENT TO DROP THE EMBLEM. He outranks the ranking, F191
+stands, and the table's own ceiling says a hard-edged error reads louder per
+pixel than a soft one. It IS the number to put in front of him if the emblem is
+ever proposed as the top job again.**
+
 ### **1. ASK HIM — AND ONE ANSWER IS ALREADY OWED ON AN ARTEFACT HE HAS.**
 * **THE LAMP A/B (F362).** He ordered both readings drawn; **they are drawn and
   he has not chosen.** One crop, two panels, one sentence.
