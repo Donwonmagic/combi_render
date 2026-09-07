@@ -91,6 +91,7 @@ def ls_width(f, s, ls):
 # would have caught it, and it was WATCHED FAILING on that exact defect before
 # the defect was fixed (rule 3).
 TEXTBOX = []
+OBSTACLE = []          # (piece, label, x0,y0,x1,y1) -- art no text may cross
 _CUR = {"piece": None, "safe": None}
 
 def piece_frame(name, safe):
@@ -356,6 +357,96 @@ PIECES = [("01_aframe", p01_aframe), ("02_cartel", p02_cartel),
           ("03_banner", p03_banner), ("04_cuadro", p04_cuadro),
           ("05_tarjeta", p05_tarjeta), ("06_menu", p06_menu)]
 
+# --------------------------------------------------- the photoreal variant
+def plate(path, aspect=1.30, pad=0.075, white=238):
+    """A rendered frame cropped to a PHOTOGRAPHIC PLATE.
+
+    ⚠ THIS REPLACES A KEY THAT WAS WRONG AND WAS GREEN ON BEING WRONG.  The
+    first version flood-filled the near-white background from the frame edge and
+    dropped the vehicle onto the poster ground.  `hero34f` is NOT rendered on
+    plain white -- it has a WHITE STUDIO FLOOR with a soft cast shadow on it --
+    so the shadowed floor fell below the near-white threshold, survived the
+    flood as "subject", and printed as a ragged white slab behind the bus.
+    THREE CHECKS PASSED ON IT, including one that compared background pixels to
+    subject pixels and read 978342 > 781658 while the subject silently contained
+    the floor.  Caught by looking at the piece, not by any check (rule 1).
+
+    Keeping the frame whole is also the better answer: the floor carries the
+    render's own cast shadow, which is the one thing F67 says the vehicle is
+    missing, and a photographic plate is a stronger poster device than a
+    cut-out.  The crop is measured off the frame's own content -- the bbox of
+    everything that is not paper-white -- not authored.
+    """
+    im = Image.open(path).convert("RGB")
+    a = np.asarray(im)
+    content = (a < white).any(axis=2)
+    ys, xs = np.where(content)
+    if not len(ys):
+        raise SystemExit("plate(): %s is blank" % path)
+    x0, x1, y0, y1 = xs.min(), xs.max(), ys.min(), ys.max()
+    w, h = x1 - x0, y1 - y0
+    px, py = int(w * pad), int(h * pad)
+    x0, x1, y0, y1 = x0 - px, x1 + px, y0 - py, y1 + py
+    # grow the short side to the plate's aspect, then clamp into the frame
+    cw, ch = x1 - x0, y1 - y0
+    if cw / float(ch) < aspect:
+        need = int(aspect * ch) - cw
+        x0 -= need // 2; x1 += need - need // 2
+    else:
+        need = int(cw / aspect) - ch
+        y0 -= need // 2; y1 += need - need // 2
+    x0 = max(0, x0); y0 = max(0, y0)
+    x1 = min(im.width, x1); y1 = min(im.height, y1)
+    return im.crop((x0, y0, x1, y1)), (int(x0), int(y0), int(x1), int(y1)), \
+           int(content.sum())
+
+
+def p07_hero(path, src="out/r80_hero34f.png"):
+    """The photoreal register, for the same collection.  This is the ONLY piece
+    that uses a rendered frame rather than a tracked capture, so it is the only
+    one that needs Blender to have run."""
+    if not os.path.exists(src):
+        return None
+    W, H = 1400, 1800
+    piece_frame("07_hero", (68, 68, W - 68, H - 68))
+    im = Image.new("RGB", (W, H), AZUL); d = ImageDraw.Draw(im)
+    keyline(d, (0, 0, W - 1, H - 1), CREMA, w=4, inset=44)
+
+    pl, box, npx = plate(src)
+    pw = W - 2 * 210
+    pl = pl.resize((pw, int(pl.height * pw / float(pl.width))), Image.LANCZOS)
+    px, py = 210, 560
+    im.paste(pl, (px, py))
+    d.rectangle([px - 1, py - 1, px + pl.width, py + pl.height],
+                outline=CREMA, width=3)
+    OBSTACLE.append(("07_hero", "photographic plate", px, py,
+                     px + pl.width, py + pl.height))
+
+    ls_text(d, (W // 2, 150), "SEÑOR", font("disp", 128), CREMA, ls=12, anchor="mt")
+    ls_text(d, (W // 2, 300), "TACOMBI", font("disp", 128), AMBAR, ls=12, anchor="mt")
+    rule(d, 230, W - 230, 470, ROJO, 7)
+    # ABLATION.  T1_PROMO_COLLIDE=1 restores the first layout, which printed the
+    # strapline in CREAM ON THE WHITE PLATE.  It exists so the collision check
+    # can be WATCHED FAILING on the real defect rather than asserted to work
+    # (rule 3).  verify_clone.sh does not run it; watch it by hand:
+    #     T1_PROMO_COLLIDE=1 python3 promo.py --only 07_hero
+    if os.environ.get("T1_PROMO_COLLIDE") == "1":
+        # The defect as it actually shipped: the strapline inside the plate,
+        # cream on white.  Expressed RELATIVE to the plate, not as the literal
+        # y=1380 of the first draft -- that number stopped colliding the moment
+        # the plate was resized, and an ablation that silently stops ablating is
+        # worse than none.  Watched: this reds the collision row.
+        ty = py + pl.height - 120
+    else:
+        ty = py + pl.height + 60
+    ls_text(d, (W // 2, ty), "TAQUERÍA   Y   CERVECERÍA", font("sansb", 36),
+            CREMA, ls=16, anchor="mt")
+    ls_text(d, (W // 2, ty + 88), "100%  CALIDAD", font("disp", 62), AMBAR,
+            ls=10, anchor="mt")
+    serie(d, (W // 2, ty + 218), "VII", CREMA, 25, anchor="mt")
+    im.save(path)
+    return im, box, npx
+
 # ------------------------------------------------------------ contact sheet
 def contact(paths, path, cols=3, cell=560, pad=34):
     ims = [Image.open(p) for p in paths]
@@ -375,9 +466,16 @@ def contact(paths, path, cols=3, cell=560, pad=34):
 
 # ------------------------------------------------------------------- checks
 def main(argv):
+    global OUT
     only = None
     for i, a in enumerate(argv):
         if a == "--only": only = argv[i + 1]
+        if a == "--out":  OUT = argv[i + 1]
+    # F358: the ablation must not overwrite the tracked artwork the owner was
+    # shown, and `git checkout -- probe_scratch/` does NOT reach design_out/.
+    if os.environ.get("T1_PROMO_COLLIDE") == "1" and OUT == "design_out":
+        raise SystemExit("REFUSING: T1_PROMO_COLLIDE=1 would overwrite the "
+                         "tracked artwork in design_out/.  Pass --out /tmp/ab.")
     os.makedirs(OUT, exist_ok=True)
     print("promo.py -- a collection of promotional images on the combi")
 
@@ -400,6 +498,27 @@ def main(argv):
            "%s is not a flat slab (%d distinct colours sampled)"
            % (name, len(np.unique(a[::37], axis=0))))
 
+    # the photoreal piece, only if a frame exists (out/ is empty on a clone)
+    src = "out/r80_hero34f.png"
+    if os.path.exists(src) and only in (None, "07_hero"):
+        p = os.path.join(OUT, "promo_r80_07_hero.png")
+        r = p07_hero(p, src)
+        im, box, npx = r
+        paths.append(p)
+        ck(npx > 100000, "07_hero: plate crop measured off %d px of non-paper "
+           "content, box=%s" % (npx, box))
+        # The plate must not be a slab of floor: check the CROP still contains
+        # the vehicle's red, which no amount of studio floor can supply.
+        pa = np.asarray(Image.open(src).convert("RGB").crop(box)).astype(int)
+        red = ((pa[..., 0] > 110) & (pa[..., 0] - pa[..., 1] > 45) &
+               (pa[..., 0] - pa[..., 2] > 45))
+        ck(red.sum() > 20000, "07_hero: the crop holds %d px of body red -- it "
+           "is the vehicle, not a panel of studio floor" % int(red.sum()))
+        ck(os.path.exists(p), "07_hero written, %d x %d" % (im.width, im.height))
+    else:
+        print("       SKIP 07_hero: %s absent -- render first, or this piece "
+              "is simply not in the set" % src)
+
     # THE TEXT-FIT CHECK.  Compares two independently obtained quantities
     # (rule 6): the run's measured box from the FACE's own metrics, against the
     # piece's safe area declared from its page size.  Neither is derived from
@@ -414,6 +533,22 @@ def main(argv):
               % (b[0], b[1][:34], b[2], b[3], b[4], b[5], b[6]))
     ck(not bad, "every text run (%d) lies inside its piece's safe area; %d "
        "overflow" % (len(TEXTBOX), len(bad)))
+
+    # THE COLLISION CHECK.  A run can sit inside the safe area and still be
+    # illegible: the first plate treatment printed "TAQUERÍA Y CERVECERÍA" in
+    # CREAM ON THE WHITE PLATE, and the safe-area check passed on it because the
+    # run WAS inside the margins.  Bounds and collision are different questions.
+    # WATCHED FAILING on that exact defect before the layout was changed.
+    hit = []
+    for piece, txt, x0, y0, x1, y1, safe in TEXTBOX:
+        for op, lab, ox0, oy0, ox1, oy1 in OBSTACLE:
+            if op != piece: continue
+            if x0 < ox1 and x1 > ox0 and y0 < oy1 and y1 > oy0:
+                hit.append((piece, txt, lab))
+    for h in hit:
+        print("       COLLISION %s: %r crosses the %s" % (h[0], h[1][:34], h[2]))
+    ck(not hit, "no text run crosses a piece's artwork (%d obstacle(s) "
+       "declared); %d collision" % (len(OBSTACLE), len(hit)))
 
     if not only:
         cp = os.path.join(OUT, "promo_r80_contact.png")
