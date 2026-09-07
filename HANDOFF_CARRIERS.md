@@ -650,6 +650,46 @@ about the vehicle. **Not one of those rows compares the model to a photograph** 
 ---
 
 ---
+## §0.12 THE SEVEN OWNER-GRADED ROWS — CARRIED IN SUBSTANCE AT LAST (F356)
+
+**These seven were in NO live carrier, and rev 79's incoming brief "carried"
+them as a list of identifiers. Rule 16 asks for the substance, not the
+identifier, and a name-carry is what F356 exists to name. Here they are.
+Every quotation below is the OWNER's, from the register row it cites.**
+
+* **F94 — THE ARTWORK BAR, AND IT IS THE HARDEST THING HE HAS EVER SAID.**
+  ***"ABSOLUTE REPLICATION OF ALL ARTWORK"***, which he called ***"a hard
+  bar"***. Its named parts: the mural board, the flank paisley, the script,
+  the Calidad decal. **This is the bar the rev-77 re-framing argument turned
+  on without naming it.** It is not graded met anywhere.
+* **F91 — HIS STANDING CHECK, AND TWO THIRDS OF IT HAS NEVER BEEN DONE.**
+  ***"REMEMBER TO HOLD UP NEXT TO THE ACTUAL SOURCE PHOTOS"***. Done for the
+  show flank. **The TAIL and the ROOF have still never been done**, and the
+  row has said so since rev 43.
+* **F93 — THE TEXTURE BAR, AND IT IS FAILING.** ***"4K non-overlapping
+  textures and no floating artifacts"*** — the second half of his standard.
+  Recorded at `NEXT_CONTEXT_PROMPT_rev43.md` §7 item 14.
+* **F166 — THE EMBLEM'S REAL CAUSE, EIGHTEEN REVISIONS OLD.** *[owner,
+  rev 62]* ***"I am sick and tired of not being able to execute a publicly
+  available emblem."*** The roundel is published, specified and registered;
+  the row grades this a METHOD error, not a modelling one. **It is the
+  sentence under F191, and F361 did not touch either.**
+* **F259 — OWNER RULING, rev 71.** ***"Relight the studio and fix the ground
+  if necessary."*** Asked as multiple choice with
+  `probe_scratch/rev71_red_decision.png` attached.
+* **F164 — THE FORWARD WHITE PANEL IS NOT PART OF THE VEHICLE.** In
+  `ref_rear34.jpg` a cream panel with red script stands propped behind and
+  above the nose and reads as a third roof lid. ⚠ **This row is graded
+  `RULED-rev62` and CLOSED BY HIS OWN RULING — *"The forward one is separate
+  from the Bus."* It is carried here for the record, NOT as live work, and
+  the rev-79 brief listed it undifferentiated beside six live rows.**
+* **F56 — NO DELIVERY-FRAME BASELINE SURVIVES A REVISION.** `out/` is
+  gitignored and a verifier row forbids tracking any hero PNG, so the frame
+  each revision is told to *beat* costs **107 min** to regenerate before it
+  can be compared to anything. **Every "it looks better" in this project's
+  history was made without the thing it was better than.**
+
+---
 ## §0. THE GOAL, AND HOW FAR OFF IT WE ACTUALLY ARE
 
 **CARRIED FORWARD FROM THE REV-55…68 BRIEFS. It is not mine and it is not to be dropped —

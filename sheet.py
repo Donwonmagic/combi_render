@@ -65,9 +65,42 @@ def font_path(key):
 
 
 def mix(ink, stock, tint):
-    """tint 1.0 = full ink, 0.0 = bare stock.  Flat-colour halftone stand-in."""
+    """tint 1.0 = full ink, 0.0 = bare stock.  Flat-colour halftone stand-in.
+
+    ⚠⚠ READ THIS BEFORE USING `tint` FOR SHADING.  F350, diagnosed rev 78,
+    REPAIRED HERE AT REV 79 AFTER TWO REVISIONS AS A NAMED TRAP.
+
+    This blends toward the STOCK, unconditionally.  That is correct for a
+    SINGLE-INK DRAFTING SHEET -- one ink on one paper, which is what the three
+    rev-77 sheets are -- and it is WRONG for anything that draws one colour
+    over another.  A shadow drawn as a dark colour at tint 0.34 over white
+    stock resolves to about (174,174,174): an OPAQUE PALE GREY, regardless of
+    what is beneath it.  At rev 78 that was the grey halo round the bus, the
+    wash over the roof and the serving apertures, and the band across the
+    SEÑOR TACOMBI panel that covered the lower half of the wordmark.
+
+    THE FIX IS NOT TRANSPARENCY -- a print master wants FLAT INKS.  A shaded
+    region is a DARKER PRINTING OF THE INK ACTUALLY BENEATH IT, which is what
+    `shade_of()` below computes.  Use that, not `tint`, whenever something is
+    drawn over existing artwork.  `tint` remains correct and unchanged for its
+    own case, so every existing sheet re-emits byte-identical.
+    """
     t = max(0.0, min(1.0, float(tint)))
     return tuple(int(round(s + (i - s) * t)) for i, s in zip(ink, stock))
+
+
+def shade_of(beneath, mult):
+    """A DARKER PRINTING OF THE INK BENEATH -- the primitive `tint` is not.
+
+    F350's repair, rev 79.  `beneath` is the ink actually under the region and
+    `mult` scales it toward black, so the result is always a darker relative of
+    what is there rather than a grey wash toward the stock.  This is what
+    `sticker.py` worked around in its own module at rev 78 (SHADE_MULT 0.74,
+    AO_MULT 0.58); it lives here now so the next caller inherits the fix
+    instead of the trap.
+    """
+    m = max(0.0, min(1.0, float(mult)))
+    return tuple(int(round(max(0, min(255, c * m)))) for c in beneath)
 
 
 def _hex(c):

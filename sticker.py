@@ -292,9 +292,27 @@ def classify(index, albedo, alpha, meta, log=log):
     log("  ink separation MEASURED off the albedo: %s"
         % ", ".join("%s %d" % (f, sum(1 for v in fam.values() if v == f))
                     for f in sorted(set(fam.values()))))
+    # ⚠⚠ THIS LINE USED TO SAY "the 90 % of chromatic AREA nearest the mode",
+    # WHICH IS FALSE AND WAS FALSE IN A SHIPPING INSTRUMENT (F367, rev 79).
+    # `main` is `[h for h, n in hues if n >= AREA_FLOOR * tot]` -- an AREA
+    # FLOOR. There is no mode in it and no 90 % of anything; the variable name
+    # `wedge90` encodes the same false description. The SAME NUMBER was printed
+    # under two contradictory labels eight lines apart, and the C4 check that
+    # reds on it quotes one of them. Corrected, and the name kept only because
+    # it is on the capture metadata already shipped.
+    #
+    # AND THE HEADLINE THIS NUMBER CARRIES IS A SINGLE-OUTLIER ARTEFACT.
+    # MEASURED rev 79 on the `flank` capture: the arc over all chromatic
+    # materials is 90.0 deg, and dropping ONE material -- `script`, the
+    # wordmark -- gives 43.2 deg, INSIDE the spec row's 70. `script` holds
+    # 2.79 % of the chromatic area, TWENTY-EIGHT TIMES the 0.1 % floor, so the
+    # floor cannot exclude it and `wedge90` is dragged by it too. C4's red is
+    # therefore a finding about the WORDMARK's hue, not about the vehicle
+    # being outside a 70 deg wedge. Say which when you quote it.
     log("  hue wedge %.1f deg over %d chromatic material(s); %.1f deg over the "
-        "90 %% of chromatic AREA nearest the mode (spec row claims 70)"
-        % (wedge, len(hues), wedge90))
+        "%d holding >= %.1f %% of chromatic AREA -- an AREA FLOOR, not a mode "
+        "(spec row claims 70)"
+        % (wedge, len(hues), wedge90, len(main), AREA_FLOOR * 100))
     return masks, fam, per_idx, wedge, wedge90
 
 
@@ -1411,7 +1429,14 @@ def main(argv):
        "chromatic material VISIBLE IN THIS CAPTURE and %.1f deg over those "
        "of them holding at least 0.1 %% of chromatic area.  The claim had never been checked -- this is a real "
        "result either way, and a RED here is a finding about the SPEC ROW, "
-       "not about the drawing" % (wedge, wedge90))
+       "not about the drawing.  ⚠⚠ F367, rev 79: AND IT IS A SINGLE-OUTLIER "
+       "ARTEFACT.  Drop ONE material -- `script`, the wordmark, at hue 315 -- "
+       "and the arc falls to 43.2 deg on the flank capture, INSIDE the spec "
+       "row's 70.  `script` holds 2.79 %% of the chromatic area, 28x the 0.1 %% "
+       "floor, so the floor cannot exclude it and the second figure is dragged "
+       "by it too.  THIS ROW IS A FINDING ABOUT THE WORDMARK'S HUE, NOT ABOUT "
+       "THE VEHICLE SPANNING MORE THAN 70 DEG.  Do not quote it as the latter"
+       % (wedge, wedge90))
 
     ck(meta.get("ao") is True or meta.get("ao") is False,
        "C5 the capture does not record whether an occlusion pass exists")

@@ -1367,6 +1367,33 @@ ck "KILL: strip the phrase and the row must read LOST" LOST \
 ck "and the owner's rev-77 ruling on it is carried" 1 \
    "$(grep -c "F18's TRIGGER IS FIRED" OPEN_FINDINGS.md)"
 
+# ---- rev 79: F350's COMPANION ROW, OWED SINCE REV 78 ---------------------
+# `sheet.py`'s `tint` blends toward the STOCK, so anything drawn over existing
+# artwork through it prints an OPAQUE GREY WASH rather than a darker relative
+# of what is beneath.  Rev 78 diagnosed that, worked around it inside
+# `sticker.py`, and left the module trapped for the next caller with NO ROW
+# BINDING IT.  The brief has said the companion row is owed for two revisions.
+#
+# The repair is `shade_of(beneath, mult)`.  These rows test BOTH halves, and
+# they compare two independently obtained quantities rather than restating one
+# (rule 6): that the shaded ink is a DARKER RELATIVE of the ink beneath (its
+# hue survives), and that the trap's own output is NOT (it collapses to grey
+# whatever it is given).
+ck "F350 sheet.py grew the shade primitive it was missing" 1 \
+   "$(python3 -c "import sheet; print(1 if hasattr(sheet,'shade_of') else 0)" 2>/dev/null)"
+ck "F350 shade_of keeps the ink beneath, and tint does not" OK \
+   "$(python3 -c "
+import sheet as S
+red = (196, 58, 48)
+sh = S.shade_of(red, 0.74)
+# the shaded ink must stay RED: red channel still dominant, and darker overall
+keeps = sh[0] > sh[1] + 40 and sh[0] > sh[2] + 40 and sum(sh) < sum(red)
+# the trap must NOT: a dark ink at low tint over white stock goes grey, and the
+# spread between its channels collapses
+tr = S.mix((44, 40, 38), (255, 255, 255), 0.34)
+greys = (max(tr) - min(tr)) < 12
+print('OK' if keeps and greys else 'keeps=%s greys=%s %s %s' % (keeps, greys, sh, tr))" 2>&1 | tail -1)"
+
 # ---- rev 79: F360 -- THE RETRACTION THAT DID NOT REACH THE SOURCE ---------
 # `AUDIT_rev43.md`'s sticker VIEWPOINT row is NOT truncated.  Measured: its
 # DESIGN cell is 142 characters and ENDS IN A FULL STOP -- "...The face and
