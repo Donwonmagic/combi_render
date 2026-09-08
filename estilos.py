@@ -453,3 +453,91 @@ def main(argv):
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))
+
+# ============================================================== THE MARKS
+# The vehicle CARRIES ITS OWN TYPE.  `script` is the hand-lettered `Señor
+# Tacombi` wordmark, `calidad` the 100 % quality seal, `body_gold` the folk-art
+# scrollwork, `mural_gold` the lid's menu header and flower field.  Recovered by
+# the same within-material colour key as everything else (F369), they are
+# REUSABLE ARTWORK, not pictures of artwork.
+#
+# ⚠ WHY THIS MATTERS BEYOND CONVENIENCE.  `promo.py` states a real ceiling:
+# this container has NO display, script or condensed face -- Charter is Type1,
+# which PIL cannot load, and fonts.google.com is refused by the egress proxy.
+# Every piece it drew set the wordmark in DejaVu Serif Bold, a default face.
+# THE MARKS BELOW REMOVE THAT CEILING FOR DISPLAY USE, because the real
+# lettering was in the asset the whole time.  It does NOT remove it for body
+# copy, which is still DejaVu and Liberation.
+
+def _despeck(mask, min_px):
+    """Drop connected components below `min_px`.  A recovered mask carries
+    sampling crumbs; printed at poster size they read as dirt."""
+    from scipy import ndimage
+    lab, n = ndimage.label(mask)
+    if n == 0: return mask
+    keep = np.zeros(n + 1, bool)
+    cnt = np.bincount(lab.ravel())
+    keep[1:] = cnt[1:] >= min_px
+    return keep[lab]
+
+def seal_pair(tag="side", min_px=12):
+    """The `100% Calidad` seal as TWO plates in ONE frame.
+
+    ⚠ IT IS A REVERSED MARK AND A SINGLE SILHOUETTE DESTROYS IT.  The lettering
+    is a HOLE in the red starburst, showing the cream plate beneath, so filling
+    `calidad_ink` with one flat colour prints a blot -- which is exactly what
+    the first collection sheet did, at 210 px, on five pieces, with every check
+    green.  Caught by looking at a piece at FULL SIZE; the contact sheet hid it.
+    Returns (field, burst) as boolean masks sharing one bounding box.
+    """
+    u = underlay(tag)
+    L = u["layers"]
+    f = L.get("calidad_field"); b = L.get("calidad_ink")
+    if f is None or b is None or not f.any() or not b.any(): return None
+    f = _despeck(f, min_px); b = _despeck(b, min_px)
+    both = f | b
+    ys, xs = np.where(both)
+    sl = (slice(ys.min(), ys.max() + 1), slice(xs.min(), xs.max() + 1))
+    return f[sl], b[sl]
+
+
+def marks(tag="side", min_px=12):
+    """The vehicle's own artwork, cropped and de-specked, as L masks."""
+    u = underlay(tag)
+    L = u["layers"]
+    outv = {}
+    for name, key, mp in (("wordmark", "script", min_px),
+                          ("seal", "calidad_ink", min_px),
+                          ("seal_plate", "calidad_field", min_px),
+                          ("scroll", "body_gold", min_px * 3),
+                          ("mural", "mural_gold", min_px * 2)):
+        if key not in L or not L[key].any(): continue
+        m = _despeck(L[key], mp)
+        if not m.any(): continue
+        ys, xs = np.where(m)
+        sub = m[ys.min():ys.max() + 1, xs.min():xs.max() + 1]
+        if name == "scroll":
+            # The scrollwork runs the WHOLE flank, so its bbox is mostly empty
+            # with stragglers at the tail.  An ornament wants the dense cluster,
+            # found by column density rather than authored by eye.
+            col = sub.sum(0).astype(float)
+            k = max(20, int(sub.shape[1] * 0.34))
+            csum = np.concatenate([[0], np.cumsum(col)])
+            win = csum[k:] - csum[:-k]
+            x0 = int(np.argmax(win))
+            sub = sub[:, x0:x0 + k]
+            ys2, xs2 = np.where(sub)
+            sub = sub[ys2.min():ys2.max() + 1, xs2.min():xs2.max() + 1]
+        outv[name] = sub
+    return outv
+
+def mark_img(mask, height, ink, ss=4):
+    """One mark as an RGBA image `height` px tall, antialiased."""
+    h, w = mask.shape
+    a = Image.fromarray((mask * 255).astype(np.uint8))
+    big = a.resize((w * ss, h * ss), Image.LANCZOS)
+    wid = max(1, int(round(height * w / float(h))))
+    sm = big.resize((wid, height), Image.LANCZOS)
+    im = Image.new("RGBA", (wid, height), tuple(ink) + (0,))
+    im.paste(Image.new("RGBA", (wid, height), tuple(ink) + (255,)), (0, 0), sm)
+    return im
