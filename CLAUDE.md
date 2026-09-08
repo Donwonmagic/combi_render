@@ -123,10 +123,12 @@ action brief points you at it. ⚠ THE `@` THAT USED TO PRECEDE THAT FILENAME MA
 FOR SEVEN REVISIONS: Claude Code treats an at-sign followed by a filename as an import ANYWHERE on a line, not only at column 1, so the file
 the sentence says is not imported WAS, at 111,863 bytes — 70 % of a 160,208-byte startup load. F342.
 DO NOT PUT THE `@` BACK, and `verify_clone.sh` has a row that reds if you do.** The handoff was SPLIT at rev 70 because the brief had reached 95 KB
-and the owner measured what that cost. **The figures that used to be typed here — "721", "209",
-"0, 0, 0, 0, 0" — are DELETED, because this file's own first paragraph forbids them and because two of
-the three were WRONG: `revstats.py` reads 287 geometry lines/rev for rev 61–70, not 209, and rev 70
-closed 2, not 0 (F246-era audit, rev 71). Run `python3 revstats.py` and read ITS numbers.**
+and the owner measured what that cost. **The figures that used to be typed here are DELETED, because this file's own first paragraph
+forbids them. ⚠ THE SENTENCE THAT REPLACED THEM CARRIED THREE MORE FIGURES OF ITS OWN, AND ONE
+OF THOSE WAS WRONG TOO — it stated a geometry-lines-per-revision figure for revs 61–70 that
+`revstats.py` does not print (F374, rev 80). A correction that re-commits the offence it
+corrects is not a correction. **NO FIGURE REPLACES THEM.** Run `python3 revstats.py` and read
+ITS numbers.**
 **Rule 16 requires a carrier to be CARRIED, not to be carried in the WORKING document. Nothing was
 deleted, `verify_clone.sh`'s carrier rows search BOTH files, and four companion rows make the split
 itself testable. DO NOT RE-MERGE THEM.**
