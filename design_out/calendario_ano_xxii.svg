@@ -19448,6 +19448,6 @@
 <line x1="26" y1="650" x2="454" y2="650" stroke="#c43124" stroke-width="0.5" stroke-linecap="butt"/>
 <text x="26" y="658" font-family="Liberation Sans, Helvetica, Arial, sans-serif" font-size="3.5278" fill="#c43124" text-anchor="start" letter-spacing="2" font-weight="bold">TACOMBI</text>
 <text x="454" y="657" font-family="DejaVu Sans Mono, monospace" font-size="1.9756" fill="#c43124" text-anchor="end" letter-spacing="0">DIBUJO: line_pass.py  2711 trazos / 19471 puntos  vista side  sub 1  pliegue 40.0 deg</text>
-<text x="454" y="664" font-family="DejaVu Sans Mono, monospace" font-size="1.9756" fill="#c43124" text-anchor="end" letter-spacing="0">GEOMETRIA: STATE.md @ 6f1bc25  -  L 4.065 m  DE EJES 2.400 m  ANCHO 1.7497 m  3 HUECOS 0 m</text>
+<text x="454" y="664" font-family="DejaVu Sans Mono, monospace" font-size="1.9756" fill="#c43124" text-anchor="end" letter-spacing="0">GEOMETRIA: STATE.md @ 4377e21  -  L 4.065 m  DE EJES 2.400 m  ANCHO 1.7497 m  3 HUECOS 0 m</text>
 <text x="26" y="664" font-family="DejaVu Sans Mono, monospace" font-size="1.9756" fill="#c43124" text-anchor="start" letter-spacing="0.3">ROTULO POR ENCARGAR - ESTA PRUEBA FIJA LA POSICION, NO LA LETRA</text>
 </svg>
