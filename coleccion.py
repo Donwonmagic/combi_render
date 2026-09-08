@@ -18,36 +18,21 @@ a product"*, F366).  `promo.py`'s defect was named by message 3: it PASTED THE
 RENDER as the artwork.  Nothing here does.  Every hero is DRAWN by `estilos.py`
 over the model as underlay, and the model is asked only where things are (F361).
 
-THE TYPE IS THE VEHICLE'S OWN.  `promo.py` set every wordmark in DejaVu Serif
-Bold because this container has no display face and the font CDNs are refused by
-the egress proxy.  That ceiling is GONE for display use: the bus carries the
-hand-lettered `Señor Tacombi` wordmark, the `100% Calidad` seal, the folk-art
-scrollwork and the mural's menu header AS ARTWORK, and F369's within-material
-colour key recovers all four.  ⚠ **IT IS NOT GONE FOR BODY COPY**, which is
-still DejaVu and Liberation, and that is stated on every sheet.
+THE TYPE IS THE VEHICLE'S OWN, AND THE CEILING THAT JUSTIFIED IT WAS FALSE.
+The bus carries the hand-lettered `Señor Tacombi` wordmark, the `100% Calidad`
+seal, the folk-art scrollwork and the mural's menu header AS ARTWORK, and F369's
+within-material colour key recovers all four.  ⚠⚠ **THE STATED REASON FOR
+REACHING FOR THEM WAS WRONG (F371):** `promo.py` claimed PIL could not load the
+installed Type1 Charter and that the font CDN was blocked.  **PIL 12.3.0 loads
+it (7702 ink px), and `fonts.googleapis.com` returns 200.**  Neither half had
+ever been run.  The marks are kept because they are THE VEHICLE'S OWN LETTERING
+and no licensed face substitutes for that — not because anything is unavailable.
 
-WHERE EVERY WORD ON THESE PIECES COMES FROM (F372).  The first build of this
-module printed a menu with sub-lines -- *"al pastor · carnitas · pollo"*,
-*"del día"*, *"a la plancha"* -- under a docstring in `promo.py` claiming the
-list was *"read off the vehicle rather than invented"*.  IT WAS INVENTED.  The
-sub-lines appear nowhere in the record, the list DROPPED `GOURMET` and REORDERED
-`JUICES`, and the claim was a rule-10 violation sitting in a docstring.  Worse,
-these are assertions about a REAL BUSINESS'S MENU, and `CONCEPT_BENCH_rev77.md`
-already warns *"WE MAY BE SELLING FOOD HE NO LONGER SERVES ... only he can"*.
-Every string is now sourced, and the source is PRINTED ON THE PIECE:
-
-  MEDIDO      off the vehicle's own mural lid, `lid_gen.py`'s measured v-fractions:
-              GOURMET 0.001-0.041, TACOS 0.105-0.145, TORTAS 0.204-0.244,
-              JUICES 0.523-0.555, CEVICHE/TOSTADAS 0.590-0.637, SHRIMP 0.731-0.755;
-              top strip FRESH · JUICES · GOURMET TACOS · & · TORTAS
-  LETRERO     `TAQUERÍA Y CERVECERÍA` -- read off the owner's OWN photograph,
-              `ref_sign_aframe.jpg`.  It is in no other file in this repository.
-  AUTORADO    ABIERTO · HECHO A MANO · SE SIRVE DESDE LA COMBI · HORARIO ·
-              LA CARTA · TARJETA DE CLIENTE · the loyalty offer.  MINE, not his.
-
-⚠ **NO PIECE HERE STATES A PRICE, AN OPENING TIME, A DATE OR A DISCOUNT AS
-FACT.**  The hours card is deliberately BLANK RULES and the menu is marked
-`MENÚ DE MUESTRA` on its face.
+TYPE IN USE: **Alfa Slab One** (display) and **Oswald** (labels, colophons),
+both OFL, in `fonts/`; **Bitstream Charter** for serif text, from the system.
+⚠ **NO DejaVu AND NO Liberation ANYWHERE** — an earlier draft of F370 said the
+body copy was still those two and that every sheet named them.  Both halves were
+false; the sheets carry TEXT provenance, not a typeface credit.
 
 CEILINGS (rule 12):
   * Screen-scale RGB proofs.  No bleed, no trim, no separation, no spot plates.
@@ -84,8 +69,14 @@ VERDE = (44, 82, 66)
 # MEDIDO off the vehicle's mural lid -- lid_gen.py's own strings, its own order.
 MENU_MEDIDO = ("GOURMET TACOS", "TORTAS", "FRESH JUICES",
                "CEVICHE / TOSTADAS", "SHRIMP & FISH")
-# LETRERO -- the owner's photograph, ref_sign_aframe.jpg.  Nowhere else in the tree.
-LETRERO = "TAQUERÍA Y CERVECERÍA"
+# LETRERO -- READ OFF the owner's photograph, ref_sign_aframe.jpg, and spelled
+# EXACTLY as the sign spells it.  ⚠ The first version shipped
+# "TAQUERÍA Y CERVECERÍA" -- TWO ACCENTS ADDED and the conjunction UPPER-CASED --
+# while every piece printed a colophon claiming the string came off his sign.
+# The sign reads `TAQUERIA y CERVECERIA`: no acutes, lowercase italic y.  Under
+# F94 ("ABSOLUTE REPLICATION OF ALL ARTWORK") the sign wins over Spanish
+# orthography, because the claim being made is provenance, not spelling (F376).
+LETRERO = "TAQUERIA y CERVECERIA"
 
 # ---------------------------------------------------- the art, computed once
 _ART = {}; _MARKS = {}
@@ -182,7 +173,7 @@ def calle_aframe(p):
     keyline(d, (0, 0, W - 1, H - 1), TINTA, w=7, inset=36)
     mark(im, "wordmark", 190, (W // 2, 130), TINTA, "mt")
     rule(d, 170, W - 170, 380, GRANA, 7)
-    ls_text(d, (W // 2, 408), "TAQUERÍA   Y   CERVECERÍA", font("sansb", 34),
+    ls_text(d, (W // 2, 408), LETRERO, font("sansb", 34),
             GRANA, ls=13, anchor="mt")
     obstacle(p, "hero", place(im, "plano", (90, 560, W - 90, 1240)))
     rule(d, 170, W - 170, 1330, GRANA, 7)
@@ -220,8 +211,8 @@ def calle_vidriera(p):
     obstacle(p, "hero", place(im, "azulejo", (560, 80, W - 60, H - 130)))
     mark(im, "wordmark", 120, (80, 200), HUESO, "lt")
     rule(d, 82, 400, 370, ROJO, 6)
-    ls_text(d, (82, 405), "TAQUERÍA", font("sansb", 30), CIELO, ls=11)
-    ls_text(d, (82, 452), "CERVECERÍA", font("sansb", 30), CIELO, ls=11)
+    ls_text(d, (82, 405), "TAQUERIA", font("sansb", 30), CIELO, ls=11)
+    ls_text(d, (82, 452), "y CERVECERIA", font("sansb", 30), CIELO, ls=11)
     ls_text(d, (82, 560), "ABIERTO", font("disp", 62), HUESO, ls=6)
     colophon(d, W // 2, 816, "SERIE COMBI · CALLE III · ESTILO AZULEJO", CIELO)
     return im
@@ -251,7 +242,7 @@ def social_cuadro(p):
     keyline(d, (0, 0, W - 1, H - 1), AZUL, w=5, inset=38)
     obstacle(p, "hero", place(im, "riso", (100, 330, W - 100, 1010)))
     mark(im, "wordmark", 165, (W // 2, 130), ROJO, "mt")
-    ls_text(d, (W // 2, 1090), "TAQUERÍA   Y   CERVECERÍA",
+    ls_text(d, (W // 2, 1090), LETRERO,
             font("sansb", 33), AZUL, ls=14, anchor="mt")
     seal(im, 150, (W // 2, 1150), HUESO, ROJO, "mt")
     colophon(d, W // 2, 1276, "SERIE COMBI · SOCIAL I · ESTILO RISO", AZUL)
@@ -266,7 +257,7 @@ def social_historia(p):
     ls_text(d, (W // 2, 1290), "ABIERTO", font("disp", 122), GRANA, ls=18,
             anchor="mt")
     dotrule(d, 190, W - 190, 1470, GRANA, r=5, gap=26)
-    ls_text(d, (W // 2, 1520), "TAQUERÍA   Y   CERVECERÍA",
+    ls_text(d, (W // 2, 1520), LETRERO,
             font("sansb", 32), TINTA, ls=13, anchor="mt")
     obstacle(p, "scroll", mark(im, "scroll", 168, (W // 2, 1596), GRANA, "mt")
              or (0, 0, 0, 0))
@@ -280,7 +271,7 @@ def social_cabecera(p):
     obstacle(p, "hero", place(im, "plano", (1010, 60, W - 70, H - 60)))
     mark(im, "wordmark", 150, (110, 200), CREMA, "lt")
     rule(d, 112, 860, 400, ROJO, 6)
-    ls_text(d, (112, 432), "TAQUERÍA  ·  CERVECERÍA", font("sansb", 31),
+    ls_text(d, (112, 432), LETRERO, font("sansb", 31),
             CREMA, ls=12)
     ls_text(d, (112, 494), "FRESH JUICES · GOURMET TACOS · TORTAS",
             font("sans", 25), CIELO, ls=5)
@@ -296,7 +287,7 @@ def impreso_cartel(p):
     mark(im, "wordmark", 200, (W // 2, 150), HUESO, "mt")
     rule(d, 210, W - 210, 420, ROJO, 7)
     obstacle(p, "hero", place(im, "azulejo", (90, 540, W - 90, 1400)))
-    ls_text(d, (W // 2, 1500), "TAQUERÍA   Y   CERVECERÍA",
+    ls_text(d, (W // 2, 1500), LETRERO,
             font("sansb", 37), HUESO, ls=16, anchor="mt")
     ls_text(d, (W // 2, 1580), "SE  SIRVE  DESDE  LA  COMBI",
             font("sans", 29), CIELO, ls=10, anchor="mt")
@@ -358,7 +349,7 @@ def merch_playera(p):
     im = Image.new("RGB", (W, H), (28, 30, 34)); d = ImageDraw.Draw(im)
     obstacle(p, "hero", place(im, "sello", (110, 300, W - 110, 780)))
     mark(im, "wordmark", 150, (W // 2, 120), CREMA, "mt")
-    ls_text(d, (W // 2, 850), "TAQUERÍA   Y   CERVECERÍA",
+    ls_text(d, (W // 2, 850), LETRERO,
             font("sansb", 30), ORO, ls=14, anchor="mt")
     # The scroll ornament was tried here and DROPPED: it is a FRAGMENT of a
     # flank-length design, and on a dark ground at any size that fits the piece
@@ -378,7 +369,7 @@ def merch_bolsa(p):
     dotrule(d, 200, W - 200, 340, GRANA, r=5, gap=24)
     ls_text(d, (W // 2, 960), "HECHO   A   MANO", font("disp", 52), GRANA,
             ls=12, anchor="mt")
-    ls_text(d, (W // 2, 1050), "TAQUERÍA   Y   CERVECERÍA",
+    ls_text(d, (W // 2, 1050), LETRERO,
             font("sansb", 28), TINTA, ls=12, anchor="mt")
     colophon(d, W // 2, 1318, "MERCANCÍA II · ARTE PARA BOLSA · ESTILO PAPEL PICADO",
              TINTA, 17)
@@ -391,7 +382,7 @@ def merch_vaso(p):
                                                         fill=GRANA)
     obstacle(p, "hero", place(im, "linea", (60, 110, 900, 610)))
     mark(im, "wordmark", 120, (1030, 210), GRANA, "lt")
-    ls_text(d, (1030, 360), "TAQUERÍA · CERVECERÍA", font("sansb", 24),
+    ls_text(d, (1030, 360), LETRERO, font("sansb", 24),
             TINTA, ls=6)
     obstacle(p, "seal", seal(im, 160, (1745, 260), CREMA, GRANA, "mm")
              or (0, 0, 0, 0))
@@ -463,6 +454,15 @@ def main(argv):
     for i, a in enumerate(argv):
         if a == "--only": only = argv[i + 1]
         if a == "--out":  OUT = argv[i + 1]
+    # ⚠ F358, AND IT WAS CLAIMED BEFORE IT EXISTED.  rev 80's ledger said this
+    # module "refuses to run ablated without --out"; the rule-17 adversary
+    # tested that sentence, found only a DOCSTRING, and overwrote eight tracked
+    # artefacts proving it.  A prose instruction is not a guard (rule 10).
+    _abl = [e for e in ['T1_COL_BADGE'] if os.environ.get(e) == "1"]
+    if _abl and OUT == "design_out":
+        raise SystemExit("REFUSING: %s set and --out not given; this would "
+                         "overwrite the tracked artwork in design_out/.  "
+                         "Pass --out /tmp/ab." % ",".join(_abl))
     os.makedirs(OUT, exist_ok=True)
     print("coleccion.py -- six drawn styles across four categories")
 

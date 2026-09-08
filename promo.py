@@ -410,7 +410,20 @@ def plate(path, aspect=1.30, pad=0.075, white=238):
            int(content.sum())
 
 
-def p07_hero(path, src="out/r80_hero34f.png"):
+def _newest_hero():
+    """The newest hero34f frame, whatever prefix rendered it.
+
+    ⚠ THIS WAS HARD-PINNED TO `out/r80_hero34f.png`.  §0 tells the next
+    revision to render with `T1_PFX=r81`, so the pin would have SKIPped
+    silently from rev 81 onward and the committed artefact would have become
+    unregenerable on THIS machine, not merely on a clone."""
+    import glob
+    c = sorted(glob.glob("out/*hero34f*.png"))
+    return c[-1] if c else "out/r80_hero34f.png"
+
+
+def p07_hero(path, src=None):
+    src = src or _newest_hero()
     """The photoreal register, for the same collection.  This is the ONLY piece
     that uses a rendered frame rather than a tracked capture, so it is the only
     one that needs Blender to have run."""
@@ -508,7 +521,7 @@ def main(argv):
            % (name, len(np.unique(a[::37], axis=0))))
 
     # the photoreal piece, only if a frame exists (out/ is empty on a clone)
-    src = "out/r80_hero34f.png"
+    src = _newest_hero()
     if os.path.exists(src) and only in (None, "07_hero"):
         p = os.path.join(OUT, "promo_r80_07_hero.png")
         r = p07_hero(p, src)

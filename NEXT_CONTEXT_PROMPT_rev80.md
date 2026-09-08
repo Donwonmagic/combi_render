@@ -38,18 +38,17 @@ nohup setsid env T1_SUB=1 T1_PREVIEW=front,side,hero34f,hero34r T1_PFX=r81 T1_RX
 **`out/` DOES NOT EXIST on a clone.** **DO NOT EDIT `build.py` OR `t1_*` WHILE THE QUEUE RUNS**
 (probes, `.md` and the design scripts are fine).
 
-⚠ **REV 79's SILENT DEATH AT THREE FRAMES OF FOUR DID NOT REPRODUCE AT REV 80** —
-all four landed, `grep -c Saved:` = 4. **THAT IS ONE CLEAN RUN, NOT A DIAGNOSIS.**
-The cause was never found. **CHECK THE COUNT, DO NOT ASSUME IT.**
+⚠ **REV 79's SILENT DEATH AT 3 FRAMES OF 4 DID NOT REPRODUCE AT REV 80** — all
+four landed. **ONE CLEAN RUN IS NOT A DIAGNOSIS.** The cause was never found.
+**CHECK THE COUNT, DO NOT ASSUME IT.**
 
-⚠ **DO NOT WRITE `until ! pgrep -f build.py; do …`.** The loop's own command line
-contains `build.py`, so `pgrep` matches the waiting shell. Match on `Saved:` or
-use a bracketed pattern (`buil[d].py`).
+⚠ **DO NOT WRITE `until ! pgrep -f build.py; do …`** — the loop's own command
+line contains `build.py`, so `pgrep` matches the waiting shell. Match `Saved:`
+or use `buil[d].py`.
 
-⚠⚠ **DO NOT RUN `verify_clone.sh` THROUGH A BACKGROUND-TASK WRAPPER THAT MAY
-REAP IT.** At rev 80 a wrapped run was killed at **408 rows with no verdict
-block** and looked like a clean pass. Re-run detached (`setsid … & disown`) and
-**check the verdict block is present**, not just the row count.
+⚠⚠ **DO NOT RUN `verify_clone.sh` THROUGH A WRAPPER THAT MAY REAP IT.** At rev
+80 a wrapped run died at **408 rows with no verdict block** and looked clean.
+Run it detached and **check the verdict block is there**, not just the count.
 
 ## §0b BEFORE YOU MEASURE ANYTHING
 ```bash
@@ -60,38 +59,33 @@ for b in $(git branch -r | grep -v HEAD); do printf "%-52s ahead %-3s behind %s\
 git diff --name-only HEAD...origin/main        # <- HIS PHOTOGRAPHS ARRIVE HERE
 ```
 **MEASURE THE BRANCH, DO NOT TRANSCRIBE IT, INCLUDING THIS SENTENCE.** Rev 80
-worked on `claude/combi-promotional-images-b9c2mt`, based on rev 79's merge.
+worked on `claude/combi-promotional-images-b9c2mt`.
 
 ---
 ## §1 WHAT REV 80 BUILT
 
 ```bash
-python3 estilos.py             # 15 checked, 0 FAILED, ~60 s
+python3 estilos.py             # 16 checked, 0 FAILED, ~60 s
 T1_EST_NOKEY=1 python3 estilos.py --out /tmp/ab      # THE KILL: 4 recovery rows RED
 python3 coleccion.py           # 28 checked, 0 FAILED, ~55 s
 T1_COL_BADGE=1 python3 coleccion.py --only mercancia_chapa --out /tmp/ab  # rim guard REDS
 python3 promo.py               # 20 checked, 0 FAILED   (17 on a clone -- see below)
 T1_PROMO_COLLIDE=1 python3 promo.py --only 07_hero --out /tmp/ab          # 2 collisions RED
 ```
-All three run on a **COLD CLONE with no Blender** — they draw from the tracked
-captures in `probe_scratch/sticker/` — **except `promo.py`'s `07_hero`**, which
-reads `out/r80_hero34f.png`. `out/` is gitignored, so on a clone that piece
-SKIPs and the count is **17, not 20**, while the artefact itself is committed.
+All three run on a **COLD CLONE with no Blender** (verified) — they draw from
+the tracked captures — **except `promo.py`'s `07_hero`**, which needs a rendered
+`*hero34f*` frame. `out/` is gitignored, so on a clone that piece SKIPs and the
+count is **17, not 20**, while the artefact itself is committed.
 
 **`estilos.py` — THE COMBI DRAWN IN SIX STYLES**, over the model as underlay
-(F361: it is asked only WHERE things are). `plano` flat vector · `linea`
-engraving · `papel` papel picado, one ink, artwork PUNCHED OUT · `riso` duotone,
-two screens, deliberate misregistration · `azulejo` blueprint · `sello` stencil.
-A check compares all six pairwise and reds if any two converge — closest pair
-`papel`/`sello` at mean channel distance **15.37**, floor 6.0.
+(F361: asked only WHERE things are). `plano` flat vector · `linea` engraving ·
+`papel` papel picado, one ink, artwork PUNCHED OUT · `riso` duotone,
+misregistered · `azulejo` blueprint · `sello` stencil. A check compares all six
+pairwise — closest pair `papel`/`sello` at **15.37**, floor 6.0.
 
-**`coleccion.py` — 15 PIECES ACROSS HIS FOUR CATEGORIES.** `calle` aframe,
-carta, vidriera, horario · `social` cuadro, historia, cabecera · `impreso`
-cartel, postal, lealtad, volante · `mercancia` playera, bolsa, vaso, chapa.
-
-**THE HERO ART IS CACHED PER (style, tag)** — each style costs 8–12 s and
-fifteen pieces re-rendering their own would scale build time with piece count
-instead of style count.
+**`coleccion.py` — 15 PIECES, HIS FOUR CATEGORIES.** `calle` aframe, carta,
+vidriera, horario · `social` cuadro, historia, cabecera · `impreso` cartel,
+postal, lealtad, volante · `mercancia` playera, bolsa, vaso, chapa.
 
 ---
 ## §2 RANKED WORK FOR REV 81 — **AND THE OWNER OUTRANKS THE RANKING**
@@ -102,41 +96,67 @@ TABLE'S OWN CEILING: pixels are not visibility; it catches ORDERS OF MAGNITUDE,
 not rank neighbours.** ⚠⚠ **AND UNDER F361 IT RANKS A FROZEN OBJECT. A pixel
 budget over the vehicle cannot rank DRAWN WORK at all, which is the main line.**
 Top by area, reproduced at rev 80: **F67** contact shadow `3.83e+06 px²`;
-**F44** gloss `2.08e+06` and `8.08e+05`; **F15** `6.92e+05`. **The emblem ranks
-9th, 11th, 15th and 16th** at `3.32e+04`, `1.28e+04`, `3.81e+00`, `1.15e+00`.
+**F44** gloss `2.08e+06` and `8.08e+05`; **F15** `6.92e+05`. **The emblem's four rows are ranks
+9, 11, 14 and 16** at `3.32e+04`, `1.28e+04`, `9.79e+01`, `1.15e+00` — ⚠ **NOT
+9/11/15/16: rank 15 is `F38`, the nose ring band, a different finding.**
 **Largest / smallest = 3 335 815×**, and the table's verdict says the item at the
 bottom was the top job for four revisions. ⚠ **NOT an argument to drop the
 emblem: F191 stands.**
 
 ### **1. ASK HIM. FIVE QUESTIONS ARE OWED AND FOUR ARE STALE.**
-* **THE FIFTEEN PIECES.** He asked for all styles and all categories and now has
-  them. **He has not seen them since they were re-set in real type (F371) and
-  re-sourced (F372).** One sheet, one question.
+* **THE FIFTEEN PIECES.** He asked for all styles and all categories and has
+  them. **He has not seen them since the F371/F372 repairs.** One question.
 * **THE LAMP A/B (F362).** Drawn at rev 79, **still unanswered**.
-* **THE SCALE (F362).** 234.06 mm as drawn, or 1:23.79 for a 200 mm silhouette.
-  ⚠ F347's 44.4 % scale ceiling applies to both figures.
-* **THE CAB DOOR (F352).** `AUDIT_rev43.md`'s row headed `OWNER QUESTION,
-  MULTIPLE CHOICE`, DESIGN cell **149 chars**, ends mid-quote. Never put to him.
-* **THE WHEELS.** *"I like how the wheels were drawn in the earlier cartoon
-  version"* — that version is **not in this repository**; rev 76 looked.
+* **THE SCALE (F362).** 234.06 mm as drawn, or 1:23.79 for 200 mm. ⚠ F347's
+  44.4 % scale ceiling applies to both.
+* **THE CAB DOOR (F352).** `AUDIT_rev43.md`'s `OWNER QUESTION, MULTIPLE CHOICE`
+  row, DESIGN cell **149 chars**, ends mid-quote. Never put to him.
+* **THE WHEELS.** *"the earlier cartoon version"* is **not in this
+  repository**; rev 76 looked.
 * **STILL OWED: a photograph of a real Tacombi SHOPFRONT.** ⚠ **THE SIGN HALF OF
   THIS REQUEST IS NOW ANSWERED** — `ref_sign_aframe.jpg`. See `PHOTOS_WANTED_rev52.md`.
 
+### **1b. ⚠⚠ THE FIFTEEN PIECES REPRODUCE THE MODEL'S TWO WORST OPEN ARTWORK
+DEFECTS, AT POSTER SIZE (F379).** `visibility_budget.py`: **`F01/F39 — Señor,
+28.5 % of its ink missing`, rank 10, `2.26e+04 px²`**, and **`F63/F69 — the VW
+glyph builds as an X`, ranks 9 and 11, GATED AND FAILING (C6), his report NINE
+times over.** **The `wordmark` recovered by F370 and printed on ALL FIFTEEN
+PIECES IS that `Señor` artwork**, and `plano`, `riso` and `azulejo` all draw the
+hubcaps. **F361 froze the model; it did not make the frozen model's defects
+invisible — it multiplied them by fifteen.** ⚠ **SAY THIS WHEN THE SHEET GOES TO
+HIM.** Fixing it means unfreezing the model, which is his ruling to make.
+
+### **1c. ⚠ HIS PHOTOGRAPH IS AN OFFER SIGN AND NOTHING IN THE COLLECTION
+ANSWERS THAT.** `ref_sign_aframe.jpg` reads `DOWNLOAD OUR APP & GET $5 OFF
+TODAY`, `PLUS $5 ON YOUR NEXT VISIT!`, and carries a **QR code**. He said *"very
+similar to this sign"*. **Not one of the fifteen pieces has a QR code, an app
+callout, or any call to action.** The category was read as *poster with wordmark
+and hero*; his sign's actual category is *sidewalk offer*. **That is an owner
+question, not a defect to fix blind.**
+
 ### **2. THE COPY ON EVERY PIECE IS PROVENANCED — KEEP IT THAT WAY (F372).**
 `MEDIDO` off the mural lid · `LETRERO` off his own photograph · `AUTORADO` mine.
-**No piece states a price, an opening time, a date or a discount as fact**; the
-hours card ships BLANK RULES on purpose. **`CONCEPT_BENCH_rev77.md` warns *"WE
+⚠ **`LETRERO` IS `TAQUERIA y CERVECERIA` — NO ACCENTS, LOWERCASE `y`, EXACTLY AS
+THE SIGN SPELLS IT (F376).** The first version added two acutes and upper-cased
+the conjunction while every piece printed a colophon claiming the string came
+off his sign. **F94 — *absolute replication* — outranks Spanish orthography when
+the claim being made is provenance.**
+**No piece states a price, an opening time or a date at all** — every drawn
+literal was scanned for digits and there are none — and the hours card ships
+BLANK RULES on purpose. ⚠ **`impreso/lealtad` DOES state an offer in words**
+(`OCHO VISITAS · LA NOVENA ES NUESTRA`); what saves it is
+`OFERTA DE MUESTRA · NO APROBADA` set directly beneath it. **Say that, rather
+than denying the class.** **`CONCEPT_BENCH_rev77.md` warns *"WE
 MAY BE SELLING FOOD HE NO LONGER SERVES … only he can"*.**
 
 ### **3. THE CHILDREN'S LINE HAS TWO OBJECTS.** `MI COMBI` and `APAGA LA LUZ`.
 `CONCEPT_BENCH_rev77.md`'s `THE CHILD'S EYE` slot holds a third, `¿YA ALCANZAS?`,
 untouched. **Every shortlist must say WHICH LINE each item is in (F331).**
 
-### **4. THE REST OF THE CONCEPT ROUND IS STILL ON THE SHELF.** Rank on the AUDIT
+### **4. THE CONCEPT ROUND IS STILL ON THE SHELF.** Rank on the AUDIT
 (`CONCEPT_ROUND_rev77.md` §5), **not** the screen — Pearson **+0.173**. Blocked
 on nothing: `DIRECTO` (2.25, ~2 h), `MANDIL 515` (1.88), `A LA ALTURA · 118`
-(1.75). **Drawing one beats describing all of them** — rev 78's lesson, and revs
-79 and 80 both confirm it.
+(1.75). **Drawing one beats describing all of them** — revs 78–80 all confirm.
 
 ### **5. `apaga.py` HAS THREE NAMED DEFECTS AND THE OLD ONE IS RETRACTED.**
 ⚠⚠ **DO NOT CHASE THE 1075 px. IT IS RETRACTED (F364) AND A8 NOW READS 0 px BY
@@ -181,6 +201,30 @@ legibility term. His ninth report.
   at n=5). **DO NOT SHOW THE CALENDAR TO HIM WITH THAT LINE ON IT.**
 * **F156** (the `Señor` gate row scoring a DELIBERATE DEPARTURE) and **THE
   GARMENT SLOT**: de-ranked, neither done nor withdrawn.
+* **F365 — NEVER PRINT A BARE LAMP COUNT.** The `bulb` MATERIAL is on
+  `bulb_string()` **AND** `tail_board_bulbs()`, so the owner's A/B moves the
+  flank's **118** PLUS **~26** on the tail board, and the drawn mask traces
+  **122** regions — a third number. ⚠ **§2.1 sends you to put that A/B to him,
+  which is exactly where a bare count gets printed.**
+* **F323 — WITH AN EMPTY `out/`, SIX VERIFIER ROWS SKIP AND SAY `UNGUARDED`;
+  THE PASS TOTAL IS THE SAME.** A cold-clone reader sees six SKIPs and must not
+  read them as failures.
+* **F345 / `LEDGER_rev44.md`** — that ledger's §7.3 *"no code, no asset, nothing
+  on disk"* is the sentence F345 FALSIFIED, and it is why **F18 is drawn but not
+  closed**. Without both, F18's status is unrecoverable from this brief.
+* **F363** — `revstats.py` counted closure STRINGS, not findings, and **rev 71
+  closed 1, not 2.** ⚠ Its successor defect is F375, and rev 70 still reads 3
+  because F363's OWN row is attributed to it.
+* **`LEDGER_rev78.md`** — where the **six unlocated rev-78 adversary findings**
+  would be found if they are anywhere.
+* **`flank_compare.py` and `cream_rms.py` are the paint instruments** if a flank
+  question returns. **F44 is items 2 and 3 in the pixel ranking above.**
+* **`gal_tube` IS ZERO PIXELS ON BOTH CAPTURES** (0 of 566 208 at az 72, 0 of
+  561 033 at az 90) — the emitter cannot be seen; **what is drawn is the room it
+  lights**, and that is a DECLARED DEPARTURE.
+* ⚠ **THE CONCEPT'S *"FIRST STEP: ~$0, one A4 sheet and an evening"* IS THE
+  VINYL TEST AND DOES NOT COVER THE DRAWING. Never quote the one as the cost of
+  the other.**
 
 ---
 ## §3 WHAT REV 80 SETTLED — **READ THE GRADE IN `OPEN_FINDINGS.md`, NOT THIS TABLE**
@@ -223,7 +267,7 @@ documented.**
   # 0 FIDELITY, 458 SELF-CONSISTENCY.  READ THE VERDICT BLOCK -- not one row
   # measures the vehicle against a photograph.  ⚠ THE COUNT IS PARSED OUT OF
   # THIS FILE by audit_brief.py; --fix-count can REWRITE it, never create it.
-  # ⚠ AND THE THIRD "458" (in §7 below) carries no `ALL n PASS` wrapper, so
+  # ⚠ AND THE THIRD AND FOURTH "458" (in §8, not §7) carry no `ALL n PASS` wrapper, so
   # --fix-count CANNOT reach it -- it will go stale silently.
 T1_SUB=1 T1_VERIFY=1 /tmp/blender/blender -b -P build.py     # "VERIFY: 0 fail, 0 warn"
 python3 apaga.py --selftest                   # 7 checked, 0 FAILED
@@ -236,8 +280,8 @@ T1_APAGA_NOSHUT=1 python3 apaga.py --tag side --out /tmp/ab   # THE KILL -- A8 R
 python3 sticker.py --selftest                 # 6 checked, 0 FAILED
 python3 sticker.py --tag flank                # 38 checked, 1 FAILED -- C4 BY DESIGN
   # 37 is the count of ck( CALL SITES (6 in selftest, 31 in main); the 38th is
-  # W1, which increments the counter directly.  `grep -c 'ck('` gives 38 only
-  # because it also counts `def ck(`
+  # W1, which increments the counter directly.  ⚠ `grep -c 'ck('` gives 40, not
+  # 38: it counts `def ck(` AND two `np.dstack(` at lines 606 and 955
 python3 sticker_pass.py --tag flank --lines   # ~3 min.  ⚠⚠ NOT A PROBE: it renders
   # the whole scene.  DO NOT RUN IT WHILE §0's QUEUE IS GOING, AND IT OVERWRITES
   # THE TRACKED CAPTURE, whose line pass is NOT run-to-run stable
@@ -313,9 +357,9 @@ obvious at full size), **3**, **13**, **8**, **16**.
 | **`CONCEPT_AUDIT_rev77.md`** | 765 KB, adversarial verdicts across four lenses. **A carrier nothing points at is a carrier already half gone** |
 | **`WORKFLOW_rev76_CONCEPTS.md` / `WORKFLOW_rev76_SYNTHESIS.md`** | 1.0 MB |
 | `AUDIT_rev43.md` | **the sticker spec — in `## 2. SURVIVING FINDINGS`, NOT §5 (F352)** |
-| `estilos.py` / `coleccion.py` / `promo.py` | **NEW.** The six styles, the fifteen pieces, and the superseded first round |
+| `estilos.py` / `coleccion.py` / `promo.py` | **NEW.** The six styles and the fifteen pieces. ⚠ **`promo.py` IS NOT SUPERSEDED — `coleccion.py` imports nine symbols from it**, including the font table, the letterspacing engine and all three layout instruments (F373). Deleting or rewriting it breaks all fifteen pieces |
 | `ref_sign_aframe.jpg` | **NEW.** His photograph of a real Tacombi sign |
-| `fonts/` | **NEW.** Alfa Slab One, Oswald — OFL, fetched after F371 |
+| `fonts/` | **NEW.** Alfa Slab One, Oswald **and Bitter** — OFL, fetched after F371. ⚠ **`Bitter.ttf` is tracked and referenced by NOTHING** (44 880 B) |
 | `STATE.md` | machine-written; outranks every prose description |
 | `SPEC.md`, `REF_MEASUREMENTS.md`, `SURVEY_rev49_photoreal.md`, `ROADMAP_rev68.md`, `REMAINING_WORK_rev61.md`, `EMBLEM_HANDOFF.md`, `PHOTOS_WANTED_rev52.md` | large; load the one the task needs |
 
@@ -353,7 +397,8 @@ the measurement with its ceiling. Do not say anything is ready.**
 **⚠ THIS BRIEF WAS AUDITED AGAINST THE MACHINE.** The rule-15 pass against the
 brief rev 80 was handed returned **24 findings, fifteen of which changed what rev
 80 did** — including three against rev 80's own new modules, all three real. §8
-records them. The rule-17 pass against THIS file is recorded there too. **The
+records them, and the rule-17 pass against THIS file is recorded there as items
+16–25 with its own ceiling. **The
 phrases `verify_clone.sh` binds VERBATIM are carried:** the ranking sentence
 opening §2, rule 55's wording in §5, and the first line of this paragraph — **IF
 YOU SHORTEN THIS FILE, RE-RUN THE VERIFIER AFTERWARDS AND ON A COLD CLONE (F328).**
@@ -379,8 +424,9 @@ YOU SHORTEN THIS FILE, RE-RUN THE VERIFIER AFTERWARDS AND ON A COLD CLONE (F328)
 ---
 ## §8 ⚠ WHAT THE ADVERSARIES FOUND, RECORDED AS RULE 17 REQUIRES
 
-**The rule-15 pass returned 24 against the incoming brief and rev 80's own work.
-Fifteen changed what rev 80 did. All are fixed above or carried as findings.**
+**The rule-15 pass returned 24 against the incoming brief and rev 80's own work;
+fifteen changed what rev 80 did. Nineteen are itemised below and the remaining
+five are carried at the end of this section.**
 
 1. ⚠⚠ **F369 RETRACTED F368 IN A SUCCESSOR ROW ONLY** — F368's row still carried
    the retracted claim, so a grep for *"flat illustration"* landed on it with
@@ -421,6 +467,37 @@ cannot match the brief's own wrapped text and **can never reach the third
 `458`**; the `emit=(` quadruple `0/0/1/0` is **unordered and unreproducible as
 written** (the hit is `gal_tube` at `t1_detail.py`); and `sticker.py`'s 37-vs-38
 explanation needed one more clause (37 call sites, 6 + 31, W1 is the 38th).
+
+**THE RULE-17 PASS AGAINST THIS FILE RETURNED 28. Ten changed what shipped.**
+16. ⚠⚠ **THE LEDGER ANNOUNCED AN ABLATION GUARD THAT DID NOT EXIST, AND THE
+    ADVERSARY PROVED IT BY OVERWRITING EIGHT TRACKED ARTEFACTS.** F377. Built.
+17. ⚠⚠ **THE F371 RETRACTION NEVER REACHED `estilos.py` OR `coleccion.py`**,
+    while F371's grade cell certified that it had. **F360 verbatim, one
+    revision later.** Carried into all three modules.
+18. **THE RULE-8 PAINTING LEFT 15.5 % OF THE VEHICLE WHITE** — the same white as
+    the page — so a sixth of the subject was invisible in the one artefact
+    offered as evidence. F378. Now magenta, with a coverage check.
+19. **`LETRERO` WAS NOT REPLICATED** — two accents added, conjunction
+    upper-cased, on the one string sourced to his photograph. F376.
+20. **THE COLLECTION REPRODUCES F01/F39 AND F63/F69 FIFTEEN TIMES.** F379.
+21. **`promo.py` WAS HARD-PINNED TO `out/r80_hero34f.png`**, so `07_hero` would
+    have SKIPped silently from rev 81 on. Now globs the newest frame.
+22. **`audit_brief.py`'s F306 ROW HAS MATCHED NOTHING SINCE REV 77** and passes
+    on an empty match set. F380.
+23. **THE EMBLEM RANKS WERE 9/11/14/16, NOT 9/11/15/16.** Corrected in §2.
+24. **NINE RULE-16 CARRIER DROPS** — F323, F345, F363, F365's substance,
+    `LEDGER_rev44.md`, `LEDGER_rev78.md`, `cream_rms.py`, `flank_compare.py`,
+    the `gal_tube` and FIRST-STEP notes. **All restored in §2.10.**
+25. **THE "NO DISCOUNT AS FACT" SENTENCE WAS STRONGER THAN THE ARTEFACT.**
+    Softened in §2.2.
+
+⚠ **AND ITS FIVE UNRECORDED SIBLINGS FROM THE RULE-15 PASS, CARRIED HERE SO
+"all are carried" IS TRUE:** `promo.py` had no ABSENT accounting for a skipped
+piece; the `emit=(` quadruple `0/0/1/0` is unordered and unreproducible as
+written (the hit is `gal_tube` in `t1_detail.py`); `--fix-count`'s PAIR regex
+cannot match the brief's own wrapped text; `verify_clone.sh` writes
+`./.f360_plant_$$.tmp` into the repo root; and `audit_brief.py` prints green
+over that empty match set (F380).
 
 **⚠ THE RULE-15 PASS'S OWN CEILING, IN ITS WORDS:** it did not run
 `verify_clone.sh`, `bootstrap.sh`, `audit_brief.py`, `audit.py`,

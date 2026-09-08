@@ -2,8 +2,8 @@
 
 ## RULE 55, AT THE TOP, AS THE RULE REQUIRES
 
-**REV 80 SHIPPED NO VEHICLE GEOMETRY. `revstats.py` prints `80 · 7 commits · 0
-geometry · 26 doc · 0 instrument · 3 closed`.** That is the FIFTH consecutive
+**REV 80 SHIPPED NO VEHICLE GEOMETRY. `revstats.py` prints, live at the moment of writing,
+`80 · 9 · 0 · 1445 · 0 · 6` (rev · commits · geometry · doc · instrument · closed).** That is the FIFTH consecutive
 revision at zero geometry, and — as at rev 79 — it is **the owner's explicit
 ruling, not a confession**: F361 froze the model and made it an underlay. He
 then spent this revision pushing the drawing line further, three times:
@@ -70,13 +70,19 @@ in as the artwork**.
 | **F373** | Three layout instruments, each finding what the others could not; one was itself wrong on first writing | **OPEN-rev80** |
 | **F374** | `CLAUDE.md` carried a wrong measurement, and the verifier row named for exactly that greps **decimals only** | **OPEN-rev80** |
 | **F375** | `revstats.py` is structurally blind to drawing — the line F361 made the main one | **OPEN-rev80** |
+| **F376** | **The one string sourced to his own photograph was not replicated** — two accents added, conjunction upper-cased, while every piece printed a colophon claiming it came off his sign | **CLOSED-rev80** |
+| **F377** | **This ledger announced an ablation guard that did not exist**, and the adversary proved it by overwriting eight tracked artefacts | **CLOSED-rev80** (design modules); **OPEN** for `apaga.py` |
+| **F378** | **The rule-8 painting could not show 15.5 % of its own subject** — white on white, inside the fix written for that class | **CLOSED-rev80** |
+| **F379** | **The collection reproduces F01/F39 and F63/F69 fifteen times at poster size**, and no ceiling said so | **OPEN-rev80** |
+| **F380** | `audit_brief.py`'s F306 "both halves" row has matched nothing since rev 77 and passes on an empty match set | **OPEN-rev80** |
 
 ---
 
 ## MY OWN INSTRUMENTS THAT WERE WRONG, AND HOW EACH WAS CAUGHT
 
 **This is the section that matters. Every one produced a plausible result that
-would have shipped.**
+would have shipped. ⚠ FIVE OF THE LAST SIX WERE FOUND BY THE TWO ADVERSARIES,
+NOT BY ME — and three of those were in the modules I had just written.**
 
 1. **THE TYPE CEILING — WRONG IN BOTH HALVES, AND QUOTED AS "MEASURED" (F371).**
    `promo.py` shipped, inside a section headed `CEILINGS, STATED (rule 12)`:
@@ -140,7 +146,27 @@ would have shipped.**
    summing to their parent **by construction**, so the arithmetic cannot
    self-verify — only the painting can. Both fixed.
 
-10. **F369 RETRACTED F368 IN A SUCCESSOR ROW ONLY**, so a reader grepping *"flat
+10. **THE LEDGER YOU ARE READING ANNOUNCED AN ABLATION GUARD THAT DID NOT
+    EXIST (F377).** The rule-17 adversary tested the sentence, found only a
+    docstring, and **overwrote eight tracked artefacts proving it.** A prose
+    instruction is not a guard. Built now.
+
+11. **THE F371 RETRACTION NEVER REACHED `estilos.py` OR `coleccion.py` (F377's
+    sibling)** while F371's grade cell certified that it had — **F360 verbatim,
+    one revision later**, in the revision that invoked rule 13 twice.
+
+12. **THE RULE-8 PAINTING LEFT 15.5 % OF THE VEHICLE THE SAME WHITE AS THE PAGE
+    (F378)** — 86 947 px of 561 033 invisible in the one artefact offered as
+    evidence, inside the fix written for exactly that failure.
+
+13. **`LETRERO` WAS NOT REPLICATED (F376).** The sign reads `TAQUERIA y
+    CERVECERIA`; the shipped literal added two accents and upper-cased the
+    conjunction — on the one string whose printed claim is *provenance*.
+
+14. **`promo.py` WAS HARD-PINNED TO `out/r80_hero34f.png`**, so `07_hero` would
+    have SKIPped silently from rev 81 onward.
+
+15. **F369 RETRACTED F368 IN A SUCCESSOR ROW ONLY**, so a reader grepping *"flat
     illustration"* landed on the retracted claim with nothing beside it. **Rule
     13 says retract IN the source.**
 
@@ -174,8 +200,13 @@ classes it cannot see — and rev 80 does not claim to have reached that.**
 | `T1_TYRE_TREAD=0` | T3 and T7 |
 
 ⚠ **`--out` is mandatory on every one of them**, and `coleccion.py` and
-`estilos.py` now **refuse to run ablated without it** rather than trusting the
-operator to remember (F358).
+`estilos.py` now **refuse to run ablated without it**. ⚠⚠ **THAT SENTENCE WAS
+IN THIS LEDGER BEFORE THE GUARD EXISTED (F377).** The rule-17 adversary tested
+it, found only a docstring, and **overwrote eight tracked artefacts proving it**.
+A prose instruction is not a guard (rule 10). The refusal is built now and was
+verified to refuse without `--out` and still red with it. ⚠ **`apaga.py` still
+has the uncorrected form: it writes its painted mask to `ROOT` regardless of
+`--out`.**
 
 ---
 
@@ -226,7 +257,10 @@ the cause was never found and nothing here fixes it.
   pixels, not "scrollwork"; anything gold inside `T1_paint` joins that layer.
 * **The type ceiling is now much smaller than the false one it replaced:** no
   display face is *pre-installed*, so one must be fetched or the Type1 used.
-  Body copy is Oswald and Charter, and every piece says so on its face.
+  Body copy is **Oswald and Charter** — ⚠ **not DejaVu and Liberation, as an
+  earlier draft of F370 said, and NO SHEET NAMES A TYPEFACE AT ALL**: the
+  colophon carries TEXT provenance, not a type credit. Both halves of that
+  sentence were false and are retracted here.
 * **F374's guard gap is stated, not closed.** `CLAUDE.md carries no
   measurements` greps decimals only; its green does not mean what it says.
 * **F344 IS STILL LIVE:** `calendario_ano_xxii.svg` still prints
@@ -235,5 +269,13 @@ the cause was never found and nothing here fixes it.
   without saying so.**
 * **`la_rueda.py` still cannot be checked on a clone** — `probe_scratch/rueda.json`
   is untracked and absent; it correctly REFUSED (0 checked, 1 ABSENT).
+* ⚠⚠ **THE COLLECTION REPRODUCES THE MODEL'S TWO WORST OPEN ARTWORK DEFECTS,
+  FIFTEEN TIMES, AT POSTER SIZE (F379).** `visibility_budget.py`: **`F01/F39 —
+  Señor, 28.5 % of its ink missing`, rank 10**, and **`F63/F69 — the VW glyph
+  builds as an X`, ranks 9 and 11, gated and FAILING (C6), his report nine times
+  over.** **The `wordmark` recovered by F370 and printed on all fifteen pieces IS
+  that Señor artwork**, and three of the six styles draw the hubcaps. **F361
+  froze the model; it did not make the frozen model's defects invisible — it
+  multiplied them by fifteen.**
 * **F191, F318, F67, F44, F15 are all untouched.** F361 de-ranked them; it did
   not answer them. The emblem is still 0.8528 against 0.9465.

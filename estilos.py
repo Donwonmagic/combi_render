@@ -405,6 +405,7 @@ PAINT_INKS = {"body_cream": (236, 228, 208), "body_red": (176, 38, 30),
               "calidad_ink": (214, 40, 34), "calidad_field": (250, 240, 220),
               "glass": (46, 60, 72), "tyre": (26, 24, 24),
               "wheelcream": (226, 220, 205), "_rest": (140, 140, 140)}
+SIN_ASIGNAR = (255, 0, 255)   # magenta: inside the silhouette, in NO layer
 
 def paint_layers(u, path):
     """⚠ THE PAINTING IS THE CHECK (rule 8).  F369's percentages are a partition
@@ -414,21 +415,46 @@ def paint_layers(u, path):
     this is the fix.  Every recovered layer in its own ink, on disk, every run."""
     al = u["alpha"]
     out = np.full((u["H"], u["W"], 3), 255, np.uint8)
+    # ⚠ EVERY PIXEL INSIDE THE SILHOUETTE STARTS MAGENTA.  The first version
+    # started WHITE -- the same white as the page -- so 86 947 px (15.5 % of the
+    # subject) that belong to NO layer were invisible in the one artefact
+    # offered as rule-8 evidence.  That is F364's failure (a painted mask that
+    # cannot discriminate) inside the fix written for it.  Caught by the rule-17
+    # adversary measuring the union against the silhouette.
+    out[al] = SIN_ASIGNAR
+    covered = np.zeros_like(al)
     for k, ink in PAINT_INKS.items():
         m = u["layers"].get(k)
-        if m is not None and m.any(): out[m] = ink
+        if m is not None and m.any():
+            out[m] = ink; covered |= m
     ys, xs = np.where(al)
     Image.fromarray(out[ys.min():ys.max() + 1, xs.min():xs.max() + 1]).save(path)
-    return path
+    unass = int((al & ~covered).sum())
+    return path, unass, int(al.sum())
 
 
 def sheet(tag="side", ss=3, out=None, cell=760):
     out = out or OUT
+    # ⚠ F358, AND IT WAS CLAIMED BEFORE IT EXISTED.  rev 80's ledger said this
+    # module "refuses to run ablated without --out"; the rule-17 adversary
+    # tested that sentence, found only a DOCSTRING, and overwrote eight tracked
+    # artefacts proving it.  A prose instruction is not a guard (rule 10).
+    _abl = [e for e in ['T1_EST_NOKEY'] if os.environ.get(e) == "1"]
+    if _abl and out == "design_out":
+        raise SystemExit("REFUSING: %s set and --out not given; this would "
+                         "overwrite the tracked artwork in design_out/.  "
+                         "Pass --out /tmp/ab." % ",".join(_abl))
     os.makedirs(out, exist_ok=True)
     u = underlay(tag)
-    pp = paint_layers(u, os.path.join(out, "estilo_r80_%s_CAPAS.png" % tag))
+    pp, unass, tot = paint_layers(u, os.path.join(out,
+                                  "estilo_r80_%s_CAPAS.png" % tag))
     ck(os.path.exists(pp), "the recovered layers are PAINTED to %s -- LOOK AT IT"
        % pp)
+    # COVERAGE IS PART OF THE PAINTING.  A named layer set that leaves a sixth
+    # of the subject unassigned is not a separation; the magenta says where.
+    ck(unass / float(tot) < 0.20,
+       "unassigned area is %d px of %d (%.1f %%), shown MAGENTA -- bar 20 %%"
+       % (unass, tot, 100.0 * unass / tot))
     ck(u["alpha"].sum() > 100000,
        "underlay %s: silhouette %d px" % (tag, int(u["alpha"].sum())))
     for k in ("body_cream", "body_red", "body_gold", "mural_gold", "script"):
@@ -498,13 +524,17 @@ if __name__ == "__main__":
 # the same within-material colour key as everything else (F369), they are
 # REUSABLE ARTWORK, not pictures of artwork.
 #
-# ⚠ WHY THIS MATTERS BEYOND CONVENIENCE.  `promo.py` states a real ceiling:
-# this container has NO display, script or condensed face -- Charter is Type1,
-# which PIL cannot load, and fonts.google.com is refused by the egress proxy.
-# Every piece it drew set the wordmark in DejaVu Serif Bold, a default face.
-# THE MARKS BELOW REMOVE THAT CEILING FOR DISPLAY USE, because the real
-# lettering was in the asset the whole time.  It does NOT remove it for body
-# copy, which is still DejaVu and Liberation.
+# ⚠⚠ AND THE CEILING THAT USED TO BE STATED HERE WAS FALSE AND IS RETRACTED
+# (F371).  This block said: "promo.py states a real ceiling: this container has
+# NO display, script or condensed face -- Charter is Type1, which PIL cannot
+# load, and fonts.google.com is refused by the egress proxy."  MEASURED: PIL
+# 12.3.0 LOADS that Type1 and returns ('Bitstream Charter','Bold'), 7702 ink px;
+# and the CDN probe hit the WRONG HOST -- fonts.googleapis.com returns 200 and
+# serves .ttf that PIL opens.  Neither half was ever run.  The marks below are
+# still worth having -- they are the vehicle's OWN lettering, which no licensed
+# face can substitute for -- but they are NOT a workaround for a limitation
+# that does not exist.  Type in use: Alfa Slab One, Oswald (both OFL, in
+# fonts/) and Bitstream Charter.
 
 def _despeck(mask, min_px):
     """Drop connected components below `min_px`.  A recovered mask carries
