@@ -219,7 +219,7 @@ plant two files and break both rows. **That is a sharper F343 than the one
 documented.**
 
 ```bash
-./verify_clone.sh                             # 458 rows, 0 red on rev 80's tree
+./verify_clone.sh                             # ALL 458 PASS on rev 80's tree --
   # 0 FIDELITY, 458 SELF-CONSISTENCY.  READ THE VERDICT BLOCK -- not one row
   # measures the vehicle against a photograph.  ⚠ THE COUNT IS PARSED OUT OF
   # THIS FILE by audit_brief.py; --fix-count can REWRITE it, never create it.
@@ -403,7 +403,7 @@ Fifteen changed what rev 80 did. All are fixed above or carried as findings.**
 9. **`apaga.py --tag side` READS 17, NOT 13.** Rule 5. Corrected in §4.
 10. **§2.5 ORDERED REV 80 TO FINISH THE 1075 px THE SAME BRIEF RETRACTS.**
     Rewritten to the three defects that are actually live.
-11. **`apaga_resid.png` IS ENTIRELY BLACK** and never paints its window; and it
+11. **`probe_scratch/apaga_resid.png` IS ENTIRELY BLACK** and never paints its window; and it
     is written to `ROOT` **regardless of `--out`**, so the ablation overwrites
     the tracked evidence. **F358 is incomplete.**
 12. **`verify_clone.sh`'s F360 KILL PLANTS A FILE IN THE REPOSITORY ROOT**, not
