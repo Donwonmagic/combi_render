@@ -66,11 +66,22 @@ def underlay(tag):
 
     L = {}
 
+    NOKEY = os.environ.get("T1_EST_NOKEY") == "1"
+
     def split(base, tests):
         """Key one material region by its OWN colours.  This is the operation
-        F368 said did not exist."""
+        F368 said did not exist.
+
+        ABLATION T1_EST_NOKEY=1 disables the key and falls back to
+        FLAT-BY-MATERIAL -- F368's original method.  It exists so the recovery
+        can be WATCHED FAILING (rule 3): with the key off, `body_gold`,
+        `body_cream` and `mural_gold` all collapse to zero and their checks red.
+        Run it with --out so it cannot overwrite the tracked painting."""
         m = region(base)
         if not m.any(): return
+        if NOKEY:
+            L[base + "_rest"] = m
+            return
         px = ab[m]; ij = np.where(m)
         taken = np.zeros(px.shape[0], bool)
         for name, fn in tests:
@@ -388,10 +399,36 @@ ESTILOS = [("plano", plano), ("linea", linea), ("papel", papel),
            ("riso", riso), ("azulejo", azulejo), ("sello", sello)]
 
 # ============================================================== the sheet
+PAINT_INKS = {"body_cream": (236, 228, 208), "body_red": (176, 38, 30),
+              "body_gold": (228, 164, 44), "mural_gold": (238, 196, 70),
+              "mural_ground": (92, 26, 20), "script": (28, 24, 30),
+              "calidad_ink": (214, 40, 34), "calidad_field": (250, 240, 220),
+              "glass": (46, 60, 72), "tyre": (26, 24, 24),
+              "wheelcream": (226, 220, 205), "_rest": (140, 140, 140)}
+
+def paint_layers(u, path):
+    """⚠ THE PAINTING IS THE CHECK (rule 8).  F369's percentages are a partition
+    that sums to its parent BY CONSTRUCTION, so the arithmetic cannot
+    self-verify -- only looking can.  This module claimed 'PAINTED AND LOOKED
+    AT' while writing NO MASK ANYWHERE; the rule-15 adversary caught that, and
+    this is the fix.  Every recovered layer in its own ink, on disk, every run."""
+    al = u["alpha"]
+    out = np.full((u["H"], u["W"], 3), 255, np.uint8)
+    for k, ink in PAINT_INKS.items():
+        m = u["layers"].get(k)
+        if m is not None and m.any(): out[m] = ink
+    ys, xs = np.where(al)
+    Image.fromarray(out[ys.min():ys.max() + 1, xs.min():xs.max() + 1]).save(path)
+    return path
+
+
 def sheet(tag="side", ss=3, out=None, cell=760):
     out = out or OUT
     os.makedirs(out, exist_ok=True)
     u = underlay(tag)
+    pp = paint_layers(u, os.path.join(out, "estilo_r80_%s_CAPAS.png" % tag))
+    ck(os.path.exists(pp), "the recovered layers are PAINTED to %s -- LOOK AT IT"
+       % pp)
     ck(u["alpha"].sum() > 100000,
        "underlay %s: silhouette %d px" % (tag, int(u["alpha"].sum())))
     for k in ("body_cream", "body_red", "body_gold", "mural_gold", "script"):

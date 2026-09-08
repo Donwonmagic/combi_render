@@ -22,12 +22,19 @@ model.  The art is drawn from the TRACKED captures in `probe_scratch/sticker/`,
 so this module runs on a cold clone with no Blender at all.
 
 CEILINGS, STATED (rule 12):
-  * TYPE.  This container has no display, script or condensed face -- Bitstream
-    Charter is present only as Type1 `.pfb`, which PIL cannot load, and
-    fonts.google.com is refused by the egress proxy (measured: CONNECT 403).
-    Everything here is set in DejaVu and Liberation.  A real promotional set
-    would be set in a proper display face; this is the strongest arrangement
-    available of the faces actually installed, NOT the strongest arrangement.
+  * TYPE.  ⚠⚠ **THIS MODULE'S ORIGINAL TYPE CEILING WAS FALSE IN BOTH HALVES
+    AND IS RETRACTED HERE, IN THE SOURCE THAT CARRIED IT (rule 13, F371).**  It
+    said *"Bitstream Charter is present only as Type1 `.pfb`, WHICH PIL CANNOT
+    LOAD, and fonts.google.com is refused by the egress proxy"*.  MEASURED:
+    `ImageFont.truetype('/usr/share/fonts/X11/Type1/c0632bt_.pfb', 48)` loads
+    and returns `('Bitstream Charter', 'Bold')` on PIL 12.3.0, rendering 7702
+    ink px of `Señor Tacombi 100% Calidad` with accents.  And the CDN test was
+    aimed at the wrong host: `fonts.google.com` is the marketing site;
+    `https://fonts.googleapis.com/css?family=...` returns **200** and hands back
+    `fonts.gstatic.com` `.ttf` URLs that PIL opens directly.  NEITHER HALF WAS
+    EVER TESTED -- both were asserted from memory and then quoted as
+    "(measured: CONNECT 403)", which is rule 10 committed inside a ceiling
+    statement.  Real faces now ship in `fonts/`.
   * VIEWPOINT.  Three captures exist -- `side` (az 90), `flank` (az 72),
     `nose`.  Every piece draws one of those three.  A piece wanting any other
     angle needs a new capture, which needs Blender.
@@ -64,11 +71,13 @@ AZUL  = (33, 52, 88)
 VERDE = (48, 88, 72)
 PAPEL = (238, 228, 206)
 
+_HERE = os.path.dirname(os.path.abspath(__file__))
 F = {
- "disp":  "/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf",
- "serif": "/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf",
- "sans":  "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
- "sansb": "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
+ "disp":  os.path.join(_HERE, "fonts", "Alfa.ttf"),      # Alfa Slab One, OFL
+ "cond":  os.path.join(_HERE, "fonts", "Oswald.ttf"),    # Oswald, OFL
+ "serif": "/usr/share/fonts/X11/Type1/c0648bt_.pfb",     # Bitstream Charter
+ "sans":  os.path.join(_HERE, "fonts", "Oswald.ttf"),
+ "sansb": os.path.join(_HERE, "fonts", "Oswald.ttf"),
 }
 def font(key, px):
     p = F[key]

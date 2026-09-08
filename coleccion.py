@@ -26,6 +26,29 @@ scrollwork and the mural's menu header AS ARTWORK, and F369's within-material
 colour key recovers all four.  ⚠ **IT IS NOT GONE FOR BODY COPY**, which is
 still DejaVu and Liberation, and that is stated on every sheet.
 
+WHERE EVERY WORD ON THESE PIECES COMES FROM (F372).  The first build of this
+module printed a menu with sub-lines -- *"al pastor · carnitas · pollo"*,
+*"del día"*, *"a la plancha"* -- under a docstring in `promo.py` claiming the
+list was *"read off the vehicle rather than invented"*.  IT WAS INVENTED.  The
+sub-lines appear nowhere in the record, the list DROPPED `GOURMET` and REORDERED
+`JUICES`, and the claim was a rule-10 violation sitting in a docstring.  Worse,
+these are assertions about a REAL BUSINESS'S MENU, and `CONCEPT_BENCH_rev77.md`
+already warns *"WE MAY BE SELLING FOOD HE NO LONGER SERVES ... only he can"*.
+Every string is now sourced, and the source is PRINTED ON THE PIECE:
+
+  MEDIDO      off the vehicle's own mural lid, `lid_gen.py`'s measured v-fractions:
+              GOURMET 0.001-0.041, TACOS 0.105-0.145, TORTAS 0.204-0.244,
+              JUICES 0.523-0.555, CEVICHE/TOSTADAS 0.590-0.637, SHRIMP 0.731-0.755;
+              top strip FRESH · JUICES · GOURMET TACOS · & · TORTAS
+  LETRERO     `TAQUERÍA Y CERVECERÍA` -- read off the owner's OWN photograph,
+              `ref_sign_aframe.jpg`.  It is in no other file in this repository.
+  AUTORADO    ABIERTO · HECHO A MANO · SE SIRVE DESDE LA COMBI · HORARIO ·
+              LA CARTA · TARJETA DE CLIENTE · the loyalty offer.  MINE, not his.
+
+⚠ **NO PIECE HERE STATES A PRICE, AN OPENING TIME, A DATE OR A DISCOUNT AS
+FACT.**  The hours card is deliberately BLANK RULES and the menu is marked
+`MENÚ DE MUESTRA` on its face.
+
 CEILINGS (rule 12):
   * Screen-scale RGB proofs.  No bleed, no trim, no separation, no spot plates.
     `sheet.py` is the module that emits print masters; nothing here is one.
@@ -57,6 +80,12 @@ CREMA = estilos.CREMA; PAPEL = estilos.PAPEL; ROJO = estilos.ROJO
 GRANA = estilos.GRANA; ORO = estilos.ORO;     TINTA = estilos.TINTA
 AZUL  = estilos.AZUL;  CIELO = estilos.CIELO; HUESO = estilos.HUESO
 VERDE = (44, 82, 66)
+
+# MEDIDO off the vehicle's mural lid -- lid_gen.py's own strings, its own order.
+MENU_MEDIDO = ("GOURMET TACOS", "TORTAS", "FRESH JUICES",
+               "CEVICHE / TOSTADAS", "SHRIMP & FISH")
+# LETRERO -- the owner's photograph, ref_sign_aframe.jpg.  Nowhere else in the tree.
+LETRERO = "TAQUERÍA Y CERVECERÍA"
 
 # ---------------------------------------------------- the art, computed once
 _ART = {}; _MARKS = {}
@@ -129,13 +158,20 @@ def mark(im, name, height, xy, ink, anchor="mt", tag="side"):
 def obstacle(piece, label, box):
     OBSTACLE.append((piece, label, box[0], box[1], box[2], box[3]))
 
-def colophon(d, cx, y, txt, ink, px=19, anchor="mt"):
+PROV = "TEXTO: MEDIDO DEL VEHÍCULO · LETRERO DEL DUEÑO · RESTO AUTORADO"
+
+def colophon(d, cx, y, txt, ink, px=19, anchor="mt", prov=True):
     """⚠ THIS TOOK A PAGE WIDTH AND HALVED IT.  Two call sites passed the
     CENTRE they wanted instead, so their colophon printed at half that x --
     `merch_vaso`'s landed on top of the hero.  The collision check caught it.
     It now takes the centre, which is what every call site was trying to say."""
-    ls_text(d, (cx, y), txt, font("sans", px), ink, ls=px * 0.16,
-            anchor=anchor)
+    ls_text(d, (cx, y), txt, font("cond", px), ink, ls=px * 0.16, anchor=anchor)
+    if prov:
+        # ⚠ ON THE ARTEFACT, NOT IN THE LOG.  "It is printed on the artefact"
+        # was FALSE for two revisions running (rev 78 §8 item 9, rev 79 §8
+        # item 2) and these 20 PNGs shipped with no provenance mark at all.
+        ls_text(d, (cx, y + px + 7), PROV, font("cond", int(px * 0.74)), ink,
+                ls=px * 0.10, anchor=anchor)
 
 # ================================================================= CALLE
 # Street and in-store: what a person sees standing in front of the place.
@@ -153,7 +189,7 @@ def calle_aframe(p):
     ls_text(d, (W // 2, 1370), "FRESH JUICES · GOURMET TACOS · TORTAS",
             font("sansb", 31), TINTA, ls=7, anchor="mt")
     seal(im, 210, (W // 2, 1450), CREMA, GRANA, "mt")
-    colophon(d, W // 2, 1712, "SERIE COMBI · CALLE I · ESTILO PLANO", TINTA)
+    colophon(d, W // 2, 1670, "SERIE COMBI · CALLE I · ESTILO PLANO", TINTA)
     return im
 
 def calle_carta(p):
@@ -164,18 +200,17 @@ def calle_carta(p):
     obstacle(p, "mural", mark(im, "mural", 250, (W // 2, 56), ORO, "mt") or
              (0, 0, 0, 0))
     obstacle(p, "hero", place(im, "papel", (150, 360, W - 150, 700)))
-    items = [("TACOS", "al pastor · carnitas · pollo"),
-             ("TORTAS", "hecho a mano"),
-             ("CEVICHE  &  TOSTADAS", "del día"),
-             ("SHRIMP  &  FISH", "a la plancha"),
-             ("FRESH  JUICES", "naranja · sandía · jamaica")]
-    y = 790
-    for name, sub in items:
-        ls_text(d, (110, y), name, font("disp", 50), TINTA, ls=5)
-        ls_text(d, (110, y + 62), sub.upper(), font("sansb", 23), GRANA, ls=6)
-        dotrule(d, 110, W - 110, y + 116, ORO, r=3, gap=16)
-        y += 160
-    colophon(d, W // 2, 1616, "SERIE COMBI · CALLE II · ESTILO PAPEL PICADO", TINTA)
+    # MEDIDO.  These are the mural lid's OWN strings at lid_gen.py's measured
+    # v-fractions, in its own order.  The first build invented a second line
+    # under each and dropped GOURMET; both are gone (F372).
+    y = 800
+    for name in MENU_MEDIDO:
+        ls_text(d, (110, y), name, font("disp", 44), TINTA, ls=3)
+        dotrule(d, 110, W - 110, y + 78, ORO, r=3, gap=16)
+        y += 128
+    ls_text(d, (W // 2, 1512), "MENÚ DE MUESTRA · TOMADO DEL MURAL DEL VEHÍCULO",
+            font("cond", 21), GRANA, ls=4, anchor="mt")
+    colophon(d, W // 2, 1574, "SERIE COMBI · CALLE II · ESTILO PAPEL PICADO", TINTA)
     return im
 
 def calle_vidriera(p):
@@ -188,7 +223,7 @@ def calle_vidriera(p):
     ls_text(d, (82, 405), "TAQUERÍA", font("sansb", 30), CIELO, ls=11)
     ls_text(d, (82, 452), "CERVECERÍA", font("sansb", 30), CIELO, ls=11)
     ls_text(d, (82, 560), "ABIERTO", font("disp", 62), HUESO, ls=6)
-    colophon(d, W // 2, 858, "SERIE COMBI · CALLE III · ESTILO AZULEJO", CIELO)
+    colophon(d, W // 2, 816, "SERIE COMBI · CALLE III · ESTILO AZULEJO", CIELO)
     return im
 
 def calle_horario(p):
@@ -206,7 +241,7 @@ def calle_horario(p):
         y = 770 + i * 92
         ls_text(d, (120, y), day, font("sansb", 27), TINTA, ls=6)
         rule(d, 560, W - 120, y + 26, (196, 186, 166), 3)
-    colophon(d, W // 2, 1168, "SERIE COMBI · CALLE IV · ESTILO SELLO", TINTA)
+    colophon(d, W // 2, 1126, "SERIE COMBI · CALLE IV · ESTILO SELLO", TINTA)
     return im
 
 # ================================================================ SOCIAL
@@ -219,7 +254,7 @@ def social_cuadro(p):
     ls_text(d, (W // 2, 1090), "TAQUERÍA   Y   CERVECERÍA",
             font("sansb", 33), AZUL, ls=14, anchor="mt")
     seal(im, 150, (W // 2, 1150), HUESO, ROJO, "mt")
-    colophon(d, W // 2, 1318, "SERIE COMBI · SOCIAL I · ESTILO RISO", AZUL)
+    colophon(d, W // 2, 1276, "SERIE COMBI · SOCIAL I · ESTILO RISO", AZUL)
     return im
 
 def social_historia(p):
@@ -233,9 +268,9 @@ def social_historia(p):
     dotrule(d, 190, W - 190, 1470, GRANA, r=5, gap=26)
     ls_text(d, (W // 2, 1520), "TAQUERÍA   Y   CERVECERÍA",
             font("sansb", 32), TINTA, ls=13, anchor="mt")
-    obstacle(p, "scroll", mark(im, "scroll", 205, (W // 2, 1600), GRANA, "mt")
+    obstacle(p, "scroll", mark(im, "scroll", 168, (W // 2, 1596), GRANA, "mt")
              or (0, 0, 0, 0))
-    colophon(d, W // 2, 1836, "SERIE COMBI · SOCIAL II · ESTILO PAPEL PICADO", TINTA)
+    colophon(d, W // 2, 1794, "SERIE COMBI · SOCIAL II · ESTILO PAPEL PICADO", TINTA)
     return im
 
 def social_cabecera(p):
@@ -249,7 +284,7 @@ def social_cabecera(p):
             CREMA, ls=12)
     ls_text(d, (112, 494), "FRESH JUICES · GOURMET TACOS · TORTAS",
             font("sans", 25), CIELO, ls=5)
-    colophon(d, 112, 604, "SERIE COMBI · SOCIAL III · ESTILO PLANO",
+    colophon(d, 112, 562, "SERIE COMBI · SOCIAL III · ESTILO PLANO",
              CIELO, 18, anchor="lt")
     return im
 
@@ -267,7 +302,7 @@ def impreso_cartel(p):
             font("sans", 29), CIELO, ls=10, anchor="mt")
     obstacle(p, "seal", seal(im, 190, (W // 2, 1660), HUESO, ROJO, "mt")
              or (0, 0, 0, 0))
-    colophon(d, W // 2, 1900, "SERIE COMBI · IMPRESO I · ESTILO AZULEJO", CIELO)
+    colophon(d, W // 2, 1858, "SERIE COMBI · IMPRESO I · ESTILO AZULEJO", CIELO)
     return im
 
 def impreso_postal(p):
@@ -276,10 +311,10 @@ def impreso_postal(p):
     keyline(d, (0, 0, W - 1, H - 1), TINTA, w=4, inset=30)
     obstacle(p, "hero", place(im, "linea", (90, 130, W - 90, 660)))
     dotrule(d, 150, W - 150, 720, ORO, r=4, gap=20)
-    mark(im, "wordmark", 105, (W // 2, 760), TINTA, "mt")
-    ls_text(d, (W // 2, 874), "TAQUERÍA   Y   CERVECERÍA",
-            font("sansb", 26), GRANA, ls=12, anchor="mt")
-    colophon(d, W // 2, 926, "IMPRESO II · ESTILO LÍNEA", TINTA, 17)
+    mark(im, "wordmark", 95, (W // 2, 748), TINTA, "mt")
+    ls_text(d, (W // 2, 858), LETRERO, font("sansb", 25), GRANA, ls=11,
+            anchor="mt")
+    colophon(d, W // 2, 898, "IMPRESO II · ESTILO LÍNEA", TINTA, 15)
     return im
 
 def impreso_lealtad(p):
@@ -292,10 +327,12 @@ def impreso_lealtad(p):
     ls_text(d, (700, 262), "DE  CLIENTE", font("sansb", 26), TINTA, ls=9)
     for i in range(8):
         cx = 108 + (i % 8) * 118
-        d.ellipse([cx - 34, 470, cx + 34, 538], outline=GRANA, width=4)
-    ls_text(d, (W // 2, 574), "OCHO  VISITAS  ·  LA  NOVENA  ES  NUESTRA",
-            font("sansb", 22), GRANA, ls=8, anchor="mt")
-    colophon(d, W // 2, 602, "IMPRESO III · ESTILO SELLO", TINTA, 16)
+        d.ellipse([cx - 32, 446, cx + 32, 510], outline=GRANA, width=4)
+    ls_text(d, (W // 2, 530), "OCHO  VISITAS  ·  LA  NOVENA  ES  NUESTRA",
+            font("sansb", 20), GRANA, ls=6, anchor="mt")
+    ls_text(d, (W // 2, 560), "OFERTA DE MUESTRA · NO APROBADA", font("cond", 16),
+            (150, 128, 120), ls=3, anchor="mt")
+    colophon(d, W // 2, 594, "IMPRESO III · ESTILO SELLO", TINTA, 14)
     return im
 
 def impreso_volante(p):
@@ -305,12 +342,12 @@ def impreso_volante(p):
     mark(im, "wordmark", 160, (W // 2, 120), ROJO, "mt")
     obstacle(p, "hero", place(im, "riso", (80, 400, W - 80, 1000)))
     rule(d, 160, W - 160, 1080, AZUL, 5)
-    items = ("TACOS", "TORTAS", "CEVICHE & TOSTADAS", "SHRIMP & FISH",
-             "FRESH JUICES")
-    for i, it in enumerate(items):
-        ls_text(d, (W // 2, 1130 + i * 74), it, font("disp", 44), AZUL,
-                ls=6, anchor="mt")
-    colophon(d, W // 2, 1660, "SERIE COMBI · IMPRESO IV · ESTILO RISO", AZUL)
+    for i, it in enumerate(MENU_MEDIDO):
+        ls_text(d, (W // 2, 1128 + i * 68), it, font("disp", 34), AZUL,
+                ls=4, anchor="mt")
+    ls_text(d, (W // 2, 1490), "MENÚ DE MUESTRA", font("cond", 21), ROJO,
+            ls=5, anchor="mt")
+    colophon(d, W // 2, 1618, "SERIE COMBI · IMPRESO IV · ESTILO RISO", AZUL)
     return im
 
 # ============================================================= MERCANCIA
@@ -329,7 +366,7 @@ def merch_playera(p):
     # `historia`, where the ground is light and it holds together.
     obstacle(p, "seal", seal(im, 150, (W // 2, 930), (44, 46, 50), ORO, "mt")
              or (0, 0, 0, 0))
-    colophon(d, W // 2, 1160, "MERCANCÍA I · ARTE PLANO PARA PLAYERA · ESTILO SELLO",
+    colophon(d, W // 2, 1118, "MERCANCÍA I · ARTE PLANO PARA PLAYERA · ESTILO SELLO",
              (150, 150, 150), 17)
     return im
 
@@ -343,7 +380,7 @@ def merch_bolsa(p):
             ls=12, anchor="mt")
     ls_text(d, (W // 2, 1050), "TAQUERÍA   Y   CERVECERÍA",
             font("sansb", 28), TINTA, ls=12, anchor="mt")
-    colophon(d, W // 2, 1360, "MERCANCÍA II · ARTE PARA BOLSA · ESTILO PAPEL PICADO",
+    colophon(d, W // 2, 1318, "MERCANCÍA II · ARTE PARA BOLSA · ESTILO PAPEL PICADO",
              TINTA, 17)
     return im
 
@@ -360,28 +397,28 @@ def merch_vaso(p):
              or (0, 0, 0, 0))
     ls_text(d, (1030, 430), "FRESH JUICES · GOURMET TACOS · TORTAS",
             font("sans", 22), GRANA, ls=4)
-    colophon(d, 1420, 612, "MERCANCÍA III · DESARROLLO DE VASO · ESTILO LÍNEA",
+    colophon(d, 1420, 570, "MERCANCÍA III · DESARROLLO DE VASO · ESTILO LÍNEA",
              TINTA, 16)
     return im
 
 def merch_chapa(p):
     W = H = 980; piece_frame(p, (60, 60, W - 60, H - 60))
     im = Image.new("RGB", (W, H), PAPEL); d = ImageDraw.Draw(im)
-    d.ellipse([40, 40, W - 40, H - 140], fill=ORO, outline=TINTA, width=6)
-    d.ellipse([74, 74, W - 74, H - 174], outline=GRANA, width=3)
+    d.ellipse([40, 30, W - 40, H - 170], fill=ORO, outline=TINTA, width=6)
+    d.ellipse([72, 62, W - 72, H - 202], outline=GRANA, width=3)
     # ⚠ THE OBSTACLE IS THE RIM, NOT THE DISC.  Declaring the whole disc redded
     # the strapline, which BELONGS on the badge face -- an over-broad guard that
     # forbids the correct layout is a false positive, and a check nobody can
     # satisfy gets deleted.  The defect that actually shipped was the colophon
     # printing ACROSS the bottom rim, so that band is what is guarded.
-    obstacle(p, "badge rim", (40, H - 140 - 22, W - 40, H - 140 + 22))
-    obstacle(p, "hero", place(im, "plano", (150, 320, W - 150, 570)))
-    mark(im, "wordmark", 104, (W // 2, 168), GRANA, "mt")
-    ls_text(d, (W // 2, 620), "TAQUERÍA · CERVECERÍA", font("sansb", 24),
-            GRANA, ls=9, anchor="mt")
+    obstacle(p, "badge rim", (40, H - 170 - 22, W - 40, H - 170 + 22))
+    obstacle(p, "hero", place(im, "plano", (150, 300, W - 150, 545)))
+    mark(im, "wordmark", 98, (W // 2, 150), GRANA, "mt")
+    ls_text(d, (W // 2, 596), LETRERO, font("sansb", 22),
+            GRANA, ls=8, anchor="mt")
     # ABLATION: T1_COL_BADGE=1 puts the colophon back on the rim, so the rim
     # guard can be WATCHED FAILING on the defect it was written for (rule 3).
-    cy = (H - 140) if os.environ.get("T1_COL_BADGE") == "1" else 890
+    cy = (H - 170) if os.environ.get("T1_COL_BADGE") == "1" else 858
     colophon(d, W // 2, cy, "MERCANCÍA IV · CHAPA · ESTILO PLANO", TINTA, 16)
     return im
 
@@ -468,6 +505,28 @@ def main(argv):
         print("       COLLISION %s: %r crosses the %s" % (h[0], h[1][:32], h[2]))
     ck(not hit, "no text run crosses artwork (%d obstacles); %d collision"
        % (len(OBSTACLE), len(hit)))
+
+    # THE TEXT-vs-TEXT CHECK.  The first two instruments compare type to the
+    # FRAME and to the ARTWORK; neither compares type to OTHER TYPE.  Switching
+    # to real faces changed every metric at once and two pieces -- impreso/postal
+    # and impreso/lealtad -- shipped their colophon printed THROUGH another line,
+    # illegibly, with all twenty-seven checks green.  Watched failing on exactly
+    # those two before either layout was touched.
+    over = []
+    for i in range(len(TEXTBOX)):
+        pc, t1, a0, b0, a1, b1, _ = TEXTBOX[i]
+        for j in range(i + 1, len(TEXTBOX)):
+            qc, t2, c0, d0, c1, d1, _ = TEXTBOX[j]
+            if qc != pc: continue
+            ox = min(a1, c1) - max(a0, c0)
+            oy = min(b1, d1) - max(b0, d0)
+            if ox > 2 and oy > 2:
+                over.append((pc, t1, t2, int(ox), int(oy)))
+    for o in over:
+        print("       TEXT-ON-TEXT %s: %r over %r (%dx%d px)"
+              % (o[0], o[1][:24], o[2][:24], o[3], o[4]))
+    ck(not over, "no two text runs overlap (%d runs); %d overlap"
+       % (len(TEXTBOX), len(over)))
 
     if not only:
         want = set(n for n, _ in estilos.ESTILOS)
