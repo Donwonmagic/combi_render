@@ -273,6 +273,29 @@ ORTOGRAFIA = {
     "ULTIMO": "ÚLTIMO", "SABOR": "SABOR", "CAFE": "CAFÉ",
 }
 
+# ==================================================== THE ASSET REGISTER
+# ⚠ IDENTITY IS A PORTFOLIO, NOT A WORDMARK.  The research standard's single
+# most-repeated point: a piece that is only attributable because the logotype
+# is on it is a piece with one asset, and occluding that asset leaves nothing.
+# The distinctive-asset literature (Romaniuk / Ehrenberg-Bass) is about
+# EXCLUSIVE LINKAGE to the brand across several assets, not about logo
+# placement.
+#
+# ⚠ WHAT THIS ROW CANNOT DO: it counts assets PRESENT. It cannot say whether a
+# viewer would attribute the piece -- that needs people, and the standard's own
+# lens stripped every attribution percentage as unfounded at n=1.  Presence is
+# necessary and not sufficient, and the row says so where it prints.
+ACTIVOS = {
+    "combi":  "the drawn vehicle itself",
+    "mural":  "the lid mural, its ground and its flowers",
+    "rotulo": "the hand-lettered flank script -- rotulismo, off the vehicle",
+    "rueda":  "the VW hubcap glyph",
+    "par":    "the cream-and-red pair carried together",
+    "oro":    "the gold ornament",
+    "marca":  "the TACOMBI wordmark",
+    "disco":  "the vignette disc / die",
+}
+
 SANGRA = {"vaso": (GRANA,)}
 
 # AUTHORED, and it will be moved to whatever the measurement supports -- see
@@ -422,6 +445,40 @@ def tapado(box, opaque, order):
                         n += 1
             hit = max(hit, n / float(tot))
     return hit
+
+
+def hueco_mayor(live, boxes):
+    """The largest empty axis-aligned rectangle inside `live`, given occupied
+    `boxes`, as a fraction of `live`'s area.
+
+    ⚠ WHY THIS EXISTS.  Rendering the whole suite with every wordmark deleted
+    (T1_PLIEGO_SINMARCA=1) and LOOKING at the contact sheet showed the thing no
+    count could: the pieces do NOT lose their identity -- the drawn combi
+    carries all seventeen -- but six of them collapse into a hole where the
+    mark had been.  On `tarjeta`, `postal`, `vaso`, `cabecera`, `lealtad` and
+    `chapa` the wordmark was doing LAYOUT work, not identity work.  In a
+    flagship system the logotype sits IN a composition; it is not the thing the
+    composition is hung on.
+
+    Candidate enumeration over the box edges -- exact for the handful of boxes
+    a piece has, and it needs no render."""
+    lx0, ly0, lx1, ly1 = live
+    A = max(1e-9, (lx1 - lx0) * (ly1 - ly0))
+    xs = sorted({lx0, lx1} | {v for b in boxes for v in (b[0], b[2])
+                              if lx0 < v < lx1})
+    ys = sorted({ly0, ly1} | {v for b in boxes for v in (b[1], b[3])
+                              if ly0 < v < ly1})
+    best = 0.0
+    for i in range(len(xs) - 1):
+        for j in range(i + 1, len(xs)):
+            for a in range(len(ys) - 1):
+                for b in range(a + 1, len(ys)):
+                    r = (xs[i], ys[a], xs[j], ys[b])
+                    if any(not (q[2] <= r[0] or q[0] >= r[2] or
+                                q[3] <= r[1] or q[1] >= r[3]) for q in boxes):
+                        continue
+                    best = max(best, (r[2] - r[0]) * (r[3] - r[1]) / A)
+    return best
 
 
 def sobre(box, opaque, order, ground, page):
@@ -582,6 +639,10 @@ MARCA_BAR = 4.5
 MARCAS = []
 
 
+def h_marca():
+    return wordmark()[2]
+
+
 def put_wordmark(L, cx, top, width, ink=TINTA, ground=None):
     """⚠ THIS WAS THE ONE ELEMENT NO CHECK COULD SEE.  It draws through
     `L.paths`, so the ink/ground row -- which reads `DRAWN`, written by
@@ -598,6 +659,16 @@ def put_wordmark(L, cx, top, width, ink=TINTA, ground=None):
     # is what put `carta`'s at 1.295:1 on its own header band.
     if os.environ.get("T1_PLIEGO_MARCAPLANA") == "1":
         ink = TINTA
+    # ⚠ THE WORDMARK-OCCLUDED SET.  The standard's single most-repeated point
+    # is that a piece which is only attributable because the logotype is on it
+    # has ONE asset.  `T1_PLIEGO_SINMARCA=1` deletes every wordmark and builds
+    # the contact sheet, so the question can be LOOKED AT rather than argued.
+    # The register row counts assets; only this shows what is left.
+    if os.environ.get("T1_PLIEGO_SINMARCA") == "1":
+        MARCAS.append({"piece": PIEZA[0], "ink": ink, "declared": False,
+                       "ground": ground or GROUND[0], "sobre": True,
+                       "ratio": 99.0})
+        return h_marca() * (width / float(wordmark()[1]))
     comps, w, h = wordmark()
     s = width / float(w)
     order0 = len(L.body)
@@ -629,6 +700,8 @@ PAGINA = {}          # each piece's DECLARED page colour
 OPACOS = {}          # each piece's opaque records, kept for the clearance row
 REJILLA = {}         # each piece's grid, kept so the hierarchy row can read k
 LIFTED = []          # pieces whose scale the print floor lifted, and by how much
+LAYERS = {}          # the underlay layer keys each piece actually drew
+ACTIVOS_POR_PIEZA = {}
 FIT = []             # every run's shrink factor, so the type scale is auditable
 TEXTS = []           # every run as printed, so a colophon can be checked
 
@@ -680,6 +753,7 @@ def put_hero(L, style, box, mural="fino", ink=None, ground=None):
                               _c * sub.shape[1] // gw:(_c + 1) * sub.shape[1] // gw].any()
     L.opaque.append(("art", (abox, occ), len(L.body),
                      lay[0][1] if lay else None))
+    LAYERS.setdefault(PIEZA[0], set()).update(estilo_vec.USADAS)
     for ds, col, key in lay:
         L.paths(ds, col, stroke=key, stroke_w=(kw if key else 0.0))
         DRAWN.append({"piece": PIEZA[0], "style": style,
@@ -1185,6 +1259,29 @@ def main(argv):
         # A-frame's HUESO disc on F_ORO at 1.422:1 -- the largest single
         # element in the set -- and `carta`'s five ORO rules on CREMA at
         # 1.888:1.
+        # WHAT IDENTITY ASSETS THIS PIECE ACTUALLY CARRIES, read off what was
+        # drawn -- not assumed from the piece's name.
+        act = set()
+        fills = {d["fill"] for d in DRAWN if d["piece"] == name}
+        lay = LAYERS.get(name, set())
+        if any(d["piece"] == name for d in DRAWN):
+            act.add("combi")
+        if CREMA in fills and (ROJO in fills or GRANA in fills):
+            act.add("par")
+        if ORO in fills:
+            act.add("oro")
+        if lay & {"mural_gold", "mural_ground", "lidmural_rest", "lidsign"}:
+            act.add("mural")
+        if "script" in lay:
+            act.add("rotulo")
+        if lay & {"capvw", "capwhite", "capred", "capring"}:
+            act.add("rueda")
+        if any(m["piece"] == name for m in MARCAS):
+            act.add("marca")
+        if any(k == "circle" for k, _g, _o, _f in L.opaque):
+            act.add("disco")
+        ACTIVOS_POR_PIEZA[name] = act
+
         OTROS.extend((name, ground, fill, kind)
                      for kind, _geom, _o, fill in L.opaque
                      if fill and kind in ("rect", "circle", "rule"))
@@ -1460,6 +1557,51 @@ def main(argv):
        % (len(named), len(TEXTS), len({t["piece"] for t in named}),
           len({t["piece"] for t in TEXTS}), len(lies),
           ("  <-- " + " | ".join(lies[:3])) if lies else ""))
+
+    # ============================================ THE ASSET REGISTER
+    sin_marca = []
+    for _c, name, _w, _h, _g, _st, _sa in made:
+        a = ACTIVOS_POR_PIEZA.get(name, set()) - {"marca"}
+        if len(a) < 2:
+            sin_marca.append("%s carries %s" % (name, sorted(a) or "NOTHING"))
+    if ACTIVOS_POR_PIEZA:
+        cen = {}
+        for a in ACTIVOS_POR_PIEZA.values():
+            for k in a: cen[k] = cen.get(k, 0) + 1
+        n = len(ACTIVOS_POR_PIEZA)
+        ck(not sin_marca,
+           "assets: %d registered; every piece must carry 2+ BESIDES the "
+           "wordmark, %d do not.  Census over %d piece(s): %s.  ⚠ PRESENCE, "
+           "NOT ATTRIBUTION -- whether a viewer would name the brand needs "
+           "people%s"
+           % (len(ACTIVOS), len(sin_marca), n,
+              ", ".join("%s %d" % (k, v) for k, v in sorted(cen.items(),
+                                                            key=lambda kv: -kv[1])),
+              ("  <-- " + " | ".join(sin_marca[:3])) if sin_marca else ""))
+
+    # ============================== IS THE WORDMARK LOAD-BEARING FOR LAYOUT
+    hue = []
+    for _c, name, w, h, g, _st, _sa in made:
+        live = (g.m, g.m, w - g.m, h - g.m)
+        occ = [t["box"] for t in TEXTS
+               if t["piece"] == name and t["box"] and t["s"] != "<wordmark>"]
+        occ += [geom[0] for kind, geom, _o, _f in OPACOS.get(name, ())
+                if kind == "art"]
+        mk = [t["box"] for t in TEXTS
+              if t["piece"] == name and t["s"] == "<wordmark>" and t["box"]]
+        con = hueco_mayor(live, occ + mk)
+        sin = hueco_mayor(live, occ)
+        hue.append((sin - con, name, con, sin))
+    hue.sort(reverse=True)
+    if hue:
+        print("   largest empty rectangle, with the mark and without it:")
+        for d, n, c, s_ in hue[:6]:
+            print("     %-10s %5.1f %% -> %5.1f %%   (+%.1f)"
+                  % (n, 100 * c, 100 * s_, 100 * d))
+        ck(True, "wordmark as LAYOUT: deleting it opens the largest hole by "
+                 "%.1f points on %s (%.1f %% -> %.1f %%) -- REPORTED, and the "
+                 "artefact that shows it is the SINMARCA contact sheet"
+           % (100 * hue[0][0], hue[0][1], 100 * hue[0][2], 100 * hue[0][3]))
 
     # ============================================================ VISIBILITY
     # ⚠ THIS IS THE CLASS THAT HAS SHIPPED MOST OFTEN IN THIS PROJECT: a shape

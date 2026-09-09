@@ -104,6 +104,12 @@ def keyline_for(fill, ground, bar=KEY_BAR):
     return best if score >= bar else None
 
 
+# The underlay layer keys the LAST `layers()` call drew.  Module-level rather
+# than returned, because the return shape is consumed by `pliego.put_hero` and
+# widening it there is a bigger change than this warrants.
+USADAS = set()
+
+
 def inks_used(style):
     """Every fill a style can emit.  Exists so a piece can be CHECKED against
     its ground before it is drawn -- six of eleven sheets shipped with artwork
@@ -229,8 +235,28 @@ def layers(tag, style, box, smooth=2, mural="fino", ink=None, ground=None,
                 if m is not None and m.any():
                     edge |= m & ~ndimage.binary_erosion(m, np.ones((3, 3)))
             out.append((tr(edge, "azulejo_edge"), CIELO))
-        cache[key] = (out, (aw, ah))
-    out, art_wh = cache[key]
+        # which underlay layers this style actually drew, so a caller can say
+        # WHICH identity assets a piece carries instead of assuming
+        drew = set()
+        if style == "plano":
+            drew = {k for k, _c in PLANO if L.get(k) is not None and L[k].any()}
+            if mural == "llano":
+                drew -= set(MURAL); drew.add("mural_slab")
+        elif style == "papel":
+            # ⚠ THE HOLES COUNT.  `papel` PUNCHES the script, the hubcaps and
+            # the gold ornament out of one ink -- they are not absent from the
+            # drawing, they are how it reads.  Excluding them made `bolsa`
+            # report no `rotulo` when the flank lettering is plainly there.
+            drew = {k for k in L if L[k].any()} | {"papel"}
+        elif style == "silueta":
+            drew = {"silueta"}
+        elif style == "azulejo":
+            drew = {"silueta"} | {k for k in AZULEJO_EDGE
+                                  if L.get(k) is not None and L[k].any()}
+        cache[key] = (out, (aw, ah), drew)
+    USADAS.clear()
+    USADAS.update(cache[key][2])
+    out, art_wh = cache[key][0], cache[key][1]
     s, dx, dy = _fit(None, box, art_wh)
     # ⚠ THE INK OVERRIDE IS APPLIED AFTER THE CACHE, not baked into it.  A
     # single-ink style drawn in its default TINTA on a near-black ground is
