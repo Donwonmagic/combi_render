@@ -29,7 +29,7 @@ polygons rasterise at proof scale or at 300 dpi, and can be written as SVG.
   * Tracing cannot invent detail the capture did not resolve.  It removes the
     grid, it does not add information.
 """
-import math
+import json, math, os
 import numpy as np
 from PIL import Image, ImageDraw
 
@@ -51,6 +51,61 @@ def chaikin(pts, iters=2):
             out.append((0.25 * ax + 0.75 * bx, 0.25 * ay + 0.75 * by))
         pts = out
     return pts
+
+
+# ---------------------------------------------------------------- the cache
+# Tracing `sidehi` costs ~9 MINUTES per style, which makes every experiment
+# unaffordable and is why the mural threshold was never tuned.  The EXPENSIVE
+# half is trace + RDP; Chaikin is cheap.  So the RDP result is what is cached,
+# and smoothing is applied on load -- which also keeps the cache small, because
+# two Chaikin passes QUADRUPLE the point count.
+CACHE = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                     "probe_scratch", "trace")
+
+
+def _key(tag, name, eps, min_area):
+    return "%s__%s__e%g_a%g.json" % (tag, name, eps, min_area)
+
+
+def trace_cached(mask, tag, name, eps=0.9, min_area=6.0, smooth=2):
+    """`trace_layer` with the trace+RDP half persisted to disk."""
+    os.makedirs(CACHE, exist_ok=True)
+    p = os.path.join(CACHE, _key(tag, name, eps, min_area))
+    if os.path.exists(p):
+        raw = json.load(open(p))
+        comps = [([tuple(q) for q in o], [[tuple(q) for q in h] for h in hs])
+                 for o, hs in raw["comps"]]
+        stats = (raw["dropped"], raw["kept"])
+    else:
+        comps, dropped, kept = _trace_raw(mask, eps, min_area)
+        json.dump({"comps": [[[[round(x, 1), round(y, 1)] for x, y in o],
+                              [[[round(x, 1), round(y, 1)] for x, y in h]
+                               for h in hs]] for o, hs in comps],
+                   "dropped": dropped, "kept": kept}, open(p, "w"))
+        stats = (dropped, kept)
+    out = [(chaikin(o, smooth), [chaikin(h, smooth) for h in hs])
+           for o, hs in comps]
+    return out, stats[0], stats[1]
+
+
+def _trace_raw(mask, eps, min_area):
+    """trace + RDP only -- no smoothing.  This is the half worth caching."""
+    comps, dropped, kept = [], 0, 0
+    total = float(mask.sum()) or 1.0
+    for outer, holes in TO.trace_with_holes(mask):
+        o = [(float(x), float(y)) for y, x in outer]
+        o = rdp(o, eps)
+        if len(o) < 3 or abs(poly_area(o)) < min_area:
+            dropped += 1
+            continue
+        hs = []
+        for h in holes:
+            hp = rdp([(float(x), float(y)) for y, x in h], eps)
+            if len(hp) >= 3 and abs(poly_area(hp)) >= min_area:
+                hs.append(hp)
+        comps.append((o, hs))
+        kept += abs(poly_area(o)) - sum(abs(poly_area(h)) for h in hs)
+    return comps, dropped, kept / total
 
 
 def trace_layer(mask, eps=0.9, min_area=6.0, smooth=2):

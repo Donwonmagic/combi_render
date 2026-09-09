@@ -46,6 +46,23 @@ AZULEJO_EDGE = ("body_gold", "mural_gold", "script", "calidad_ink", "glass",
 VECTOR_STYLES = ("plano", "papel", "azulejo", "silueta")
 
 
+# PER-LAYER TRACE THRESHOLDS.  One threshold for every layer is what shredded
+# the mural: the eps/min_area that suits the SCROLLWORK (bold, open curls)
+# destroys the LACE (fine, dense flower field).  Coarse for big flats, fine for
+# the mural.  ⚠ AUTHORED, and tuned by looking -- see the A/B this produced.
+THRESH = {
+    "mural_gold":    (0.45, 1.5),
+    "mural_ground":  (0.45, 1.5),
+    "lidsign":       (0.45, 1.5),
+    "body_gold":     (0.90, 6.0),
+    "script":        (0.60, 3.0),
+    "calidad_ink":   (0.50, 2.0),
+    "calidad_field": (0.50, 2.0),
+    "bulb":          (0.50, 1.5),
+}
+DEFAULT_THRESH = (1.10, 14.0)
+
+
 def _fit(comps, box, art_wh):
     """Scale traced contours (in capture px) into a mm box, preserving aspect."""
     x0, y0, x1, y1 = box
@@ -56,7 +73,7 @@ def _fit(comps, box, art_wh):
     return s, dx, dy
 
 
-def layers(tag, style, box, eps=0.9, min_area=6.0, smooth=2, cache={}):
+def layers(tag, style, box, smooth=2, mural="fino", cache={}):
     """-> [(svg_d_strings, fill_colour)] fitted into `box` (mm)."""
     if style not in VECTOR_STYLES:
         raise SystemExit(
@@ -65,7 +82,7 @@ def layers(tag, style, box, eps=0.9, min_area=6.0, smooth=2, cache={}):
             "(hatching, halftone, a broken edge); returning a silently "
             "different drawing would be worse than refusing (rule 37)."
             % (style, ", ".join(VECTOR_STYLES)))
-    key = (tag, style, eps, min_area, smooth)
+    key = (tag, style, smooth, mural)
     if key not in cache:
         u = estilos.underlay(tag)
         L, al = u["layers"], u["alpha"]
@@ -73,34 +90,44 @@ def layers(tag, style, box, eps=0.9, min_area=6.0, smooth=2, cache={}):
         oy, ox = ys.min(), xs.min()
         aw = xs.max() - ox + 1; ah = ys.max() - oy + 1
 
-        def tr(mask):
-            c, _d, _k = trazo.trace_layer(mask, eps, min_area, smooth)
+        def tr(mask, name):
+            e, a = THRESH.get(name, DEFAULT_THRESH)
+            c, _d, _k = trazo.trace_cached(mask, tag, name, e, a, smooth)
             return [([(x - ox, y - oy) for x, y in o],
                      [[(x - ox, y - oy) for x, y in h] for h in hs])
                     for o, hs in c]
 
+        MURAL = ("lidmural_rest", "mural_ground", "mural_gold", "lidsign")
         out = []
         if style == "plano":
             for k, col in PLANO:
+                if mural == "llano" and k in MURAL:
+                    continue          # the lid is drawn as one flat panel below
                 m = L.get(k)
                 if m is not None and m.any():
-                    out.append((tr(m), col))
+                    out.append((tr(m, k), col))
+            if mural == "llano":
+                slab = np.zeros_like(al)
+                for k in MURAL:
+                    if k in L: slab |= L[k]
+                if slab.any():
+                    out.insert(0, (tr(slab, "mural_slab"), GRANA))
         elif style == "papel":
             holes = np.zeros_like(al)
             for k in PAPEL_HOLES:
                 if k in L: holes |= L[k]
-            out.append((tr(al & ~holes), GRANA))
+            out.append((tr(al & ~holes, "papel"), GRANA))
         elif style == "silueta":
-            out.append((tr(al), TINTA))
+            out.append((tr(al, "silueta"), TINTA))
         elif style == "azulejo":
-            out.append((tr(al), AZUL))
+            out.append((tr(al, "silueta"), AZUL))
             edge = np.zeros_like(al)
             from scipy import ndimage
             for k in AZULEJO_EDGE:
                 m = L.get(k)
                 if m is not None and m.any():
                     edge |= m & ~ndimage.binary_erosion(m, np.ones((3, 3)))
-            out.append((tr(edge), CIELO))
+            out.append((tr(edge, "azulejo_edge"), CIELO))
         cache[key] = (out, (aw, ah))
     out, art_wh = cache[key]
     s, dx, dy = _fit(None, box, art_wh)
