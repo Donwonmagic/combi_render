@@ -224,6 +224,23 @@ def rough(mask_L, amount=1.4, seed=5):
     return Image.fromarray(np.clip(a + b * amount, 0, 255).astype(np.uint8)
                            ).point(lambda v: 255 if v > 127 else 0)
 
+def art_h(u):
+    """The SUBJECT's height in capture px.  Every screen frequency below is a
+    fraction of THIS, not of the supersample factor.
+
+    ⚠ THIS IS A REAL BUG BEING FIXED, NOT A REFINEMENT.  `linea`, `riso` and
+    `sello` sized their hatching, halftone cell, misregistration and roughness
+    off `ss`.  That is a RENDERING parameter, not a size -- so when the
+    underlay went from 1400x1000 to 2800x2000 the screens stayed the same
+    number of PIXELS and became a smaller fraction of the subject.  MEASURED by
+    looking: at 2800x2000 `linea`'s hatching collapsed to flat grey tone and
+    `riso`'s halftone dots DISAPPEARED ENTIRELY, leaving flat colour.  The
+    styles were silently degrading as the capture improved.
+    """
+    ys, xs = np.where(u["alpha"])
+    return float(ys.max() - ys.min() + 1)
+
+
 def finish(img, u, ss, crop=True):
     out = img.resize((u["W"], u["H"]), Image.LANCZOS)
     return out.crop(out.getbbox()) if crop and out.getbbox() else out
@@ -283,15 +300,17 @@ def linea(u, ss=3):
     L = u["layers"]
     sil = up(u["alpha"], ss)
     t = tone_L(u, ss)
-    h = ImageChops.multiply(hatch(t, spacing=max(2, int(ss * 1.7)), angle=28,
-                                  levels=4, width=max(1, int(ss * 0.7))), sil)
+    A = art_h(u) * ss
+    h = ImageChops.multiply(hatch(t, spacing=max(2, int(A / 300.0)), angle=28,
+                                  levels=4,
+                                  width=max(1, int(A / 1400.0))), sil)
     lay(im, h, TINTA)
     for k in ("glass", "tyre", "interior_dark", "underseal", "script"):
         if k in L and L[k].any(): lay(im, up(L[k], ss), TINTA)
     for k in ("body_gold", "mural_gold", "calidad_ink"):
         if k in L and L[k].any():
             lay(im, edge(up(L[k], ss), max(1, ss // 2)), TINTA)
-    lay(im, strokes_L(u, ss, 0.9, jitter=0.35), TINTA)
+    lay(im, strokes_L(u, ss, max(0.6, A / (900.0 * ss)), jitter=0.35), TINTA)
     lay(im, edge(sil, max(1, ss)), TINTA)
     return finish(im, u, ss), PAPEL
 
@@ -337,16 +356,16 @@ def riso(u, ss=3):
     lum = np.clip(lum * (0.55 + 0.45 * u["ao"]), 0, 1)
     tL = Image.fromarray((lum * 255).astype(np.uint8)).resize((W, H),
                                                               Image.LANCZOS)
-    sA = ImageChops.multiply(halftone(tL, cell=max(6, int(ss * 4.5)), angle=15),
-                             up(warm, ss))
-    sB = ImageChops.multiply(halftone(tL, cell=max(6, int(ss * 4.5)), angle=75),
-                             up(cool, ss))
+    A = art_h(u) * ss
+    cell = max(4, int(A / 120.0))
+    sA = ImageChops.multiply(halftone(tL, cell=cell, angle=15), up(warm, ss))
+    sB = ImageChops.multiply(halftone(tL, cell=cell, angle=75), up(cool, ss))
     a = Image.new("RGBA", (W, H), (0, 0, 0, 0)); lay(a, sA, ROJO)
     b = Image.new("RGBA", (W, H), (0, 0, 0, 0)); lay(b, sB, AZUL)
-    off = int(ss * 1.6)
+    off = max(2, int(A / 400.0))
     base = Image.alpha_composite(base, ImageChops.offset(b, -off, off // 2))
     base = Image.alpha_composite(base, ImageChops.offset(a, off, 0))
-    lay(base, strokes_L(u, ss, 0.8, minlen=14), TINTA)
+    lay(base, strokes_L(u, ss, max(0.6, A / (1100.0 * ss)), minlen=14), TINTA)
     return finish(base, u, ss), HUESO
 
 # ============================================================== 5. AZULEJO
@@ -383,13 +402,14 @@ def sello(u, ss=3):
         if k in L and L[k].any(): solid = ImageChops.lighter(solid, up(L[k], ss))
     m = ImageChops.lighter(dark, solid)
     m = ImageChops.lighter(m, ImageChops.multiply(
-        strokes_L(u, ss, 1.5, minlen=12), up(u["alpha"], ss)))
+        strokes_L(u, ss, max(0.8, art_h(u) * ss / 550.0), minlen=12),
+        up(u["alpha"], ss)))
     m = ImageChops.lighter(m, edge(up(u["alpha"], ss), max(1, ss)))
     # ⚠ THE ROUGHENING MUST BE CLIPPED TO THE VEHICLE.  Unclipped it lifted
     # noise across the whole canvas and the first sheet printed a rectangular
     # smear with THREE CHECKS GREEN on it -- the ink-pixel count went UP, which
     # is exactly the wrong direction for a stencil.  Caught by looking.
-    m = rough(m, amount=0.9 * ss)
+    m = rough(m, amount=max(1.0, art_h(u) * ss / 900.0))
     m = ImageChops.multiply(m, grow(up(u["alpha"], ss), max(1, ss)))
     im = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     lay(im, m, GRANA)
