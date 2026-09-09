@@ -80,6 +80,13 @@ KEY_BAR = 1.35
 KEY_INKS = (TINTA, GRANA, AZUL_CUERPO, PIZ, AZUL, ROJO, ORO, CREMA, HUESO)
 
 
+# In-process switch for the SAME suppression the environment variable does, so
+# a build can draw a piece twice -- with and without keylines -- and DIFFERENCE
+# the two renders.  See `pliego`'s `keylines PRINTED` row: a colour-tolerance
+# count of the shipped sheet passed with all nine strokes physically deleted.
+NOKEY = [False]
+
+
 def keyline_for(fill, ground, bar=KEY_BAR):
     """The ink that outlines `fill` when `fill` cannot be seen on `ground`.
 
@@ -230,7 +237,7 @@ def layers(tag, style, box, smooth=2, mural="fino", ink=None, ground=None,
     # INVISIBLE -- which is exactly what `playera` shipped.  Only the FIRST
     # (body) layer is recoloured; a style's own second ink, like azulejo's
     # keyline, keeps its contrast.
-    nokey = os.environ.get("T1_VEC_NOKEYLINE") == "1"
+    nokey = os.environ.get("T1_VEC_NOKEYLINE") == "1" or NOKEY[0]
     res = []
     for i, (c, col) in enumerate(out):
         use = ink if (ink and i == 0 and style in ("papel", "silueta")) else col

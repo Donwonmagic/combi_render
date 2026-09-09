@@ -76,12 +76,25 @@ class Lienzo(object):
     # ------------------------------------------------------------ primitives
     # WHAT IS PAINTED OVER WHAT.  Every opaque slab records its geometry and
     # its position in draw order, so an element drawn earlier can be tested for
-    # being covered.  ⚠ CEILING: slabs only -- `rect`, `circle` and the page.
-    # Traced `paths` are not in here, and on every layout in `pliego.py` the
-    # drawing is laid down before the type, so the gap that matters is closed;
-    # a layout that put a hero on top of a text run would not be caught.
+    # being covered.
+    #
+    # ⚠ THE CEILING THIS COMMENT USED TO CLAIM WAS WRONG IN THREE WAYS, AND AN
+    # AUDIT FOUND ALL THREE.  It said "slabs only -- `rect`, `circle` and the
+    # page": the page rect is written in `_svg()` and was never recorded
+    # (harmless -- it is under everything), `line()` was not recorded at all
+    # (`p_carta` draws its rules AFTER each menu run, 6.94 mm below a baseline
+    # whose descenders reach 5.03 mm), and it justified leaving traced `paths`
+    # out with "on every layout the drawing is laid down before the type",
+    # which is FALSE: `_poster` runs frame -> wordmark -> LETRERO -> hero, and
+    # the measured clearance from that subhead to the hero is 10.60 mm on
+    # `cartel_a3`.
+    #
+    # So `line()` records its stroke box, and `pliego`'s `put_hero` records the
+    # drawing's bounding box.  ⚠ A DRAWING'S BOUNDING BOX IS NOT THE DRAWING --
+    # that OVER-reports coverage, which is the safe direction for a check and
+    # the wrong one for a claim.  The page is still not recorded and need not be.
     def rect(self, x, y, w, h, fill, rx=0):
-        self.opaque.append(("rect", (x, y, x + w, y + h), len(self.body)))
+        self.opaque.append(("rect", (x, y, x + w, y + h), len(self.body), fill))
         return self._rect(x, y, w, h, fill, rx)
 
     def _rect(self, x, y, w, h, fill, rx=0):
@@ -90,13 +103,16 @@ class Lienzo(object):
             'fill="%s"/>' % (x, y, w, h, rx, fill))
 
     def circle(self, cx, cy, r, fill, stroke=None, stroke_w=0.0):
-        self.opaque.append(("circle", (cx, cy, r), len(self.body)))
+        self.opaque.append(("circle", (cx, cy, r), len(self.body), fill))
         sk = ('' if not stroke else
               ' stroke="%s" stroke-width="%.4f"' % (stroke, stroke_w))
         self.body.append('<circle cx="%.3f" cy="%.3f" r="%.3f" fill="%s"%s/>'
                          % (cx, cy, r, fill, sk))
 
     def line(self, x1, y1, x2, y2, stroke, w=0.4, dash=None):
+        self.opaque.append(("rect", (min(x1, x2), min(y1, y2) - w / 2.0,
+                                     max(x1, x2), max(y1, y2) + w / 2.0),
+                            len(self.body), stroke))
         d = ' stroke-dasharray="%s"' % dash if dash else ""
         self.body.append('<line x1="%.3f" y1="%.3f" x2="%.3f" y2="%.3f" '
                          'stroke="%s" stroke-width="%.3f"%s/>'

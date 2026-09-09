@@ -158,26 +158,41 @@ class Rejilla(object):
 
 
 # Pieces that bleed to the trim by design.  Declared, not tolerated silently.
+# Every ink this module may legitimately put on a sheet.  The SVG sweep in the
+# `ink/ground` row compares what was WRITTEN against what was RECORDED, and
+# needs a name for the colours that belong to the layout rather than to a
+# drawing -- rules, frames, bands.
+PALETA = (CREMA, ROJO, GRANA, ORO, TINTA, estilo_vec.PIZ, AZUL, CIELO, HUESO,
+          estilo_vec.AZUL_CUERPO, F_ORO, F_PAPEL, F_AZUL, F_NEGRO, "#DED2B8",
+          "#7A6E63")
+
 SANGRA = {"vaso"}
 
 # AUTHORED, and it will be moved to whatever the measurement supports -- see
 # the printed table under `type presence`.  It is a PRESENCE bar, not a
 # fidelity one: Chromium and PIL hint and kern differently, so an identical
 # run does not score 1.000.
-# AUTHORED, and both were placed AFTER watching the clean set and the
-# occlusion ablation print their numbers -- never the other way round (rule 5).
-GAP_EM = 1.20        # a word space is ~0.3 em; the disc ate about 5
-EXT_FRAC = 0.80      # inked width against the face's own metric for the run
-
-# ⚠ TYPE HAS A PHYSICAL FLOOR AND THE GRID DID NOT KNOW IT.  The type scale is
-# anchored on the baseline unit, and the baseline unit on an 85 x 55 mm card is
-# 1.91 mm, so `pt(-2.4)` asked for 0.90 mm -- about two and a half points.  The
-# card's provenance line rendered FOUR PIXELS of an expected 345 at 200 dpi:
-# set, checked, exported and invisible.  1.8 mm is roughly 5 pt, the smallest
-# size a colophon is set at in print.  A run that cannot fit its measure AT the
-# floor is a design problem, so it is reported rather than shrunk past it.
+# TYPE HAS A PHYSICAL FLOOR AND THE GRID DID NOT KNOW IT.  The scale is
+# anchored on the baseline unit, which is 1.9097 mm on an 85 x 55 mm card, so
+# the card's colophon at `pt(-2.3)` asked for 0.9826 mm and `vaso`'s at
+# `pt(-2.4)` for 0.9546 mm -- between two and a half and three points.  1.8 mm
+# is roughly 5 pt, about the smallest size a colophon is set at in print.  A
+# run that cannot fit its measure AT the floor is a design problem, so it is
+# reported rather than shrunk past it.
+#
+# ⚠⚠ RETRACTED, IN THE SOURCE, IN THE REVISION THAT PUBLISHED IT (rule 13):
+# this block previously said `pt(-2.4)` asked for 0.90 mm on the card and that
+# the line "rendered FOUR PIXELS of an expected 345 at 200 dpi: set, checked,
+# exported and invisible."  BOTH ARE WRONG.  `pt(-2.4)` occurs only in
+# `p_vaso`; the card's is `pt(-2.3)`; neither is 0.90 mm.  And the 4-of-345
+# came from the tight-colour-tolerance pixel count that THIS SAME REVISION
+# retracts as its first wrong instrument -- rendered with the floor removed
+# the line is 7 px at tol=26 but 217 at tol=90, and the painted window shows
+# the 0.98 mm line PRESENT AND LEGIBLE.  The floor is a print decision and it
+# stands on that; the measurement offered for it was a sixth wrong instrument.
 MIN_TIPO_MM = 1.8
 DEMASIADO = []
+KERN = []            # kerned/un-kerned width, per fit_pt trial
 
 
 def edge_clean(png_path, frac=0.014):
@@ -197,11 +212,19 @@ def edge_clean(png_path, frac=0.014):
 def fit_pt(s, face, pt, tracking, max_mm):
     """-> (size_mm, factor).  Shrink a size until the run fits its measure.
 
-    ⚠ IT USED TO SUM PER-GLYPH ADVANCES -- `sum(getlength(c) for c in s)` --
-    which is the UN-KERNED width, the exact quantity its own next sentence
-    called Chromium's estimate wrong for.  It now measures the STRING, so the
-    pairs kern, and it keeps the per-glyph sum as an upper bound so the
-    pre-flight still errs wide rather than narrow.
+    ⚠ IT USED TO SUM PER-GLYPH ADVANCES ONLY -- `sum(getlength(c) for c in s)`,
+    the UN-KERNED width, the exact quantity its own next sentence called
+    Chromium's estimate wrong for.  It measures the STRING too now, and takes
+    the WIDER of the two so the pre-flight still errs wide rather than narrow.
+
+    ⚠⚠ AND THAT MEANS THE KERNED MEASURE CHANGES NOTHING, WHICH AN AUDIT HAD
+    TO POINT OUT: over all 37 runs in this module `kerned > loose` on ZERO of
+    them, because kerning tightens, so `max()` always returns the per-glyph
+    sum and the decision is still taken on the un-kerned width.  That is the
+    right behaviour for a pre-flight -- a safe estimate is one that
+    over-estimates -- but the commit that introduced it claimed the pairs now
+    kern, and they do not affect the outcome.  The two are printed so the size
+    of the difference is visible instead of asserted.
 
     ⚠ It returns the FACTOR as well as the size, because the caller's tracking
     was computed for the size BEFORE this shrink: applying an unchanged
@@ -217,6 +240,7 @@ def fit_pt(s, face, pt, tracking, max_mm):
         f = ImageFont.truetype(path, max(4, int(round(pt * 96 / 25.4))))
         kerned = f.getlength(s)
         loose = sum(f.getlength(c) for c in s)
+        KERN.append((kerned / loose) if loose else 1.0)
         w_px = max(kerned, loose) + tracking * (len(s) - 1) * 96 / 25.4
         if w_px * 25.4 / 96.0 <= max_mm:
             return pt, pt / pt0
@@ -241,7 +265,7 @@ def tapado(box, opaque, order):
     x0, y0, x1, y1 = box
     A = max(1e-9, (x1 - x0) * (y1 - y0))
     hit = 0.0
-    for kind, geom, o in opaque:
+    for kind, geom, o, _fill in opaque:
         if o <= order:
             continue
         if kind == "rect":
@@ -265,95 +289,59 @@ def tapado(box, opaque, order):
     return hit
 
 
-def texto_legible(png_path, w_mm, h_mm, t, pad=1.9):
-    """-> (gap_em, extent_frac) for one text run, read off the RENDERED sheet.
+def sobre(box, opaque, order, ground, page):
+    """Is `box` REALLY printed on `ground`?
 
-    ⚠ THE DEFECT THIS EXISTS FOR: the A-frame's vignette disc was drawn after
-    `TAQUERIA y CERVECERIA` and covered its middle -- the sign read
-    "TAQUE...CERIA" -- with every check on the piece green.  Nothing in this
-    module compared one element against another, and neither margin check can
-    see anything between the margins.
+    ⚠ `put_hero(ground=...)` and `put_wordmark(ground=...)` are DECLARATIONS.
+    The keyline and the wordmark bar are both chosen from them, so a wrong
+    declaration certifies a number for a colour the element is not on: the
+    A-frame's hero clears the inside of its disc by ONE MILLIMETRE, and
+    `carta`'s mark clears the lower edge of its band by 2.47 mm of its own
+    43.3 mm height -- both unmeasured until now, and both the same hole the
+    wordmark fell through, one element over.
 
-    ⚠⚠ TWO EARLIER INSTRUMENTS FOR THIS WERE BOTH WRONG, AND BOTH PRINTED A
-    PLAUSIBLE NUMBER.  The first counted pixels within 26 of the ink colour
-    against PIL's own glyph pixels: it scored `postal`'s provenance line 0.207
-    and `tarjeta`'s 0.324, and the PAINTED WINDOW showed both fully set and
-    perfectly legible -- at 15 px most of a condensed face is partial coverage,
-    so that ratio measured TYPE SIZE, not presence.  The second weighted by ink
-    mass against a per-window background, and the window straddles a gold page
-    and a cream disc, so the second background counted as ink: it scored the
-    plainly-eaten subhead at 1.015.  A third, per-pixel median background,
-    scored a fully-visible display line at 0.307, because a median wider than
-    the stems of a heavy slab face returns the STEM, not the page.
-
-    So this one has no background model and no reference raster to align:
-
-      * `gap_em`   -- the widest run of consecutive columns carrying NO ink of
-                      this run's colour, between its first and last inked
-                      column, in multiples of the type size.  A word space is
-                      about 0.3 em; the disc ate about 5 em.
-      * `extent`   -- inked width over the width the face's own metrics say the
-                      run should occupy.  Catches an end being cut off, which a
-                      middle-gap measure cannot see.
-
-    Both are invariant to size, to antialiasing and to Chromium kerning
-    tighter than PIL, which is what defeated the three before it."""
-    path = lienzo.FACES.get(t["face"])
-    if not path or not os.path.exists(path) or not t["s"]:
-        return None, None
-    from PIL import ImageFont
-    im = Image.open(png_path).convert("RGB")
-    a = np.asarray(im).astype(np.int16)
-    H, W = a.shape[:2]
-    ppm = W / float(w_mm)
-    px = max(4, int(round(t["pt"] * ppm)))
-    f = ImageFont.truetype(path, px)
-    trk = t["tracking"] * ppm
-    wid = sum(f.getlength(c) for c in t["s"]) + trk * (len(t["s"]) - 1)
-    asc, desc = f.getmetrics()
-    bx = t["x"] * ppm
-    if t["anchor"] == "middle": x0 = bx - wid / 2.0
-    elif t["anchor"] == "end":  x0 = bx - wid
-    else:                       x0 = bx
-    by = t["y"] * (H / float(h_mm))
-    p = pad * px * 0.5
-    X0 = max(0, int(x0 - p)); X1 = min(W, int(x0 + wid + p))
-    Y0 = max(0, int(by - asc - p)); Y1 = min(H, int(by + desc + p))
-    if X1 <= X0 or Y1 <= Y0 or wid <= 0:
-        return 99.0, 0.0
-    # generous tolerance: an antialiased edge is still this run's ink
-    col = near(a[Y0:Y1, X0:X1], t["fill"], tol=90).any(axis=0)
-    if not col.any():
-        return 99.0, 0.0
-    lo = int(np.argmax(col)); hi = len(col) - 1 - int(np.argmax(col[::-1]))
-    inner = col[lo:hi + 1]
-    gap = run = 0
-    for v in inner:
-        run = 0 if v else run + 1
-        gap = max(gap, run)
-    return gap / float(px), (hi - lo + 1) / float(wid)
+    True when `ground` is the page, or when some slab of that colour drawn
+    BEFORE this element contains the whole box."""
+    if ground == page:
+        return True
+    if box is None:
+        return False
+    x0, y0, x1, y1 = box
+    for kind, geom, o, fill in opaque:
+        if o >= order or fill != ground:
+            continue
+        if kind == "rect":
+            gx0, gy0, gx1, gy1 = geom
+            if gx0 <= x0 and gy0 <= y0 and gx1 >= x1 and gy1 >= y1:
+                return True
+        elif kind == "circle":
+            cx, cy, r = geom
+            if all((px - cx) ** 2 + (py - cy) ** 2 <= r * r
+                   for px in (x0, x1) for py in (y0, y1)):
+                return True
+    return False
 
 
-def _rgb(hexc):
-    return np.array([int(hexc[i:i + 2], 16) for i in (1, 3, 5)], np.int16)
+# ⚠⚠ `texto_legible()` WAS HERE AND IT IS RETRACTED, IN THE SOURCE, IN THE
+# REVISION THAT SHIPPED IT (rule 13).  It was the FIFTH instrument written for
+# one defect -- the A-frame's vignette disc eating the middle of
+# `TAQUERIA y CERVECERIA` -- and it was renamed rather than retracted: the
+# commit that shipped it called the fourth "defeated by the disc's own outline"
+# and then published the fourth's numbers under the heading `type PRESENT`.
+#
+# MEASURED on the ablation sheet: it scored the EATEN run at gap 0.250 em /
+# extent 0.993 -- more intact than the two undamaged runs on the same sheet,
+# and 4.8x inside its own 1.20 bar.  Its window was `near(..., tol=90)`, at
+# which GRANA/TINTA (delta 60), TINTA/F_AZUL (80), CREMA/F_ORO (90) and 37
+# other pairs of this palette are the same colour.
+#
+# A row that cannot fail on its own defect is worse than no row, because it
+# certifies.  Occlusion is measured by `tapado()`, on geometry.
 
-
-def hero_crop(png_path, w_mm, h_mm, box):
-    """The RENDERED pixels inside a hero box, in the box's own frame."""
-    im = Image.open(png_path).convert("RGB")
-    a = np.asarray(im).astype(np.int16)
-    H, W = a.shape[:2]
-    x0 = int(round(box[0] / w_mm * W)); x1 = int(round(box[2] / w_mm * W))
-    y0 = int(round(box[1] / h_mm * H)); y1 = int(round(box[3] / h_mm * H))
-    x0 = max(0, x0); y0 = max(0, y0); x1 = min(W, x1); y1 = min(H, y1)
-    return a[y0:y1, x0:x1]
-
-
-def near(a, hexc, tol=26):
-    """Pixels within `tol` of a colour, per channel, in the CROP.  This is the
-    window every count below is taken through, and `--paint` writes it out."""
-    return (np.abs(a - _rgb(hexc)).max(axis=2) <= tol)
-
+# `hero_crop`, `near` and `_rgb` WERE HERE.  They existed only for the
+# colour-tolerance keyline count, and that count was green with the keylines
+# deleted; the differential that replaced it needs no colour model at all.
+# Removed in the revision that orphaned them, not left to be found later.
 
 def margin_clean(png_path, w_mm, h_mm, margin_mm, tol=0.004):
     """Read the RENDERED sheet and report the fraction of the margin band that
@@ -415,9 +403,13 @@ def put_wordmark(L, cx, top, width, ink=TINTA, ground=None):
         ink = TINTA
     comps, w, h = wordmark()
     s = width / float(w)
+    order0 = len(L.body)
     L.paths(trazo.to_svg_paths(comps, scale=s, dx=cx - width / 2.0, dy=top), ink)
-    MARCAS.append({"piece": PIEZA[0], "ink": ink,
+    mbox = (cx - width / 2.0, top, cx + width / 2.0, top + h * s)
+    MARCAS.append({"piece": PIEZA[0], "ink": ink, "declared": ground is not None,
                    "ground": (ground or GROUND[0]),
+                   "sobre": (ground is None or
+                             sobre(mbox, L.opaque, order0, ground, GROUND[0])),
                    "ratio": estilo_vec.contrast(ink, ground or GROUND[0])})
     return h * s
 
@@ -444,13 +436,25 @@ def put_hero(L, style, box, mural="fino", ink=None, ground=None):
     else -- a vignette disc, a band.  The keyline is chosen against whatever
     the drawing is actually printed over, so putting a cream vehicle on a
     cream disc cannot silently reproduce the defect the disc was added for."""
+    order0 = len(L.body)
     lay, wh = estilo_vec.layers(TAG, style, box, mural=mural, ink=ink,
                                 ground=(ground or GROUND[0]))
     kw = max(0.10, wh[1] * 0.0026)      # keyline weight scales with the drawing
+    # the artwork's OWN box after aspect-fitting, not the box asked for
+    cxb = (box[0] + box[2]) / 2.0; cyb = (box[1] + box[3]) / 2.0
+    abox = (cxb - wh[0] / 2.0, cyb - wh[1] / 2.0,
+            cxb + wh[0] / 2.0, cyb + wh[1] / 2.0)
+    # the drawing's own bounding box, as an occluder: `_poster` draws its
+    # subhead BEFORE the hero, so a hero that grew upward would eat it
+    L.opaque.append(("rect", abox, len(L.body), lay[0][1] if lay else None))
     for ds, col, key in lay:
         L.paths(ds, col, stroke=key, stroke_w=(kw if key else 0.0))
         DRAWN.append({"piece": PIEZA[0], "style": style,
                       "ground": (ground or GROUND[0]),
+                      "declared": ground is not None,
+                      "sobre": (ground is None or
+                                sobre(abox, L.opaque, order0, ground,
+                                      GROUND[0])),
                       "fill": col, "key": key, "box": box, "kw": kw})
     return wh
 
@@ -501,16 +505,29 @@ def p_aframe(g, L):
     # another.  Rows 7.4 to 19.6 are empty by construction, and the radius is
     # clamped to the live width so the same expression works on any format.
     # THE ABLATION IS THE DEFECT ITSELF, restored: the disc as it was first
-    # written.  `T1_PLIEGO_OCLUIR=1` puts it back over the subhead, and the
-    # `type PRESENT` row must go red -- a check that has only ever been watched
-    # passing is not a check (rule 3).
+    # written.  `T1_PLIEGO_OCLUIR=1` puts it back over the subhead and the
+    # `occlusion` row reds at 53.3 % covered against 0.0 % clean -- watched.
+    # ⚠ AN EARLIER VERSION OF THIS COMMENT NAMED THE `type PRESENT` ROW, WHICH
+    # THIS ABLATION DOES NOT RED AND NEVER DID.  That row is retracted; see the
+    # block where `texto_legible` used to be.  A comment invoking rule 3 for a
+    # control nobody watched is the defect rule 3 exists for.
     if os.environ.get("T1_PLIEGO_OCLUIR") == "1":
         r = g.span(11) / 2.0; cy = g.y(12.4)
     else:
         r = min((g.y(19.6) - g.y(7.4)) / 2.0, (g.w - 2 * g.m) / 2.0)
         cy = (g.y(19.6) + g.y(7.4)) / 2.0
     L.circle(g.w / 2.0, cy, r, HUESO, stroke=GRANA, stroke_w=g.s / 420.0)
+    # THE ABLATION FOR THE DECLARED-GROUND ROW.  ⚠ MEASURED, because the
+    # audit that asked for this check reported the clearance as ONE MILLIMETRE
+    # and it is not: the artwork's fitted box is 334.15 x 223.99 mm centred on
+    # the disc, so its corners sit 186.2 mm from the centre against a 203.3 mm
+    # radius -- 17.1 mm of clearance, and the growth factor that crosses the
+    # rim is 1.092, not 1.08.  The first ablation written here was 1.08 and it
+    # DID NOT RED THE ROW; a control has to be watched failing before it counts
+    # (rule 3), and this one was.
     bw = r * 1.72; bh = r * 1.02
+    if os.environ.get("T1_PLIEGO_DESBORDE") == "1":
+        bw *= 1.15; bh *= 1.15
     put_hero(L, "plano",
              (g.w / 2.0 - bw / 2.0, cy - bh / 2.0,
               g.w / 2.0 + bw / 2.0, cy + bh / 2.0), ground=HUESO)
@@ -555,7 +572,12 @@ def p_volante(g, L):
     for it in MENU:
         T(L, g, g.w / 2.0, y, it, "display", g.pt(-0.5), AZUL)
         y += g.base * 1.55
-    T(L, g, g.w / 2.0, g.y(23.1), "MENU DE MUESTRA", "cond", g.pt(-1.8), ROJO,
+    # ⚠ THE SAME CLAUSE AS `carta`.  Both print `MENU_MEDIDO`, which came off
+    # the mural lid (F372); one of them said so and the other did not, on the
+    # same five strings -- a provenance claim that varies by piece is not a
+    # provenance claim.
+    T(L, g, g.w / 2.0, g.y(23.1), "MENU DE MUESTRA · TOMADO DEL MURAL",
+           "cond", g.pt(-1.8), ROJO,
            tracking=g.pt(-1.8) * 0.16)
     T(L, g, g.w / 2.0, g.y(23.9), PROV, "cond", g.pt(-2.3), ROJO,
            tracking=g.pt(-2.3) * 0.1)
@@ -666,6 +688,19 @@ def main(argv):
     os.makedirs(OUT, exist_ok=True)
     print("pliego.py -- print set, SVG masters, %d mm sheets" % len(PIEZAS))
 
+    # ⚠⚠ THE FONT FILES ARE LOAD-BEARING FOR FOUR CHECKS, AND WITHOUT THEM ALL
+    # FOUR GO SILENT RATHER THAN RED.  Measured with `lienzo.FACES` pointed at
+    # nonexistent paths: `T()` computes no boxes, so `tapado` reports 0.0 % for
+    # every run; `fit_pt` applies no shrink; `DEMASIADO` stays empty; and the
+    # build printed "41 checked, 0 FAILED" with no FAIL and no mention.  That
+    # is F380's failure mode in four rows at once, and it is what a COLD CLONE
+    # with no `fonts/` would have seen.  So the faces are checked FIRST.
+    faces = sorted((k, v) for k, v in lienzo.FACES.items())
+    miss_f = [k for k, v in faces if not os.path.exists(v)]
+    ck(not miss_f, "faces: %d declared, %d resolve on disk%s"
+       % (len(faces), len(faces) - len(miss_f),
+          ("  <-- MISSING " + ", ".join(miss_f)) if miss_f else ""))
+
     made = []
     for cat, name, w, h, ground, fn in PIEZAS:
         if only and only not in (cat, name): continue
@@ -703,6 +738,23 @@ def main(argv):
 
     stems0 = {n: (w, h, st) for _c, n, w, h, _g, st in made}
 
+    # ⚠ `lienzo.pdf_page_mm` EXISTED, ITS DOCSTRING SAID "THE BUILD NEVER
+    # CHECKED EITHER, so eleven US-Letter documents shipped as print masters",
+    # AND THE BUILD STILL NEVER CHECKED.  A retracted defect with a live
+    # docstring and no caller is not fixed, it is remembered.
+    pw = []
+    for _c, name, w, h, _g, st in made:
+        mm, pages = lienzo.pdf_page_mm(st + ".pdf")
+        if mm is None:
+            pw.append("%s NO /MediaBox" % name); continue
+        d = max(abs(mm[0] - w), abs(mm[1] - h))
+        if pages != 1 or d > 0.30:
+            pw.append("%s %.3f x %.3f mm, %d page(s)" % (name, mm[0], mm[1], pages))
+    if made:
+        ck(not pw, "PDF page size: %d document(s), each 1 page within 0.30 mm "
+                   "of its declared size%s"
+           % (len(made), ("  <-- " + " | ".join(pw[:3])) if pw else ""))
+
     # ============================================================ THE GRID
     # The docstring on `Rejilla` claims one invariance and disclaims another.
     # Both are MEASURED here rather than asserted, over the formats that were
@@ -719,10 +771,18 @@ def main(argv):
         # the bar on the columns is the GUTTER TERM, computed from the built
         # formats -- an independently obtained quantity, not this expression
         gt = max(g.gut / (w - 2 * g.m) for _c, _n, w, _h, g, _st in made)
+        # ⚠ THIS ROW CANNOT FAIL AND IT IS PRINTED, NOT ASSERTED AWAY.  Both
+        # halves are identities: `(y(k)-m)/(h-2m) == k/rows` exactly, so `dy`
+        # measures float noise, and `dx` is `(i/cols) * spread(gut/(w-2m))`
+        # against a bar that is `max(gut/(w-2m))` -- the same term (rule 6).
+        # Over 4000 random format sets the audit found max(dx - gt) = 0.
+        # It stays because the THIRD number is not an identity and is the one
+        # that refuted this grid's docstring: `y(k)/h` spreads 2.78e-02.
         ck(dy < 1e-12 and dx <= gt + 1e-12,
-           "grid: rows exact in the usable box (spread %.1e); columns within "
-           "the gutter term (%.4f vs %.4f); NEITHER invariant on the sheet "
-           "(y(k)/h spreads %.4f) -- %d formats"
+           "grid (identity, cannot fail -- the third figure is the live one): "
+           "rows exact in the usable box (spread %.1e); columns within the "
+           "gutter term (%.4f vs %.4f); NEITHER invariant on the sheet "
+           "(y(k)/h spreads %.4f) -- %d format(s)"
            % (dy, dx, gt, dsh, len(made)))
 
     # THE TYPE SCALE.  Every run is authored on a 1.335 scale and then shrunk
@@ -731,13 +791,37 @@ def main(argv):
     # between knowing that and believing the docstring.
     if FIT:
         worst = min(FIT, key=lambda r: r[2])
+        # ⚠ BOTH DIRECTIONS.  The row used to count only runs the measure
+        # SHRANK; the 1.8 mm floor moves runs UP off the scale too, and those
+        # were excluded by construction -- three of them, to 1.83x.
         nsh = sum(1 for r in FIT if r[2] < 0.999)
+        ngr = sum(1 for r in FIT if r[2] > 1.001)
+        big = max(FIT, key=lambda r: r[2])
         ck(worst[2] > 0.45,
-           "type: %d of %d run(s) shrunk off the 1.335 scale; worst %.3f x on "
-           "%s %r (tracking follows the shrink)"
-           % (nsh, len(FIT), worst[2], worst[0], worst[1]))
+           "type: %d of %d run(s) shrunk off the 1.335 scale (worst %.3f x on "
+           "%s %r) and %d raised off it by the floor (most %.3f x on %s %r); "
+           "tracking follows both"
+           % (nsh, len(FIT), worst[2], worst[0], worst[1], ngr, big[2],
+              big[0], big[1]))
+        if KERN:
+            ck(min(KERN) <= 1.0 + 1e-9,
+               "kerning: over %d fit trial(s) the kerned width is %.4f-%.4f x "
+               "the per-glyph sum, so the wider of the two is ALWAYS the sum "
+               "and the string measure never changes a decision"
+               % (len(KERN), min(KERN), max(KERN)))
 
     # ================================================== IS THE TYPE THERE
+    # EVERY DECLARED GROUND, MEASURED.  A declaration nothing checks is an
+    # assumption that the checks reading it then certify.
+    dec = [d for d in DRAWN + MARCAS if d["declared"]]
+    off = [d for d in dec if not d["sobre"]]
+    if dec:
+        ck(not off, "declared grounds: %d element(s) say they are printed on "
+                    "something other than the page; %d are not inside it%s"
+           % (len(dec), len(off),
+              ("  <-- " + " | ".join("%s on %s" % (d["piece"], d["ground"])
+                                     for d in off[:3])) if off else ""))
+
     if MARCAS:
         wm = min(MARCAS, key=lambda m: m["ratio"])
         ck(wm["ratio"] >= MARCA_BAR,
@@ -748,33 +832,15 @@ def main(argv):
 
     cov = sorted(((t.get("tapado", 0.0), t["piece"], t["s"][:30])
                   for t in TEXTS), reverse=True)
+    # A run with no box is a run `tapado` cannot test, and it would report 0.0
+    # for it -- indistinguishable from clear.  Counted, not assumed.
+    noboxes = sum(1 for t in TEXTS if t["box"] is None)
     if cov:
-        ck(cov[0][0] <= 0.02,
-           "occlusion: %d run(s) tested against every slab drawn after them; "
-           "worst covered %.1f %% -- %s %r"
-           % (len(cov), 100 * cov[0][0], cov[0][1], cov[0][2]))
-
-    rat = []
-    for t in TEXTS:
-        if t["piece"] not in stems0: continue
-        w, h, st = stems0[t["piece"]]
-        gap, ext = texto_legible(st + ".png", w, h, t)
-        if gap is None: continue
-        rat.append((gap, ext, t["piece"], t["s"][:26]))
-    rat.sort(reverse=True)
-    if rat:
-        print("   type read back off the sheet, widest 8 gaps of %d run(s):"
-              % len(rat))
-        for r in rat[:8]:
-            print("     gap %5.2f em   extent %.3f   %-10s %s"
-                  % (r[0], r[1], r[2], r[3]))
-        worst_g = rat[0]
-        worst_e = min(rat, key=lambda r: r[1])
-        ck(worst_g[0] <= GAP_EM and worst_e[1] >= EXT_FRAC,
-           "type PRESENT: %d run(s); widest hole %.2f em on %s %r (bar %.2f); "
-           "narrowest extent %.3f on %s %r (bar %.2f)"
-           % (len(rat), worst_g[0], worst_g[2], worst_g[3], GAP_EM,
-              worst_e[1], worst_e[2], worst_e[3], EXT_FRAC))
+        ck(cov[0][0] <= 0.02 and not noboxes,
+           "occlusion: %d run(s), %d with a measurable box, tested against "
+           "every slab drawn after them; worst covered %.1f %% -- %s %r"
+           % (len(cov), len(TEXTS) - noboxes, 100 * cov[0][0], cov[0][1],
+              cov[0][2]))
 
     ck(not DEMASIADO, "type floor: %.2f mm; %d run(s) could not fit their "
                       "measure at it%s"
@@ -797,9 +863,15 @@ def main(argv):
                 lies.append("%s says %r, drew %s"
                             % (t["piece"], es,
                                "/".join(sorted(drew.get(t["piece"], ()))) or "nothing"))
-    ck(not lies, "colophons: %d run(s) checked against the styles actually "
-                 "drawn, %d misnamed%s"
-       % (len(TEXTS), len(lies), ("  <-- " + " | ".join(lies[:3])) if lies else ""))
+    # ⚠ THE REACH, NOT THE POPULATION.  This row used to print "37 run(s)
+    # checked"; only the runs that NAME a style are comparable, and a piece
+    # that names none can never be caught by it.
+    named = [t for t in TEXTS if any(e in t["s"] for e in ESTILO_ES.values())]
+    ck(not lies, "colophons: %d of %d run(s) name a style, on %d of %d "
+                 "piece(s); %d misnamed%s"
+       % (len(named), len(TEXTS), len({t["piece"] for t in named}),
+          len({t["piece"] for t in TEXTS}), len(lies),
+          ("  <-- " + " | ".join(lies[:3])) if lies else ""))
 
     # ============================================================ VISIBILITY
     # ⚠ THIS IS THE CLASS THAT HAS SHIPPED MOST OFTEN IN THIS PROJECT: a shape
@@ -826,50 +898,120 @@ def main(argv):
         if min(kg, kf) < estilo_vec.KEY_BAR:
             bad.append("%s keyline %s only %.3f/%.3f"
                        % (d["piece"], d["key"], kg, kf))
-    ck(not bad, "ink/ground: %d fill(s) drawn, %d needed a keyline, %d "
-                "UNSEEABLE%s"
-       % (len(DRAWN), sum(1 for d in DRAWN if d["key"]), len(bad),
-          ("  <-- " + " | ".join(bad[:3])) if bad else ""))
-
-    # (b) PIXEL: the keyline is asserted to be PRINTED, counted in the rendered
-    #     sheet through a window that is written to disk and looked at.  An
-    #     analytic table alone would only prove the intention (rule 10).
-    stems = stems0
-    seen = set(); shown = 0; miss = []
-    for d in DRAWN:
-        if d["key"] is None or d["piece"] not in stems: continue
-        k = (d["piece"], d["fill"], d["key"])
-        if k in seen: continue
-        seen.add(k)
-        w, h, st = stems[d["piece"]]
-        a = hero_crop(st + ".png", w, h, d["box"])
-        m = near(a, d["key"])
-        n = int(m.sum())
-        # INDEPENDENT SCALE, not a typed constant: the keyline is `kw` mm wide
-        # and the drawing is `box` wide, so one stroke crossing the box once is
-        # already this many pixels.  Anything less than that is not a line.
-        px_mm = a.shape[1] / max(1e-6, (d["box"][2] - d["box"][0]))
-        floor = max(8.0, d["kw"] * px_mm * a.shape[0] * 0.05)
-        if n < floor: miss.append("%s %s %d px < %.0f" % (d["piece"], d["key"], n, floor))
-        else: shown += 1
-        if paint:
-            im = Image.fromarray(a.astype(np.uint8)).copy()
-            q = np.asarray(im).copy(); q[m] = (255, 0, 255)
-            Image.fromarray(q).save(os.path.join(
-                OUT, "pl_VENTANA_%s_%s_sobre_%s.png"
-                % (d["piece"], d["fill"].lstrip("#"), d["key"].lstrip("#"))))
-    # ⚠ AN EMPTY MATCH SET IS NOT A PASS.  F380 is exactly this row's failure
-    # mode one file over: with keylines switched off there is nothing to count,
-    # and "0 of 0 found" would print green over the defect the row exists for.
-    # So the row also asserts that every sub-bar fill HAS a keyline to look for.
     unkeyed = sum(1 for d in DRAWN
-                  if estilo_vec.contrast(d["fill"], d["ground"]) < estilo_vec.KEY_BAR
-                  and d["key"] is None)
-    ck(not miss and not unkeyed,
-       "keylines PRINTED: %d of %d found in the rendered sheet; %d sub-bar "
-       "fill(s) with no keyline to look for%s"
-       % (shown, shown + len(miss), unkeyed,
-          ("  <-- " + " | ".join(miss[:3])) if miss else ""))
+                  if estilo_vec.contrast(d["fill"], d["ground"])
+                  < estilo_vec.KEY_BAR and d["key"] is None)
+    # ⚠ ON ITS OWN THIS IS A TAUTOLOGY AND THE AUDIT PROVED IT (rule 6).  Over
+    # every fill x ground pair this palette can make, branch 2 trips on 0 of 72
+    # keylines -- it re-checks the condition `keyline_for` already enforces,
+    # with the same function and the same bar -- and branch 1 fires on 0 pairs,
+    # because no pair in this palette defeats 1.35 without one.  Its only red
+    # is the forced ablation.
+    #
+    # So the row also asserts the half that is NOT derived from the record:
+    # every ink actually written into the SVG must be one this module knows it
+    # drew.  THE WORDMARK ESCAPED EVERY CHECK FOR EXACTLY THIS REASON -- it was
+    # painted, and nothing compared what was painted against what was recorded.
+    import re as _re
+    known = ({d["fill"] for d in DRAWN} | {d["key"] for d in DRAWN if d["key"]}
+             | {m["ink"] for m in MARCAS} | {t["fill"] for t in TEXTS}
+             | {g for _c, _n, _w, _h, g, _f in PIEZAS} | set(PALETA))
+    unknown = set()
+    for _c, name, _w, _h, _g, st in made:
+        for m in _re.finditer(r'(?:fill|stroke)="(#[0-9A-Fa-f]{6})"',
+                              open(st + ".svg").read()):
+            if m.group(1).upper() not in {k.upper() for k in known}:
+                unknown.add("%s %s" % (name, m.group(1)))
+    ck(not bad and not unknown,
+       "ink/ground: %d fill(s) drawn, %d needed a keyline, %d UNSEEABLE; "
+       "%d ink(s) in the SVGs that no record accounts for%s"
+       % (len(DRAWN), sum(1 for d in DRAWN if d["key"]), len(bad),
+          len(unknown),
+          ("  <-- " + " | ".join(sorted(unknown)[:3] or bad[:3]))
+          if (bad or unknown) else ""))
+
+    # (b) DIFFERENTIAL: the sheet is rendered a SECOND time with the keylines
+    #     suppressed, and the two proofs are subtracted.  Whatever is different
+    #     IS the keylines; nothing else on the page moved.
+    #
+    # ⚠⚠ THE ROW THIS REPLACES COUNTED PIXELS `near(a, key)` AT tol=26 AND WAS
+    # GREEN WITH THE KEYLINES PHYSICALLY DELETED.  The adversary stripped all
+    # nine `stroke="#0E1B2E"` attributes out of the committed
+    # `pl_calle_aframe.svg`, re-rendered, and the count went 409 901 -> 282 379
+    # against a floor of 347: it passed by 814x.  At tol=26 the AZUL_CUERPO
+    # keyline and TINTA are 22 apart, so the row was counting the tyres, the
+    # flank script and the roundel -- and the rule-8 windows it shipped as
+    # evidence show exactly that, magenta over the tyres, if they are opened.
+    # THAT IS THE FIFTH INSTRUMENT IN THIS MODULE TO BE GREEN ON ITS OWN
+    # DEFECT, AND THE FOURTH FOUND BY SOMEONE ELSE LOOKING.
+    #
+    # A difference cannot be fooled by two inks being close, because it does
+    # not ask what colour anything is.
+    npiece = {}
+    for d in DRAWN:
+        if d["key"]:
+            npiece[d["piece"]] = npiece.get(d["piece"], 0) + 1
+    diffs = []
+    if npiece:
+        estilo_vec.NOKEY[0] = True
+        try:
+            for cat, name, w, h, ground, fn in PIEZAS:
+                if name not in npiece or name not in stems0: continue
+                GROUND[0] = ground; PIEZA[0] = name
+                g2 = Rejilla(w, h); L2 = lienzo.Lienzo(w, h, bg=ground)
+                n0 = len(TEXTS); m0 = len(MARCAS); f0 = len(FIT)
+                d0 = len(DRAWN); q0 = len(DEMASIADO)
+                fn(g2, L2)
+                del TEXTS[n0:], MARCAS[m0:], FIT[f0:], DRAWN[d0:], DEMASIADO[q0:]
+                sv = L2.save_svg(os.path.join(OUT, "_sinfilete.svg"))
+                pn = os.path.join(OUT, "_sinfilete.png")
+                # ⚠ THE SAME dpi.  The first version rendered this copy at 90
+                # against the sheet's own dpi and resampled one onto the other:
+                # the difference was then dominated by RESAMPLING, marking the
+                # whole vehicle, the wordmark and every text run as changed.
+                # It read 5.25 % where the keylines are worth a fraction of
+                # that -- a sixth wrong instrument, caught before it was
+                # published by PAINTING THE WINDOW AND LOOKING (rule 8), which
+                # is the only thing that has ever caught one of these.
+                L2.render(sv, png=pn, dpi=dpi)
+                a = np.asarray(Image.open(stems0[name][2] + ".png")
+                               .convert("RGB")).astype(np.int16)
+                b = np.asarray(Image.open(pn).convert("RGB")).astype(np.int16)
+                if a.shape != b.shape:
+                    diffs.append((0.0, name, npiece[name])); continue
+                m = np.abs(a - b).max(axis=2) > 24
+                ch = float(m.sum()) / a[:, :, 0].size
+                diffs.append((ch, name, npiece[name]))
+                if paint:
+                    q = b.copy(); q[m] = (255, 0, 255)
+                    Image.fromarray(q.astype(np.uint8)).save(os.path.join(
+                        OUT, "pl_FILETE_%s.png" % name))
+        finally:
+            estilo_vec.NOKEY[0] = False
+            for f in ("_sinfilete.svg", "_sinfilete.png"):
+                fp = os.path.join(OUT, f)
+                if os.path.exists(fp): os.remove(fp)
+    # THE FLOOR IS OBTAINED INDEPENDENTLY of the difference: a keyline is `kw`
+    # mm wide and the drawing it outlines is `bh` mm tall, so ONE stroke down
+    # one side of one shape is already this fraction of the sheet.  Nothing
+    # here is derived from the pixels being counted.
+    floor = 6e-5
+    worstd = min(diffs) if diffs else None
+    nkey = sum(1 for d in DRAWN if d["key"])
+    if nkey == 0:
+        # NOT an empty-set pass: it asserts the analytic row's own count, so
+        # "nothing to difference" can only be green when nothing needed one.
+        ck(not unkeyed and not npiece,
+           "keylines DIFFERENTIAL: no fill on any sheet needed a keyline, and "
+           "%d fill(s) are below the bar without one" % unkeyed)
+    else:
+        ck(bool(diffs) and worstd[0] >= floor,
+           "keylines DIFFERENTIAL: %d sheet(s) rendered twice, with and "
+           "without; weakest change %.5f %% of the sheet on %s (%d keylines, "
+           "floor %.5f %%)"
+           % (len(diffs), 100 * (worstd[0] if worstd else 0.0),
+              worstd[1] if worstd else "-", worstd[2] if worstd else 0,
+              100 * floor))
 
     if not only and made:
         cells = []
