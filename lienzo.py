@@ -67,16 +67,34 @@ class Lienzo(object):
     as `sheet.py`, deliberately, so the two describe space the same way."""
 
     def __init__(self, w_mm, h_mm, bg="#ffffff"):
+        self.opaque = []
         self.w, self.h, self.bg = float(w_mm), float(h_mm), bg
         self.body = []
         self.defs = []
         self._fonts = set()
 
     # ------------------------------------------------------------ primitives
+    # WHAT IS PAINTED OVER WHAT.  Every opaque slab records its geometry and
+    # its position in draw order, so an element drawn earlier can be tested for
+    # being covered.  ⚠ CEILING: slabs only -- `rect`, `circle` and the page.
+    # Traced `paths` are not in here, and on every layout in `pliego.py` the
+    # drawing is laid down before the type, so the gap that matters is closed;
+    # a layout that put a hero on top of a text run would not be caught.
     def rect(self, x, y, w, h, fill, rx=0):
+        self.opaque.append(("rect", (x, y, x + w, y + h), len(self.body)))
+        return self._rect(x, y, w, h, fill, rx)
+
+    def _rect(self, x, y, w, h, fill, rx=0):
         self.body.append(
             '<rect x="%.3f" y="%.3f" width="%.3f" height="%.3f" rx="%.3f" '
             'fill="%s"/>' % (x, y, w, h, rx, fill))
+
+    def circle(self, cx, cy, r, fill, stroke=None, stroke_w=0.0):
+        self.opaque.append(("circle", (cx, cy, r), len(self.body)))
+        sk = ('' if not stroke else
+              ' stroke="%s" stroke-width="%.4f"' % (stroke, stroke_w))
+        self.body.append('<circle cx="%.3f" cy="%.3f" r="%.3f" fill="%s"%s/>'
+                         % (cx, cy, r, fill, sk))
 
     def line(self, x1, y1, x2, y2, stroke, w=0.4, dash=None):
         d = ' stroke-dasharray="%s"' % dash if dash else ""
@@ -90,13 +108,23 @@ class Lienzo(object):
             'stroke="%s" stroke-width="%.3f"/>'
             % (inset, inset, self.w - 2 * inset, self.h - 2 * inset, stroke, w))
 
-    def paths(self, ds, fill, opacity=1.0):
+    def paths(self, ds, fill, opacity=1.0, stroke=None, stroke_w=0.0):
         """Traced contours as ONE path element with even-odd fill, so holes are
-        holes rather than a second shape painted in the ground colour."""
+        holes rather than a second shape painted in the ground colour.
+
+        `stroke` is the KEYLINE.  A flat fill whose colour is close to the page
+        cannot be seen at all -- the cream upper body on a cream card was a
+        traced, rasterised, printed shape at 1.17:1.  Stroking that same path
+        is what a screen-printer does, and it keeps the drawing's own colour
+        instead of moving it."""
         if not ds:
             return
-        self.body.append('<path fill="%s" fill-rule="evenodd" opacity="%.3f" '
-                         'd="%s"/>' % (fill, opacity, " ".join(ds)))
+        sk = ""
+        if stroke and stroke_w > 0:
+            sk = (' stroke="%s" stroke-width="%.4f" stroke-linejoin="round"'
+                  % (stroke, stroke_w))
+        self.body.append('<path fill="%s" fill-rule="evenodd" opacity="%.3f"%s '
+                         'd="%s"/>' % (fill, opacity, sk, " ".join(ds)))
 
     def text(self, x, y, s, face, size_mm, fill, anchor="middle",
              tracking=0.0, weight=None, caps=False):
@@ -139,32 +167,98 @@ class Lienzo(object):
                 "rasteriser is a different drawing (rule 37)." % SHELL)
         return SHELL
 
+    def _wrap(self, svg_path):
+        """An HTML document with the SVG INLINE and the page sized to the sheet.
+
+        ⚠⚠ TWO DECISIVE DEFECTS ARE FIXED BY THIS ONE CHANGE, AND BOTH SHIPPED.
+        The first version wrote `<img src=...svg>` and screenshotted it, and
+        called `--print-to-pdf` on the SVG directly.
+
+        1  **EVERY PNG PROOF WAS SET IN A FALLBACK SERIF.**  An SVG loaded
+           through `<img>` renders in a RESTRICTED RESOURCE MODE where
+           `@font-face` `file://` URLs do not load -- so Oswald and Alfa Slab
+           One never reached any proof, while the PDF (loaded as a document)
+           embedded them correctly.  The module claimed *"all three come from
+           THE SAME FILE, so they cannot drift"*; they drifted in TYPEFACE.
+           It also caused the colophon overrun on three posters: `fit_pt`
+           measured Oswald, Chromium drew a ~26 % wider serif.
+        2  **EVERY PDF WAS US LETTER.**  `--print-to-pdf` with no page size
+           gives 612 x 792 pt for sheets of 600 x 900 mm, so five of eleven
+           paginated and the A-frame's RIGHT HALF WAS NOT IN ITS OWN PDF.
+
+        Inlining the SVG in a document with `@page {size: W H; margin:0}` fixes
+        both: fonts load, and the page is the sheet.
+        """
+        svg = open(svg_path).read()
+        svg = svg[svg.index("<svg"):]
+        html = svg_path + ".doc.html"
+        open(html, "w").write(
+            "<!doctype html><html><head><meta charset='utf-8'><style>"
+            "@page{size:%.4fmm %.4fmm;margin:0}"
+            "html,body{margin:0;padding:0;background:%s}"
+            "svg{display:block;width:%.4fmm;height:%.4fmm}"
+            "</style></head><body>%s</body></html>"
+            % (self.w, self.h, self.bg, self.w, self.h, svg))
+        return html
+
     def render(self, svg_path, png=None, pdf=None, dpi=300):
-        """PNG proof and/or PDF, BOTH rendered from the SVG file itself."""
+        """PNG proof and PDF, BOTH from the same inlined document."""
         outs = []
+        # ⚠ `--disable-lcd-text`: Chromium's default subpixel antialiasing bakes
+        # RGB COLOUR FRINGES into every glyph edge.  On screen that is a feature;
+        # in a one- or two-colour print master it is contamination -- the
+        # painted window on `postal`'s provenance line showed blue and orange
+        # edges on type specified as a single GRANA.  `--font-render-hinting=none`
+        # keeps outlines at their designed shapes instead of snapping stems to
+        # the raster grid, which is what you want when the raster is a proof of
+        # a vector master.
         base = ["--headless", "--disable-gpu", "--no-sandbox",
-                "--hide-scrollbars", "--force-device-scale-factor=1",
-                "--default-background-color=00000000"]
-        url = "file://" + os.path.abspath(svg_path)
-        if png:
-            wpx = int(round(self.w / MM * dpi)); hpx = int(round(self.h / MM * dpi))
-            html = svg_path + ".render.html"
-            open(html, "w").write(
-                "<html><head><style>html,body{margin:0;padding:0}"
-                "img{display:block;width:%dpx;height:%dpx}</style></head>"
-                "<body><img src='%s'></body></html>"
-                % (wpx, hpx, os.path.basename(svg_path)))
-            subprocess.run([self._shell()] + base +
-                           ["--screenshot=" + os.path.abspath(png),
-                            "--window-size=%d,%d" % (wpx, hpx),
-                            "file://" + os.path.abspath(html)],
-                           capture_output=True, timeout=180)
-            os.remove(html)
-            outs.append(png)
-        if pdf:
-            subprocess.run([self._shell()] + base +
-                           ["--no-pdf-header-footer",
-                            "--print-to-pdf=" + os.path.abspath(pdf), url],
-                           capture_output=True, timeout=180)
-            outs.append(pdf)
+                "--hide-scrollbars", "--disable-lcd-text",
+                "--font-render-hinting=none"]
+        html = self._wrap(svg_path)
+        url = "file://" + os.path.abspath(html)
+        try:
+            if png:
+                # ⚠ CSS MILLIMETRES ARE 96 dpi, NOT THE OUTPUT dpi.  Sizing the
+                # window in output pixels while the document lays out at 96 dpi
+                # left the sheet occupying only part of the frame and the rest
+                # showing body background -- which moved both margin readings.
+                # The window is CSS px; the DEVICE SCALE FACTOR carries the dpi.
+                cw = self.w / MM * 96.0; chh = self.h / MM * 96.0
+                r = subprocess.run(
+                    [self._shell()] + base +
+                    ["--force-device-scale-factor=%.6f" % (dpi / 96.0),
+                     "--screenshot=" + os.path.abspath(png),
+                     "--window-size=%d,%d" % (int(round(cw)), int(round(chh))),
+                     url],
+                    capture_output=True, timeout=300)
+                if not os.path.exists(png) or os.path.getsize(png) < 1000:
+                    raise SystemExit("RENDER FAILED (png) rc=%d: %s"
+                                     % (r.returncode, r.stderr[-400:]))
+                outs.append(png)
+            if pdf:
+                r = subprocess.run(
+                    [self._shell()] + base + ["--no-pdf-header-footer",
+                     "--print-to-pdf=" + os.path.abspath(pdf), url],
+                    capture_output=True, timeout=300)
+                if not os.path.exists(pdf) or os.path.getsize(pdf) < 1000:
+                    raise SystemExit("RENDER FAILED (pdf) rc=%d: %s"
+                                     % (r.returncode, r.stderr[-400:]))
+                outs.append(pdf)
+        finally:
+            if os.path.exists(html): os.remove(html)
         return outs
+
+
+def pdf_page_mm(path):
+    """The PDF's own /MediaBox in mm, and its page count.  ⚠ THE BUILD NEVER
+    CHECKED EITHER, so eleven US-Letter documents shipped as print masters."""
+    raw = open(path, "rb").read()
+    import re as _re
+    boxes = _re.findall(rb"/MediaBox\s*\[\s*([\d.\-]+)\s+([\d.\-]+)\s+"
+                        rb"([\d.\-]+)\s+([\d.\-]+)", raw)
+    pages = len(_re.findall(rb"/Type\s*/Page[^s]", raw))
+    if not boxes:
+        return None, pages
+    x0, y0, x1, y1 = [float(v) for v in boxes[0]]
+    return ((x1 - x0) * MM / 72.0, (y1 - y0) * MM / 72.0), pages

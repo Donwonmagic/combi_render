@@ -46,8 +46,34 @@ def T(L, g, x, y, s, face, pt, fill, anchor="middle", tracking=0.0, measure=None
     # column width still ran off three sheets.  The safety factor is authored,
     # and the RENDERED edge check below is what actually proves it.
     m = (measure if measure is not None else (g.w - 2 * g.m)) * 0.88
-    pt = fit_pt(s, face, pt, tracking, m)
-    L.text(x, y, s, face, pt, fill, anchor=anchor, tracking=tracking)
+    pt, k = fit_pt(s, face, pt, tracking, m)
+    if pt < MIN_TIPO_MM:
+        k = k * MIN_TIPO_MM / pt
+        pt = MIN_TIPO_MM
+        w_at_floor, _ = fit_pt(s, face, pt, tracking * k, m)
+        if w_at_floor < pt - 1e-9:
+            DEMASIADO.append((PIEZA[0], s[:34], round(m, 1)))
+    # tracking follows the size it was chosen for -- see fit_pt
+    L.text(x, y, s, face, pt, fill, anchor=anchor, tracking=tracking * k)
+    FIT.append((PIEZA[0], s[:28], round(k, 4)))
+    # the run's own box, in mm, from the FACE'S metrics -- so occlusion can be
+    # tested against the geometry rather than guessed at from pixels
+    box = None
+    fp = lienzo.FACES.get(face)
+    if fp and os.path.exists(fp) and s:
+        from PIL import ImageFont
+        u = 256
+        ff = ImageFont.truetype(fp, u)
+        adv = sum(ff.getlength(c) for c in s) * pt / u
+        wmm = adv + tracking * k * (len(s) - 1)
+        asc, desc = ff.getmetrics()
+        x0 = (x - wmm / 2.0 if anchor == "middle"
+              else x - wmm if anchor == "end" else x)
+        box = (x0, y - asc * pt / u, x0 + wmm, y + desc * pt / u)
+    TEXTS.append({"piece": PIEZA[0], "s": s, "x": x, "y": y, "pt": pt,
+                  "face": face, "fill": fill, "anchor": anchor,
+                  "tracking": tracking * k, "box": box,
+                  "order": len(L.body) - 1})
 
 OUT = "design_out/pliego"
 TAG = "sidehi"
@@ -62,6 +88,18 @@ CREMA = "#F0E7D1"; ROJO = "#AC2921"; GRANA = "#601A16"
 ORO   = "#DE9E2E"; TINTA = "#241E1E"; AZUL = "#1A2E54"
 CIELO = "#96BED6"; HUESO = "#FAF6EC"; PAPEL = "#EEE4CE"
 
+# ⚠ GROUNDS ARE NOT THE SAME VALUES AS THE INKS, AND THEY USED TO BE.  Seven of
+# eleven sheets painted artwork in EXACTLY the page colour -- `body_gold`,
+# `mural_gold`, `lidsign` and `countertan` are all ORO, and four sheets used ORO
+# as the ground; `body_cream`, `chrome`, `wheelcream`, `capwhite` and four more
+# are all CREMA, and three sheets used CREMA.  7.6 % of the A-frame's drawing
+# was painted in its own background.  These grounds are chosen to CLEAR the
+# palette, and `contrast()` now proves it every build.
+F_ORO   = "#F2CC77"     # gold ground, clear of ORO artwork
+F_PAPEL = "#E4D6B4"     # paper ground, clear of CREMA artwork
+F_AZUL  = "#22406E"     # blue ground, clear of the AZUL_CUERPO body
+F_NEGRO = "#141518"
+
 LETRERO = "TAQUERIA y CERVECERIA"
 MENU = ("GOURMET TACOS", "TORTAS", "FRESH JUICES",
         "CEVICHE / TOSTADAS", "SHRIMP & FISH")
@@ -69,9 +107,29 @@ PROV = "TEXTO: MEDIDO · LETRERO · AUTORADO"
 
 
 class Rejilla(object):
-    """One grid for the whole set.  Margin and column both derive from the
-    sheet's SHORT side, so a business card and an A-frame panel are the same
-    design at different sizes rather than two unrelated layouts."""
+    """One grid for the whole set.
+
+    ⚠ WHAT IS INVARIANT IS THE USABLE BOX, NOT THE SHEET.  Two earlier
+    versions of this docstring claimed more than that: the first said margin
+    and column together made every format "the same design at different
+    sizes", the second narrowed it to `y(k)/h`.  THE ROW IN `main` REFUTED THE
+    SECOND ON ITS FIRST RUN -- `y(k)/h` spreads 2.78e-02 across these eleven
+    formats, because the margin is `min(w, h)/12` and so is a different
+    fraction of the height on a portrait sheet than on a landscape one.
+
+    The true statement, and the one the layouts actually rely on:
+
+      * `(y(k) - m) / (h - 2m)` is EXACTLY `k / rows` on every format.  Row 6
+        is a quarter of the way down the usable box on an 85 mm card and on a
+        900 mm panel alike.
+      * `(x(i) - m) / (w - 2m)` is `(i / cols) * (1 + gut / (w - 2m))` -- the
+        columns are invariant only to within the gutter term, which is small
+        and format-dependent.
+      * NEITHER is invariant as a fraction of the SHEET, and cannot be: a
+        margin that is optically equal on all four sides is a constant
+        fraction of the short side and a varying fraction of the long one.
+
+    All three are measured in `main` rather than asserted here."""
 
     def __init__(self, w, h, cols=12):
         self.w, self.h, self.cols = float(w), float(h), cols
@@ -97,14 +155,29 @@ class Rejilla(object):
         """Type scale: a perfect fourth, anchored on the baseline unit."""
         return self.base * (1.335 ** step)
 
-    def h_(self, f):
-        """A height fraction of the usable box, for heroes that must scale with
-        the sheet rather than with a baseline count."""
-        return self.m + f * (self.h - 2 * self.m)
 
 
 # Pieces that bleed to the trim by design.  Declared, not tolerated silently.
 SANGRA = {"vaso"}
+
+# AUTHORED, and it will be moved to whatever the measurement supports -- see
+# the printed table under `type presence`.  It is a PRESENCE bar, not a
+# fidelity one: Chromium and PIL hint and kern differently, so an identical
+# run does not score 1.000.
+# AUTHORED, and both were placed AFTER watching the clean set and the
+# occlusion ablation print their numbers -- never the other way round (rule 5).
+GAP_EM = 1.20        # a word space is ~0.3 em; the disc ate about 5
+EXT_FRAC = 0.80      # inked width against the face's own metric for the run
+
+# ⚠ TYPE HAS A PHYSICAL FLOOR AND THE GRID DID NOT KNOW IT.  The type scale is
+# anchored on the baseline unit, and the baseline unit on an 85 x 55 mm card is
+# 1.91 mm, so `pt(-2.4)` asked for 0.90 mm -- about two and a half points.  The
+# card's provenance line rendered FOUR PIXELS of an expected 345 at 200 dpi:
+# set, checked, exported and invisible.  1.8 mm is roughly 5 pt, the smallest
+# size a colophon is set at in print.  A run that cannot fit its measure AT the
+# floor is a design problem, so it is reported rather than shrunk past it.
+MIN_TIPO_MM = 1.8
+DEMASIADO = []
 
 
 def edge_clean(png_path, frac=0.014):
@@ -122,21 +195,164 @@ def edge_clean(png_path, frac=0.014):
 
 
 def fit_pt(s, face, pt, tracking, max_mm):
-    """Shrink a size until the run fits its measure, using the FACE'S OWN
-    metrics.  ⚠ This is a PRE-FLIGHT, not the check: Chromium does the real
-    shaping and kerns tighter than this estimate, so it errs safe.  The check
-    that matters is `edge_clean`, which reads the rendered sheet."""
+    """-> (size_mm, factor).  Shrink a size until the run fits its measure.
+
+    ⚠ IT USED TO SUM PER-GLYPH ADVANCES -- `sum(getlength(c) for c in s)` --
+    which is the UN-KERNED width, the exact quantity its own next sentence
+    called Chromium's estimate wrong for.  It now measures the STRING, so the
+    pairs kern, and it keeps the per-glyph sum as an upper bound so the
+    pre-flight still errs wide rather than narrow.
+
+    ⚠ It returns the FACTOR as well as the size, because the caller's tracking
+    was computed for the size BEFORE this shrink: applying an unchanged
+    absolute tracking at 60 % of the size doubles the spacing relative to the
+    letterforms, which is what the foot lines on the small formats were doing.
+    """
     from PIL import ImageFont
     path = lienzo.FACES.get(face)
     if not path or not os.path.exists(path) or not s:
-        return pt
+        return pt, 1.0
+    pt0 = pt
     for _ in range(24):
         f = ImageFont.truetype(path, max(4, int(round(pt * 96 / 25.4))))
-        w_px = sum(f.getlength(c) for c in s) + tracking * (len(s) - 1) * 96 / 25.4
+        kerned = f.getlength(s)
+        loose = sum(f.getlength(c) for c in s)
+        w_px = max(kerned, loose) + tracking * (len(s) - 1) * 96 / 25.4
         if w_px * 25.4 / 96.0 <= max_mm:
-            return pt
+            return pt, pt / pt0
         pt *= 0.94
-    return pt
+    return pt, pt / pt0
+
+
+def tapado(box, opaque, order):
+    """-> fraction of a text run's box covered by a slab drawn AFTER it.
+
+    ⚠ THE DEFECT: the A-frame's vignette disc was drawn over
+    `TAQUERIA y CERVECERIA` and ate its middle -- the sign read
+    "TAQUE...CERIA" -- with every check on the piece green, and THREE
+    successive pixel instruments failed to see it.  The last of them was
+    defeated by the disc's own outline, which is this run's ink colour and
+    crosses the whole band, so every column reads inked.
+
+    Pixels cannot isolate one element from another.  Draw order and geometry
+    can, and both are exactly known here."""
+    if box is None:
+        return 0.0
+    x0, y0, x1, y1 = box
+    A = max(1e-9, (x1 - x0) * (y1 - y0))
+    hit = 0.0
+    for kind, geom, o in opaque:
+        if o <= order:
+            continue
+        if kind == "rect":
+            gx0, gy0, gx1, gy1 = geom
+            w = max(0.0, min(x1, gx1) - max(x0, gx0))
+            h = max(0.0, min(y1, gy1) - max(y0, gy0))
+            hit = max(hit, w * h / A)
+        elif kind == "circle":
+            cx, cy, r = geom
+            # sampled, not solved: a disc against a box has no one-line area,
+            # and a 40 x 12 lattice resolves a covered word without pretending
+            # to a precision this does not need
+            n = 0; tot = 40 * 12
+            for i in range(40):
+                px_ = x0 + (i + 0.5) * (x1 - x0) / 40.0
+                for j in range(12):
+                    py_ = y0 + (j + 0.5) * (y1 - y0) / 12.0
+                    if (px_ - cx) ** 2 + (py_ - cy) ** 2 <= r * r:
+                        n += 1
+            hit = max(hit, n / float(tot))
+    return hit
+
+
+def texto_legible(png_path, w_mm, h_mm, t, pad=1.9):
+    """-> (gap_em, extent_frac) for one text run, read off the RENDERED sheet.
+
+    ⚠ THE DEFECT THIS EXISTS FOR: the A-frame's vignette disc was drawn after
+    `TAQUERIA y CERVECERIA` and covered its middle -- the sign read
+    "TAQUE...CERIA" -- with every check on the piece green.  Nothing in this
+    module compared one element against another, and neither margin check can
+    see anything between the margins.
+
+    ⚠⚠ TWO EARLIER INSTRUMENTS FOR THIS WERE BOTH WRONG, AND BOTH PRINTED A
+    PLAUSIBLE NUMBER.  The first counted pixels within 26 of the ink colour
+    against PIL's own glyph pixels: it scored `postal`'s provenance line 0.207
+    and `tarjeta`'s 0.324, and the PAINTED WINDOW showed both fully set and
+    perfectly legible -- at 15 px most of a condensed face is partial coverage,
+    so that ratio measured TYPE SIZE, not presence.  The second weighted by ink
+    mass against a per-window background, and the window straddles a gold page
+    and a cream disc, so the second background counted as ink: it scored the
+    plainly-eaten subhead at 1.015.  A third, per-pixel median background,
+    scored a fully-visible display line at 0.307, because a median wider than
+    the stems of a heavy slab face returns the STEM, not the page.
+
+    So this one has no background model and no reference raster to align:
+
+      * `gap_em`   -- the widest run of consecutive columns carrying NO ink of
+                      this run's colour, between its first and last inked
+                      column, in multiples of the type size.  A word space is
+                      about 0.3 em; the disc ate about 5 em.
+      * `extent`   -- inked width over the width the face's own metrics say the
+                      run should occupy.  Catches an end being cut off, which a
+                      middle-gap measure cannot see.
+
+    Both are invariant to size, to antialiasing and to Chromium kerning
+    tighter than PIL, which is what defeated the three before it."""
+    path = lienzo.FACES.get(t["face"])
+    if not path or not os.path.exists(path) or not t["s"]:
+        return None, None
+    from PIL import ImageFont
+    im = Image.open(png_path).convert("RGB")
+    a = np.asarray(im).astype(np.int16)
+    H, W = a.shape[:2]
+    ppm = W / float(w_mm)
+    px = max(4, int(round(t["pt"] * ppm)))
+    f = ImageFont.truetype(path, px)
+    trk = t["tracking"] * ppm
+    wid = sum(f.getlength(c) for c in t["s"]) + trk * (len(t["s"]) - 1)
+    asc, desc = f.getmetrics()
+    bx = t["x"] * ppm
+    if t["anchor"] == "middle": x0 = bx - wid / 2.0
+    elif t["anchor"] == "end":  x0 = bx - wid
+    else:                       x0 = bx
+    by = t["y"] * (H / float(h_mm))
+    p = pad * px * 0.5
+    X0 = max(0, int(x0 - p)); X1 = min(W, int(x0 + wid + p))
+    Y0 = max(0, int(by - asc - p)); Y1 = min(H, int(by + desc + p))
+    if X1 <= X0 or Y1 <= Y0 or wid <= 0:
+        return 99.0, 0.0
+    # generous tolerance: an antialiased edge is still this run's ink
+    col = near(a[Y0:Y1, X0:X1], t["fill"], tol=90).any(axis=0)
+    if not col.any():
+        return 99.0, 0.0
+    lo = int(np.argmax(col)); hi = len(col) - 1 - int(np.argmax(col[::-1]))
+    inner = col[lo:hi + 1]
+    gap = run = 0
+    for v in inner:
+        run = 0 if v else run + 1
+        gap = max(gap, run)
+    return gap / float(px), (hi - lo + 1) / float(wid)
+
+
+def _rgb(hexc):
+    return np.array([int(hexc[i:i + 2], 16) for i in (1, 3, 5)], np.int16)
+
+
+def hero_crop(png_path, w_mm, h_mm, box):
+    """The RENDERED pixels inside a hero box, in the box's own frame."""
+    im = Image.open(png_path).convert("RGB")
+    a = np.asarray(im).astype(np.int16)
+    H, W = a.shape[:2]
+    x0 = int(round(box[0] / w_mm * W)); x1 = int(round(box[2] / w_mm * W))
+    y0 = int(round(box[1] / h_mm * H)); y1 = int(round(box[3] / h_mm * H))
+    x0 = max(0, x0); y0 = max(0, y0); x1 = min(W, x1); y1 = min(H, y1)
+    return a[y0:y1, x0:x1]
+
+
+def near(a, hexc, tol=26):
+    """Pixels within `tol` of a colour, per channel, in the CROP.  This is the
+    window every count below is taken through, and `--paint` writes it out."""
+    return (np.abs(a - _rgb(hexc)).max(axis=2) <= tol)
 
 
 def margin_clean(png_path, w_mm, h_mm, margin_mm, tol=0.004):
@@ -180,10 +396,36 @@ def put_wordmark(L, cx, top, width, ink=TINTA):
     return h * s
 
 
-def put_hero(L, style, box, mural="fino", ink=None):
-    lay, wh = estilo_vec.layers(TAG, style, box, mural=mural, ink=ink)
-    for ds, col in lay:
-        L.paths(ds, col)
+# WHAT WAS ACTUALLY DRAWN, RECORDED AS IT IS DRAWN.  Every check in this file
+# used to read either the sheet's margins or a colour typed into a table; none
+# of them could see a fill inside the live area.  This list is written by the
+# drawing itself, so the visibility check reads the piece that shipped.
+DRAWN = []
+FIT = []             # every run's shrink factor, so the type scale is auditable
+TEXTS = []           # every run as printed, so a colophon can be checked
+
+# What each style is called IN PRINT.  A piece's colophon is a PROVENANCE
+# claim -- `playera` printed "ARTE PLANO" over a `silueta` drawing -- so the
+# names live here and a check reads them back off the piece.
+ESTILO_ES = {"plano": "ARTE PLANO", "papel": "PAPEL PICADO",
+             "azulejo": "ESTILO AZULEJO", "silueta": "SILUETA"}
+GROUND = [None]      # the page colour of the piece being drawn
+PIEZA = [None]       # its name
+
+
+def put_hero(L, style, box, mural="fino", ink=None, ground=None):
+    """`ground` overrides the PAGE colour when the drawing sits on something
+    else -- a vignette disc, a band.  The keyline is chosen against whatever
+    the drawing is actually printed over, so putting a cream vehicle on a
+    cream disc cannot silently reproduce the defect the disc was added for."""
+    lay, wh = estilo_vec.layers(TAG, style, box, mural=mural, ink=ink,
+                                ground=(ground or GROUND[0]))
+    kw = max(0.10, wh[1] * 0.0026)      # keyline weight scales with the drawing
+    for ds, col, key in lay:
+        L.paths(ds, col, stroke=key, stroke_w=(kw if key else 0.0))
+        DRAWN.append({"piece": PIEZA[0], "style": style,
+                      "ground": (ground or GROUND[0]),
+                      "fill": col, "key": key, "box": box, "kw": kw})
     return wh
 
 
@@ -207,8 +449,50 @@ def _poster(L, g, style, sub, foot, rule_col=GRANA, edge=TINTA, txt=TINTA):
 
 
 def p_aframe(g, L):
-    _poster(L, g, "plano", "FRESH JUICES · GOURMET TACOS · TORTAS",
-            "SERIE COMBI · CALLE · " + PROV)
+    """THE SIDEWALK SIGN.  It had been `_poster` with a different subhead, so
+    it and `cartel_a2` were the same piece at two sizes -- in a set whose whole
+    purpose is range.
+
+    The format cues are taken from HIS PHOTOGRAPH, `ref_sign_aframe.jpg`, and
+    only the format: a gold ground, and the vehicle standing in a LIGHT DISC
+    that lifts it off that ground.  ⚠ NOT the palette -- he said the sign was
+    "just an example of a promotional product" -- and NOT the offer, the app
+    callout or the QR code, which are his to approve, not mine to invent.
+
+    The disc is also the reason this piece can carry the vehicle at size: a
+    cream body on gold needs a keyline, a cream body on a cream disc needs a
+    keyline against THAT, and `put_hero(ground=...)` is told which."""
+    L.frame(g.m * 0.55, GRANA, g.s / 300.0)
+    wh = put_wordmark(L, g.w / 2.0, g.y(1.5), g.span(9))
+    T(L, g, g.w / 2.0, g.y(1.5) + wh + g.base * 1.15, LETRERO, "cond",
+           g.pt(0.6), GRANA, tracking=g.pt(0.6) * 0.26)
+
+    # ⚠ THE DISC IS DEFINED BY THE ROWS IT MAY OCCUPY, NOT BY A WIDTH.  The
+    # first version was `span(11)/2` centred on row 12.4, and it covered the
+    # middle of `TAQUERIA y CERVECERIA` -- the sign read "TAQUE...CERIA" with
+    # every check green, because nothing here could see one element drawn over
+    # another.  Rows 7.4 to 19.6 are empty by construction, and the radius is
+    # clamped to the live width so the same expression works on any format.
+    # THE ABLATION IS THE DEFECT ITSELF, restored: the disc as it was first
+    # written.  `T1_PLIEGO_OCLUIR=1` puts it back over the subhead, and the
+    # `type PRESENT` row must go red -- a check that has only ever been watched
+    # passing is not a check (rule 3).
+    if os.environ.get("T1_PLIEGO_OCLUIR") == "1":
+        r = g.span(11) / 2.0; cy = g.y(12.4)
+    else:
+        r = min((g.y(19.6) - g.y(7.4)) / 2.0, (g.w - 2 * g.m) / 2.0)
+        cy = (g.y(19.6) + g.y(7.4)) / 2.0
+    L.circle(g.w / 2.0, cy, r, HUESO, stroke=GRANA, stroke_w=g.s / 420.0)
+    bw = r * 1.72; bh = r * 1.02
+    put_hero(L, "plano",
+             (g.w / 2.0 - bw / 2.0, cy - bh / 2.0,
+              g.w / 2.0 + bw / 2.0, cy + bh / 2.0), ground=HUESO)
+
+    T(L, g, g.w / 2.0, g.y(21.0), "SE SIRVE DESDE LA COMBI", "display",
+           g.pt(0.4), GRANA)
+    T(L, g, g.w / 2.0, g.y(23.2), "SERIE COMBI · CALLE · " + PROV, "cond",
+           g.pt(-2.0), GRANA, tracking=g.pt(-2.0) * 0.12,
+           measure=g.w - 2 * (g.m * 0.55) - 2 * g.gut)
 
 def p_cartel_a2(g, L):
     _poster(L, g, "plano", "SE SIRVE DESDE LA COMBI",
@@ -259,11 +543,12 @@ def p_bolsa(g, L):
 
 def p_playera(g, L):
     put_wordmark(L, g.w / 2.0, g.y(1.6), g.span(9), ink=CREMA)
-    put_hero(L, "silueta", (g.x(1), g.y(7.0), g.x(1) + g.span(10), g.y(17.0)),
+    put_hero(L, "papel", (g.x(1), g.y(6.6), g.x(1) + g.span(10), g.y(17.4)),
              ink=CREMA)
     T(L, g, g.w / 2.0, g.y(19.8), LETRERO, "cond", g.pt(-0.3), ORO,
            tracking=g.pt(-0.3) * 0.26)
-    T(L, g, g.w / 2.0, g.y(23.4), "MERCANCIA · ARTE PLANO · " + PROV, "cond",
+    T(L, g, g.w / 2.0, g.y(23.4),
+           "MERCANCIA · " + ESTILO_ES["papel"] + " · " + PROV, "cond",
            g.pt(-2.3), "#7A6E63", tracking=g.pt(-2.3) * 0.1)
 
 # ---- landscape sheets: the hero takes one side, the lockup the other --------
@@ -303,17 +588,17 @@ def p_vaso(g, L):
 
 
 PIEZAS = [
- ("calle",     "aframe",    600, 900, ORO,   p_aframe),
- ("impreso",   "cartel_a2", 420, 594, ORO,   p_cartel_a2),
- ("impreso",   "cartel_a3", 297, 420, AZUL,  p_cartel_a3),
+ ("calle",     "aframe",    600, 900, F_ORO,   p_aframe),
+ ("impreso",   "cartel_a2", 420, 594, F_ORO,   p_cartel_a2),
+ ("impreso",   "cartel_a3", 297, 420, F_AZUL,  p_cartel_a3),
  ("calle",     "carta",     300, 420, CREMA, p_carta),
- ("calle",     "vidriera",  500, 350, AZUL,  p_vidriera),
- ("impreso",   "postal",    148, 105, PAPEL, p_postal),
- ("impreso",   "tarjeta",    85,  55, CREMA, p_tarjeta),
+ ("calle",     "vidriera",  500, 350, F_AZUL,  p_vidriera),
+ ("impreso",   "postal",    148, 105, F_PAPEL, p_postal),
+ ("impreso",   "tarjeta",    85,  55, F_PAPEL, p_tarjeta),
  ("impreso",   "volante",   148, 210, HUESO, p_volante),
  ("mercancia", "bolsa",     380, 420, "#DED2B8", p_bolsa),
- ("mercancia", "playera",   300, 360, "#1C1E22", p_playera),
- ("mercancia", "vaso",      220,  95, CREMA, p_vaso),
+ ("mercancia", "playera",   300, 360, F_NEGRO, p_playera),
+ ("mercancia", "vaso",      220,  95, F_PAPEL, p_vaso),
 ]
 
 
@@ -324,12 +609,14 @@ def main(argv):
         if a == "--only": only = argv[i + 1]
         if a == "--out":  OUT = argv[i + 1]
         if a == "--dpi":  dpi = int(argv[i + 1])
+    paint = "--paint" in argv
     os.makedirs(OUT, exist_ok=True)
     print("pliego.py -- print set, SVG masters, %d mm sheets" % len(PIEZAS))
 
     made = []
     for cat, name, w, h, ground, fn in PIEZAS:
         if only and only not in (cat, name): continue
+        GROUND[0] = ground; PIEZA[0] = name
         g = Rejilla(w, h)
         L = lienzo.Lienzo(w, h, bg=ground)
         fn(g, L)
@@ -337,6 +624,9 @@ def main(argv):
         svg = L.save_svg(stem + ".svg")
         L.render(svg, png=stem + ".png", pdf=stem + ".pdf", dpi=dpi)
         made.append((cat, name, w, h, g, stem))
+        for t in TEXTS:
+            if t["piece"] == name and "tapado" not in t:
+                t["tapado"] = tapado(t["box"], L.opaque, t["order"])
         ck(os.path.getsize(svg) > 4000,
            "%-10s %-10s %4.0f x %-4.0f mm  svg %6d KB  pdf %5d KB"
            % (cat, name, w, h, os.path.getsize(svg) // 1024,
@@ -357,6 +647,168 @@ def main(argv):
         ebar = 0.60 if name in SANGRA else 0.0015
         ck(e < ebar, "%-10s outer edge %.4f %% ink (bar %.1f %%)"
            % (name, 100 * e, 100 * ebar))
+
+    stems0 = {n: (w, h, st) for _c, n, w, h, _g, st in made}
+
+    # ============================================================ THE GRID
+    # The docstring on `Rejilla` claims one invariance and disclaims another.
+    # Both are MEASURED here rather than asserted, over the formats that were
+    # actually built, because a claim in a docstring is not a measurement.
+    ys, xs, ysh = [], [], []
+    for _c, _n, w, h, g, _st in made:
+        ys.append([(g.y(k) - g.m) / (h - 2 * g.m) for k in (0, 6, 12, 18, 24)])
+        xs.append([(g.x(i) - g.m) / (w - 2 * g.m) for i in (0, 3, 6, 9)])
+        ysh.append([g.y(k) / h for k in (0, 6, 12, 18, 24)])
+    if made:
+        dy = max(max(c) - min(c) for c in zip(*ys))
+        dx = max(max(c) - min(c) for c in zip(*xs))
+        dsh = max(max(c) - min(c) for c in zip(*ysh))
+        # the bar on the columns is the GUTTER TERM, computed from the built
+        # formats -- an independently obtained quantity, not this expression
+        gt = max(g.gut / (w - 2 * g.m) for _c, _n, w, _h, g, _st in made)
+        ck(dy < 1e-12 and dx <= gt + 1e-12,
+           "grid: rows exact in the usable box (spread %.1e); columns within "
+           "the gutter term (%.4f vs %.4f); NEITHER invariant on the sheet "
+           "(y(k)/h spreads %.4f) -- %d formats"
+           % (dy, dx, gt, dsh, len(made)))
+
+    # THE TYPE SCALE.  Every run is authored on a 1.335 scale and then shrunk
+    # by `fit_pt` if it will not fit, so the scale is a starting point and not
+    # a property of the sheet.  Printing the worst shrink is the difference
+    # between knowing that and believing the docstring.
+    if FIT:
+        worst = min(FIT, key=lambda r: r[2])
+        nsh = sum(1 for r in FIT if r[2] < 0.999)
+        ck(worst[2] > 0.45,
+           "type: %d of %d run(s) shrunk off the 1.335 scale; worst %.3f x on "
+           "%s %r (tracking follows the shrink)"
+           % (nsh, len(FIT), worst[2], worst[0], worst[1]))
+
+    # ================================================== IS THE TYPE THERE
+    cov = sorted(((t.get("tapado", 0.0), t["piece"], t["s"][:30])
+                  for t in TEXTS), reverse=True)
+    if cov:
+        ck(cov[0][0] <= 0.02,
+           "occlusion: %d run(s) tested against every slab drawn after them; "
+           "worst covered %.1f %% -- %s %r"
+           % (len(cov), 100 * cov[0][0], cov[0][1], cov[0][2]))
+
+    rat = []
+    for t in TEXTS:
+        if t["piece"] not in stems0: continue
+        w, h, st = stems0[t["piece"]]
+        gap, ext = texto_legible(st + ".png", w, h, t)
+        if gap is None: continue
+        rat.append((gap, ext, t["piece"], t["s"][:26]))
+    rat.sort(reverse=True)
+    if rat:
+        print("   type read back off the sheet, widest 8 gaps of %d run(s):"
+              % len(rat))
+        for r in rat[:8]:
+            print("     gap %5.2f em   extent %.3f   %-10s %s"
+                  % (r[0], r[1], r[2], r[3]))
+        worst_g = rat[0]
+        worst_e = min(rat, key=lambda r: r[1])
+        ck(worst_g[0] <= GAP_EM and worst_e[1] >= EXT_FRAC,
+           "type PRESENT: %d run(s); widest hole %.2f em on %s %r (bar %.2f); "
+           "narrowest extent %.3f on %s %r (bar %.2f)"
+           % (len(rat), worst_g[0], worst_g[2], worst_g[3], GAP_EM,
+              worst_e[1], worst_e[2], worst_e[3], EXT_FRAC))
+
+    ck(not DEMASIADO, "type floor: %.2f mm; %d run(s) could not fit their "
+                      "measure at it%s"
+       % (MIN_TIPO_MM, len(DEMASIADO),
+          ("  <-- " + " | ".join("%s %r in %.0f mm" % d for d in DEMASIADO[:3]))
+          if DEMASIADO else ""))
+
+    # ================================================== PROVENANCE OF STYLE
+    # ⚠ `playera` PRINTED "ARTE PLANO" ACROSS THE FOOT OF A `silueta` DRAWING.
+    # That is F372's class exactly -- a provenance line stating something the
+    # artefact does not do -- and thirty-six green checks did not see it,
+    # because the string and the drawing were never compared to each other.
+    drew = {}
+    for d in DRAWN:
+        drew.setdefault(d["piece"], set()).add(d["style"])
+    lies = []
+    for t in TEXTS:
+        for st, es in ESTILO_ES.items():
+            if es in t["s"] and st not in drew.get(t["piece"], ()):
+                lies.append("%s says %r, drew %s"
+                            % (t["piece"], es,
+                               "/".join(sorted(drew.get(t["piece"], ()))) or "nothing"))
+    ck(not lies, "colophons: %d run(s) checked against the styles actually "
+                 "drawn, %d misnamed%s"
+       % (len(TEXTS), len(lies), ("  <-- " + " | ".join(lies[:3])) if lies else ""))
+
+    # ============================================================ VISIBILITY
+    # ⚠ THIS IS THE CLASS THAT HAS SHIPPED MOST OFTEN IN THIS PROJECT: a shape
+    # that is traced, rasterised and printed IN THE PAGE COLOUR.  F378 (a sixth
+    # of the vehicle painted white on white), `playera` (TINTA on near-black),
+    # `azulejo` (the body filled AZUL on an AZUL page, 1.00:1) and six of these
+    # eleven sheets.  Neither `margin_clean` nor `edge_clean` can see it -- they
+    # only read the margins, and a fill at zero contrast has no luminance step
+    # for either to find.  These two rows read INSIDE the live area.
+    #
+    # (a) ANALYTIC: every fill either clears the bar against its own page, or
+    #     carries a keyline that clears the bar against BOTH page and fill.
+    bad = []
+    for d in DRAWN:
+        c = estilo_vec.contrast(d["fill"], d["ground"])
+        if c >= estilo_vec.KEY_BAR:
+            continue
+        if d["key"] is None:
+            bad.append("%s %s on %s %.3f:1 NO KEYLINE"
+                       % (d["piece"], d["fill"], d["ground"], c))
+            continue
+        kg = estilo_vec.contrast(d["key"], d["ground"])
+        kf = estilo_vec.contrast(d["key"], d["fill"])
+        if min(kg, kf) < estilo_vec.KEY_BAR:
+            bad.append("%s keyline %s only %.3f/%.3f"
+                       % (d["piece"], d["key"], kg, kf))
+    ck(not bad, "ink/ground: %d fill(s) drawn, %d needed a keyline, %d "
+                "UNSEEABLE%s"
+       % (len(DRAWN), sum(1 for d in DRAWN if d["key"]), len(bad),
+          ("  <-- " + " | ".join(bad[:3])) if bad else ""))
+
+    # (b) PIXEL: the keyline is asserted to be PRINTED, counted in the rendered
+    #     sheet through a window that is written to disk and looked at.  An
+    #     analytic table alone would only prove the intention (rule 10).
+    stems = stems0
+    seen = set(); shown = 0; miss = []
+    for d in DRAWN:
+        if d["key"] is None or d["piece"] not in stems: continue
+        k = (d["piece"], d["fill"], d["key"])
+        if k in seen: continue
+        seen.add(k)
+        w, h, st = stems[d["piece"]]
+        a = hero_crop(st + ".png", w, h, d["box"])
+        m = near(a, d["key"])
+        n = int(m.sum())
+        # INDEPENDENT SCALE, not a typed constant: the keyline is `kw` mm wide
+        # and the drawing is `box` wide, so one stroke crossing the box once is
+        # already this many pixels.  Anything less than that is not a line.
+        px_mm = a.shape[1] / max(1e-6, (d["box"][2] - d["box"][0]))
+        floor = max(8.0, d["kw"] * px_mm * a.shape[0] * 0.05)
+        if n < floor: miss.append("%s %s %d px < %.0f" % (d["piece"], d["key"], n, floor))
+        else: shown += 1
+        if paint:
+            im = Image.fromarray(a.astype(np.uint8)).copy()
+            q = np.asarray(im).copy(); q[m] = (255, 0, 255)
+            Image.fromarray(q).save(os.path.join(
+                OUT, "pl_VENTANA_%s_%s_sobre_%s.png"
+                % (d["piece"], d["fill"].lstrip("#"), d["key"].lstrip("#"))))
+    # ⚠ AN EMPTY MATCH SET IS NOT A PASS.  F380 is exactly this row's failure
+    # mode one file over: with keylines switched off there is nothing to count,
+    # and "0 of 0 found" would print green over the defect the row exists for.
+    # So the row also asserts that every sub-bar fill HAS a keyline to look for.
+    unkeyed = sum(1 for d in DRAWN
+                  if estilo_vec.contrast(d["fill"], d["ground"]) < estilo_vec.KEY_BAR
+                  and d["key"] is None)
+    ck(not miss and not unkeyed,
+       "keylines PRINTED: %d of %d found in the rendered sheet; %d sub-bar "
+       "fill(s) with no keyline to look for%s"
+       % (shown, shown + len(miss), unkeyed,
+          ("  <-- " + " | ".join(miss[:3])) if miss else ""))
 
     if not only and made:
         cells = []
