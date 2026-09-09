@@ -73,7 +73,7 @@ def _fit(comps, box, art_wh):
     return s, dx, dy
 
 
-def layers(tag, style, box, smooth=2, mural="fino", cache={}):
+def layers(tag, style, box, smooth=2, mural="fino", ink=None, cache={}):
     """-> [(svg_d_strings, fill_colour)] fitted into `box` (mm)."""
     if style not in VECTOR_STYLES:
         raise SystemExit(
@@ -82,7 +82,7 @@ def layers(tag, style, box, smooth=2, mural="fino", cache={}):
             "(hatching, halftone, a broken edge); returning a silently "
             "different drawing would be worse than refusing (rule 37)."
             % (style, ", ".join(VECTOR_STYLES)))
-    key = (tag, style, smooth, mural)
+    key = (tag, style, smooth, mural)   # ink is applied AFTER the cache
     if key not in cache:
         u = estilos.underlay(tag)
         L, al = u["layers"], u["alpha"]
@@ -131,5 +131,13 @@ def layers(tag, style, box, smooth=2, mural="fino", cache={}):
         cache[key] = (out, (aw, ah))
     out, art_wh = cache[key]
     s, dx, dy = _fit(None, box, art_wh)
-    return [(trazo.to_svg_paths(c, scale=s, dx=dx, dy=dy), col)
-            for c, col in out], (art_wh[0] * s, art_wh[1] * s)
+    # ⚠ THE INK OVERRIDE IS APPLIED AFTER THE CACHE, not baked into it.  A
+    # single-ink style drawn in its default TINTA on a near-black ground is
+    # INVISIBLE -- which is exactly what `playera` shipped.  Only the FIRST
+    # (body) layer is recoloured; a style's own second ink, like azulejo's
+    # keyline, keeps its contrast.
+    res = []
+    for i, (c, col) in enumerate(out):
+        use = ink if (ink and i == 0 and style in ("papel", "silueta")) else col
+        res.append((trazo.to_svg_paths(c, scale=s, dx=dx, dy=dy), use))
+    return res, (art_wh[0] * s, art_wh[1] * s)
