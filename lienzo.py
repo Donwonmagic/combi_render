@@ -217,8 +217,15 @@ class Lienzo(object):
             % (self.w, self.h, self.bg, self.w, self.h, svg))
         return html
 
-    def render(self, svg_path, png=None, pdf=None, dpi=300):
-        """PNG proof and PDF, BOTH from the same inlined document."""
+    def render(self, svg_path, png=None, pdf=None, dpi=300, px=None):
+        """PNG proof and PDF, BOTH from the same inlined document.
+
+        `px` is an EXACT output width in pixels, for the screen formats where
+        the deliverable is a pixel size and not a paper size.  ⚠ dpi alone
+        cannot deliver one: the window is rounded to whole CSS pixels and the
+        device scale factor is applied to that, so a story asked for at 1080
+        came out 1079 and a banner at 2101.  Given `px`, the scale factor is
+        derived FROM the rounded window so the product is exact."""
         outs = []
         # ⚠ `--disable-lcd-text`: Chromium's default subpixel antialiasing bakes
         # RGB COLOUR FRINGES into every glyph edge.  On screen that is a feature;
@@ -241,11 +248,13 @@ class Lienzo(object):
                 # showing body background -- which moved both margin readings.
                 # The window is CSS px; the DEVICE SCALE FACTOR carries the dpi.
                 cw = self.w / MM * 96.0; chh = self.h / MM * 96.0
+                ww = int(round(cw)); wh = int(round(chh))
+                scale = (px / float(ww)) if px else (dpi / 96.0)
                 r = subprocess.run(
                     [self._shell()] + base +
-                    ["--force-device-scale-factor=%.6f" % (dpi / 96.0),
+                    ["--force-device-scale-factor=%.9f" % scale,
                      "--screenshot=" + os.path.abspath(png),
-                     "--window-size=%d,%d" % (int(round(cw)), int(round(chh))),
+                     "--window-size=%d,%d" % (ww, wh),
                      url],
                     capture_output=True, timeout=300)
                 if not os.path.exists(png) or os.path.getsize(png) < 1000:

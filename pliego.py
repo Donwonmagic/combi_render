@@ -662,6 +662,69 @@ def p_vaso(g, L):
            tracking=g.pt(-2.4) * 0.08)
 
 
+# ---- social: screen formats, where the deliverable is a PNG at an EXACT
+# pixel size, not a sheet in millimetres.  The grid needs millimetres, so each
+# of these declares a target width in px and the render dpi is derived from it.
+PIXELES = {"cuadro": 1400, "historia": 1080, "cabecera": 2100}
+
+
+def p_cuadro(g, L):
+    """THE SQUARE POST.  Gold ink on near-black -- the one ink/ground pairing
+    in this palette the set was not using."""
+    L.frame(g.m * 0.5, ORO, g.s / 300.0)
+    wh = put_wordmark(L, g.w / 2.0, g.y(1.8), g.span(8), ink=ORO)
+    T(L, g, g.w / 2.0, g.y(1.8) + wh + g.base * 1.2, LETRERO, "cond",
+           g.pt(-0.4), CREMA, tracking=g.pt(-0.4) * 0.26)
+    put_hero(L, "papel", (g.x(1), g.y(9.0), g.x(1) + g.span(10), g.y(19.0)),
+             ink=ORO)
+    T(L, g, g.w / 2.0, g.y(22.4), "SOCIAL · " + ESTILO_ES["papel"] + " · "
+           + PROV, "cond", g.pt(-2.3), "#7A6E63",
+           tracking=g.pt(-2.3) * 0.1)
+
+
+def p_historia(g, L):
+    """THE VERTICAL STORY.  It is the only piece with room to carry the mark,
+    the drawing AND the menu without crowding any of them."""
+    L.frame(g.m * 0.5, GRANA, g.s / 300.0)
+    wh = put_wordmark(L, g.w / 2.0, g.y(1.4), g.span(9))
+    T(L, g, g.w / 2.0, g.y(1.4) + wh + g.base * 1.1, LETRERO, "cond",
+           g.pt(0.0), GRANA, tracking=g.pt(0.0) * 0.26)
+    put_hero(L, "plano", (g.x(0), g.y(7.0), g.x(0) + g.span(12), g.y(14.4)))
+    y = g.y(16.2)
+    for it in MENU:
+        T(L, g, g.w / 2.0, y, it, "display", g.pt(-1.0), GRANA)
+        y += g.base * 1.1
+    # the last menu item lands on row 20.6, so the two foot lines get a clear
+    # baseline each instead of crowding it
+    T(L, g, g.w / 2.0, g.y(22.1), "MENU DE MUESTRA · TOMADO DEL MURAL",
+           "cond", g.pt(-2.0), TINTA, tracking=g.pt(-2.0) * 0.1)
+    T(L, g, g.w / 2.0, g.y(23.4), "SOCIAL · " + PROV, "cond", g.pt(-2.3),
+           GRANA, tracking=g.pt(-2.3) * 0.08)
+
+
+def p_cabecera(g, L):
+    """THE BANNER.  3:1, read at a glance, so the mark takes the left third and
+    the drawing runs out to the right edge."""
+    # ⚠ 0.75, NOT 0.4.  On a 3:1 sheet the margin is `min(w, h)/12` = 5.83 mm
+    # while `edge_clean`'s band is 1.4 % of the WIDTH = 2.94 mm, so a frame at
+    # 2.33 mm sat inside both bands the checks read: 9.456 % margin ink against
+    # a 2 % bar and 5.986 % edge ink against 0.1 %.  The frame moved, not the
+    # bars -- the first thing this file says about a bar is that a bar a defect
+    # squeaks under is not a bar.
+    L.frame(g.m * 0.75, CIELO, g.s / 240.0)
+    put_hero(L, "plano", (g.x(5), g.y(1.4), g.x(5) + g.span(7), g.y(22.6)))
+    # the lockup sits ON the vertical centre of its column rather than at a
+    # fixed row: at 3:1 a top-anchored block leaves the bottom-left third of
+    # the banner empty, which is what the first version did
+    cx = g.x(0) + g.span(5) / 2.0
+    top = g.y(6.4)
+    wh = put_wordmark(L, cx, top, g.span(4.6), ink=HUESO)
+    T(L, g, cx, top + wh + g.base * 1.5, LETRERO, "cond", g.pt(-0.6),
+           CIELO, tracking=g.pt(-0.6) * 0.22, measure=g.span(5))
+    T(L, g, cx, top + wh + g.base * 3.4, "SOCIAL · " + PROV, "cond",
+           g.pt(-2.3), CIELO, tracking=g.pt(-2.3) * 0.08, measure=g.span(5))
+
+
 PIEZAS = [
  ("calle",     "aframe",    600, 900, F_ORO,   p_aframe),
  ("impreso",   "cartel_a2", 420, 594, F_ORO,   p_cartel_a2),
@@ -674,6 +737,9 @@ PIEZAS = [
  ("mercancia", "bolsa",     380, 420, "#DED2B8", p_bolsa),
  ("mercancia", "playera",   300, 360, F_NEGRO, p_playera),
  ("mercancia", "vaso",      220,  95, F_PAPEL, p_vaso),
+ ("social",    "cuadro",    180, 180, F_NEGRO, p_cuadro),
+ ("social",    "historia",  108, 192, F_ORO,   p_historia),
+ ("social",    "cabecera",  210,  70, F_AZUL,  p_cabecera),
 ]
 
 
@@ -710,7 +776,8 @@ def main(argv):
         fn(g, L)
         stem = os.path.join(OUT, "pl_%s_%s" % (cat, name))
         svg = L.save_svg(stem + ".svg")
-        L.render(svg, png=stem + ".png", pdf=stem + ".pdf", dpi=dpi)
+        L.render(svg, png=stem + ".png", pdf=stem + ".pdf", dpi=dpi,
+                 px=PIXELES.get(name))
         made.append((cat, name, w, h, g, stem))
         for t in TEXTS:
             if t["piece"] == name and "tapado" not in t:
@@ -737,6 +804,20 @@ def main(argv):
            % (name, 100 * e, 100 * ebar))
 
     stems0 = {n: (w, h, st) for _c, n, w, h, _g, st in made}
+
+    # ⚠ A SCREEN PIECE IS A PIXEL SIZE, NOT A PAPER SIZE.  A story that is not
+    # 1080 wide is not a story, however good the drawing on it is.
+    wrong = []
+    for _c, name, w, h, _g, st in made:
+        if name not in PIXELES: continue
+        got = Image.open(st + ".png").size
+        if got[0] != PIXELES[name]:
+            wrong.append("%s %dx%d, wanted %d wide" % (name, got[0], got[1],
+                                                       PIXELES[name]))
+    if any(n in PIXELES for _c, n, _w, _h, _g, _s in made):
+        ck(not wrong, "screen sizes: %d piece(s) render at an exact pixel "
+                      "width%s" % (len(PIXELES),
+                      ("  <-- " + " | ".join(wrong)) if wrong else ""))
 
     # ⚠ `lienzo.pdf_page_mm` EXISTED, ITS DOCSTRING SAID "THE BUILD NEVER
     # CHECKED EITHER, so eleven US-Letter documents shipped as print masters",
@@ -973,7 +1054,7 @@ def main(argv):
                 # that -- a sixth wrong instrument, caught before it was
                 # published by PAINTING THE WINDOW AND LOOKING (rule 8), which
                 # is the only thing that has ever caught one of these.
-                L2.render(sv, png=pn, dpi=dpi)
+                L2.render(sv, png=pn, dpi=dpi, px=PIXELES.get(name))
                 a = np.asarray(Image.open(stems0[name][2] + ".png")
                                .convert("RGB")).astype(np.int16)
                 b = np.asarray(Image.open(pn).convert("RGB")).astype(np.int16)
