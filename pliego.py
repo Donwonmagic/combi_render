@@ -389,10 +389,36 @@ def wordmark():
     return _WM["c"]
 
 
-def put_wordmark(L, cx, top, width, ink=TINTA):
+# The wordmark is not a fill among fills.  It is the identity, it is the one
+# element on every sheet that must read from across a street, and it is held to
+# a higher bar than the drawing is.  4.5:1 is WCAG's own level for large text;
+# a decorative fill may sit quietly against its page, a logotype may not.
+MARCA_BAR = 4.5
+MARCAS = []
+
+
+def put_wordmark(L, cx, top, width, ink=TINTA, ground=None):
+    """⚠ THIS WAS THE ONE ELEMENT NO CHECK COULD SEE.  It draws through
+    `L.paths`, so the ink/ground row -- which reads `DRAWN`, written by
+    `put_hero` -- never saw it, and a sweep of the SVG's `fill=` attributes
+    skips paths as "heroes, already checked".  It fell through both.
+
+    MEASURED, once it was looked for: `carta` set the wordmark in TINTA on its
+    GRANA header band at 1.295:1, BELOW THIS MODULE'S OWN FLOOR for a
+    decorative fill, and `vidriera` and `cartel_a3` set it in TINTA on F_AZUL
+    at 1.584:1 -- a dark blob where the mark should be, on a window sign whose
+    entire job is to be read from the pavement.  Every call now declares the
+    ground it is printed on and is checked against it."""
+    # THE ABLATION IS THE DEFECT: every mark back to the module default, which
+    # is what put `carta`'s at 1.295:1 on its own header band.
+    if os.environ.get("T1_PLIEGO_MARCAPLANA") == "1":
+        ink = TINTA
     comps, w, h = wordmark()
     s = width / float(w)
     L.paths(trazo.to_svg_paths(comps, scale=s, dx=cx - width / 2.0, dy=top), ink)
+    MARCAS.append({"piece": PIEZA[0], "ink": ink,
+                   "ground": (ground or GROUND[0]),
+                   "ratio": estilo_vec.contrast(ink, ground or GROUND[0])})
     return h * s
 
 
@@ -432,11 +458,12 @@ def put_hero(L, style, box, mural="fino", ink=None, ground=None):
 # ============================================================== the pieces
 # (name, w_mm, h_mm, style, ground, builder)
 
-def _poster(L, g, style, sub, foot, rule_col=GRANA, edge=TINTA, txt=TINTA):
+def _poster(L, g, style, sub, foot, rule_col=GRANA, edge=TINTA, txt=TINTA,
+            mark=TINTA):
     """The portrait master layout.  Rows are indices on the 24-row grid, so the
     SAME numbers place the same way on an 85 mm card and a 900 mm panel."""
     L.frame(g.m * 0.55, edge, g.s / 300.0)
-    wh = put_wordmark(L, g.w / 2.0, g.y(1.4), g.span(8))
+    wh = put_wordmark(L, g.w / 2.0, g.y(1.4), g.span(8), ink=mark)
     T(L, g, g.w / 2.0, g.y(1.4) + wh + g.base * 1.1, LETRERO, "cond",
            g.pt(0.2), rule_col, tracking=g.pt(0.2) * 0.26)
     put_hero(L, style, (g.x(0), g.y(7.2), g.x(0) + g.span(12), g.y(18.4)))
@@ -501,12 +528,13 @@ def p_cartel_a2(g, L):
 def p_cartel_a3(g, L):
     _poster(L, g, "azulejo", "SE SIRVE DESDE LA COMBI",
             "SERIE COMBI · ESTILO AZULEJO · " + PROV,
-            rule_col=CIELO, edge=CIELO, txt=HUESO)
+            rule_col=CIELO, edge=CIELO, txt=HUESO, mark=HUESO)
 
 def p_carta(g, L):
     L.rect(g.m * 0.55, g.m * 0.55, g.w - g.m * 1.1, g.base * 4.4, GRANA)
     L.frame(g.m * 0.55, TINTA, g.s / 320.0)
-    put_wordmark(L, g.w / 2.0, g.y(0.7), g.span(6))
+    # ⚠ CREMA, not TINTA: the mark sat on its own GRANA band at 1.295:1
+    put_wordmark(L, g.w / 2.0, g.y(0.7), g.span(6), ink=CREMA, ground=GRANA)
     put_hero(L, "papel", (g.x(1), g.y(5.4), g.x(1) + g.span(10), g.y(11.4)))
     y = g.y(13.6)
     for it in MENU:
@@ -552,11 +580,12 @@ def p_playera(g, L):
            g.pt(-2.3), "#7A6E63", tracking=g.pt(-2.3) * 0.1)
 
 # ---- landscape sheets: the hero takes one side, the lockup the other --------
-def _paisaje(L, g, style, edge, rule_col, big=None, big_col=None, txt=TINTA):
+def _paisaje(L, g, style, edge, rule_col, big=None, big_col=None, txt=TINTA,
+             mark=TINTA):
     L.frame(g.m * 0.5, edge, g.s / 260.0)
     put_hero(L, style, (g.x(6), g.y(2.0), g.x(6) + g.span(6), g.y(21.5)))
     cx = g.x(0) + g.span(6) / 2.0
-    wh = put_wordmark(L, cx, g.y(4.0), g.span(5.4))
+    wh = put_wordmark(L, cx, g.y(4.0), g.span(5.4), ink=mark)
     T(L, g, cx, g.y(4.0) + wh + g.base * 1.2, LETRERO, "cond", g.pt(-0.7),
            rule_col, tracking=g.pt(-0.7) * 0.22)
     if big:
@@ -565,15 +594,39 @@ def _paisaje(L, g, style, edge, rule_col, big=None, big_col=None, txt=TINTA):
            tracking=g.pt(-2.3) * 0.1)
 
 def p_vidriera(g, L):
-    _paisaje(L, g, "azulejo", CIELO, CIELO, big="ABIERTO", big_col=HUESO)
+    _paisaje(L, g, "azulejo", CIELO, CIELO, big="ABIERTO", big_col=HUESO,
+             mark=HUESO)
 
 def p_postal(g, L):
-    # `silueta` at this size read as an unrecognisable black lump; `plano`
-    # keeps the vehicle legible on a 148 mm card.
-    _paisaje(L, g, "plano", TINTA, GRANA)
+    """THE PICTURE SIDE OF A POSTCARD -- the drawing is the piece.
+
+    ⚠ It and `tarjeta` were the SAME CALL, `_paisaje(..., "plano", ...)`, at
+    two sizes: two of eleven pieces in a set whose whole purpose is range.  A
+    postcard leads with the picture and signs it small; a calling card leads
+    with the mark.  They are two layouts now, and `silueta` stays out of both
+    -- at 148 mm it read as an unrecognisable black lump."""
+    L.frame(g.m * 0.5, GRANA, g.s / 260.0)
+    put_hero(L, "plano", (g.x(0), g.y(1.6), g.x(0) + g.span(12), g.y(16.6)))
+    L.line(g.x(0), g.y(18.0), g.x(0) + g.span(12), g.y(18.0), GRANA,
+           g.s / 420.0)
+    wh = put_wordmark(L, g.x(0) + g.span(4) / 2.0, g.y(19.0), g.span(4))
+    T(L, g, g.x(0) + g.span(12), g.y(19.0) + wh * 0.62, LETRERO, "cond",
+           g.pt(-1.2), GRANA, anchor="end", tracking=g.pt(-1.2) * 0.22,
+           measure=g.span(7))
+    T(L, g, g.x(0) + g.span(12), g.y(22.9), PROV, "cond", g.pt(-2.2), GRANA,
+           anchor="end", tracking=g.pt(-2.2) * 0.08, measure=g.span(9))
+
 
 def p_tarjeta(g, L):
-    _paisaje(L, g, "plano", GRANA, GRANA)
+    """THE CALLING CARD -- the mark is the piece and the drawing signs it."""
+    L.frame(g.m * 0.5, GRANA, g.s / 240.0)
+    wh = put_wordmark(L, g.w / 2.0, g.y(2.4), g.span(7))
+    T(L, g, g.w / 2.0, g.y(2.4) + wh + g.base * 1.1, LETRERO, "cond",
+           g.pt(-0.4), GRANA, tracking=g.pt(-0.4) * 0.26)
+    put_hero(L, "plano", (g.x(3), g.y(12.6), g.x(3) + g.span(6), g.y(20.2)))
+    T(L, g, g.w / 2.0, g.y(22.6), PROV, "cond", g.pt(-2.2), GRANA,
+           tracking=g.pt(-2.2) * 0.08,
+           measure=g.w - 2 * (g.m * 0.5) - 2 * g.gut)
 
 def p_vaso(g, L):
     L.rect(0, 0, g.w, g.base * 0.8, GRANA)
@@ -685,6 +738,14 @@ def main(argv):
            % (nsh, len(FIT), worst[2], worst[0], worst[1]))
 
     # ================================================== IS THE TYPE THERE
+    if MARCAS:
+        wm = min(MARCAS, key=lambda m: m["ratio"])
+        ck(wm["ratio"] >= MARCA_BAR,
+           "wordmark: %d drawn, each checked against the ground it is printed "
+           "on; weakest %.3f:1 on %s (%s on %s, bar %.1f)"
+           % (len(MARCAS), wm["ratio"], wm["piece"], wm["ink"], wm["ground"],
+              MARCA_BAR))
+
     cov = sorted(((t.get("tapado", 0.0), t["piece"], t["s"][:30])
                   for t in TEXTS), reverse=True)
     if cov:
