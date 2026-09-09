@@ -1,0 +1,515 @@
+[
+{
+"id": "owner-forced-choice",
+"area": "system",
+"criterion": "The only instrument in this project that can grade a drawing is the owner, and his answers are recorded against the artefact they were given, so they go stale visibly when the artwork changes.",
+"test": "For each question: one crop, one mark, one sentence, multiple choice, reference attached, asked with the question tool. Script side: write the answer into a tracked JSON keyed by the SHA-256 of the SVG master it was asked about; a row whose stored hash does not match the current master reads STALE, not PASS.",
+"threshold": "Every open owner question has a recorded answer keyed to a current hash, or reads STALE. Zero design decisions closed by self-review.",
+"priority": "P1",
+"implementable": true
+},
+{
+"id": "category-generic",
+"area": "sector",
+"criterion": "Distinctiveness is measured against the CATEGORY, not against our own previous work. A suite can be flawlessly self-consistent and indistinguishable from twenty other taquerias, and no check inside this repository can see that, because every check here compares the work only to itself.",
+"test": "Assemble a board of >=20 real taqueria / fast-casual Mexican identities as images. Mechanical half: extract each board entry's dominant colours (k-means in CIELAB) and typeface class, and report the minimum dE00 from each of our palette inks to the board's modal colour, plus whether our display class (slab) is the board's modal class. Human half: show one of our pieces beside the board to people not on the project and ask which is ours, and which elements read as category cliche.",
+"threshold": "Report only. No dE threshold \u2014 the 20-brand board, the dE00<=10 boundary and the 2-of-5 viewer rule are all authored by the researcher and were dropped. The deliverable is the board and the answers.",
+"priority": "P1",
+"implementable": false
+},
+{
+"id": "defect-inheritance",
+"area": "craft",
+"criterion": "No piece may carry an asset that is the subject of an OPEN finding, and every traced asset is compared to the capture it was traced from.",
+"test": "(a) For every registered asset id used in any master, assert no row in OPEN_FINDINGS graded OPEN names it. (b) For every asset recovered by tracing (the wordmark, the hero, the hubcap glyphs), register the source capture, rasterise both to a common frame, compute ink IoU and per-stroke coverage of source-by-trace, PAINT the difference image and look at it before publishing either number.",
+"threshold": "Zero pieces carrying an OPEN-graded asset, or the inheritance is declared per piece with the finding id. Trace coverage reported, not gated, until a floor has been watched printing.",
+"priority": "P1",
+"implementable": true
+},
+{
+"id": "contact-sheet-and-two-views",
+"area": "system",
+"criterion": "The unit of review is the SET, seen at the size the owner actually looks at, and every piece is inspected at BOTH thumbnail and 100%.",
+"test": "Render all seventeen masters to a common contact sheet at fixed thumbnail height (~120 px) and save it as a tracked artefact. Mechanical complement: per piece compute a feature vector (ink coverage, dominant-colour count, mark scale as a fraction of trim, margin ratio) and report the across-set variance of each component as one figure. Then downscale each piece to its real delivered size (grid thumbnail for social, arm's length for print) and print the crop. A human must look at both before any per-piece number is published.",
+"threshold": "Contact sheet exists and has been looked at this revision. Across-set variance reported, not gated. No numeric bar \u2014 the failure it catches ('None of them yet', 'that's not a product') was found by looking, twice.",
+"priority": "P1",
+"implementable": true
+},
+{
+"id": "underlay-hero-hierarchy",
+"area": "system",
+"criterion": "The vehicle is an underlay, not the hero. Each piece declares its hero and its underlay as separate registered layers, and the underlay never wins.",
+"test": "Per piece, register the underlay layer and the hero layer. Report: hero ink area as a fraction of trim, hero's rank among all elements by contiguous ink mass, and whether the underlay occupies the piece's optical centre or its largest single mass. Compute contiguous mass by connected components on the ink mask, weighted by local contrast against the ground.",
+"threshold": "Report per piece with the hero named. The underlay must not be rank 1 by weighted mass on any piece, or the departure is declared with a reason.",
+"priority": "P1",
+"implementable": true
+},
+{
+"id": "format-native",
+"area": "system",
+"criterion": "No piece is another piece rescaled. Each format is composed for its own aspect ratio and viewing distance while the registered asset set stays identical.",
+"test": "For each piece build a normalised composition vector: every element's centre as (x/trim_w, y/trim_h) plus its area fraction, sorted by area. For every pair, compute the residual after allowing a uniform scale and a uniform aspect correction \u2014 explicitly testing 'B is A rescaled'. Flag any pair below the similarity floor. Separately assert the two pieces' registered asset sets are identical, so the check rewards same-assets/different-composition. ABLATION: plant a deliberately rescaled duplicate and set the floor where the residual actually falls.",
+"threshold": "Zero pairs among the seventeen classify as affine rescalings. Floor set by the planted duplicate, not chosen in advance.",
+"priority": "P1",
+"implementable": true
+},
+{
+"id": "hierarchy-exists-per-piece",
+"area": "typography",
+"criterion": "Every piece uses more than one clearly separated size level, and every level is a step on one declared scale \u2014 not a fitting residual.",
+"test": "Measure rendered CAP HEIGHT off the glyph outline in the rendered proof (not the font-size attribute \u2014 pliego's fit_pt() rescales to fit, so the two diverge). Per piece: count distinct cap heights and report the ratio between adjacent levels. Across the set: assert every size is within 1.5% of a step on one declared geometric scale, and that zero bare numeric size literals appear at call sites.",
+"threshold": "Structural assertions gate: no bare size literals; every size on the declared scale. Counts and ratios are REPORTED. Live and failing today: pl_impreso_lealtad, pl_impreso_tarjeta and pl_mercancia_chapa each resolve to a SINGLE size (1.8000 mm) for headline, body and disclaimer alike; pl_calle_aframe's top two levels are 29.2134 and 25.7077 mm, a 1.14x step.",
+"priority": "P1",
+"implementable": true
+},
+{
+"id": "one-structural-device",
+"area": "system",
+"criterion": "The suite carries one ownable non-typographic device that does structural work \u2014 it frames, holds, crops or cuts \u2014 rather than sitting as decoration, and it is used across a wide scale range.",
+"test": "Register the device as a named symbol. ABLATION, which is the whole test: delete the device layer, re-render, and measure how many other elements lose their effective bounds or shift position. A structural device changes other elements' layout; a decorative one only removes ink. Report the count of pieces whose layout breaks, plus the device's scale range (largest reproduced dimension / smallest).",
+"threshold": "Report. No presence percentage, no area fraction, no scale-range multiple \u2014 all three were the researcher's own inventions and all three lenses stripped them.",
+"priority": "P1",
+"implementable": true
+},
+{
+"id": "vernacular-source-named",
+"area": "sector",
+"criterion": "Every ornament, letterform system and graphic move cites ONE specific vernacular or historical source and works from it. Cliche design assembles generic signifiers; credible work is traceable.",
+"test": "Mechanical floor: a tracked PROVENANCE table keyed by every drawn ornament/lettering-system id; assert every id appearing in any master has a row with a non-empty source and a citation. Ban-list tripwire over every font-family name, filename and layer id \u2014 {Fiesta, Cantina, Mesquite, Papyrus, sombrero, maraca, cactus, serape, fiesta-stripe} \u2014 with a planted-token ablation. Human half, which is the actual check: place the drawn ornament beside its cited source and look.",
+"threshold": "100% of ornament ids carry a provenance row with a citation; 0 ban-list hits; ablation reds on a planted token. The resemblance judgement has no threshold.",
+"priority": "P1",
+"implementable": false
+},
+{
+"id": "signage-cap-height-from-the-reference",
+"area": "sector",
+"criterion": "The A-frame's type is sized from a declared reading distance, and it is calibrated against the owner's own photograph of a real Tacombi A-frame rather than against a trade rule of thumb.",
+"test": "Measure cap height as a FRACTION OF PANEL HEIGHT on ref_sign_aframe.jpg for each message level, and compute the same fraction on pl_calle_aframe.svg (600x900 mm). Report both. Separately, state one legibility index per row and never mix them: the sign trade's 1 inch per 10 feet is 8.33 mm of cap height per metre of best-impact distance (x1.15 if all-caps); USSC's Legibility Index of 30 ft/in is a maximum-readable research figure and is a DIFFERENT quantity. Measured today: the primary line is Alfa at 29.2134 mm giving ~22.7 mm cap, which supports ~2.4 m at the trade rule with the all-caps penalty.",
+"threshold": "Cap-height fraction reported against the photograph. Reading distance D is an OWNER question, put as multiple choice with his photograph attached \u2014 it drives the entire threshold and it is his to choose. The 1in/10ft rule is labelled 'trade convention, USSC attribution unverified'. The '28.6 arcminutes' figure is not published.",
+"priority": "P1",
+"implementable": true
+},
+{
+"id": "spanish-register",
+"area": "craft",
+"criterion": "The Spanish is set as Spanish: accents carried on capitals, opening inverted marks present, sentence case not English title case \u2014 with a REPLICATED exemption table that is encoded before any orthography clause is armed, because the replication rule and the orthography rule point opposite ways on the same string.",
+"test": "Order matters and is part of the test. FIRST build a REPLICATED table naming every string that replicates source artwork, with its source (LETRERO off ref_sign_aframe.jpg; the menu strips off the mural capture). THEN scan every drawn literal and every SVG text node: any string containing ? or ! must carry the opening mark; every all-caps Spanish word must carry its tilde unless it is a sigla or in REPLICATED; flag multi-word Title Case; flag 'y' before an /i/ sound and 'o' before /o/; abbreviate numero as n.\u00ba (U+00BA plus the point), not N\u00ba. Assert the two checks are mutually exclusive by construction.",
+"threshold": "Zero undeclared unaccented capitals. LIVE AND FAILING in the shipped masters: MIERCOLES and SABADO on pl_calle_horario, MENU DE MUESTRA on three pieces, MERCANCIA on two \u2014 no comment anywhere declares them deliberate. Either carry the tildes or declare the unaccented setting as a rotulista convention with the sign it replicates cited.",
+"priority": "P1",
+"implementable": true
+},
+{
+"id": "language-register",
+"area": "sector",
+"criterion": "Which language each surface speaks is an identity decision, and it is made rather than inherited.",
+"test": "Per piece, classify every non-colophon run as Spanish, English or proper noun, and report the mix per piece and per category. Currently the masters set GOURMET TACOS / TORTAS / FRESH JUICES / CEVICHE-TOSTADAS / SHRIMP & FISH (English, off the mural) directly beside TAQUERIA y CERVECERIA and SE SIRVE DESDE LA COMBI (Spanish).",
+"threshold": "Report the mix, then put it to the owner as one multiple-choice question: is the English inherited from the mural, or is it the register? No automatic verdict.",
+"priority": "P1",
+"implementable": true
+},
+{
+"id": "asset-register-and-occlusion",
+"area": "system",
+"criterion": "Identity is carried by a portfolio, not a wordmark. Occlude the wordmark and the piece is still attributable.",
+"test": "Declare an explicit asset register (each asset a named symbol with an id). For each piece, rasterise at 300 ppi and compute each registered asset's ink area as a fraction of TRIM, measured on the RENDERED raster so an asset that is clipped, occluded or off-canvas counts as absent. Then emit a wordmark-occluded variant of every piece \u2014 same pipeline, the wordmark filled with its ground \u2014 as a tracked artefact keyed to the master's content hash, and put the seventeen occluded variants to the owner as one sheet.",
+"threshold": "No piece carries only the wordmark. Register census reported, not gated: the 4-7 register size, >=3 assets per piece and the 0.5% area floor are all the researcher's own and no source gives a portfolio target. No attribution percentage is published from n=1.",
+"priority": "P1",
+"implementable": true
+},
+{
+"id": "portability-cold-clone",
+"area": "craft",
+"criterion": "The deliverable renders correctly off this machine. A master that silently falls back to a different face in the owner's hands is a different design.",
+"test": "In a clean container with fonts/ absent and no system font path, render each SVG and assert the ink mask matches the tracked proof. Assert every external reference in every master is a data: URI or a repository-relative path. Assert every referenced face resolves to a file INSIDE the repository.",
+"threshold": "Zero file:/// or absolute-path references; zero faces outside the repository; rendered ink identical to the tracked proof on a clean machine. Currently RED: every master embeds its faces as url('file:///home/user/combi_render/fonts/...'), and lienzo's 'serif' resolves to a system Type1 at /usr/share/fonts/X11/ that the repository does not contain.",
+"priority": "P1",
+"implementable": true
+},
+{
+"id": "instrument-discipline",
+"area": "craft",
+"criterion": "Every row in this standard declares what CLASS of claim it makes, reports ABSENT rather than PASS on an empty match set, paints the window it selects before publishing a number from it, and has been WATCHED FAILING on a planted defect.",
+"test": "Four assertions on the suite itself, not on the artwork. (a) Every row carries a class: production floor, conformance statement, house convention, or fidelity to the vehicle \u2014 and no row may be quoted as fidelity. (b) Every row reports the count of elements examined; a row that examined zero prints ABSENT. (c) Every row whose measurement passes through a mask, window, ring, band or classification writes that selection out as an image, tracked, before its number is published. (d) Every row names an ablation, records the value that ablation printed, and does not enter the suite until it has been seen to red.",
+"threshold": "100% of rows classed, counted, painted where applicable, and ablated. Zero rows passing on an empty match set.",
+"priority": "P1",
+"implementable": true
+},
+{
+"id": "style-distinctness-and-one-brand",
+"area": "system",
+"criterion": "The six drawing styles must be visibly different from each other AND must still read as one brand.",
+"test": "Reuse estilos.py's existing pairwise style-distance measure (closest pair papel/sello at 15.37 against a floor of 6.0) for the difference half. For the coherence half: hold the registered asset set and the mark's geometry constant across all six re-mappings and assert the asset register is identical style to style; then show the six side by side to a human and ask whether they are one brand or six.",
+"threshold": "Pairwise distance above the existing floor; asset register identical across styles. The coherence judgement is human and has no threshold.",
+"priority": "P1",
+"implementable": true
+},
+{
+"id": "piece-earns-its-place",
+"area": "system",
+"criterion": "Each piece declares the job it does \u2014 attract, inform, convert, sell \u2014 and the SET is checked for covering the jobs the owner's own reference implies. Cutting a piece is a first-class outcome.",
+"test": "Per piece, a declared job in the manifest. Report the job coverage of the set against the jobs implied by ref_sign_aframe.jpg. Report any piece whose job is already served by another piece.",
+"threshold": "Every piece has a declared job; every job in the reference set is served by at least one piece. Currently unserved: CONVERT \u2014 his photograph is a sidewalk offer sign with a QR, an app callout and two dollar figures, and not one of the seventeen has a call to action of any kind.",
+"priority": "P1",
+"implementable": true
+},
+{
+"id": "offer-surface-and-qr",
+"area": "sector",
+"criterion": "If the collection gains the offer surface his photograph shows, its scannable element works at the distance it is read from, and its offer copy is sourced or marked unapproved.",
+"test": "Conditional on the owner ruling that an offer piece exists. Then: render the piece to raster at exact final physical size at >=600 ppi, crop the symbol, and DECODE it with a real decoder; assert the payload is byte-identical to the intended URL. Repeat on a degraded copy (blur + 3% noise + 1% scale error). Measure and REPORT module pitch in mm and quiet zone in modules. Assert the symbol is a single K value. Assert every offer string is either in a tracked sourced table or accompanied by a non-approval mark on the same artefact.",
+"threshold": "Decode succeeds at 100% size and after degradation. Quiet zone >=4 modules (ISO/IEC 18004). Module size and symbol width REPORTED, not gated \u2014 GS1's 0.396/0.495/0.990 mm X-dimensions govern retail point-of-sale scanning, not a pavement sign read by a phone at 1-3 m, and the 1.5 mm signage floor was the researcher's own extrapolation. Validate empirically by printing a proof and scanning it at the real distance.",
+"priority": "P1",
+"implementable": true
+},
+{
+"id": "tacombi-conflict-declared",
+"area": "sector",
+"criterion": "Our work is not recognisably the real Tacombi, and that conflict is raised to the owner rather than acted on or hidden \u2014 while no artefact may imply official status.",
+"test": "Hard assertion, needs no external source: scan every master for strings implying official standing \u2014 'official', 'oficial', a registered mark, an entity name \u2014 and assert zero. Then raise the conflict as ONE multiple-choice owner question with both type registers rendered side by side: our Alfa/Oswald against the documented Vista Hermosa register (PAG Revolucion, Davida, Roberta).",
+"threshold": "Zero official-status strings. The type and palette question is put to him, never gated on. Recorded result: the taqueria wordmark and its colours CANNOT BE RECOVERED from what we hold \u2014 no hex, no Pantone, no guideline, and the Vista Hermosa identification describes the packaged-goods line.",
+"priority": "P1",
+"implementable": true
+},
+{
+"id": "print-claim-boundary",
+"area": "print",
+"criterion": "WCAG is scoped to web content. Fourteen of these seventeen pieces are print or physical, so a contrast figure over them is a FLOOR, never a conformance claim \u2014 and the 18pt/14pt-bold large-text threshold is a screen-reading-distance premise that means nothing on an A2 at 2 m or a board at 3 m.",
+"test": "Two separately reported quantities, never merged. (1) RATIO FLOOR: for every text run in every master, resolve the fill and the nearest opaque ancestor whose bbox contains the glyph bbox \u2014 PAINT that window and look at it first \u2014 and compute (L1+0.05)/(L2+0.05) with L = 0.2126R+0.7152G+0.0722B on channels linearised at the 0.04045 knee. Label every print row 'FLOOR (WCAG formula applied outside WCAG scope \u2014 not a conformance claim)'. Gate as conformance only on cuadro, historia and cabecera. (2) ANGULAR SIZE: each piece declares a viewing distance; report theta = 2*atan(h/(2d)) in arcminutes for the smallest run. Exempt logotype runs BY NAME, never silently.",
+"threshold": ">=4.5:1 normal, >=3:1 large (>=18pt or >=14pt bold) as a gate on the three screen pieces and a labelled floor everywhere else. Angular size REPORTED \u2014 the 16 and 10 arcminute floors could not be traced by any pass and are not published. Verified: #601A16 on #EBBB55 on the A-frame is 7.11:1.",
+"priority": "P1",
+"implementable": true
+},
+{
+"id": "constants-inventory",
+"area": "system",
+"criterion": "The constants are few, explicit and measurably constant across every piece. Range comes from what is allowed to vary, not from drift in what is supposed to be fixed.",
+"test": "Parse all seventeen masters and extract, from the RENDERED colour after filters and opacity (not the declared attribute): every font family on glyph-bearing nodes; every fill and stroke converted to CIELAB and clustered at dE00 <= 2.0; every stroke width normalised against the piece's base type size; every corner radius likewise; every margin as a fraction of trim width. The register must be AUTHORED AND COMMITTED FIRST \u2014 generated from the artwork it can never fail.",
+"threshold": "Report the census as a regression baseline. Zero values absent from the committed register. Design modules only: the brand red is authored independently in at least six places (promo 158,38,31; estilos 172,41,33 and 176,38,30; cal_gen 196,49,36 and 198,40,36), but lid_gen's values are the VEHICLE'S MEASURED PAINT and are excluded by name with the reason recorded.",
+"priority": "P1",
+"implementable": true
+},
+{
+"id": "svg-is-not-a-print-master",
+"area": "print",
+"criterion": "This toolchain cannot produce a print master, and that is the finding \u2014 not seventeen separate reds. SVG carries no CMYK, no spot colourant, no overprint, no output intent and no trim or bleed boxes, so the SVG-to-PDF seam is where all of them were supposed to be assigned and were not.",
+"test": "Enumerate the colour space of every fill and stroke in the PDFs; assert zero unmanaged RGB in a CMYK job, every spot a /Separation with a named colorant matching a declared ink list, and /All only on printer marks. Then the probe that settles it: round-trip a file containing one spot colour and one overprinting object through the actual converter and read the result back. If the probe loses them, the toolchain cannot make a print master.",
+"threshold": "VERIFIED RED today: all seventeen PDFs are PDF-1.4, DeviceRGB, with zero /TrimBox, zero /BleedBox, zero /OutputIntent, zero /Separation. The honest deliverable label is 'SVG master + proof', not 'print-ready'.",
+"priority": "P1",
+"implementable": true
+},
+{
+"id": "caps-tracking",
+"area": "typography",
+"criterion": "Tracking is a function of size and case held in ONE table, and capital settings carry positive tracking. Word spaces are never used as a tracking mechanism.",
+"test": "(a) Scan every drawn literal for two or more consecutive U+0020; any hit fails. (b) For every run compute t_em = letter-spacing_mm / font-size_mm and assert 0.05 <= t_em <= 0.12 for capital runs \u2014 measured ABSOLUTELY, because there is no lowercase comparator anywhere in the set except the deliberate 'y' in LETRERO. (c) Assert tracking is a function of (size, case) alone and does NOT depend on the string's length. Classify CAPS as 'majority of cased letters uppercase AND >=2 uppercase', not '^[^a-z]*$', which excludes LETRERO.",
+"threshold": "Zero literals with consecutive U+0020 \u2014 currently RED in promo.py and coleccion.py, 16 hits including 'SE   SIRVE   DESDE   LA   COMBI'. Capital tracking 0.05-0.12 em; the A-frame's caps subhead sits at ~0.26 em, roughly twice the top of the range.",
+"priority": "P2",
+"implementable": true
+},
+{
+"id": "no-synthesised-or-distorted-forms",
+"area": "typography",
+"criterion": "Every weight, italic and small cap resolves to a real drawn file, and no letterform or artwork is ever transformed non-uniformly.",
+"test": "Assert every (family, weight, style) requested resolves to a file on disk whose OS/2 usWeightClass is within 50 and whose post.italicAngle is non-zero iff italic was requested. Add font-synthesis:none to the emitted SVG style block alongside the existing font-kerning:normal. Parse every transform: for each matrix, compute the singular values of the linear part and assert sigma1/sigma2 <= 1.001 on type; assert |b|,|c| < 1e-6 (no shear); assert no glyph is stroke-emboldened. ABLATIONS: request a weight the file lacks, and plant scale(1.0,1.06); watch both red.",
+"threshold": "Zero synthesised styles, zero shear, zero anisotropic transforms on type. Currently GREEN BY NON-USE, not by discipline: lienzo exposes weight= and caps= against one-file-per-family @font-face declarations with no font-synthesis:none, and the masters happen to use font-weight zero times and small-caps zero times. That is a loaded gun.",
+"priority": "P2",
+"implementable": true
+},
+{
+"id": "character-census",
+"area": "craft",
+"criterion": "Typographic quotes, real ellipses, en dashes for ranges, one space after a period, no soft-hyphen debris \u2014 with the REPLICATED exemption table encoded, not remembered.",
+"test": "Regex every drawn literal and every SVG text node. Fail on U+0027 and U+0022 outside a declared units context; on a hyphen between two digits; on three consecutive full stops; on stray U+00AD; on two spaces after a sentence-final period. Assert one declared dash rule and 100% conformance to it. Every exempt string named in the REPLICATED table with its source. Report the number of runs SCANNED alongside any zero, so a clean set is distinguishable from an empty one. ABLATION: plant a straight apostrophe and watch it red.",
+"threshold": "Zero violations in authored strings. Currently green across 65 text runs in the seventeen masters \u2014 and coverage is thin, since the set's only punctuation is the middot.",
+"priority": "P2",
+"implementable": true
+},
+{
+"id": "glyph-coverage",
+"area": "craft",
+"criterion": "The faces actually contain the glyphs the Spanish copy needs.",
+"test": "For each tracked face, read the cmap with fontTools and assert coverage of every codepoint used anywhere in the set, plus at minimum N-tilde, the five acute vowels, U-diaeresis, U+00BF and U+00A1.",
+"threshold": "Zero missing codepoints per referenced face. A missing glyph renders as .notdef or falls back mid-word at poster size and passes every orthography check, because the string was correct.",
+"priority": "P2",
+"implementable": true
+},
+{
+"id": "kerning-and-shaping-guard",
+"area": "typography",
+"criterion": "Text is shaped as runs, never placed glyph by glyph, and no drawn run bypasses the shaping engine.",
+"test": "Assert font-kerning:normal is present in every emitted master and that no run reaches the page through a per-glyph placer. ABLATION and arithmetic proof: compare shaped advance against the naive sum of per-glyph advances \u2014 a run shaped correctly gives delta exactly 0.",
+"threshold": "Delta 0 on the shipped masters. VERIFIED: the seventeen masters carry font-kerning:normal and shape through Chromium. The superseded PIL path (promo.ls_text, imported by coleccion.py) discards all kerning \u2014 measured at -4.95% of run width on Bitter 'Yo Wo Ta' and ~0.10 em on the worst single pair.",
+"priority": "P2",
+"implementable": true
+},
+{
+"id": "optical-centre",
+"area": "typography",
+"criterion": "Centred elements are centred on their ink and on the metric the string actually uses \u2014 cap height for an all-caps line, never a probe string containing a descender.",
+"test": "Horizontal: compute the ink bbox from the rendered raster and assert |ink_centre - frame_centre| within tolerance; do NOT use the advance box. Vertical: assert the centring metric matches the run's actual case. The masters centre via SVG text-anchor with no dominant-baseline set at all, which is a different mechanism and is untested \u2014 that is where the equivalent defect would hide now.",
+"threshold": "Horizontal within 0.25% of frame width; vertical residual within 1% of cap height. In the superseded PIL path, promo.ls_text uses a fixed f.getbbox('Hxy') probe, putting every centred capital line high by 7.1-11.7% of em (14.4% of cap height in Alfa).",
+"priority": "P2",
+"implementable": true
+},
+{
+"id": "small-type-per-substrate",
+"area": "print",
+"criterion": "The smallest type and the thinnest stroke are held to the floor of the PROCESS that piece is printed by, and the floor is declared per substrate rather than inherited from one global constant.",
+"test": "Declare each piece's process (offset, digital, screen, flexo packaging, enamel). Measure EFFECTIVE size and width after the accumulated CTM \u2014 authored width x sqrt(|det(CTM)|) \u2014 at final trim, not the authored attribute, and measure type off the rendered outline because fit_pt() rescales. Detect reversed runs by sampling ground luminance within 2 mm; PAINT that positive/reversed classification mask and look at it before publishing any count from it. Cross-check the vector answer against a 1200 ppi raster measurement of the thinnest continuous ink.",
+"threshold": "Offset positive >=6 pt, stem >=0.25 pt (flag) / >=0.5 pt (engineering bar); screen print >=8 pt, positive rules >=1 pt; flexo packaging >=8 pt positive and >=10 pt reversed, rules >=2 pt / >=4 pt reversed. ENAMEL: UNKNOWN \u2014 no pass found any figure, and chapa is one of the seventeen; it stays UNKNOWN until the badge supplier states one. Currently RED: MIN_TIPO_MM = 1.8 (~5.1 pt) is used as one global floor and lealtad, tarjeta, chapa and vaso all set their colophon AT it; thinnest stroke is 0.0857 mm (0.243 pt) on lealtad.",
+"priority": "P2",
+"implementable": true
+},
+{
+"id": "page-boxes-and-pdfx",
+"area": "print",
+"criterion": "A print master declares its geometry and its printing condition: a TrimBox at finished size, a BleedBox outside it, fonts embedded and subset, no encryption, and an output intent naming the condition the colour numbers mean.",
+"test": "With pikepdf read /MediaBox, /TrimBox, /BleedBox per page and assert MediaBox contains BleedBox contains TrimBox with no inversion. Assert Root.OutputIntents exists with /S /GTS_PDFX and a /DestOutputProfile stream. Assert every FontDescriptor carries /FontFile*, no /Encrypt, header >= 1.6. Report the four sub-assertions SEPARATELY so the one that passes is visible.",
+"threshold": "TrimBox = nominal trim; BleedBox - TrimBox >= 3 mm per edge on sheet-fed litho/digital <= A3. VERIFIED RED: all seventeen PDFs carry MediaBox only (the A-frame's is 1700.88 x 2550.96 pt = exactly 600 x 900 mm, trim with no bleed at all) and zero output intents; fonts ARE embedded and subset (AAAAAA+Oswald-Regular, BAAAAA+AlfaSlabOne-Regular) and there is no encryption, so one of four passes.",
+"priority": "P2",
+"implementable": true
+},
+{
+"id": "bleed-and-safe-area",
+"area": "print",
+"criterion": "Declared bleed is FILLED, not merely declared; the safe area holds an absolute floor as well as a proportional one; and pieces with no trim get a die or print-area spec instead of a bleed.",
+"test": "Reuse pliego's existing edge_clean()/_sin_sangre(), which reads the RENDERED band rather than the layout box (Chromium does the shaping, so Python cannot know where a run landed) and has been watched failing. Extend it from 'no unintended ink in the band' to 'declared bleed inks are CONTINUOUS to the band edge'. For the safe area, report the worst element per piece BY NAME against max(3.0 mm, 0.014 x short edge). Cross-check with PDF text bounding boxes as the independent second quantity, so the guard is not pliego checking pliego.",
+"threshold": "Zero unintended paper-white in a declared bleed band. Safe margin >= max(3.0 mm, 0.014 x short edge). Currently RED: the proportional band alone falls below the 3 mm trade floor on TEN of seventeen \u2014 tarjeta 0.77 mm, lealtad 0.84 mm, chapa 0.98 mm, social_cabecera 1.30 mm, vaso 1.33 mm. Also: vaso is declared as bleeding in SANGRA and its PDF has no BleedBox. chapa, playera, bolsa and vaso must assert NO bleed spec and a die/print-area spec instead.",
+"priority": "P2",
+"implementable": true
+},
+{
+"id": "black-and-ink-behaviour",
+"area": "print",
+"criterion": "Black is two colours used as two, and total ink coverage stays under the condition's limit \u2014 read out of the ICC profile, never hard-coded.",
+"test": "Blocked until a CMYK export path exists. Route (1), runnable today: convert each palette ink through a declared ICC profile and report the summed separations. Route (2), when a CMYK master exists: rasterise to separations, take per-pixel max of C+M+Y+K, report max and 99.9th percentile, and PAINT a heat map of over-limit regions before publishing the number. Assert small black type is single-separation and overprinting; assert rich black knocks out and never carries small type.",
+"threshold": "TAC limit read from the profile (ISOcoated_v2_300_eci enforces 300%; uncoated lower). LIVE FINDING, independent of the export path: TINTA is #241E1E, a warm near-black, not K100 \u2014 so every 1.8 mm colophon and every 0.0857 mm rule would separate as a multi-plate build and show misregistration fringing. That is a token-level decision to make now.",
+"priority": "P2",
+"implementable": true
+},
+{
+"id": "gamut-survival",
+"area": "colour",
+"criterion": "Each palette ink is tested for whether it survives the press, before it is discovered on a proof.",
+"test": "With PIL.ImageCms (present here; runs on a cold clone with no Blender): convert each palette hex sRGB -> declared CMYK profile -> sRGB with relative colorimetric and black point compensation, and compute dE00 between original and round trip. Report coated and uncoated as separate columns. Emit a table: token, hex, Lab, coated dE00, uncoated dE00, verdict.",
+"threshold": "dE00 <= 2.0 reproduces; 2.0-3.0 flag; > 3.0 requires a declared print-specific alternate or a spot. Uncoated always separate \u2014 never one number for both. ROJO #AC2921 and GRANA #601A16 are the saturated reds at the CMYK edge and are the ones to watch.",
+"priority": "P2",
+"implementable": true
+},
+{
+"id": "palette-proportion",
+"area": "colour",
+"criterion": "Every pixel of ink is palette ink, and the proportion each ink holds is consistent across the collection.",
+"test": "Rasterise each piece's master at a common dpi, quantise every pixel to the nearest palette ink in CIELAB with a dE00 tolerance and an `unassigned` bucket. PAINT the quantised image beside the original and look at both before publishing any share. Report per piece the fractional area per ink, sorted; then report the across-set mean and standard deviation for each rank position.",
+"threshold": "`unassigned` <= 1% of every piece \u2014 a real finding when it fires, though it will legitimately pick up the traced hero's anti-aliased edges, so look at the mask. The cross-piece consistency bars (dominant sigma <= 0.15, accent <= 0.20) are AUTHORED with no source and are reported, not gated. 60/30/10 is NOT used: it has no traceable provenance.",
+"priority": "P2",
+"implementable": true
+},
+{
+"id": "colour-blind-and-encoding",
+"area": "colour",
+"criterion": "No distinction is carried by hue alone, and every screen deliverable is 8-bit sRGB whose exported pixels match the declared tokens.",
+"test": "(a) Run each proof through deuteranopia, protanopia and tritanopia simulation, recompute the contrast between registered element pairs on the simulated images, PAINT the element masks used, and LOOK at the three images. (b) For the three screen pieces assert PIL mode RGB/RGBA, 8 bits, ICC absent or sRGB, format in the destination's accepted set, and that the brand red decoded from the exported PNG is within dE00 (CIEDE2000, named) 2.0 of the declared token \u2014 two independently obtained quantities.",
+"threshold": "CVD half: REPORT, do not gate. The 'must still clear 4.5:1 after simulation' bar was the researcher's own and no standards body sets one; held as a gate it would push the brand red off the value measured from the vehicle, which F361 freezes. Encoding half gates. dE00 2.0 is a house bar and says so.",
+"priority": "P2",
+"implementable": true
+},
+{
+"id": "social-safe-zone",
+"area": "digital",
+"criterion": "The 9:16 piece is composed inside the platform UI band, and the feed piece uses a ratio the platform actually favours.",
+"test": "Re-measure against the CURRENT masters \u2014 pl_social_historia.svg (142.875 x 254.000 mm, 1080 x 1920 px exact) \u2014 not the superseded col_r80 rasters. Build an ink mask of the TEXT AND MARK layers only (background artwork may bleed) and assert zero ink in the top 14%, bottom 35% and outer 6% bands. Declare in source which safe-zone figure is being used and whether the asset is organic or an ad; they are different constraints. For the feed piece assert 0.8 <= w/h <= 1.91 and width >= 1080.",
+"threshold": "Zero text or mark ink in the declared bands. The 14/35/6 percentages and the circulating 108/320/60/120 px band DO NOT RECONCILE and neither was fetched by any pass; Meta's own percentages are used because they are the more conservative, and the conflict is carried in the row. 'Width exactly 1080' is dropped \u2014 it does not follow from the 320-1080 resample behaviour. Open design question: the set has cuadro 1:1, cabecera 3:1 and historia 9:16 and NO 4:5 piece, which is the tallest permitted feed frame.",
+"priority": "P2",
+"implementable": true
+},
+{
+"id": "contrast-over-underlay",
+"area": "digital",
+"criterion": "Text set over the vehicle underlay clears its bar against the pixels actually behind each glyph, not against the flat brand colour.",
+"test": "For each glyph take the ink mask, dilate by 2 px to get a ring of the ground immediately behind and around it, and compute the ratio against the 5th and 95th percentile of that ring \u2014 not the mean, which hides a highlight under one letter. PAINT the dilated ring and LOOK at it before publishing any number: a ring that has silently captured the keyline or the page ground instead of the hero is exactly the mask defect this repository has recorded five times in one revision. ABLATION: place a light run over a deliberately light patch of the underlay and watch the row red.",
+"threshold": ">=4.5:1 below 24 px rendered (18.5 px if bold), >=3.0:1 at or above, worst case of the two percentiles, no rounding. Applied as a gate on the three screen pieces and as a labelled floor on the print pieces, per print-claim-boundary. The percentile-ring sampling method is AUTHORED \u2014 W3C prescribes no sampling method over a photographic ground.",
+"priority": "P2",
+"implementable": true
+},
+{
+"id": "provenance-of-every-literal",
+"area": "craft",
+"criterion": "Every drawn string is MEDIDO, LETRERO or AUTORADO with a source and a capture date, and the colophon printed on a piece matches what is actually on that piece. Food words are commercial claims and get the same treatment.",
+"test": "Tokenise every text node against a food/claim lexicon SEEDED ONLY FROM THE DATED MURAL CAPTURE AND ref_sign_aframe.jpg \u2014 never from restaurant aggregator listings, which no pass could open and which go stale per location. For every hit assert a row in a tracked SOURCE table with the string verbatim, a citation or reference-photo filename, and a capture date. Assert any artefact carrying an unsourced or historical item also carries the non-approval mark. ABLATION: plant an invented dish name and watch the row red.",
+"threshold": "Zero unsourced food or claim tokens. Zero mismatches between a piece's colophon and its actual string provenance. Live surface: carta, volante and historia all print GOURMET TACOS / TORTAS / FRESH JUICES / CEVICHE-TOSTADAS / SHRIMP & FISH under a colophon reading MENU DE MUESTRA \u00b7 TOMADO DEL MURAL.",
+"priority": "P2",
+"implementable": true
+},
+{
+"id": "concept-not-a-regulated-menu",
+"area": "sector",
+"criterion": "A concept food artefact carries a non-approval mark rather than pretending to be a document in service.",
+"test": "Classify each artefact by shape (a list of >=3 food item names). Assert a mark from a tracked allow-list appears on it, rendered at or above the declared minimum size for that piece's process.",
+"threshold": "100% of food-list artefacts carry the mark. Already substantially satisfied: carta, volante and historia print 'MENU DE MUESTRA \u00b7 TOMADO DEL MURAL' and lealtad prints 'OFERTA DE MUESTRA \u00b7 NO APROBADA' \u2014 but those marks are set at 1.8 mm (~5.1 pt), below the 6 pt offset floor, so the mark itself fails small-type-per-substrate.",
+"priority": "P2",
+"implementable": true
+},
+{
+"id": "menu-price-register",
+"area": "sector",
+"criterion": "A menu with no prices reads as a deliberate register, not as a menu with the price column deleted.",
+"test": "Assert zero currency glyphs and currency tokens; zero leader runs of three or more '.', '\u00b7' or '\u2013' between two runs on a baseline; zero right-anchored text nodes in an item column. Measure and REPORT the ragged right edge of the item column.",
+"threshold": "Gates: zero currency glyphs, zero leaders, zero end-anchored runs in an item column. Currently near-green \u2014 65 runs, zero currency glyphs, zero leaders, one digit-bearing run \u2014 with text-anchor='end' appearing exactly twice, both on pl_impreso_postal.svg; paint those two and look. The 12% empty-gutter figure is the researcher's own, has never been watched printing, and is reported only. Note the masters set the menu as five centred strips, so there is no item column and the rag test currently has no object \u2014 report ABSENT.",
+"priority": "P2",
+"implementable": true
+},
+{
+"id": "merch-and-wrap-as-objects",
+"area": "sector",
+"criterion": "Merchandise is specified as a garment and a wrap is drawn on the surface it wraps.",
+"test": "(a) Garment: assert the artwork bbox is within the standard full-front print area, and that the manifest declares blank style, colour, fabric weight and ink count. REPORT whether the merch artwork's scale-normalised path set differs from the wordmark's. (b) Wrap: if the piece is presented AS A WRAP on a tapered vessel, assert the outer boundary is an annulus sector (two concentric arcs joined by two radial lines) and every text run is bound to a textPath concentric with it; if it is presented as a flat design panel, say so in the manifest.",
+"threshold": "Print area <= 305 x 356 mm nominal, 305 x 406 mm hard cap; centre 63-76 mm below the collar seam; manifest complete. VERIFIED: pl_mercancia_playera is 300 x 360 mm \u2014 4 mm past the standard height \u2014 and its artwork is the trade wordmark plus LETRERO. pl_mercancia_vaso is a flat 220 x 95 mm rectangle with zero textPath and zero arcs, so straight-set type on a tapered vessel. Concentricity, seam overlap and no-print bands come from the actual converter's template; the researcher's 0.5/1.0/3/3 mm are its own.",
+"priority": "P2",
+"implementable": true
+},
+{
+"id": "clearspace-and-minimum-reproduction",
+"area": "system",
+"criterion": "Protected space is a ratio of a measured element of the mark, never a fixed millimetre value, and the mark has a declared minimum reproduction size that its own smallest feature can survive.",
+"test": "(a) Assert the clear-space value in layout code is COMPUTED from a measured property of the mark, and grep that no piece contains a literal mm clear-space constant. (b) On the rendered proof, dilate the mark bbox by the clear-space unit, PAINT the dilated region, and assert it contains no other ink and does not cross the trim edge; report the worst clearance in units. (c) At the smallest size the mark appears anywhere in the set (currently the 70 x 76 mm badge), measure the narrowest stroke and the smallest counter by distance transform on the rasterised outline. ABLATION: shrink below the stated minimum and watch the row red.",
+"threshold": "Clear space >= 1.0 x the declared unit on all four sides, 0 intruding pixels. Multiplier is a DECLARED HOUSE CHOICE \u2014 published manuals run 0.5x to 2.0x and no evidence favours any. Stroke and counter at minimum size are REPORTED first; the 0.25/0.30 mm floors are the researcher's own litho conventions and must be watched printing before they gate.",
+"priority": "P2",
+"implementable": true
+},
+{
+"id": "variation-named",
+"area": "system",
+"criterion": "Every difference between a piece and the master is nameable from a fixed vocabulary. A difference that cannot be named is drift.",
+"test": "Each piece declares, from the eight-name vocabulary \u2014 colour variation, combination, content variation, positioning, repetition, rotation, scaling, shape transformation \u2014 how it differs from the master. Assert zero pieces whose difference is undeclared.",
+"threshold": "Declaration discipline only. NO CAP on how many mechanisms the suite uses, and no artefact-side verification of a declared mechanism.",
+"priority": "P2",
+"implementable": true
+},
+{
+"id": "grid-and-stroke-rhythm",
+"area": "craft",
+"criterion": "Vertical positions come from one grid with declared exceptions, gaps are measured ink to ink, stroke weights and radii scale with the piece, and nested radii are concentric.",
+"test": "(a) Assert every body baseline satisfies (y - origin) mod step == 0 or appears in an explicit OFF_GRID list with a one-line reason \u2014 this tests pliego's own docstring claim that every position comes from ONE modular grid. (b) Measure gaps INK TO INK on the rendered proof, classify pairs by type (type/type, type/rule, type/image, image/margin) and report the histogram per class; do NOT assert equality ACROSS classes, which is the tautology trap. (c) Report stroke_width / piece_diagonal per element class across all seventeen, and the distinct-value census. (d) Assert nested rounded rectangles satisfy inner_radius = outer_radius - gap. (e) Assert no zero-width or 'hairline' stroke, and that nothing relies on vector-effect=non-scaling-stroke in a print path.",
+"threshold": "Grid conformance and concentricity gate. Gap histogram, stroke-ratio constancy and the census are REPORTED \u2014 the <=3 values per class, +-1.5%, <=4 strokes and <=3 radii caps are all the researcher's proposals with no source. The cross-class optical corrections are set by looking once and then frozen in code; that origination step is not mechanisable.",
+"priority": "P2",
+"implementable": true
+},
+{
+"id": "determinism-and-reproducibility",
+"area": "craft",
+"criterion": "Every published figure is read against the noise floor of the artefact it is measured on.",
+"test": "Regenerate each master n=3 from an unchanged tree and report the ink-mask delta, the stroke count and the point count. Publish that noise floor beside every regression baseline this standard establishes.",
+"threshold": "Report per piece. Known live instance: F344 \u2014 calendario_ano_xxii.svg prints 2711 strokes / 19471 points as a single figure, while the line pass reproduces 2711-2716 / 19468-19475 at n=5. Any baseline set tighter than the noise floor is a guard that will red on nothing but weather.",
+"priority": "P2",
+"implementable": true
+},
+{
+"id": "font-licensing",
+"area": "craft",
+"criterion": "The faces are licensed for the way they are being shipped.",
+"test": "Assert every tracked face has its licence file present in the repository, and that an embedded or redistributed font is permitted by that licence. Alfa Slab One, Oswald and Bitter are OFL, which requires the licence to travel with any redistributed font data \u2014 and an embedded PDF is redistribution.",
+"threshold": "100% of tracked faces carry their licence text; zero faces embedded or outlined against their EULA. Currently unchecked; fonts/ contains three TTFs and no licence file.",
+"priority": "P2",
+"implementable": true
+},
+{
+"id": "unreferenced-and-outlined-assets",
+"area": "craft",
+"criterion": "Nothing is tracked but unused, text stays live rather than outlined, and the format tension is stated rather than resolved by habit.",
+"test": "Assert zero tracked font files referenced by no module and no master. Assert every FontDescriptor in the PDFs carries an embedded subset font. Assert the set of outlined elements equals a declared allowlist (logo, optically corrected display line) exactly.",
+"threshold": "Zero unreferenced tracked faces \u2014 currently RED: fonts/Bitter.ttf (44,880 B) is referenced by no .py and appears in none of the seventeen masters. STATE THE TENSION rather than picking a side: the PDF correctly keeps text live, but an SVG handed to a third party binds its faces by file:// and would need outlining, and outlining 1.8 mm type contradicts the keep-small-text-live rule.",
+"priority": "P2",
+"implementable": true
+},
+{
+"id": "emptiness-and-clutter-baseline",
+"area": "system",
+"criterion": "How much of each piece is empty is measured and tracked, and the widely quoted number for it is not used because it is a misattribution.",
+"test": "Rasterise each piece at 300 ppi excluding bleed and compute: ink coverage (fraction differing from the modal ground by dE00 > 5); the largest empty axis-aligned rectangle containing no ink, as a fraction of trim; the number of dominant colours by k-means at dE00 >= 10 separation. PAINT the empty-rectangle and ink masks and look at them \u2014 a full-bleed background silently inverts both. Optionally add Rosenholtz Feature Congestion and Subband Entropy, with the implementation version pinned.",
+"threshold": "REPORT ONLY, no gate. NO literature threshold exists for static promotional print, and a clutter-minimising bar on a poster is a direct push toward the bland middle. The 12% empty-rectangle, 55% ink-coverage and 5-colour bars have no source at all. DO NOT USE the 'white space increases comprehension ~20% (Lin 2004)' figure: Lin's paper studied hypertext retention in 24 adults aged 62-80 and says nothing about white space or margins; the claim was propagated via Galitz 2007.",
+"priority": "P2",
+"implementable": true
+},
+{
+"id": "word-count-and-single-lead",
+"area": "system",
+"criterion": "Each piece has exactly one run at the top of its size hierarchy, and its word count is reported by viewing class.",
+"test": "Parse text nodes; exclude colophon, legal and provenance runs, or the check is meaningless on this collection. Assert exactly one run at the top of the size hierarchy. Report words in the primary message and total non-colophon words, bucketed by declared viewing class (glance / approach / hand).",
+"threshold": "The single-lead assertion gates. Word counts are REPORTED as a census: the OAAA 7-word benchmark and the 3-5 second dwell figure are consistently stated industry practice that no pass could trace to any study, and the 12/25-word class totals are the researcher's own.",
+"priority": "P2",
+"implementable": true
+},
+{
+"id": "es-mx-locale",
+"area": "craft",
+"criterion": "Numbers, times and dates follow MEXICAN Spanish convention, not Peninsular. The decimal separator is a point and the group separator a comma; time is 12-hour with a.m./p.m. in the Latin American form.",
+"test": "Declare the locale as es-MX and check every formatted figure against CLDR data rather than memory. Regex every drawn figure and classify: '$1,250.00' is Mexican, '$1.250,00' is Peninsular. Assert times match h:mm a. Assert 'a.m.'/'p.m.' with no internal narrow no-break space (U+202F, which is the Spain form). Assert any '$' on a piece stating a price is disambiguated MXN/USD.",
+"threshold": "Wire it NOW even though zero figures are applicable \u2014 no piece states a price, a time or a date, and the hours card ships blank rules on purpose. Report '0 applicable figures: ABSENT'. The point is that the first price or opening hour is graded on arrival rather than shipped and caught by the owner.",
+"priority": "P2",
+"implementable": true
+},
+{
+"id": "measure-and-leading",
+"area": "typography",
+"criterion": "Where running copy exists, the measure sits in the readable band and leading is set at the size it will be read at.",
+"test": "For each block of >=3 lines, compute characters per line as set width / (sum of a-z advances / 26) from real font metrics, not an assumed average width. Compute L = baseline-to-baseline / rendered point size. Report cpl and L per block by name, and the sign of the L-vs-cpl slope across all body blocks.",
+"threshold": "45-75 cpl, target 66, as a DECLARED HOUSE CONVENTION sourced to Bringhurst. Display runs above 36 pt should be tighter than L = 1.2. Currently ABSENT: no block of three or more lines of running copy exists anywhere in the seventeen; the longest run is a 39-character colophon.",
+"priority": "P3",
+"implementable": true
+},
+{
+"id": "rag-widows-rivers",
+"area": "typography",
+"criterion": "No widow, no orphan, no single-word last line, no river.",
+"test": "Assert every paragraph fragment across a break keeps >=2 line boxes on each side. Assert no final line is a single word. For justified blocks, threshold the raster to ink and chain inter-word gap centroids down the lines; PAINT the detection mask and look at it before publishing any river count \u2014 a detector finding zero is indistinguishable from one whose window selects nothing.",
+"threshold": "Widows and orphans >= 2 (CSS Fragmentation Level 3 defines both with Initial: 2 \u2014 a standards-body definition borrowed as a house rule, not a print mandate). Final line >= 2 words. The 25%-of-measure runt floor and the 15% rag step are REPORTED \u2014 every pass searched for a sourced figure and found the literature describes rags only qualitatively. Currently ABSENT: no justified blocks, no hyphenation, no paragraph long enough to break.",
+"priority": "P3",
+"implementable": true
+},
+{
+"id": "flush-edge-notch",
+"area": "typography",
+"criterion": "Flush edges are aligned on ink, not on advance widths.",
+"test": "On the rendered raster, find the leftmost or rightmost ink column per line of each flush block and report the standard deviation across lines, excluding intentionally short lines. Report the measured overhang per hangable glyph.",
+"threshold": "REPORT ONLY. Assert that a hang table EXISTS and is applied; do not assert a hang depth \u2014 no pass found any published table of hang depths, and the 0.20-0.60-of-advance range was the researcher's own. Note the engine limitation in source: Chromium does not implement hanging-punctuation, so hangs would have to be hand-authored as per-glyph dx against the engine chosen to do the shaping. Coverage here is near zero \u2014 the set is centred capitals with almost no flush blocks and no quotes.",
+"priority": "P3",
+"implementable": true
+},
+{
+"id": "display-line-looked-at",
+"area": "typography",
+"criterion": "Somebody has looked at the largest line on every piece, at full size, before any number about it is published.",
+"test": "Render each piece's largest line alone at 300 dpi on white at 100% of final trim, save the crop as a tracked artefact keyed to the master's hash, and look at the rhythm of the gaps: does any one gap read wider or narrower than its neighbours. If a pair is wrong, fix that pair and record which one and why.",
+"threshold": "The crop exists, is current for the master's hash, and has been looked at. No numeric threshold \u2014 that is the point.",
+"priority": "P3",
+"implementable": false
+},
+{
+"id": "non-text-contrast-reserve",
+"area": "colour",
+"criterion": "Where a graphic object is required to understand the content, it clears 3:1 against its adjacent colour.",
+"test": "Maintain a hand-authored register of load-bearing objects per piece (keylines that define a field, rules that separate content, icon strokes, a QR). Sample the object's dominant colour and the median of a dilated annulus at its boundary; PAINT the annulus and the object mask and look before publishing. Run the spec's own prescribed test: flatten the object to its background and confirm a human reports the piece is no longer understandable.",
+"threshold": ">=3:1 for every registered object. Currently near-zero coverage: no QR, no chart and no icon exists in any master, and SC 1.4.11's first bullet concerns user-interface components and their states, which a printed sign has none of. Held in reserve against the offer-surface ruling.",
+"priority": "P3",
+"implementable": false
+},
+{
+"id": "finishing-spec",
+"area": "print",
+"criterion": "Non-flat pieces ship a production spec instead of a bleed: process, substrate, weight, finish, ink count with named colourants, finished size, and a die line or print area.",
+"test": "Assert a machine-readable job ticket per piece with those fields present and non-empty, and assert zero pieces where a bleed or trim spec was emitted for a process that has no trim.",
+"threshold": "100% field presence. Whether the VALUES are the right choices is a supplier's judgement and must be signed, not asserted. chapa already prints 'TROQUEL 59 mm' on its own face, which is the shape of the right answer.",
+"priority": "P3",
+"implementable": true
+},
+{
+"id": "file-caps-for-real-destinations",
+"area": "digital",
+"criterion": "Each exported file is checked against the caps of the destination it is actually going to.",
+"test": "For the three social pieces only: assert the exact declared pixel size (1400x1400, 1080x1920, 2100x700) and a format in the platform's accepted set. Record the DATE each cap row was checked \u2014 the one piece of metadata that would let the next context know whether to re-check.",
+"threshold": "Two lines for three pieces. Everything else \u2014 Meta's 30 MB ad cap, the 8 MB og:image cap, X's 5 MB crawler cap, Mailchimp's 1 MB, Google Discover's 1200 px \u2014 waits for a destination to exist, and every one of them reached the research without a readable last-updated date.",
+"priority": "P3",
+"implementable": true
+}
+]

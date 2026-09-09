@@ -52,6 +52,43 @@ Chromium), `estilo_vec.py` (four shape-based styles + the keyline system),
 
 ---
 
+## THE STANDARD — `ESTANDAR_rev81.json`
+
+**WHAT "OPTIMAL" MEANS IS NOW RESEARCHED RATHER THAN ASSERTED, AND IT IS A
+TRACKED FILE.** Eleven agents: seven parallel research sweeps — typography,
+colour, print production, digital format specs, flagship identity structure,
+food-and-hospitality sector (including what can be recovered about the REAL
+Tacombi brand), and mechanical craft defects — each required to fetch real
+sources and return a **mechanical test and a threshold**, not adjectives. Then
+three adversarial lenses over all 83 criteria: **provenance** (is the number
+traceable, or is it design folklore), **measurability** (can a program actually
+run this), and **fitness** (would following this make THIS work more generic —
+because the ask is a bar for DISTINCTION, and a standard that only enforces
+compliance produces competent, forgettable work).
+
+**57 criteria survived; 30 were rejected, each with its reason recorded in the
+file.** ⚠ **MOST OF THE NUMBERS THE RESEARCH PRODUCED WERE STRIPPED BY THE
+LENSES AS THE RESEARCHERS' OWN INVENTIONS** — a 20-brand competitor board, a
+dE00 ≤ 10 boundary, "three assets per piece", a 0.5 % area floor, a 1.5 mm QR
+module, 16 and 10 arcminute legibility floors. What survived is mostly
+STRUCTURE, and that is the honest result rather than a disappointing one.
+
+⚠ **THE STANDARD IS NOT A CARRIER THIS REPOSITORY'S OTHER MACHINERY READS.**
+Nothing in `verify_clone.sh`, `bootstrap.sh` or `audit_brief.py` mentions it.
+It is carried by this ledger and by the rows in `pliego.py` that implement it,
+and by nothing else.
+
+**What it says the suite is missing, in its own words:** a competitor board
+(nothing here compares this work to anything but itself); per-piece hierarchy;
+an offer surface — *his photograph is a sidewalk sign with a QR, an app callout
+and two dollar figures, and not one of the seventeen has a call to action*;
+corrected Spanish; a portable master; and the fact that F01/F39 and F63/F69 are
+reproduced on every piece. It also states plainly that **print conformance —
+TrimBox, output intent, ink limits — is table stakes, and fixing it will not
+make one piece distinguished.**
+
+---
+
 ## THE EIGHTEEN FINDINGS, F384–F409
 
 Full rows with measurement, ceiling and grade are in **`OPEN_FINDINGS.md`**.
