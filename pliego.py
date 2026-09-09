@@ -54,6 +54,14 @@ def T(L, g, x, y, s, face, pt, fill, anchor="middle", tracking=0.0, measure=None
         if w_at_floor < pt - 1e-9:
             DEMASIADO.append((PIEZA[0], s[:34], round(m, 1)))
     # tracking follows the size it was chosen for -- see fit_pt
+    # THE ABLATION FOR THE MARGIN AND EDGE ROWS.  ⚠ The adversary's kill, kept:
+    # it multiplied every run on `vaso` by six so the sheet read
+    # `TAQUERIA y CERVECER` clean off the right trim, and BOTH ROWS STILL
+    # PASSED, because the bleed exemption had widened them past anything a
+    # defect could move.  With the bleed excluded instead of the bar widened,
+    # this reds.  It is a check only once it has been watched failing.
+    if os.environ.get("T1_PLIEGO_TIPOGRANDE") == "1":
+        pt *= 6.0
     L.text(x, y, s, face, pt, fill, anchor=anchor, tracking=tracking * k)
     FIT.append((PIEZA[0], s[:28], round(k, 4)))
     # the run's own box, in mm, from the FACE'S metrics -- so occlusion can be
@@ -95,7 +103,14 @@ CIELO = "#96BED6"; HUESO = "#FAF6EC"; PAPEL = "#EEE4CE"
 # are all CREMA, and three sheets used CREMA.  7.6 % of the A-frame's drawing
 # was painted in its own background.  These grounds are chosen to CLEAR the
 # palette, and `contrast()` now proves it every build.
-F_ORO   = "#F2CC77"     # gold ground, clear of ORO artwork
+# ⚠ MEASURED OFF HIS PHOTOGRAPH, NOT CHOSEN.  `ref_sign_aframe.jpg` k-means to
+# a gold ground `#CA9939` (57.2 % of the sign face) carrying a cream disc
+# `#D4CDBA` (14.8 %) -- both under the SAME light in the SAME frame, so the
+# RATIO between them is the part of a photograph that can be trusted.  His
+# reads 1.629:1.  `#F2CC77` gave 1.422:1, which cleared this module's floor by
+# 0.07 on the largest single element in the set; `#EBBB55` reads 1.653:1, and
+# it deepens the gold under every run of type on the gold sheets as well.
+F_ORO   = "#EBBB55"     # gold ground, clear of ORO artwork
 F_PAPEL = "#E4D6B4"     # paper ground, clear of CREMA artwork
 F_AZUL  = "#22406E"     # blue ground, clear of the AZUL_CUERPO body
 F_NEGRO = "#141518"
@@ -166,7 +181,11 @@ PALETA = (CREMA, ROJO, GRANA, ORO, TINTA, estilo_vec.PIZ, AZUL, CIELO, HUESO,
           estilo_vec.AZUL_CUERPO, F_ORO, F_PAPEL, F_AZUL, F_NEGRO, "#DED2B8",
           "#7A6E63")
 
-SANGRA = {"vaso"}
+# Pieces that bleed to the trim by design, WITH THE INKS THEY BLEED IN.  The
+# first entry is the page; the rest are erased to it before the margin and edge
+# bands are read, so a bleed piece is held to exactly the same bars as every
+# other sheet instead of to a bar wide enough to hide anything.
+SANGRA = {"vaso": (GRANA,)}
 
 # AUTHORED, and it will be moved to whatever the measurement supports -- see
 # the printed table under `type presence`.  It is a PRESENCE bar, not a
@@ -195,17 +214,22 @@ DEMASIADO = []
 KERN = []            # kerned/un-kerned width, per fit_pt trial
 
 
-def edge_clean(png_path, frac=0.014):
+def edge_clean(png_path, w_mm, h_mm, frac=0.014, sangre=()):
     """Ink in the OUTERMOST band of the sheet -- where a text run that is too
     wide for its measure ends up.  ⚠ THE MARGIN CHECK MISSED THIS: a thin line
     of type crossing a wide band is a tiny AREA fraction, so a 2 % bar passed
     five sheets whose provenance line ran clean off the page.  This band is
     narrow, so the same overflow is a large fraction of it."""
-    a = np.asarray(Image.open(png_path).convert("L")).astype(np.int16)
+    a = _sin_sangre(png_path)
     H, W = a.shape
+    # ⚠ THIS BAND IS ANISOTROPIC IN MILLIMETRES: 1.4 % of the WIDTH at the
+    # sides and 1.4 % of the HEIGHT top and bottom.  On the 3:1 banner that is
+    # 2.9 mm against 0.9 mm -- three times more sensitive on one pair of edges
+    # than the other.  F402's account gave only the horizontal half.
     mx = max(1, int(W * frac)); my = max(1, int(H * frac))
     bg = int(np.median(a))
     band = np.ones(a.shape, bool); band[my:H - my, mx:W - mx] = False
+    _quitar(band, sangre, w_mm, h_mm, W, H)
     return float(((np.abs(a - bg) > 28) & band).sum()) / max(1, band.sum())
 
 
@@ -268,7 +292,7 @@ def tapado(box, opaque, order):
     for kind, geom, o, _fill in opaque:
         if o <= order:
             continue
-        if kind == "rect":
+        if kind in ("rect", "art", "rule"):
             gx0, gy0, gx1, gy1 = geom
             w = max(0.0, min(x1, gx1) - max(x0, gx0))
             h = max(0.0, min(y1, gy1) - max(y0, gy0))
@@ -308,7 +332,11 @@ def sobre(box, opaque, order, ground, page):
         return False
     x0, y0, x1, y1 = box
     for kind, geom, o, fill in opaque:
-        if o >= order or fill != ground:
+        # ⚠ ONLY A REAL FILLED SLAB MAY CERTIFY A DECLARED GROUND.  The second
+        # adversary demonstrated both false-positive paths: a papel-cut
+        # BOUNDING BOX ("art", mostly page) and a 0.4 mm RULE ("rule") would
+        # each have satisfied this, and neither is a ground.
+        if o >= order or fill != ground or kind not in ("rect", "circle"):
             continue
         if kind == "rect":
             gx0, gy0, gx1, gy1 = geom
@@ -343,17 +371,59 @@ def sobre(box, opaque, order, ground, page):
 # deleted; the differential that replaced it needs no colour model at all.
 # Removed in the revision that orphaned them, not left to be found later.
 
-def margin_clean(png_path, w_mm, h_mm, margin_mm, tol=0.004):
+def _rgb(hexc):
+    return np.array([int(hexc[i:i + 2], 16) for i in (1, 3, 5)], np.int16)
+
+
+def _sin_sangre(png_path, sangre=()):
+    """The sheet in grey, with every DECLARED bleed colour erased to the page.
+
+    ⚠⚠ THIS IS WHY `vaso` WAS UNGUARDED.  A bleed piece was exempted by
+    WIDENING ITS BARS -- 0.62 and 0.60 against 0.02 and 0.0015 -- and its GRANA
+    bleed bars alone fill about 57 % of both bands, so the residual headroom
+    was an order of magnitude larger than any real defect could move.
+    MEASURED by the adversary: with every text size on `vaso` multiplied by
+    SIX, so the sheet reads `TAQUERIA y CERVECER` and `... AUTOR` clean off the
+    right trim, BOTH ROWS STILL PRINTED ok -- and at x3 they read 57.607 % and
+    51.2851 %, identical to three decimals to the clean build, while 1.965 % of
+    the sheet had changed.  That is this module's own sentence about bars
+    turned on itself: an exemption has to be a different TEST, not a wider
+    number.
+
+    So the declared bleed is EXCLUDED, and the bleed piece is then held to
+    exactly the same bars as every other sheet.
+    ⚠ AND THE FIRST VERSION OF THIS DID IT BY COLOUR, WHICH ANTIALIASING
+    DEFEATS: erasing every pixel within 30 of GRANA left the bars' soft edges
+    behind and `vaso` read 2.743 % against the 2 % bar for its own bleed.  The
+    PAINTED BAND (rule 8 -- and these two rows had published 28 numbers a build
+    from masks NOBODY HAD EVER PAINTED) showed the magenta lying exactly along
+    the top and bottom bars' edges and nowhere else.  Widening the tolerance
+    would start erasing real ink, so the bleed is excluded by GEOMETRY: the
+    slabs are `rect`s with known corners, and a region is either inside one or
+    it is not."""
+    a = np.asarray(Image.open(png_path).convert("L")).astype(np.int16)
+    return a
+
+
+def _quitar(band, sangre, w_mm, h_mm, W, H):
+    """Drop the declared bleed slabs out of a band mask, with a 2-px collar for
+    the antialiased edge that defeated the colour version."""
+    for x0, y0, x1, y1 in sangre:
+        a0 = max(0, int(x0 / w_mm * W) - 2); a1 = min(W, int(x1 / w_mm * W) + 3)
+        b0 = max(0, int(y0 / h_mm * H) - 2); b1 = min(H, int(y1 / h_mm * H) + 3)
+        band[b0:b1, a0:a1] = False
+
+
+def margin_clean(png_path, w_mm, h_mm, margin_mm, tol=0.004, sangre=()):
     """Read the RENDERED sheet and report the fraction of the margin band that
     carries ink.  A frame rule is drawn INSIDE the margin by design, so this is
     reported and bounded, not asserted to be zero."""
-    im = Image.open(png_path).convert("L")
-    a = np.asarray(im).astype(np.int16)
+    a = _sin_sangre(png_path)
     H, W = a.shape
     mx = int(round(margin_mm / w_mm * W)); my = int(round(margin_mm / h_mm * H))
-    inner = a[my:H - my, mx:W - mx]
     bg = int(np.median(a))
     band = np.ones(a.shape, bool); band[my:H - my, mx:W - mx] = False
+    _quitar(band, sangre, w_mm, h_mm, W, H)
     ink = (np.abs(a - bg) > 28) & band
     return float(ink.sum()) / max(1, band.sum())
 
@@ -419,6 +489,7 @@ def put_wordmark(L, cx, top, width, ink=TINTA, ground=None):
 # of them could see a fill inside the live area.  This list is written by the
 # drawing itself, so the visibility check reads the piece that shipped.
 DRAWN = []
+OTROS = []           # every coloured element that is not a hero fill
 FIT = []             # every run's shrink factor, so the type scale is auditable
 TEXTS = []           # every run as printed, so a colophon can be checked
 
@@ -446,7 +517,15 @@ def put_hero(L, style, box, mural="fino", ink=None, ground=None):
             cxb + wh[0] / 2.0, cyb + wh[1] / 2.0)
     # the drawing's own bounding box, as an occluder: `_poster` draws its
     # subhead BEFORE the hero, so a hero that grew upward would eat it
-    L.opaque.append(("rect", abox, len(L.body), lay[0][1] if lay else None))
+    # ⚠ KIND "art", NOT "rect".  This is a BOOKKEEPING record of where the
+    # drawing is, not a painted slab: `tapado` may treat it as an occluder
+    # (over-reporting, stated), but `sobre` must not accept a papel-cut
+    # BOUNDING BOX as proof that something is printed on a colour, and the
+    # visibility row must not read it as an element.  Recorded as "rect" it
+    # did exactly that -- the `other elements` row's FIRST full run reported
+    # `cabecera rect #38424A on #22406E 1.010:1`, which is this entry, the
+    # first `plano` layer's fill on a box nothing paints.
+    L.opaque.append(("art", abox, len(L.body), lay[0][1] if lay else None))
     for ds, col, key in lay:
         L.paths(ds, col, stroke=key, stroke_w=(kw if key else 0.0))
         DRAWN.append({"piece": PIEZA[0], "style": style,
@@ -517,14 +596,19 @@ def p_aframe(g, L):
         r = min((g.y(19.6) - g.y(7.4)) / 2.0, (g.w - 2 * g.m) / 2.0)
         cy = (g.y(19.6) + g.y(7.4)) / 2.0
     L.circle(g.w / 2.0, cy, r, HUESO, stroke=GRANA, stroke_w=g.s / 420.0)
-    # THE ABLATION FOR THE DECLARED-GROUND ROW.  ⚠ MEASURED, because the
-    # audit that asked for this check reported the clearance as ONE MILLIMETRE
-    # and it is not: the artwork's fitted box is 334.15 x 223.99 mm centred on
-    # the disc, so its corners sit 186.2 mm from the centre against a 203.3 mm
-    # radius -- 17.1 mm of clearance, and the growth factor that crosses the
-    # rim is 1.092, not 1.08.  The first ablation written here was 1.08 and it
-    # DID NOT RED THE ROW; a control has to be watched failing before it counts
-    # (rule 3), and this one was.
+    # THE ABLATION FOR THE DECLARED-GROUND ROW.  ⚠ MEASURED, because the audit
+    # that asked for this check reported the clearance as ONE MILLIMETRE and it
+    # is not: the SHIPPED artwork fits to 309.40 x 207.40 mm centred on the
+    # disc, so its corners sit 186.24 mm from the centre against a 203.33 mm
+    # radius -- 17.09 mm of clearance -- and the growth factor that crosses the
+    # rim is 1.0918.  The first ablation written here was 1.08 and DID NOT RED
+    # THE ROW; a control has to be watched failing before it counts (rule 3).
+    # ⚠⚠ AND THE CORRECTION ITSELF CARRIED A WRONG FIGURE FOR ONE REVISION:
+    # `334.15 x 223.99` is the box UNDER THE 1.08 GROWTH the same paragraph
+    # says did not work -- the retracted ablation's box, published as the
+    # artwork's, and internally inconsistent with the 186.2 beside it (334.15 x
+    # 223.99 gives 201.14).  Found by the second adversary.  Corrected here,
+    # in `OPEN_FINDINGS.md` F398, and stated in the ledger.
     bw = r * 1.72; bh = r * 1.02
     if os.environ.get("T1_PLIEGO_DESBORDE") == "1":
         bw *= 1.15; bh *= 1.15
@@ -665,7 +749,27 @@ def p_vaso(g, L):
 # ---- social: screen formats, where the deliverable is a PNG at an EXACT
 # pixel size, not a sheet in millimetres.  The grid needs millimetres, so each
 # of these declares a target width in px and the render dpi is derived from it.
-PIXELES = {"cuadro": 1400, "historia": 1080, "cabecera": 2100}
+PIXELES = {"cuadro": (1400, 1400), "historia": (1080, 1920),
+           "cabecera": (2100, 700)}
+
+# ⚠ dpi CANNOT DELIVER AN EXACT PIXEL SIZE, AND HALF-FIXING IT DELIVERED HALF
+# A SIZE.  The window rounds to whole CSS pixels on EACH AXIS independently and
+# the scale factor is applied to both, so deriving the factor from the rounded
+# WIDTH left the heights one and two pixels out: `historia` shipped 1080x1922
+# and `cabecera` 2100x701, and the row written to prove they were exact looked
+# at the width only.  A 1080x1922 file is not a story; it is re-scaled or
+# cropped on upload.
+#
+# These are SCREEN pieces, so their millimetres are mine to choose: pick the mm
+# that are a whole number of CSS pixels at an integer scale, and both axes come
+# out exact with no rounding anywhere.
+MM_POR_CSS = 25.4 / 96.0
+ESCALA = 2
+
+
+def mm_exacto(px_w, px_h):
+    """-> (w_mm, h_mm) that render to exactly (px_w, px_h) at `ESCALA`."""
+    return (px_w / ESCALA * MM_POR_CSS, px_h / ESCALA * MM_POR_CSS)
 
 
 def p_cuadro(g, L):
@@ -711,7 +815,14 @@ def p_cabecera(g, L):
     # a 2 % bar and 5.986 % edge ink against 0.1 %.  The frame moved, not the
     # bars -- the first thing this file says about a bar is that a bar a defect
     # squeaks under is not a bar.
-    L.frame(g.m * 0.75, CIELO, g.s / 240.0)
+    # THE ABLATION FOR THE `other elements` ROW, and it is the adversary's own
+    # kill: it painted this frame in the PAGE COLOUR and the build printed
+    # 15 checked, 0 FAILED -- because F384's visibility guarantee covered
+    # `put_hero` fills only, and `PALETA` whitelisted every rule, slab and
+    # frame for the SVG sweep.
+    L.frame(g.m * 0.75,
+            F_AZUL if os.environ.get("T1_PLIEGO_MARCOPLANO") == "1" else CIELO,
+            g.s / 240.0)
     put_hero(L, "plano", (g.x(5), g.y(1.4), g.x(5) + g.span(7), g.y(22.6)))
     # the lockup sits ON the vertical centre of its column rather than at a
     # fixed row: at 3:1 a top-anchored block leaves the bottom-left third of
@@ -737,9 +848,9 @@ PIEZAS = [
  ("mercancia", "bolsa",     380, 420, "#DED2B8", p_bolsa),
  ("mercancia", "playera",   300, 360, F_NEGRO, p_playera),
  ("mercancia", "vaso",      220,  95, F_PAPEL, p_vaso),
- ("social",    "cuadro",    180, 180, F_NEGRO, p_cuadro),
- ("social",    "historia",  108, 192, F_ORO,   p_historia),
- ("social",    "cabecera",  210,  70, F_AZUL,  p_cabecera),
+ ("social",    "cuadro",)   + mm_exacto(*PIXELES["cuadro"])   + (F_NEGRO, p_cuadro),
+ ("social",    "historia",) + mm_exacto(*PIXELES["historia"]) + (F_ORO,   p_historia),
+ ("social",    "cabecera",) + mm_exacto(*PIXELES["cabecera"]) + (F_AZUL,  p_cabecera),
 ]
 
 
@@ -778,7 +889,27 @@ def main(argv):
         svg = L.save_svg(stem + ".svg")
         L.render(svg, png=stem + ".png", pdf=stem + ".pdf", dpi=dpi,
                  px=PIXELES.get(name))
-        made.append((cat, name, w, h, g, stem))
+        # the declared bleed slabs, taken from what was actually drawn -- not
+        # from a transcribed rectangle
+        sang = tuple(geom for kind, geom, _o, fill in L.opaque
+                     if kind == "rect" and fill in SANGRA.get(name, ())
+                     and (geom[0] <= 0.01 or geom[1] <= 0.01
+                          or geom[2] >= w - 0.01 or geom[3] >= h - 0.01))
+        # EVERY OTHER COLOURED ELEMENT ON THE SHEET, for the visibility row.
+        # ⚠ F384's guarantee covered `put_hero` fills ONLY.  `rect`, `line`,
+        # `circle`, `frame` and every text run were in no record at all, and
+        # `PALETA` whitelists them, so the SVG sweep certified them.  MEASURED
+        # by the adversary, who painted `p_cabecera`'s frame in the PAGE COLOUR
+        # and got 15 checked, 0 FAILED.  Live, unmeasured until now: the
+        # A-frame's HUESO disc on F_ORO at 1.422:1 -- the largest single
+        # element in the set -- and `carta`'s five ORO rules on CREMA at
+        # 1.888:1.
+        OTROS.extend((name, ground, fill, kind)
+                     for kind, _geom, _o, fill in L.opaque
+                     if fill and kind in ("rect", "circle", "rule"))
+        OTROS.extend((name, ground, t["fill"], "text")
+                     for t in TEXTS if t["piece"] == name)
+        made.append((cat, name, w, h, g, stem, sang))
         for t in TEXTS:
             if t["piece"] == name and "tapado" not in t:
                 t["tapado"] = tapado(t["box"], L.opaque, t["order"])
@@ -790,41 +921,46 @@ def main(argv):
     # THE INSTRUMENT: read the RENDERED sheet, not a computed box.  Chromium
     # shapes the type, so Python cannot know where a kerned run landed -- but it
     # can look at the result (rule 1).
-    for cat, name, w, h, g, stem in made:
-        frac = margin_clean(stem + ".png", w, h, g.m * 0.42)
-        bar = 0.62 if name in SANGRA else 0.02
-        ck(frac < bar, "%-10s margin band %.3f %% ink (bar %.0f %%)%s"
-           % (name, 100 * frac, 100 * bar, "  [bleeds by design]"
-              if name in SANGRA else ""))
-        e = edge_clean(stem + ".png")
+    for cat, name, w, h, g, stem, sang in made:
+        frac = margin_clean(stem + ".png", w, h, g.m * 0.42, sangre=sang)
+        ck(frac < 0.02, "%-10s margin band %.3f %% ink (bar 2 %%)%s"
+           % (name, 100 * frac,
+              "  [declared bleed excluded, not exempted]" if sang else ""))
+        e = edge_clean(stem + ".png", w, h, sangre=sang)
         # 0.0015, not 0.004: at 0.4 % the aframe passed at 0.3919 % with its
         # foot line visibly clipped.  A bar a defect squeaks under is not a bar.
-        ebar = 0.60 if name in SANGRA else 0.0015
-        ck(e < ebar, "%-10s outer edge %.4f %% ink (bar %.1f %%)"
-           % (name, 100 * e, 100 * ebar))
+        # ⚠ AND IT IS 0.15 %, NOT THE "0.1 %" THREE COMMITS PRINTED -- `%.1f`
+        # on 0.0015 rounds to 0.1, so the row, the ledger and F402 all quoted a
+        # bar 33 % TIGHTER than the one actually being held.
+        ck(e < 0.0015, "%-10s outer edge %.4f %% ink (bar 0.15 %%)"
+           % (name, 100 * e))
 
-    stems0 = {n: (w, h, st) for _c, n, w, h, _g, st in made}
+    stems0 = {n: (w, h, st) for _c, n, w, h, _g, st, _sa in made}
 
     # ⚠ A SCREEN PIECE IS A PIXEL SIZE, NOT A PAPER SIZE.  A story that is not
     # 1080 wide is not a story, however good the drawing on it is.
     wrong = []
-    for _c, name, w, h, _g, st in made:
+    for _c, name, w, h, _g, st, _sa in made:
         if name not in PIXELES: continue
         got = Image.open(st + ".png").size
-        if got[0] != PIXELES[name]:
-            wrong.append("%s %dx%d, wanted %d wide" % (name, got[0], got[1],
-                                                       PIXELES[name]))
-    if any(n in PIXELES for _c, n, _w, _h, _g, _s in made):
-        ck(not wrong, "screen sizes: %d piece(s) render at an exact pixel "
-                      "width%s" % (len(PIXELES),
-                      ("  <-- " + " | ".join(wrong)) if wrong else ""))
+        if got != PIXELES[name]:
+            wrong.append("%s %dx%d, wanted %dx%d"
+                         % ((name,) + got + PIXELES[name]))
+    if any(n in PIXELES for _c, n, _w, _h, _g, _s, _sa in made):
+        # ⚠ THE REACH, NOT THE POPULATION -- `len(PIXELES)` counted three when
+        # `--only cuadro` had tested one.  That is F400's own defect, in a row
+        # written one commit later.
+        nsc = len([1 for _c, n, _w, _h, _g, _s, _sa in made if n in PIXELES])
+        ck(not wrong, "screen sizes: %d of %d screen piece(s) built, each at "
+                      "an exact pixel width AND height%s"
+           % (nsc, len(PIXELES), ("  <-- " + " | ".join(wrong)) if wrong else ""))
 
     # ⚠ `lienzo.pdf_page_mm` EXISTED, ITS DOCSTRING SAID "THE BUILD NEVER
     # CHECKED EITHER, so eleven US-Letter documents shipped as print masters",
     # AND THE BUILD STILL NEVER CHECKED.  A retracted defect with a live
     # docstring and no caller is not fixed, it is remembered.
     pw = []
-    for _c, name, w, h, _g, st in made:
+    for _c, name, w, h, _g, st, _sa in made:
         mm, pages = lienzo.pdf_page_mm(st + ".pdf")
         if mm is None:
             pw.append("%s NO /MediaBox" % name); continue
@@ -836,12 +972,22 @@ def main(argv):
                    "of its declared size%s"
            % (len(made), ("  <-- " + " | ".join(pw[:3])) if pw else ""))
 
+    # ⚠ THE TRACE CACHE LIVES IN THE TRACKED TREE, WHATEVER `--out` SAYS.
+    # A build that had to COMPUTE entries has written new files into
+    # `probe_scratch/trace/`, and if they are not committed the next clone
+    # dirties itself and re-traces (F335, and ~25 minutes for one piece).
+    ck(True, "trace cache: %d entr%s loaded, %d computed and WRITTEN INTO THE "
+             "TRACKED TREE%s"
+       % (len(trazo.CARGADO), "y" if len(trazo.CARGADO) == 1 else "ies",
+          len(trazo.CALCULADO),
+          "  <-- commit them" if trazo.CALCULADO else ""))
+
     # ============================================================ THE GRID
     # The docstring on `Rejilla` claims one invariance and disclaims another.
     # Both are MEASURED here rather than asserted, over the formats that were
     # actually built, because a claim in a docstring is not a measurement.
     ys, xs, ysh = [], [], []
-    for _c, _n, w, h, g, _st in made:
+    for _c, _n, w, h, g, _st, _sa in made:
         ys.append([(g.y(k) - g.m) / (h - 2 * g.m) for k in (0, 6, 12, 18, 24)])
         xs.append([(g.x(i) - g.m) / (w - 2 * g.m) for i in (0, 3, 6, 9)])
         ysh.append([g.y(k) / h for k in (0, 6, 12, 18, 24)])
@@ -851,7 +997,7 @@ def main(argv):
         dsh = max(max(c) - min(c) for c in zip(*ysh))
         # the bar on the columns is the GUTTER TERM, computed from the built
         # formats -- an independently obtained quantity, not this expression
-        gt = max(g.gut / (w - 2 * g.m) for _c, _n, w, _h, g, _st in made)
+        gt = max(g.gut / (w - 2 * g.m) for _c, _n, w, _h, g, _st, _sa in made)
         # ⚠ THIS ROW CANNOT FAIL AND IT IS PRINTED, NOT ASSERTED AWAY.  Both
         # halves are identities: `(y(k)-m)/(h-2m) == k/rows` exactly, so `dy`
         # measures float noise, and `dx` is `(i/cols) * spread(gut/(w-2m))`
@@ -998,7 +1144,7 @@ def main(argv):
              | {m["ink"] for m in MARCAS} | {t["fill"] for t in TEXTS}
              | {g for _c, _n, _w, _h, g, _f in PIEZAS} | set(PALETA))
     unknown = set()
-    for _c, name, _w, _h, _g, st in made:
+    for _c, name, _w, _h, _g, st, _sa in made:
         for m in _re.finditer(r'(?:fill|stroke)="(#[0-9A-Fa-f]{6})"',
                               open(st + ".svg").read()):
             if m.group(1).upper() not in {k.upper() for k in known}:
@@ -1010,6 +1156,28 @@ def main(argv):
           len(unknown),
           ("  <-- " + " | ".join(sorted(unknown)[:3] or bad[:3]))
           if (bad or unknown) else ""))
+
+    # (c) EVERYTHING THAT IS NOT A HERO FILL, against the page it sits on.
+    #     ⚠ CEILING, STATED: this compares each element to the PAGE, not to
+    #     whatever slab it happens to land on, so an element deliberately laid
+    #     over a band is judged against the wrong thing.  The two elements in
+    #     this set that do that DECLARE it and are checked by `sobre`; nothing
+    #     forces a new one to.
+    flojo = []
+    for piece, page, ink, kind in OTROS:
+        if ink == page:
+            flojo.append("%s %s %s IS the page" % (piece, kind, ink)); continue
+        c = estilo_vec.contrast(ink, page)
+        if c < estilo_vec.KEY_BAR:
+            flojo.append("%s %s %s on %s %.3f:1" % (piece, kind, ink, page, c))
+    if OTROS:
+        wk = min(OTROS, key=lambda r: estilo_vec.contrast(r[2], r[1]))
+        ck(not flojo, "other elements: %d rule(s), slab(s) and text run(s) "
+                      "checked against their page; weakest %.3f:1 (%s %s %s "
+                      "on %s); %d below %.2f%s"
+           % (len(OTROS), estilo_vec.contrast(wk[2], wk[1]), wk[0], wk[3],
+              wk[2], wk[1], len(flojo), estilo_vec.KEY_BAR,
+              ("  <-- " + " | ".join(flojo[:3])) if flojo else ""))
 
     # (b) DIFFERENTIAL: the sheet is rendered a SECOND time with the keylines
     #     suppressed, and the two proofs are subtracted.  Whatever is different
@@ -1062,7 +1230,14 @@ def main(argv):
                     diffs.append((0.0, name, npiece[name])); continue
                 m = np.abs(a - b).max(axis=2) > 24
                 ch = float(m.sum()) / a[:, :, 0].size
-                diffs.append((ch, name, npiece[name]))
+                # one stroke down one side of the drawing, as a fraction of
+                # THIS sheet -- the floor was one global constant for sheets
+                # whose one-stroke fraction differs by 1.5x
+                kws = [d["kw"] for d in DRAWN if d["piece"] == name]
+                hs = [d["box"][3] - d["box"][1] for d in DRAWN
+                      if d["piece"] == name]
+                fl = (min(kws) * min(hs) / (w * h)) if kws else 6e-5
+                diffs.append((ch, name, npiece[name], fl))
                 if paint:
                     q = b.copy(); q[m] = (255, 0, 255)
                     Image.fromarray(q.astype(np.uint8)).save(os.path.join(
@@ -1076,8 +1251,15 @@ def main(argv):
     # mm wide and the drawing it outlines is `bh` mm tall, so ONE stroke down
     # one side of one shape is already this fraction of the sheet.  Nothing
     # here is derived from the pixels being counted.
-    floor = 6e-5
-    worstd = min(diffs) if diffs else None
+    # ⚠⚠ THE CLAIM MADE FOR THIS ROW WAS WIDER THAN WHAT IT DOES.  The commit
+    # said "a difference cannot be fooled"; it cannot be fooled by a TOTAL
+    # suppression, which is what its ablation tests.  MEASURED by the adversary
+    # on `aframe`: with EIGHT OF NINE keylines deleted it reads 0.08375 % and
+    # PASSES, and with all nine present at a twentieth of their weight
+    # (0.027 mm, a tenth of what a press can hold) it reads 0.05944 % and
+    # PASSES.  What catches a SUBSET is the analytic row, which this same file
+    # calls a tautology.  That gap is real, and stated rather than papered.
+    worstd = min(diffs, key=lambda d: d[0] / d[3]) if diffs else None
     nkey = sum(1 for d in DRAWN if d["key"])
     if nkey == 0:
         # NOT an empty-set pass: it asserts the analytic row's own count, so
@@ -1086,17 +1268,17 @@ def main(argv):
            "keylines DIFFERENTIAL: no fill on any sheet needed a keyline, and "
            "%d fill(s) are below the bar without one" % unkeyed)
     else:
-        ck(bool(diffs) and worstd[0] >= floor,
+        ck(bool(diffs) and all(d[0] >= d[3] for d in diffs),
            "keylines DIFFERENTIAL: %d sheet(s) rendered twice, with and "
-           "without; weakest change %.5f %% of the sheet on %s (%d keylines, "
-           "floor %.5f %%)"
-           % (len(diffs), 100 * (worstd[0] if worstd else 0.0),
-              worstd[1] if worstd else "-", worstd[2] if worstd else 0,
-              100 * floor))
+           "without; tightest %.5f %% against that sheet's own one-stroke "
+           "floor %.5f %% on %s (%d keylines) -- CATCHES A TOTAL SUPPRESSION, "
+           "NOT A SUBSET"
+           % (len(diffs), 100 * worstd[0], 100 * worstd[3], worstd[1],
+              worstd[2]))
 
     if not only and made:
         cells = []
-        for _c, name, w, h, _g, stem in made:
+        for _c, name, w, h, _g, stem, _sa in made:
             cells.append((name, Image.open(stem + ".png")))
         cols = 4; cell = 520; pad = 22
         rows = (len(cells) + cols - 1) // cols

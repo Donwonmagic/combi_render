@@ -67,10 +67,24 @@ def _key(tag, name, eps, min_area):
     return "%s__%s__e%g_a%g.json" % (tag, name, eps, min_area)
 
 
+# Cache keys LOADED and keys COMPUTED, this process.
+# ⚠ `--out` DOES NOT COVER THIS DIRECTORY.  `CACHE` is `probe_scratch/trace/`
+# inside the repository, whatever `--out` a caller passes, so any build --
+# including an ablation -- writes into the TRACKED tree.  That is F358's class,
+# and the remedy the brief gives for it (`git checkout -- probe_scratch/`)
+# restores modified files but leaves NEW ones untracked.  Measured: rev 81
+# committed the new cache tiers for 13 of 14 pieces and missed the fourteenth,
+# so a cold clone dirtied its own tree and spent ~25 minutes re-tracing `vaso`
+# before printing a line.  The counters exist so a build SAYS which it did.
+CARGADO = []
+CALCULADO = []
+
+
 def trace_cached(mask, tag, name, eps=0.9, min_area=6.0, smooth=2):
     """`trace_layer` with the trace+RDP half persisted to disk."""
     os.makedirs(CACHE, exist_ok=True)
     p = os.path.join(CACHE, _key(tag, name, eps, min_area))
+    (CARGADO if os.path.exists(p) else CALCULADO).append(os.path.basename(p))
     if os.path.exists(p):
         raw = json.load(open(p))
         comps = [([tuple(q) for q in o], [[tuple(q) for q in h] for h in hs])

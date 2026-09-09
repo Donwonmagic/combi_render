@@ -110,7 +110,8 @@ class Lienzo(object):
                          % (cx, cy, r, fill, sk))
 
     def line(self, x1, y1, x2, y2, stroke, w=0.4, dash=None):
-        self.opaque.append(("rect", (min(x1, x2), min(y1, y2) - w / 2.0,
+        # kind "rule", not "rect": a stroke can OCCLUDE but it is not a ground
+        self.opaque.append(("rule", (min(x1, x2), min(y1, y2) - w / 2.0,
                                      max(x1, x2), max(y1, y2) + w / 2.0),
                             len(self.body), stroke))
         d = ' stroke-dasharray="%s"' % dash if dash else ""
@@ -119,6 +120,8 @@ class Lienzo(object):
                          % (x1, y1, x2, y2, stroke, w, d))
 
     def frame(self, inset, stroke, w=0.6):
+        self.opaque.append(("rule", (inset, inset, self.w - inset,
+                                     self.h - inset), len(self.body), stroke))
         self.body.append(
             '<rect x="%.3f" y="%.3f" width="%.3f" height="%.3f" fill="none" '
             'stroke="%s" stroke-width="%.3f"/>'
@@ -220,7 +223,7 @@ class Lienzo(object):
     def render(self, svg_path, png=None, pdf=None, dpi=300, px=None):
         """PNG proof and PDF, BOTH from the same inlined document.
 
-        `px` is an EXACT output width in pixels, for the screen formats where
+        `px` is an EXACT output size `(w, h)` in pixels, for screen formats where
         the deliverable is a pixel size and not a paper size.  ⚠ dpi alone
         cannot deliver one: the window is rounded to whole CSS pixels and the
         device scale factor is applied to that, so a story asked for at 1080
@@ -249,7 +252,12 @@ class Lienzo(object):
                 # The window is CSS px; the DEVICE SCALE FACTOR carries the dpi.
                 cw = self.w / MM * 96.0; chh = self.h / MM * 96.0
                 ww = int(round(cw)); wh = int(round(chh))
-                scale = (px / float(ww)) if px else (dpi / 96.0)
+                # ⚠ ONE SCALE FOR BOTH AXES, DERIVED FROM THE WIDTH, LEFT THE
+                # HEIGHTS OUT BY ONE AND TWO PIXELS (1922 for 1920, 701 for
+                # 700).  `pliego` picks screen millimetres that are a whole
+                # number of CSS pixels at an integer scale, so `cw` and `chh`
+                # are already integral and nothing rounds.
+                scale = (px[0] / float(ww)) if px else (dpi / 96.0)
                 r = subprocess.run(
                     [self._shell()] + base +
                     ["--force-device-scale-factor=%.9f" % scale,
