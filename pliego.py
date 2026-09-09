@@ -177,7 +177,14 @@ class Rejilla(object):
 # `ink/ground` row compares what was WRITTEN against what was RECORDED, and
 # needs a name for the colours that belong to the layout rather than to a
 # drawing -- rules, frames, bands.
+# The blank-rule grey on the hours card.  ⚠ It was typed inline as a literal
+# and the `ink/ground` SVG sweep caught it on its first render as "1 ink in the
+# SVGs that no record accounts for" -- which is exactly what that half of the
+# row was added for.  1.562:1 against CREMA: a rule you can see and write over.
+REGLA = "#C4BAA6"
+
 PALETA = (CREMA, ROJO, GRANA, ORO, TINTA, estilo_vec.PIZ, AZUL, CIELO, HUESO,
+          REGLA,
           estilo_vec.AZUL_CUERPO, F_ORO, F_PAPEL, F_AZUL, F_NEGRO, "#DED2B8",
           "#7A6E63")
 
@@ -214,7 +221,7 @@ DEMASIADO = []
 KERN = []            # kerned/un-kerned width, per fit_pt trial
 
 
-def edge_clean(png_path, w_mm, h_mm, frac=0.014, sangre=()):
+def edge_clean(png_path, w_mm, h_mm, frac=0.014, sangre=(), page=None):
     """Ink in the OUTERMOST band of the sheet -- where a text run that is too
     wide for its measure ends up.  ⚠ THE MARGIN CHECK MISSED THIS: a thin line
     of type crossing a wide band is a tiny AREA fraction, so a 2 % bar passed
@@ -227,7 +234,7 @@ def edge_clean(png_path, w_mm, h_mm, frac=0.014, sangre=()):
     # 2.9 mm against 0.9 mm -- three times more sensitive on one pair of edges
     # than the other.  F402's account gave only the horizontal half.
     mx = max(1, int(W * frac)); my = max(1, int(H * frac))
-    bg = int(np.median(a))
+    bg = _fondo(a, page)
     band = np.ones(a.shape, bool); band[my:H - my, mx:W - mx] = False
     _quitar(band, sangre, w_mm, h_mm, W, H)
     return float(((np.abs(a - bg) > 28) & band).sum()) / max(1, band.sum())
@@ -405,6 +412,21 @@ def _sin_sangre(png_path, sangre=()):
     return a
 
 
+def _fondo(a, page):
+    """The sheet's background level.
+
+    ⚠ IT WAS `median(a)` AND THAT ASSUMES THE PAGE IS THE MAJORITY OF THE
+    SHEET.  On `chapa` it is not -- the badge disc covers most of the board --
+    so the median came back as GOLD, every HUESO pixel counted as ink, and the
+    two rows read 99.269 % and 100.0000 % on a sheet whose margins are empty.
+    Caught on that piece's first render.  The page colour is DECLARED in
+    `PIEZAS`; there is no reason to infer it."""
+    if page is None:
+        return int(np.median(a))
+    r, g, b = (int(page[i:i + 2], 16) for i in (1, 3, 5))
+    return int(round(0.299 * r + 0.587 * g + 0.114 * b))
+
+
 def _quitar(band, sangre, w_mm, h_mm, W, H):
     """Drop the declared bleed slabs out of a band mask, with a 2-px collar for
     the antialiased edge that defeated the colour version."""
@@ -414,14 +436,15 @@ def _quitar(band, sangre, w_mm, h_mm, W, H):
         band[b0:b1, a0:a1] = False
 
 
-def margin_clean(png_path, w_mm, h_mm, margin_mm, tol=0.004, sangre=()):
+def margin_clean(png_path, w_mm, h_mm, margin_mm, tol=0.004, sangre=(),
+                 page=None):
     """Read the RENDERED sheet and report the fraction of the margin band that
     carries ink.  A frame rule is drawn INSIDE the margin by design, so this is
     reported and bounded, not asserted to be zero."""
     a = _sin_sangre(png_path)
     H, W = a.shape
     mx = int(round(margin_mm / w_mm * W)); my = int(round(margin_mm / h_mm * H))
-    bg = int(np.median(a))
+    bg = _fondo(a, page)
     band = np.ones(a.shape, bool); band[my:H - my, mx:W - mx] = False
     _quitar(band, sangre, w_mm, h_mm, W, H)
     ink = (np.abs(a - bg) > 28) & band
@@ -490,6 +513,7 @@ def put_wordmark(L, cx, top, width, ink=TINTA, ground=None):
 # drawing itself, so the visibility check reads the piece that shipped.
 DRAWN = []
 OTROS = []           # every coloured element that is not a hero fill
+PAGINA = {}          # each piece's DECLARED page colour
 FIT = []             # every run's shrink factor, so the type scale is auditable
 TEXTS = []           # every run as printed, so a colophon can be checked
 
@@ -836,6 +860,92 @@ def p_cabecera(g, L):
            g.pt(-2.3), CIELO, tracking=g.pt(-2.3) * 0.08, measure=g.span(5))
 
 
+def p_horario(g, L):
+    """THE HOURS CARD.  ⚠ THE HOURS ARE BLANK ON PURPOSE and this is the piece
+    where that matters most: inventing opening times is F372's class -- a
+    fabricated claim printed as fact -- and `CONCEPT_BENCH_rev77.md` warns
+    that we may be selling food he no longer serves.  All seven days are
+    listed, so nothing here even says WHICH days he opens; the rules are for
+    him to fill."""
+    L.frame(g.m * 0.55, GRANA, g.s / 300.0)
+    wh = put_wordmark(L, g.w / 2.0, g.y(1.2), g.span(7))
+    T(L, g, g.w / 2.0, g.y(1.2) + wh + g.base * 1.1, LETRERO, "cond",
+           g.pt(-0.4), GRANA, tracking=g.pt(-0.4) * 0.26)
+    # ⚠ y(6.6), not y(5.6): the hero is drawn AFTER the subhead and the
+    # `occlusion` row caught it covering 26.2 % of `TAQUERIA y CERVECERIA` on
+    # this piece's FIRST render.
+    put_hero(L, "papel", (g.x(1), g.y(6.6), g.x(1) + g.span(10), g.y(11.6)))
+    T(L, g, g.w / 2.0, g.y(13.0), "HORARIO", "display", g.pt(0.6), TINTA)
+    x = g.x(1); x1 = g.x(1) + g.span(10)
+    while x <= x1:
+        L.circle(x, g.y(13.8), g.base * 0.10, ORO)
+        x += g.base * 0.42
+    for i, day in enumerate(("LUNES", "MARTES", "MIERCOLES", "JUEVES",
+                             "VIERNES", "SABADO", "DOMINGO")):
+        y = g.y(15.2 + i * 1.15)
+        T(L, g, g.x(1), y, day, "cond", g.pt(-1.4), TINTA, anchor="start",
+          tracking=g.pt(-1.4) * 0.18, measure=g.span(4))
+        L.line(g.x(6), y + g.base * 0.12, g.x(1) + g.span(10),
+               y + g.base * 0.12, REGLA, g.s / 900.0)
+    T(L, g, g.w / 2.0, g.y(23.4),
+           "HORARIO EN BLANCO · NINGUNA HORA ES NUESTRA · " + PROV, "cond",
+           g.pt(-2.3), GRANA, tracking=g.pt(-2.3) * 0.08,
+           measure=g.w - 2 * (g.m * 0.55) - 2 * g.gut)
+
+
+def p_lealtad(g, L):
+    """THE LOYALTY CARD.  ⚠ THE ONE PIECE IN THE SET THAT STATES AN OFFER IN
+    WORDS.  What keeps it honest is `OFERTA DE MUESTRA · NO APROBADA` set
+    directly beneath it, in the same block, at a size that reads -- not a
+    disclaimer hidden in the colophon.  He has approved no offer."""
+    L.frame(g.m * 0.5, GRANA, g.s / 240.0)
+    wh = put_wordmark(L, g.x(0) + g.span(5) / 2.0, g.y(2.0), g.span(4.4))
+    T(L, g, g.x(0) + g.span(5) / 2.0, g.y(2.0) + wh + g.base * 1.1,
+           "TARJETA DE CLIENTE", "cond", g.pt(-1.2), TINTA,
+           tracking=g.pt(-1.2) * 0.2, measure=g.span(5))
+    put_hero(L, "papel", (g.x(7), g.y(2.2), g.x(7) + g.span(5), g.y(9.6)))
+    # eight stamp rings on the grid, so the row is a row and not eight guesses
+    r = g.base * 0.62
+    for i in range(8):
+        cx = g.x(0) + g.span(12) * (i + 0.5) / 8.0
+        L.circle(cx, g.y(13.4), r, None, stroke=GRANA, stroke_w=g.s / 700.0)
+    T(L, g, g.w / 2.0, g.y(17.2), "OCHO VISITAS · LA NOVENA ES NUESTRA",
+           "cond", g.pt(-1.0), GRANA, tracking=g.pt(-1.0) * 0.14)
+    T(L, g, g.w / 2.0, g.y(19.4), "OFERTA DE MUESTRA · NO APROBADA", "cond",
+           g.pt(-1.6), ROJO, tracking=g.pt(-1.6) * 0.16)
+    T(L, g, g.w / 2.0, g.y(22.8), "IMPRESO · " + ESTILO_ES["papel"] + " · "
+           + PROV, "cond", g.pt(-2.3), TINTA, tracking=g.pt(-2.3) * 0.08,
+           measure=g.w - 2 * (g.m * 0.5) - 2 * g.gut)
+
+
+def p_chapa(g, L):
+    """THE ENAMEL BADGE.  The sheet is square; the PIECE is the disc, and the
+    square is the artwork board it is die-cut from.  ⚠ Everything must sit
+    inside the die, which is what `sobre` is asked to prove -- the badge face
+    is a declared ground, not an assumption."""
+    # ⚠ THE BOARD WAS `#DED2B8` AND THE GOLD DISC READ 1.191:1 AGAINST IT --
+    # a badge that does not separate from the card it is die-cut from.  On
+    # HUESO it reads 1.653:1, the same relationship as the A-frame's disc on
+    # its gold (F406).  And the die was `m * 0.55` in, which put its stroke
+    # inside the margin band: 2.494 % against a 2 % bar on the first render.
+    cx = g.w / 2.0; cy = g.h / 2.0
+    r = min(g.w, g.h) / 2.0 - g.m * 0.95
+    L.circle(cx, cy, r, F_ORO, stroke=TINTA, stroke_w=g.s / 260.0)
+    L.circle(cx, cy, r * 0.90, F_ORO, stroke=GRANA, stroke_w=g.s / 700.0)
+    wh = put_wordmark(L, cx, cy - r * 0.62, r * 1.02, ground=F_ORO)
+    put_hero(L, "papel", (cx - r * 0.74, cy - r * 0.16,
+                          cx + r * 0.74, cy + r * 0.42), ground=F_ORO)
+    T(L, g, cx, cy + r * 0.66, LETRERO, "cond", g.pt(-1.6), GRANA,
+           tracking=g.pt(-1.6) * 0.2, measure=r * 1.4)
+    # the colophon goes on the BOARD, outside the die -- it is not on the badge
+    # ⚠ `g.m * 0.30` PUT THIS INSIDE THE MARGIN BAND (2.45 mm on a 70 mm board)
+    # and the row read 2.885 %.  The die clears the band by 3.1 mm; the
+    # colophon did not.
+    T(L, g, cx, g.h - g.m * 0.78, "MERCANCIA · TROQUEL " "%.0f mm · " % (2 * r)
+           + PROV, "cond", g.pt(-2.3), TINTA, tracking=g.pt(-2.3) * 0.08,
+           measure=g.w - 2 * g.gut)
+
+
 PIEZAS = [
  ("calle",     "aframe",    600, 900, F_ORO,   p_aframe),
  ("impreso",   "cartel_a2", 420, 594, F_ORO,   p_cartel_a2),
@@ -848,6 +958,9 @@ PIEZAS = [
  ("mercancia", "bolsa",     380, 420, "#DED2B8", p_bolsa),
  ("mercancia", "playera",   300, 360, F_NEGRO, p_playera),
  ("mercancia", "vaso",      220,  95, F_PAPEL, p_vaso),
+ ("calle",     "horario",   200, 260, CREMA,   p_horario),
+ ("impreso",   "lealtad",    95,  60, HUESO,   p_lealtad),
+ ("mercancia", "chapa",      70,  76, HUESO,   p_chapa),
  ("social",    "cuadro",)   + mm_exacto(*PIXELES["cuadro"])   + (F_NEGRO, p_cuadro),
  ("social",    "historia",) + mm_exacto(*PIXELES["historia"]) + (F_ORO,   p_historia),
  ("social",    "cabecera",) + mm_exacto(*PIXELES["cabecera"]) + (F_AZUL,  p_cabecera),
@@ -909,6 +1022,7 @@ def main(argv):
                      if fill and kind in ("rect", "circle", "rule"))
         OTROS.extend((name, ground, t["fill"], "text")
                      for t in TEXTS if t["piece"] == name)
+        PAGINA[name] = ground
         made.append((cat, name, w, h, g, stem, sang))
         for t in TEXTS:
             if t["piece"] == name and "tapado" not in t:
@@ -922,11 +1036,12 @@ def main(argv):
     # shapes the type, so Python cannot know where a kerned run landed -- but it
     # can look at the result (rule 1).
     for cat, name, w, h, g, stem, sang in made:
-        frac = margin_clean(stem + ".png", w, h, g.m * 0.42, sangre=sang)
+        frac = margin_clean(stem + ".png", w, h, g.m * 0.42, sangre=sang,
+                            page=PAGINA[name])
         ck(frac < 0.02, "%-10s margin band %.3f %% ink (bar 2 %%)%s"
            % (name, 100 * frac,
               "  [declared bleed excluded, not exempted]" if sang else ""))
-        e = edge_clean(stem + ".png", w, h, sangre=sang)
+        e = edge_clean(stem + ".png", w, h, sangre=sang, page=PAGINA[name])
         # 0.0015, not 0.004: at 0.4 % the aframe passed at 0.3919 % with its
         # foot line visibly clipped.  A bar a defect squeaks under is not a bar.
         # ⚠ AND IT IS 0.15 %, NOT THE "0.1 %" THREE COMMITS PRINTED -- `%.1f`

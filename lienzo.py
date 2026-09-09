@@ -103,11 +103,19 @@ class Lienzo(object):
             'fill="%s"/>' % (x, y, w, h, rx, fill))
 
     def circle(self, cx, cy, r, fill, stroke=None, stroke_w=0.0):
-        self.opaque.append(("circle", (cx, cy, r), len(self.body), fill))
+        # `fill=None` draws a RING -- an outline with the page showing through.
+        # A ring drawn as a filled disc in the page colour is invisible, which
+        # is what `lealtad`'s eight stamp circles were: 1.000:1, caught by the
+        # `other elements` row on their first render.
+        if fill is None:
+            self.opaque.append(("rule", (cx - r, cy - r, cx + r, cy + r),
+                                len(self.body), stroke))
+        else:
+            self.opaque.append(("circle", (cx, cy, r), len(self.body), fill))
         sk = ('' if not stroke else
               ' stroke="%s" stroke-width="%.4f"' % (stroke, stroke_w))
         self.body.append('<circle cx="%.3f" cy="%.3f" r="%.3f" fill="%s"%s/>'
-                         % (cx, cy, r, fill, sk))
+                         % (cx, cy, r, fill or "none", sk))
 
     def line(self, x1, y1, x2, y2, stroke, w=0.4, dash=None):
         # kind "rule", not "rect": a stroke can OCCLUDE but it is not a ground
