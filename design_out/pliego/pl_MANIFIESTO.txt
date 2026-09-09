@@ -1,0 +1,22 @@
+pliego.py -- THIS IS THE DELIVERABLE SET.
+`design_out/promo_r80_*` and `design_out/col_r80_*` are EARLIER ROUNDS on the PIL engine (F382) and are superseded; eleven names appear in all three.
+
+built at --dpi 200; screen pieces at their own exact pixel sizes
+
+calle      aframe     600.000 x 900.000 mm
+impreso    cartel_a2  420.000 x 594.000 mm
+impreso    cartel_a3  297.000 x 420.000 mm
+calle      carta      300.000 x 420.000 mm
+calle      vidriera   500.000 x 350.000 mm
+impreso    postal     148.000 x 105.000 mm
+impreso    tarjeta     85.000 x  55.000 mm
+impreso    volante    148.000 x 210.000 mm
+mercancia  bolsa      380.000 x 420.000 mm
+mercancia  playera    300.000 x 360.000 mm
+mercancia  vaso       220.000 x  95.000 mm
+calle      horario    200.000 x 260.000 mm
+impreso    lealtad     95.000 x  60.000 mm
+mercancia  chapa       70.000 x  76.000 mm
+social     cuadro     185.208 x 185.208 mm   1400 x 1400 px exact
+social     historia   142.875 x 254.000 mm   1080 x 1920 px exact
+social     cabecera   277.812 x  92.604 mm   2100 x 700 px exact

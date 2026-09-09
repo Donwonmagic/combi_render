@@ -35,7 +35,7 @@ import os, sys, math
 import numpy as np
 from PIL import Image
 
-import lienzo, trazo, estilo_vec
+import lienzo, trazo, estilo_vec, estilos
 
 
 def T(L, g, x, y, s, face, pt, fill, anchor="middle", tracking=0.0, measure=None):
@@ -299,11 +299,25 @@ def tapado(box, opaque, order):
     for kind, geom, o, _fill in opaque:
         if o <= order:
             continue
-        if kind in ("rect", "art", "rule"):
+        if kind in ("rect", "rule"):
             gx0, gy0, gx1, gy1 = geom
             w = max(0.0, min(x1, gx1) - max(x0, gx0))
             h = max(0.0, min(y1, gy1) - max(y0, gy0))
             hit = max(hit, w * h / A)
+        elif kind == "art":
+            (gx0, gy0, gx1, gy1), occ = geom
+            gh, gw = occ.shape
+            n = 0; tot = 40 * 12
+            for i in range(40):
+                px_ = x0 + (i + 0.5) * (x1 - x0) / 40.0
+                for j in range(12):
+                    py_ = y0 + (j + 0.5) * (y1 - y0) / 12.0
+                    if gx0 <= px_ < gx1 and gy0 <= py_ < gy1:
+                        c = int((px_ - gx0) / (gx1 - gx0) * gw)
+                        r = int((py_ - gy0) / (gy1 - gy0) * gh)
+                        if occ[min(r, gh - 1), min(c, gw - 1)]:
+                            n += 1
+            hit = max(hit, n / float(tot))
         elif kind == "circle":
             cx, cy, r = geom
             # sampled, not solved: a disc against a box has no one-line area,
@@ -499,6 +513,14 @@ def put_wordmark(L, cx, top, width, ink=TINTA, ground=None):
     order0 = len(L.body)
     L.paths(trazo.to_svg_paths(comps, scale=s, dx=cx - width / 2.0, dy=top), ink)
     mbox = (cx - width / 2.0, top, cx + width / 2.0, top + h * s)
+    # ⚠ F391 WIRED THE WORDMARK INTO THE CONTRAST ROW AND NOT INTO THE
+    # OCCLUSION ONE, so the element this module calls "the one that must read
+    # from across a street" stayed untested for being painted over -- and on
+    # nine of seventeen pieces the hero is drawn after it.  It is in both now.
+    TEXTS.append({"piece": PIEZA[0], "s": "<wordmark>", "x": cx, "y": top,
+                  "pt": h * s, "face": None, "fill": ink, "anchor": "middle",
+                  "tracking": 0.0, "box": mbox, "order": order0,
+                  "sobre": ground})
     MARCAS.append({"piece": PIEZA[0], "ink": ink, "declared": ground is not None,
                    "ground": (ground or GROUND[0]),
                    "sobre": (ground is None or
@@ -514,6 +536,7 @@ def put_wordmark(L, cx, top, width, ink=TINTA, ground=None):
 DRAWN = []
 OTROS = []           # every coloured element that is not a hero fill
 PAGINA = {}          # each piece's DECLARED page colour
+OPACOS = {}          # each piece's opaque records, kept for the clearance row
 FIT = []             # every run's shrink factor, so the type scale is auditable
 TEXTS = []           # every run as printed, so a colophon can be checked
 
@@ -539,17 +562,32 @@ def put_hero(L, style, box, mural="fino", ink=None, ground=None):
     cxb = (box[0] + box[2]) / 2.0; cyb = (box[1] + box[3]) / 2.0
     abox = (cxb - wh[0] / 2.0, cyb - wh[1] / 2.0,
             cxb + wh[0] / 2.0, cyb + wh[1] / 2.0)
-    # the drawing's own bounding box, as an occluder: `_poster` draws its
-    # subhead BEFORE the hero, so a hero that grew upward would eat it
-    # ⚠ KIND "art", NOT "rect".  This is a BOOKKEEPING record of where the
-    # drawing is, not a painted slab: `tapado` may treat it as an occluder
-    # (over-reporting, stated), but `sobre` must not accept a papel-cut
-    # BOUNDING BOX as proof that something is printed on a colour, and the
-    # visibility row must not read it as an element.  Recorded as "rect" it
-    # did exactly that -- the `other elements` row's FIRST full run reported
-    # `cabecera rect #38424A on #22406E 1.010:1`, which is this entry, the
-    # first `plano` layer's fill on a box nothing paints.
-    L.opaque.append(("art", abox, len(L.body), lay[0][1] if lay else None))
+    # THE DRAWING'S OCCUPANCY, AS AN OCCLUDER -- not its bounding box.
+    # ⚠ `_poster` draws its subhead BEFORE the hero, so a hero that grew upward
+    # would eat it, and `horario` proved that is not hypothetical (26.2 %).
+    # ⚠ KIND "art", NOT "rect": this is a record of where the drawing IS, not a
+    # painted slab, so `sobre` must refuse it as a ground and the visibility
+    # row must not read it as an element -- recorded as "rect" it did exactly
+    # that, and the `other elements` row's first full run reported
+    # `cabecera rect #38424A on #22406E 1.010:1`, which is this entry.
+    # ⚠⚠ AND A BOUNDING BOX IS NOT THE DRAWING.  The second adversary measured
+    # the wordmark and hero boxes on `bolsa` overlapping by 3.19 mm -- 3.41 %,
+    # above `tapado`'s own bar -- while the INK does not collide at all, the
+    # mark's descender and the lid being horizontally separated.  A coarse
+    # occupancy grid off the underlay's own alpha is the drawing's actual
+    # footprint, so the row can take the wordmark in without inventing a
+    # failure for it.
+    al = estilos.underlay(TAG)["alpha"]
+    _ys, _xs = np.where(al)
+    sub = al[_ys.min():_ys.max() + 1, _xs.min():_xs.max() + 1]
+    gh, gw = 24, 48
+    occ = np.zeros((gh, gw), bool)
+    for _r in range(gh):
+        for _c in range(gw):
+            occ[_r, _c] = sub[_r * sub.shape[0] // gh:(_r + 1) * sub.shape[0] // gh,
+                              _c * sub.shape[1] // gw:(_c + 1) * sub.shape[1] // gw].any()
+    L.opaque.append(("art", (abox, occ), len(L.body),
+                     lay[0][1] if lay else None))
     for ds, col, key in lay:
         L.paths(ds, col, stroke=key, stroke_w=(kw if key else 0.0))
         DRAWN.append({"piece": PIEZA[0], "style": style,
@@ -1020,9 +1058,17 @@ def main(argv):
         OTROS.extend((name, ground, fill, kind)
                      for kind, _geom, _o, fill in L.opaque
                      if fill and kind in ("rect", "circle", "rule"))
-        OTROS.extend((name, ground, t["fill"], "text")
+        # ⚠ AGAINST THE DECLARED GROUND WHERE THERE IS ONE.  This row's stated
+        # ceiling -- "compares each element to the PAGE, not to whatever slab
+        # it lands on" -- bit as soon as the wordmark joined `TEXTS`: `carta`'s
+        # mark is CREMA on a GRANA band, and against the page it read
+        # `#F0E7D1 IS the page`, 1.000:1, on the piece where it is the most
+        # visible thing on the sheet.  `sobre` has already PROVEN the
+        # declaration, so the declaration is what to compare against.
+        OTROS.extend((name, t.get("sobre") or ground, t["fill"], "text")
                      for t in TEXTS if t["piece"] == name)
         PAGINA[name] = ground
+        OPACOS[name] = list(L.opaque)
         made.append((cat, name, w, h, g, stem, sang))
         for t in TEXTS:
             if t["piece"] == name and "tapado" not in t:
@@ -1183,6 +1229,29 @@ def main(argv):
            "every slab drawn after them; worst covered %.1f %% -- %s %r"
            % (len(cov), len(TEXTS) - noboxes, 100 * cov[0][0], cov[0][1],
               cov[0][2]))
+
+    # CLEARANCE, PRINTED NOT BARRED.  ⚠ `tapado`'s bar is 2 % COVERAGE, so a
+    # ZERO-MILLIMETRE gap between a run and the drawing prints green: they do
+    # not overlap, and that is all it asks.  Nothing measured how close they
+    # come.  Measured now, and reported rather than barred, because what counts
+    # as tight is a judgement about a piece and not a number this file owns.
+    gaps = []
+    for t in TEXTS:
+        if t["box"] is None: continue
+        for kind, geom, _o, _f in OPACOS.get(t["piece"], ()):
+            if kind != "art": continue
+            (gx0, gy0, gx1, gy1), _occ = geom
+            dx = max(gx0 - t["box"][2], t["box"][0] - gx1, 0.0)
+            dy = max(gy0 - t["box"][3], t["box"][1] - gy1, 0.0)
+            if dx == 0.0 and dy == 0.0: continue
+            gaps.append(((dx * dx + dy * dy) ** 0.5, t["piece"], t["s"][:22]))
+    if gaps:
+        gaps.sort()
+        ck(True, "clearance: tightest gap from a text run to a drawing is "
+                 "%.2f mm (%s %r); next %.2f, %.2f -- PRINTED, NOT BARRED"
+           % (gaps[0][0], gaps[0][1], gaps[0][2],
+              gaps[1][0] if len(gaps) > 1 else -1,
+              gaps[2][0] if len(gaps) > 2 else -1))
 
     ck(not DEMASIADO, "type floor: %.2f mm; %d run(s) could not fit their "
                       "measure at it%s"
@@ -1413,6 +1482,26 @@ def main(argv):
             d.text((x, y + cell + 2), name, fill=(70, 64, 58), font=f)
         p = os.path.join(OUT, "pl_HOJA.png"); sh.save(p)
         ck(os.path.exists(p), "contact sheet -> %s" % p)
+
+    # ⚠ THE BUILD dpi WAS RECORDED NOWHERE, so re-running at the dpi the brief
+    # documents silently produced different files from the committed ones.
+    # It ships beside them.
+    if made:
+        man = os.path.join(OUT, "pl_MANIFIESTO.txt")
+        with open(man, "w") as fh:
+            fh.write("pliego.py -- THIS IS THE DELIVERABLE SET.\n")
+            fh.write("`design_out/promo_r80_*` and `design_out/col_r80_*` are "
+                     "EARLIER ROUNDS on the PIL engine (F382) and are "
+                     "superseded; eleven names appear in all three.\n\n")
+            fh.write("built at --dpi %d; screen pieces at their own exact "
+                     "pixel sizes\n\n" % dpi)
+            for cat, name, w, h, _g, st, _sa in made:
+                px = PIXELES.get(name)
+                fh.write("%-10s %-10s %7.3f x %7.3f mm%s\n"
+                         % (cat, name, w, h,
+                            ("   %d x %d px exact" % px) if px else ""))
+        ck(os.path.exists(man), "manifest -> %s (names the deliverable set and "
+                                "the build dpi)" % man)
 
     print("%d checked, %d FAILED" % (CHECK[0], len(FAILED)))
     return 0
