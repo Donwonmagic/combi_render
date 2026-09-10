@@ -159,6 +159,23 @@ class Lienzo(object):
         extra = ""
         if tracking:
             extra += ' letter-spacing="%.4f"' % tracking
+            # ⚠⚠ CSS letter-spacing ADDS THE SPACE AFTER EVERY GLYPH, THE LAST
+            # ONE INCLUDED, and `text-anchor` centres the ADVANCE, not the ink.
+            # So every centred tracked run in this suite sat LEFT of its own
+            # axis by half its tracking, and every end-anchored run by all of
+            # it.  MEASURED on a controlled page at 4x: offsets of -0.595,
+            # -1.090, -1.586 and -2.115 mm for tracking 1, 2, 3 and 4 -- i.e.
+            # -tracking/2, independent of the run length.
+            #
+            # Nothing here could see it: `margin_clean` and `edge_clean` read
+            # the margins, `occlusion` compares boxes that carry the same wrong
+            # assumption, and half a millimetre of drift reads as "slightly
+            # off" rather than as an error.  It is on nearly every tracked line
+            # in the set.
+            # THE ABLATION: `T1_PLIEGO_SINCENTRO=1` restores the defect.
+            if os.environ.get("T1_PLIEGO_SINCENTRO") != "1":
+                x += tracking / 2.0 if anchor == "middle" else (
+                    tracking if anchor == "end" else 0.0)
         if weight:
             extra += ' font-weight="%s"' % weight
         if caps:

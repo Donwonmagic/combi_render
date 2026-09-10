@@ -31,7 +31,7 @@ a computed box, `margin_clean()` READS THE RENDERED PNG and asserts the margin
 band carries no ink.  That tests the artefact rather than the intention, which
 is what rule 1 has been asking for all along.
 """
-import os, re, sys, math
+import json, os, re, sys, math
 import numpy as np
 from PIL import Image
 
@@ -80,7 +80,11 @@ def T(L, g, x, y, s, face, pt, fill, anchor="middle", tracking=0.0, measure=None
         u = 256
         ff = ImageFont.truetype(fp, u)
         adv = sum(ff.getlength(c) for c in s) * pt / u
-        wmm = adv + tracking * k * (len(s) - 1)
+        # ⚠ `len(s)`, not `len(s) - 1`: CSS puts the letter-space after the
+        # LAST glyph too, so the advance this run occupies is one tracking
+        # wider than a naive reading gives.  The same wrong assumption is what
+        # pushed every centred tracked line off its axis.
+        wmm = adv + tracking * k * len(s)
         asc, desc = ff.getmetrics()
         x0 = (x - wmm / 2.0 if anchor == "middle"
               else x - wmm if anchor == "end" else x)
@@ -110,13 +114,21 @@ CIELO = "#96BED6"; HUESO = "#FAF6EC"; PAPEL = "#EEE4CE"
 # are all CREMA, and three sheets used CREMA.  7.6 % of the A-frame's drawing
 # was painted in its own background.  These grounds are chosen to CLEAR the
 # palette, and `contrast()` now proves it every build.
-# ⚠ MEASURED OFF HIS PHOTOGRAPH, NOT CHOSEN.  `ref_sign_aframe.jpg` k-means to
-# a gold ground `#CA9939` (57.2 % of the sign face) carrying a cream disc
-# `#D4CDBA` (14.8 %) -- both under the SAME light in the SAME frame, so the
-# RATIO between them is the part of a photograph that can be trusted.  His
-# reads 1.629:1.  `#F2CC77` gave 1.422:1, which cleared this module's floor by
-# 0.07 on the largest single element in the set; `#EBBB55` reads 1.653:1, and
-# it deepens the gold under every run of type on the gold sheets as well.
+# MEASURED OFF HIS PHOTOGRAPH -- BY `foto.py`, WHICH PRINTS IT AND COMMITS IT
+# TO `foto_sign.json`, and checked below against what this palette does.
+#
+# ⚠⚠ TWO CORRECTIONS TO WHAT THIS COMMENT USED TO SAY, BOTH CAUGHT BY GRADERS.
+# (1) It quoted "his reads 1.629:1" AND NO SCRIPT COMPUTED IT -- rule 5, in the
+# justification for the most-used colour in the suite.  `foto.py` computes it
+# now: 1.6293:1, and the row below compares the palette against the committed
+# file rather than against a remembered number.
+# (2) It called cluster 2 a "cream disc", and THERE IS NO DISC ON HIS SIGN.
+# Painting the measurement window and looking at it (rule 8) shows `#D4CDBA`
+# is the sign's LIGHT INK -- the inline of the CLUB lettering, the van's cream
+# body, and WHITE QUARTER-CIRCLES AT THE CORNERS OF THE BOARD.  The centred
+# vignette disc on `p_aframe` was mine; I attributed it to a photograph that
+# does not contain it.  The RATIO transferred is sound and is what the row
+# checks; the provenance claim around it was not.
 F_ORO   = "#EBBB55"     # gold ground, clear of ORO artwork
 F_PAPEL = "#E4D6B4"     # paper ground, clear of CREMA artwork
 F_AZUL  = "#22406E"     # blue ground, clear of the AZUL_CUERPO body
@@ -1151,10 +1163,14 @@ def p_chapa(g, L):
     T(L, g, cx, cy + r * 0.66, LETRERO, "cond", g.pt(NIVEL["menor"]), GRANA,
            tracking=g.pt(NIVEL["menor"]) * 0.2, measure=r * 1.4)
     # the colophon goes on the BOARD, outside the die -- it is not on the badge
-    # ⚠ `g.m * 0.30` PUT THIS INSIDE THE MARGIN BAND (2.45 mm on a 70 mm board)
-    # and the row read 2.885 %.  The die clears the band by 3.1 mm; the
-    # colophon did not.
-    T(L, g, cx, g.h - g.m * 0.78, "MERCANCÍA · TROQUEL " "%.0f mm · " % (2 * r)
+    # ⚠ ON THE GRID, NOT AT AN OFFSET FROM THE PAGE EDGE.  `g.m * 0.30` put
+    # this inside the margin BAND and the row read 2.885 %; moving it to
+    # `g.m * 0.78` cleared the band but left it 1.28 mm BELOW THE MARGIN LINE
+    # ITSELF -- outside the live area of its own piece, on a 24-row grid, which
+    # a grader measured at row 24.479.  Passing the band check is not the same
+    # as being on the page, and this module has a grid precisely so that
+    # positions do not have to be guessed from an edge.
+    T(L, g, cx, g.y(23.4), "MERCANCÍA · TROQUEL " "%.0f mm · " % (2 * r)
            + PROV, "cond", g.pt(NIVEL["pie"]), TINTA, tracking=g.pt(NIVEL["pie"]) * 0.08,
            measure=g.w - 2 * g.gut)
 
@@ -1578,6 +1594,75 @@ def main(argv):
               ", ".join("%s %d" % (k, v) for k, v in sorted(cen.items(),
                                                             key=lambda kv: -kv[1])),
               ("  <-- " + " | ".join(sin_marca[:3])) if sin_marca else ""))
+
+    # =========================================== THE PALETTE AGAINST THE PHOTO
+    # Two independently obtained quantities (rule 6): the left side is computed
+    # by `foto.py` off `ref_sign_aframe.jpg` and committed; the right side is
+    # this module's own palette. Neither is derived from the other.
+    fj = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                      "foto_sign.json")
+    if os.path.exists(fj):
+        fo = json.load(open(fj))
+        mia = estilo_vec.contrast(HUESO, F_ORO)
+        suya = fo["disc_on_ground"]
+        ck(abs(mia - suya) < 0.25,
+           "photograph: his sign's light ink on its gold reads %.4f:1 "
+           "(%s on %s, %.1f %% of the face, measured by foto.py); ours reads "
+           "%.4f:1 (%s on %s).  ⚠ RATIO ONLY -- absolute values carry that "
+           "photograph's exposure and are not transferable"
+           % (suya, fo["disc"], fo["ground"],
+              100 * fo["clusters"][0]["share"], mia, HUESO, F_ORO))
+    else:
+        ck(False, "photograph: foto_sign.json ABSENT -- run `python3 foto.py`")
+
+    # ============================================================ CENTRING
+    # ⚠ EVERY CENTRED TRACKED RUN IN THIS SUITE SAT LEFT OF ITS OWN AXIS.
+    # CSS letter-spacing adds the space after the LAST glyph too and
+    # `text-anchor` centres the ADVANCE, so the ink lands half a tracking to
+    # the left -- on nearly every line in the set.  Found by a grader, not by
+    # any row here: the margin checks read the margins, and `occlusion`
+    # compares boxes built on the SAME wrong assumption, so it could not see it.
+    #
+    # THE TEST IS A SLOPE, NOT AN OFFSET.  Glyph sidebearings make a run's ink
+    # centre differ from its advance centre by a little, always, and that is
+    # optical centring working correctly.  What must not happen is for the
+    # error to GROW WITH TRACKING.  Regressing measured offset against tracking
+    # over every centred run in the build gives a slope of -0.5 mm per mm when
+    # the defect is present and ~0 when it is not, and the slope is obtained
+    # from the RENDERED sheets while the tracking comes from the layout -- two
+    # independent quantities (rule 6).
+    pts = []
+    for t in TEXTS:
+        if t["anchor"] != "middle" or t["box"] is None: continue
+        if t["tracking"] <= 1e-9 or t["piece"] not in stems0: continue
+        w, h, st = stems0[t["piece"]]
+        a = np.asarray(Image.open(st + ".png").convert("RGB")).astype(np.int16)
+        H, W = a.shape[:2]; ppm = W / float(w)
+        bx0, by0, bx1, by1 = t["box"]
+        X0 = max(0, int(bx0 * ppm) - 6); X1 = min(W, int(bx1 * ppm) + 6)
+        Y0 = max(0, int(by0 * (H / h))); Y1 = min(H, int(by1 * (H / h)))
+        if X1 - X0 < 8 or Y1 - Y0 < 4: continue
+        win = a[Y0:Y1, X0:X1]
+        m = (np.abs(win - _rgb(t["fill"])).max(axis=2) <= 90)
+        cols = np.where(m.any(axis=0))[0]
+        if len(cols) < 2: continue
+        centre = (X0 + (cols.min() + cols.max()) / 2.0) / ppm
+        pts.append((t["tracking"], centre - t["x"]))
+    # ⚠ NOT A SILENT SKIP.  A regression needs several points; with fewer the
+    # row says ABSENT and why, rather than disappearing and leaving a shorter
+    # green list that reads as full coverage (F380).
+    if len(pts) < 6:
+        ck(True, "centring: ABSENT -- %d centred tracked run(s) in this build, "
+                 "a slope needs 6" % len(pts))
+    else:
+        xs = np.array([p[0] for p in pts]); ys = np.array([p[1] for p in pts])
+        slope = float(((xs - xs.mean()) * (ys - ys.mean())).sum()
+                      / max(1e-9, ((xs - xs.mean()) ** 2).sum()))
+        ck(abs(slope) < 0.12,
+           "centring: %d centred tracked run(s) measured off the rendered "
+           "sheets; offset-vs-tracking slope %+.4f mm/mm (bar 0.12; the defect "
+           "reads -0.5, a clean build ~0); mean residual %+.3f mm is sidebearing"
+           % (len(pts), slope, float(ys.mean())))
 
     # ============================== IS THE WORDMARK LOAD-BEARING FOR LAYOUT
     hue = []

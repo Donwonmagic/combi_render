@@ -1,0 +1,69 @@
+{
+ "source": "ref_sign_aframe.jpg",
+ "window": [
+  0.052,
+  0.093,
+  0.56,
+  0.91
+ ],
+ "clusters": [
+  {
+   "hex": "#CA9939",
+   "rgb": [
+    202,
+    153,
+    57
+   ],
+   "share": 0.5714
+  },
+  {
+   "hex": "#D4CDBA",
+   "rgb": [
+    212,
+    205,
+    186
+   ],
+   "share": 0.1483
+  },
+  {
+   "hex": "#304470",
+   "rgb": [
+    48,
+    68,
+    112
+   ],
+   "share": 0.1444
+  },
+  {
+   "hex": "#9C2D25",
+   "rgb": [
+    156,
+    45,
+    37
+   ],
+   "share": 0.0753
+  },
+  {
+   "hex": "#73898E",
+   "rgb": [
+    115,
+    137,
+    142
+   ],
+   "share": 0.031
+  },
+  {
+   "hex": "#3F372F",
+   "rgb": [
+    63,
+    55,
+    47
+   ],
+   "share": 0.0296
+  }
+ ],
+ "ground": "#CA9939",
+ "disc": "#D4CDBA",
+ "disc_on_ground": 1.6293,
+ "note": "RATIOS ONLY. Absolute values carry this photograph's exposure and white balance and are NOT transferable; the ratio between two areas of one frame under one light is."
+}
