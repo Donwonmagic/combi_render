@@ -818,6 +818,7 @@ LIFTED = []          # pieces whose scale the print floor lifted, and by how muc
 DISPOSITIVO = []     # every use of the structural device, with its radius
 LAYERS = {}          # the underlay layer keys each piece actually drew
 ACTIVOS_POR_PIEZA = {}
+CAPTURA = {}         # which capture each piece drew from
 FIT = []             # every run's shrink factor, so the type scale is auditable
 TEXTS = []           # every run as printed, so a colophon can be checked
 
@@ -858,14 +859,37 @@ def esquinas(L, g, fill, frac=0.155, corners="tlbr"):
     DISPOSITIVO.append((PIEZA[0], round(r, 2)))
 
 
+def _dispositivo_row(made):
+    """⚠ `DISPOSITIVO` WAS APPENDED TO AND NEVER READ.  A benchmark found it:
+    the list recording the suite's one structural device was written by
+    `esquinas()` and consumed by nothing, while a docstring called the device
+    structural.  A record nobody reads is not a record, and a claim no row
+    checks is the thing this project exists to stop."""
+    n = len({d[0] for d in DISPOSITIVO})
+    rs = sorted(d[1] for d in DISPOSITIVO)
+    return (n, len(made), (rs[-1] / rs[0]) if rs else 0.0,
+            rs[0] if rs else 0.0, rs[-1] if rs else 0.0)
+
+
 def put_hero(L, style, box, mural="fino", ink=None, ground=None,
-             modo="contener", anclaje=(0.5, 0.5)):
+             modo="contener", anclaje=(0.5, 0.5), tag=None):
     """`ground` overrides the PAGE colour when the drawing sits on something
     else -- a vignette disc, a band.  The keyline is chosen against whatever
     the drawing is actually printed over, so putting a cream vehicle on a
     cream disc cannot silently reproduce the defect the disc was added for."""
+    # ⚠⚠ THE CAPTURE IS A PER-PIECE CHOICE NOW, AND IT WAS A MODULE CONSTANT.
+    # `TAG = "sidehi"` was used by all seventeen `put_hero` sites while
+    # `nose_*`, `flank_*` and `side_*` sat COMMITTED AND UNUSED in
+    # `probe_scratch/sticker/` -- three other views of the same vehicle,
+    # already traced-ready, already tracked.  A benchmark against current
+    # flagship illustration-led systems put it plainly: every one of them is a
+    # device that GENERATES (Mina: 100+ drawings for one restaurant; Liberty:
+    # 14 illustrators over 50+ products), and this was ONE ASSET IN SEVENTEEN
+    # FRAMES.  Four revisions of layout work went into the one variable that
+    # was never the problem.
+    tag = tag or TAG
     order0 = len(L.body)
-    lay, wh, org = estilo_vec.layers(TAG, style, box, mural=mural, ink=ink,
+    lay, wh, org = estilo_vec.layers(tag, style, box, mural=mural, ink=ink,
                                      ground=(ground or GROUND[0]),
                                      modo=modo, anclaje=anclaje)
     recorte = L.clip(box) if modo == "cubrir" else None
@@ -891,7 +915,7 @@ def put_hero(L, style, box, mural="fino", ink=None, ground=None,
     # occupancy grid off the underlay's own alpha is the drawing's actual
     # footprint, so the row can take the wordmark in without inventing a
     # failure for it.
-    al = estilos.underlay(TAG)["alpha"]
+    al = estilos.underlay(tag)["alpha"]
     _ys, _xs = np.where(al)
     sub = al[_ys.min():_ys.max() + 1, _xs.min():_xs.max() + 1]
     gh, gw = 24, 48
@@ -906,7 +930,7 @@ def put_hero(L, style, box, mural="fino", ink=None, ground=None,
     for ds, col, key in lay:
         L.paths(ds, col, stroke=key, stroke_w=(kw if key else 0.0),
                 clip=recorte)
-        DRAWN.append({"piece": PIEZA[0], "style": style,
+        DRAWN.append({"piece": PIEZA[0], "style": style, "tag": tag,
                       "ground": (ground or GROUND[0]),
                       "declared": ground is not None,
                       "sobre": (ground is None or
@@ -920,7 +944,7 @@ def put_hero(L, style, box, mural="fino", ink=None, ground=None,
 # (name, w_mm, h_mm, style, ground, builder)
 
 def _poster(L, g, style, sub, foot, rule_col=GRANA, edge=TINTA, txt=TINTA,
-            mark=TINTA, dispositivo=None):
+            mark=TINTA, dispositivo=None, tag=None):
     """The portrait master layout.  Rows are indices on the 24-row grid, so the
     SAME numbers place the same way on an 85 mm card and a 900 mm panel."""
     if dispositivo:
@@ -930,7 +954,8 @@ def _poster(L, g, style, sub, foot, rule_col=GRANA, edge=TINTA, txt=TINTA,
     wh = put_wordmark(L, g.w / 2.0, g.y(1.4), g.span(8), ink=mark)
     T(L, g, g.w / 2.0, g.y(1.4) + wh + g.base * 1.1, LETRERO, "cond",
            g.pt(NIVEL["sub"]), rule_col, nivel="sub")
-    put_hero(L, style, (g.x(0), g.y(7.2), g.x(0) + g.span(12), g.y(18.4)))
+    put_hero(L, style, (g.x(0), g.y(7.2), g.x(0) + g.span(12), g.y(18.4)),
+             tag=tag)
     T(L, g, g.w / 2.0, g.y(20.6), sub, "cond", g.pt(NIVEL["titular"]), txt, nivel="titular")
     # measured against the FRAME's inner width, not the sheet's: the foot line
     # was inside the page but sitting on the keyline at both ends.
@@ -1006,10 +1031,15 @@ def p_cartel_a2(g, L):
             "SERIE COMBI · IMPRESO · " + PROV, dispositivo=HUESO)
 
 def p_cartel_a3(g, L):
+    # ⚠ THE NOSE, NOT THE SIDE.  This and `cartel_a2` were one poster with a
+    # colour swap; drawing a DIFFERENT VIEW of the vehicle separates them by
+    # subject rather than by palette, and the front three-quarter carries the
+    # VW roundel, which is the vehicle's most recognisable face.  The capture
+    # has been tracked and unused since it was made.
     _poster(L, g, "azulejo", "SE SIRVE DESDE LA COMBI",
             "SERIE COMBI · ESTILO AZULEJO · " + PROV,
             rule_col=CIELO, edge=CIELO, txt=HUESO, mark=HUESO,
-            dispositivo=CIELO)
+            dispositivo=CIELO, tag="nose")
 
 def p_carta(g, L):
     L.rect(g.m * 0.55, g.m * 0.55, g.w - g.m * 1.1, g.base * 4.4, GRANA)
@@ -1064,9 +1094,10 @@ def p_playera(g, L):
 
 # ---- landscape sheets: the hero takes one side, the lockup the other --------
 def _paisaje(L, g, style, edge, rule_col, big=None, big_col=None, txt=TINTA,
-             mark=TINTA):
+             mark=TINTA, tag=None):
     esquinas(L, g, edge)
-    put_hero(L, style, (g.x(6), g.y(2.0), g.x(6) + g.span(6), g.y(21.5)))
+    put_hero(L, style, (g.x(6), g.y(2.0), g.x(6) + g.span(6), g.y(21.5)),
+             tag=tag)
     cx = g.x(0) + g.span(6) / 2.0
     wh = put_wordmark(L, cx, g.y(4.0), g.span(5.4), ink=mark)
     T(L, g, cx, g.y(4.0) + wh + g.base * 1.2, LETRERO, "cond", g.pt(NIVEL["sub"]),
@@ -1076,8 +1107,9 @@ def _paisaje(L, g, style, edge, rule_col, big=None, big_col=None, txt=TINTA,
     T(L, g, g.w / 2.0, g.y(23.4), PROV, "cond", g.pt(NIVEL["pie"]), rule_col, nivel="pie")
 
 def p_vidriera(g, L):
+    # the serving flank, on the piece that faces the pavement from a window
     _paisaje(L, g, "azulejo", CIELO, CIELO, big="ABIERTO", big_col=HUESO,
-             mark=HUESO)
+             mark=HUESO, tag="flank")
 
 def p_postal(g, L):
     """THE PICTURE SIDE OF A POSTCARD -- the drawing is the piece.
@@ -1105,7 +1137,10 @@ def p_tarjeta(g, L):
     wh = put_wordmark(L, g.w / 2.0, g.y(2.4), g.span(7))
     T(L, g, g.w / 2.0, g.y(2.4) + wh + g.base * 1.1, LETRERO, "cond",
            g.pt(NIVEL["sub"]), GRANA, nivel="sub")
-    put_hero(L, "plano", (g.x(3), g.y(12.6), g.x(3) + g.span(6), g.y(20.2)))
+    # the nose: a calling card is held at arm's length and a 35 mm side
+    # elevation is a smudge, while the front is a face
+    put_hero(L, "plano", (g.x(3), g.y(12.6), g.x(3) + g.span(6), g.y(20.2)),
+             tag="nose")
     T(L, g, g.w / 2.0, g.y(22.6), PROV, "cond", g.pt(NIVEL["pie"]), GRANA,
            measure=g.w - 2 * (g.m * 0.5) - 2 * g.gut, nivel="pie")
 
@@ -1310,8 +1345,11 @@ def p_chapa(g, L):
     L.circle(cx, cy, r, F_ORO, stroke=TINTA, stroke_w=g.s / 260.0)
     L.circle(cx, cy, r * 0.90, F_ORO, stroke=GRANA, stroke_w=g.s / 700.0)
     wh = put_wordmark(L, cx, cy - r * 0.62, r * 1.02, ground=F_ORO)
-    put_hero(L, "papel", (cx - r * 0.74, cy - r * 0.16,
-                          cx + r * 0.74, cy + r * 0.42), ground=F_ORO)
+    # A BADGE IS A ROUND FIELD AND THE VEHICLE'S FRONT IS A ROUND FACE.  The
+    # side elevation in a 59 mm die was a long thin drawing in a circle.
+    put_hero(L, "papel", (cx - r * 0.60, cy - r * 0.20,
+                          cx + r * 0.60, cy + r * 0.52), ground=F_ORO,
+             tag="nose")
     T(L, g, cx, cy + r * 0.66, LETRERO, "cond", g.pt(NIVEL["menor"]), GRANA, measure=r * 1.4, nivel="menor")
     # the colophon goes on the BOARD, outside the die -- it is not on the badge
     # ⚠ ON THE GRID, NOT AT AN OFFSET FROM THE PAGE EDGE.  `g.m * 0.30` put
@@ -1438,6 +1476,8 @@ def main(argv):
         # WHAT IDENTITY ASSETS THIS PIECE ACTUALLY CARRIES, read off what was
         # drawn -- not assumed from the piece's name.
         act = set()
+        CAPTURA[name] = sorted({d.get("tag", TAG) for d in DRAWN
+                                if d["piece"] == name})
         fills = {d["fill"] for d in DRAWN if d["piece"] == name}
         lay = LAYERS.get(name, set())
         if any(d["piece"] == name for d in DRAWN):
@@ -1770,6 +1810,37 @@ def main(argv):
        % (len(named), len(TEXTS), len({t["piece"] for t in named}),
           len({t["piece"] for t in TEXTS}), len(lies),
           ("  <-- " + " | ".join(lies[:3])) if lies else ""))
+
+    # ================================================= THE STRUCTURAL DEVICE
+    # ⚠ `DISPOSITIVO` WAS APPENDED TO AND READ BY NOTHING.  A benchmark found
+    # it: the list recording the suite's one structural device was written by
+    # `esquinas()` and consumed by nowhere, while the docstring beside it
+    # called the device structural.  A record nobody reads is not a record.
+    if DISPOSITIVO:
+        nd, tot, rng, lo, hi = _dispositivo_row(made)
+        ck(nd >= max(1, len(made) // 2) or len(made) == 1,
+           "device: on %d of %d piece(s), radius %.1f-%.1f mm, a %.1fx scale "
+           "range from one shape -- REPORTED; how many pieces should carry it "
+           "is a judgement, that it is USED and SCALES is not"
+           % (nd, tot, lo, hi, rng))
+
+    # ================================================= HOW MANY THINGS ARE DRAWN
+    # ⚠⚠ THE SUITE WAS ONE ASSET IN SEVENTEEN FRAMES.  `TAG` was a module
+    # constant used by all seventeen heroes while three other captures of the
+    # same vehicle sat COMMITTED AND UNUSED.  Every illustration-led system in
+    # the benchmark is a device that GENERATES; this drew one picture and
+    # reframed it.  The row reports cardinality because that is the variable
+    # four revisions of layout work were not allowed to touch.
+    if CAPTURA:
+        from collections import Counter as _C3
+        cc = _C3(t for v in CAPTURA.values() for t in v)
+        ck(len(cc) >= 2,
+           "captures: %d distinct view(s) of the subject across %d piece(s) "
+           "-- %s.  ⚠ CARDINALITY, NOT QUALITY: this counts how many things "
+           "are drawn, not whether any of them is good"
+           % (len(cc), len(CAPTURA),
+              ", ".join("%s %d" % kv for kv in sorted(cc.items(),
+                                                      key=lambda kv: -kv[1]))))
 
     # ============================================ THE ASSET REGISTER
     sin_marca = []
