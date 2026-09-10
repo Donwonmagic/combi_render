@@ -64,6 +64,7 @@
  ],
  "ground": "#CA9939",
  "disc": "#D4CDBA",
- "disc_on_ground": 1.6293,
- "note": "RATIOS ONLY. Absolute values carry this photograph's exposure and white balance and are NOT transferable; the ratio between two areas of one frame under one light is."
+ "light_over_ground_luminance": 1.7176,
+ "disc_on_ground_wcag": 1.6293,
+ "note": "REFLECTANCE RATIO ONLY. L_light/L_gold survives a change of exposure; absolute values do not, and neither does the WCAG ratio, whose +0.05 offset breaks scale invariance."
 }

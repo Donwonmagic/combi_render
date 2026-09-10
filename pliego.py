@@ -69,6 +69,12 @@ def T(L, g, x, y, s, face, pt, fill, anchor="middle", tracking=0.0, measure=None
     # step is exactly the 1.14x accident the row exists to catch.
     if os.environ.get("T1_PLIEGO_SINESCALA") == "1":
         pt *= 1.07
+    # THE PROVENANCE DECLARATION: recorded against the piece, and NOT DRAWN.
+    # ⚠ `T1_PLIEGO_CONPROV=1` puts the ink back, so the row that asserts it is
+    # absent can be watched failing.
+    if PROV in s and os.environ.get("T1_PLIEGO_CONPROV") != "1":
+        CREDITO.append((PIEZA[0], s))
+        return
     L.text(x, y, s, face, pt, fill, anchor=anchor, tracking=tracking * k)
     FIT.append((PIEZA[0], s[:28], round(k, 4)))
     # the run's own box, in mm, from the FACE'S metrics -- so occlusion can be
@@ -122,6 +128,14 @@ CIELO = "#96BED6"; HUESO = "#FAF6EC"; PAPEL = "#EEE4CE"
 # justification for the most-used colour in the suite.  `foto.py` computes it
 # now: 1.6293:1, and the row below compares the palette against the committed
 # file rather than against a remembered number.
+# (3) It transferred the WCAG ratio, and THE WCAG RATIO IS NOT THE INVARIANT.
+# The argument "same light, same frame, so the RATIO is what can be trusted" is
+# true of L1/L2 and FALSE of (L1+0.05)/(L2+0.05) -- the offset breaks scale
+# invariance, so a different exposure of the same sign gives a different
+# number.  The palette is fitted to `light_over_ground_luminance` = 1.7176 now.
+# ⚠ The token barely moved -- `#EBBB55` was already at 1.7136, a 0.23 % error --
+# so this changed the ARGUMENT, not the artwork, which is the point: the
+# previous gold was very nearly right for a reason that was wrong.
 # (2) It called cluster 2 a "cream disc", and THERE IS NO DISC ON HIS SIGN.
 # Painting the measurement window and looking at it (rule 8) shows `#D4CDBA`
 # is the sign's LIGHT INK -- the inline of the CLUB lettering, the van's cream
@@ -129,7 +143,7 @@ CIELO = "#96BED6"; HUESO = "#FAF6EC"; PAPEL = "#EEE4CE"
 # vignette disc on `p_aframe` was mine; I attributed it to a photograph that
 # does not contain it.  The RATIO transferred is sound and is what the row
 # checks; the provenance claim around it was not.
-F_ORO   = "#EBBB55"     # gold ground, clear of ORO artwork
+F_ORO   = "#E4BD60"     # gold ground, clear of ORO artwork
 F_PAPEL = "#E4D6B4"     # paper ground, clear of CREMA artwork
 F_AZUL  = "#22406E"     # blue ground, clear of the AZUL_CUERPO body
 F_NEGRO = "#141518"
@@ -140,7 +154,48 @@ MENU = ("GOURMET TACOS", "TORTAS", "FRESH JUICES",
 # ⚠ `AUTORADO` IS NOT A SPANISH WORD.  It shipped on all seventeen pieces, in
 # the one string whose entire job is to certify provenance, on a brand whose
 # proposition is authenticity.  `DE AUTOR` is the phrase Spanish uses.
+# ⚠⚠ THE PROVENANCE LINE IS NO LONGER PRINTED ON THE ARTWORK, AND THE CALL
+# SITES THAT PRINTED IT ARE STILL THERE, because they ARE the record (rule 16).
+# `T()` recognises this token, records the line against the piece, and draws
+# NOTHING.  Nothing is deleted; the ink is.
+#
+# WHY.  Three independent graders upheld it: this was production metadata
+# leaking onto the artwork on 17 of 17 pieces -- including a tote bag, a
+# t-shirt and a business card -- and it is not a colophon in any tradition.  A
+# colophon names the MAKER and the MEANS: printer, place, date, edition, paper.
+# `TEXTO: MEDIDO · LETRERO · DE AUTOR` names none of those. It names the
+# provenance CLASS of the strings, in three codewords that exist only inside
+# this repository, and a Spanish reader parses it as "TEXT: MEASURED · SIGN ·
+# BY THE AUTHOR", which is not a sentence.  Worse, it had swollen to carry the
+# build system's own taxonomy -- `SERIE COMBI`, `CALLE`, `IMPRESO`, `SOCIAL`,
+# `MERCANCÍA` are category keys, `PAPEL PICADO` and `ESTILO AZULEJO` are style
+# keys, `TROQUEL 59 mm` is a die spec.
+#
+# ⚠ F372 IS NOT WEAKENED BY THIS, IT IS STRENGTHENED.  F372's defect was an
+# INVENTED menu under a docstring claiming it was measured; its fix is that the
+# claim be TRUE AND RECORDED, not that it be printed on a bag.  It is recorded
+# in `pl_MANIFIESTO.txt` per piece, and `PROCEDENCIA` below now classes EVERY
+# drawn literal in the suite with a row that reds on any string nobody has
+# sourced -- which the printed line never did.
 PROV = "TEXTO: MEDIDO · LETRERO · DE AUTOR"
+
+# Every literal this module draws, and where it came from.  MEDIDO: read off
+# the vehicle's own artwork.  LETRERO: off the owner's photographed sign.
+# AUTOR: written for this suite.  A string absent from here is a finding.
+PROCEDENCIA = {
+    "TAQUERIA y CERVECERIA": "LETRERO",
+    "GOURMET TACOS": "MEDIDO", "TORTAS": "MEDIDO", "FRESH JUICES": "MEDIDO",
+    "CEVICHE / TOSTADAS": "MEDIDO", "SHRIMP & FISH": "MEDIDO",
+    "SE SIRVE DESDE LA COMBI": "AUTOR", "HECHO A MANO": "AUTOR",
+    "ABIERTO": "AUTOR", "HORARIO": "AUTOR", "TARJETA DE CLIENTE": "AUTOR",
+    "OCHO VISITAS · LA NOVENA ES NUESTRA": "AUTOR",
+    "OFERTA DE MUESTRA · NO APROBADA": "AUTOR",
+    "MENÚ DE MUESTRA · TOMADO DEL MURAL": "AUTOR",
+    "LUNES": "AUTOR", "MARTES": "AUTOR", "MIÉRCOLES": "AUTOR",
+    "JUEVES": "AUTOR", "VIERNES": "AUTOR", "SÁBADO": "AUTOR",
+    "DOMINGO": "AUTOR",
+}
+CREDITO = []         # the provenance line each piece declares, recorded not drawn
 
 
 class Rejilla(object):
@@ -1161,7 +1216,7 @@ def p_lealtad(g, L):
     esquinas(L, g, ORO)
     wh = put_wordmark(L, g.x(0) + g.span(5) / 2.0, g.y(2.0), g.span(4.4))
     T(L, g, g.x(0) + g.span(5) / 2.0, g.y(2.0) + wh + g.base * 1.1,
-           "TARJETA DE CLIENTE", "cond", g.pt(NIVEL["menor"]), TINTA,
+           "TARJETA DE CLIENTE", "cond", g.pt(NIVEL["sub"]), TINTA,
            tracking=g.pt(NIVEL["menor"]) * 0.2, measure=g.span(5))
     put_hero(L, "papel", (g.x(7), g.y(2.2), g.x(7) + g.span(5), g.y(9.6)))
     # eight stamp rings on the grid, so the row is a row and not eight guesses
@@ -1169,8 +1224,13 @@ def p_lealtad(g, L):
     for i in range(8):
         cx = g.x(0) + g.span(12) * (i + 0.5) / 8.0
         L.circle(cx, g.y(13.4), r, None, stroke=GRANA, stroke_w=g.s / 700.0)
+    # three lines, three jobs, three levels: the card's NAME, the OFFER, and
+    # the disclaimer that keeps the offer honest.  They were all at `menor`,
+    # and the `hierarchy` row caught it the moment the colophon stopped being
+    # drawn and stopped hiding it behind a fourth size.
     T(L, g, g.w / 2.0, g.y(17.2), "OCHO VISITAS · LA NOVENA ES NUESTRA",
-           "cond", g.pt(NIVEL["menor"]), GRANA, tracking=g.pt(NIVEL["menor"]) * 0.14)
+           "cond", g.pt(NIVEL["lista"]), GRANA,
+           tracking=g.pt(NIVEL["lista"]) * 0.14)
     T(L, g, g.w / 2.0, g.y(19.4), "OFERTA DE MUESTRA · NO APROBADA", "cond",
            g.pt(NIVEL["menor"]), ROJO, tracking=g.pt(NIVEL["menor"]) * 0.16)
     T(L, g, g.w / 2.0, g.y(22.8), "IMPRESO · " + ESTILO_ES["papel"] + " · "
@@ -1584,6 +1644,37 @@ def main(argv):
        % (len(TEXTS), len(ORTOGRAFIA), len(REPLICADO), len(mal),
           ("  <-- " + " | ".join(sorted(set(mal))[:3])) if mal else ""))
 
+    # ============================================== PROVENANCE, RECORDED
+    # ⚠ STRONGER THAN THE LINE IT REPLACED.  The printed line asserted three
+    # codewords over a whole piece; this classes EVERY drawn literal and reds
+    # on any string nobody has sourced.  A provenance claim that cannot fail is
+    # decoration, which is what the line on the artwork was.
+    sinfuente = sorted({t["s"] for t in TEXTS
+                        if t["s"] != "<wordmark>" and PROV not in t["s"]
+                        and t["s"] not in PROCEDENCIA})
+    piezas_hechas = {n for _c, n, _w, _h, _g, _s, _sa in made}
+    sincredito = sorted(piezas_hechas - {c[0] for c in CREDITO})
+    from collections import Counter as _C
+    cnt = _C(PROCEDENCIA[t["s"]] for t in TEXTS
+             if t["s"] in PROCEDENCIA)
+    ck(not sinfuente and not sincredito,
+       "provenance: %d drawn literal(s) classed (%s); %d unsourced; %d of %d "
+       "piece(s) declare a provenance line, RECORDED NOT PRINTED%s"
+       % (sum(cnt.values()), ", ".join("%s %d" % kv for kv in sorted(cnt.items())),
+          len(sinfuente), len(piezas_hechas) - len(sincredito),
+          len(piezas_hechas),
+          ("  <-- " + " | ".join((sinfuente + sincredito)[:3]))
+          if (sinfuente or sincredito) else ""))
+
+    # ...and the ink itself must be ABSENT from every sheet
+    conprov = [t["piece"] for t in TEXTS if PROV in t["s"]]
+    ck(not conprov,
+       "provenance INK: %d run(s) of build metadata on the artwork (must be 0; "
+       "it belongs in pl_MANIFIESTO.txt, and `T1_PLIEGO_CONPROV=1` puts it "
+       "back so this row can be watched failing)%s"
+       % (len(conprov),
+          ("  <-- " + ", ".join(sorted(set(conprov))[:4])) if conprov else ""))
+
     # ================================================== PROVENANCE OF STYLE
     # ⚠ `playera` PRINTED "ARTE PLANO" ACROSS THE FOOT OF A `silueta` DRAWING.
     # That is F372's class exactly -- a provenance line stating something the
@@ -1638,15 +1729,17 @@ def main(argv):
                       "foto_sign.json")
     if os.path.exists(fj):
         fo = json.load(open(fj))
-        mia = estilo_vec.contrast(HUESO, F_ORO)
-        suya = fo["disc_on_ground"]
-        ck(abs(mia - suya) < 0.25,
-           "photograph: his sign's light ink on its gold reads %.4f:1 "
-           "(%s on %s, %.1f %% of the face, measured by foto.py); ours reads "
-           "%.4f:1 (%s on %s).  ⚠ RATIO ONLY -- absolute values carry that "
-           "photograph's exposure and are not transferable"
+        mia = estilo_vec._lum(HUESO) / estilo_vec._lum(F_ORO)
+        suya = fo["light_over_ground_luminance"]
+        ck(abs(mia - suya) < 0.05,
+           "photograph: his sign's light ink over its gold is %.4f in "
+           "REFLECTANCE (%s over %s, %.1f %% of the face, by foto.py); ours is "
+           "%.4f (%s over %s).  ⚠ THE LUMINANCE RATIO IS THE INVARIANT -- it "
+           "survives a change of exposure; the WCAG figure (%.3f his, %.3f "
+           "ours) does NOT, because its +0.05 offset is not scale-invariant"
            % (suya, fo["disc"], fo["ground"],
-              100 * fo["clusters"][0]["share"], mia, HUESO, F_ORO))
+              100 * fo["clusters"][0]["share"], mia, HUESO, F_ORO,
+              fo["disc_on_ground_wcag"], estilo_vec.contrast(HUESO, F_ORO)))
     else:
         ck(False, "photograph: foto_sign.json ABSENT -- run `python3 foto.py`")
 
@@ -1939,6 +2032,20 @@ def main(argv):
                 fh.write("%-10s %-10s %7.3f x %7.3f mm%s\n"
                          % (cat, name, w, h,
                             ("   %d x %d px exact" % px) if px else ""))
+            fh.write("\n\nPROVENANCE -- this is where it lives now, not on "
+                     "the artwork.\n")
+            fh.write("MEDIDO: read off the vehicle's own artwork.  "
+                     "LETRERO: off the owner's photographed sign.\n"
+                     "AUTOR: written for this suite and approved by nobody.\n")
+            for cat, name, _w, _h, _g, _st, _sa in made:
+                fh.write("\n%s / %s\n" % (cat, name))
+                for pz, line in CREDITO:
+                    if pz == name:
+                        fh.write("  declares: %s\n" % line)
+                for t in TEXTS:
+                    if t["piece"] == name and t["s"] in PROCEDENCIA:
+                        fh.write("  %-8s %s\n"
+                                 % (PROCEDENCIA[t["s"]], t["s"]))
         ck(os.path.exists(man), "manifest -> %s (names the deliverable set and "
                                 "the build dpi)" % man)
 

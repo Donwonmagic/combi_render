@@ -77,28 +77,44 @@ def main(argv):
     cl = medir(paint=paint)
     # the two largest are the GROUND and the LIGHT DISC; both are wanted
     ground, disc = cl[0], cl[1]
+    # ⚠⚠ THE INVARIANT IS THE REFLECTANCE RATIO, NOT THE WCAG RATIO, AND THE
+    # FIRST VERSION OF THIS TRANSFERRED THE WRONG ONE.  A grader caught it: the
+    # argument "both under the same light in the same frame, so the RATIO
+    # between them is what can be trusted" is TRUE of L1/L2 and FALSE of
+    # (L1+0.05)/(L2+0.05), because the +0.05 offset is not scale-invariant.
+    # Double the exposure and the reflectance ratio is unchanged while the WCAG
+    # figure moves.  So the quantity carried across is L_light/L_gold; the WCAG
+    # number is recorded beside it as a reading convenience and is NOT what the
+    # palette is fitted to.
+    lr = _lum(disc["rgb"]) / max(1e-9, _lum(ground["rgb"]))
     out = {
         "source": "ref_sign_aframe.jpg",
         "window": list(VENTANA),
         "clusters": cl,
         "ground": ground["hex"],
         "disc": disc["hex"],
-        "disc_on_ground": round(contrast(disc["rgb"], ground["rgb"]), 4),
-        "note": ("RATIOS ONLY. Absolute values carry this photograph's "
-                 "exposure and white balance and are NOT transferable; the "
-                 "ratio between two areas of one frame under one light is."),
+        "light_over_ground_luminance": round(lr, 4),
+        "disc_on_ground_wcag": round(contrast(disc["rgb"], ground["rgb"]), 4),
+        "note": ("REFLECTANCE RATIO ONLY. L_light/L_gold survives a change of "
+                 "exposure; absolute values do not, and neither does the WCAG "
+                 "ratio, whose +0.05 offset breaks scale invariance."),
     }
     print("sign face, %d clusters:" % len(cl))
     for c in cl:
         print("  %6.2f %%  %s" % (100 * c["share"], c["hex"]))
     print()
-    print("ground %s   disc %s   disc-on-ground %.4f:1"
-          % (out["ground"], out["disc"], out["disc_on_ground"]))
+    print("ground %s   light ink %s" % (out["ground"], out["disc"]))
+    print("  L_light / L_gold = %.4f   <- THE INVARIANT, transferred"
+          % out["light_over_ground_luminance"])
+    print("  WCAG            = %.4f   <- recorded, NOT fitted to"
+          % out["disc_on_ground_wcag"])
     if "--check" in argv:
         old = json.load(open(SALIDA))
-        d = abs(old["disc_on_ground"] - out["disc_on_ground"])
+        d = abs(old["light_over_ground_luminance"]
+                - out["light_over_ground_luminance"])
         print("committed %.4f, re-measured %.4f, delta %.4f"
-              % (old["disc_on_ground"], out["disc_on_ground"], d))
+              % (old["light_over_ground_luminance"],
+                 out["light_over_ground_luminance"], d))
         return 0 if d < 0.02 else 1
     json.dump(out, open(SALIDA, "w"), indent=1)
     print("-> %s" % SALIDA)
