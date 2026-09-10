@@ -386,6 +386,14 @@ ORTOGRAFIA = {
 # viewer would attribute the piece -- that needs people, and the standard's own
 # lens stripped every attribution percentage as unfounded at n=1.  Presence is
 # necessary and not sufficient, and the row says so where it prints.
+#
+# ⚠⚠ AND IT COUNTS WHAT WAS DRAWN, NOT WHAT IS VISIBLE.  Since pieces may now
+# CROP the hero (`modo="cubrir"`), a clip can remove an asset that the register
+# still counts: `cuadro` at anchor 0.5 cut the vehicle off below the body,
+# taking the VW hubcaps with it, and `rueda` was still reported present.  The
+# anchor was moved so the wheels stay, but the GAP IS REAL and is stated here
+# rather than papered over -- closing it means rasterising each piece's clipped
+# hero per asset, which is a heavier instrument than this row has earned.
 ACTIVOS = {
     "combi":  "the drawn vehicle itself",
     "mural":  "the lid mural, its ground and its flowers",
@@ -397,7 +405,13 @@ ACTIVOS = {
     "disco":  "the vignette disc / die",
 }
 
-SANGRA = {"vaso": (GRANA,)}
+# ⚠ `"HERO"` MEANS THE DRAWING ITSELF BLEEDS.  A cropped hero that runs off the
+# trim is what `cubrir` is for, and it necessarily puts ink in the bands the
+# margin and edge rows read.  Declared, and excluded BY GEOMETRY from those
+# bands -- the same mechanism `vaso`'s bars use, and for the same reason: an
+# exemption has to be a different TEST, not a wider number.
+SANGRA = {"vaso": (GRANA,), "cabecera": ("HERO",), "cuadro": ("HERO",),
+          "playera": ("HERO",)}
 
 # AUTHORED, and it will be moved to whatever the measurement supports -- see
 # the printed table under `type presence`.  It is a PRESENCE bar, not a
@@ -844,19 +858,24 @@ def esquinas(L, g, fill, frac=0.155, corners="tlbr"):
     DISPOSITIVO.append((PIEZA[0], round(r, 2)))
 
 
-def put_hero(L, style, box, mural="fino", ink=None, ground=None):
+def put_hero(L, style, box, mural="fino", ink=None, ground=None,
+             modo="contener", anclaje=(0.5, 0.5)):
     """`ground` overrides the PAGE colour when the drawing sits on something
     else -- a vignette disc, a band.  The keyline is chosen against whatever
     the drawing is actually printed over, so putting a cream vehicle on a
     cream disc cannot silently reproduce the defect the disc was added for."""
     order0 = len(L.body)
-    lay, wh = estilo_vec.layers(TAG, style, box, mural=mural, ink=ink,
-                                ground=(ground or GROUND[0]))
+    lay, wh, org = estilo_vec.layers(TAG, style, box, mural=mural, ink=ink,
+                                     ground=(ground or GROUND[0]),
+                                     modo=modo, anclaje=anclaje)
+    recorte = L.clip(box) if modo == "cubrir" else None
     kw = max(0.10, wh[1] * 0.0026)      # keyline weight scales with the drawing
-    # the artwork's OWN box after aspect-fitting, not the box asked for
-    cxb = (box[0] + box[2]) / 2.0; cyb = (box[1] + box[3]) / 2.0
-    abox = (cxb - wh[0] / 2.0, cyb - wh[1] / 2.0,
-            cxb + wh[0] / 2.0, cyb + wh[1] / 2.0)
+    # the artwork's OWN box, from where `_fit` actually put it -- which is not
+    # the centre of the requested box once `cubrir` is in play
+    abox = (org[0], org[1], org[0] + wh[0], org[1] + wh[1])
+    if modo == "cubrir":
+        abox = (max(abox[0], box[0]), max(abox[1], box[1]),
+                min(abox[2], box[2]), min(abox[3], box[3]))
     # THE DRAWING'S OCCUPANCY, AS AN OCCLUDER -- not its bounding box.
     # ⚠ `_poster` draws its subhead BEFORE the hero, so a hero that grew upward
     # would eat it, and `horario` proved that is not hypothetical (26.2 %).
@@ -885,7 +904,8 @@ def put_hero(L, style, box, mural="fino", ink=None, ground=None):
                      lay[0][1] if lay else None))
     LAYERS.setdefault(PIEZA[0], set()).update(estilo_vec.USADAS)
     for ds, col, key in lay:
-        L.paths(ds, col, stroke=key, stroke_w=(kw if key else 0.0))
+        L.paths(ds, col, stroke=key, stroke_w=(kw if key else 0.0),
+                clip=recorte)
         DRAWN.append({"piece": PIEZA[0], "style": style,
                       "ground": (ground or GROUND[0]),
                       "declared": ground is not None,
@@ -1032,8 +1052,11 @@ def p_bolsa(g, L):
 
 def p_playera(g, L):
     put_wordmark(L, g.w / 2.0, g.y(1.6), g.span(9), ink=CREMA)
-    put_hero(L, "papel", (g.x(1), g.y(6.6), g.x(1) + g.span(10), g.y(17.4)),
-             ink=CREMA)
+    # A GARMENT PRINT IS READ AT CHEST SCALE, not held at arm's length.  The
+    # whole bus at 100 mm across a chest is a small illustration; the flank
+    # cropped to fill the print area is a shirt someone wears.
+    put_hero(L, "papel", (g.x(0), g.y(7.6), g.x(0) + g.span(12), g.y(18.4)),
+             ink=CREMA, modo="cubrir", anclaje=(0.46, 0.5))
     T(L, g, g.w / 2.0, g.y(19.8), LETRERO, "cond", g.pt(NIVEL["sub"]), ORO, nivel="sub")
     T(L, g, g.w / 2.0, g.y(23.4),
            "MERCANCÍA · " + ESTILO_ES["papel"] + " · " + PROV, "cond",
@@ -1130,8 +1153,15 @@ def p_cuadro(g, L):
     wh = put_wordmark(L, g.w / 2.0, g.y(1.8), g.span(8), ink=ORO)
     T(L, g, g.w / 2.0, g.y(1.8) + wh + g.base * 1.2, LETRERO, "cond",
            g.pt(NIVEL["sub"]), CREMA, nivel="sub")
-    put_hero(L, "papel", (g.x(1), g.y(9.0), g.x(1) + g.span(10), g.y(19.0)),
-             ink=ORO)
+    # CROPPED, not floated: a square post is seen at thumbnail size in a feed,
+    # and a whole side elevation at 40 mm is a smudge.  Filling the frame with
+    # the serving side gives it something to be at that size.
+    # ⚠ anclaje y=0.72 KEEPS THE WHEELS.  At 0.5 the crop cut the vehicle off
+    # below the body and took the VW hubcaps with it -- and the asset register
+    # still counted `rueda`, because it counts what was DRAWN and a clip
+    # removes what is VISIBLE.  See the ceiling on that row.
+    put_hero(L, "papel", (g.x(0), g.y(10.2), g.x(0) + g.span(12), g.y(20.2)),
+             ink=ORO, modo="cubrir", anclaje=(0.42, 0.72))
     T(L, g, g.w / 2.0, g.y(22.4), "SOCIAL · " + ESTILO_ES["papel"] + " · "
            + PROV, "cond", g.pt(NIVEL["pie"]), "#7A6E63", nivel="pie")
 
@@ -1175,7 +1205,15 @@ def p_cabecera(g, L):
     # the frame this replaced.
     esquinas(L, g,
              F_AZUL if os.environ.get("T1_PLIEGO_MARCOPLANO") == "1" else CIELO)
-    put_hero(L, "plano", (g.x(5), g.y(1.4), g.x(5) + g.span(7), g.y(22.6)))
+    # ⚠ CROPPED AND RUN OFF THE RIGHT, NOT FITTED WHOLE.  This is a 3:1 banner
+    # seen at a glance; the whole side elevation floated in it with air on four
+    # sides, which is the one composition the old contain-only `_fit` allowed
+    # on every piece in the set.  `cubrir` scales to fill and `lienzo.clip`
+    # cuts it at the box, so the drawing behaves like a photograph in a crop
+    # rather than a sticker on a field.  Anchored left of centre so the serving
+    # side stays in frame and the nose is what leaves it.
+    put_hero(L, "plano", (g.x(5), g.y(0.6), g.w, g.y(23.4)),
+             modo="cubrir", anclaje=(0.34, 0.52))
     # the lockup sits ON the vertical centre of its column rather than at a
     # fixed row: at 3:1 a top-anchored block leaves the bottom-left third of
     # the banner empty, which is what the first version did
@@ -1380,10 +1418,14 @@ def main(argv):
                  px=PIXELES.get(name))
         # the declared bleed slabs, taken from what was actually drawn -- not
         # from a transcribed rectangle
+        decl = SANGRA.get(name, ())
         sang = tuple(geom for kind, geom, _o, fill in L.opaque
-                     if kind == "rect" and fill in SANGRA.get(name, ())
+                     if kind == "rect" and fill in decl
                      and (geom[0] <= 0.01 or geom[1] <= 0.01
                           or geom[2] >= w - 0.01 or geom[3] >= h - 0.01))
+        if "HERO" in decl:
+            sang = sang + tuple(geom[0] for kind, geom, _o, _f in L.opaque
+                                if kind == "art")
         # EVERY OTHER COLOURED ELEMENT ON THE SHEET, for the visibility row.
         # ⚠ F384's guarantee covered `put_hero` fills ONLY.  `rect`, `line`,
         # `circle`, `frame` and every text run were in no record at all, and
@@ -1796,6 +1838,26 @@ def main(argv):
               ("  <-- %d level(s) with more than one value: %s"
                % (len(multi), ", ".join(multi))) if multi else
               ("" if mono else "  <-- NOT MONOTONE")))
+
+    # ================================================= EVERY REFERENCE RESOLVES
+    # ⚠ `clip-path="url(#c0)"` SHIPPED POINTING AT A DEFINITION THAT DID NOT
+    # EXIST, because `lienzo` built `self.defs` and never emitted it.  An
+    # unresolvable reference is IGNORED by every renderer rather than raised,
+    # so the artwork drew unclipped and looked plausible.  Any `url(#...)` in
+    # an emitted master must resolve inside that master.
+    import re as _re2
+    rotas = []
+    for _c, name, _w, _h, _g, st, _sa in made:
+        doc = open(st + ".svg").read()
+        have = set(_re2.findall(r'id="([^"]+)"', doc))
+        for ref in set(_re2.findall(r'url\(#([^)]+)\)', doc)):
+            if ref not in have:
+                rotas.append("%s -> #%s" % (name, ref))
+    if made:
+        ck(not rotas, "references: every url(#id) in %d master(s) resolves "
+                      "inside it; %d dangling%s"
+           % (len(made), len(rotas),
+              ("  <-- " + " | ".join(rotas[:3])) if rotas else ""))
 
     # ============================================================ CENTRING
     # ⚠ EVERY CENTRED TRACKED RUN IN THIS SUITE SAT LEFT OF ITS OWN AXIS.

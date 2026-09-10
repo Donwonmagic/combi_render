@@ -200,7 +200,18 @@ class Lienzo(object):
             'stroke="%s" stroke-width="%.3f"/>'
             % (inset, inset, self.w - 2 * inset, self.h - 2 * inset, stroke, w))
 
-    def paths(self, ds, fill, opacity=1.0, stroke=None, stroke_w=0.0):
+    def clip(self, box):
+        """Register a rectangular clip and return its id, for a hero that is
+        CROPPED rather than fitted whole into a box."""
+        cid = "c%d" % len(self.defs)
+        x0, y0, x1, y1 = box
+        self.defs.append(
+            '<clipPath id="%s"><rect x="%.3f" y="%.3f" width="%.3f" '
+            'height="%.3f"/></clipPath>' % (cid, x0, y0, x1 - x0, y1 - y0))
+        return cid
+
+    def paths(self, ds, fill, opacity=1.0, stroke=None, stroke_w=0.0,
+              clip=None):
         """Traced contours as ONE path element with even-odd fill, so holes are
         holes rather than a second shape painted in the ground colour.
 
@@ -215,8 +226,9 @@ class Lienzo(object):
         if stroke and stroke_w > 0:
             sk = (' stroke="%s" stroke-width="%.4f" stroke-linejoin="round"'
                   % (stroke, stroke_w))
-        self.body.append('<path fill="%s" fill-rule="evenodd" opacity="%.3f"%s '
-                         'd="%s"/>' % (fill, opacity, sk, " ".join(ds)))
+        cp = ' clip-path="url(#%s)"' % clip if clip else ""
+        self.body.append('<path fill="%s" fill-rule="evenodd" opacity="%.3f"%s%s '
+                         'd="%s"/>' % (fill, opacity, sk, cp, " ".join(ds)))
 
     def text(self, x, y, s, face, size_mm, fill, anchor="middle",
              tracking=0.0, weight=None, caps=False):
@@ -256,11 +268,19 @@ class Lienzo(object):
             "@font-face{font-family:%s;src:url('file://%s');}" % (k, FACES[k])
             for k in sorted(self._fonts) if k in FACES)
         style = "<style>%s text{font-kerning:normal;}</style>" % ff
+        # ⚠⚠ `self.defs` EXISTED SINCE THIS CLASS WAS WRITTEN AND WAS NEVER
+        # EMITTED.  The first `clip-path="url(#c0)"` written against it
+        # therefore pointed at a definition that does not exist -- and an
+        # unresolvable clip-path is IGNORED, not an error, so the banner's
+        # cropped hero rendered UNCLIPPED and looked plausible.  The margin row
+        # is what caught it: ink past the trim that the declared bleed did not
+        # account for, because the drawing was not where the record said.
+        defs = ("<defs>%s</defs>" % "".join(self.defs)) if self.defs else ""
         return ('<?xml version="1.0" encoding="UTF-8"?>\n'
                 '<svg xmlns="http://www.w3.org/2000/svg" '
                 'width="%.3fmm" height="%.3fmm" viewBox="0 0 %.3f %.3f">'
-                '%s<rect width="%.3f" height="%.3f" fill="%s"/>%s</svg>'
-                % (self.w, self.h, self.w, self.h, style,
+                '%s%s<rect width="%.3f" height="%.3f" fill="%s"/>%s</svg>'
+                % (self.w, self.h, self.w, self.h, style, defs,
                    self.w, self.h, self.bg, "".join(self.body)))
 
     def save_svg(self, path):

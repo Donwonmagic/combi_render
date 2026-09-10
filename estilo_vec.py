@@ -138,13 +138,26 @@ THRESH = {
 DEFAULT_THRESH = (1.10, 14.0)
 
 
-def _fit(comps, box, art_wh):
-    """Scale traced contours (in capture px) into a mm box, preserving aspect."""
+def _fit(comps, box, art_wh, modo="contener", anclaje=(0.5, 0.5)):
+    """Scale traced contours (in capture px) into a mm box, preserving aspect.
+
+    ⚠ IT WAS CONTAIN-ONLY, AND THAT MADE ONE COMPOSITION COMPULSORY.  A grader
+    put it plainly: one traced capture -- one side elevation, one pose -- was
+    shown WHOLE, centred, floating with air on all four sides, on all seventeen
+    pieces, and the pipeline made anything else impossible.  A 59 mm badge
+    carried the same complete bus, mural flower field, flank script and
+    calidad starburst as a 600 x 900 mm sidewalk panel: a 10x reproduction
+    range with no size-specific reduction.  Flagship work crops.
+
+    `modo="cubrir"` scales to COVER the box instead, so the drawing fills it
+    and runs past its edges; the caller clips.  `anclaje` says which part of
+    the artwork stays in frame -- (0, 0.5) holds the nose, (1, 0.5) the tail."""
     x0, y0, x1, y1 = box
     aw, ah = art_wh
-    s = min((x1 - x0) / float(aw), (y1 - y0) / float(ah))
-    dx = x0 + ((x1 - x0) - aw * s) / 2.0
-    dy = y0 + ((y1 - y0) - ah * s) / 2.0
+    pick = max if modo == "cubrir" else min
+    s = pick((x1 - x0) / float(aw), (y1 - y0) / float(ah))
+    dx = x0 + ((x1 - x0) - aw * s) * anclaje[0]
+    dy = y0 + ((y1 - y0) - ah * s) * anclaje[1]
     return s, dx, dy
 
 
@@ -167,7 +180,7 @@ def _eps_for(scale_mm_per_px, layer_eps):
 
 
 def layers(tag, style, box, smooth=2, mural="fino", ink=None, ground=None,
-           cache={}):
+           modo="contener", anclaje=(0.5, 0.5), cache={}):
     """-> ([(svg_d_strings, fill_colour, keyline_or_None)], (w_mm, h_mm)).
 
     `ground` is the PAGE COLOUR the drawing will be printed on.  Pass it and
@@ -184,7 +197,8 @@ def layers(tag, style, box, smooth=2, mural="fino", ink=None, ground=None,
     _probe = estilos.underlay(tag)
     _ys, _xs = np.where(_probe["alpha"])
     _aw = _xs.max() - _xs.min() + 1; _ah = _ys.max() - _ys.min() + 1
-    _s = min((box[2] - box[0]) / float(_aw), (box[3] - box[1]) / float(_ah))
+    _pick = max if modo == "cubrir" else min
+    _s = _pick((box[2] - box[0]) / float(_aw), (box[3] - box[1]) / float(_ah))
     tier = round(math.log(max(_s, 1e-6)) * 2.0) / 2.0      # half-log steps
     key = (tag, style, smooth, mural, tier)
     if key not in cache:
@@ -257,7 +271,7 @@ def layers(tag, style, box, smooth=2, mural="fino", ink=None, ground=None,
     USADAS.clear()
     USADAS.update(cache[key][2])
     out, art_wh = cache[key][0], cache[key][1]
-    s, dx, dy = _fit(None, box, art_wh)
+    s, dx, dy = _fit(None, box, art_wh, modo, anclaje)
     # ⚠ THE INK OVERRIDE IS APPLIED AFTER THE CACHE, not baked into it.  A
     # single-ink style drawn in its default TINTA on a near-black ground is
     # INVISIBLE -- which is exactly what `playera` shipped.  Only the FIRST
@@ -269,4 +283,4 @@ def layers(tag, style, box, smooth=2, mural="fino", ink=None, ground=None,
         use = ink if (ink and i == 0 and style in ("papel", "silueta")) else col
         key = None if (ground is None or nokey) else keyline_for(use, ground)
         res.append((trazo.to_svg_paths(c, scale=s, dx=dx, dy=dy), use, key))
-    return res, (art_wh[0] * s, art_wh[1] * s)
+    return res, (art_wh[0] * s, art_wh[1] * s), (dx, dy)
