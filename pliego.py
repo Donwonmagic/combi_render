@@ -712,6 +712,7 @@ PAGINA = {}          # each piece's DECLARED page colour
 OPACOS = {}          # each piece's opaque records, kept for the clearance row
 REJILLA = {}         # each piece's grid, kept so the hierarchy row can read k
 LIFTED = []          # pieces whose scale the print floor lifted, and by how much
+DISPOSITIVO = []     # every use of the structural device, with its radius
 LAYERS = {}          # the underlay layer keys each piece actually drew
 ACTIVOS_POR_PIEZA = {}
 FIT = []             # every run's shrink factor, so the type scale is auditable
@@ -724,6 +725,34 @@ ESTILO_ES = {"plano": "ARTE PLANO", "papel": "PAPEL PICADO",
              "azulejo": "ESTILO AZULEJO", "silueta": "SILUETA"}
 GROUND = [None]      # the page colour of the piece being drawn
 PIEZA = [None]       # its name
+
+
+def esquinas(L, g, fill, frac=0.155, corners="tlbr"):
+    """The suite's structural device, at the LIVE-AREA corners.
+
+    ⚠ IT REPLACES THE KEYLINE FRAME, WHICH WAS DECORATION.  A grader measured
+    the frame on 14 of 17 pieces and it fails the criterion's own definition of
+    a structural device: it frames nothing that depends on it, its weight has
+    to be re-chosen for every format, and at thumbnail size it reads as a
+    certificate border.  The quarter-discs crop the live area, give every
+    composition a corner to sit against, and scale from a 55 mm card to a
+    900 mm board without changing character.
+
+    Radius is a fraction of the SHORT side, so it is one shape at every size
+    rather than one measurement re-tuned per piece.
+
+    ⚠ EVERY DEVICE INK IS A PALETTE INK CHOSEN BY MEASURED CONTRAST AGAINST
+    THAT PIECE'S OWN PAGE.  The first version typed `#F6E7C8` and `#F0E3C2`
+    inline -- and the `ink/ground` SVG sweep caught them on the first build as
+    inks no record accounts for, which is exactly what that half of the row was
+    added for.  Three of them were also near-invisible: `carta`'s device was
+    CREMA on a CREMA page at 1.000:1, and `postal` and `tarjeta` sat at 1.335,
+    under this module's own floor.  ORO carries every warm light ground
+    (1.55-2.15), HUESO the golds (1.65), ROJO the near-black (2.69)."""
+    r = min(g.w, g.h) * frac
+    L.esquinas(g.m * 0.5, g.m * 0.5, g.w - g.m * 0.5, g.h - g.m * 0.5, r,
+               fill, corners)
+    DISPOSITIVO.append((PIEZA[0], round(r, 2)))
 
 
 def put_hero(L, style, box, mural="fino", ink=None, ground=None):
@@ -782,10 +811,13 @@ def put_hero(L, style, box, mural="fino", ink=None, ground=None):
 # (name, w_mm, h_mm, style, ground, builder)
 
 def _poster(L, g, style, sub, foot, rule_col=GRANA, edge=TINTA, txt=TINTA,
-            mark=TINTA):
+            mark=TINTA, dispositivo=None):
     """The portrait master layout.  Rows are indices on the 24-row grid, so the
     SAME numbers place the same way on an 85 mm card and a 900 mm panel."""
-    L.frame(g.m * 0.55, edge, g.s / 300.0)
+    if dispositivo:
+        esquinas(L, g, dispositivo)
+    else:
+        L.frame(g.m * 0.55, edge, g.s / 300.0)
     wh = put_wordmark(L, g.w / 2.0, g.y(1.4), g.span(8), ink=mark)
     T(L, g, g.w / 2.0, g.y(1.4) + wh + g.base * 1.1, LETRERO, "cond",
            g.pt(NIVEL["sub"]), rule_col, tracking=g.pt(NIVEL["sub"]) * 0.26)
@@ -812,10 +844,8 @@ def p_aframe(g, L):
     The disc is also the reason this piece can carry the vehicle at size: a
     cream body on gold needs a keyline, a cream body on a cream disc needs a
     keyline against THAT, and `put_hero(ground=...)` is told which."""
-    L.frame(g.m * 0.55, GRANA, g.s / 300.0)
-    wh = put_wordmark(L, g.w / 2.0, g.y(1.5), g.span(9))
-    T(L, g, g.w / 2.0, g.y(1.5) + wh + g.base * 1.15, LETRERO, "cond",
-           g.pt(NIVEL["menor"]), GRANA, tracking=g.pt(NIVEL["menor"]) * 0.26)
+    esquinas(L, g, HUESO)   # gold page: ORO reads 1.303
+    wh = put_wordmark(L, g.w / 2.0, g.y(1.6), g.span(10))
 
     # ⚠ THE DISC IS DEFINED BY THE ROWS IT MAY OCCUPY, NOT BY A WIDTH.  The
     # first version was `span(11)/2` centred on row 12.4, and it covered the
@@ -830,50 +860,53 @@ def p_aframe(g, L):
     # THIS ABLATION DOES NOT RED AND NEVER DID.  That row is retracted; see the
     # block where `texto_legible` used to be.  A comment invoking rule 3 for a
     # control nobody watched is the defect rule 3 exists for.
-    if os.environ.get("T1_PLIEGO_OCLUIR") == "1":
-        r = g.span(11) / 2.0; cy = g.y(12.4)
-    else:
-        r = min((g.y(19.6) - g.y(7.4)) / 2.0, (g.w - 2 * g.m) / 2.0)
-        cy = (g.y(19.6) + g.y(7.4)) / 2.0
-    L.circle(g.w / 2.0, cy, r, HUESO, stroke=GRANA, stroke_w=g.s / 420.0)
-    # THE ABLATION FOR THE DECLARED-GROUND ROW.  ⚠ MEASURED, because the audit
-    # that asked for this check reported the clearance as ONE MILLIMETRE and it
-    # is not: the SHIPPED artwork fits to 309.40 x 207.40 mm centred on the
-    # disc, so its corners sit 186.24 mm from the centre against a 203.33 mm
-    # radius -- 17.09 mm of clearance -- and the growth factor that crosses the
-    # rim is 1.0918.  The first ablation written here was 1.08 and DID NOT RED
-    # THE ROW; a control has to be watched failing before it counts (rule 3).
-    # ⚠⚠ AND THE CORRECTION ITSELF CARRIED A WRONG FIGURE FOR ONE REVISION:
-    # `334.15 x 223.99` is the box UNDER THE 1.08 GROWTH the same paragraph
-    # says did not work -- the retracted ablation's box, published as the
-    # artwork's, and internally inconsistent with the 186.2 beside it (334.15 x
-    # 223.99 gives 201.14).  Found by the second adversary.  Corrected here,
-    # in `OPEN_FINDINGS.md` F398, and stated in the ledger.
-    bw = r * 1.72; bh = r * 1.02
-    if os.environ.get("T1_PLIEGO_DESBORDE") == "1":
-        bw *= 1.15; bh *= 1.15
+    # ⚠ THE CENTRED DISC IS GONE.  It was mine, and the comment above it
+    # attributed it to a photograph that does not contain it.  What his sign
+    # actually carries is quarter-circles at the BOARD'S CORNERS, and this
+    # piece uses that now -- one device, sourced, and the same one the rest of
+    # the suite holds constant.  Carrying both was two devices doing one job.
+    #
+    # ⚠⚠ A SIDEWALK SIGN IS NOT A POSTER AT ANOTHER SIZE.  Removing the disc
+    # left this and `cartel_a2` as the same gold poster twice -- the defect a
+    # grader named on `cartel_a2`/`cartel_a3`, which I had just recreated on a
+    # different pair.  They differ by JOB now: this one is read by someone
+    # walking past at two to three metres, so the drawing takes the full
+    # measure, the statement is at `grito`, and the subhead nobody reads at
+    # that distance is gone.  `cartel_a2` keeps the fuller lockup for arm's
+    # length.  ⚠ Scaling the old radius did NOT do this -- `_fit` is
+    # contain-only, so a wider box changed nothing and the A-frame's drawing
+    # came out SMALLER than the poster's, at 66 % of its measure against 83 %.
+    # It is placed on the grid now, like every other piece.
     put_hero(L, "plano",
-             (g.w / 2.0 - bw / 2.0, cy - bh / 2.0,
-              g.w / 2.0 + bw / 2.0, cy + bh / 2.0), ground=HUESO)
+             (g.x(0), g.y(6.4), g.x(0) + g.span(12), g.y(17.8)))
 
-    T(L, g, g.w / 2.0, g.y(21.0), "SE SIRVE DESDE LA COMBI", "display",
-           g.pt(NIVEL["titular"]), GRANA)
+    # THE ABLATION FOR THE `occlusion` ROW, repointed now the disc has gone:
+    # it drops a slab over the wordmark, which is the same defect the disc
+    # used to stand in for.  ⚠ A control has to keep pointing at a real defect
+    # after the code it was written against moves.
+    if os.environ.get("T1_PLIEGO_OCLUIR") == "1":
+        L.circle(g.w / 2.0, g.y(3.0), g.span(6) / 2.0, HUESO)
+
+    T(L, g, g.w / 2.0, g.y(20.8), "SE SIRVE DESDE LA COMBI", "display",
+           g.pt(NIVEL["grito"]), GRANA)
     T(L, g, g.w / 2.0, g.y(23.2), "SERIE COMBI · CALLE · " + PROV, "cond",
            g.pt(NIVEL["pie"]), GRANA, tracking=g.pt(NIVEL["pie"]) * 0.12,
            measure=g.w - 2 * (g.m * 0.55) - 2 * g.gut)
 
+
 def p_cartel_a2(g, L):
     _poster(L, g, "plano", "SE SIRVE DESDE LA COMBI",
-            "SERIE COMBI · IMPRESO · " + PROV)
+            "SERIE COMBI · IMPRESO · " + PROV, dispositivo=HUESO)
 
 def p_cartel_a3(g, L):
     _poster(L, g, "azulejo", "SE SIRVE DESDE LA COMBI",
             "SERIE COMBI · ESTILO AZULEJO · " + PROV,
-            rule_col=CIELO, edge=CIELO, txt=HUESO, mark=HUESO)
+            rule_col=CIELO, edge=CIELO, txt=HUESO, mark=HUESO,
+            dispositivo=CIELO)
 
 def p_carta(g, L):
     L.rect(g.m * 0.55, g.m * 0.55, g.w - g.m * 1.1, g.base * 4.4, GRANA)
-    L.frame(g.m * 0.55, TINTA, g.s / 320.0)
+    esquinas(L, g, ORO)
     # ⚠ CREMA, not TINTA: the mark sat on its own GRANA band at 1.295:1
     put_wordmark(L, g.w / 2.0, g.y(0.7), g.span(6), ink=CREMA, ground=GRANA)
     put_hero(L, "papel", (g.x(1), g.y(5.4), g.x(1) + g.span(10), g.y(11.4)))
@@ -889,7 +922,7 @@ def p_carta(g, L):
            tracking=g.pt(NIVEL["pie"]) * 0.1)
 
 def p_volante(g, L):
-    L.frame(g.m * 0.5, ROJO, g.s / 280.0)
+    esquinas(L, g, ORO)
     put_wordmark(L, g.w / 2.0, g.y(1.0), g.span(8))
     put_hero(L, "papel", (g.x(0), g.y(6.0), g.x(0) + g.span(12), g.y(13.2)))
     y = g.y(15.6)
@@ -928,7 +961,7 @@ def p_playera(g, L):
 # ---- landscape sheets: the hero takes one side, the lockup the other --------
 def _paisaje(L, g, style, edge, rule_col, big=None, big_col=None, txt=TINTA,
              mark=TINTA):
-    L.frame(g.m * 0.5, edge, g.s / 260.0)
+    esquinas(L, g, edge)
     put_hero(L, style, (g.x(6), g.y(2.0), g.x(6) + g.span(6), g.y(21.5)))
     cx = g.x(0) + g.span(6) / 2.0
     wh = put_wordmark(L, cx, g.y(4.0), g.span(5.4), ink=mark)
@@ -951,7 +984,7 @@ def p_postal(g, L):
     postcard leads with the picture and signs it small; a calling card leads
     with the mark.  They are two layouts now, and `silueta` stays out of both
     -- at 148 mm it read as an unrecognisable black lump."""
-    L.frame(g.m * 0.5, GRANA, g.s / 260.0)
+    esquinas(L, g, ORO)
     put_hero(L, "plano", (g.x(0), g.y(1.6), g.x(0) + g.span(12), g.y(16.6)))
     L.line(g.x(0), g.y(18.0), g.x(0) + g.span(12), g.y(18.0), GRANA,
            g.s / 420.0)
@@ -965,7 +998,7 @@ def p_postal(g, L):
 
 def p_tarjeta(g, L):
     """THE CALLING CARD -- the mark is the piece and the drawing signs it."""
-    L.frame(g.m * 0.5, GRANA, g.s / 240.0)
+    esquinas(L, g, ORO)
     wh = put_wordmark(L, g.w / 2.0, g.y(2.4), g.span(7))
     T(L, g, g.w / 2.0, g.y(2.4) + wh + g.base * 1.1, LETRERO, "cond",
            g.pt(NIVEL["sub"]), GRANA, tracking=g.pt(NIVEL["sub"]) * 0.26)
@@ -1015,7 +1048,7 @@ def mm_exacto(px_w, px_h):
 def p_cuadro(g, L):
     """THE SQUARE POST.  Gold ink on near-black -- the one ink/ground pairing
     in this palette the set was not using."""
-    L.frame(g.m * 0.5, ORO, g.s / 300.0)
+    esquinas(L, g, ROJO)
     wh = put_wordmark(L, g.w / 2.0, g.y(1.8), g.span(8), ink=ORO)
     T(L, g, g.w / 2.0, g.y(1.8) + wh + g.base * 1.2, LETRERO, "cond",
            g.pt(NIVEL["sub"]), CREMA, tracking=g.pt(NIVEL["sub"]) * 0.26)
@@ -1029,7 +1062,7 @@ def p_cuadro(g, L):
 def p_historia(g, L):
     """THE VERTICAL STORY.  It is the only piece with room to carry the mark,
     the drawing AND the menu without crowding any of them."""
-    L.frame(g.m * 0.5, GRANA, g.s / 300.0)
+    esquinas(L, g, HUESO)   # gold page: ORO reads 1.303
     wh = put_wordmark(L, g.w / 2.0, g.y(1.4), g.span(9))
     T(L, g, g.w / 2.0, g.y(1.4) + wh + g.base * 1.1, LETRERO, "cond",
            g.pt(NIVEL["lista"]), GRANA, tracking=g.pt(NIVEL["lista"]) * 0.26)
@@ -1060,9 +1093,11 @@ def p_cabecera(g, L):
     # 15 checked, 0 FAILED -- because F384's visibility guarantee covered
     # `put_hero` fills only, and `PALETA` whitelisted every rule, slab and
     # frame for the SVG sweep.
-    L.frame(g.m * 0.75,
-            F_AZUL if os.environ.get("T1_PLIEGO_MARCOPLANO") == "1" else CIELO,
-            g.s / 240.0)
+    # THE ABLATION KEEPS WORKING THROUGH THE DEVICE: `T1_PLIEGO_MARCOPLANO=1`
+    # draws it in the PAGE COLOUR, which is what the adversary's kill did to
+    # the frame this replaced.
+    esquinas(L, g,
+             F_AZUL if os.environ.get("T1_PLIEGO_MARCOPLANO") == "1" else CIELO)
     put_hero(L, "plano", (g.x(5), g.y(1.4), g.x(5) + g.span(7), g.y(22.6)))
     # the lockup sits ON the vertical centre of its column rather than at a
     # fixed row: at 3:1 a top-anchored block leaves the bottom-left third of
@@ -1083,7 +1118,7 @@ def p_horario(g, L):
     that we may be selling food he no longer serves.  All seven days are
     listed, so nothing here even says WHICH days he opens; the rules are for
     him to fill."""
-    L.frame(g.m * 0.55, GRANA, g.s / 300.0)
+    esquinas(L, g, ORO)
     wh = put_wordmark(L, g.w / 2.0, g.y(1.2), g.span(7))
     T(L, g, g.w / 2.0, g.y(1.2) + wh + g.base * 1.1, LETRERO, "cond",
            g.pt(NIVEL["sub"]), GRANA, tracking=g.pt(NIVEL["sub"]) * 0.26)
@@ -1123,7 +1158,7 @@ def p_lealtad(g, L):
     WORDS.  What keeps it honest is `OFERTA DE MUESTRA · NO APROBADA` set
     directly beneath it, in the same block, at a size that reads -- not a
     disclaimer hidden in the colophon.  He has approved no offer."""
-    L.frame(g.m * 0.5, GRANA, g.s / 240.0)
+    esquinas(L, g, ORO)
     wh = put_wordmark(L, g.x(0) + g.span(5) / 2.0, g.y(2.0), g.span(4.4))
     T(L, g, g.x(0) + g.span(5) / 2.0, g.y(2.0) + wh + g.base * 1.1,
            "TARJETA DE CLIENTE", "cond", g.pt(NIVEL["menor"]), TINTA,

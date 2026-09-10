@@ -117,6 +117,32 @@ class Lienzo(object):
         self.body.append('<circle cx="%.3f" cy="%.3f" r="%.3f" fill="%s"%s/>'
                          % (cx, cy, r, fill or "none", sk))
 
+    def esquinas(self, x0, y0, x1, y1, r, fill, corners="tlbr"):
+        """QUARTER DISCS AT THE CORNERS OF A BOX -- the suite's structural
+        device, and the one taken from the owner's own photograph rather than
+        invented.
+
+        ⚠ `ref_sign_aframe.jpg` carries white quarter-circles at the corners of
+        the board; `foto.py` measures them into the sign's light-ink cluster.
+        The centred vignette disc that used to be on `p_aframe` was mine and
+        was wrongly attributed to that photograph.  This is the device his sign
+        actually has.
+
+        It does structural work rather than decorating: it CROPS the live area,
+        gives the composition a corner to sit against, and scales from a 55 mm
+        card to a 900 mm board without changing character -- which a hairline
+        keyline frame does not, because a keyline's weight has to be chosen
+        per size and its job is only to draw a box round things."""
+        for c in corners:
+            cx, cy, sx, sy = {"t": (x0, y0, 1, 1), "l": (x0, y1, 1, -1),
+                              "b": (x1, y1, -1, -1), "r": (x1, y0, -1, 1)}[c]
+            self.body.append(
+                '<path fill="%s" d="M %.3f,%.3f L %.3f,%.3f A %.3f,%.3f 0 0 %d '
+                '%.3f,%.3f Z"/>'
+                % (fill, cx, cy, cx + sx * r, cy, r, r,
+                   1 if sx * sy > 0 else 0, cx, cy + sy * r))
+        self.opaque.append(("rule", (x0, y0, x1, y1), len(self.body), fill))
+
     def line(self, x1, y1, x2, y2, stroke, w=0.4, dash=None):
         # kind "rule", not "rect": a stroke can OCCLUDE but it is not a ground
         self.opaque.append(("rule", (min(x1, x2), min(y1, y2) - w / 2.0,
