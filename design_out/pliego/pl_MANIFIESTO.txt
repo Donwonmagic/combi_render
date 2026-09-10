@@ -59,11 +59,9 @@ calle / vidriera
 impreso / postal
   declares: TEXTO: MEDIDO · LETRERO · DE AUTOR
   declares: TEXTO: MEDIDO · LETRERO · DE AUTOR
-  declares: TEXTO: MEDIDO · LETRERO · DE AUTOR
   LETRERO  TAQUERIA y CERVECERIA
 
 impreso / tarjeta
-  declares: TEXTO: MEDIDO · LETRERO · DE AUTOR
   declares: TEXTO: MEDIDO · LETRERO · DE AUTOR
   declares: TEXTO: MEDIDO · LETRERO · DE AUTOR
   LETRERO  TAQUERIA y CERVECERIA
@@ -89,7 +87,6 @@ mercancia / playera
 mercancia / vaso
   declares: TEXTO: MEDIDO · LETRERO · DE AUTOR
   declares: TEXTO: MEDIDO · LETRERO · DE AUTOR
-  declares: TEXTO: MEDIDO · LETRERO · DE AUTOR
   LETRERO  TAQUERIA y CERVECERIA
 
 calle / horario
@@ -106,13 +103,11 @@ calle / horario
 
 impreso / lealtad
   declares: IMPRESO · PAPEL PICADO · TEXTO: MEDIDO · LETRERO · DE AUTOR
-  declares: IMPRESO · PAPEL PICADO · TEXTO: MEDIDO · LETRERO · DE AUTOR
   AUTOR    TARJETA DE CLIENTE
   AUTOR    OCHO VISITAS · LA NOVENA ES NUESTRA
   AUTOR    OFERTA DE MUESTRA · NO APROBADA
 
 mercancia / chapa
-  declares: MERCANCÍA · TROQUEL 59 mm · TEXTO: MEDIDO · LETRERO · DE AUTOR
   declares: MERCANCÍA · TROQUEL 59 mm · TEXTO: MEDIDO · LETRERO · DE AUTOR
   LETRERO  TAQUERIA y CERVECERIA
 
@@ -132,7 +127,6 @@ social / historia
   AUTOR    MENÚ DE MUESTRA · TOMADO DEL MURAL
 
 social / cabecera
-  declares: SOCIAL · TEXTO: MEDIDO · LETRERO · DE AUTOR
   declares: SOCIAL · TEXTO: MEDIDO · LETRERO · DE AUTOR
   declares: SOCIAL · TEXTO: MEDIDO · LETRERO · DE AUTOR
   LETRERO  TAQUERIA y CERVECERIA

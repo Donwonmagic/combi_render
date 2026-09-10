@@ -43,7 +43,7 @@ WHAT THIS GIVES INSTEAD, each verified on this machine before being claimed:
     stickers.  This is not a replacement for it; it is the typographic half
     the programme never had.
 """
-import os, re, subprocess, xml.etree.ElementTree as ET
+import os, struct, re, subprocess, xml.etree.ElementTree as ET
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 FONTDIR = os.path.join(ROOT, "fonts")
@@ -55,6 +55,45 @@ FACES = {
     "cond":    os.path.join(FONTDIR, "Oswald.ttf"),
     "serif":   "/usr/share/fonts/X11/Type1/c0648bt_.pfb",
 }
+
+
+def capfrac(face):
+    """sCapHeight / unitsPerEm, read out of the font's OWN tables.
+
+    ⚠ THE TYPE SCALE WAS APPLIED TO EM AND A READER SEES CAP HEIGHT.  Oswald
+    is 0.810 of its em and Alfa Slab is 0.778 -- a ratio of 0.9605 -- so every
+    step that crossed the family boundary landed 3.95 % off the scale in the
+    quantity that is actually visible.  On two pieces that produced exactly the
+    "accident" step the standard defines.
+
+    Parsed by hand rather than with fontTools: a TrueType directory is 12 bytes
+    then 16 per table, and this module must run on a cold clone with nothing
+    installed."""
+    path = FACES.get(face)
+    if not path or not os.path.exists(path):
+        return None
+    if path in _CAP:
+        return _CAP[path]
+    try:
+        b = open(path, "rb").read()
+        n = struct.unpack(">H", b[4:6])[0]
+        tabs = {}
+        for i in range(n):
+            o = 12 + 16 * i
+            tabs[b[o:o + 4].decode("latin-1")] = struct.unpack(
+                ">II", b[o + 8:o + 16])
+        upem = struct.unpack(">H", b[tabs["head"][0] + 18:
+                                     tabs["head"][0] + 20])[0]
+        o = tabs["OS/2"][0]
+        ver = struct.unpack(">H", b[o:o + 2])[0]
+        cap = struct.unpack(">h", b[o + 88:o + 90])[0] if ver >= 2 else 0
+        _CAP[path] = (cap / float(upem)) if cap else None
+    except Exception:
+        _CAP[path] = None                  # REFUSE, do not guess
+    return _CAP[path]
+
+
+_CAP = {}
 
 
 def _esc(s):

@@ -38,13 +38,34 @@ from PIL import Image
 import lienzo, trazo, estilo_vec, estilos
 
 
-def T(L, g, x, y, s, face, pt, fill, anchor="middle", tracking=0.0, measure=None):
+def T(L, g, x, y, s, face, pt, fill, anchor="middle", tracking=None,
+      measure=None, nivel=None):
     """Every text run in this module goes through here, so no run can be added
     without a measure it must fit."""
+    # THE PROVENANCE DECLARATION: recorded against the piece, and NOT DRAWN.
+    # ⚠ IT RETURNS BEFORE ANY MEASUREMENT.  The first version returned after
+    # `fit_pt` and the floor test, so the `type floor` row reported `chapa`'s
+    # colophon at 1.558 mm -- a run that is not on the sheet.  A row that
+    # measures ink must not be handed something that was never inked.
+    # `T1_PLIEGO_CONPROV=1` puts the ink back so both provenance rows red.
+    if PROV in s and os.environ.get("T1_PLIEGO_CONPROV") != "1":
+        CREDITO.append((PIEZA[0], s))
+        return
     # ⚠ 0.88, NOT 1.0.  Chromium applies letter-spacing after EVERY glyph and
     # shapes tighter than PIL's estimate, so a run measured at exactly the
     # column width still ran off three sheets.  The safety factor is authored,
     # and the RENDERED edge check below is what actually proves it.
+    # ⚠ CAP HEIGHT, NOT EM.  The level fixes the CAP HEIGHT; the em is derived
+    # per face from that face's own sCapHeight, so `cond` and `display` at one
+    # level are the same height to a READER instead of 3.95 % apart -- which is
+    # what the scale is for, and what applying it to em quietly prevented.
+    cf = lienzo.capfrac(face)
+    if cf:
+        pt = pt * CAP_REF / cf
+    # ⚠ TRACKING COMES FROM THE TABLE, NOT FROM THE CALL SITE.  An explicit
+    # `tracking=` still wins so a piece can depart, but it has to say so.
+    if tracking is None:
+        tracking = pt * PISTA.get(nivel, 0.055)
     m = (measure if measure is not None else (g.w - 2 * g.m)) * 0.88
     pt, k = fit_pt(s, face, pt, tracking, m)
     # ⚠ NO PER-RUN CLAMP.  The floor is applied to the PIECE's scale before it
@@ -69,12 +90,7 @@ def T(L, g, x, y, s, face, pt, fill, anchor="middle", tracking=0.0, measure=None
     # step is exactly the 1.14x accident the row exists to catch.
     if os.environ.get("T1_PLIEGO_SINESCALA") == "1":
         pt *= 1.07
-    # THE PROVENANCE DECLARATION: recorded against the piece, and NOT DRAWN.
-    # ⚠ `T1_PLIEGO_CONPROV=1` puts the ink back, so the row that asserts it is
-    # absent can be watched failing.
-    if PROV in s and os.environ.get("T1_PLIEGO_CONPROV") != "1":
-        CREDITO.append((PIEZA[0], s))
-        return
+
     L.text(x, y, s, face, pt, fill, anchor=anchor, tracking=tracking * k)
     FIT.append((PIEZA[0], s[:28], round(k, 4)))
     # the run's own box, in mm, from the FACE'S metrics -- so occlusion can be
@@ -95,7 +111,8 @@ def T(L, g, x, y, s, face, pt, fill, anchor="middle", tracking=0.0, measure=None
         x0 = (x - wmm / 2.0 if anchor == "middle"
               else x - wmm if anchor == "end" else x)
         box = (x0, y - asc * pt / u, x0 + wmm, y + desc * pt / u)
-    TEXTS.append({"piece": PIEZA[0], "s": s, "x": x, "y": y, "pt": pt,
+    TEXTS.append({"nivel": nivel, "cap": pt * (cf or CAP_REF),
+                  "piece": PIEZA[0], "s": s, "x": x, "y": y, "pt": pt,
                   "face": face, "fill": fill, "anchor": anchor,
                   "tracking": tracking * k, "box": box,
                   "order": len(L.body) - 1})
@@ -305,6 +322,23 @@ PALETA = (CREMA, ROJO, GRANA, ORO, TINTA, estilo_vec.PIZ, AZUL, CIELO, HUESO,
 # at every call site.  `Rejilla.pt` snaps anyway, so an off-scale size cannot
 # be authored even by mistake -- but the NAMES are what make the system legible
 # to the next person, and stop two different jobs landing on one size.
+# ⚠ ONE TRACKING TABLE, REPLACING 37 HAND-AUTHORED DECIMAL LITERALS AT THE
+# CALL SITES.  A grader measured what those literals actually did: the same
+# level took SIX different values, the same string took FOUR, and -- worst --
+# tracking ran BACKWARDS with size, so the biggest type was the loosest.  That
+# is the reverse of what letterspacing is for: large type needs LESS air
+# between letters, small type more.
+#
+# Values are em, monotone decreasing in size, inside the 0.05-0.12 band the
+# research standard gives for capital runs; `grito` and `titular` sit below it
+# because a heavy slab display face at 25 mm needs almost none.  ⚠ AUTHORED
+# within a sourced band; the row in `main` asserts the monotonicity rather than
+# trusting the table, and reads the emitted em off the SVG.
+PISTA = {"grito": 0.010, "titular": 0.030, "lista": 0.055,
+         "sub": 0.090, "menor": 0.105, "pie": 0.120}
+
+CAP_REF = 0.810      # the workhorse face's cap fraction: the reference height
+
 NIVEL = {
     "grito":   1.0,     # the one big word on a piece that has one
     "titular": 0.5,     # the statement
@@ -875,14 +909,12 @@ def _poster(L, g, style, sub, foot, rule_col=GRANA, edge=TINTA, txt=TINTA,
         L.frame(g.m * 0.55, edge, g.s / 300.0)
     wh = put_wordmark(L, g.w / 2.0, g.y(1.4), g.span(8), ink=mark)
     T(L, g, g.w / 2.0, g.y(1.4) + wh + g.base * 1.1, LETRERO, "cond",
-           g.pt(NIVEL["sub"]), rule_col, tracking=g.pt(NIVEL["sub"]) * 0.26)
+           g.pt(NIVEL["sub"]), rule_col, nivel="sub")
     put_hero(L, style, (g.x(0), g.y(7.2), g.x(0) + g.span(12), g.y(18.4)))
-    T(L, g, g.w / 2.0, g.y(20.6), sub, "cond", g.pt(NIVEL["titular"]), txt,
-           tracking=g.pt(NIVEL["titular"]) * 0.16)
+    T(L, g, g.w / 2.0, g.y(20.6), sub, "cond", g.pt(NIVEL["titular"]), txt, nivel="titular")
     # measured against the FRAME's inner width, not the sheet's: the foot line
     # was inside the page but sitting on the keyline at both ends.
-    T(L, g, g.w / 2.0, g.y(23.2), foot, "cond", g.pt(NIVEL["pie"]), rule_col,
-      tracking=g.pt(NIVEL["pie"]) * 0.12, measure=g.w - 2 * (g.m * 0.55) - 2 * g.gut)
+    T(L, g, g.w / 2.0, g.y(23.2), foot, "cond", g.pt(NIVEL["pie"]), rule_col, measure=g.w - 2 * (g.m * 0.55) - 2 * g.gut, nivel="pie")
 
 
 def p_aframe(g, L):
@@ -943,10 +975,10 @@ def p_aframe(g, L):
         L.circle(g.w / 2.0, g.y(3.0), g.span(6) / 2.0, HUESO)
 
     T(L, g, g.w / 2.0, g.y(20.8), "SE SIRVE DESDE LA COMBI", "display",
-           g.pt(NIVEL["grito"]), GRANA)
+           g.pt(NIVEL["grito"]), GRANA, nivel="grito")
     T(L, g, g.w / 2.0, g.y(23.2), "SERIE COMBI · CALLE · " + PROV, "cond",
-           g.pt(NIVEL["pie"]), GRANA, tracking=g.pt(NIVEL["pie"]) * 0.12,
-           measure=g.w - 2 * (g.m * 0.55) - 2 * g.gut)
+           g.pt(NIVEL["pie"]), GRANA,
+           measure=g.w - 2 * (g.m * 0.55) - 2 * g.gut, nivel="pie")
 
 
 def p_cartel_a2(g, L):
@@ -967,14 +999,13 @@ def p_carta(g, L):
     put_hero(L, "papel", (g.x(1), g.y(5.4), g.x(1) + g.span(10), g.y(11.4)))
     y = g.y(13.6)
     for it in MENU:
-        T(L, g, g.x(1), y, it, "display", g.pt(NIVEL["lista"]), TINTA, anchor="start")
+        T(L, g, g.x(1), y, it, "display", g.pt(NIVEL["lista"]), TINTA, anchor="start", nivel="lista")
         L.line(g.x(1), y + g.base * 0.45, g.x(0) + g.span(12),
                y + g.base * 0.45, ORO, g.s / 700.0)
         y += g.base * 1.85
     T(L, g, g.w / 2.0, g.y(23.0), "MENÚ DE MUESTRA · TOMADO DEL MURAL",
-           "cond", g.pt(NIVEL["menor"]), GRANA, tracking=g.pt(NIVEL["menor"]) * 0.14)
-    T(L, g, g.w / 2.0, g.y(23.9), PROV, "cond", g.pt(NIVEL["pie"]), GRANA,
-           tracking=g.pt(NIVEL["pie"]) * 0.1)
+           "cond", g.pt(NIVEL["menor"]), GRANA, nivel="menor")
+    T(L, g, g.w / 2.0, g.y(23.9), PROV, "cond", g.pt(NIVEL["pie"]), GRANA, nivel="pie")
 
 def p_volante(g, L):
     esquinas(L, g, ORO)
@@ -982,36 +1013,31 @@ def p_volante(g, L):
     put_hero(L, "papel", (g.x(0), g.y(6.0), g.x(0) + g.span(12), g.y(13.2)))
     y = g.y(15.6)
     for it in MENU:
-        T(L, g, g.w / 2.0, y, it, "display", g.pt(NIVEL["sub"]), AZUL)
+        T(L, g, g.w / 2.0, y, it, "display", g.pt(NIVEL["sub"]), AZUL, nivel="sub")
         y += g.base * 1.55
     # ⚠ THE SAME CLAUSE AS `carta`.  Both print `MENU_MEDIDO`, which came off
     # the mural lid (F372); one of them said so and the other did not, on the
     # same five strings -- a provenance claim that varies by piece is not a
     # provenance claim.
     T(L, g, g.w / 2.0, g.y(23.1), "MENÚ DE MUESTRA · TOMADO DEL MURAL",
-           "cond", g.pt(NIVEL["menor"]), ROJO,
-           tracking=g.pt(NIVEL["menor"]) * 0.16)
-    T(L, g, g.w / 2.0, g.y(23.9), PROV, "cond", g.pt(NIVEL["pie"]), ROJO,
-           tracking=g.pt(NIVEL["pie"]) * 0.1)
+           "cond", g.pt(NIVEL["menor"]), ROJO, nivel="menor")
+    T(L, g, g.w / 2.0, g.y(23.9), PROV, "cond", g.pt(NIVEL["pie"]), ROJO, nivel="pie")
 
 def p_bolsa(g, L):
     put_wordmark(L, g.w / 2.0, g.y(1.6), g.span(9))
     put_hero(L, "papel", (g.x(0), g.y(7.0), g.x(0) + g.span(12), g.y(16.5)))
-    T(L, g, g.w / 2.0, g.y(19.2), "HECHO A MANO", "display", g.pt(NIVEL["titular"]), GRANA)
-    T(L, g, g.w / 2.0, g.y(21.0), LETRERO, "cond", g.pt(NIVEL["sub"]), TINTA,
-           tracking=g.pt(NIVEL["sub"]) * 0.24)
-    T(L, g, g.w / 2.0, g.y(23.6), PROV, "cond", g.pt(NIVEL["pie"]), GRANA,
-           tracking=g.pt(NIVEL["pie"]) * 0.1)
+    T(L, g, g.w / 2.0, g.y(19.2), "HECHO A MANO", "display", g.pt(NIVEL["titular"]), GRANA, nivel="titular")
+    T(L, g, g.w / 2.0, g.y(21.0), LETRERO, "cond", g.pt(NIVEL["sub"]), TINTA, nivel="sub")
+    T(L, g, g.w / 2.0, g.y(23.6), PROV, "cond", g.pt(NIVEL["pie"]), GRANA, nivel="pie")
 
 def p_playera(g, L):
     put_wordmark(L, g.w / 2.0, g.y(1.6), g.span(9), ink=CREMA)
     put_hero(L, "papel", (g.x(1), g.y(6.6), g.x(1) + g.span(10), g.y(17.4)),
              ink=CREMA)
-    T(L, g, g.w / 2.0, g.y(19.8), LETRERO, "cond", g.pt(NIVEL["sub"]), ORO,
-           tracking=g.pt(NIVEL["sub"]) * 0.26)
+    T(L, g, g.w / 2.0, g.y(19.8), LETRERO, "cond", g.pt(NIVEL["sub"]), ORO, nivel="sub")
     T(L, g, g.w / 2.0, g.y(23.4),
            "MERCANCÍA · " + ESTILO_ES["papel"] + " · " + PROV, "cond",
-           g.pt(NIVEL["pie"]), "#7A6E63", tracking=g.pt(NIVEL["pie"]) * 0.1)
+           g.pt(NIVEL["pie"]), "#7A6E63", nivel="pie")
 
 # ---- landscape sheets: the hero takes one side, the lockup the other --------
 def _paisaje(L, g, style, edge, rule_col, big=None, big_col=None, txt=TINTA,
@@ -1021,11 +1047,10 @@ def _paisaje(L, g, style, edge, rule_col, big=None, big_col=None, txt=TINTA,
     cx = g.x(0) + g.span(6) / 2.0
     wh = put_wordmark(L, cx, g.y(4.0), g.span(5.4), ink=mark)
     T(L, g, cx, g.y(4.0) + wh + g.base * 1.2, LETRERO, "cond", g.pt(NIVEL["sub"]),
-           rule_col, tracking=g.pt(NIVEL["sub"]) * 0.22)
+           rule_col, nivel="sub")
     if big:
-        T(L, g, cx, g.y(15.0), big, "display", g.pt(NIVEL["grito"]), big_col or txt)
-    T(L, g, g.w / 2.0, g.y(23.4), PROV, "cond", g.pt(NIVEL["pie"]), rule_col,
-           tracking=g.pt(NIVEL["pie"]) * 0.1)
+        T(L, g, cx, g.y(15.0), big, "display", g.pt(NIVEL["grito"]), big_col or txt, nivel="grito")
+    T(L, g, g.w / 2.0, g.y(23.4), PROV, "cond", g.pt(NIVEL["pie"]), rule_col, nivel="pie")
 
 def p_vidriera(g, L):
     _paisaje(L, g, "azulejo", CIELO, CIELO, big="ABIERTO", big_col=HUESO,
@@ -1045,10 +1070,10 @@ def p_postal(g, L):
            g.s / 420.0)
     wh = put_wordmark(L, g.x(0) + g.span(4) / 2.0, g.y(19.0), g.span(4))
     T(L, g, g.x(0) + g.span(12), g.y(19.0) + wh * 0.62, LETRERO, "cond",
-           g.pt(NIVEL["menor"]), GRANA, anchor="end", tracking=g.pt(NIVEL["menor"]) * 0.22,
-           measure=g.span(7))
+           g.pt(NIVEL["menor"]), GRANA, anchor="end",
+           measure=g.span(7), nivel="menor")
     T(L, g, g.x(0) + g.span(12), g.y(22.9), PROV, "cond", g.pt(NIVEL["pie"]), GRANA,
-           anchor="end", tracking=g.pt(NIVEL["pie"]) * 0.08, measure=g.span(9))
+           anchor="end", measure=g.span(9), nivel="pie")
 
 
 def p_tarjeta(g, L):
@@ -1056,11 +1081,10 @@ def p_tarjeta(g, L):
     esquinas(L, g, ORO)
     wh = put_wordmark(L, g.w / 2.0, g.y(2.4), g.span(7))
     T(L, g, g.w / 2.0, g.y(2.4) + wh + g.base * 1.1, LETRERO, "cond",
-           g.pt(NIVEL["sub"]), GRANA, tracking=g.pt(NIVEL["sub"]) * 0.26)
+           g.pt(NIVEL["sub"]), GRANA, nivel="sub")
     put_hero(L, "plano", (g.x(3), g.y(12.6), g.x(3) + g.span(6), g.y(20.2)))
     T(L, g, g.w / 2.0, g.y(22.6), PROV, "cond", g.pt(NIVEL["pie"]), GRANA,
-           tracking=g.pt(NIVEL["pie"]) * 0.08,
-           measure=g.w - 2 * (g.m * 0.5) - 2 * g.gut)
+           measure=g.w - 2 * (g.m * 0.5) - 2 * g.gut, nivel="pie")
 
 def p_vaso(g, L):
     L.rect(0, 0, g.w, g.base * 0.8, GRANA)
@@ -1069,9 +1093,8 @@ def p_vaso(g, L):
     cx = g.x(6) + g.span(6) / 2.0
     wh = put_wordmark(L, cx, g.y(5.5), g.span(5.4))
     T(L, g, cx, g.y(5.5) + wh + g.base * 1.3, LETRERO, "cond", g.pt(NIVEL["sub"]),
-           TINTA, tracking=g.pt(NIVEL["sub"]) * 0.22)
-    T(L, g, cx, g.y(5.5) + wh + g.base * 3.0, PROV, "cond", g.pt(NIVEL["pie"]), GRANA,
-           tracking=g.pt(NIVEL["pie"]) * 0.08)
+           TINTA, nivel="sub")
+    T(L, g, cx, g.y(5.5) + wh + g.base * 3.0, PROV, "cond", g.pt(NIVEL["pie"]), GRANA, nivel="pie")
 
 
 # ---- social: screen formats, where the deliverable is a PNG at an EXACT
@@ -1106,12 +1129,11 @@ def p_cuadro(g, L):
     esquinas(L, g, ROJO)
     wh = put_wordmark(L, g.w / 2.0, g.y(1.8), g.span(8), ink=ORO)
     T(L, g, g.w / 2.0, g.y(1.8) + wh + g.base * 1.2, LETRERO, "cond",
-           g.pt(NIVEL["sub"]), CREMA, tracking=g.pt(NIVEL["sub"]) * 0.26)
+           g.pt(NIVEL["sub"]), CREMA, nivel="sub")
     put_hero(L, "papel", (g.x(1), g.y(9.0), g.x(1) + g.span(10), g.y(19.0)),
              ink=ORO)
     T(L, g, g.w / 2.0, g.y(22.4), "SOCIAL · " + ESTILO_ES["papel"] + " · "
-           + PROV, "cond", g.pt(NIVEL["pie"]), "#7A6E63",
-           tracking=g.pt(NIVEL["pie"]) * 0.1)
+           + PROV, "cond", g.pt(NIVEL["pie"]), "#7A6E63", nivel="pie")
 
 
 def p_historia(g, L):
@@ -1120,18 +1142,18 @@ def p_historia(g, L):
     esquinas(L, g, HUESO)   # gold page: ORO reads 1.303
     wh = put_wordmark(L, g.w / 2.0, g.y(1.4), g.span(9))
     T(L, g, g.w / 2.0, g.y(1.4) + wh + g.base * 1.1, LETRERO, "cond",
-           g.pt(NIVEL["lista"]), GRANA, tracking=g.pt(NIVEL["lista"]) * 0.26)
+           g.pt(NIVEL["lista"]), GRANA, nivel="lista")
     put_hero(L, "plano", (g.x(0), g.y(7.0), g.x(0) + g.span(12), g.y(14.4)))
     y = g.y(16.2)
     for it in MENU:
-        T(L, g, g.w / 2.0, y, it, "display", g.pt(NIVEL["menor"]), GRANA)
+        T(L, g, g.w / 2.0, y, it, "display", g.pt(NIVEL["menor"]), GRANA, nivel="menor")
         y += g.base * 1.1
     # the last menu item lands on row 20.6, so the two foot lines get a clear
     # baseline each instead of crowding it
     T(L, g, g.w / 2.0, g.y(22.1), "MENÚ DE MUESTRA · TOMADO DEL MURAL",
-           "cond", g.pt(NIVEL["pie"]), TINTA, tracking=g.pt(NIVEL["pie"]) * 0.1)
+           "cond", g.pt(NIVEL["pie"]), TINTA, nivel="pie")
     T(L, g, g.w / 2.0, g.y(23.4), "SOCIAL · " + PROV, "cond", g.pt(NIVEL["pie"]),
-           GRANA, tracking=g.pt(NIVEL["pie"]) * 0.08)
+           GRANA, nivel="pie")
 
 
 def p_cabecera(g, L):
@@ -1161,9 +1183,9 @@ def p_cabecera(g, L):
     top = g.y(6.4)
     wh = put_wordmark(L, cx, top, g.span(4.6), ink=HUESO)
     T(L, g, cx, top + wh + g.base * 1.5, LETRERO, "cond", g.pt(NIVEL["sub"]),
-           CIELO, tracking=g.pt(NIVEL["sub"]) * 0.22, measure=g.span(5))
+           CIELO, measure=g.span(5), nivel="sub")
     T(L, g, cx, top + wh + g.base * 3.4, "SOCIAL · " + PROV, "cond",
-           g.pt(NIVEL["pie"]), CIELO, tracking=g.pt(NIVEL["pie"]) * 0.08, measure=g.span(5))
+           g.pt(NIVEL["pie"]), CIELO, measure=g.span(5), nivel="pie")
 
 
 def p_horario(g, L):
@@ -1176,7 +1198,7 @@ def p_horario(g, L):
     esquinas(L, g, ORO)
     wh = put_wordmark(L, g.w / 2.0, g.y(1.2), g.span(7))
     T(L, g, g.w / 2.0, g.y(1.2) + wh + g.base * 1.1, LETRERO, "cond",
-           g.pt(NIVEL["sub"]), GRANA, tracking=g.pt(NIVEL["sub"]) * 0.26)
+           g.pt(NIVEL["sub"]), GRANA, nivel="sub")
     # ⚠ y(6.6), not y(5.6): the hero is drawn AFTER the subhead and the
     # `occlusion` row caught it covering 26.2 % of `TAQUERIA y CERVECERIA` on
     # this piece's FIRST render.
@@ -1186,7 +1208,7 @@ def p_horario(g, L):
     # ascenders were effectively in the wheels.  Nothing gated on it; the row
     # reports, and this is what reporting is for.
     T(L, g, g.w / 2.0, g.y(13.6), "HORARIO", "display", g.pt(NIVEL["grito"]),
-      TINTA)
+      TINTA, nivel="grito")
     x = g.x(1); x1 = g.x(1) + g.span(10)
     while x <= x1:
         L.circle(x, g.y(14.5), g.base * 0.10, ORO)
@@ -1198,14 +1220,13 @@ def p_horario(g, L):
         dias = tuple(d.replace("É", "E").replace("Á", "A") for d in dias)
     for i, day in enumerate(dias):
         y = g.y(15.7 + i * 1.05)
-        T(L, g, g.x(1), y, day, "cond", g.pt(NIVEL["menor"]), TINTA, anchor="start",
-          tracking=g.pt(NIVEL["menor"]) * 0.18, measure=g.span(4))
+        T(L, g, g.x(1), y, day, "cond", g.pt(NIVEL["menor"]), TINTA, anchor="start", measure=g.span(4), nivel="menor")
         L.line(g.x(6), y + g.base * 0.12, g.x(1) + g.span(10),
                y + g.base * 0.12, REGLA, g.s / 900.0)
     T(L, g, g.w / 2.0, g.y(23.4),
            "HORARIO EN BLANCO · NINGUNA HORA ES NUESTRA · " + PROV, "cond",
-           g.pt(NIVEL["pie"]), GRANA, tracking=g.pt(NIVEL["pie"]) * 0.08,
-           measure=g.w - 2 * (g.m * 0.55) - 2 * g.gut)
+           g.pt(NIVEL["pie"]), GRANA,
+           measure=g.w - 2 * (g.m * 0.55) - 2 * g.gut, nivel="pie")
 
 
 def p_lealtad(g, L):
@@ -1216,8 +1237,7 @@ def p_lealtad(g, L):
     esquinas(L, g, ORO)
     wh = put_wordmark(L, g.x(0) + g.span(5) / 2.0, g.y(2.0), g.span(4.4))
     T(L, g, g.x(0) + g.span(5) / 2.0, g.y(2.0) + wh + g.base * 1.1,
-           "TARJETA DE CLIENTE", "cond", g.pt(NIVEL["sub"]), TINTA,
-           tracking=g.pt(NIVEL["menor"]) * 0.2, measure=g.span(5))
+           "TARJETA DE CLIENTE", "cond", g.pt(NIVEL["sub"]), TINTA, measure=g.span(5), nivel="sub")
     put_hero(L, "papel", (g.x(7), g.y(2.2), g.x(7) + g.span(5), g.y(9.6)))
     # eight stamp rings on the grid, so the row is a row and not eight guesses
     r = g.base * 0.62
@@ -1229,13 +1249,12 @@ def p_lealtad(g, L):
     # and the `hierarchy` row caught it the moment the colophon stopped being
     # drawn and stopped hiding it behind a fourth size.
     T(L, g, g.w / 2.0, g.y(17.2), "OCHO VISITAS · LA NOVENA ES NUESTRA",
-           "cond", g.pt(NIVEL["lista"]), GRANA,
-           tracking=g.pt(NIVEL["lista"]) * 0.14)
+           "cond", g.pt(NIVEL["lista"]), GRANA, nivel="lista")
     T(L, g, g.w / 2.0, g.y(19.4), "OFERTA DE MUESTRA · NO APROBADA", "cond",
-           g.pt(NIVEL["menor"]), ROJO, tracking=g.pt(NIVEL["menor"]) * 0.16)
+           g.pt(NIVEL["menor"]), ROJO, nivel="menor")
     T(L, g, g.w / 2.0, g.y(22.8), "IMPRESO · " + ESTILO_ES["papel"] + " · "
-           + PROV, "cond", g.pt(NIVEL["pie"]), TINTA, tracking=g.pt(NIVEL["pie"]) * 0.08,
-           measure=g.w - 2 * (g.m * 0.5) - 2 * g.gut)
+           + PROV, "cond", g.pt(NIVEL["pie"]), TINTA,
+           measure=g.w - 2 * (g.m * 0.5) - 2 * g.gut, nivel="pie")
 
 
 def p_chapa(g, L):
@@ -1255,8 +1274,7 @@ def p_chapa(g, L):
     wh = put_wordmark(L, cx, cy - r * 0.62, r * 1.02, ground=F_ORO)
     put_hero(L, "papel", (cx - r * 0.74, cy - r * 0.16,
                           cx + r * 0.74, cy + r * 0.42), ground=F_ORO)
-    T(L, g, cx, cy + r * 0.66, LETRERO, "cond", g.pt(NIVEL["menor"]), GRANA,
-           tracking=g.pt(NIVEL["menor"]) * 0.2, measure=r * 1.4)
+    T(L, g, cx, cy + r * 0.66, LETRERO, "cond", g.pt(NIVEL["menor"]), GRANA, measure=r * 1.4, nivel="menor")
     # the colophon goes on the BOARD, outside the die -- it is not on the badge
     # ⚠ ON THE GRID, NOT AT AN OFFSET FROM THE PAGE EDGE.  `g.m * 0.30` put
     # this inside the margin BAND and the row read 2.885 %; moving it to
@@ -1266,8 +1284,8 @@ def p_chapa(g, L):
     # as being on the page, and this module has a grid precisely so that
     # positions do not have to be guessed from an edge.
     T(L, g, cx, g.y(23.4), "MERCANCÍA · TROQUEL " "%.0f mm · " % (2 * r)
-           + PROV, "cond", g.pt(NIVEL["pie"]), TINTA, tracking=g.pt(NIVEL["pie"]) * 0.08,
-           measure=g.w - 2 * g.gut)
+           + PROV, "cond", g.pt(NIVEL["pie"]), TINTA,
+           measure=g.w - 2 * g.gut, nivel="pie")
 
 
 PIEZAS = [
@@ -1306,14 +1324,19 @@ def escalar(w, h, ground, fn, name):
     g = Rejilla(w, h)
     L = lienzo.Lienzo(w, h, bg=ground)
     n0 = len(TEXTS); m0 = len(MARCAS); f0 = len(FIT)
-    d0 = len(DRAWN); q0 = len(DEMASIADO); o0 = len(OTROS)
+    d0 = len(DRAWN); q0 = len(DEMASIADO); o0 = len(OTROS); c0 = len(CREDITO)
     fn(g, L)
-    if g.pasos:
-        smallest = g.base * (PASO ** min(g.pasos))
+    # ⚠ FROM WHAT WAS DRAWN, NOT FROM EVERY SIZE ASKED FOR.  `g.pasos` records
+    # every `pt()` call, including the ones whose run is a provenance
+    # declaration that draws nothing -- so the piece's whole scale was being
+    # lifted for ink that does not exist.
+    drawn_pt = [t["pt"] for t in TEXTS[n0:] if t["s"] != "<wordmark>"]
+    if drawn_pt:
+        smallest = min(drawn_pt)
         if smallest < MIN_TIPO_MM:
             k = MIN_TIPO_MM / smallest
             del TEXTS[n0:], MARCAS[m0:], FIT[f0:], DRAWN[d0:]
-            del DEMASIADO[q0:], OTROS[o0:]
+            del DEMASIADO[q0:], OTROS[o0:], CREDITO[c0:]
             g = Rejilla(w, h); g.k = k
             L = lienzo.Lienzo(w, h, bg=ground)
             fn(g, L)
@@ -1610,16 +1633,22 @@ def main(argv):
         if t["s"] == "<wordmark>": continue
         g = REJILLA.get(t["piece"])
         if not g: continue
-        niveles.setdefault(t["piece"], set()).add(round(t["pt"], 4))
-        n = math.log(t["pt"] / (g.base * g.k)) / math.log(PASO)
+        # ⚠ CAP HEIGHT, NOT EM.  The em is deliberately face-corrected now, so
+        # measuring it reports a `display` run as 0.140 steps off a scale it is
+        # exactly on.  Cap height is the quantity the scale is FOR and the one
+        # a reader sees; this row read the other one and failed the moment the
+        # correction landed, which is the row doing its job on itself.
+        cap = t.get("cap", t["pt"] * CAP_REF)
+        niveles.setdefault(t["piece"], set()).add(round(cap, 4))
+        n = math.log(cap / (g.base * g.k * CAP_REF)) / math.log(PASO)
         if abs(n * 2 - round(n * 2)) > 0.02:
             fuera.append("%s %r %.4f mm = %.3f steps" % (t["piece"], t["s"][:18],
                                                          t["pt"], n))
     uno = sorted(p for p, v in niveles.items() if len(v) < 2 and
                  len([t for t in TEXTS if t["piece"] == p and t["s"] != "<wordmark>"]) > 2)
     ck(not fuera and not uno,
-       "hierarchy: %d run(s) across %d piece(s); every size a half-step on the "
-       "1.335 scale (%d off it); %d piece(s) with 3+ runs at a single size%s"
+       "hierarchy: %d run(s) across %d piece(s); every CAP HEIGHT a half-step "
+       "on the 1.335 scale (%d off it); %d piece(s) with 3+ runs at one size%s"
        % (sum(len([t for t in TEXTS if t['piece'] == p]) for p in niveles),
           len(niveles), len(fuera), len(uno),
           ("  <-- " + " | ".join((fuera + uno)[:3])) if (fuera or uno) else ""))
@@ -1742,6 +1771,31 @@ def main(argv):
               fo["disc_on_ground_wcag"], estilo_vec.contrast(HUESO, F_ORO)))
     else:
         ck(False, "photograph: foto_sign.json ABSENT -- run `python3 foto.py`")
+
+    # ========================================================== THE TRACKING
+    # ⚠ IT USED TO RUN BACKWARDS WITH SIZE.  Thirty-seven decimal literals at
+    # the call sites meant the same level took six different values and the
+    # BIGGEST type was the LOOSEST, which is the reverse of what letterspacing
+    # is for.  One table keyed on level now, and this row proves the property
+    # the table is supposed to have rather than trusting that it does: read the
+    # emitted em off each run, divide by its size, and require the result to be
+    # monotone DECREASING as cap height grows.
+    tr = {}
+    for t in TEXTS:
+        if t["s"] == "<wordmark>" or not t.get("nivel"): continue
+        tr.setdefault(t["nivel"], set()).add(round(t["tracking"] / t["pt"], 5))
+    seq = [(NIVEL[k], k, sorted(v)) for k, v in tr.items() if k in NIVEL]
+    seq.sort()
+    multi = [k for _n, k, v in seq if len(v) > 1]
+    mono = all(seq[i][2][0] >= seq[i + 1][2][0] for i in range(len(seq) - 1))
+    if seq:
+        ck(mono and not multi,
+           "tracking: %d level(s) in use, each ONE value in em, monotone "
+           "decreasing as size grows: %s%s"
+           % (len(seq), " > ".join("%s %.3f" % (k, v[0]) for _n, k, v in seq),
+              ("  <-- %d level(s) with more than one value: %s"
+               % (len(multi), ", ".join(multi))) if multi else
+              ("" if mono else "  <-- NOT MONOTONE")))
 
     # ============================================================ CENTRING
     # ⚠ EVERY CENTRED TRACKED RUN IN THIS SUITE SAT LEFT OF ITS OWN AXIS.
