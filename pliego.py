@@ -819,6 +819,7 @@ DISPOSITIVO = []     # every use of the structural device, with its radius
 LAYERS = {}          # the underlay layer keys each piece actually drew
 ACTIVOS_POR_PIEZA = {}
 CAPTURA = {}         # which capture each piece drew from
+SOMBRAS = []         # every drawn cast shadow, with its size
 FIT = []             # every run's shrink factor, so the type scale is auditable
 TEXTS = []           # every run as printed, so a colophon can be checked
 
@@ -871,8 +872,24 @@ def _dispositivo_row(made):
             rs[0] if rs else 0.0, rs[-1] if rs else 0.0)
 
 
+def sombra_ink(page):
+    """The cast-shadow ink for a given page: the page darkened toward its own
+    hue, never a typed grey.
+
+    ⚠ IT IS A DRAWN SHADOW AND IT DOES NOT CLAIM TO BE THE RENDER'S.  The
+    Blender frame carries a real contact-shadow pass -- F67, 3.83e+06 px², the
+    largest single item in the delivery-frame budget -- and the sticker capture
+    this suite traces does NOT: its passes are alpha, albedo, ao, shade and
+    index, and none of them is a ground shadow.  So this is an illustrator's
+    shadow, computed from the artwork's own contact line, and it is declared as
+    a DEPARTURE rather than dressed up as a measurement."""
+    r, g, b = (int(page[i:i + 2], 16) for i in (1, 3, 5))
+    f = 0.80
+    return "#%02X%02X%02X" % (int(r * f), int(g * f), int(b * f))
+
+
 def put_hero(L, style, box, mural="fino", ink=None, ground=None,
-             modo="contener", anclaje=(0.5, 0.5), tag=None):
+             modo="contener", anclaje=(0.5, 0.5), tag=None, sombra=True):
     """`ground` overrides the PAGE colour when the drawing sits on something
     else -- a vignette disc, a band.  The keyline is chosen against whatever
     the drawing is actually printed over, so putting a cream vehicle on a
@@ -926,6 +943,36 @@ def put_hero(L, style, box, mural="fino", ink=None, ground=None,
                               _c * sub.shape[1] // gw:(_c + 1) * sub.shape[1] // gw].any()
     L.opaque.append(("art", (abox, occ), len(L.body),
                      lay[0][1] if lay else None))
+    # THE GROUND THE VEHICLE STANDS ON.  ⚠ Before this, it stood on nothing:
+    # `grep -niE "sombra|shadow"` over this module and `estilo_vec` returned
+    # ZERO, on all seventeen pieces, and a benchmark called it the loudest
+    # amateur signal in the suite and the cheapest large change -- one layer,
+    # seventeen pieces at once.  It is drawn UNDER the artwork, from the
+    # artwork's own contact line, and only when the wheels are actually in
+    # frame: a cropped hero whose wheels are cut has nothing to cast from.
+    if sombra and modo != "cubrir":
+        sy = abox[3]
+        sw = wh[0] * 0.86
+        sh = max(wh[1] * 0.034, 0.35)
+        # ⚠ ON A ONE-INK PIECE THE SHADOW IS THE ARTWORK'S OWN INK, NOT A
+        # DARKENED PAGE.  `bolsa` and `playera` are single-colour prints; a
+        # shadow in a second colour is a SECOND SCREEN on the press, which is a
+        # production cost invented by a drawing decision.  At 0.42 it is a
+        # halftone of the one ink, which is what a screen printer actually does.
+        # ⚠ ONE-INK IS A PROPERTY OF THE STYLE, NOT OF AN ARGUMENT.  Keying
+        # this on `ink=` reported 0 one-ink shadows while `bolsa` -- a
+        # single-colour `papel` print that never passes `ink=` -- was getting a
+        # second colour.  `inks_used` is what the style actually emits.
+        usadas = estilo_vec.inks_used(style)
+        unica = ink if ink else (usadas[0] if len(usadas) == 1 else None)
+        tinta = unica if unica else sombra_ink(ground or GROUND[0])
+        L.body.append(
+            '<ellipse cx="%.3f" cy="%.3f" rx="%.3f" ry="%.3f" fill="%s" '
+            'opacity="%.2f"/>'
+            % ((abox[0] + abox[2]) / 2.0, sy - sh * 0.35, sw / 2.0, sh,
+               tinta, 0.30 if unica else 0.42))
+        SOMBRAS.append((PIEZA[0], round(sw, 1), round(sh, 2),
+                        "one-ink" if unica else "page"))
     LAYERS.setdefault(PIEZA[0], set()).update(estilo_vec.USADAS)
     for ds, col, key in lay:
         L.paths(ds, col, stroke=key, stroke_w=(kw if key else 0.0),
@@ -1834,13 +1881,30 @@ def main(argv):
     if CAPTURA:
         from collections import Counter as _C3
         cc = _C3(t for v in CAPTURA.values() for t in v)
-        ck(len(cc) >= 2,
-           "captures: %d distinct view(s) of the subject across %d piece(s) "
-           "-- %s.  ⚠ CARDINALITY, NOT QUALITY: this counts how many things "
-           "are drawn, not whether any of them is good"
-           % (len(cc), len(CAPTURA),
+        # ⚠ GATE ONLY ON A FULL BUILD.  A `--only` run draws one piece and one
+        # view, and a row that reds for that is reporting the build's reach as
+        # a defect -- F400's class, which this file has already fixed twice.
+        ck(len(cc) >= 2 or len(made) < len(PIEZAS),
+           "captures: %d distinct view(s) across %d of %d piece(s) -- %s.  "
+           "⚠ CARDINALITY, NOT QUALITY: it counts how many things are DRAWN, "
+           "not whether any of them is good"
+           % (len(cc), len(CAPTURA), len(PIEZAS),
               ", ".join("%s %d" % kv for kv in sorted(cc.items(),
                                                       key=lambda kv: -kv[1]))))
+
+    # ================================================== THE GROUND
+    if made:
+        ck(len(SOMBRAS) > 0 or all(n in SANGRA for _c, n, _w, _h, _g, _s, _sa
+                                   in made),
+           "ground: %d piece(s) cast a drawn shadow (%d of them in the piece's "
+           "OWN single ink, because a second colour on a one-ink print is a "
+           "second screen); the cropped ones do not, "
+           "because a hero whose wheels are out of frame has nothing to cast "
+           "from.  ⚠ DRAWN, NOT MEASURED -- the Blender frame has a real "
+           "contact-shadow pass (F67) and the capture this traces does not, "
+           "so this is an illustrator's shadow and a DECLARED DEPARTURE"
+           % (len({x[0] for x in SOMBRAS}),
+              len({x[0] for x in SOMBRAS if x[3] == "one-ink"})))
 
     # ============================================ THE ASSET REGISTER
     sin_marca = []
@@ -2043,9 +2107,12 @@ def main(argv):
     # drew.  THE WORDMARK ESCAPED EVERY CHECK FOR EXACTLY THIS REASON -- it was
     # painted, and nothing compared what was painted against what was recorded.
     import re as _re
+    # the cast-shadow inks are DERIVED from each page, not typed, so they are
+    # accounted for by their derivation rather than by a literal in PALETA
     known = ({d["fill"] for d in DRAWN} | {d["key"] for d in DRAWN if d["key"]}
              | {m["ink"] for m in MARCAS} | {t["fill"] for t in TEXTS}
-             | {g for _c, _n, _w, _h, g, _f in PIEZAS} | set(PALETA))
+             | {g for _c, _n, _w, _h, g, _f in PIEZAS} | set(PALETA)
+             | {sombra_ink(g) for _c, _n, _w, _h, g, _f in PIEZAS})
     unknown = set()
     for _c, name, _w, _h, _g, st, _sa in made:
         for m in _re.finditer(r'(?:fill|stroke)="(#[0-9A-Fa-f]{6})"',
